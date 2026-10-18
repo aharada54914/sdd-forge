@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-18T16:58:36.604444+00:00",
+  "request": {
+    "id": 900403,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
+      "expectedTurnId": "01a14fdf-ca89-7961-9d48-2d074c1319d5",
+      "input": [
+        {
+          "type": "text",
+          "text": "Actual root native host delivery is complete and PASS: specs/cloud-orchestration/verification/T-011/native-host-trial-1/acceptance.json, plus real identities Azure01a14fee-41e4-7190-b8fd-f79879b16a3b and AWS01a14fef-607e-7fc1-962c-a336740c1596. Ten actual installed CLI subprocess calls: bootstrap/direct routes PASS, direct prepare/apply OPERATION_UNIMPLEMENTED, mixed owner OWNER_CONFLICT; requests unchanged; no credential/cloud API calls. All156 installed/cache files matched before/after and134 deduplicated canonical source files remain exact. Actual command bodies/output and copied result artifacts are captured; denied files explicitly caller-captured stdout, not provider-published receipts. Raw native transport remains private. The verify profile config/cache were exactly restored. validate-host-delivery.py executes and configured Ruff/mypy pass. You may reference this real root supplement without inventing your own host invocation; root will admit it formally to independent review. Finish your task handoff; do not modify production pinned bytes."
+        }
+      ]
+    }
+  }
+}

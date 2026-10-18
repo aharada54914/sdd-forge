@@ -1,0 +1,14 @@
+{
+  "root_captured_exact_cli_stdout": [],
+  "native_model_captured_exact_cli_stdout": [
+    "direct-prepare.json",
+    "direct-apply.json"
+  ],
+  "provider_published_files": [
+    "bootstrap-route.json",
+    "bootstrap-route.json.manifest.json",
+    "direct-route.json.manifest.json",
+    "direct-route.json"
+  ],
+  "qualification": "Blocked CLI results do not publish provider evidence. Missing requested files are captured here by the root caller from exact native command stdout; never attributed to provider publication."
+}

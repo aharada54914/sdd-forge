@@ -1,0 +1,1563 @@
+{
+  "checked_at": "2026-10-18T17:38:04.314161+00:00",
+  "report": "reports/implementation/cloud-orchestration/T-011-routing-guard-fix.md",
+  "report_sha256": "2b99d5745ae2bd9ffe22799a6195364bd6ee9b1eed8cdd5eacdab554bdedf998",
+  "output_count": 388,
+  "all_outputs_match": true,
+  "outputs": [
+    {
+      "path": ".agents/plugins/marketplace.json",
+      "sha256": "dd4a8d5efb2d2f8eb5918897d9a499b4e532ec5654bab2fdd539500c5eaee36a"
+    },
+    {
+      "path": ".claude-plugin/marketplace.json",
+      "sha256": "dd935489bca5a357c90eec68081717e451c1d0b0b5f807f33b6ca8dd3b216155"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "48698cda10fa3d2ae083368fdc378f3def72271eeeb074f290fc63aad0f4d27a"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "be21577343b8b2cc488c47b373ed68130ded00d994f58f1f81b7b69bddd6d537"
+    },
+    {
+      "path": "contracts/cloud-authorization-receipt.schema.json",
+      "sha256": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8"
+    },
+    {
+      "path": "contracts/cloud-check-result.schema.json",
+      "sha256": "992b8f4d530d4aab0fe5bca1a28b459a6c9cd9bec7e6ed68b648f489127617c0"
+    },
+    {
+      "path": "contracts/cloud-collection-context.schema.json",
+      "sha256": "7706241bf1a949a64b18212ba09bd8a4aa66896df668084056ee6979fdb84272"
+    },
+    {
+      "path": "contracts/cloud-dependency-lock.schema.json",
+      "sha256": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec"
+    },
+    {
+      "path": "contracts/cloud-deployment-policy.schema.json",
+      "sha256": "a064217e4a68838a3d719749fb751ba63ffabb2094d16cf13090afeaed080eb8"
+    },
+    {
+      "path": "contracts/cloud-input-error.schema.json",
+      "sha256": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77"
+    },
+    {
+      "path": "contracts/cloud-observation-evidence.schema.json",
+      "sha256": "0d0dfccf3bd5982a2948a9db75fd459197b6bb683f19a993b5bfdce72df1d99e"
+    },
+    {
+      "path": "contracts/cloud-observation.schema.json",
+      "sha256": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826"
+    },
+    {
+      "path": "contracts/cloud-operation-result.schema.json",
+      "sha256": "a92bdac86499052256112babe5ff559c2e071adba411f4a2e92ec38b6b5b2aa6"
+    },
+    {
+      "path": "contracts/cloud-ownership.schema.json",
+      "sha256": "71079e7320c968bce57fba67bd105d59ab57c00a51165a3598d522919141f25d"
+    },
+    {
+      "path": "contracts/cloud-preview.schema.json",
+      "sha256": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99"
+    },
+    {
+      "path": "contracts/cloud-run-request.schema.json",
+      "sha256": "781d83fad3d8e883e2c4aa886c5356da12f93d5ef5e35f16a5d83e9c024c9d81"
+    },
+    {
+      "path": "contracts/cloud-verification-profile.schema.json",
+      "sha256": "b25112c7e73583b180941639cb8f137a89fcb7daa82b1afd7ec8eec66c9353bf"
+    },
+    {
+      "path": "contracts/cloud-verification-registry.schema.json",
+      "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392"
+    },
+    {
+      "path": "contracts/cloud-verification.schema.json",
+      "sha256": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e"
+    },
+    {
+      "path": "contracts/selected-verification-plan-v2.schema.json",
+      "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749"
+    },
+    {
+      "path": "contracts/verification-contract-v3.schema.json",
+      "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a"
+    },
+    {
+      "path": "docs/adr/0036-thin-cloud-orchestration.md",
+      "sha256": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"
+    },
+    {
+      "path": "docs/contributor/shared-file-mirrors.md",
+      "sha256": "b9406eb20abf5732c26987fc71bfc9163aa175174b7e43e6c100f74fdb388cfa"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml",
+      "sha256": "0c6905dea943f946854120116ae410b80f1b087f240eaca7efc2917b0be57cf0"
+    },
+    {
+      "path": "install.ps1",
+      "sha256": "2014193f4e31a234b0336087d434ed12d0f8d7f73ff87bd8bb9744c158ac42a7"
+    },
+    {
+      "path": "install.sh",
+      "sha256": "7827514addc02f00cb671d7963b8d70c80327113ea1bae5fa694bb69306e6f3d"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/.claude-plugin/plugin.json",
+      "sha256": "901affde1f22fd7f03420455ad247b89e6104a090940113e0d49b9024229642c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/.codex-plugin/plugin.json",
+      "sha256": "fbaee91e13ec9a1fb202d9505c27e519f09655cce0fcb1ab266c85a1057aebec"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/.plugin/plugin.json",
+      "sha256": "2cef9f5155320fb1164da6264f47b50c71800dd95663cfbc7bc53cda6e6e2773"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/README.md",
+      "sha256": "0caceb7832a0c3e467042a760789f03a47521eaca375e712ea15120931e2ea5a"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/app.js",
+      "sha256": "710c6889188eac80e9f5e6b505c3796ded52747c9a56c305c58a53d05f3c2b25"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/cdk.json",
+      "sha256": "7802e394180f0d618f4caf7d1a6647f406ad327fa0aaa38c84b8b6b8471b24a5"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json",
+      "sha256": "b106084fff5e18ca94260509133337891b58d5269d77166ff9320a36419cccec"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/package.json",
+      "sha256": "beddc07bfbf3d198ca58b3d500e746b7bd4ebc14a25b469033fb1c41ba50a00b"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/aws-local-config.schema.json",
+      "sha256": "1d8d1f63b8f2ff4836058d928752c5322b744727e03b14d2e34e1ec6b9d25f22"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/aws-local-evidence.schema.json",
+      "sha256": "d64402c81095bd9a0657d34f4723a02996d91bb93cb0d0906c4ca288aeaa3187"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/local-preparation.md",
+      "sha256": "2a890269fabb6128f125f5533d3eb4c6411589ca0d0843b642b47cc959f7a257"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/observations.md",
+      "sha256": "b474f3965405b3b5883d8550300aab4ac830261b14dc9cef615d47543794a748"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/toolchain-lock.json",
+      "sha256": "c46bafb8869840c879739f424746eda64ca6c62aafab906d9e98012dee7c3f5d"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream-lock.json",
+      "sha256": "1898ede044cc25e0fba804077559544f5f58e9e323d8d0701721b8545cc97766"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/SKILL.md",
+      "sha256": "af178f8e909efd66496b09c7301c5e11ef96681fd62bf91406dcb340a18aacf6"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md",
+      "sha256": "ce48bf13921481aa6d2df131f0bd32faa8cc07bb50b63b1805ddbfe6ca18a5f0"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md",
+      "sha256": "4d576be561b16fd140c7f44de3b905ca81718752003a5072fec7062f2a2e782c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/construct-patterns.md",
+      "sha256": "029a6450cc738c220051c1e2df94cb08e82b9fd80b20ab6b1b31696015222d6c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/fast-deployments.md",
+      "sha256": "b6ddc7a418ed0d2f6e450c1835e3dc83c0648cbcdf4b582ebd66234918b22171"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md",
+      "sha256": "375e247190c3ebe29b2b8b211f665d4f463c7d959d3a6a067f8816d1a5df3a26"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md",
+      "sha256": "bdc1dacfaaaef810923699fc19803b492815b404190f055f90bd3558587b335c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md",
+      "sha256": "87b36861e1cf656fdb576536c20c61dfff5316e1b7465954f9b1b01cce0f0ee0"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md",
+      "sha256": "80b97fe332046fb025cf6635b3add76046bf9b2933bd45394255585f1694a967"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md",
+      "sha256": "1397f0c8034ccafd1353c3053d119e721c4904b9dc2ba33a1f285f69bfb909ea"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md",
+      "sha256": "f88efb1a4b7451fe194e5c617ea2c467be93ecaa7221264b80361cca035dc181"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_control.py",
+      "sha256": "92842d7174dbb0bc8ba3ad796fd8a3bd7f46ed91178dfa80bbc6558762523d67"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+      "sha256": "69ba7b8b9fe43c1ddcb0a7af0b38f2c5f60affc7e86d02c3710e8a168b5974f7"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "sha256": "94f9f9c07aee2de6bb1e7229c0244cde7423441d59b813cc8c426e2a71943ff0"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_graph.py",
+      "sha256": "21896c758e64f5db7571c2c5209a4ab122cac8347dc18096c29e79f7396a42fd"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "sha256": "82bbf762e80d62abdc77b56f850729c72d4ae83c3e59f4de09751867f16e4b31"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+      "sha256": "1e2ea86be1852796c55c3858d40bef1afbcdc0594a95b0b160d88d1e5c817855"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "sha256": "6c42f914d8c1b959542da30d614c673f50a78987b7dea95dd6638ac476420c81"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/cloud.py",
+      "sha256": "167b3e37e88a5ab1c32344e226823ae0e9d1518d7927a7ab4221422a011cc933"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/governed-setup.md",
+      "sha256": "2bd8c9b4ddcd7d9879a5b58d1e7c30d4d9c8c0286501b6b4d066eaf967712578"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md",
+      "sha256": "27af791f755d21eefbf817dfa7e9b11b88fac34b075dbc3f413c1f20a163845a"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/.claude-plugin/plugin.json",
+      "sha256": "53b2dc69739b8035499407c40318599557e6773bc0d64c2e627521f602e2bec3"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/.codex-plugin/plugin.json",
+      "sha256": "72994a2916deec39493318312a22b21a7e81a643577fdc9f70e595d41c0c3b07"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/.plugin/plugin.json",
+      "sha256": "b8a3c04ec499f65f81494958067cf946c719f506e71464e56e4c92d015fe4c14"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/README.md",
+      "sha256": "18d4bac06d053a486ab77936c75cd7e4f0824fff90728431cbfdf7f89d9cc873"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/private-vm.bicep",
+      "sha256": "81ba478fb3744e96496243358f3aef3477646027a58e1220f3c16b7b428c9422"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-local-config.schema.json",
+      "sha256": "c8390b8b18bf5f4c5cd961892b78f0d3d7f08641d14ae5052f62fe17f795fc3f"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json",
+      "sha256": "e4584e317609585b3effc865412757ef730448d814b2ce7f78eebf485728b68a"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-parameters.schema.json",
+      "sha256": "5922b55565b1a506db4cc424560cbfaa0b07766f1e26bf50dd4247ade18fc3ae"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/local-contract.md",
+      "sha256": "68850cae945e1e5357fedb284079cce67fec809a07cd1a35f6f923a39b89fdfc"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/observations.md",
+      "sha256": "e356a56677f3f26ada8f507c8fd2f90d06e28b9204e3ced96c13df0fe789c9f7"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/upstream-lock.json",
+      "sha256": "f7e22249f21c062e6207579460b1ad1042af52e4eb619d8566fd4d99db675644"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "sha256": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "sha256": "cb8b14a85e305431aaf80eb568620aeb42b724aa13f485251338f9bde70c360a"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "sha256": "c919c2fe44f462db08ccfd5f766b7635ae3e9eb4bf416bac96e2c9ded1509bc8"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_graph.py",
+      "sha256": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "sha256": "43d37a2ec9ae8e5bfc60690480c7ec607237b03b4c3d6fbb7f1e8d2ee7792f10"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "sha256": "4b56fcba4f3017eebea8e97c565e2df8a3b2691f8cce21478dc7bdf7819bc8b8"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "sha256": "4ae02ced280a8267a99fbd18b92d5fbd7a61b3d3e64c369b02e02c63c15b5636"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/governed-setup.md",
+      "sha256": "b2f038ab953175e2fab863d5cc8baada77a79c0b8cef1281df68142831343388"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md",
+      "sha256": "5a906f317b352c84f1b38f39464f585ce66f2261651079a6c79df528a6c774e2"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
+      "sha256": "8a8bffda62ca60cbcd995a61895b661fb9092ed9bdddaa0816c767a583fe9b21"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.codex-plugin/plugin.json",
+      "sha256": "eab6d07fd3af9c1515ad1319af3d0f5675c9631060d9ae27a58439f06db0c474"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.plugin/plugin.json",
+      "sha256": "06332645cba0d780f671f9df1f03bbc281f0ff387950395ab926f37822e21e12"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/agents/investigator.md",
+      "sha256": "cf1e6b4bd3cbbb6a3dc767413443677c12a70b9faf2e9608cc402d3cff9e8e0a"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md",
+      "sha256": "6d3a714ebc686860b9407410033b7ef1bfb21d8df70cc93b11b1b00ec0b02e3e"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/rules/architecture-constraints.md",
+      "sha256": "396ae779404da4c258e58d643fa0c25f154151a2d4c40c654c29dedc24de4af6"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/rules/spec-conventions.md",
+      "sha256": "cdbc0a30067f146c10b2e4f97f130ffc5647fe837a91204891aa77a77eaf2f63"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1",
+      "sha256": "8e7feb31aee85b13e72ea13752405739afe93081b9ab5edc96deea6acf636e2b"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
+      "sha256": "0c3d60174684beb5796d4646b47c2d9e7fae0827ed548fcad0132b13703384fd"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/cloud-routing.py",
+      "sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.ps1",
+      "sha256": "8bc772740d8edd9998697c1e92c6b421f65772b44b0a7ac39bca7ad2e888fbce"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
+      "sha256": "cd86b9c11d472cb3e8a9855849b183c2c078873640220beb88b507e0dba0080d"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/resolve-design-sync.py",
+      "sha256": "6b3f6157366ba5d00977a937e0f1bb4469f3a4e8b682e60953607ea972141422"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "sha256": "9d78e75b7c98aaca5a4ef2ef0727b7924be84cf79346f327ff03c931a2a62000"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+      "sha256": "c8e82741a7bee882ea837813aa14becd52c83361d49f833212add5a968d3bfa2"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+      "sha256": "4e33234e370bbdf873cd370c90743172f86cb333f526667a7ee3a7a4714f6174"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md",
+      "sha256": "3e41d23227500a61429576c5f0750bb091d3a79aacd30383d035d511e1f22e32"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md",
+      "sha256": "bcf0823ace7f536f06ef2e8eb5355a555b8bf35f27fcae810669237ae4b1375d"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md",
+      "sha256": "ac455342b0c899e140ad35f5313e9c429311fc389620c0fbabdc8364e787251f"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md",
+      "sha256": "67b189171aa3254990203a81485c47193fc991aa12d86e02b10aee3c7ef030e5"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md",
+      "sha256": "076acfd232ac4e1dc608c107115c2fa9b05fed3414b0313c7b6d414b74fe4d0c"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
+      "sha256": "4f2373243ff346a8594c5e2810b243be6e182354b46b1257b99a8356fd4497ba"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "sha256": "91489f9fffc419f706e44cacfc6f93d7b6254e54c91e146a6b52e0a2d946fe5a"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/api-contract-rules.md",
+      "sha256": "923bfbd58c94d7f3b539d922208dc21cbf1f85f6463bf3ca7fdad05534602efa"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/architecture-review-checklist.md",
+      "sha256": "fff699c1d03fa41f016b3abdb543e3df0f4c85691e0211e1d01b60093f75c20e"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/architecture-rules.md",
+      "sha256": "c8f642d466f4f871cce6fce1aa191544cb94f0f843e438ffae66e946d969434c"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md",
+      "sha256": "08990f38c953f07dfdb306cf9b6533a38a3ecc40a0dadb349e4dd429652d9ce6"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/interview-question-bank.md",
+      "sha256": "0e92f2f9e1095e5a7a5d2fd1e8e9c3eefe63a6d371702f7f0236e28a06b9cffe"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/phase-quality-gates.md",
+      "sha256": "c16b2ea90340a78ba9c31df205ae2805a2488f205278e161baa108560c93e4d7"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/task-splitting-rules.md",
+      "sha256": "513bd19153ccb80f8fef74b74020bdf5262ca0f8b9d1e3e6f89a4ab13ed1d1bb"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/AGENTS.template.md",
+      "sha256": "b66529702696bae80e073403611fcda95b4b812b33b7c34afe91cfcad93d54e4"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/CLAUDE.template.md",
+      "sha256": "af0d4c442611862fc0c54d4130884d34cbecc7dd9eda44e5984a727313eb8392"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/acceptance-tests.template.md",
+      "sha256": "e4708bbd8ab0a390b970e4aa75d793feedaa3358ca6562c85963ae1dfb050179"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/adr.template.md",
+      "sha256": "bf314041612335324a71f26b0eae9a62cb0755f4dbc1ba830ab46f6de11f79ea"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ai-task.template.md",
+      "sha256": "adeaba316f174d8f66b31b30d8c48eeda76258d096ac501973f98426fcd809c9"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-component.template.md",
+      "sha256": "c5f30e31b7f4ecc9aec207c98ac4dbfadd605989f7b3988a413cfe17fcd94bea"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md",
+      "sha256": "feb511c7c347df87a3be2c39df226e3b4c3ec403d592a902a1bcba839a5fa5ef"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-context.template.md",
+      "sha256": "b84748ecc5b01d83281d3c89f5e3a5ce30e133c384f8f9a8b9df52d003cba25f"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-github.template.yml",
+      "sha256": "02442fe1f63c43da36d8f13cebe125e88168ad306745b5cb9e1fa4e006fe7c2d"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-gitlab.template.yml",
+      "sha256": "30e103e639fa894a616dfcf524ee81cf11c267ba568ddeb50b31d9b2cc3f3aa9"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md",
+      "sha256": "5d801b9a47db7bc363e58c2c7609ed923255aec83ae74189460398a4c6c5f0cb"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json",
+      "sha256": "76f526f7c65ed20df8cef5805fe2c10f69dd19bee21aea040049773833481ae2"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md",
+      "sha256": "748f31b0136a2eae7ad8978ffb461ca749247408afd19217b73e93377bd95798"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/frontend-spec.template.md",
+      "sha256": "63fe6069647d5ca1b1214eba31fd0c191c27d7baa80b01577122898955b59f10"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/gitlab-issue.template.md",
+      "sha256": "3353fc7232193d9ca0468012ea8c9aadf991803719c4ae539d0c43cbca6181ab"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/infra-spec.template.md",
+      "sha256": "2089374cb3779b968c3dd511881213a5f2de51dafff33c07bd9bb953da39f020"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/json-schema.template.json",
+      "sha256": "b9ae488e11e017beeb36772b0ca4ae95c537f7e036864684990d38321efa18d9"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/merge-request.template.md",
+      "sha256": "4775037002942ee46f6c748a0ded512530fc7357384a032d3d46f3893d1436c8"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/openapi.template.yaml",
+      "sha256": "a051e4381f84456526cb7e496d0e72043a3bf9fd60d2cf0bfcb2b0615234fe5e"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/pull-request.template.md",
+      "sha256": "ddc7214401358daf0422966b8fecefb4aac0d803016cb7bbe31f0bdb2b271cbb"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md",
+      "sha256": "903a725c445fac4505dfea3a3ac7aaf13b37fdb103ccffc1d1a6d1608dc940b5"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/review-ticket.template.md",
+      "sha256": "b50fdb8320412c4b18bf3f55cbe724aecd9c3e39b3a7e0c6edb8d5f0e31c4ffc"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/security-spec.template.md",
+      "sha256": "f006ec05c71b0fe5f4800659a8d2b31628698187748d9de0eeaaa84004a533c5"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md",
+      "sha256": "2bf9c1cc5f3fbfb77220ab4d5e60d1db5002a01c72db227bf38d3e2cbb58fc42"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/traceability.template.md",
+      "sha256": "448ca507d5f1e98edd75e2994e8f2691622d88a695ff934e2623629260785627"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md",
+      "sha256": "b00f27065467cdb5217022e9e80a3272b632443692f4fd177a4af57abae504fc"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md",
+      "sha256": "eb35a0c3da4d6a68bd98045a387d1dcac1ce929a7407c5fa053ee6312d43a607"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "430e0e45c6bb417cd65f7f7f228bb59280d6d0817c8b34236223b8fbd4702029"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1",
+      "sha256": "18402647758202f2a8c6bd87245cf7450abf599e6f94de09a4fb9255e2cf5a2d"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "sha256": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d0622d44f13693cf6e32c918aba53efbcc5089dbfbba8a539bec3be601017051"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+      "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+      "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+      "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+      "sha256": "de0153f09def1b805818f9bef1ddea065a30d3fee95e12f026bdaec40720d06d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/debugging-recovery-policy.md",
+      "sha256": "7b392649cdfa5d565df1e7fb37db0ee5ff528ee870ff3feb523bb57e1294254c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/readonly-input-contracts.json",
+      "sha256": "4527e0d33080d59c9ac95b89bc8e78b3d2932e897bd75b6688b388f830189fb9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+      "sha256": "b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
+      "sha256": "d62d3accc7fe28a3fe0ca0d6fd1ca739918d0b9878d3f6da05682523d0ee2238"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "sha256": "17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "sha256": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_dependencies.py",
+      "sha256": "7974e7e9a8d7da0c60b219a58db54c4747f0250653fda3af0146091f1f4fb475"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "sha256": "b2488aa48d32716b270fd920fbf4b13f43cf19440e975b48721d91e38de62a68"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
+      "sha256": "26c20a6a62259b598851beea58070aa1ddf2918fda5048f7467380852d648144"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "564080c31fdcc4cf2270017867f90ea6e0265de000c07b141a6788479830ef80"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "sha256": "d19f258b904dd168410f184f7854d47a3790319832b5bda919b3f7049ab41a06"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "sha256": "4aa0e97622b47687508e305b1832e182926d0595b7626180e5736b23e0ef174e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md",
+      "sha256": "0215d3a6c097c893727276afc6078415cc83c3aa4273dc8bc62865bc3af6efa1"
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-011.md",
+      "sha256": "2956e2e48c00cfcb8b7e5380362ae9df7f6627bfa086ad9b987f869931c765ea"
+    },
+    {
+      "path": "scripts/human_copy_mirrors.py",
+      "sha256": "2ea93f1061101eb5de6cc6e6bb201f95f81cf8a28408ad2cc7c241ae912e21e9"
+    },
+    {
+      "path": "scripts/sync-human-copy-mirrors.py",
+      "sha256": "13e9572f3757325f21884b0a2d94e7ed2eabf98acc1078d915d3159acc7c2be9"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+    },
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "sha256": "fba885046c68ba92568e1360806a3402fd522e525aefb3f21e5b434018dcbcf4"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/spec-revision.json",
+      "sha256": "8028f8748d8635ee2931e9baa8018e057021cca193595b9c3e4ed92418ab3367"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/acceptance.json",
+      "sha256": "22efb3e699a5a207800145f075b7f902cf5d3d13a6bcfa7b0f2e1caf2f6d98a1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/current-source-binding.json",
+      "sha256": "45ab723ba3e7b0ad0f5aaab732a4148811678e8afb01ead1db6cbe7d91f2dd29"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-2/acceptance.json",
+      "sha256": "c0fef1a742fd690f0fcafae228d5fccd174159351769992fdc455a1bf4e05d2a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-2/follow-up-scope.md",
+      "sha256": "66b88a6893e7afd0855591764b91ef1ecdb1fc7c6876e1257cb4fddd2e7ca463"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/regression.log",
+      "sha256": "1e279dc393efb28f52bb7750d382f2b40857892ec1b91cf9d94ab40b081363c9"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/all-manifests-final.log",
+      "sha256": "d63c7737c3870a2196d2b5073a479033cf79f27d3001028783bcf62522252d46"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/baseline-guard-mypy.log",
+      "sha256": "46ecbbcbce8b41fbdaed25d3a63950b509fabb912c9d1dc058fdbe79c1d39473"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/bootstrap-cross-layer.log",
+      "sha256": "620c4871a194c0ffa48cc58ad62cd9b1459bf9abaded9e9c84abd28444667589"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/bootstrap-interview.log",
+      "sha256": "fdc162c36eb95a0d5ab9bfb76e45a913c7cd84df51639214abff7e92991634c7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/bootstrap-layers.log",
+      "sha256": "90eea14b7a2c707d1f0caf7425927f55a6c88411502486b930d94458dae89ee5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/check-preservation.py",
+      "sha256": "c6d555f4d4c113c91a449d78e0b135de47e6abd03ddb9506f9634be8e8f81eba"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/ci-wiring.log",
+      "sha256": "ef78e819b99301480b55e85f322bdce84a0b981e668a6b40e21eb8382717c686"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/cloud-routing.log",
+      "sha256": "aa15ccac9005075a19d12f100bb1c58bc98d6d8f53ac5dd8e62e4da584c0d348"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/commands-and-limits.md",
+      "sha256": "d7dcfd59bdbaf21722012992ac19e1b33403c71480852025c6aff97da1b16214"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/delivery-manifests-validation.log",
+      "sha256": "fd5c3d1fe5dec5d2388084bfcea2b222eaa9c880b5547512cb60f8b1ba766456"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/edit-attempt.log",
+      "sha256": "2f3c855a612759451d20fb076200efd30310526e3fa5444edde73fd47ac14813"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/entry-snapshot.json",
+      "sha256": "7bfaa336a6f0df14efdb1cc122931aa9e1fef0c1fed59d5a3070095d6ec0db01"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/epic-a1-invariants.log",
+      "sha256": "9d2b3ce28719b37275a6bbde31c0d70e46307abbfbd2236596646a5e91bf44fd"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-bash-syntax.log",
+      "sha256": "1c89eafadad7f97a1bea0734412ac4bc1d80d35c3f7b29da6bf6934a92cc84b6"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-epic-a1-invariants.log",
+      "sha256": "ff1774188d517832e620e47ccd2af392182d19257b98f90f6f5fddc00f4b4cce"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-gate-capabilities.log",
+      "sha256": "82c83b2bfec7aa5d9d877ab68242cee38c7fe9001ef4655556ea4cb301ab469c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-generator.log",
+      "sha256": "6b28958d0bc55b63ca767c83e3ab3b52857bd8dcb6565307df8262fb94e10826"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-ascii.log",
+      "sha256": "a169dad6f180a9f3290dcfda68666fdb8351b81714cf3f4d24a73bac3a97badc"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-cwd.log",
+      "sha256": "ea9b8513a088c4f1cf7bdee546654e07849e9b4ee0a87c2ecd2377ee22146a8d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-dispatch.log",
+      "sha256": "216e83d71abdd2aec6f056ba5d09a961efa76d9cd6b3004fd5c221a65382d14c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-negative.log",
+      "sha256": "56b5eca25fadfd61725c18630676b364aad0f44514e735c2910ce8bdc8a40adb"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-parity.log",
+      "sha256": "9576e230e74c24b4b196167067087ed8801eddd13615fcaadf2272cfda3a4faa"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-staging.log",
+      "sha256": "26492a8a48489a851dba09feffc6e50e98c3088c8698141b980b2d6aa63a803f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-invariants-bash.log",
+      "sha256": "0909d3f526ac5a91a79cb06211c4d33e9ed9ac5bd5b9e02f5aa3097b899f5674"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-invariants-powershell.log",
+      "sha256": "0f11c284bce9674cc978f824d82627b266bff8b4e18d64316d909418ecff3a17"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-mirror-freshness.log",
+      "sha256": "47abb13a64a11680b00e106147e64bef80693515bc9a2ea655870998645c33a3"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-mirrors.log",
+      "sha256": "4a2f93d60d3d9b5fc67b5648f63b9c579b2963463c2c829eae34790be0c63fae"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-mypy.log",
+      "sha256": "701eec497bef58e2a1eba06baaca8f0727bd828c1417fcf28b3b810a2fcd8392"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-node-syntax.log",
+      "sha256": "182a9cb49f1c1658f4dcdc563b30c876d93add660809f28c12de907f032a0e46"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-r10-powershell.log",
+      "sha256": "abf7f0071e22cfaab2bdc9e9f1885fa6359e1e6630a8e873d92a30d880b5c98c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-readonly-powershell.log",
+      "sha256": "3ac5b28bc4c7b4c76c0c201d5f43d3c916f25887467103c30c54c8ba7279bb20"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-results.json",
+      "sha256": "5e46083c3d6faef58377aeb0770e049ff6551349543bd0bc05ceecf8df1c7460"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-ruff.log",
+      "sha256": "43d6d782c008e19f85daf5f2b166d4f22f6662e61ab35eef77e13330ffed8a52"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/gate-capabilities.log",
+      "sha256": "25685724162101ee5a917918938ed34e3f2a07420c2ee0d8782be1c0aab4d3de"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/generate.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/generator-preflight.md",
+      "sha256": "9b01e1d931b31e41ebafd82108e220fd4fa8bbe3016bd81b03230433f686c3f4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guard-ascii.log",
+      "sha256": "b7fbce441d3be0610e64f376fc148b07b79feae86030968294fdd1bd382839c3"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guard-dispatch.log",
+      "sha256": "10b445e2cb1948d512b7e4138dddf8f8f9e5c911895512a88a1b9e79ace557ff"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guard-negative.log",
+      "sha256": "db08bc0dc9299ff77bc64ddd28af65aef02b20ed6363ee442d2aac4d3d2c9596"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guarded-local-invocation-tool-path-failure.log",
+      "sha256": "362945f1d0b075a1e1bd0be80795bd94fd85cc151484a2cd2c6b4f6dda01e15f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guarded-local-invocation.json",
+      "sha256": "3854ea160082decf80b93682aa3748c83a17c207e1b6a390639ed0574d203ee4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guarded-local-invocation.log",
+      "sha256": "e5781d086d765124e9a1d1afd46f4caed2fcbf77dc28703b5402f879476674ed"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guarded-local-invocation.py",
+      "sha256": "2afca450632e49cb4b83e139eb6ca01172c8271e9a345c91ed76f6abca77290f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guards-mirrors-sync.log",
+      "sha256": "37e2442345af5101c4814e7e909cc3cc8c8c30f9657a1b74cea096d36dfae464"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/identity-binding.json",
+      "sha256": "8f1390d545fff2daa037442ec1082c898f0eb2252b7d1c460bdbc50ba7d8e59f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/initial-generate.log",
+      "sha256": "1fd76985600afa57b4fdcb1da887c8db369a83abe9f47187915577123bcc3053"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/initial-rollback-bootstrap.log",
+      "sha256": "b0ef42573dbb50796d787cf3b9e2abc3e07e268615a719cbd195e353978735c0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/initial-rollback-generator.log",
+      "sha256": "d8a25ac22f0b12fff80060d5ee67806be0001ffde1c0d9f3a64a960ceaa3ef6d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/initial-rollback-results.json",
+      "sha256": "2f96715628c697b2d82000b191d6969f298b55ef1e4b86f74e2ebeed5123c335"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/invariants-bash.log",
+      "sha256": "0fd4dabc48c65927cd7057a6bad5bb6b77b8e141062988eceffd828447564bf9"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/invariants-powershell.log",
+      "sha256": "257ee1e6604ec46209c42d417d12e4c0ca4e7969093aa6ed99d6d6a66e4e000a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/invocation-gap.md",
+      "sha256": "c6294eed340857483546efca33441388587652b717bb59ab108861d703d0c203"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/invocation-manifest-validation.log",
+      "sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/invocation-preflight.md",
+      "sha256": "9f32e2b11c01ba27a469d589285316463c0252f25eaf1cdd4d25faeeca50ea76"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/invocation-task-input-manifest.json",
+      "sha256": "de2db97af5960ab241c21df065b49d100d74dd95739b39c8c96dd0f8d5f039d7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/json-only-green-guard-parity.log",
+      "sha256": "ee3fb04d69662b201d5711350e779ab02b471d0303ed55a75dd9c9cad11175a7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/json-only-interruption.md",
+      "sha256": "412e0951dba282ab7b7bdf91ba3906a4b8e08ae4a73f456afc5c9ab3f270c47c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/json-only-invariants-bash.log",
+      "sha256": "c1683bd3ac205b7810f329fdabee50fc0c6a862095c00559e13336acb56735ca"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/json-only-invariants-powershell.log",
+      "sha256": "7333c89e5d5cb7970fd1bec1ead619a52cdc19e83ad4d3007c8f65834891f451"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/json-only-r10-powershell.log",
+      "sha256": "033434bad5e2938db9d10cbbfeea65abc6a1e6ea3e947b95d09fdd9468f33415"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/json-only-scoped-results.json",
+      "sha256": "c9bc762b4816aba33d796ec6c01467f2231cafeef04f189bee8ad00b5dd882d8"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/manifest-validation.log",
+      "sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/mirror-freshness.log",
+      "sha256": "a77c89cc45a8947dbc02848e0a7d52ba2c8250f50b0c17ef8ac28a2326e5e2ab"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/mirror-manifest-validation.log",
+      "sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/mirror-task-input-manifest.json",
+      "sha256": "67fbba0bf635a1a076203e15c259df70bf4475db3fd92e2522940c1b1ebf1e73"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/mirrors-after.log",
+      "sha256": "db813d56be63f527155d3835823fa1c8167a0a5ec995a2c7bf7e2abb7831315e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/mirrors-before.log",
+      "sha256": "362409dc82b480d787fa229ec2b2d9c684b94d953ef89b3320df916359774ac7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/mirrors-final-check.log",
+      "sha256": "db813d56be63f527155d3835823fa1c8167a0a5ec995a2c7bf7e2abb7831315e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/mirrors-sync.log",
+      "sha256": "ead3eee3046955a466ed6e3f2d73068cc1251ec3f2418afc8c664c3465208b90"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/mypy.log",
+      "sha256": "335bb3ecb72ae9890d13f4f8392a53e180638d3470322ed7bf755a98a3fac61b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/native2-manifest-validation.log",
+      "sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/native2-task-input-manifest.json",
+      "sha256": "18b071853274f7aeac64b236c9debcf0558c94e6956dc0d107b560c1c7c5f12b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/post-mirror-invariants-bash.log",
+      "sha256": "0fd4dabc48c65927cd7057a6bad5bb6b77b8e141062988eceffd828447564bf9"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/post-mirror-invariants-powershell.log",
+      "sha256": "257ee1e6604ec46209c42d417d12e4c0ca4e7969093aa6ed99d6d6a66e4e000a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/post-mirror-mirrors.log",
+      "sha256": "59122df020b260c4624d9b29388994a15d59f96a70262c33dd247475f43af305"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/post-mirror-results.json",
+      "sha256": "69daece78f44d695ea8166f4a08c6aab65425fa6acddc09a5fa5638e79278635"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/preflight.md",
+      "sha256": "f8749e7eebc62393a2bd3ff5e55af25e0622c69862d0f2a2e708c25727b92369"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/preservation-mypy.log",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/preservation-ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/preservation.json",
+      "sha256": "779d4cc9b5059aa54458fb2fba9c9a820bf94130e2fd4602d682b29ee6d0b037"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/preservation.log",
+      "sha256": "25f44a1841af9c01d9cddeb246e72132addee99ea03f9bbbf42f0a68c43a5802"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/r10-powershell.log",
+      "sha256": "269f4f84b05fdfb06af2c77e2d1825cd84602df16b8e6b2e8a97b93ae707ff6a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/readonly-powershell.log",
+      "sha256": "1ffcd1f947ad8daad8dfeb61b612bf9422a3ca092c4777656cd62c494cdb8adc"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/reapply-generator.log",
+      "sha256": "d8a25ac22f0b12fff80060d5ee67806be0001ffde1c0d9f3a64a960ceaa3ef6d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/reapply-guard.log",
+      "sha256": "d4f6c7e4c64ac2367b104330e1d8754d8b96b85fab510719f3b7338e1deeafea"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/red-generated-mismatch.log",
+      "sha256": "bd0d0dd3d6f906a0f4b05eccdae9e548214476daa670336f614c89f571d5a755"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/red-guard-parity.log",
+      "sha256": "818b77ddc5eb15bad8369a9cb4bc65e12885db7390cd0d0bd07be7393facc1fd"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/red-manifest-mismatch.log",
+      "sha256": "682e5cffa61695c8c2bebfb0ce42c91e59f85dc43eae339d6eecbfe184d38faa"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/registration-corrected-guard-parity.log",
+      "sha256": "e1a1a375fdb7dd921f4602907db1b9d924aa04b81e1958559ece4a36f50d4426"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/registration-first-guard-parity.log",
+      "sha256": "a3aea71f979a006d5aff03e366b82fe7fc9b17edfef65c70db0aa85f31180db5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/registration-only-reapply-generator.log",
+      "sha256": "d8a25ac22f0b12fff80060d5ee67806be0001ffde1c0d9f3a64a960ceaa3ef6d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/registration-only-reapply-guard.log",
+      "sha256": "e8664d51c29113667eedf73326cd54c900c16c899a157b208b893a1afb85d78c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/registration-only-rollback-bootstrap.log",
+      "sha256": "6859463d5b1925396023b7a3f359b9d27d397bc4d359b740d98ef4b696f18ee6"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/registration-only-rollback-generator.log",
+      "sha256": "d8a25ac22f0b12fff80060d5ee67806be0001ffde1c0d9f3a64a960ceaa3ef6d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/registration-only-rollback-guard.log",
+      "sha256": "62334259f8ed3962edb9c8f91b6b889edf135e57297badc2c0bb3b2668e1ca28"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/registration-only-rollback-hashes.json",
+      "sha256": "4ea4ab752c11a53dbae80491f9339a543f34912517ff87f366d466702f9bf6cd"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/registration-only-rollback-results.json",
+      "sha256": "7f9a0da681ae8db744fd795e9ca614afc5dea4f9c2911e82521db33f77fa02a8"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/report-validation.log",
+      "sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/rollback-bootstrap.log",
+      "sha256": "602d7db23b1c247e11a2043ff54df66f4d696c8961ec62ef11c3e2d8d09aef37"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/rollback-generator.log",
+      "sha256": "d8a25ac22f0b12fff80060d5ee67806be0001ffde1c0d9f3a64a960ceaa3ef6d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/rollback-guard.log",
+      "sha256": "dc665d093fce3ab58c3fd01e2331ce120553443e6caea4777a5c7b58efdd03ad"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/rollback-hashes.json",
+      "sha256": "b0bf59b22ddc9a4cecee27b602b753abd605cef5755ec085116c8e6f6a32f515"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/rollback-results.json",
+      "sha256": "f7deb7e9ef26a0ba21f4db3d051a2991bae47d77576c919ffbd703249a6dd489"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/ruff.log",
+      "sha256": "e35d47e628c8f4378e6d0617bca1d2adced5f82ea78bcd414d71c6c1f0fe10e5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/scoped-results.json",
+      "sha256": "2ce2445dd1a6e219ba435f1007857c5e42b88cb5c893da4b9ff75a18d9e14d5c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/spec-revision.json",
+      "sha256": "8028f8748d8635ee2931e9baa8018e057021cca193595b9c3e4ed92418ab3367"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/stable-runtime-sources.json",
+      "sha256": "c49f3cffb0bbe0f4b5be11c8acc57e204fc358cd307ffefaf83369d53fdd0b71"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/supplemental-manifest-validation.log",
+      "sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/supplemental-task-input-manifest.json",
+      "sha256": "7a0d692f4b36c9b7d09108bbbea608a0c52475d681827d6c5b34bc399834e5fa"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/task-input-manifest.json",
+      "sha256": "23569cd11454d7161c2b900db7da4ae0e746c152e191b580c2a07602db3f59a5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/unchanged-inventory-recheck.log",
+      "sha256": "b6651eb100df53f33cd7be5d383d93e68da468577297957eccb7910c2e049247"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256",
+      "sha256": "eeeaac58d94707ce2a8e5abc955816025c46be0a79e28acb17fffed0b19b896a"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/NOTES-cloud-T011-routing-guard-refresh.md",
+      "sha256": "818c62705187d2d5b14a585ab9821042598bbbe7f51d93820cb9532e0b57b0d3"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/tests/guard-parity.tests.sh",
+      "sha256": "5f78d7c5f80fc50fa36e2083221866045b4a437ee6c8feba2dbc3e882bf760b9"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256",
+      "sha256": "646262931ac8dff156cd07246eb6b03bce9cf75a4d50bd864f11a0352036fd90"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/NOTES-cloud-T011-routing-guard-refresh.md",
+      "sha256": "375a4e7d1be9904facb0f1e8a4b60e5c6037966d5b4a7e5cc377cd19daddf13d"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "8a20021958d84e1ae7e5a239a2500dc73f15289158a68e905c90d3d5f317d7e1"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "0202c8f32f8810d77ba438a965f6b57213fb907f1a3c724f318cda9fd7b19d90"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/references/guard-invariants.json.candidate",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py.candidate",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js.candidate",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1.candidate",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh.candidate",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py.candidate",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256",
+      "sha256": "d34c730daece7de30a07f7b381b8e1084b166f2a0a881a8aa0efa3087870caec"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256",
+      "sha256": "d3d6d30573972c99084d153c55dc3008a560af811da6ff5a9c81755d0514f4b8"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681"
+    },
+    {
+      "path": "tests/bootstrap-cross-layer-index.tests.sh",
+      "sha256": "4b7ee150057258c73c10a5e83d787454710a92b827f2c0d7f847864bd2e6bff5"
+    },
+    {
+      "path": "tests/bootstrap-interview-guidance.tests.sh",
+      "sha256": "1b16b8012e7540c618c6ddde0845e37abc9e86d80a4dd2efbde6ad250eca51bf"
+    },
+    {
+      "path": "tests/bootstrap-layer-templates.tests.sh",
+      "sha256": "5705201ecf666d98c9ce7b354e0d4b0193eff2ceb9635de83b2846080354528b"
+    },
+    {
+      "path": "tests/ci-suite-wiring.tests.sh",
+      "sha256": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b"
+    },
+    {
+      "path": "tests/cloud-orchestration-routing.tests.py",
+      "sha256": "2ea10b036fcfe019f045b7912b15c11abf2975f61424f055b44822bc59fbf971"
+    },
+    {
+      "path": "tests/fixtures/guard-script-input/cases.json",
+      "sha256": "69a3c67f7b94d7378fa900c4ee26ba44bf2366279e453a626d09c2b543c4a8e8"
+    },
+    {
+      "path": "tests/generate-gate-capabilities.tests.sh",
+      "sha256": "9b582adc310516f736125a42b257d98b304a70dd24285d362b42e8b48e471672"
+    },
+    {
+      "path": "tests/guard-cwd-bypass.tests.sh",
+      "sha256": "89f8e492406108d6579da14324d1ed229ca2158fec0166589622751eea9803cc"
+    },
+    {
+      "path": "tests/guard-dispatch-fallback.tests.sh",
+      "sha256": "fea16dbfe5527b988563192202f2c6916bfa3221e8d66f2dbcec78cf1bb9621d"
+    },
+    {
+      "path": "tests/guard-invariants-epic-a1.tests.ps1",
+      "sha256": "160b91a9d05c27ea99f60a2dfc7cf8193a3a782a5310e623703fb27aa0db5ec5"
+    },
+    {
+      "path": "tests/guard-invariants-epic-a1.tests.sh",
+      "sha256": "883fd0b1413b5c05db5473e168dba7cfda0a37c474909b38b99ea1ec8a07401e"
+    },
+    {
+      "path": "tests/guard-negative-corpus.tests.sh",
+      "sha256": "bb834f8357a95f9c90d183c8bb1b136a68803f744ca2a545c8508290ba764666"
+    },
+    {
+      "path": "tests/guard-parity.tests.sh",
+      "sha256": "5f78d7c5f80fc50fa36e2083221866045b4a437ee6c8feba2dbc3e882bf760b9"
+    },
+    {
+      "path": "tests/guard-ps1-ascii.tests.sh",
+      "sha256": "b4bc3f019a0534e9b61fc44eeb23f550f392488473746c80b44bd9da85b0d9a7"
+    },
+    {
+      "path": "tests/guard-r10-port.tests.ps1",
+      "sha256": "09f0fefbed2c7ab1a12f9e91732f2daa2370a40411dc571da4ce4576092474b3"
+    },
+    {
+      "path": "tests/guard-readonly-inputs.tests.py",
+      "sha256": "9ad61bc430e560e98b42605cf72f4455e4c623c813d2586ae3f72841184ac742"
+    },
+    {
+      "path": "tests/guard-staging-exemption.tests.sh",
+      "sha256": "5211b163e57d58e8611426873d4643131fd1bda8bac80f85ab1d61c41dc68b94"
+    },
+    {
+      "path": "tests/guards.tests.sh",
+      "sha256": "24e2cec71468b681f190e40ded7c3fb3dc2114c6a538b541a0483f6118f84377"
+    },
+    {
+      "path": "tests/hook-guard-epic-a1-boundary.tests.ps1",
+      "sha256": "fafb6c1e8194c9323aeefa20e965e8ecdf23f06be6da944e6452d3d39fc1f791"
+    },
+    {
+      "path": "tests/hook-guard-epic-a1-boundary.tests.sh",
+      "sha256": "55c9b5c5b8c6cffa719df0250f0b544fefffb74b3ba5db60ebf6e57e7e06f779"
+    },
+    {
+      "path": "tests/human-copy-mirror-freshness.tests.sh",
+      "sha256": "805bd0c4a4c02ec4e6200d66a5fda71fc8a0960060a9833d79db50a07f1ec267"
+    },
+    {
+      "path": "tests/human-copy-runner-contract.tests.sh",
+      "sha256": "854716fb7a1b2fb50aa6e9ef55b9a6ffa8a3f2b0875a86ae347404023a1222c6"
+    },
+    {
+      "path": "tests/install-cloud.tests.py",
+      "sha256": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5"
+    },
+    {
+      "path": "tests/lib/fixture-matrix-builder.sh",
+      "sha256": "71ec0a0653f182f0ee40aaa36161cfcbfab63d1ce12a5b982b542cbb3231fb8c"
+    },
+    {
+      "path": "tests/lib/loop-driver.sh",
+      "sha256": "4f2e03816b9a3f92ef22676aae764c131fe304e5f4f1f9d086a3ea881135779c"
+    },
+    {
+      "path": "tests/lib/markdown-ast-canonicalizer.sh",
+      "sha256": "10e300c456125d3ab0af3318d8b006e6d17bee7986b4d7d4aed4ae3df695b7d2"
+    },
+    {
+      "path": "tests/lib/skip-allowlist-evaluator.sh",
+      "sha256": "6c3f7e2194dfe69f8ed20445294600b2f264db7564523fc04cbc96dda81accf6"
+    },
+    {
+      "path": "tests/phase2-guard-invariants.tests.ps1",
+      "sha256": "eddaeaa0d49a4c1345393441cdd2b696d8333a9e15bc31ed882540d5b726dcf1"
+    },
+    {
+      "path": "tests/phase2-guard-invariants.tests.sh",
+      "sha256": "a2fb162c1039c3c1d04a68cd9d77f37c8fab6544c138ae9f5c26b1bcce505019"
+    },
+    {
+      "path": "tests/phase2-guard-tokenizer.tests.ps1",
+      "sha256": "e4b3fdb8c675ccce1e1e76b607e503f5d66bdb36dde8057676beea5766cb89dc"
+    },
+    {
+      "path": "tests/phase2-guard-tokenizer.tests.sh",
+      "sha256": "7624e6ed7e579073e8f3c808da88c4e22c44e4a65212efdb8405dc19296f3147"
+    },
+    {
+      "path": "tests/promote-golden-baseline-ci-guard.tests.ps1",
+      "sha256": "b2ca4b5a0c964d0374dd3444869a78cbdcc5becb11f21e1a3ceb0ff714e74ff1"
+    },
+    {
+      "path": "tests/promote-golden-baseline-ci-guard.tests.sh",
+      "sha256": "fdb5066fea071f481a2108945219377b1fd195eb5fe350acb539ca3e2bac9eec"
+    },
+    {
+      "path": "tests/run-all-python.tests.ps1",
+      "sha256": "71d42e12d0fa548dfc22f364ac7d05a9311070317badeae2d4fa60f27425e163"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "abb3b0c8e5e8b33495376bd30130969709dc8f15e04204c0de0455744bd49bf9"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "e1d58fcae258fedcc4e0e3d78588f7fec2501bd6ff1e5a70e1f97feea9a79b14"
+    },
+    {
+      "path": "tests/sdd-sudo-guard-mutation.tests.py",
+      "sha256": "02cf929b9fcf381f39ed5d3a4d7acd851f383b6855c496b710d21101715e4326"
+    },
+    {
+      "path": "tests/self-improvement-guard.tests.sh",
+      "sha256": "0fd6ba699c43c5e4fd80720312666050854a6076fdb3bfd6f097eec26059d4a6"
+    },
+    {
+      "path": "tests/shared-launch-python/pyproject.toml",
+      "sha256": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "94b56dd485f8a590e07f4fdd980158f28ef5d5cecef5ce25fe51fd62fb4b11a9"
+    },
+    {
+      "path": "tests/verification-impact.py",
+      "sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3"
+    },
+    {
+      "path": "tests/verification-impact.tests.py",
+      "sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc"
+    },
+    {
+      "path": "tests/verification-timings.json",
+      "sha256": "dc20362834826bd087a00b42243d4436a8266e67d7616346fcde3649952a33fd"
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "sha256": "eb6b9185f7b70be56ca91a834eaa9ac3371be20c385450bf0ab0d0c33986d6b9"
+    },
+    {
+      "path": "tests/verification.py",
+      "sha256": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1"
+    },
+    {
+      "path": "uninstall.ps1",
+      "sha256": "b6deb1791e5509aeb538215f944c19d03913baa4e3f771cc93fdc1f45763baa7"
+    },
+    {
+      "path": "uninstall.sh",
+      "sha256": "6d038c1208abd9c66da3d4a9188286bf76d0eb601b9ace5f5db25081472c373f"
+    }
+  ],
+  "private_transport_excluded": true,
+  "original_canonical_report_unchanged": true
+}

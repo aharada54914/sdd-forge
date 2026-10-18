@@ -1,0 +1,5 @@
+Command: /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/sdd-hook-guard.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py specs/cloud-orchestration/verification/T-011/routing-guard-fix/guarded-local-invocation.py
+MYPYPATH: plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts
+Success: no issues found in 4 source files
+
+Exit: 0

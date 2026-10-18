@@ -1,0 +1,37 @@
+ticket_id: RT-20261018-CLOUD-ROUTING-GUARD
+status: resolved
+type: implementation-defect
+severity: major
+target:
+  feature: cloud-orchestration
+  task: T-011
+  files:
+    - plugins/sdd-quality-loop/references/guard-invariants.json
+    - plugins/sdd-quality-loop/scripts/generated/
+    - tests/guard-parity.tests.sh
+summary: Newly referenced cloud entry paths are missing from the existing protected call chain inventory
+problem: >-
+  Caller quality prechecks, before any independent evaluator reservation, failed
+  tests/guard-parity.tests.sh WFI-037. The real consumer scan reports both provider
+  scripts/cloud.py entries, both scripts/governed-setup.md references, and the
+  bootstrap cloud-routing.py helper as unprotected. Other262-scenario guard results
+  were261PASS/1FAIL. Six cloud suites, actual native local host trial and repository
+  validation passed, but the mandatory guard regression has not passed.
+  Evidence: specs/cloud-orchestration/verification/T-011/quality-cycle-1/regression.log.
+expected_fix:
+  - Record actual high-risk field/counterpart/mismatch preflight and commit failing protected-path controls before changing invariants.
+  - Add the five reported exact paths through canonical guard-invariants.json and regenerate all four modules with the existing generator.
+  - Keep the existing consumer scan and guard assertions; do not add broad wildcard exemptions or remove referenced paths to hide the failure.
+  - Verify actual Bash and PowerShell write denial plus allowed reads and canonical CLI invocation, including the generated Node consumer where applicable.
+  - Use the existing mirror checker and sync only genuinely stale applied mirrors; preserve pending bundles and frozen prior evidence.
+  - Run scoped guard, invariant, mirror and bootstrap regressions and a disposable rollback/reapply check.
+  - Preserve canonical T011 report and first caller failure; write a separate repair report. Root owns fresh independent review and any affected native-host follow-up.
+approval: Existing user approval covers implementation defects, #423 compatibility and local verification; no new cloud authority or procedural exception.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 2
+resolution: >-
+  Actual independent cycle2 reviewer 01a15040-5e4a-7f61-bfa2-2a64f3989612
+  returned PASS with no findings. Current caller checks and evidence bundle passed.
+  See reports/quality-gate/20261018-cloud-orchestration-T-011-cycle-2.md
+  and specs/cloud-orchestration/verification/T-011.evidence.json.

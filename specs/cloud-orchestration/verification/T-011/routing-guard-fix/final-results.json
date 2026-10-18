@@ -1,0 +1,208 @@
+[
+  {
+    "name": "ruff",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guarded-local-invocation.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.021,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-ruff.log"
+  },
+  {
+    "name": "mypy",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "specs/cloud-orchestration/verification/T-011/routing-guard-fix/guarded-local-invocation.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.244,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-mypy.log"
+  },
+  {
+    "name": "node-syntax",
+    "command": [
+      "node",
+      "--check",
+      "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js"
+    ],
+    "exit_code": 0,
+    "seconds": 0.025,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-node-syntax.log"
+  },
+  {
+    "name": "bash-syntax",
+    "command": [
+      "bash",
+      "-n",
+      "tests/guard-parity.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 0.003,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-bash-syntax.log"
+  },
+  {
+    "name": "generator",
+    "command": [
+      "python3",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.031,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-generator.log"
+  },
+  {
+    "name": "mirrors",
+    "command": [
+      "python3",
+      "scripts/sync-human-copy-mirrors.py",
+      "--check"
+    ],
+    "exit_code": 1,
+    "seconds": 0.067,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-mirrors.log"
+  },
+  {
+    "name": "invariants-bash",
+    "command": [
+      "bash",
+      "tests/phase2-guard-invariants.tests.sh"
+    ],
+    "exit_code": 1,
+    "seconds": 0.803,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-invariants-bash.log"
+  },
+  {
+    "name": "invariants-powershell",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/phase2-guard-invariants.tests.ps1"
+    ],
+    "exit_code": 1,
+    "seconds": 2.734,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-invariants-powershell.log"
+  },
+  {
+    "name": "r10-powershell",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/guard-r10-port.tests.ps1"
+    ],
+    "exit_code": 0,
+    "seconds": 163.563,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-r10-powershell.log"
+  },
+  {
+    "name": "readonly-powershell",
+    "command": [
+      "python3",
+      "-B",
+      "tests/guard-readonly-inputs.tests.py",
+      "--runtime",
+      "powershell"
+    ],
+    "exit_code": 0,
+    "seconds": 34.685,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-readonly-powershell.log"
+  },
+  {
+    "name": "guard-negative",
+    "command": [
+      "bash",
+      "tests/guard-negative-corpus.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 6.625,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-negative.log"
+  },
+  {
+    "name": "guard-dispatch",
+    "command": [
+      "bash",
+      "tests/guard-dispatch-fallback.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 9.191,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-dispatch.log"
+  },
+  {
+    "name": "guard-cwd",
+    "command": [
+      "bash",
+      "tests/guard-cwd-bypass.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 1.891,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-cwd.log"
+  },
+  {
+    "name": "guard-staging",
+    "command": [
+      "bash",
+      "tests/guard-staging-exemption.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 6.355,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-staging.log"
+  },
+  {
+    "name": "guard-ascii",
+    "command": [
+      "bash",
+      "tests/guard-ps1-ascii.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 0.021,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-guard-ascii.log"
+  },
+  {
+    "name": "epic-a1-invariants",
+    "command": [
+      "bash",
+      "tests/guard-invariants-epic-a1.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 1.08,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-epic-a1-invariants.log"
+  },
+  {
+    "name": "gate-capabilities",
+    "command": [
+      "bash",
+      "tests/generate-gate-capabilities.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 1.975,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-gate-capabilities.log"
+  },
+  {
+    "name": "mirror-freshness",
+    "command": [
+      "bash",
+      "tests/human-copy-mirror-freshness.tests.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 0.082,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/final-mirror-freshness.log"
+  }
+]

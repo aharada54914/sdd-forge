@@ -1,0 +1,10 @@
+{
+  "case": "aws",
+  "thread_id": "01a14fef-607e-7fc1-962c-a336740c1596",
+  "session_id": "01a14fef-607e-7fc1-962c-a336740c1596",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "workspace": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018",
+  "prompt_sha256": "e976b5bbe64918ebeaaebd5f5c9005b6718ac58f88b4b41aa492df684b7e15e4",
+  "profile": "/workspace/.tools/sdd-forge-dev/codex-verify"
+}

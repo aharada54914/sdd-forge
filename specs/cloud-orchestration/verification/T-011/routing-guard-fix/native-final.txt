@@ -1,0 +1,10 @@
+Repair ready for root review. Guard/runtime bytes remain unchanged from trial2 pins.
+
+- Guard parity: **403/0**; PowerShell: **252/0**.
+- Strict static checks, generator parity, mirrors and rollback/reapply passed.
+- All five manifests and report validated; 388 output hashes verified.
+- Original report remains byte-identical.
+
+Report: `reports/implementation/cloud-orchestration/T-011-routing-guard-fix.md`
+
+Root’s native2 PASS is cited separately. Independent review, full-suite verification and status decisions remain root-owned.

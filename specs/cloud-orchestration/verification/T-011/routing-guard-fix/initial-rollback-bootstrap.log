@@ -1,0 +1,27 @@
+Command: python3 -B tests/cloud-orchestration-routing.tests.py BootstrapInstalled NormalDriverRegistration
+Working directory: /tmp/cloud-T011-routing-guard-01a15001/rollback
+test_explicit_provider_and_installed_identity_are_required (__main__.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required) ... ok
+test_installed_provider_guard_sensitivity (__main__.BootstrapInstalled.test_installed_provider_guard_sensitivity) ... ok
+test_owner_import_digest_and_output_guards_have_matched_controls (__main__.BootstrapInstalled.test_owner_import_digest_and_output_guards_have_matched_controls) ... ok
+test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... ok
+test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) ... ok
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ERROR
+test_required_native_missing_tools_fail_instead_of_skip (__main__.NormalDriverRegistration.test_required_native_missing_tools_fail_instead_of_skip) ... ok
+
+======================================================================
+ERROR: test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-routing-guard-01a15001/rollback/tests/cloud-orchestration-routing.tests.py", line 1323, in test_catalog_and_every_native_ci_cell_admit_all_six_suites
+    data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-routing-guard-01a15001/rollback/tests/verification-workflow.py", line 24, in load_workflow
+    raise ValueError('workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies')
+ValueError: workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies
+
+----------------------------------------------------------------------
+Ran 7 tests in 4.995s
+
+FAILED (errors=1)
+
+Exit: 1

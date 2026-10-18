@@ -1,0 +1,33 @@
+ticket_id: RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS
+status: resolved
+type: test-coverage-gap
+severity: major
+target:
+  feature: cloud-orchestration
+  task: T-011
+  files:
+    - tests/cloud-orchestration-routing.tests.py
+    - plugins/sdd-bootstrap/scripts/cloud-routing.py
+summary: Installed bootstrap root and runtime refusal branches lack direct negative coverage
+problem: >-
+  Actual independent cycle1 evaluator01a15027-2187-7df0-a08f-47b4f863d76c
+  found missing complete-argument bootstrap tests for absent/nonphysical plugin
+  roots and missing/symlinked CLI/shared modules. Existing direct-provider
+  filesystem tests do not exercise the bootstrap boundary. The caller's
+  six-suite and native-host successes remain valid within their stated scope.
+expected_fix:
+  - Add direct bootstrap cases for each root and CLI/shared-module refusal branch using complete valid arguments and matched positive controls.
+  - Assert the typed CLOUD_ROUTE_BLOCKED envelope and prove delegated execution never occurs for every rejected fixture.
+  - Exercise the existing checks through the installed bootstrap entry; preserve production source bytes.
+  - Demonstrate test sensitivity with actual isolated guard mutations and preserve original code/report/native evidence.
+  - Record real platform limits; run current registered routing and related scoped checks, then independent cycle2.
+approval: Existing approval covers necessary implementation and verification fixes; this is a tests-only repair with no new cloud authority or procedural waiver.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 2
+review_evidence: specs/cloud-orchestration/verification/T-011/quality-cycle-1-recheck/review/evaluator.txt
+resolution: >-
+  Actual independent cycle2 reviewer 01a15040-5e4a-7f61-bfa2-2a64f3989612
+  returned PASS with no findings. Current caller checks and evidence bundle passed.
+  See reports/quality-gate/20261018-cloud-orchestration-T-011-cycle-2.md
+  and specs/cloud-orchestration/verification/T-011.evidence.json.

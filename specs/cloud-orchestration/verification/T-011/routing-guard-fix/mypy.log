@@ -1,0 +1,4 @@
+Command: /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/generated/guard_invariants.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+Success: no issues found in 2 source files
+
+Exit: 0

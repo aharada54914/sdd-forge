@@ -1,0 +1,185 @@
+{
+  "classification": "local fixture; actual installed subprocesses; no model host or cloud execution",
+  "checks": [
+    {
+      "provider": "azure",
+      "entry": "direct",
+      "operation": "route",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 0,
+      "state": "ROUTED",
+      "error_code": null,
+      "request_sha256": "499516da4e2c2274f4bf795b1b0ade64bc36a23cd0f51621bb9b92ad15272ccc"
+    },
+    {
+      "provider": "azure",
+      "entry": "direct",
+      "operation": "prepare",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 2,
+      "state": "BLOCKED",
+      "error_code": "OPERATION_UNIMPLEMENTED",
+      "request_sha256": "499516da4e2c2274f4bf795b1b0ade64bc36a23cd0f51621bb9b92ad15272ccc"
+    },
+    {
+      "provider": "azure",
+      "entry": "direct",
+      "operation": "apply",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 2,
+      "state": "BLOCKED",
+      "error_code": "OPERATION_UNIMPLEMENTED",
+      "request_sha256": "499516da4e2c2274f4bf795b1b0ade64bc36a23cd0f51621bb9b92ad15272ccc"
+    },
+    {
+      "provider": "azure",
+      "entry": "bootstrap",
+      "operation": "route",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 0,
+      "state": "ROUTED",
+      "error_code": null,
+      "request_sha256": "499516da4e2c2274f4bf795b1b0ade64bc36a23cd0f51621bb9b92ad15272ccc"
+    },
+    {
+      "provider": "azure",
+      "entry": "bootstrap",
+      "operation": "prepare",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 2,
+      "state": "BLOCKED",
+      "error_code": "OPERATION_UNIMPLEMENTED",
+      "request_sha256": "499516da4e2c2274f4bf795b1b0ade64bc36a23cd0f51621bb9b92ad15272ccc"
+    },
+    {
+      "provider": "azure",
+      "entry": "bootstrap",
+      "operation": "apply",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 2,
+      "state": "BLOCKED",
+      "error_code": "OPERATION_UNIMPLEMENTED",
+      "request_sha256": "499516da4e2c2274f4bf795b1b0ade64bc36a23cd0f51621bb9b92ad15272ccc"
+    },
+    {
+      "provider": "aws",
+      "entry": "direct",
+      "operation": "route",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 0,
+      "state": "ROUTED",
+      "error_code": null,
+      "request_sha256": "23ef3e92c3005ea9d524b6411f934d46433149f4b32c127046e1f4369e213a34"
+    },
+    {
+      "provider": "aws",
+      "entry": "direct",
+      "operation": "prepare",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 2,
+      "state": "BLOCKED",
+      "error_code": "OPERATION_UNIMPLEMENTED",
+      "request_sha256": "23ef3e92c3005ea9d524b6411f934d46433149f4b32c127046e1f4369e213a34"
+    },
+    {
+      "provider": "aws",
+      "entry": "direct",
+      "operation": "apply",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 2,
+      "state": "BLOCKED",
+      "error_code": "OPERATION_UNIMPLEMENTED",
+      "request_sha256": "23ef3e92c3005ea9d524b6411f934d46433149f4b32c127046e1f4369e213a34"
+    },
+    {
+      "provider": "aws",
+      "entry": "bootstrap",
+      "operation": "route",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 0,
+      "state": "ROUTED",
+      "error_code": null,
+      "request_sha256": "23ef3e92c3005ea9d524b6411f934d46433149f4b32c127046e1f4369e213a34"
+    },
+    {
+      "provider": "aws",
+      "entry": "bootstrap",
+      "operation": "prepare",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 2,
+      "state": "BLOCKED",
+      "error_code": "OPERATION_UNIMPLEMENTED",
+      "request_sha256": "23ef3e92c3005ea9d524b6411f934d46433149f4b32c127046e1f4369e213a34"
+    },
+    {
+      "provider": "aws",
+      "entry": "bootstrap",
+      "operation": "apply",
+      "guard_decisions": {
+        "python": "allow",
+        "node": "allow",
+        "bash": "allow",
+        "powershell": "allow"
+      },
+      "exit_code": 2,
+      "state": "BLOCKED",
+      "error_code": "OPERATION_UNIMPLEMENTED",
+      "request_sha256": "23ef3e92c3005ea9d524b6411f934d46433149f4b32c127046e1f4369e213a34"
+    }
+  ]
+}

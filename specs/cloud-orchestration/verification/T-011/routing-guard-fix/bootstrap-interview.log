@@ -1,0 +1,37 @@
+Command: bash tests/bootstrap-interview-guidance.tests.sh
+PASS: TEST-006 category Product and Scope
+PASS: TEST-006 category Users, Roles, and UX
+PASS: TEST-006 category Data and Contracts
+PASS: TEST-006 category Workflow and Acceptance
+PASS: TEST-006 category Frontend Architecture
+PASS: TEST-006 category Backend, API, and Testing
+PASS: TEST-006 category Infrastructure and Operations
+PASS: TEST-006 category Security and Compliance
+PASS: TEST-006 every category has Japanese and three English probes
+PASS: TEST-006 layer coverage checklist
+PASS: TEST-009 declares Phase 1 output requirements.md
+PASS: TEST-009 declares Phase 1 output acceptance-tests.md
+PASS: TEST-009 declares Phase 1 output design.md
+PASS: TEST-009 declares Phase 1 output ux-spec.md
+PASS: TEST-009 declares Phase 1 output frontend-spec.md
+PASS: TEST-009 declares Phase 1 output infra-spec.md
+PASS: TEST-009 declares Phase 1 output security-spec.md
+PASS: TEST-009 records layer-local unknowns
+PASS: TEST-009 existing-layer-files create-only rule
+PASS: TEST-009 existing-layer-files preserved hashes
+PASS: TEST-017 bugfix-unaffected-layers reasoned N/A
+PASS: TEST-017 security assessment always required
+PASS: TEST-018 no-mockup clean skip
+PASS: TEST-009 run skill knows layer outputs
+PASS: TEST-009 LITE produces zero layer outputs
+PASS: TEST-010 Claude Design guide is under 200 lines
+PASS: TEST-010 Mermaid is primary
+PASS: TEST-010 unsupported integration limits
+PASS: TEST-010 three copy-ready prompts
+PASS: TEST-019 ds_profile question present
+PASS: TEST-019 none profile skips integration
+PASS: TEST-019 ds_profile recorded in ux-spec
+PASS: 32
+FAIL: 0
+
+Exit: 0

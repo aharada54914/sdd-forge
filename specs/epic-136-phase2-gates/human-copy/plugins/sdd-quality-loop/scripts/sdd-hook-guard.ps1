@@ -1352,19 +1352,30 @@ function Test-CommandReferencesProtectedPath {
     $position = 0
     $verb = ""
     $firstCommand = $true
+    $cloudPrefix = $false
     for ($index = 0; $index -lt $res.Tokens.Count; $index++) {
         $t = $res.Tokens[$index]
         if ($t[0] -ne "word") {
-            if ($position -gt 0) { $firstCommand = $false }
+            if ($position -gt 0 -or $cloudPrefix) { $firstCommand = $false }
             $position = 0; $verb = ""; continue
         }
         $text = [string]$t[1]
-        $scriptInput = $literalContext -and $firstCommand -and $position -eq 1 -and -not $text.StartsWith("-") -and -not $text.StartsWith("~") -and
+        $scriptInput = $literalContext -and $firstCommand -and $position -eq 1 -and
+            (-not $cloudPrefix -or (@("python", "python3") -ccontains $verb)) -and -not $text.StartsWith("-") -and -not $text.StartsWith("~") -and
             (((@("python", "python3") -ccontains $verb) -and $text.EndsWith(".py")) -or
              ((@("bash", "sh") -ccontains $verb) -and $text.EndsWith(".sh"))) -and
             -not $text.Contains(">") -and -not $text.Contains("<")
-        if ($position -eq 0) { $verb = $text }
-        $position += 1
+        # Only literal cloud metadata and Python's no-bytecode flag preserve
+        # the existing first-command script-input rule; still scan every token.
+        $cloudAssignment = $literalContext -and $firstCommand -and $position -eq 0 -and
+            $text -cmatch '^CLOUD_(?:WORKSPACE_ROOT|SHARED_RUNTIME_ROOT)=[^=<>]+$'
+        $noBytecode = $literalContext -and $firstCommand -and $position -eq 1 -and
+            (@("python", "python3") -ccontains $verb) -and $text -ceq "-B"
+        if ($cloudAssignment) { $cloudPrefix = $true }
+        elseif (-not $noBytecode) {
+            if ($position -eq 0) { $verb = $text }
+            $position += 1
+        }
         if ($scriptInput -or $inputs -contains $index) { continue }
         $candidate = $text
         if ($candidate.Contains(">")) {

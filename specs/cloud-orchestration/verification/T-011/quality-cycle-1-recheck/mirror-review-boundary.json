@@ -1,0 +1,197 @@
+{
+  "checked_at": "2026-10-18T17:55:03.927145+00:00",
+  "excluded_raw_mirror_inputs": [
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256",
+      "sha256": "eeeaac58d94707ce2a8e5abc955816025c46be0a79e28acb17fffed0b19b896a",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/NOTES-cloud-T011-routing-guard-refresh.md",
+      "sha256": "818c62705187d2d5b14a585ab9821042598bbbe7f51d93820cb9532e0b57b0d3",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3",
+      "canonical_source_with_identical_bytes": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf",
+      "canonical_source_with_identical_bytes": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9",
+      "canonical_source_with_identical_bytes": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840",
+      "canonical_source_with_identical_bytes": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/tests/guard-parity.tests.sh",
+      "sha256": "5f78d7c5f80fc50fa36e2083221866045b4a437ee6c8feba2dbc3e882bf760b9",
+      "canonical_source_with_identical_bytes": "tests/guard-parity.tests.sh"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256",
+      "sha256": "646262931ac8dff156cd07246eb6b03bce9cf75a4d50bd864f11a0352036fd90",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/NOTES-cloud-T011-routing-guard-refresh.md",
+      "sha256": "375a4e7d1be9904facb0f1e8a4b60e5c6037966d5b4a7e5cc377cd19daddf13d",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3",
+      "canonical_source_with_identical_bytes": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "8a20021958d84e1ae7e5a239a2500dc73f15289158a68e905c90d3d5f317d7e1",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "0202c8f32f8810d77ba438a965f6b57213fb907f1a3c724f318cda9fd7b19d90",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/references/guard-invariants.json.candidate",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py.candidate",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js.candidate",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1.candidate",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh.candidate",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py.candidate",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256",
+      "sha256": "d34c730daece7de30a07f7b381b8e1084b166f2a0a881a8aa0efa3087870caec",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256",
+      "sha256": "d3d6d30573972c99084d153c55dc3008a560af811da6ff5a9c81755d0514f4b8",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5",
+      "canonical_source_with_identical_bytes": null
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681",
+      "canonical_source_with_identical_bytes": null
+    }
+  ],
+  "scope": "Raw cross-feature mirror and pending-bundle files are outside evaluator supplemental admission. Current canonical guard/generator/test sources remain admitted. Root verified every delivered output hash, including these mirrors, and actual mirror-check/preservation logs remain admitted. Identical applied mirrors can be assessed via the listed canonical source; pending bundle files remain unchanged and are not implementation output. No raw cross-feature snapshot or peer review is copied into the task.",
+  "root_delivery": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/root-delivery-check.json"
+}

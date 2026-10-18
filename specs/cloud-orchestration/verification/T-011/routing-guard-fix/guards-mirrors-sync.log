@@ -1,0 +1,51 @@
+pending (left alone): specs/design-sync-consent/human-copy <- plugins/sdd-lite/skills/lite-spec/SKILL.md
+pending (left alone): specs/design-sync-consent/human-copy <- plugins/sdd-lite/skills/lite-spec/SKILL.md
+pending (left alone): specs/epic-159-pillar-c/human-copy <- .github/workflows/test.yml
+pending (left alone): specs/epic-159-pillar-c/human-copy <- plugins/sdd-review-loop/agents/impl-reviewer-a.md
+pending (left alone): specs/epic-159-pillar-c/human-copy <- plugins/sdd-review-loop/agents/impl-reviewer-b.md
+pending (left alone): specs/epic-159-pillar-c/human-copy <- plugins/sdd-review-loop/agents/task-reviewer-a.md
+pending (left alone): specs/epic-159-pillar-c/human-copy <- plugins/sdd-review-loop/agents/task-reviewer-b.md
+pending (left alone): specs/epic-159-pillar-d/human-copy <- .github/workflows/test.yml
+pending (left alone): specs/epic-189-a1-project-context/human-copy <- plugins/sdd-quality-loop/references/guard-invariants.json
+pending (left alone): specs/epic-189-a1-project-context/human-copy <- plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+pending (left alone): specs/epic-189-a1-project-context/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+pending (left alone): specs/epic-189-a1-project-context/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+pending (left alone): specs/epic-189-a1-project-context/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+pending (left alone): specs/epic-189-a1-project-context/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+pending (left alone): specs/epic-189-a1-project-context/human-copy <- plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+pending (left alone): specs/epic-189-a1-project-context/human-copy <- plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+pending (left alone): specs/epic-190-a2-capability-registry/human-copy <- .github/workflows/test.yml
+pending (left alone): specs/epic-190-a2-capability-registry/human-copy <- plugins/sdd-quality-loop/references/guard-invariants.json
+pending (left alone): specs/epic-190-a2-capability-registry/human-copy <- plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+pending (left alone): specs/epic-190-a2-capability-registry/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+pending (left alone): specs/epic-190-a2-capability-registry/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+pending (left alone): specs/epic-190-a2-capability-registry/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+pending (left alone): specs/epic-190-a2-capability-registry/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+pending (left alone): specs/epic-191-a3-path-ownership/human-copy <- plugins/sdd-quality-loop/references/guard-invariants.json
+pending (left alone): specs/epic-191-a3-path-ownership/human-copy <- plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+pending (left alone): specs/epic-191-a3-path-ownership/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+pending (left alone): specs/epic-191-a3-path-ownership/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+pending (left alone): specs/epic-191-a3-path-ownership/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+pending (left alone): specs/epic-191-a3-path-ownership/human-copy <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+pending (left alone): specs/epic-192-a4-facet-manifest/human-copy <- .github/workflows/test.yml
+pending (left alone): specs/epic-193-a5-capability-resolver/human-copy <- .github/workflows/test.yml
+pending (left alone): specs/epic-194-a6-lite-integration/human-copy <- .github/workflows/test.yml
+pending (left alone): specs/epic-195-a7-compatibility/human-copy <- .github/workflows/test.yml
+pending (left alone): specs/epic-196-a8-integration/human-copy <- .github/workflows/test.yml
+pending (left alone): specs/mcp-readonly-preflight/human-copy <- plugins/sdd-ship/skills/ship/SKILL.md
+pending (left alone): specs/quality-loop-fixes/human-copy <- .github/workflows/test.yml
+pending (left alone): specs/quality-loop-fixes/human-copy <- plugins/sdd-ship/skills/ship/SKILL.md
+pending (left alone): specs/epic-190-a2-capability-registry/drafts/human-copy-candidate <- plugins/sdd-quality-loop/references/guard-invariants.json
+pending (left alone): specs/epic-190-a2-capability-registry/drafts/human-copy-candidate <- plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+pending (left alone): specs/epic-190-a2-capability-registry/drafts/human-copy-candidate <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+pending (left alone): specs/epic-190-a2-capability-registry/drafts/human-copy-candidate <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+pending (left alone): specs/epic-190-a2-capability-registry/drafts/human-copy-candidate <- plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+pending (left alone): specs/epic-190-a2-capability-registry/drafts/human-copy-candidate <- plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+sync: specs/epic-136-phase2-gates/human-copy <- plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (manifest)
+sync: specs/epic-136-phase2-gates/human-copy <- plugins/sdd-quality-loop/scripts/sdd-hook-guard.js (manifest)
+sync: specs/epic-136-phase2-gates/human-copy <- plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 (manifest)
+sync: specs/epic-189-a1-project-context/human-copy <- plugins/sdd-quality-loop/scripts/sdd-hook-guard.js (manifest)
+specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256: 3 line(s) rewritten
+specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256: 1 line(s) rewritten
+
+4 mirror(s) synced

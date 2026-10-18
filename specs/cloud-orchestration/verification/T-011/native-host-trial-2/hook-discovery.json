@@ -1,0 +1,94 @@
+{
+  "data": [
+    {
+      "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018",
+      "hooks": [
+        {
+          "key": "sdd-quality-loop@sdd-plugins:hooks/hooks.json:pre_tool_use:0:0",
+          "eventName": "preToolUse",
+          "handlerType": "command",
+          "command": "sh \"/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/scripts/kill-switch.sh\"",
+          "async": false,
+          "matcher": "*",
+          "timeoutSec": 600,
+          "statusMessage": null,
+          "additionalContextLimit": null,
+          "sourcePath": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/hooks/hooks.json",
+          "source": "plugin",
+          "pluginId": "sdd-quality-loop@sdd-plugins",
+          "displayOrder": 0,
+          "enabled": true,
+          "isManaged": false,
+          "currentHash": "sha256:3eb9f8d1359b411fde8f67c2aa1e791c22068150231a242a414dc85aed9f5d04",
+          "trustStatus": "trusted"
+        },
+        {
+          "key": "sdd-quality-loop@sdd-plugins:hooks/hooks.json:pre_tool_use:1:0",
+          "eventName": "preToolUse",
+          "handlerType": "command",
+          "command": "sh \"/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/scripts/sdd-hook-guard.sh\" --emit exit",
+          "async": false,
+          "matcher": "Edit|Write|MultiEdit|apply_patch|Bash|bash|shell|exec_command|exec",
+          "timeoutSec": 600,
+          "statusMessage": null,
+          "additionalContextLimit": null,
+          "sourcePath": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/hooks/hooks.json",
+          "source": "plugin",
+          "pluginId": "sdd-quality-loop@sdd-plugins",
+          "displayOrder": 1,
+          "enabled": true,
+          "isManaged": false,
+          "currentHash": "sha256:28f5ea576551dd2fe287fc22645a2f4b57256ada78e9cd5b89029335b0c275d6",
+          "trustStatus": "trusted"
+        }
+      ],
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018",
+      "hooks": [
+        {
+          "key": "sdd-quality-loop@sdd-plugins:hooks/hooks.json:pre_tool_use:0:0",
+          "eventName": "preToolUse",
+          "handlerType": "command",
+          "command": "sh \"/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/scripts/kill-switch.sh\"",
+          "async": false,
+          "matcher": "*",
+          "timeoutSec": 600,
+          "statusMessage": null,
+          "additionalContextLimit": null,
+          "sourcePath": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/hooks/hooks.json",
+          "source": "plugin",
+          "pluginId": "sdd-quality-loop@sdd-plugins",
+          "displayOrder": 0,
+          "enabled": true,
+          "isManaged": false,
+          "currentHash": "sha256:3eb9f8d1359b411fde8f67c2aa1e791c22068150231a242a414dc85aed9f5d04",
+          "trustStatus": "trusted"
+        },
+        {
+          "key": "sdd-quality-loop@sdd-plugins:hooks/hooks.json:pre_tool_use:1:0",
+          "eventName": "preToolUse",
+          "handlerType": "command",
+          "command": "sh \"/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/scripts/sdd-hook-guard.sh\" --emit exit",
+          "async": false,
+          "matcher": "Edit|Write|MultiEdit|apply_patch|Bash|bash|shell|exec_command|exec",
+          "timeoutSec": 600,
+          "statusMessage": null,
+          "additionalContextLimit": null,
+          "sourcePath": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/hooks/hooks.json",
+          "source": "plugin",
+          "pluginId": "sdd-quality-loop@sdd-plugins",
+          "displayOrder": 1,
+          "enabled": true,
+          "isManaged": false,
+          "currentHash": "sha256:28f5ea576551dd2fe287fc22645a2f4b57256ada78e9cd5b89029335b0c275d6",
+          "trustStatus": "trusted"
+        }
+      ],
+      "warnings": [],
+      "errors": []
+    }
+  ]
+}

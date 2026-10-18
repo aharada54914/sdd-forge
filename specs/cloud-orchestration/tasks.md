@@ -485,7 +485,7 @@ T-010
 ## T-011 Bootstrap routing and host integration
 
 Approval: Approved (user-recorded 2026-10-18T04:41:34Z)
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Changes externally visible contracts, trust or verification boundaries.
 Required Workflow: tdd

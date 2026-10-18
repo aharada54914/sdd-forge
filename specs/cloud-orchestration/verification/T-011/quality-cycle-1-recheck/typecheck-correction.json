@@ -1,0 +1,35 @@
+{
+  "id": "typecheck",
+  "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-bootstrap/scripts/cloud-routing.py tests/cloud-orchestration-contracts.tests.py tests/cloud-orchestration-execution.tests.py tests/cloud-orchestration-routing.tests.py tests/cloud-orchestration-verification.tests.py tests/install-cloud.tests.py tests/sdd-domain-multitarget-foundation.tests.py tests/sdd-domain-multitarget-T-004.tests.py specs/cloud-orchestration/verification/T-011/attempt-1/prepare-host-fixture.py plugins/sdd-quality-loop/scripts/sdd-hook-guard.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py specs/cloud-orchestration/verification/T-011/native-host-trial-2/validate-host-delivery.py && /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml specs/cloud-orchestration/verification/T-011/native-host-trial-1/validate-host-delivery.py",
+  "exit_code": 0,
+  "started_at": "2026-10-18T17:39:00Z",
+  "finished_at": "2026-10-18T17:39:00Z",
+  "evidence": "specs/cloud-orchestration/verification/T-011/quality-cycle-1-recheck/typecheck-corrected.log",
+  "commands": [
+    {
+      "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-bootstrap/scripts/cloud-routing.py tests/cloud-orchestration-contracts.tests.py tests/cloud-orchestration-execution.tests.py tests/cloud-orchestration-routing.tests.py tests/cloud-orchestration-verification.tests.py tests/install-cloud.tests.py tests/sdd-domain-multitarget-foundation.tests.py tests/sdd-domain-multitarget-T-004.tests.py specs/cloud-orchestration/verification/T-011/attempt-1/prepare-host-fixture.py plugins/sdd-quality-loop/scripts/sdd-hook-guard.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py specs/cloud-orchestration/verification/T-011/native-host-trial-2/validate-host-delivery.py",
+      "exit_code": 0
+    },
+    {
+      "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml specs/cloud-orchestration/verification/T-011/native-host-trial-1/validate-host-delivery.py",
+      "exit_code": 0
+    }
+  ],
+  "source_pins": {
+    "plugins/sdd-bootstrap/scripts/cloud-routing.py": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+    "tests/cloud-orchestration-contracts.tests.py": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+    "tests/cloud-orchestration-execution.tests.py": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+    "tests/cloud-orchestration-routing.tests.py": "2ea10b036fcfe019f045b7912b15c11abf2975f61424f055b44822bc59fbf971",
+    "tests/cloud-orchestration-verification.tests.py": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f",
+    "tests/install-cloud.tests.py": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5",
+    "tests/sdd-domain-multitarget-foundation.tests.py": "9083c323d44f337373e2eeb21264eec5c132d495129233c4501f24a32b8e08a2",
+    "tests/sdd-domain-multitarget-T-004.tests.py": "d577d1fbe440849b132038742d020a476253b2a7570a8229556311f0bb85ab2d",
+    "specs/cloud-orchestration/verification/T-011/attempt-1/prepare-host-fixture.py": "4b2eff4bf67a78136828609e131b0c13ec08f11feb1c39236bff39c50804f817",
+    "specs/cloud-orchestration/verification/T-011/native-host-trial-1/validate-host-delivery.py": "d36274741b30a10a183e39bed566069e22b14bca21d431bc17c4473da9d707c8",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+    "specs/cloud-orchestration/verification/T-011/native-host-trial-2/validate-host-delivery.py": "d16c07c6df3103df0d620bbfaa6b1d3ba17f8afa6ffb4ed88a9ce3e0a2c5e1ad"
+  },
+  "reason": "Two historical validators have the same Python module basename. Initial single mypy invocation rejected duplicate module names before checking. Run the same configured checker in two groups, covering every original file without suppression or product changes; initial failure remains recorded."
+}

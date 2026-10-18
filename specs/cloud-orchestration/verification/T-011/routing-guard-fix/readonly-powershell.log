@@ -1,0 +1,8 @@
+Command: python3 -B tests/guard-readonly-inputs.tests.py --runtime powershell
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 34.202s
+
+OK
+
+Exit: 0

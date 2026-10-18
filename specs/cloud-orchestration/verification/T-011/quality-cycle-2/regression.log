@@ -1,0 +1,273 @@
+PASS: TEST-001 UX layer template exists
+PASS: TEST-001 frontend layer template exists
+PASS: TEST-001 infrastructure layer template exists
+PASS: TEST-001 security layer template exists
+PASS: TEST-002 UX target views
+PASS: TEST-002 UX state traceability
+PASS: TEST-002 UX Mermaid interaction sequence
+PASS: TEST-002 UX wireframe placeholder
+PASS: TEST-002 UX navigation
+PASS: TEST-002 UX accessibility
+PASS: TEST-002 UX failure states
+PASS: TEST-002 UX responsive breakpoints
+PASS: TEST-002 UX design tokens
+PASS: TEST-003 frontend stack
+PASS: TEST-003 frontend component tree
+PASS: TEST-003 frontend state plan
+PASS: TEST-003 frontend route contract
+PASS: TEST-003 frontend API client
+PASS: TEST-003 frontend bundle budget
+PASS: TEST-003 frontend LCP budget
+PASS: TEST-003 frontend INP budget
+PASS: TEST-003 frontend CLS budget
+PASS: TEST-003 concrete TypeScript interface
+PASS: TEST-003 frontend dependencies
+PASS: TEST-004 deployment topology
+PASS: TEST-004 CI/CD sequence
+PASS: TEST-004 environment matrix
+PASS: TEST-004 IaC stub
+PASS: TEST-004 scaling
+PASS: TEST-004 availability SLO
+PASS: TEST-004 latency SLO
+PASS: TEST-004 residency and retention
+PASS: TEST-004 observability
+PASS: TEST-004 cost estimate
+PASS: TEST-004 rollback
+PASS: TEST-005 trust boundaries
+PASS: TEST-005 authentication flow
+PASS: TEST-005 STRIDE matrix
+PASS: TEST-005 authorization
+PASS: TEST-005 data controls
+PASS: TEST-005 OWASP mapping
+PASS: TEST-005 secrets
+PASS: TEST-005 supply chain
+PASS: TEST-005 security tests
+PASS: TEST-007 activation clauses key off workflow position
+PASS: malformed ux-spec.template.md rejects removed ## Target Views
+PASS: malformed ux-spec.template.md rejects removed ## Wireframe Attachments
+PASS: malformed ux-spec.template.md rejects removed ## Navigation Map
+PASS: malformed ux-spec.template.md rejects removed ## Component States
+PASS: malformed ux-spec.template.md rejects removed ## Design Tokens
+PASS: malformed frontend-spec.template.md rejects removed ## Technology Stack
+PASS: malformed frontend-spec.template.md rejects removed ## State Shape
+PASS: malformed frontend-spec.template.md rejects removed ## API Client Strategy
+PASS: malformed infra-spec.template.md rejects removed ## Deployment Topology
+PASS: malformed infra-spec.template.md rejects removed ## CI/CD Sequence
+PASS: malformed infra-spec.template.md rejects removed ## Infrastructure as Code
+PASS: malformed infra-spec.template.md rejects removed ## Scaling Strategy
+PASS: malformed infra-spec.template.md rejects removed ## Cost Estimate
+PASS: malformed infra-spec.template.md rejects removed ## Rollback
+PASS: malformed security-spec.template.md rejects removed ## Trust Boundaries
+PASS: malformed security-spec.template.md rejects removed ## Authentication Flow
+PASS: malformed security-spec.template.md rejects removed ## Authorization
+PASS: malformed security-spec.template.md rejects removed ## OWASP Mapping
+PASS: malformed security-spec.template.md rejects removed ## Secrets Management
+PASS: malformed security-spec.template.md rejects removed ## Security Tests
+PASS: malformed ux-spec.template.md rejects removed state traceability
+PASS: malformed ux-spec.template.md rejects removed interaction sequence
+PASS: malformed ux-spec.template.md rejects removed accessibility target
+PASS: malformed ux-spec.template.md rejects removed responsive breakpoints
+PASS: malformed frontend-spec.template.md rejects removed component tree
+PASS: malformed frontend-spec.template.md rejects removed route contract
+PASS: malformed frontend-spec.template.md rejects removed bundle budget
+PASS: malformed frontend-spec.template.md rejects removed LCP budget
+PASS: malformed frontend-spec.template.md rejects removed INP budget
+PASS: malformed frontend-spec.template.md rejects removed CLS budget
+PASS: malformed frontend-spec.template.md rejects removed concrete TypeScript interface
+PASS: malformed frontend-spec.template.md rejects removed dependency decision
+PASS: malformed infra-spec.template.md rejects removed environment matrix
+PASS: malformed infra-spec.template.md rejects removed availability SLO
+PASS: malformed infra-spec.template.md rejects removed latency SLO
+PASS: malformed infra-spec.template.md rejects removed residency and retention
+PASS: malformed infra-spec.template.md rejects removed observability plan
+PASS: malformed security-spec.template.md rejects removed STRIDE matrix
+PASS: malformed security-spec.template.md rejects removed data controls
+PASS: malformed security-spec.template.md rejects removed supply-chain controls
+PASS: RT001: tasks.template.md carries 'Risk:' line
+PASS: RT001: tasks.template.md carries 'Risk Rationale:' line
+PASS: RT001: tasks.template.md carries 'Required Workflow:' line
+PASS: RT001: tasks.template.md carries 'Requirements:' line
+PASS: RT001: tasks template names cross-state contradictions
+PASS: RT001: ai-task.template.md carries '## Risk'
+PASS: RT001: ai-task.template.md carries '## Risk Rationale'
+PASS: RT001: ai-task.template.md carries '## Required Workflow'
+PASS: RT001: ai-task.template.md carries '## Requirements'
+PASS: RT001: classification policy states legacy-mode + do-not-map-absent
+PASS: RT001: policy states the NO-tier-minimum rule clause
+PASS: RT001: no absent->medium mapping statement in the policy doc (heuristic; behavioral pin is gates T-004.1)
+PASS: 97
+FAIL: 0
+PASS: TEST-006 category Product and Scope
+PASS: TEST-006 category Users, Roles, and UX
+PASS: TEST-006 category Data and Contracts
+PASS: TEST-006 category Workflow and Acceptance
+PASS: TEST-006 category Frontend Architecture
+PASS: TEST-006 category Backend, API, and Testing
+PASS: TEST-006 category Infrastructure and Operations
+PASS: TEST-006 category Security and Compliance
+PASS: TEST-006 every category has Japanese and three English probes
+PASS: TEST-006 layer coverage checklist
+PASS: TEST-009 declares Phase 1 output requirements.md
+PASS: TEST-009 declares Phase 1 output acceptance-tests.md
+PASS: TEST-009 declares Phase 1 output design.md
+PASS: TEST-009 declares Phase 1 output ux-spec.md
+PASS: TEST-009 declares Phase 1 output frontend-spec.md
+PASS: TEST-009 declares Phase 1 output infra-spec.md
+PASS: TEST-009 declares Phase 1 output security-spec.md
+PASS: TEST-009 records layer-local unknowns
+PASS: TEST-009 existing-layer-files create-only rule
+PASS: TEST-009 existing-layer-files preserved hashes
+PASS: TEST-017 bugfix-unaffected-layers reasoned N/A
+PASS: TEST-017 security assessment always required
+PASS: TEST-018 no-mockup clean skip
+PASS: TEST-009 run skill knows layer outputs
+PASS: TEST-009 LITE produces zero layer outputs
+PASS: TEST-010 Claude Design guide is under 200 lines
+PASS: TEST-010 Mermaid is primary
+PASS: TEST-010 unsupported integration limits
+PASS: TEST-010 three copy-ready prompts
+PASS: TEST-019 ds_profile question present
+PASS: TEST-019 none profile skips integration
+PASS: TEST-019 ds_profile recorded in ux-spec
+PASS: 32
+FAIL: 0
+PASS: TEST-007 design links UX layer
+PASS: TEST-007 design links frontend layer
+PASS: TEST-007 design links infrastructure layer
+PASS: TEST-007 design links security layer
+PASS: TEST-007 cross-layer dependencies
+PASS: TEST-007 ADR change log
+PASS: TEST-007 retains test strategy
+PASS: TEST-007 retains constraints
+PASS: TEST-007 retains open questions
+PASS: TEST-007 retains risks
+PASS: TEST-007 removes legacy inline plan placeholders
+PASS: TEST-008 Layer Spec traceability column
+PASS: TEST-008 traceability retains investigation provenance
+PASS: TEST-008 layer coverage summary
+PASS: TEST-008 canonical UX anchor example
+PASS: TEST-008 canonical frontend anchor example
+PASS: TEST-008 canonical infrastructure anchor example
+PASS: TEST-008 canonical security anchor example
+PASS: TEST-008 reasoned cross-layer example
+PASS: TEST-008 no blank or bare N/A Layer Spec examples
+PASS: TEST-008 traceability validator ignores requirement-keyed side tables
+PASS: TEST-008 PowerShell validator ignores requirement-keyed side tables
+PASS: TEST-008 existing REQ-ID traceability header remains valid
+PASS: TEST-008 PowerShell existing REQ-ID traceability header remains valid
+PASS: TEST-008 rejects noncanonical or displaced header: req-id
+PASS: TEST-008 PowerShell rejects noncanonical or displaced header: req-id
+PASS: TEST-008 rejects noncanonical or displaced header: REQ-id
+PASS: TEST-008 PowerShell rejects noncanonical or displaced header: REQ-id
+PASS: TEST-008 rejects noncanonical or displaced header: Notes | REQ-ID
+PASS: TEST-008 PowerShell rejects noncanonical or displaced header: Notes | REQ-ID
+PASS: TEST-008 table boundary # Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary # Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary # Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary # Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ## Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ## Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ## Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ## Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ### Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary #### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary #### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary #### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary #### Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ##### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ##### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ##### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ##### Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ###### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ###### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ###### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ###### Notes, next layer invalid-anchor
+PASS: 54
+FAIL: 0
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/a.tests.py
+SKIPPED: tests/a.tests.py
+==> tests/native-a.tests.ps1
+FAILED: tests/native-a.tests.ps1
+==> tests/native-b.tests.ps1
+PASSED: tests/native-b.tests.ps1
+==> tests/a.tests.py
+fixture
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+changed
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/a.tests.py
+SKIPPED: tests/a.tests.py
+==> tests/native-a.tests.ps1
+FAILED: tests/native-a.tests.ps1
+==> tests/native-b.tests.ps1
+PASSED: tests/native-b.tests.ps1
+==> tests/a.tests.py
+fixture
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+changed
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+...............
+----------------------------------------------------------------------
+Ran 15 tests in 1.427s
+
+OK
+...............
+----------------------------------------------------------------------
+Ran 15 tests in 1.402s
+
+OK
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.055s
+
+OK
+test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) ... ok
+test_005_full_profile_output_contract_and_no_context_compatibility (__main__.CompatibilityTests.test_005_full_profile_output_contract_and_no_context_compatibility) ... ok
+test_005_stale_snapshot_blocks_without_partial_publication (__main__.CompatibilityTests.test_005_stale_snapshot_blocks_without_partial_publication) ... ok
+test_006_shipped_structural_consumer_rejects_missing_or_rewritten_layer (__main__.CompatibilityTests.test_006_shipped_structural_consumer_rejects_missing_or_rewritten_layer) ... ok
+test_006_valid_hybrid_all_targets_retains_seven_bytes_and_separate_manifest (__main__.CompatibilityTests.test_006_valid_hybrid_all_targets_retains_seven_bytes_and_separate_manifest) ... ok
+test_additive_override_contract_preserves_existing_context_boundaries (__main__.CompatibilityTests.test_additive_override_contract_preserves_existing_context_boundaries) ... ok
+test_reviewed_cloud_extension_is_exact_and_retains_original_baseline (__main__.CompatibilityTests.test_reviewed_cloud_extension_is_exact_and_retains_original_baseline) ... ok
+test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy (__main__.CompatibilityTests.test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy) ... ok
+test_reviewed_pending_status_requires_exact_change_and_original_baseline (__main__.CompatibilityTests.test_reviewed_pending_status_requires_exact_change_and_original_baseline) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 18.327s
+
+OK

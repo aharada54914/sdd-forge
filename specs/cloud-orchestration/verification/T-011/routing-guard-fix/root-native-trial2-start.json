@@ -1,0 +1,17 @@
+{
+  "sent_at": "2026-10-18T17:29:20.803976+00:00",
+  "message": {
+    "id": 900502,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a15001-1554-7b30-a10d-2104952bfd18",
+      "expectedTurnId": "01a15001-172b-7e33-abce-afa906b5b183",
+      "input": [
+        {
+          "type": "text",
+          "text": "Root observed final-guard-parity403PASS/0FAIL and started fresh trial2 installation from current tree, ALL8 active plugin caches. Current guard/helper/provider/skill source pins are now being captured. Please keep runtime/guard source bytes stable while completing report/remaining test evidence; if any further runtime/guard source edit is needed, notify root so native trial can be honestly invalidated/repeated. Root will not claim PASS until actual native delivery and source hash recheck. New publicdir native-host-trial-2, originaltrial1 frozen. Current trial installation session30282."
+        }
+      ]
+    }
+  }
+}

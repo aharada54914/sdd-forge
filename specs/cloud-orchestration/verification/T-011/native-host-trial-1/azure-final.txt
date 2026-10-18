@@ -1,0 +1,54 @@
+Completed using the installed bootstrap and Azure entries, with Python 3.12.14.
+
+| Invocation | Result / state | Error code | Exit |
+|---|---|---|---:|
+| Supported bootstrap route | PASS / ROUTED | `null` | 0 |
+| Supported direct route | PASS / ROUTED | `null` | 0 |
+| Direct prepare | BLOCKED / BLOCKED | `OPERATION_UNIMPLEMENTED` | 2 |
+| Direct apply | BLOCKED / BLOCKED | `OPERATION_UNIMPLEMENTED` | 2 |
+| Mixed-owner bootstrap route | BLOCKED / BLOCKED | `OWNER_CONFLICT` | 2 |
+
+Bootstrap and direct route envelopes match except for their evidence paths; their manifests are identical. All request and deployment-input hashes remained unchanged. Both requests retain SHA-256 `415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218`.
+
+The actual commands, abbreviated with these path variables, were:
+
+```bash
+BASE=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018
+CACHE=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins
+BOOT=$CACHE/sdd-bootstrap/1.18.0
+AZURE=$CACHE/sdd-azure-cloud/1.18.0
+PY=/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3
+SUPPORTED=$BASE/azure-supported
+MIXED=$BASE/azure-mixed-owner
+E=specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit
+
+env -i CLOUD_WORKSPACE_ROOT="$SUPPORTED" PYTHONDONTWRITEBYTECODE=1 \
+  "$PY" -B "$BOOT/scripts/cloud-routing.py" \
+  --provider azure --plugin-root "$AZURE" route \
+  --request "$SUPPORTED/request.json" --output "$SUPPORTED/$E/bootstrap-route.json"
+
+# Executed separately for route, prepare, and apply:
+for OP in route prepare apply; do
+  env -i CLOUD_WORKSPACE_ROOT="$SUPPORTED" PYTHONDONTWRITEBYTECODE=1 \
+    CLOUD_SHARED_RUNTIME_ROOT="$AZURE/runtime/scripts" \
+    "$PY" -B "$AZURE/scripts/cloud.py" "$OP" \
+    --request "$SUPPORTED/request.json" --output "$SUPPORTED/$E/direct-$OP.json"
+done
+
+env -i CLOUD_WORKSPACE_ROOT="$MIXED" PYTHONDONTWRITEBYTECODE=1 \
+  "$PY" -B "$BOOT/scripts/cloud-routing.py" \
+  --provider azure --plugin-root "$AZURE" route \
+  --request "$MIXED/request.json" --output "$MIXED/$E/mixed-route.json"
+```
+
+Full structured `cloud-operation-result/v1` envelopes are saved here:
+
+- [bootstrap-route.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/bootstrap-route.json)
+- [direct-route.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-route.json)
+- [direct-prepare.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-prepare.json)
+- [direct-apply.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-apply.json)
+- [mixed-route.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-mixed-owner/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/mixed-route.json)
+
+Successful routes also published adjacent `.manifest.json` files. The CLI did not publish denial files, so I saved its exact stdout to the three requested denial filenames; their `evidence_manifest_path` remains `null`. All stderr was empty.
+
+No installation, credential access, cloud API calls, governed wrappers, or repository/skill-code edits occurred.

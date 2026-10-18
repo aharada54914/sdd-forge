@@ -1,0 +1,5 @@
+First inventory insertion attempt: uniqueness assertion failed before write.
+Cause: protected_gate_suffixes and epic_a1_targets share their final item.
+No source bytes changed. A prematurely named green run still exercises entry
+modules and is retained as unchanged-inventory-recheck.log, not Green evidence.
+Next edit is bounded to the protected_gate_suffixes array only.

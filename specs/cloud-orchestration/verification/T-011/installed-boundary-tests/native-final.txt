@@ -1,0 +1,13 @@
+Implemented the tests-only T-011 repair.
+
+- Added 44 installed-boundary negative cases.
+- Routing suite: 96 tests passed.
+- Both semantic mutants killed; rollback verified.
+- Ruff, mypy, manifest/report validators and 174 output hashes passed.
+- Production and frozen evidence unchanged.
+
+Commits: `b9478c93` (failing sensitivity baseline), `d0d9f9a1` (coverage repair).
+
+Report: `reports/implementation/cloud-orchestration/T-011-installed-boundary-tests.md`
+
+Full-suite verification, native OS CI and independent cycle2 remain root-owned; no Done or gate PASS claimed.

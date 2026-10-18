@@ -1,0 +1,9 @@
+{
+  "schema": "repair-context-binding/v1",
+  "original_run_id": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
+  "repair_run_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "report": "reports/implementation/cloud-orchestration/T-011-routing-guard-fix.md",
+  "sha256": "2b99d5745ae2bd9ffe22799a6195364bd6ee9b1eed8cdd5eacdab554bdedf998",
+  "snapshot": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/implementation-report-snapshot.md",
+  "scope": "First caller guard regression failed before any evaluator reservation. Exact five protected members/generator union, current Python/Node/PowerShell invocation allowance and denial controls, applied mirrors, real rollback/reapply. Original implementation report and first caller failure remain frozen. Actual new native host evidence is separate root-supplied supplemental proof."
+}

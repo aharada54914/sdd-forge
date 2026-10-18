@@ -1,0 +1,50 @@
+Bootstrap and direct routing matched: both returned `PASS/ROUTED`. Their manifests are byte-identical; result envelopes differ only in `evidence_manifest_path`.
+
+| Evidence | Operation | Result / state | Error code | Exit |
+|---|---|---|---|---:|
+| [bootstrap-route.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/bootstrap-route.json) | route | PASS / ROUTED | null | 0 |
+| [direct-route.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-route.json) | route | PASS / ROUTED | null | 0 |
+| [direct-prepare.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-prepare.json) | prepare | BLOCKED / BLOCKED | OPERATION_UNIMPLEMENTED | 2 |
+| [direct-apply.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-apply.json) | apply | BLOCKED / BLOCKED | OPERATION_UNIMPLEMENTED | 2 |
+| [mixed-route.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/aws-mixed-owner/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/mixed-route.json) | route | BLOCKED / BLOCKED | OWNER_CONFLICT | 2 |
+
+Each file contains the actual `cloud-operation-result/v1` envelope. Successful routes also published adjacent `.manifest.json` files. Blocked commands emitted stdout only; I saved those exact bytes to the requested filenames. Their `evidence_manifest_path` is `null`. All five commands had empty stderr.
+
+Commands executed, with repeated absolute paths abbreviated below:
+
+```bash
+BASE=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018
+B=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0
+P=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0
+S="$BASE/aws-supported"
+M="$BASE/aws-mixed-owner"
+E=specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit
+
+CLOUD_WORKSPACE_ROOT="$S" python3 -B "$B/scripts/cloud-routing.py" \
+  --provider aws --plugin-root "$P" route \
+  --request "$S/request.json" --output "$S/$E/bootstrap-route.json"
+
+CLOUD_WORKSPACE_ROOT="$S" CLOUD_SHARED_RUNTIME_ROOT="$P/runtime/scripts" \
+  python3 -B "$P/scripts/cloud.py" route \
+  --request "$S/request.json" --output "$S/$E/direct-route.json"
+
+CLOUD_WORKSPACE_ROOT="$S" CLOUD_SHARED_RUNTIME_ROOT="$P/runtime/scripts" \
+  python3 -B "$P/scripts/cloud.py" prepare \
+  --request "$S/request.json" --output "$S/$E/direct-prepare.json"
+
+CLOUD_WORKSPACE_ROOT="$S" CLOUD_SHARED_RUNTIME_ROOT="$P/runtime/scripts" \
+  python3 -B "$P/scripts/cloud.py" apply \
+  --request "$S/request.json" --output "$S/$E/direct-apply.json"
+
+CLOUD_WORKSPACE_ROOT="$M" python3 -B "$B/scripts/cloud-routing.py" \
+  --provider aws --plugin-root "$P" route \
+  --request "$M/request.json" --output "$M/$E/mixed-route.json"
+```
+
+Trusted entries and packaged runtime were present; Python was `3.12.14`. Both requests and all deployment inputs remained byte-identical. Both request SHA-256 values are:
+
+```text
+37cd42057190e5dd39d957f0711a2d7c9343482a0bb399d911c1d3625ed098b8
+```
+
+No installations, code edits, credential access, governed-wrapper execution, or cloud API calls occurred. These results establish local routing and denial behavior only.

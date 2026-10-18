@@ -1,0 +1,17 @@
+{
+  "sent_at": "2026-10-18T17:34:09.821022+00:00",
+  "message": {
+    "id": 900503,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a15001-1554-7b30-a10d-2104952bfd18",
+      "expectedTurnId": "01a15001-172b-7e33-abce-afa906b5b183",
+      "input": [
+        {
+          "type": "text",
+          "text": "Root completed real native-host-trial-2 PASS: Azure01a1500f-af95-7a43-a320-6efb70000cf1, AWS01a15011-8d4a-74d3-85d5-9017ebd4d8b8. ALL8activeSDD packages refreshed,455cache files/426canonicalsource bindings; two trusted actualhooks executed;10CLI calls routeparity and prepare/apply/mixeddenials. Root validated asset/source hashes; original profileconfig+cache restoredexactly. Native2follow-up-scope.md records Azure directhostcalls vs AWSgroupedsubprocesses and captureprovenance, no livecloud. Sourcesremainstable. You may cite final publicnative2 evidence if needed but avoid bloating report Outputs with unrelated450files; root adds native2 public artifacts to supplementalreviewinputs. Finish scopedreport/checks and delivery; originalreport frozen."
+        }
+      ]
+    }
+  }
+}

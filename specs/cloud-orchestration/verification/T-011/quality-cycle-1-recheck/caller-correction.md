@@ -1,0 +1,3 @@
+# Typecheck invocation correction
+
+The initial caller invocation passed two historical validators with the same basename to one mypy process. It failed duplicate-module discovery before analysis; no implementation finding or reviewer verdict was emitted. The correction runs all original files with the identical configuration in two groups, without omissions or suppressions. Both groups actually passed and their source hashes still match. Original commands.json/typecheck.log/contract.log and the original contract/declaration copies are preserved. commands-final.json and the current contract use the real successful typecheck command; every other successful command is retained from this same unchanged-source caller run. No failed product test is converted to PASS.

@@ -1,0 +1,44 @@
+[
+  {
+    "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+    "repaired_sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+    "entry_sha256": "4c43639cd9b90b2c7c4ac83d80b41b3808ad9f865550e465cb1db63743a523ae",
+    "restored_sha256": "4c43639cd9b90b2c7c4ac83d80b41b3808ad9f865550e465cb1db63743a523ae",
+    "reapplied_sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "repaired_sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+    "entry_sha256": "a08c294f2a7fcfb0e9c574feda16db135a0d4f50509da98661769a6ddcee4aeb",
+    "restored_sha256": "a08c294f2a7fcfb0e9c574feda16db135a0d4f50509da98661769a6ddcee4aeb",
+    "reapplied_sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "repaired_sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+    "entry_sha256": "e36f7c64f22fa347ed62fcedc9f85da7f784b13c9d602b1d11d6a7c3916a1013",
+    "restored_sha256": "e36f7c64f22fa347ed62fcedc9f85da7f784b13c9d602b1d11d6a7c3916a1013",
+    "reapplied_sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "repaired_sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+    "entry_sha256": "d3efd787196da964ed140a5bcb710c163840cbc25567e43676603e90ebb83230",
+    "restored_sha256": "d3efd787196da964ed140a5bcb710c163840cbc25567e43676603e90ebb83230",
+    "reapplied_sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "repaired_sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+    "entry_sha256": "e5ba22671799fefccbd0f1f8a8f8d2aa8964a7cfc0e171ebbc4c50977f44cd58",
+    "restored_sha256": "e5ba22671799fefccbd0f1f8a8f8d2aa8964a7cfc0e171ebbc4c50977f44cd58",
+    "reapplied_sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "repaired_sha256": "564080c31fdcc4cf2270017867f90ea6e0265de000c07b141a6788479830ef80",
+    "entry_sha256": "5224e41dd30ad2d594997f5a44891615f048e14b12a9fed5f59919afd9fcd1b0",
+    "restored_sha256": "5224e41dd30ad2d594997f5a44891615f048e14b12a9fed5f59919afd9fcd1b0",
+    "reapplied_sha256": "564080c31fdcc4cf2270017867f90ea6e0265de000c07b141a6788479830ef80"
+  }
+]

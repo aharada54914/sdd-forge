@@ -1,0 +1,1 @@
+The scoped runner was stopped during R10 PowerShell after the two invariant suites rejected the incomplete JSON-only exact union. R10 partial output is not a completed result. No generated module was changed during those runs. Final checks rerun after both canonical inventories agree.

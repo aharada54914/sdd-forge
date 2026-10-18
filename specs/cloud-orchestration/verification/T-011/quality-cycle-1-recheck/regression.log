@@ -1,0 +1,1046 @@
+PASS: TEST-001 UX layer template exists
+PASS: TEST-001 frontend layer template exists
+PASS: TEST-001 infrastructure layer template exists
+PASS: TEST-001 security layer template exists
+PASS: TEST-002 UX target views
+PASS: TEST-002 UX state traceability
+PASS: TEST-002 UX Mermaid interaction sequence
+PASS: TEST-002 UX wireframe placeholder
+PASS: TEST-002 UX navigation
+PASS: TEST-002 UX accessibility
+PASS: TEST-002 UX failure states
+PASS: TEST-002 UX responsive breakpoints
+PASS: TEST-002 UX design tokens
+PASS: TEST-003 frontend stack
+PASS: TEST-003 frontend component tree
+PASS: TEST-003 frontend state plan
+PASS: TEST-003 frontend route contract
+PASS: TEST-003 frontend API client
+PASS: TEST-003 frontend bundle budget
+PASS: TEST-003 frontend LCP budget
+PASS: TEST-003 frontend INP budget
+PASS: TEST-003 frontend CLS budget
+PASS: TEST-003 concrete TypeScript interface
+PASS: TEST-003 frontend dependencies
+PASS: TEST-004 deployment topology
+PASS: TEST-004 CI/CD sequence
+PASS: TEST-004 environment matrix
+PASS: TEST-004 IaC stub
+PASS: TEST-004 scaling
+PASS: TEST-004 availability SLO
+PASS: TEST-004 latency SLO
+PASS: TEST-004 residency and retention
+PASS: TEST-004 observability
+PASS: TEST-004 cost estimate
+PASS: TEST-004 rollback
+PASS: TEST-005 trust boundaries
+PASS: TEST-005 authentication flow
+PASS: TEST-005 STRIDE matrix
+PASS: TEST-005 authorization
+PASS: TEST-005 data controls
+PASS: TEST-005 OWASP mapping
+PASS: TEST-005 secrets
+PASS: TEST-005 supply chain
+PASS: TEST-005 security tests
+PASS: TEST-007 activation clauses key off workflow position
+PASS: malformed ux-spec.template.md rejects removed ## Target Views
+PASS: malformed ux-spec.template.md rejects removed ## Wireframe Attachments
+PASS: malformed ux-spec.template.md rejects removed ## Navigation Map
+PASS: malformed ux-spec.template.md rejects removed ## Component States
+PASS: malformed ux-spec.template.md rejects removed ## Design Tokens
+PASS: malformed frontend-spec.template.md rejects removed ## Technology Stack
+PASS: malformed frontend-spec.template.md rejects removed ## State Shape
+PASS: malformed frontend-spec.template.md rejects removed ## API Client Strategy
+PASS: malformed infra-spec.template.md rejects removed ## Deployment Topology
+PASS: malformed infra-spec.template.md rejects removed ## CI/CD Sequence
+PASS: malformed infra-spec.template.md rejects removed ## Infrastructure as Code
+PASS: malformed infra-spec.template.md rejects removed ## Scaling Strategy
+PASS: malformed infra-spec.template.md rejects removed ## Cost Estimate
+PASS: malformed infra-spec.template.md rejects removed ## Rollback
+PASS: malformed security-spec.template.md rejects removed ## Trust Boundaries
+PASS: malformed security-spec.template.md rejects removed ## Authentication Flow
+PASS: malformed security-spec.template.md rejects removed ## Authorization
+PASS: malformed security-spec.template.md rejects removed ## OWASP Mapping
+PASS: malformed security-spec.template.md rejects removed ## Secrets Management
+PASS: malformed security-spec.template.md rejects removed ## Security Tests
+PASS: malformed ux-spec.template.md rejects removed state traceability
+PASS: malformed ux-spec.template.md rejects removed interaction sequence
+PASS: malformed ux-spec.template.md rejects removed accessibility target
+PASS: malformed ux-spec.template.md rejects removed responsive breakpoints
+PASS: malformed frontend-spec.template.md rejects removed component tree
+PASS: malformed frontend-spec.template.md rejects removed route contract
+PASS: malformed frontend-spec.template.md rejects removed bundle budget
+PASS: malformed frontend-spec.template.md rejects removed LCP budget
+PASS: malformed frontend-spec.template.md rejects removed INP budget
+PASS: malformed frontend-spec.template.md rejects removed CLS budget
+PASS: malformed frontend-spec.template.md rejects removed concrete TypeScript interface
+PASS: malformed frontend-spec.template.md rejects removed dependency decision
+PASS: malformed infra-spec.template.md rejects removed environment matrix
+PASS: malformed infra-spec.template.md rejects removed availability SLO
+PASS: malformed infra-spec.template.md rejects removed latency SLO
+PASS: malformed infra-spec.template.md rejects removed residency and retention
+PASS: malformed infra-spec.template.md rejects removed observability plan
+PASS: malformed security-spec.template.md rejects removed STRIDE matrix
+PASS: malformed security-spec.template.md rejects removed data controls
+PASS: malformed security-spec.template.md rejects removed supply-chain controls
+PASS: RT001: tasks.template.md carries 'Risk:' line
+PASS: RT001: tasks.template.md carries 'Risk Rationale:' line
+PASS: RT001: tasks.template.md carries 'Required Workflow:' line
+PASS: RT001: tasks.template.md carries 'Requirements:' line
+PASS: RT001: tasks template names cross-state contradictions
+PASS: RT001: ai-task.template.md carries '## Risk'
+PASS: RT001: ai-task.template.md carries '## Risk Rationale'
+PASS: RT001: ai-task.template.md carries '## Required Workflow'
+PASS: RT001: ai-task.template.md carries '## Requirements'
+PASS: RT001: classification policy states legacy-mode + do-not-map-absent
+PASS: RT001: policy states the NO-tier-minimum rule clause
+PASS: RT001: no absent->medium mapping statement in the policy doc (heuristic; behavioral pin is gates T-004.1)
+PASS: 97
+FAIL: 0
+PASS: TEST-006 category Product and Scope
+PASS: TEST-006 category Users, Roles, and UX
+PASS: TEST-006 category Data and Contracts
+PASS: TEST-006 category Workflow and Acceptance
+PASS: TEST-006 category Frontend Architecture
+PASS: TEST-006 category Backend, API, and Testing
+PASS: TEST-006 category Infrastructure and Operations
+PASS: TEST-006 category Security and Compliance
+PASS: TEST-006 every category has Japanese and three English probes
+PASS: TEST-006 layer coverage checklist
+PASS: TEST-009 declares Phase 1 output requirements.md
+PASS: TEST-009 declares Phase 1 output acceptance-tests.md
+PASS: TEST-009 declares Phase 1 output design.md
+PASS: TEST-009 declares Phase 1 output ux-spec.md
+PASS: TEST-009 declares Phase 1 output frontend-spec.md
+PASS: TEST-009 declares Phase 1 output infra-spec.md
+PASS: TEST-009 declares Phase 1 output security-spec.md
+PASS: TEST-009 records layer-local unknowns
+PASS: TEST-009 existing-layer-files create-only rule
+PASS: TEST-009 existing-layer-files preserved hashes
+PASS: TEST-017 bugfix-unaffected-layers reasoned N/A
+PASS: TEST-017 security assessment always required
+PASS: TEST-018 no-mockup clean skip
+PASS: TEST-009 run skill knows layer outputs
+PASS: TEST-009 LITE produces zero layer outputs
+PASS: TEST-010 Claude Design guide is under 200 lines
+PASS: TEST-010 Mermaid is primary
+PASS: TEST-010 unsupported integration limits
+PASS: TEST-010 three copy-ready prompts
+PASS: TEST-019 ds_profile question present
+PASS: TEST-019 none profile skips integration
+PASS: TEST-019 ds_profile recorded in ux-spec
+PASS: 32
+FAIL: 0
+PASS: TEST-007 design links UX layer
+PASS: TEST-007 design links frontend layer
+PASS: TEST-007 design links infrastructure layer
+PASS: TEST-007 design links security layer
+PASS: TEST-007 cross-layer dependencies
+PASS: TEST-007 ADR change log
+PASS: TEST-007 retains test strategy
+PASS: TEST-007 retains constraints
+PASS: TEST-007 retains open questions
+PASS: TEST-007 retains risks
+PASS: TEST-007 removes legacy inline plan placeholders
+PASS: TEST-008 Layer Spec traceability column
+PASS: TEST-008 traceability retains investigation provenance
+PASS: TEST-008 layer coverage summary
+PASS: TEST-008 canonical UX anchor example
+PASS: TEST-008 canonical frontend anchor example
+PASS: TEST-008 canonical infrastructure anchor example
+PASS: TEST-008 canonical security anchor example
+PASS: TEST-008 reasoned cross-layer example
+PASS: TEST-008 no blank or bare N/A Layer Spec examples
+PASS: TEST-008 traceability validator ignores requirement-keyed side tables
+PASS: TEST-008 PowerShell validator ignores requirement-keyed side tables
+PASS: TEST-008 existing REQ-ID traceability header remains valid
+PASS: TEST-008 PowerShell existing REQ-ID traceability header remains valid
+PASS: TEST-008 rejects noncanonical or displaced header: req-id
+PASS: TEST-008 PowerShell rejects noncanonical or displaced header: req-id
+PASS: TEST-008 rejects noncanonical or displaced header: REQ-id
+PASS: TEST-008 PowerShell rejects noncanonical or displaced header: REQ-id
+PASS: TEST-008 rejects noncanonical or displaced header: Notes | REQ-ID
+PASS: TEST-008 PowerShell rejects noncanonical or displaced header: Notes | REQ-ID
+PASS: TEST-008 table boundary # Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary # Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary # Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary # Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ## Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ## Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ## Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ## Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ### Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary #### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary #### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary #### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary #### Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ##### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ##### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ##### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ##### Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ###### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ###### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ###### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ###### Notes, next layer invalid-anchor
+PASS: 54
+FAIL: 0
+ok: parity [kill-switch: AGENT_STOP exists]: both exit 2 (expected)
+ok: parity [kill-switch: no AGENT_STOP]: both exit 0 (expected)
+ok: parity [approval-guard: Write adds Approval]: both exit 2 (expected)
+ok: parity [approval-guard: Edit adds Approval]: both exit 2 (expected)
+ok: parity [wfi-guard: write Status: Approved]: both exit 2 (expected)
+ok: parity [wfi-022: prose-quoting edit allowed]: both exit 0 (expected)
+ok: parity [wfi-022: read-only grep allowed]: both exit 0 (expected)
+ok: parity [wfi-022: create doc quoting field in prose allowed]: both exit 0 (expected)
+ok: parity [wfi-022: approval-removing sed still refused]: both exit 2 (expected)
+ok: parity [wfi-022: status-advance via Edit path allowed]: both exit 0 (expected)
+ok: parity [wfi-022: field-preserving edit allowed]: both exit 0 (expected)
+ok: parity [wfi-022: write with embedded column-0 field still refused]: both exit 2 (expected)
+ok: parity [wfi-022: edit adding column-0 field still refused]: both exit 2 (expected)
+ok: parity [wfi-022: redirect append still refused]: both exit 2 (expected)
+ok: parity [wfi-022: compound read-then-write still refused]: both exit 2 (expected)
+ok: parity [wfi-022: command substitution not exempt]: both exit 2 (expected)
+ok: parity [wfi-022: backtick substitution not exempt]: both exit 2 (expected)
+ok: parity [wfi-022: newline-joined second command not exempt]: both exit 2 (expected)
+ok: parity [wfi-022: backgrounded second command not exempt]: both exit 2 (expected)
+ok: parity [second-approval-guard: Write adds Second Approval]: both exit 2 (expected)
+ok: parity [read-only: role sed inspection]: both exit 0 (expected)
+ok: parity [read-only: role pipeline inspection]: both exit 0 (expected)
+ok: parity [read-only: role compound inspection]: both exit 0 (expected)
+ok: parity [read-only: role newline inspection]: both exit 0 (expected)
+ok: parity [read-only: role working directory inspection]: both exit 0 (expected)
+ok: parity [read-only: role quoted search data]: both exit 0 (expected)
+ok: parity [read-only: role literal expansion search]: both exit 0 (expected)
+ok: parity [read-only: role proxy sed inspection]: both exit 0 (expected)
+ok: parity [read-only: role proxy recursive search]: both exit 0 (expected)
+ok: parity [read-only: role PowerShell inspection]: both exit 0 (expected)
+ok: parity [read-only: gate quoted write vocabulary]: both exit 0 (expected)
+ok: parity [read-only: approval quoted search pipeline]: both exit 0 (expected)
+ok: parity [read-only: role appended mutation]: both exit 2 (expected)
+ok: parity [read-only: role appended redirect]: both exit 2 (expected)
+ok: parity [read-only: role command substitution]: both exit 2 (expected)
+ok: parity [read-only: role backtick substitution]: both exit 2 (expected)
+ok: parity [read-only: role newline mutation]: both exit 2 (expected)
+ok: parity [read-only: role read then inplace edit]: both exit 2 (expected)
+ok: parity [read-only: role sed execution]: both exit 2 (expected)
+ok: parity [read-only: role rg preprocessing]: both exit 2 (expected)
+ok: parity [read-only: role proxy rg preprocessing]: both exit 2 (expected)
+ok: parity [read-only: role PowerShell output]: both exit 2 (expected)
+ok: parity [read-only: gate read then mutation]: both exit 2 (expected)
+ok: parity [read-only: approval read then mutation]: both exit 2 (expected)
+ok: parity [read-only: role rg hostname execution]: both exit 2 (expected)
+ok: parity [read-only: role proxy rg hostname execution]: both exit 2 (expected)
+ok: parity [read-only: role rg pretty output]: both exit 0 (expected)
+ok: parity [read-only: role rg implicit config]: both exit 2 (expected)
+ok: parity [read-only: role rg config explicitly disabled]: both exit 0 (expected)
+ok: parity [read-only: role rg config assignment]: both exit 2 (expected)
+ok: parity [read-only: role rg config environment wrapper]: both exit 2 (expected)
+ok: parity [read-only: role rg config expansion]: both exit 2 (expected)
+ok: parity [read-only: role rg no-config used as pattern]: both exit 2 (expected)
+ok: parity [read-only: role rg no-config consumed by regexp]: both exit 2 (expected)
+ok: parity [read-only: role rg wildcard options]: both exit 2 (expected)
+ok: parity [read-only: gate rg wildcard options]: both exit 2 (expected)
+ok: parity [read-only: sudo rg wildcard options]: both exit 2 (expected)
+ok: parity [read-only: role sed wildcard options]: both exit 2 (expected)
+ok: parity [read-only: role rg question wildcard]: both exit 2 (expected)
+ok: parity [read-only: role rg bracket wildcard]: both exit 2 (expected)
+ok: parity [read-only: role proxy rg wildcard]: both exit 2 (expected)
+ok: parity [read-only: role rg explicit option end]: both exit 0 (expected)
+ok: parity [read-only: role rg no config option end]: both exit 0 (expected)
+ok: parity [read-only: role sed explicit option end]: both exit 0 (expected)
+ok: parity [read-only: role rg consumed option end]: both exit 2 (expected)
+ok: parity [read-only: role separate wildcard command]: both exit 0 (expected)
+ok: parity [read-only: role double quoted literal metacharacters]: both exit 0 (expected)
+ok: parity [read-only: role double quoted literal glob]: both exit 0 (expected)
+ok: parity [read-only: role double quoted substitution]: both exit 2 (expected)
+ok: parity [read-only: role double quoted backtick]: both exit 2 (expected)
+ok: parity [read-only: rg glob with output redirect]: both exit 2 (expected)
+ok: parity [read-only: sed glob with output redirect]: both exit 2 (expected)
+ok: parity [read-only: rg glob with escaped argument]: both exit 2 (expected)
+ok: parity [read-only: rg glob with fd redirect]: both exit 2 (expected)
+ok: parity [read-only: rg glob with quoted separators]: both exit 2 (expected)
+ok: parity [read-only: rg glob in second command]: both exit 2 (expected)
+ok: parity [read-only: role literal pre pattern after option end]: both exit 0 (expected)
+ok: parity [read-only: role literal hostname pattern after option end]: both exit 0 (expected)
+ok: parity [read-only: rg escaped double quote before glob]: both exit 2 (expected)
+ok: parity [read-only: rg escaped single quote before glob]: both exit 2 (expected)
+ok: parity [read-only: rg unterminated quote with glob]: both exit 2 (expected)
+ok: parity [read-only: sed glob script before option end]: both exit 2 (expected)
+ok: parity [read-only: sed glob script protected target]: both exit 2 (expected)
+ok: parity [read-only: ls glob with fd duplication]: both exit 0 (expected)
+ok: parity [read-only: rg safe glob with fd duplication]: both exit 0 (expected)
+ok: parity [read-only: quoted redirect followed by background mutation]: both exit 2 (expected)
+ok: parity [read-only: quoted redirect followed by sudo mutation]: both exit 2 (expected)
+ok: parity [read-only: sed dynamic script before option end]: both exit 2 (expected)
+ok: parity [read-only: sed dynamic range before option end]: both exit 2 (expected)
+ok: parity [read-only: sed quoted dynamic script before option end]: both exit 2 (expected)
+ok: parity [read-only: sed literal final-line print before option end]: both exit 0 (expected)
+ok: parity [agent-role: literal proxy read allowed]: both exit 0 (expected)
+ok: parity [agent-role: preprocessing before pattern denied]: both exit 2 (expected)
+ok: parity [agent-role: preprocessing after pattern denied]: both exit 2 (expected)
+ok: parity [agent-role: compound proxy command denied]: both exit 2 (expected)
+ok: parity [agent-role-guard: toml without developer_instructions]: both exit 2 (expected)
+ok: parity [agent-role-guard: toml with developer_instructions]: both exit 0 (expected)
+ok: parity [r10-gate-protect: write sdd-hook-guard.py]: both exit 2 (expected)
+ok: parity [r10-gate-protect: write claude-hooks.json]: both exit 2 (expected)
+ok: parity [sudo-protect: write SDD_SUDO]: both exit 2 (expected)
+ok: parity [allow: write non-sensitive file]: both exit 0 (expected)
+ok: parity [approval-guard: apply_patch adds Approval]: both exit 2 (expected)
+ok: parity [approval-guard: multiedit edits adds Approval: Approved]: both exit 2 (expected)
+ok: parity [approval-guard: bash echo Approval to tasks.md]: both exit 2 (expected)
+ok: parity [sudo-active: approval bypass allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: compound cat+rm on guard file denied]: both exit 2 (expected)
+ok: parity [r10-gate-protect: cat heredoc redirect to guard file denied]: both exit 2 (expected)
+ok: parity [impl-review-status: write Passed without verdict]: both exit 2 (expected)
+ok: parity [impl-review-status: write Passed with PASS verdict]: both exit 0 (expected)
+ok: parity [impl-review-status: write Passed with FAIL verdict]: both exit 2 (expected)
+ok: parity [impl-review-status: write Passed with PASS-with-warnings verdict]: both exit 0 (expected)
+ok: parity [r10-gate-protect: cp guard file to /tmp allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: mv in /tmp + grep settings allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: redirect to /tmp + cat settings allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: grep guard file with stderr redirect allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: echo redirect into guard file denied]: both exit 2 (expected)
+ok: parity [r10-gate-protect: cp onto guard file denied]: both exit 2 (expected)
+ok: parity [r10-gate-protect: variable write target fails closed]: both exit 2 (expected)
+ok: parity [domain-model-guard: Write sets Domain-Model-Status: Approved]: both exit 2 (expected)
+ok: parity [domain-model-guard: Edit sets Domain-Model-Status: Approved]: both exit 2 (expected)
+ok: parity [domain-model-guard: apply_patch sets Domain-Model-Status: Approved]: both exit 2 (expected)
+ok: parity [domain-model-guard: bash echo Domain-Model-Status: Approved to context-map.md]: both exit 2 (expected)
+ok: parity [domain-model-guard: sudo-active bypass allowed]: both exit 0 (expected)
+ok: parity [domain-model-guard: non-context-map domain/ file unaffected]: both exit 0 (expected)
+ok: parity [domain-model-guard: Pending to Reviewed transition allowed]: both exit 0 (expected)
+ok: parity [wfi016: outside CWD + CLAUDE_PROJECT_DIR + PASS verdict allowed]: both exit 0 (expected)
+ok: parity [wfi016: outside CWD + file_path git-root walk + PASS verdict allowed]: both exit 0 (expected)
+ok: parity [wfi016: outside CWD + FAIL verdict still denied]: both exit 2 (expected)
+ok: parity [concept enforcement: scripts/validate-a9-rollback-receipt.py]: both exit 2 (expected)
+ok: parity [concept enforcement: scripts/validate-a9-promotion.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-quality-loop/scripts/initialize-review-identity.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/record-upstream-concept-issue.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-domain-contract.sh]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-domain-contract.ps1]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-concept-test.sh]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-concept-test.ps1]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-concept-test.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/domain-review-precheck.ps1]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/finalize-domain-review.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/finalize-domain-review.sh]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/finalize-domain-review.ps1]: both exit 2 (expected)
+ok: parity [A9 dependency write: scripts/validate-a9-candidate.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: scripts/validate-a9-candidate.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: scripts/observe-a9-advisory.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: scripts/observe-a9-advisory.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/validate-live-host-proof.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/validate-live-host-proof.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/validate-facet-manifest.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/validate-facet-manifest.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/resolve-component-paths.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/resolve-component-paths.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/validate-capability-registry.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/validate-capability-registry.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/generate-registry-digest.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/generate-registry-digest.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/registry_discovery.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/registry_discovery.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/evaluate-predicate.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/evaluate-predicate.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-review-loop/references/a8-trusted-signers.json]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-review-loop/references/a8-trusted-signers.json]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-review-loop/references/a8-skip-allowlist.json]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-review-loop/references/a8-skip-allowlist.json]: both exit 0 (expected)
+ok: parity [A9 dependency write: tests/hook-activation-live-proof/nonce-ledger.json]: both exit 2 (expected)
+ok: parity [A9 dependency read: tests/hook-activation-live-proof/nonce-ledger.json]: both exit 0 (expected)
+ok: parity [cloud write plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [write plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud redirect plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud read plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [read plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud cat plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud script input plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [script input plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [script input plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud resolved environment invocation plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [resolved environment invocation plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [resolved environment invocation plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud invocation cannot overwrite plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [invocation cannot overwrite plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [invocation cannot overwrite plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud write plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [write plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud redirect plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud read plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [read plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud cat plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud script input plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [script input plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [script input plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud resolved environment invocation plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [resolved environment invocation plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [resolved environment invocation plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud invocation cannot overwrite plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [invocation cannot overwrite plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [invocation cannot overwrite plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud write plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [write plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud redirect plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud read plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [read plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud cat plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud write plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [write plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud redirect plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud read plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [read plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud cat plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud write plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: cloud PowerShell [write plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: parity [cloud redirect plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: parity [cloud read plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [read plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud cat plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud script input plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [script input plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [script input plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud resolved environment invocation plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [resolved environment invocation plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [resolved environment invocation plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud invocation cannot overwrite plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [invocation cannot overwrite plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: cloud PowerShell [invocation cannot overwrite plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: parity [cloud unsafe invocation PATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation PATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation PATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation PYTHONPATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation PYTHONPATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation PYTHONPATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation cloud_workspace_root=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation cloud_workspace_root=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation cloud_workspace_root=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -b plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -b plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -b plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp; python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp; python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp; python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json > plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json > plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json > plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud documented variable invocation]: both exit 0 (expected)
+ok: cloud Bash dispatcher [documented variable invocation]: exit 0
+ok: cloud PowerShell [documented variable invocation]: exit 0
+ok: wfi037: every chain-invoked script under plugins/*/scripts is protected
+ok: wfi037: generated invariant modules match guard-invariants.json
+ok: parity [wfi037 vocabulary A (modelled, deny): cp]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary A (modelled, deny): tee]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary A (modelled, deny): rm]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): git]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): git]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): git]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): sed]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): install]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): ln]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): truncate]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): dd]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): perl]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary D (reader, allow): cat]: both exit 0 (expected)
+ok: parity [wfi037 vocabulary D (reader, allow): grep]: both exit 0 (expected)
+ok: parity [wfi037 vocabulary D (reader, allow): sed]: both exit 0 (expected)
+ok: parity [wfi037 vocabulary D (reader, allow): git]: both exit 0 (expected)
+ok: parity [wfi048 control: protected target is registered (deny)]: both exit 2 (expected)
+ok: parity [wfi048 control: unprotected target is not (allow)]: both exit 0 (expected)
+ok: parity [wfi048 patch applier (deny): git apply protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): git apply -R protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): git apply --reverse protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): git am protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): patch -p1 -i protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): patch -p1 < protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): git apply does-not-exist.patch]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): git apply not-a-diff.patch]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): cat protected.patch | git apply]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): git apply timestamped.patch]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): git apply delete-protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 unprotected patch (allow): git apply unprotected.patch]: both exit 0 (expected)
+ok: parity [wfi048 unprotected patch (allow): git apply -R unprotected.patch]: both exit 0 (expected)
+ok: parity [wfi048 unprotected patch (allow): patch -p1 < unprotected.patch]: both exit 0 (expected)
+ok: parity [wfi048 unprotected patch (allow): git apply body-lookalike.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): git apply --check protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): git apply --stat protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): git apply --numstat protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): git apply --summary protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): patch --dry-run -p1 < protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 embedded path (deny): python3 -c "open('.github/workflows/test.yml','a').write('x')"]: both exit 2 (expected)
+ok: parity [wfi048 embedded path (deny): node -e "require('fs').appendFileSync('.github/workflows/test.yml','x')"]: both exit 2 (expected)
+ok: parity [wfi048 embedded path (deny): python3 -c "import os; os.remove('tests/gates.tests.sh')"]: both exit 2 (expected)
+ok: parity [wfi048 embedded path (deny): python3 -c 'open(".github/workflows/test.yml","w")']: both exit 2 (expected)
+ok: parity [wfi048 prose (allow): python3 -c "print('see .github/workflows/test.yml for details')"]: both exit 0 (expected)
+ok: parity [wfi048 prose (allow): python3 -c "print('guard reads .github/workflows/test.yml; see WFI-048')"]: both exit 0 (expected)
+ok: parity [wfi048 prose (allow): python3 -c "print('freeze tests/gates.tests.sh, and the rest')"]: both exit 0 (expected)
+ok: parity [wfi048 arbitrary script (allow, open by design): python3 rewrite.py]: both exit 0 (expected)
+ok: parity [wfi048 arbitrary script (allow, open by design): node rewrite.js]: both exit 0 (expected)
+ok: parity [script input: python-file-stdout]: both exit 0 (expected)
+ok: parity [script input: python-file-output]: both exit 0 (expected)
+ok: parity [script input: python-quoted-input]: both exit 0 (expected)
+ok: parity [script input: python-file-fd-dup]: both exit 0 (expected)
+ok: parity [script input: bash-file-output]: both exit 0 (expected)
+ok: parity [script input: sh-file-output]: both exit 0 (expected)
+ok: parity [script input: same-input-overwrite]: both exit 2 (expected)
+ok: parity [script input: same-input-append]: both exit 2 (expected)
+ok: parity [script input: protected-data-output]: both exit 2 (expected)
+ok: parity [script input: protected-data-stderr]: both exit 2 (expected)
+ok: parity [script input: protected-data-argument]: both exit 2 (expected)
+ok: parity [script input: protected-shell-output]: both exit 2 (expected)
+ok: parity [script input: later-protected-write]: both exit 2 (expected)
+ok: parity [script input: later-relative-write]: both exit 2 (expected)
+ok: parity [script input: changed-cwd]: both exit 2 (expected)
+ok: parity [script input: variable-context]: both exit 2 (expected)
+ok: parity [script input: dynamic-input]: both exit 2 (expected)
+ok: parity [script input: inline-python]: both exit 2 (expected)
+ok: parity [script input: module-python]: both exit 2 (expected)
+ok: parity [script input: inline-shell]: both exit 2 (expected)
+ok: parity [script input: script-argument-not-input]: both exit 2 (expected)
+ok: parity [script input: argument-not-command]: both exit 2 (expected)
+ok: parity [script input: quoted-command-not-command]: both exit 2 (expected)
+ok: parity [script input: comment-not-command]: both exit 2 (expected)
+ok: parity [script input: interpreter-option]: both exit 2 (expected)
+ok: parity [script input: attached-redirect-unknown]: both exit 2 (expected)
+ok: parity [script input: tilde-input-unknown]: both exit 2 (expected)
+ok: parity [script input: alias-rebinding]: both exit 2 (expected)
+ok: parity [script input: shell-alias-rebinding]: both exit 2 (expected)
+ok: parity [script input: hash-rebinding]: both exit 2 (expected)
+ok: parity [script input: path-rebinding]: both exit 2 (expected)
+ok: parity [script input: later-script-command]: both exit 2 (expected)
+ok: parity [script input: absolute-named-interpreter]: both exit 2 (expected)
+ok: parity [script input: relative-named-interpreter]: both exit 2 (expected)
+ok: parity [script input: absolute-shell-interpreter]: both exit 2 (expected)
+ok: parity [script input: assignment-prefix]: both exit 2 (expected)
+ok: parity [wfi061 grep prose mentioning token and Write (allow)]: both exit 0 (expected)
+ok: parity [wfi061 key provisioning script mentions env vars (allow)]: both exit 0 (expected)
+ok: parity [wfi061 read-only skill inspection (allow)]: both exit 0 (expected)
+ok: parity [wfi061 redirect exact target (deny)]: both exit 2 (expected)
+ok: parity [wfi061 rm exact target (deny)]: both exit 2 (expected)
+ok: parity [wfi061 mv exact target (deny)]: both exit 2 (expected)
+ok: parity [wfi061 tee exact target (deny)]: both exit 2 (expected)
+ok: parity [wfi061 file tool exact target (deny)]: both exit 2 (expected)
+
+guard-parity.tests.sh: 403 passed, 0 failed
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/a.tests.py
+SKIPPED: tests/a.tests.py
+==> tests/native-a.tests.ps1
+FAILED: tests/native-a.tests.ps1
+==> tests/native-b.tests.ps1
+PASSED: tests/native-b.tests.ps1
+==> tests/a.tests.py
+fixture
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+changed
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/a.tests.py
+SKIPPED: tests/a.tests.py
+==> tests/native-a.tests.ps1
+FAILED: tests/native-a.tests.ps1
+==> tests/native-b.tests.ps1
+PASSED: tests/native-b.tests.ps1
+==> tests/a.tests.py
+fixture
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+changed
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+ok: live stdlib generator exists
+ok: committed native output exists: guard_invariants.py
+ok: committed native output exists: guard-invariants.generated.js
+ok: committed native output exists: guard-invariants.generated.ps1
+ok: committed native output exists: guard-invariants.generated.sh
+ok: --check accepts committed outputs
+ok: TEST-013 staged batch contains each exact protected candidate
+ok: TEST-013 final manifest has exact ordered lowercase staged hashes
+ok: TEST-013 class lock: the bundle manifest is present (absence assertions are non-vacuous)
+ok: TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/references/guard-invariants.json is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generate-guard-invariants.py is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard_invariants.py is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-011 live CI uses platform-native generator and invariant suites before validation and guards
+ok: two independent write-mode renders are byte-identical
+ok: --check rejects stale output without writing
+ok: --check rejects missing output
+ok: --check rejects invalid type schema
+ok: --check rejects invalid version schema
+ok: --check rejects malformed canonical JSON
+ok: --check rejects canonical read I/O errors
+ok: Python uses explicit fixed module loading
+ok: Python loader targets its generated module
+ok: Node loader targets its generated module
+ok: Node loader is script-directory based
+ok: PowerShell loader targets its generated module
+ok: PowerShell loader is script-directory based
+ok: dispatcher sources schema/provenance module
+ok: sdd-hook-guard.py does not parse canonical JSON at runtime
+ok: sdd-hook-guard.js does not parse canonical JSON at runtime
+ok: sdd-hook-guard.ps1 does not parse canonical JSON at runtime
+ok: sdd-hook-guard.sh does not parse canonical JSON at runtime
+ok: Python ignores CWD/PYTHONPATH shadow and preserves read-only decision
+ok: Node ignores CWD/NODE_PATH shadow and preserves read-only decision
+ok: Python denies a missing fixed generated module
+ok: Node denies a missing fixed generated module
+ok: Python denies an unconsumed fixed-module export
+ok: Node denies an unconsumed fixed-module export
+ok: WFI-016 staged targets are byte-identical to live (no stale staging)
+phase2-guard-invariants.tests.sh: 42 passed, 0 failed
+ok: staged generator exists
+ok: generated output exists: guard_invariants.py
+ok: generated output exists: guard-invariants.generated.js
+ok: generated output exists: guard-invariants.generated.ps1
+ok: generated output exists: guard-invariants.generated.sh
+ok: generator --check succeeds
+ok: Python output exports the exact v1 key set
+ok: Node output exports the exact v1 key set
+ok: PowerShell output exports the exact v1 key set
+ok: PowerShell schema/version constants are v1/64
+ok: generator --check rejects malformed canonical JSON
+ok: generator --check rejects canonical read I/O errors
+ok: Python uses explicit importlib fixed loader
+ok: Python loader names fixed native module
+ok: Node loader names fixed native module
+ok: Node loader is not CWD-relative
+ok: PowerShell loader names fixed native module
+ok: PowerShell loader is not PWD-relative
+ok: dispatcher sources only schema/provenance output
+ok: runtime avoids canonical JSON: sdd-hook-guard.py
+ok: runtime avoids canonical JSON: sdd-hook-guard.js
+ok: runtime avoids canonical JSON: sdd-hook-guard.ps1
+ok: runtime avoids canonical JSON: sdd-hook-guard.sh
+ok: Python staged guard preserves shared read-only corpus from another CWD
+ok: Node staged guard preserves shared read-only corpus from another CWD
+ok: PowerShell staged guard preserves shared read-only corpus from another CWD
+ok: TEST-012 Python denies a missing fixed generated module
+ok: TEST-012 Python denies an unconsumed fixed-module export
+ok: TEST-012 Node denies a missing fixed generated module
+ok: TEST-012 Node denies an unconsumed fixed-module export
+ok: TEST-012 PowerShell denies a missing fixed generated module
+ok: TEST-012 PowerShell denies an unconsumed fixed-module export
+ok: TEST-013 staged batch contains each exact protected candidate
+ok: TEST-013 final manifest has exact ordered lowercase staged hashes
+ok: TEST-013 class lock: the bundle manifest is present (absence assertions are non-vacuous)
+ok: TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/references/guard-invariants.json is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generate-guard-invariants.py is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard_invariants.py is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-011 label normalization accepts the exact quoted display prefix
+ok: TEST-011 label normalization preserves undecorated names
+ok: TEST-011 label normalization never rewrites run commands
+ok: TEST-011 label normalization does not accept a mis-cased prefix
+ok: TEST-011 live CI uses platform-native generator and invariant suites before validation and guards
+ok: TEST-013 staged bootstrap validator exists
+ok: TEST-013 bootstrap validator is ASCII/no-BOM for PowerShell 5.1
+ok: TEST-013 runner binds the reviewed anchored native API contract
+ok: TEST-013 runner has no path-based copy or source-hash fallback
+ok: TEST-013 runner fails closed outside FullLanguage and local NTFS capability floor
+ok: TEST-013 isolated fixtures have inert source, parent, prepare, and rename patch markers
+ok: TEST-013 pre-refresh runner is accompanied by its staged refresh candidate
+skip - TEST-013 runner install-path assertions: the installed runner still reads the evicted staged canonical; apply apply-protected-files.refresh-candidate-20260814.ps1 (see the bundle NOTES) to re-enable them
+ok: WFI-016 staged targets are byte-identical to live (no stale staging)
+phase2-guard-invariants.tests.ps1: 55 passed, 0 failed, 1 skipped
+guard-r10-port.tests.ps1
+  PS1: /workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  PY : /workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+  JS : /workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+ok: r10 file-write: sdd-hook-guard.py (all exit 2)
+ok: r10 file-write: .claude/settings.json (all exit 2)
+ok: r10 file-write: tests/gates.tests.sh (all exit 2)
+ok: r10 edit: ship/SKILL.md (all exit 2)
+ok: r10 file-write: impl-review-loop SKILL.md (all exit 2)
+ok: r10 multiedit: check-contract.ps1 (all exit 2)
+ok: r10 file-write: claude-hooks.json (all exit 2)
+ok: r10 apply_patch: sdd-hook-guard.py (all exit 2)
+ok: r10 file-write: ../ traversal to guard (all exit 2)
+ok: r10 A9 rollback admission (all exit 2)
+ok: r10 A9 promotion admission (all exit 2)
+ok: r10 A9 dependency write: scripts/validate-a9-candidate.py (all exit 2)
+ok: r10 A9 dependency read: scripts/validate-a9-candidate.py (all exit 0)
+ok: r10 A9 dependency write: scripts/observe-a9-advisory.py (all exit 2)
+ok: r10 A9 dependency read: scripts/observe-a9-advisory.py (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-quality-loop/scripts/validate-live-host-proof.py (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-quality-loop/scripts/validate-live-host-proof.py (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-quality-loop/scripts/validate-facet-manifest.py (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-quality-loop/scripts/validate-facet-manifest.py (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-quality-loop/scripts/resolve-component-paths.py (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-quality-loop/scripts/resolve-component-paths.py (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-quality-loop/scripts/validate-capability-registry.py (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-quality-loop/scripts/validate-capability-registry.py (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-quality-loop/scripts/generate-registry-digest.py (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-quality-loop/scripts/generate-registry-digest.py (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-quality-loop/scripts/registry_discovery.py (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-quality-loop/scripts/registry_discovery.py (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-quality-loop/scripts/evaluate-predicate.py (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-quality-loop/scripts/evaluate-predicate.py (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-review-loop/references/a8-trusted-signers.json (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-review-loop/references/a8-trusted-signers.json (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json (all exit 0)
+ok: r10 A9 dependency write: plugins/sdd-review-loop/references/a8-skip-allowlist.json (all exit 2)
+ok: r10 A9 dependency read: plugins/sdd-review-loop/references/a8-skip-allowlist.json (all exit 0)
+ok: r10 A9 dependency write: tests/hook-activation-live-proof/nonce-ledger.json (all exit 2)
+ok: r10 A9 dependency read: tests/hook-activation-live-proof/nonce-ledger.json (all exit 0)
+ok: r10 Lite catalog contracts/lite-check-catalog.json (all exit 2)
+ok: r10 Lite catalog contracts/lite-check-catalog.schema.json (all exit 2)
+ok: r10 Lite catalog plugins/sdd-quality-loop/contracts/lite-check-catalog.json (all exit 2)
+ok: r10 Lite catalog plugins/sdd-quality-loop/contracts/lite-check-catalog.schema.json (all exit 2)
+ok: r10 signed handoff proof verifier (all exit 2)
+ok: r10 domain finalizer: py (all exit 2)
+ok: r10 domain finalizer: sh (all exit 2)
+ok: r10 domain finalizer: ps1 (all exit 2)
+ok: r10 file-write: sdd-hook-guard.js (all exit 2)
+ok: r10 file-write: sdd-hook-guard.ps1 (all exit 2)
+ok: r10 edit: sdd-hook-guard.sh (all exit 2)
+ok: r10 file-write: kill-switch.js (all exit 2)
+ok: r10 file-write: kill-switch.sh (all exit 2)
+ok: r10 file-write: kill-switch.ps1 (all exit 2)
+ok: r10 file-write: hooks.json (all exit 2)
+ok: r10 file-write: copilot-hooks.json (all exit 2)
+ok: r10 file-write: check-contract.sh (all exit 2)
+ok: r10 file-write: check-contract.py (all exit 2)
+ok: r10 file-write: check-evidence-bundle.sh (all exit 2)
+ok: r10 file-write: check-evidence-bundle.ps1 (all exit 2)
+ok: r10 file-write: check-evidence-bundle.py (all exit 2)
+ok: r10 file-write: validate_path.py (all exit 2)
+ok: r10 file-write: settings.local.json (all exit 2)
+ok: r10 file-write: tests/eval.tests.sh (all exit 2)
+ok: r10 file-write: tests/guard-parity.tests.sh (all exit 2)
+ok: r10 file-write: tests/constant-parity.tests.sh (all exit 2)
+ok: r10 edit: impl-reviewer-a.md (all exit 2)
+ok: r10 edit: impl-reviewer-b.md (all exit 2)
+ok: r10 multiedit: task-reviewer-a.md (all exit 2)
+ok: r10 multiedit: task-reviewer-b.md (all exit 2)
+ok: r10 file-write: task-review-loop SKILL.md (all exit 2)
+ok: r10 plugin.json: .plugin relative (all exit 2)
+ok: r10 plugin.json: .claude-plugin relative (all exit 2)
+ok: r10 plugin.json: .codex-plugin absolute (all exit 2)
+ok: allow: src/plugin.json (no plugin dot-dir) (all exit 0)
+ok: r10 bash redirect into guard (all exit 2)
+ok: r10 bash cd <dir> && rm <basename> (all exit 2)
+ok: r10 bash pushd <dir> && rm <basename> (all exit 2)
+ok: r10 bash cp onto guard (all exit 2)
+ok: r10 bash compound cat && rm guard (all exit 2)
+ok: r10 read-only grep of guard (all exit 0)
+ok: r10 read-only cat settings (all exit 0)
+ok: r10 read-only cp FROM guard to /tmp (all exit 0)
+ok: impl-review forgery: no verdict -> deny (all exit 2)
+ok: impl-review: PASS verdict -> allow (all exit 0)
+ok: impl-review: FAIL verdict -> deny (all exit 2)
+ok: impl-review forgery edit: no verdict -> deny (all exit 2)
+ok: impl-review forgery multiedit: FAIL verdict -> deny (all exit 2)
+ok: impl-review edit: PASS verdict -> allow (all exit 0)
+ok: copilot-emit: r10 write to guard -> deny (all deny, exit 0)
+ok: copilot-emit: cd+rm guard -> deny (all deny, exit 0)
+ok: copilot-emit: write src/main.py -> allow (all allow, exit 0)
+ok: native view object -> allow (all allow, exit 0)
+ok: native view JSON string -> allow (all allow, exit 0)
+ok: native protected view large-file flag True -> allow (all allow, exit 0)
+ok: native protected view JSON large-file flag and range -> allow (all allow, exit 0)
+ok: native protected view large-file flag False -> allow (all allow, exit 0)
+ok: native protected view JSON large-file flag and range -> allow (all allow, exit 0)
+ok: native view nonboolean large-file flag -> deny (all deny, exit 0)
+ok: native view nonboolean large-file flag -> deny (all deny, exit 0)
+ok: native view nonboolean large-file flag -> deny (all deny, exit 0)
+ok: native view nonboolean large-file flag -> deny (all deny, exit 0)
+ok: native view nonboolean large-file flag -> deny (all deny, exit 0)
+ok: native view nonboolean large-file flag -> deny (all deny, exit 0)
+ok: native view nonboolean large-file flag -> deny (all deny, exit 0)
+ok: native view large-file flag cannot admit write arguments -> deny (all deny, exit 0)
+ok: native view large-file flag keeps range validation -> deny (all deny, exit 0)
+ok: native create safe write -> allow (all allow, exit 0)
+ok: native create protected -> deny (all deny, exit 0)
+ok: native create approval increase -> deny (all deny, exit 0)
+ok: native create wrong content key -> deny (all deny, exit 0)
+ok: native create wrong file_text type -> deny (all deny, exit 0)
+ok: native create missing path -> deny (all deny, exit 0)
+ok: native create nonstring path -> deny (all deny, exit 0)
+ok: native miscased name -> deny (all deny, exit 0)
+ok: native unknown tool -> deny (all deny, exit 0)
+ok: native array args -> deny (all deny, exit 0)
+ok: native malformed JSON args -> deny (all deny, exit 0)
+ok: native singleton envelope array -> deny (all deny, exit 0)
+ok: native nonfinite timestamp NaN -> deny (all deny, exit 0)
+ok: native nonfinite timestamp Infinity -> deny (all deny, exit 0)
+ok: native nonfinite timestamp -Infinity -> deny (all deny, exit 0)
+ok: native nonfinite timestamp 1e400 -> deny (all deny, exit 0)
+ok: native extra metadata -> allow (all allow, exit 0)
+ok: native ISO timestamp is wrong format -> deny (all deny, exit 0)
+ok: internal batch envelope only -> deny (all deny, exit 0)
+ok: legacy plus batch envelope -> deny (all deny, exit 0)
+ok: ambiguous native and legacy -> deny (all deny, exit 0)
+ok: native raw patch source Add (all allow, exit 0)
+ok: native raw patch source Update (all allow, exit 0)
+ok: native raw patch protected gate (all deny, exit 0)
+ok: native raw patch sentinel (all deny, exit 0)
+ok: native raw patch sudo (all deny, exit 0)
+ok: native raw patch approval (all deny, exit 0)
+ok: native raw patch mixed source and protected (all deny, exit 0)
+ok: native raw patch move to protected (all deny, exit 0)
+ok: native raw patch empty (all deny, exit 0)
+ok: native raw patch missing end (all deny, exit 0)
+ok: native raw patch missing operation (all deny, exit 0)
+ok: native raw patch object (all deny, exit 0)
+ok: native raw patch multiple envelopes (all deny, exit 0)
+ok: native task delegation -> allow (all allow, exit 0)
+ok: native task nonstring prompt -> deny (all deny, exit 0)
+ok: native task missing prompt -> deny (all deny, exit 0)
+ok: native task unknown argument -> deny (all deny, exit 0)
+ok: script input: python-file-stdout (all allow, exit 0)
+ok: script input: python-file-output (all allow, exit 0)
+ok: script input: python-quoted-input (all allow, exit 0)
+ok: script input: python-file-fd-dup (all allow, exit 0)
+ok: script input: bash-file-output (all allow, exit 0)
+ok: script input: sh-file-output (all allow, exit 0)
+ok: script input: same-input-overwrite (all deny, exit 0)
+ok: script input: same-input-append (all deny, exit 0)
+ok: script input: protected-data-output (all deny, exit 0)
+ok: script input: protected-data-stderr (all deny, exit 0)
+ok: script input: protected-data-argument (all deny, exit 0)
+ok: script input: protected-shell-output (all deny, exit 0)
+ok: script input: later-protected-write (all deny, exit 0)
+ok: script input: later-relative-write (all deny, exit 0)
+ok: script input: changed-cwd (all deny, exit 0)
+ok: script input: variable-context (all deny, exit 0)
+ok: script input: dynamic-input (all deny, exit 0)
+ok: script input: inline-python (all deny, exit 0)
+ok: script input: module-python (all deny, exit 0)
+ok: script input: inline-shell (all deny, exit 0)
+ok: script input: script-argument-not-input (all deny, exit 0)
+ok: script input: argument-not-command (all deny, exit 0)
+ok: script input: quoted-command-not-command (all deny, exit 0)
+ok: script input: comment-not-command (all deny, exit 0)
+ok: script input: interpreter-option (all deny, exit 0)
+ok: script input: attached-redirect-unknown (all deny, exit 0)
+ok: script input: tilde-input-unknown (all deny, exit 0)
+ok: script input: alias-rebinding (all deny, exit 0)
+ok: script input: shell-alias-rebinding (all deny, exit 0)
+ok: script input: hash-rebinding (all deny, exit 0)
+ok: script input: path-rebinding (all deny, exit 0)
+ok: script input: later-script-command (all deny, exit 0)
+ok: script input: absolute-named-interpreter (all deny, exit 0)
+ok: script input: relative-named-interpreter (all deny, exit 0)
+ok: script input: absolute-shell-interpreter (all deny, exit 0)
+ok: script input: assignment-prefix (all deny, exit 0)
+ok: native bash observed cat -> allow (all allow, exit 0)
+ok: native bash read protected data cat plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (all allow, exit 0)
+ok: native bash read protected data grep 'Approval: Approved' specs/feat-noverdict/tasks.md (all allow, exit 0)
+ok: native bash preserves write denial echo x > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (all deny, exit 0)
+ok: native bash preserves write denial echo 'Approval: Approved' > specs/feat-noverdict/tasks.md (all deny, exit 0)
+ok: native bash preserves write denial cat safe.txt && rm sdd/.hook-canary-sentinel (all deny, exit 0)
+ok: native bash JSON arguments -> allow (all allow, exit 0)
+ok: native bash malformed arguments -> deny (all deny, exit 0)
+ok: native bash malformed arguments -> deny (all deny, exit 0)
+ok: native bash malformed arguments -> deny (all deny, exit 0)
+ok: native bash malformed arguments -> deny (all deny, exit 0)
+ok: native bash malformed arguments -> deny (all deny, exit 0)
+ok: native bash finite initial_wait 600 (all allow, exit 0)
+ok: native bash finite initial_wait 0 (all allow, exit 0)
+ok: native bash finite initial_wait -1 (all allow, exit 0)
+ok: native bash finite initial_wait 0.5 (all allow, exit 0)
+ok: native bash finite initial_wait 601 (all allow, exit 0)
+ok: native bash finite initial_wait 1E+100 (all allow, exit 0)
+ok: native bash JSON wait arguments -> allow (all allow, exit 0)
+ok: native bash large finite JSON integer wait -> allow (all allow, exit 0)
+ok: native bash invalid wait type -> deny (all deny, exit 0)
+ok: native bash invalid wait type -> deny (all deny, exit 0)
+ok: native bash invalid wait type -> deny (all deny, exit 0)
+ok: native bash invalid wait type -> deny (all deny, exit 0)
+ok: native bash invalid wait type -> deny (all deny, exit 0)
+ok: native bash invalid wait type -> deny (all deny, exit 0)
+ok: native bash nonfinite wait NaN (all deny, exit 0)
+ok: native bash nonfinite wait Infinity (all deny, exit 0)
+ok: native bash nonfinite wait -Infinity (all deny, exit 0)
+ok: native bash nonfinite wait 1e999 (all deny, exit 0)
+ok: native bash overflowing integer string -> deny (all deny, exit 0)
+ok: native bash overflowing integer object -> deny (all deny, exit 0)
+ok: native bash wait preserves write denial echo x > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (all deny, exit 0)
+ok: native bash wait preserves write denial echo 'Approval: Approved' > specs/feat-noverdict/tasks.md (all deny, exit 0)
+ok: native bash wait preserves write denial cat safe.txt && rm sdd/.hook-canary-sentinel (all deny, exit 0)
+ok: native bash wait rejects unknown argument (all deny, exit 0)
+ok: native glob observed search -> allow (all allow, exit 0)
+ok: native glob protected paths -> allow (all allow, exit 0)
+ok: native glob malformed arguments -> deny (all deny, exit 0)
+ok: native glob malformed arguments -> deny (all deny, exit 0)
+ok: native glob malformed arguments -> deny (all deny, exit 0)
+ok: native glob malformed arguments -> deny (all deny, exit 0)
+ok: native glob malformed arguments -> deny (all deny, exit 0)
+ok: native view protected data plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (all allow, exit 0)
+ok: native view protected data sdd/.hook-canary-sentinel (all allow, exit 0)
+ok: native view protected data SDD_SUDO (all allow, exit 0)
+ok: native view protected data specs/feat-noverdict/tasks.md (all allow, exit 0)
+ok: canonical patch move to protected -> deny (all deny, exit 0)
+ok: canonical patch move to sudo -> deny (all deny, exit 0)
+ok: native context-only move to specs/feat-noverdict/tasks.md (all deny, exit 0)
+ok: native context-only move to specs/feat-noverdict/design.md (all deny, exit 0)
+ok: native context-only move to domain/context-map.md (all deny, exit 0)
+ok: native context-only move to docs/workflow-improvements/WFI-001.md (all deny, exit 0)
+ok: native context-only move to .codex/agents/custom.toml (all deny, exit 0)
+ok: native source move remains allowed (all allow, exit 0)
+ok: native Add impl-review feat-noverdict (all deny, exit 0)
+ok: native Add impl-review feat-fail (all deny, exit 0)
+ok: native Add impl-review feat-pass (all allow, exit 0)
+ok: native Update impl-review feat-noverdict (all deny, exit 0)
+ok: native Update impl-review feat-fail (all deny, exit 0)
+ok: native Update impl-review feat-pass (all allow, exit 0)
+ok: native multiline impl-review -> deny (all deny, exit 0)
+ok: native multiline impl-review -> deny (all deny, exit 0)
+ok: native multiline impl-review -> deny (all deny, exit 0)
+ok: native patch array tool name -> deny (all deny, exit 0)
+ok: allow: write src/main.py (all exit 0)
+ok: allow: edit README.md (all exit 0)
+ok: malformed: empty object (all exit 2)
+ok: malformed: write missing file_path (all exit 2)
+ok: malformed: empty payload string (all exit 2)
+ok: kill-switch: AGENT_STOP at git root, nested cwd, no CLAUDE_PROJECT_DIR -> deny (all exit 2)
+ok: kill-switch: no AGENT_STOP, nested cwd, no CLAUDE_PROJECT_DIR -> allow (all exit 0)
+
+guard-r10-port.tests.ps1: 252 passed, 0 failed
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 11.475s
+
+OK
+...............
+----------------------------------------------------------------------
+Ran 15 tests in 1.342s
+
+OK
+...............
+----------------------------------------------------------------------
+Ran 15 tests in 1.314s
+
+OK
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.053s
+
+OK
+test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) ... ok
+test_005_full_profile_output_contract_and_no_context_compatibility (__main__.CompatibilityTests.test_005_full_profile_output_contract_and_no_context_compatibility) ... ok
+test_005_stale_snapshot_blocks_without_partial_publication (__main__.CompatibilityTests.test_005_stale_snapshot_blocks_without_partial_publication) ... ok
+test_006_shipped_structural_consumer_rejects_missing_or_rewritten_layer (__main__.CompatibilityTests.test_006_shipped_structural_consumer_rejects_missing_or_rewritten_layer) ... ok
+test_006_valid_hybrid_all_targets_retains_seven_bytes_and_separate_manifest (__main__.CompatibilityTests.test_006_valid_hybrid_all_targets_retains_seven_bytes_and_separate_manifest) ... ok
+test_additive_override_contract_preserves_existing_context_boundaries (__main__.CompatibilityTests.test_additive_override_contract_preserves_existing_context_boundaries) ... ok
+test_reviewed_cloud_extension_is_exact_and_retains_original_baseline (__main__.CompatibilityTests.test_reviewed_cloud_extension_is_exact_and_retains_original_baseline) ... ok
+test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy (__main__.CompatibilityTests.test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy) ... ok
+test_reviewed_pending_status_requires_exact_change_and_original_baseline (__main__.CompatibilityTests.test_reviewed_pending_status_requires_exact_change_and_original_baseline) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 17.666s
+
+OK
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 32.999s
+
+OK

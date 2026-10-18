@@ -1,0 +1,83 @@
+{
+  "commands": [
+    {
+      "command": "/bin/bash -lc \"pwd; rg --files -g AGENTS.md -g request.json -g '*route*' -g '*prepare*' -g '*apply*' .\"",
+      "sha256": "8fd91a8689ff96c737309aa7de40c1d71423d1d7cac04878987597e83dbe324c",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/bootstrap/SKILL.md; for p in /AGENTS.md /workspace/AGENTS.md /workspace/.tools/AGENTS.md /workspace/.tools/sdd-forge-dev/AGENTS.md /workspace/.tools/sdd-forge-dev/verification-workspace/AGENTS.md /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/AGENTS.md; do if [ -f \"$p\" ]; then echo \"$p\"; cat \"$p\"; fi; done'",
+      "sha256": "5514e384c9fa31e4f525f7c14dcd404c2ec495241bf9c81a80c040947df9478e",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/skills/orchestrate/SKILL.md; cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py'",
+      "sha256": "3ec40f6dc62c37a7dcde9aad30e0f6d56ba3c663c904cb7e4f1be7c0021c8f26",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'rg --files --hidden -g AGENTS.md -g agents.md azure-supported azure-mixed-owner /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins; cat azure-supported/request.json azure-mixed-owner/request.json; git status --short'",
+      "sha256": "87adffda6697e34c135bf78cd29afa20a0215d2c5a241193f01b986c39eb4d3d",
+      "exit_code": 128,
+      "status": "failed"
+    },
+    {
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts/cloud.py; cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/references/local-contract.md'",
+      "sha256": "988ecb6a4e805758d2c246c565c73a20b576eee8965f43326533370d479b1e82",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc \"python3 --version; rg --files --hidden azure-supported azure-mixed-owner; rg -n 'prepare|apply|def main|def run|BLOCKED|governed' /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts\"",
+      "sha256": "b110203809195ebff80b2ca48f859031c34fdabec603218a5199c7ba12c138c7",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc \"python3 -B - <<'PY'\nfrom pathlib import Path\nimport hashlib, json\nbase = Path.cwd()\nroots = [Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0'), Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0')]\nfor root in roots:\n    print(str(root), 'physical:', root.resolve() == root)\nfor p in [roots[0] / 'scripts/cloud-routing.py', roots[1] / 'scripts/cloud.py', *(roots[1] / 'runtime/scripts' / name for name in ('cloud_contracts.py', 'cloud_authorization.py', 'cloud_verification.py', 'cloud_dependencies.py'))]:\n    print(str(p), 'present:', p.is_file(), 'physical:', p.resolve() == p)\nfor unit in ('azure-supported', 'azure-mixed-owner'):\n    for p in [base / unit / 'request.json', *sorted((base / unit / 'bundle').rglob('*'))]:\n        if p.is_file():\n            print(hashlib.sha256(p.read_bytes()).hexdigest(), str(p.relative_to(base)))\n    directory = base / unit / json.loads((base / unit / 'request.json').read_bytes())['local_context']['evidence_directory']\n    print('Evidence directory:', str(directory), 'exists:', directory.is_dir(), 'physical:', directory.resolve() == directory, 'files:', [p.name for p in directory.iterdir()] if directory.is_dir() else [])\nPY\"",
+      "sha256": "0e3d887af0996a33aa33cec4a85e5ef09bb9ab1ce8d6e50f51fe21f1f3cb8383",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py --provider azure --plugin-root /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0 route --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/bootstrap-route.json'",
+      "sha256": "7f8e61f0634bea237fa38f2e123d0425782c2a273ecf6e155fa65ad42a6c6de1",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported CLOUD_SHARED_RUNTIME_ROOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/runtime/scripts python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts/cloud.py route --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-route.json'",
+      "sha256": "6812a1f24da91f1658fe1159410831983c09fe4aa16570975cb52d3d4335b47b",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported CLOUD_SHARED_RUNTIME_ROOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/runtime/scripts python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts/cloud.py prepare --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-prepare.json'",
+      "sha256": "7ffe9f1a2c655cc4749ab1b166722be0141bbc6c555284575806dad22920dfa0",
+      "exit_code": 2,
+      "status": "failed"
+    },
+    {
+      "command": "/bin/bash -lc 'CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported CLOUD_SHARED_RUNTIME_ROOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/runtime/scripts python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts/cloud.py apply --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-apply.json'",
+      "sha256": "972abc65756c2b3e118012f213176d6bf5f467a2800c15a493de907901fe2777",
+      "exit_code": 2,
+      "status": "failed"
+    },
+    {
+      "command": "/bin/bash -lc 'CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-mixed-owner python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py --provider azure --plugin-root /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0 route --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-mixed-owner/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-mixed-owner/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/mixed-route.json'",
+      "sha256": "0b080d38aad721bf2aa7224c271ae7e85ce2422b6f76ec8414580b69ae9d8a7f",
+      "exit_code": 2,
+      "status": "failed"
+    },
+    {
+      "command": "/bin/bash -lc \"python3 -B - <<'PY'\nfrom pathlib import Path\nimport hashlib, json\nbase = Path.cwd()\nsuffix = 'specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit'\nsupported = base / 'azure-supported' / suffix\nmixed = base / 'azure-mixed-owner' / suffix\na = json.loads((supported / 'bootstrap-route.json').read_bytes())\nb = json.loads((supported / 'direct-route.json').read_bytes())\nma = (base / 'azure-supported' / a['evidence_manifest_path']).read_bytes()\nmb = (base / 'azure-supported' / b['evidence_manifest_path']).read_bytes()\nexpected = {'request.json': '415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218', 'bundle/config.json': '9406f918ccf80e0eee024fb285d52cd296b85f89fa208b1a732d2987f97d3dcf', 'bundle/lock.json': '9583054be57b791bf4a55dd0fabe91f39f90546eb2ef1a79ea1f28f78202a9b2', 'bundle/ownership.json': 'b54761bde92af38b24c96c01ade78dcc5e32c9b73bba1800deb199b0264fe3e8', 'bundle/policy.json': '33962d46ade4dbb8a786027252466925977887432fa809074ff5814af00ebd14', 'bundle/profile.json': '29c7f6eb0e283d05f39d1ca0b891176490f99d26e7e3802a96db9181c10996f9', 'bundle/unit/main.bicep': 'ee432479e62cd2ec9ec444b88689cb712bccfdb62239ee6ad2da7154da88d060', 'bundle/upstream/reference.md': 'cab137efe652b7f01013c377cf0f3d884a8634ef21f2f396121fffa3e5d4b828'}\nchecked = 0\nfor unit in ('azure-supported', 'azure-mixed-owner'):\n    unit_expected = dict(expected)\n    if unit == 'azure-mixed-owner':\n        unit_expected['bundle/unit/main.tf'] = '7717de6fb18502ea71badda74ec771fc41f20cbf25507bf700890b323fb83c72'\n    actual_paths = {'request.json'} | {str(p.relative_to(base / unit)) for p in (base / unit / 'bundle').rglob('*') if p.is_file()}\n    assert actual_paths == set(unit_expected)\n    for path, digest in unit_expected.items():\n        assert hashlib.sha256((base / unit / path).read_bytes()).hexdigest() == digest, path\n        checked += 1\nprint(json.dumps({'route_differing_fields': [k for k in a if a[k] \"'!= b[k]], '\"'route_manifests_byte_identical': ma == mb, 'manifest': json.loads(ma), 'unchanged_input_files': checked, 'evidence': {str(p): p.read_text() for directory in (supported, mixed) for p in sorted(directory.iterdir()) if p.is_file()}}, sort_keys=True))\nPY\"",
+      "sha256": "64bc1e9020ae312f1ef93ad627f2595d847fe251784bee1ea08ee5b13c476f8b",
+      "exit_code": 0,
+      "status": "completed"
+    }
+  ],
+  "inspection": "Root inspected every completed command execution body. Hook-denied proposals are recorded separately and are not completed command executions. Only installed skill/reference/schema reads, local hashes, installed CLI calls and local evidence capture; no provider API, credentials, governed wrapper or product modification. Denied attempts do not count as executed CLI checks."
+}

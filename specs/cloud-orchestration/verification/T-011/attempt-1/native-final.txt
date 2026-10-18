@@ -1,0 +1,9 @@
+Implemented T-011 in commit `2586bc3f`.
+
+- Installed-provider routing and all six suite registrations completed.
+- T004 compatibility repair, scoped tests, rollback, configured Ruff/mypy, and manifest/report validation passed.
+- Root’s actual native-host PASS cited; pinned production bytes unchanged.
+
+Report: `reports/implementation/cloud-orchestration/T-011.md`
+
+Full-suite verification, hosted CI, and independent review remain root-owned. No status changes, push, tag, or merge.

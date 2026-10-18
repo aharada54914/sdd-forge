@@ -1,0 +1,9 @@
+Command: python3 -B tests/guard-readonly-inputs.tests.py --runtime powershell
+MYPYPATH: plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 34.624s
+
+OK
+
+Exit: 0

@@ -1,0 +1,59 @@
+{
+  "commands": [
+    {
+      "command": "/bin/bash -lc \"pwd; rg --files -g AGENTS.md -g request.json -g '*route*' -g '*README*' .\"",
+      "sha256": "385fff52a65bdc0144df8804509f0f1407d714a10b7c20303b0fae871c89acf7",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/bootstrap/SKILL.md'",
+      "sha256": "e2a28c0a45d379c8efeadce891ca84c32201f2cc0f22193be6bbd90d3cb918b8",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/openai-curated-remote/cloud-environment/0.1.2/skills/runtime/SKILL.md'",
+      "sha256": "6dda01090e259677e033b3496fb2c161c019d2758eee625e23a6e0e55d4273c6",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'for d in / /workspace /workspace/.tools /workspace/.tools/sdd-forge-dev /workspace/.tools/sdd-forge-dev/verification-workspace /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018; do if [ -f \"$d/AGENTS.md\" ]; then printf '\"'\\\\n%s\\\\n' \\\"\"'$d/AGENTS.md\"; cat \"$d/AGENTS.md\"; fi; done; rg --files --hidden -g AGENTS.md aws-supported aws-mixed-owner'",
+      "sha256": "ad6e8bd395f6b562bd225a2c51b6100923f38c11220254aa93c9d5c4b80b574d",
+      "exit_code": 1,
+      "status": "failed"
+    },
+    {
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/skills/orchestrate/SKILL.md; cat aws-supported/request.json aws-mixed-owner/request.json'",
+      "sha256": "7c84acd55ed8aca8d76cde4500b1a6f135630d2d7b86fc16f86868d43041a82f",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py; cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/scripts/cloud.py'",
+      "sha256": "0292cc93d38995dbb16f2af0a2d0fd2eabc05c7940373074098bbf143549ae41",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/references/local-preparation.md /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/references/observations.md /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/scripts/governed-setup.md; python3 --version; rg --files --hidden aws-supported aws-mixed-owner; ls /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/runtime/scripts'",
+      "sha256": "905d2e29738443694cb34fc2a414cff3fedf43edf798502a5c9c83ad2bf7569c",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc 'for d in /workspace/.tools/sdd-forge-dev/codex-verify /workspace/.tools/sdd-forge-dev/codex-verify/plugins /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0 /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0 /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/scripts /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/runtime /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/runtime/scripts; do if [ -f \"$d/AGENTS.md\" ]; then cat \"$d/AGENTS.md\"; fi; done\nrealpath /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0 /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0\ncat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/.codex-plugin/plugin.json\nsha256sum aws-supported/request.json aws-mixed-owner/request.json aws-supported/bundle/*json aws-supported/bundle/unit/* aws-supported/bundle/upstream/* aws-mixed-owner/bundle/*json aws-mixed-owner/bundle/unit/* aws-mixed-owner/bundle/upstream/*'",
+      "sha256": "95e7f9f4a2478f06ccca897504f42d5c7dd294bcaffb5e8a9199f2eea391cdae",
+      "exit_code": 0,
+      "status": "completed"
+    },
+    {
+      "command": "/bin/bash -lc \"python3 -B - <<'PY'\nimport hashlib\nimport json\nimport os\nfrom pathlib import Path\nimport shlex\nimport subprocess\n\nbase = Path('/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018')\nbootstrap = Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0')\nprovider = Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0')\ninputs = [p for name in ('aws-supported', 'aws-mixed-owner') for p in (base/name).rglob('*') if p.is_file() and (p.name == 'request.json' or 'bundle' in p.relative_to(base/name).parts)]\nbefore = {p: p.read_bytes() for p in inputs}\njobs = [('aws-supported', 'bootstrap', 'route', 'bootstrap-route.json'), ('aws-supported', 'direct', 'route', 'direct-route.json'), ('aws-supported', 'direct', 'prepare', 'direct-prepare.json'), ('aws-supported', 'direct', 'apply', 'direct-apply.json'), ('aws-mixed-owner', 'bootstrap', 'route', 'mixed-route.json')]\nfor unit, entry, operation, filename in jobs:\n    workspace = base/unit\n    request = workspace/'request.json'\n    evidence = workspace/json.loads(before[request])['local_context']['evidence_directory']\n    evidence.mkdir(parents=True, exist_ok=True)\n    output = evidence/filename\n    if output.exists() or output.is_symlink():\n        raise RuntimeError('Evidence already exists: ' + str(output))\n    env_values = {'CLOUD_WORKSPACE_ROOT': str(workspace)}\n    if entry == 'bootstrap':\n        args = ['python3', '-B', str(bootstrap/'scripts/cloud-routing.py'), '--provider', 'aws', '--plugin-root', str(provider), operation]\n    else:\n        env_values['CLOUD_SHARED_RUNTIME_ROOT'] = str(provider/'runtime/scripts')\n        args = ['python3', '-B', str(provider/'scripts/cloud.py'), operation]\n    args += ['--request', str(request), '--output', str(output)]\n    print('COMMAND:', ' '.join(shlex.quote(k+'='+v) for k,v in env_values.items()), shlex.join(args), flush=True)\n    completed = subprocess.run(args, env=dict(os.environ, **env_values), capture_output=True, check=False)\n    print('EXIT_CODE:', completed.returncode)\n    print('STDOUT:', completed.stdout.decode(), end='')\n    print('STDERR:', completed.stderr.decode())\n    parsed = json.loads(completed.stdout)\n    if output.exists():\n        assert json.loads(output.read_bytes()) == parsed\n        publication = 'provider-published'\n    else:\n        with output.open('xb') as stream:\n            stream.write(completed.stdout)\n        publication = 'captured exact CLI stdout; no provider manifest'\n    print('EVIDENCE:', output, '('+publication+')', flush=True)\n\nsupported = base/'aws-supported'/json.loads(before[base/'aws-supported/request.json'])['local_context']['evidence_directory']\na = json.loads((supported/'bootstrap-route.json').read_bytes())\nb = json.loads((supported/'direct-route.json').read_bytes())\nprint('ROUTE_DIFFERING_FIELDS:', json.dumps({k:[a.get(k), b.get(k)] for k in a.keys() | b.keys() if a.get(k) \"'!= b.get(k)}, sort_keys=True))\nprint('\"'ROUTE_MANIFESTS_EQUAL:', (supported/'bootstrap-route.json.manifest.json').read_bytes() == (supported/'direct-route.json.manifest.json').read_bytes())\nprint('REQUESTS_AND_DEPLOYMENT_INPUTS_BYTE_IDENTICAL:', all(p.read_bytes() == content for p,content in before.items()))\nfor name in ('aws-supported','aws-mixed-owner'):\n    request = base/name/'request.json'\n    print('REQUEST_SHA256:', str(request), hashlib.sha256(request.read_bytes()).hexdigest())\nPY\"",
+      "sha256": "6e34afbfd0fd37a04c4ee3fb479241d147d4bd8aec301fe96ceac1a5ba118a2e",
+      "exit_code": 0,
+      "status": "completed"
+    }
+  ],
+  "inspection": "Root inspected every completed command execution body. Hook-denied proposals are recorded separately and are not completed command executions. Only installed skill/reference/schema reads, local hashes, installed CLI calls and local evidence capture; no provider API, credentials, governed wrapper or product modification. Denied attempts do not count as executed CLI checks."
+}

@@ -1,0 +1,50 @@
+{
+  "commands": [
+    {
+      "sha256": "70ace226064582f9edf49a3b6c74830d43bd644d835811622ab6eedb35bb424b",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'pwd; rg --files -g AGENTS.md -g request.json -g SKILL.md .'"
+    },
+    {
+      "sha256": "e2a28c0a45d379c8efeadce891ca84c32201f2cc0f22193be6bbd90d3cb918b8",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/bootstrap/SKILL.md'"
+    },
+    {
+      "sha256": "6dda01090e259677e033b3496fb2c161c019d2758eee625e23a6e0e55d4273c6",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/openai-curated-remote/cloud-environment/0.1.2/skills/runtime/SKILL.md'"
+    },
+    {
+      "sha256": "c8832a500a6f5de00128cb4485364e94e0b5ee9918ba73c5eb065c693c2df002",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'for p in /AGENTS.md /workspace/AGENTS.md /workspace/.tools/AGENTS.md /workspace/.tools/sdd-forge-dev/AGENTS.md /workspace/.tools/sdd-forge-dev/verification-workspace/AGENTS.md /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/AGENTS.md; do if [ -f \"$p\" ]; then printf '\"'%s\\\\n' \\\"\"'$p\"; cat \"$p\"; fi; done'"
+    },
+    {
+      "sha256": "546642311f0c3690aea71aaf4a80b2e03b3550f46359a07297efb0e40a74a25d",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/skills/orchestrate/SKILL.md'"
+    },
+    {
+      "sha256": "cbc595635a7e579ed2bb4028c9ebc527d5c00df4820a7673f08bb4afd4338993",
+      "exit_code": 0,
+      "command": "/bin/bash -lc \"cat azure-supported/request.json azure-mixed-owner/request.json; rg --files --hidden -g AGENTS.md -g '\"'!source/**'\"' -g '\"'!installed/**'\"' azure-supported azure-mixed-owner; cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py\""
+    },
+    {
+      "sha256": "d558f63dd0118dce3490150d4367d38665e70d5804ab139d1b5276190f9c06db",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts/cloud.py /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/references/local-contract.md /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/references/observations.md /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts/governed-setup.md'"
+    },
+    {
+      "sha256": "5db4459c4f1fd5871e23aa811698345d4ffa9a6c1c9a6a3721b3ea3e845d5a3f",
+      "exit_code": 0,
+      "command": "/bin/bash -lc \"python3 -B - <<'PY'\nfrom pathlib import Path\nimport hashlib, json, sys\nroots=[Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0'),Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0')]\nseen=set()\nfor root in roots:\n    print('ROOT',root,'PHYSICAL',root.resolve())\n    for parent in [*reversed(root.parents),root]:\n        for name in ['AGENTS.md','agents.md']:\n            p=parent/name\n            if p not in seen and p.is_file():\n                seen.add(p)\n                if str(p)\"'!='\"'/workspace/AGENTS.md': print(str(p),p.read_text())\n    for sub in ['skills','skills/bootstrap','skills/orchestrate','scripts','runtime','runtime/scripts']:\n        for name in ['AGENTS.md','agents.md']:\n            p=root/sub/name\n            if p.is_file(): print(str(p),p.read_text())\nprint('PYTHON',sys.version)\nfor unit in ['azure-supported','azure-mixed-owner']:\n    root=Path(unit)\n    print('UNIT',unit)\n    for p in sorted(root.rglob('*')):\n        if p.is_file(): print(str(p),hashlib.sha256(p.read_bytes()).hexdigest())\nPY\""
+    },
+    {
+      "sha256": "052e1ecb07cc4d05a3524b527ae2cc0f07a95d6f25d7aeeae96b0ba200dfbeed",
+      "exit_code": 0,
+      "command": "/bin/bash -lc \"python3 -B - <<'PY'\nfrom pathlib import Path\nimport hashlib, json, os, shlex, subprocess, sys\nbase=Path('/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018')\nbootstrap=Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0')\nplugin=Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0')\nruntime=plugin/'runtime/scripts'\nrequired=[bootstrap/'scripts/cloud-routing.py',plugin/'scripts/cloud.py',*(runtime/n for n in ['cloud_contracts.py','cloud_authorization.py','cloud_verification.py','cloud_dependencies.py'])]\nfor p in required:\n    if not p.is_file() or p.resolve()\"'!=p:\n        raise SystemExit('\"'Missing or nonphysical installed entry/runtime: '+str(p))\nunits=['azure-supported','azure-mixed-owner']\ndef inputs():\n    return {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for unit in units for p in [base/unit/'request.json',*sorted((base/unit/'bundle').rglob('*'))] if p.is_file()}\nbefore=inputs()\ncases=[('azure-supported','bootstrap','route','bootstrap-route.json'),('azure-supported','direct','route','direct-route.json'),('azure-supported','direct','prepare','direct-prepare.json'),('azure-supported','direct','apply','direct-apply.json'),('azure-mixed-owner','bootstrap','route','mixed-route.json')]\nfor unit,entry,phase,name in cases:\n    root=base/unit\n    req=root/'request.json'\n    directory=root/json.loads(req.read_bytes())['local_context']['evidence_directory']\n    if directory.resolve()\"'!=directory: raise SystemExit('\"'Nonphysical evidence directory')\n    for path in [directory/name,directory/(name+'.manifest.json')]:\n        if path.exists() or path.is_symlink(): raise SystemExit('Refusing existing evidence: '+str(path))\nresults={}\nfor unit,entry,phase,name in cases:\n    root=base/unit\n    req=root/'request.json'\n    directory=root/json.loads(req.read_bytes())['local_context']['evidence_directory']\n    directory.mkdir(mode=0o700,parents=True,exist_ok=True)\n    output=directory/name\n    env={'CLOUD_WORKSPACE_ROOT':str(root),'PYTHONDONTWRITEBYTECODE':'1'}\n    if entry=='bootstrap':\n        argv=[sys.executable,'-B',str(bootstrap/'scripts/cloud-routing.py'),'--provider','azure','--plugin-root',str(plugin),phase,'--request',str(req),'--output',str(output)]\n    else:\n        env['CLOUD_SHARED_RUNTIME_ROOT']=str(runtime)\n        argv=[sys.executable,'-B',str(plugin/'scripts/cloud.py'),phase,'--request',str(req),'--output',str(output)]\n    print('COMMAND',shlex.join(['env','-i',*(k+'='+v for k,v in env.items()),*argv]),flush=True)\n    proc=subprocess.run(argv,cwd=root,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=False)\n    print('EXIT_CODE',proc.returncode)\n    print('STDOUT',proc.stdout.decode(),end='')\n    print('STDERR',proc.stderr.decode())\n    result=json.loads(proc.stdout)\n    if output.exists():\n        assert json.loads(output.read_bytes())==result\n        publication='provider-published'\n    else:\n        with output.open('xb') as f: f.write(proc.stdout)\n        publication='caller-captured exact CLI stdout; provider did not publish denial'\n    print('EVIDENCE',str(output),'PUBLICATION',publication)\n    results[name]=result\nleft=results['bootstrap-route.json'].copy()\nright=results['direct-route.json'].copy()\nleft.pop('evidence_manifest_path')\nright.pop('evidence_manifest_path')\nsupported=base/'azure-supported'\na=json.loads((supported/results['bootstrap-route.json']['evidence_manifest_path']).read_bytes())\nb=json.loads((supported/results['direct-route.json']['evidence_manifest_path']).read_bytes())\nprint('COMPARISON',json.dumps({'route_envelopes_equal_except_evidence_path':left==right,'route_manifests_equal':a==b,'all_request_and_bundle_hashes_unchanged':before==inputs(),'request_sha256':before[str(supported/'request.json')]}))\nPY\""
+    }
+  ],
+  "inspection": "Caller inspected all nine command bodies: skill/reference/schema reads and one real installed CLI subprocess group; no provider API, credential access, governed wrapper execution or product modification."
+}

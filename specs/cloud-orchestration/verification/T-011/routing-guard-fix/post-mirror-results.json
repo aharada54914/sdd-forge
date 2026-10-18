@@ -1,0 +1,29 @@
+[
+  {
+    "name": "invariants-bash",
+    "command": [
+      "bash",
+      "tests/phase2-guard-invariants.tests.sh"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "invariants-powershell",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/phase2-guard-invariants.tests.ps1"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mirrors",
+    "command": [
+      "python3",
+      "scripts/sync-human-copy-mirrors.py",
+      "--check"
+    ],
+    "exit_code": 0
+  }
+]

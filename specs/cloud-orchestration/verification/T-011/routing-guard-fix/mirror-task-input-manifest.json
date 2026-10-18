@@ -1,0 +1,81 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-011",
+  "run_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "session_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "agent_instance_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T17:29:08Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "mirror-refresh-inputs/specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "b95d798200b36c6d72a33c043a7837dc194732e2759a1f83709a5ae645716c8a"
+    },
+    {
+      "path": "mirror-refresh-inputs/specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "78f6125f3a55617a6ede53881afd3cabc3b391c420f4086158ee15801d5ae29a"
+    },
+    {
+      "path": "mirror-refresh-inputs/specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "1123c6d1ad7c79d33d86d55098526d9d41db43a922b7643e60dd1d58548e037c"
+    },
+    {
+      "path": "mirror-refresh-inputs/specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "78f6125f3a55617a6ede53881afd3cabc3b391c420f4086158ee15801d5ae29a"
+    },
+    {
+      "path": "mirror-refresh-inputs/specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256",
+      "sha256": "bba7aa420c9a85d1f771149ea759abd819654397b7b98300f79d0a881e4f27f3"
+    },
+    {
+      "path": "mirror-refresh-inputs/specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256",
+      "sha256": "a2f2570c8e20c7fe54ac8dc8384c66405b1aa0cf9382110849a8d4c7c9072a1b"
+    },
+    {
+      "path": "mirror-refresh-inputs/specs/epic-136-phase2-gates/human-copy/NOTES-cloud-T011-routing-guard-refresh.md",
+      "sha256": "56448bfb3f6924d03c2881604ad46f4489e7170c65e7a8bfb28297cc03c2e39e"
+    },
+    {
+      "path": "mirror-refresh-inputs/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9"
+    },
+    {
+      "path": "mirror-refresh-inputs/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3"
+    },
+    {
+      "path": "mirror-refresh-inputs/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf"
+    },
+    {
+      "path": "mirror-refresh-inputs/scripts/sync-human-copy-mirrors.py",
+      "sha256": "13e9572f3757325f21884b0a2d94e7ed2eabf98acc1078d915d3159acc7c2be9"
+    },
+    {
+      "path": "mirror-refresh-inputs/scripts/human_copy_mirrors.py",
+      "sha256": "2ea93f1061101eb5de6cc6e6bb201f95f81cf8a28408ad2cc7c241ae912e21e9"
+    },
+    {
+      "path": "mirror-refresh-inputs/docs/contributor/shared-file-mirrors.md",
+      "sha256": "b9406eb20abf5732c26987fc71bfc9163aa175174b7e43e6c100f74fdb388cfa"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+    "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+    "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+    "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+    "specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256",
+    "specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256",
+    "specs/epic-136-phase2-gates/human-copy/NOTES-cloud-T011-routing-guard-refresh.md",
+    "specs/epic-189-a1-project-context/human-copy/NOTES-cloud-T011-routing-guard-refresh.md",
+    "specs/cloud-orchestration/verification/T-011/routing-guard-fix/"
+  ]
+}

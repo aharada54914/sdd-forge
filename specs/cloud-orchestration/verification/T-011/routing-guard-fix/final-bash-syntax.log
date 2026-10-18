@@ -1,0 +1,4 @@
+Command: bash -n tests/guard-parity.tests.sh
+MYPYPATH: plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts
+
+Exit: 0

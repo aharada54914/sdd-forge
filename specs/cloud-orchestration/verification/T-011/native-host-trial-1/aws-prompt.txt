@@ -1,0 +1,11 @@
+Use the installed sdd-bootstrap:bootstrap skill for an explicitly selected existing cloud operation, not new feature development. I select AWS CDK for this existing unit.
+
+Canonical supported request: /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/request.json
+Its artifact workspace: /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported
+Canonical mixed-owner request: /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-mixed-owner/request.json
+Its artifact workspace: /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-mixed-owner
+Each request declares its own evidence directory: specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit
+
+Route the supported unit through bootstrap to its already installed cloud entry, preserving request bytes. Then directly invoke the installed provider CLI for route, prepare, and apply; compare the real bootstrap/direct route results. Use new filenames bootstrap-route.json, direct-route.json, direct-prepare.json, and direct-apply.json inside the supported request's declared evidence directory. Also route the supplied mixed-owner request through bootstrap, using mixed-route.json inside its own declared evidence directory. Use the trusted installed plugin paths from your host's active skill metadata. Report actual commands, structured results, exit codes, and evidence paths.
+
+Do not install anything, modify requests or deployment inputs, migrate/import owners, invoke any cloud API, access credentials, run governed wrappers, or treat this local development request as cloud-write approval. If a necessary installed entry or runtime is missing, report it. These are local checks only. Do not edit the repository or skill code.

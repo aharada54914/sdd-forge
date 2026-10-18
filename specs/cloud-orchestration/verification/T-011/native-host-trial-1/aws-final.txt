@@ -1,0 +1,57 @@
+Completed using the installed bootstrap → AWS handoff. Both supported routes returned `PASS/ROUTED`; their envelopes match except for the evidence filename, and their manifests are identical.
+
+| Invocation | Result / state | Error code | Exit | Structured evidence |
+|---|---|---|---:|---|
+| Bootstrap route | PASS / ROUTED | `null` | 0 | [bootstrap-route.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/bootstrap-route.json) |
+| Direct route | PASS / ROUTED | `null` | 0 | [direct-route.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-route.json) |
+| Direct prepare | BLOCKED / BLOCKED | `OPERATION_UNIMPLEMENTED` | 2 | [direct-prepare.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-prepare.json) |
+| Direct apply | BLOCKED / BLOCKED | `OPERATION_UNIMPLEMENTED` | 2 | [direct-apply.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-apply.json) |
+| Bootstrap mixed-owner route | BLOCKED / BLOCKED | `OWNER_CONFLICT` | 2 | [mixed-route.json](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-mixed-owner/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/mixed-route.json) |
+
+All results use `cloud-operation-result/v1`. Successful routes also published adjacent `.manifest.json` files declaring `classification: local`, `cloud_validated: false`, owner `cdk`, and route `aws-cdk`. Denied operations emitted JSON only to stdout; I saved those exact bytes to the requested files. All stderr streams were empty.
+
+Actual commands, shown with path aliases for readability:
+
+```bash
+B=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0
+P=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0
+W=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018
+PY=/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3
+E=specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit
+
+env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT="$W/aws-supported" \
+  "$PY" -B "$B/scripts/cloud-routing.py" --provider aws --plugin-root "$P" \
+  route --request "$W/aws-supported/request.json" \
+  --output "$W/aws-supported/$E/bootstrap-route.json"
+
+env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT="$W/aws-supported" \
+  CLOUD_SHARED_RUNTIME_ROOT="$P/runtime/scripts" \
+  "$PY" -B "$P/scripts/cloud.py" route \
+  --request "$W/aws-supported/request.json" \
+  --output "$W/aws-supported/$E/direct-route.json"
+
+env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT="$W/aws-supported" \
+  CLOUD_SHARED_RUNTIME_ROOT="$P/runtime/scripts" \
+  "$PY" -B "$P/scripts/cloud.py" prepare \
+  --request "$W/aws-supported/request.json" \
+  --output "$W/aws-supported/$E/direct-prepare.json"
+
+env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT="$W/aws-supported" \
+  CLOUD_SHARED_RUNTIME_ROOT="$P/runtime/scripts" \
+  "$PY" -B "$P/scripts/cloud.py" apply \
+  --request "$W/aws-supported/request.json" \
+  --output "$W/aws-supported/$E/direct-apply.json"
+
+env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT="$W/aws-mixed-owner" \
+  "$PY" -B "$B/scripts/cloud-routing.py" --provider aws --plugin-root "$P" \
+  route --request "$W/aws-mixed-owner/request.json" \
+  --output "$W/aws-mixed-owner/$E/mixed-route.json"
+```
+
+The installed entries and packaged runtime were present; Python was 3.12.14. SHA-256 checks confirmed all 17 original request/input files remained unchanged. Both requests retained digest:
+
+```text
+37cd42057190e5dd39d957f0711a2d7c9343482a0bb399d911c1d3625ed098b8
+```
+
+No installations, code edits, credential access, cloud API calls, or governed-wrapper executions occurred.

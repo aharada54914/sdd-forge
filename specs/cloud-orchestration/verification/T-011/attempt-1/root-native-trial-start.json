@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-18T16:53:22.428728+00:00",
+  "request": {
+    "id": 900402,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
+      "expectedTurnId": "01a14fdf-ca89-7961-9d48-2d074c1319d5",
+      "input": [
+        {
+          "type": "text",
+          "text": "Root has launched actual verify-codex native host trial session93374, two fresh provider contexts, from /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018. Actual plugin registration and156 cache/source file equality checks succeeded. Native behavior remains PENDING. Candidate helper/skill/runtime hashes are pinned in /tmp/cloud-T011-native-trial-inputs/setup.json. Please keep current production helper/skill bytes stable while finishing T004 regression/rollback/report, or explicitly report any subsequent change so root reruns affected trial. Root will supply real host evidence as a supplemental delivery; do not claim native PASS before that."
+        }
+      ]
+    }
+  }
+}

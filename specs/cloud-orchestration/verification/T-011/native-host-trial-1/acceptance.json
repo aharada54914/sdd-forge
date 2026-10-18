@@ -1,0 +1,216 @@
+{
+  "verified_at": "2026-10-18T16:57:04.165739+00:00",
+  "result": "PASS",
+  "cases": [
+    {
+      "provider": "azure",
+      "run_id": "01a14fee-41e4-7190-b8fd-f79879b16a3b",
+      "model": "gpt-6-astra",
+      "observed": [
+        {
+          "command": "env -i CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported PYTHONDONTWRITEBYTECODE=1 /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py --provider azure --plugin-root /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0 route --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/bootstrap-route.json",
+          "exit_code": 0,
+          "result": {
+            "error_code": null,
+            "evidence_manifest_path": "specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/bootstrap-route.json.manifest.json",
+            "input_manifest_sha256": "415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218",
+            "message": "Local check only; no cloud validation or authorization.",
+            "operation": "route",
+            "provider": "azure",
+            "result": "PASS",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "ROUTED",
+            "unit_id": "synthetic-unit"
+          }
+        },
+        {
+          "command": "env -i CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported PYTHONDONTWRITEBYTECODE=1 CLOUD_SHARED_RUNTIME_ROOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/runtime/scripts /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts/cloud.py route --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-route.json",
+          "exit_code": 0,
+          "result": {
+            "error_code": null,
+            "evidence_manifest_path": "specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-route.json.manifest.json",
+            "input_manifest_sha256": "415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218",
+            "message": "Local check only; no cloud validation or authorization.",
+            "operation": "route",
+            "provider": "azure",
+            "result": "PASS",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "ROUTED",
+            "unit_id": "synthetic-unit"
+          }
+        },
+        {
+          "command": "env -i CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported PYTHONDONTWRITEBYTECODE=1 CLOUD_SHARED_RUNTIME_ROOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/runtime/scripts /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts/cloud.py prepare --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-prepare.json",
+          "exit_code": 2,
+          "result": {
+            "error_code": "OPERATION_UNIMPLEMENTED",
+            "evidence_manifest_path": null,
+            "input_manifest_sha256": "415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218",
+            "message": "Local prerequisite failed; correct the named error before retrying.",
+            "operation": "prepare",
+            "provider": "azure",
+            "result": "BLOCKED",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "BLOCKED",
+            "unit_id": "synthetic-unit"
+          }
+        },
+        {
+          "command": "env -i CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported PYTHONDONTWRITEBYTECODE=1 CLOUD_SHARED_RUNTIME_ROOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/runtime/scripts /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0/scripts/cloud.py apply --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-apply.json",
+          "exit_code": 2,
+          "result": {
+            "error_code": "OPERATION_UNIMPLEMENTED",
+            "evidence_manifest_path": null,
+            "input_manifest_sha256": "415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218",
+            "message": "Local prerequisite failed; correct the named error before retrying.",
+            "operation": "apply",
+            "provider": "azure",
+            "result": "BLOCKED",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "BLOCKED",
+            "unit_id": "synthetic-unit"
+          }
+        },
+        {
+          "command": "env -i CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-mixed-owner PYTHONDONTWRITEBYTECODE=1 /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py --provider azure --plugin-root /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0 route --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-mixed-owner/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/azure-mixed-owner/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/mixed-route.json",
+          "exit_code": 2,
+          "result": {
+            "error_code": "OWNER_CONFLICT",
+            "evidence_manifest_path": null,
+            "input_manifest_sha256": "415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218",
+            "message": "Local prerequisite failed; correct the named error before retrying.",
+            "operation": "route",
+            "provider": "azure",
+            "result": "BLOCKED",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "BLOCKED",
+            "unit_id": "synthetic-unit"
+          }
+        }
+      ],
+      "requests_unchanged": true,
+      "route_manifest_parity": true,
+      "result": "PASS",
+      "scope": "Actual native host invoking installed local CLI on synthetic fixture; no live cloud acceptance. Denial files are caller-captured exact CLI stdout, not provider-published evidence."
+    },
+    {
+      "provider": "aws",
+      "run_id": "01a14fef-607e-7fc1-962c-a336740c1596",
+      "model": "gpt-6-astra",
+      "observed": [
+        {
+          "command": "env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py --provider aws --plugin-root /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0 route --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/bootstrap-route.json",
+          "evidence_path": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/bootstrap-route.json",
+          "exit_code": 0,
+          "publication": "provider-published; matches stdout byte-for-byte",
+          "result": {
+            "error_code": null,
+            "evidence_manifest_path": "specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/bootstrap-route.json.manifest.json",
+            "input_manifest_sha256": "37cd42057190e5dd39d957f0711a2d7c9343482a0bb399d911c1d3625ed098b8",
+            "message": "Local check only; no cloud validation or authorization.",
+            "operation": "route",
+            "provider": "aws",
+            "result": "PASS",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "ROUTED",
+            "unit_id": "synthetic-unit"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported CLOUD_SHARED_RUNTIME_ROOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/runtime/scripts /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/scripts/cloud.py route --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-route.json",
+          "evidence_path": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-route.json",
+          "exit_code": 0,
+          "publication": "provider-published; matches stdout byte-for-byte",
+          "result": {
+            "error_code": null,
+            "evidence_manifest_path": "specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-route.json.manifest.json",
+            "input_manifest_sha256": "37cd42057190e5dd39d957f0711a2d7c9343482a0bb399d911c1d3625ed098b8",
+            "message": "Local check only; no cloud validation or authorization.",
+            "operation": "route",
+            "provider": "aws",
+            "result": "PASS",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "ROUTED",
+            "unit_id": "synthetic-unit"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported CLOUD_SHARED_RUNTIME_ROOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/runtime/scripts /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/scripts/cloud.py prepare --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-prepare.json",
+          "evidence_path": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-prepare.json",
+          "exit_code": 2,
+          "publication": "captured CLI stdout; provider did not publish denied result",
+          "result": {
+            "error_code": "OPERATION_UNIMPLEMENTED",
+            "evidence_manifest_path": null,
+            "input_manifest_sha256": "37cd42057190e5dd39d957f0711a2d7c9343482a0bb399d911c1d3625ed098b8",
+            "message": "Local prerequisite failed; correct the named error before retrying.",
+            "operation": "prepare",
+            "provider": "aws",
+            "result": "BLOCKED",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "BLOCKED",
+            "unit_id": "synthetic-unit"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported CLOUD_SHARED_RUNTIME_ROOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/runtime/scripts /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/scripts/cloud.py apply --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-apply.json",
+          "evidence_path": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/direct-apply.json",
+          "exit_code": 2,
+          "publication": "captured CLI stdout; provider did not publish denied result",
+          "result": {
+            "error_code": "OPERATION_UNIMPLEMENTED",
+            "evidence_manifest_path": null,
+            "input_manifest_sha256": "37cd42057190e5dd39d957f0711a2d7c9343482a0bb399d911c1d3625ed098b8",
+            "message": "Local prerequisite failed; correct the named error before retrying.",
+            "operation": "apply",
+            "provider": "aws",
+            "result": "BLOCKED",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "BLOCKED",
+            "unit_id": "synthetic-unit"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "env -i PATH=/bin:/usr/bin CLOUD_WORKSPACE_ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-mixed-owner /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py --provider aws --plugin-root /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0 route --request /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-mixed-owner/request.json --output /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-mixed-owner/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/mixed-route.json",
+          "evidence_path": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018/aws-mixed-owner/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/mixed-route.json",
+          "exit_code": 2,
+          "publication": "captured CLI stdout; provider did not publish denied result",
+          "result": {
+            "error_code": "OWNER_CONFLICT",
+            "evidence_manifest_path": null,
+            "input_manifest_sha256": "37cd42057190e5dd39d957f0711a2d7c9343482a0bb399d911c1d3625ed098b8",
+            "message": "Local prerequisite failed; correct the named error before retrying.",
+            "operation": "route",
+            "provider": "aws",
+            "result": "BLOCKED",
+            "run_id": "synthetic-run",
+            "schema": "cloud-operation-result/v1",
+            "state": "BLOCKED",
+            "unit_id": "synthetic-unit"
+          },
+          "stderr": ""
+        }
+      ],
+      "requests_unchanged": true,
+      "route_manifest_parity": true,
+      "result": "PASS",
+      "scope": "Actual native host invoking installed local CLI on synthetic fixture; no live cloud acceptance. Denial files are caller-captured exact CLI stdout, not provider-published evidence."
+    }
+  ],
+  "source_bindings": 134,
+  "native_identity_distinct": true,
+  "limitation": "One actual native trial per provider; no statistical comparison. Windows/macOS and live cloud acceptance remain separate."
+}

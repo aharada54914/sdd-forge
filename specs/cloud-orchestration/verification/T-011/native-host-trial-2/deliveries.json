@@ -1,0 +1,32 @@
+[
+  {
+    "case": "azure",
+    "thread_id": "01a1500f-af95-7a43-a320-6efb70000cf1",
+    "session_id": "01a1500f-af95-7a43-a320-6efb70000cf1",
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "workspace": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018",
+    "prompt_sha256": "e09a83d53a04a0f2243a3729dc02cd545d34ee4f81324909f7f8b5bec5c28a35",
+    "profile": "/workspace/.tools/sdd-forge-dev/codex-verify",
+    "turn_status": "completed",
+    "turn_id": "01a1500f-b127-7cd3-9e0a-d5c27191aef7",
+    "command_count": 13,
+    "error": null,
+    "acceptance": "Caller must verify actual commands and artifacts; completed turn is not PASS."
+  },
+  {
+    "case": "aws",
+    "thread_id": "01a15011-8d4a-74d3-85d5-9017ebd4d8b8",
+    "session_id": "01a15011-8d4a-74d3-85d5-9017ebd4d8b8",
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "workspace": "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018",
+    "prompt_sha256": "e33ce755fa314e303f603ab5b86c7f4ca67e700784415b3f95dfb88f989e43cd",
+    "profile": "/workspace/.tools/sdd-forge-dev/codex-verify",
+    "turn_status": "completed",
+    "turn_id": "01a15011-8d83-7b40-a9a4-434083f7c1b6",
+    "command_count": 9,
+    "error": null,
+    "acceptance": "Caller must verify actual commands and artifacts; completed turn is not PASS."
+  }
+]

@@ -1,0 +1,53 @@
+Completed all five local checks using the installed bootstrap and Azure skills.
+
+| Invocation | Result / state | Error code | Exit |
+|---|---|---|---:|
+| Supported bootstrap route | PASS / ROUTED | `null` | 0 |
+| Supported direct route | PASS / ROUTED | `null` | 0 |
+| Direct prepare | BLOCKED / BLOCKED | `OPERATION_UNIMPLEMENTED` | 2 |
+| Direct apply | BLOCKED / BLOCKED | `OPERATION_UNIMPLEMENTED` | 2 |
+| Mixed-owner bootstrap route | BLOCKED / BLOCKED | `OWNER_CONFLICT` | 2 |
+
+The supported route envelopes differ only in `evidence_manifest_path`. Their manifests are byte-identical, declaring `owner: bicep`, `route: azure-bicep`, and `cloud_validated: false`.
+
+Actual commands, with repeated absolute paths abbreviated:
+
+```bash
+ROOT=/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018
+BOOT=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0
+AZURE=/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0
+S="$ROOT/azure-supported"
+M="$ROOT/azure-mixed-owner"
+E=specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit
+
+CLOUD_WORKSPACE_ROOT="$S" python3 -B "$BOOT/scripts/cloud-routing.py" \
+  --provider azure --plugin-root "$AZURE" route \
+  --request "$S/request.json" --output "$S/$E/bootstrap-route.json"
+
+CLOUD_WORKSPACE_ROOT="$S" CLOUD_SHARED_RUNTIME_ROOT="$AZURE/runtime/scripts" \
+  python3 -B "$AZURE/scripts/cloud.py" route \
+  --request "$S/request.json" --output "$S/$E/direct-route.json"
+
+CLOUD_WORKSPACE_ROOT="$S" CLOUD_SHARED_RUNTIME_ROOT="$AZURE/runtime/scripts" \
+  python3 -B "$AZURE/scripts/cloud.py" prepare \
+  --request "$S/request.json" --output "$S/$E/direct-prepare.json"
+
+CLOUD_WORKSPACE_ROOT="$S" CLOUD_SHARED_RUNTIME_ROOT="$AZURE/runtime/scripts" \
+  python3 -B "$AZURE/scripts/cloud.py" apply \
+  --request "$S/request.json" --output "$S/$E/direct-apply.json"
+
+CLOUD_WORKSPACE_ROOT="$M" python3 -B "$BOOT/scripts/cloud-routing.py" \
+  --provider azure --plugin-root "$AZURE" route \
+  --request "$M/request.json" --output "$M/$E/mixed-route.json"
+```
+
+Full structured results are saved in:
+
+- [Supported evidence directory](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-supported/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit): `bootstrap-route.json`, `direct-route.json`, `direct-prepare.json`, `direct-apply.json`, plus both route manifests.
+- [Mixed-owner result](/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/azure-mixed-owner/specs/cloud-orchestration/verification/T-011/cloud/synthetic-run/synthetic-unit/mixed-route.json).
+
+The CLI published successful route evidence. The three blocked files contain captured stdout; all five files match CLI stdout byte-for-byte.
+
+Both requests and all deployment inputs—17 files—retained their original hashes. Both request hashes remain `415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218`. No installation, cloud API, credential access, governed wrapper, or code edit occurred.
+
+Automatic hooks rejected two combined scripting attempts before execution. Direct CLI commands and structured evidence-file writes succeeded without changing the guards.

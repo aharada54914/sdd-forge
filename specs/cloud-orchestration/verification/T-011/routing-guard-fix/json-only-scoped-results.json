@@ -1,0 +1,24 @@
+[
+  {
+    "name": "invariants-bash",
+    "command": [
+      "bash",
+      "tests/phase2-guard-invariants.tests.sh"
+    ],
+    "exit_code": 1,
+    "seconds": 0.158,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/invariants-bash.log"
+  },
+  {
+    "name": "invariants-powershell",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/phase2-guard-invariants.tests.ps1"
+    ],
+    "exit_code": 1,
+    "seconds": 2.877,
+    "log": "specs/cloud-orchestration/verification/T-011/routing-guard-fix/invariants-powershell.log"
+  }
+]

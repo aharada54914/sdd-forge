@@ -200,6 +200,11 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
     "contracts/cloud-verification-registry.schema.json",
     "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+    "plugins/sdd-azure-cloud/scripts/cloud.py",
+    "plugins/sdd-aws-cloud/scripts/cloud.py",
+    "plugins/sdd-azure-cloud/scripts/governed-setup.md",
+    "plugins/sdd-aws-cloud/scripts/governed-setup.md",
+    "plugins/sdd-bootstrap/scripts/cloud-routing.py",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

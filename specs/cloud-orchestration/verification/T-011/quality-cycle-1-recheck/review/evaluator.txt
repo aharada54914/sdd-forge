@@ -1,0 +1,14 @@
+RUN_ID: 01a15027-2187-7df0-a08f-47b4f863d76c
+HOST_SESSION_ID: 01a15027-2187-7df0-a08f-47b4f863d76c
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-011/quality-cycle-1-recheck/review/invocation.json SHA-256 1d2d62fb7b4b5449b367e3e9cb6e181facd269a78ebce323df8ce8f6a1693a95
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] tests/cloud-orchestration-routing.tests.py:1228–1283 — New installed-path refusal guards lack direct negative tests. The tests exercise missing arguments, provider mismatch and manifest-name mutation, but not absent/nonphysical plugin roots or missing/symlinked CLI/shared modules guarded by cloud-routing.py:36–46. Add complete-argument cases asserting typed denial and no delegated execution; direct-provider filesystem tests do not exercise this bootstrap boundary.
+CHECKED:
+- Recomputed invocation digest and reservation record hash; both match supplied pins. Verified task/report identity and supplemental authorization; no duplicate or unauthorized manifest entries.
+- Inspected T-011 scope, REQ-011/012, AC-011/012, layer specifications and ADR-0036.
+- Inspected cloud-routing.py:26–55 and installed parity tests:1159–1283: unchanged argument forwarding, shell-free delegation, real provider validation and direct write denial.
+- Inspected catalog, normal drivers and CI wiring. Saved exact-source receipt reports all six suites passed; routing ran 93 tests without skips. Two Windows-only tests were explicitly skipped elsewhere.
+- Inspected native trial identities, executed commands and outputs: both providers reached matching routes; prepare/apply and mixed ownership were denied.
+- Inspected baseline reconstruction and legacy differential tests, plus guard rollback/reapply logs: preserved legacy behavior; final guard parity reports 403 passed, zero failed.
+- No tests rerun in this read-only evaluation. Hosted Windows/macOS coverage, Windows junction execution, full-repository execution and live cloud acceptance remain unverified; they are not claimed as T-011 evidence.

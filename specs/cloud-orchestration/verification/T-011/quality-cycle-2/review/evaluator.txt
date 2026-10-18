@@ -1,0 +1,14 @@
+RUN_ID: 01a15040-5e4a-7f61-bfa2-2a64f3989612
+HOST_SESSION_ID: 01a15040-5e4a-7f61-bfa2-2a64f3989612
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-011/quality-cycle-2/review/invocation.json SHA-256 638782fc6cbd29191cf8255f5b865d716fd0d29267fc1c4a21be88552f91b407
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Verified invocation digest, reservation-chain hash, sequence, task/report identity and supplemental bindings.
+- Inspected `cloud-routing.py:26–56` and routing tests: installed-path checks precede delegation; canonical arguments and actual exit status are forwarded without granting authority.
+- Read saved current routing output: 96 tests passed without skips. Inspected installed-boundary assertions and mutation logs: both weakened guards produced 20 semantic failures; healthy controls passed.
+- Inspected catalog, Bash/PowerShell drivers and CI wiring. Saved cloud-suite execution passed; the current routing receipt supersedes its earlier test-source pin.
+- Inspected native-host identities, executed commands and captured outputs: both providers routed through installed bootstrap/direct entries; prepare/apply and mixed ownership returned BLOCKED. Synthetic inputs were explicitly distinguished from live-cloud evidence.
+- Differential inspection reconstructed the original bootstrap and legacy contract-checker hashes exactly. Reviewed compatibility, guard-regression and rollback evidence, including 403 passing guard-parity checks.
+- Review used hash-checked artifacts and line-level inspection; no tests were rerun. Full-repository/exact-commit hosted CI, native Windows/macOS coverage and live-cloud acceptance remain unverified here. This verdict covers only T-011’s approved scope.

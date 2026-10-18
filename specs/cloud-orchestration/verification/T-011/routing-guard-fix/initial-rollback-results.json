@@ -1,0 +1,29 @@
+{
+  "directory": "/tmp/cloud-T011-routing-guard-01a15001/rollback",
+  "results": [
+    {
+      "phase": "rollback-generator",
+      "command": [
+        "python3",
+        "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "seconds": 0.046
+    },
+    {
+      "phase": "rollback-bootstrap",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py",
+        "BootstrapInstalled",
+        "NormalDriverRegistration"
+      ],
+      "exit_code": 1,
+      "expected_exit": 0,
+      "seconds": 5.082
+    }
+  ]
+}

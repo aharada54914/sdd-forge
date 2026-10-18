@@ -1,0 +1,30 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-011",
+  "run_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "session_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "agent_instance_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T17:35:36Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "native2-inputs/specs/cloud-orchestration/verification/T-011/native-host-trial-2/acceptance.json",
+      "sha256": "c0fef1a742fd690f0fcafae228d5fccd174159351769992fdc455a1bf4e05d2a"
+    },
+    {
+      "path": "native2-inputs/specs/cloud-orchestration/verification/T-011/native-host-trial-2/follow-up-scope.md",
+      "sha256": "66b88a6893e7afd0855591764b91ef1ecdb1fc7c6876e1257cb4fddd2e7ca463"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/cloud-orchestration/verification/T-011/routing-guard-fix/",
+    "reports/implementation/cloud-orchestration/T-011-routing-guard-fix.md"
+  ]
+}

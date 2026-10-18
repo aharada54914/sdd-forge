@@ -1,0 +1,11 @@
+{
+  "task_id": "T-011",
+  "review_run_id": "01a15027-2187-7df0-a08f-47b4f863d76c",
+  "implementation_run_id": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
+  "verdict": "NEEDS_WORK",
+  "manifest_sha256": "1d2d62fb7b4b5449b367e3e9cb6e181facd269a78ebce323df8ce8f6a1693a95",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261018-cloud-orchestration-T-011-cycle-1.md",
+  "completion_scope": "KeepT011 In Progress. Add direct installed bootstrap negative tests for absent/relative/nonphysical roots and missing/symlinked CLI/shared modules, with typed denial and no delegated execution, then run fresh independent cycle2. This is a coverage finding; no live cloud approval or new procedural exception is requested. T008 remains blocked until T011 passes."
+}

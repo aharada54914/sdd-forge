@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-18T16:51:16.480659+00:00",
+  "request": {
+    "id": 900401,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
+      "expectedTurnId": "01a14fdf-ca89-7961-9d48-2d074c1319d5",
+      "input": [
+        {
+          "type": "text",
+          "text": "Root confirms T004 failure is in scope of the user-authorized #423/cloud compatibility integration. Preserve the frozen consumer-baseline.json and historical reports. Do not leave a known required full-suite failure for release. T009 intentionally extended check-contract.py for v3 and was independently reviewed; adapt the current T004 regression with an explicit tightly bounded reviewed-extension check (original baseline preserved, exact old/new bytes or delta proof, negative mutations, and actual legacy absent/v2 behavior), rather than dropping the hash assertion, accepting arbitrary changes, or rewriting the frozen baseline. Record genuine current failing case before this integration fix and its Green/limits. Root can absorb necessary test/output scope as integration; no new contract or T009 exception expansion. Also host launcher/rubric are ready at /tmp/cloud-native-host-trial.py and /tmp/cloud-T011-host-rubric.md; prepare stable fixture/prompt instructions, keep actual native delivery pending for root."
+        }
+      ]
+    }
+  },
+  "basis": "Observed required T004 failure after authorized additive T009 contract extension; frozen baseline must remain intact."
+}

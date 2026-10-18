@@ -1,0 +1,63 @@
+{
+  "unchanged_evidence": {
+    "specs/cloud-orchestration/acceptance-tests.md": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+    "specs/cloud-orchestration/design.md": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+    "specs/cloud-orchestration/frontend-spec.md": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+    "specs/cloud-orchestration/infra-spec.md": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+    "specs/cloud-orchestration/requirements.md": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+    "specs/cloud-orchestration/security-spec.md": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+    "specs/cloud-orchestration/traceability.md": "fba885046c68ba92568e1360806a3402fd522e525aefb3f21e5b434018dcbcf4",
+    "specs/cloud-orchestration/ux-spec.md": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+    "reports/implementation/cloud-orchestration/T-011.md": "2956e2e48c00cfcb8b7e5380362ae9df7f6627bfa086ad9b987f869931c765ea",
+    "specs/cloud-orchestration/verification/T-011/quality-cycle-1/regression.log": "1e279dc393efb28f52bb7750d382f2b40857892ec1b91cf9d94ab40b081363c9",
+    "specs/cloud-orchestration/verification/T-011/native-host-trial-1/acceptance.json": "22efb3e699a5a207800145f075b7f902cf5d3d13a6bcfa7b0f2e1caf2f6d98a1",
+    "specs/cloud-orchestration/verification/T-011/native-host-trial-1/current-source-binding.json": "45ab723ba3e7b0ad0f5aaab732a4148811678e8afb01ead1db6cbe7d91f2dd29"
+  },
+  "native_source_bindings": 134,
+  "unchanged_pending_mirrors": [
+    "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+    "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+    "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+    "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+    "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+    "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/references/guard-invariants.json.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py.candidate"
+  ],
+  "exact_added_members": [
+    "plugins/sdd-azure-cloud/scripts/cloud.py",
+    "plugins/sdd-aws-cloud/scripts/cloud.py",
+    "plugins/sdd-azure-cloud/scripts/governed-setup.md",
+    "plugins/sdd-aws-cloud/scripts/governed-setup.md",
+    "plugins/sdd-bootstrap/scripts/cloud-routing.py"
+  ],
+  "stable_guard_sources": {
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh": "564080c31fdcc4cf2270017867f90ea6e0265de000c07b141a6788479830ef80",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8"
+  }
+}

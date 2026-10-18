@@ -1,0 +1,669 @@
+==> tests/cloud-orchestration-contracts.tests.py
+PASSED: tests/cloud-orchestration-contracts.tests.py
+==> tests/cloud-orchestration-routing.tests.py
+PASSED: tests/cloud-orchestration-routing.tests.py
+==> tests/cloud-orchestration-execution.tests.py
+PASSED: tests/cloud-orchestration-execution.tests.py
+==> tests/cloud-orchestration-verification.tests.py
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 0 admissions [1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 10 admissions [1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 11 admissions [1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+PASSED: tests/cloud-orchestration-verification.tests.py
+==> tests/install-cloud.tests.py
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-h8jpaxpm/tmp3q6ucwhe/sdd-plugins-staging-4octDd/plugins/sdd-quality-loop/scripts/cloud_dependencies.py': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-h8jpaxpm/tmpuqkfd5gd/sdd-plugins-staging-7Q0yhi/plugins/sdd-quality-loop/references/cloud-verification-registry.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-h8jpaxpm/tmpq31pp8gd/sdd-plugins-staging-Gsypyw/plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-h8jpaxpm/tmp8uck_5gf/sdd-plugins-staging-wuyNS0/contracts/cloud-*.schema.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/scripts/cloud.py',), exit=1, preserved=True
+Error: Required staged cloud entry file is missing: plugins/sdd-azure-cloud/scripts/cloud.py
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/scripts/azure_local.py',), exit=1, preserved=True
+Error: Required staged cloud entry file is missing: plugins/sdd-azure-cloud/scripts/azure_local.py
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',), exit=1, preserved=True
+Error: Required staged cloud entry file is missing: plugins/sdd-azure-cloud/.codex-plugin/plugin.json
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',), exit=1, preserved=True
+Error: Required staged cloud entry file is missing: plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/workspace/sdd-forge/install.ps1:819[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 819 | [0m             [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/s[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-h8jpaxpm/tmp_gwy6qff/sdd-plugins-staging-03d9e0c2-be45-435a-9072-34e703811fb6/plugins/sdd-quality-loop/scripts/cloud_dependencies.py' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/workspace/sdd-forge/install.ps1:821[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 821 | [0m         [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/sdd-q[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-h8jpaxpm/tmp8h7_xgrs/sdd-plugins-staging-6650148a-170d-4a4b-9ea1-9c52c295a61a/plugins/sdd-quality-loop/references/cloud-verification-registry.json' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/workspace/sdd-forge/install.ps1:829[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 829 | [0m             [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/s[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-h8jpaxpm/tmpaehtq0wm/sdd-plugins-staging-4db22a6c-76a8-48dd-8cf9-40a377ee3b23/plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'), exit=1, preserved=True
+[31;1mException: [0m/workspace/sdd-forge/install.ps1:824[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 824 | [0m … unt -eq 0) { [36;1mthrow "Cloud schemas are missing from staged payload."[0m }[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCloud schemas are missing from staged payload.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/scripts/cloud.py',), exit=1, preserved=True
+[31;1mException: [0m/workspace/sdd-forge/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m …             [36;1mthrow "Required staged cloud entry file is missing: plugi[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mRequired staged cloud entry file is missing:[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mplugins/sdd-azure-cloud/scripts/cloud.py[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/scripts/azure_local.py',), exit=1, preserved=True
+[31;1mException: [0m/workspace/sdd-forge/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m …             [36;1mthrow "Required staged cloud entry file is missing: plugi[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mRequired staged cloud entry file is missing:[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mplugins/sdd-azure-cloud/scripts/azure_local.py[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',), exit=1, preserved=True
+[31;1mException: [0m/workspace/sdd-forge/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m …             [36;1mthrow "Required staged cloud entry file is missing: plugi[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mRequired staged cloud entry file is missing:[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mplugins/sdd-azure-cloud/.codex-plugin/plugin.json[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',), exit=1, preserved=True
+[31;1mException: [0m/workspace/sdd-forge/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m …             [36;1mthrow "Required staged cloud entry file is missing: plugi[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mRequired staged cloud entry file is missing:[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mplugins/sdd-azure-cloud/skills/orchestrate/SKILL.md[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+sequential bash: azure->aws, step=0, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: azure->aws, step=1, selection=('sdd-aws-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: azure->aws, step=2, selection=default
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: azure->aws, step=3, selection=('sdd-review-loop',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: aws->azure, step=0, selection=('sdd-aws-cloud',)
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: aws->azure, step=1, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: aws->azure, step=2, selection=default
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: aws->azure, step=3, selection=('sdd-review-loop',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=0, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=1, selection=('sdd-aws-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=2, selection=default
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=3, selection=('sdd-review-loop',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: aws->azure, step=0, selection=('sdd-aws-cloud',)
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: aws->azure, step=1, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: aws->azure, step=2, selection=default
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: aws->azure, step=3, selection=('sdd-review-loop',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+PASSED: tests/install-cloud.tests.py
+==> tests/sdd-domain-multitarget-foundation.tests.py
+PASSED: tests/sdd-domain-multitarget-foundation.tests.py
+test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) ... ok
+test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) ... ok
+test_bound_scope_owner_profile_policy_identity_and_preview_drift (__main__.Contracts.test_bound_scope_owner_profile_policy_identity_and_preview_drift) ... ok
+test_collector_schema_families_have_executed_bindings (__main__.Contracts.test_collector_schema_families_have_executed_bindings) ... ok
+test_concurrent_publication_has_one_complete_winner (__main__.Contracts.test_concurrent_publication_has_one_complete_winner) ... ok
+test_digests_utc_paths_and_scalar_edge_cases (__main__.Contracts.test_digests_utc_paths_and_scalar_edge_cases) ... ok
+test_every_bound_file_mutation_is_rejected (__main__.Contracts.test_every_bound_file_mutation_is_rejected) ... ok
+test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash (__main__.Contracts.test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash) ... ok
+test_input_alias_output_and_expected_type_are_rejected (__main__.Contracts.test_input_alias_output_and_expected_type_are_rejected) ... ok
+test_large_numbers_bounded_payloads_and_unpaired_unicode (__main__.Contracts.test_large_numbers_bounded_payloads_and_unpaired_unicode) ... ok
+test_lock_closure_versions_packages_schemas_and_adapter (__main__.Contracts.test_lock_closure_versions_packages_schemas_and_adapter) ... ok
+test_native_windows_filesystem_refusal (__main__.Contracts.test_native_windows_filesystem_refusal) ... skipped 'Native Windows refusal only'
+test_parser_rejects_ambiguous_json_without_echo (__main__.Contracts.test_parser_rejects_ambiguous_json_without_echo) ... ok
+test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) ... ok
+test_prepare_binding_does_not_invent_preview (__main__.Contracts.test_prepare_binding_does_not_invent_preview) ... ok
+test_protected_registry_configuration_schema_and_runtime (__main__.Contracts.test_protected_registry_configuration_schema_and_runtime) ... ok
+test_publication_atomic_no_overwrite_containment_and_scan_failure (__main__.Contracts.test_publication_atomic_no_overwrite_containment_and_scan_failure) ... ok
+test_read_artifact_checks_observation_and_verification_references (__main__.Contracts.test_read_artifact_checks_observation_and_verification_references) ... ok
+test_repair_context_cross_artifact_controls (__main__.Contracts.test_repair_context_cross_artifact_controls) ... ok
+test_repair_discovery_and_honest_unpublished_errors (__main__.Contracts.test_repair_discovery_and_honest_unpublished_errors) ... ok
+test_repair_explicit_phase_preserves_legacy_integrity_api (__main__.Contracts.test_repair_explicit_phase_preserves_legacy_integrity_api) ... ok
+test_repair_local_context_schema_and_each_field (__main__.Contracts.test_repair_local_context_schema_and_each_field) ... ok
+test_repair_phase_receipt_and_evidence_path_controls (__main__.Contracts.test_repair_phase_receipt_and_evidence_path_controls) ... ok
+test_repair_physical_workspace_and_declared_boundary (__main__.Contracts.test_repair_physical_workspace_and_declared_boundary) ... ok
+test_repair_predecessor_paths_are_separate_run_unit_evidence_not_authority (__main__.Contracts.test_repair_predecessor_paths_are_separate_run_unit_evidence_not_authority) ... ok
+test_repair_workspace_control_bytes_are_typed_blocked (__main__.Contracts.test_repair_workspace_control_bytes_are_typed_blocked) ... ok
+test_result_exit_mapping_and_invalid_identity (__main__.Contracts.test_result_exit_mapping_and_invalid_identity) ... ok
+test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles (__main__.Contracts.test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles) ... ok
+test_scanner_receives_exact_bytes_and_no_secret_publication (__main__.Contracts.test_scanner_receives_exact_bytes_and_no_secret_publication) ... ok
+test_schema_inventory_has_no_open_object_or_unexercised_family (__main__.Contracts.test_schema_inventory_has_no_open_object_or_unexercised_family) ... ok
+test_schema_published_limits_have_executable_runtime_counterparts (__main__.Contracts.test_schema_published_limits_have_executable_runtime_counterparts) ... ok
+test_schema_scalar_domains_and_optional_field_boundaries (__main__.Contracts.test_schema_scalar_domains_and_optional_field_boundaries) ... ok
+test_unavailable_safe_filesystem_primitives_fail_closed (__main__.Contracts.test_unavailable_safe_filesystem_primitives_fail_closed) ... ok
+test_verification_inconsistent_claims_and_duplicate_checks (__main__.Contracts.test_verification_inconsistent_claims_and_duplicate_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 0.441s
+
+OK (skipped=1)
+test_governed_operations_are_typed_blocked_not_fake_success (__main__.AwsCliContract.test_governed_operations_are_typed_blocked_not_fake_success) ... ok
+test_input_output_alias_is_not_overwritten (__main__.AwsCliContract.test_input_output_alias_is_not_overwritten) ... ok
+test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) ... ok
+test_unknown_operation_and_flag_are_typed_rejections (__main__.AwsCliContract.test_unknown_operation_and_flag_are_typed_rejections) ... ok
+test_actual_synth_public_mutation_and_missing_backup_negatives (__main__.AwsNativePreparation.test_actual_synth_public_mutation_and_missing_backup_negatives) ... ok
+test_ambient_credentials_are_rejected_before_application (__main__.AwsNativePreparation.test_ambient_credentials_are_rejected_before_application) ... ok
+test_config_schema_required_and_unknown_fields (__main__.AwsNativePreparation.test_config_schema_required_and_unknown_fields) ... ok
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsNativePreparation.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsNativePreparation.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_explicit_node_location_and_bytes (__main__.AwsNativePreparation.test_explicit_node_location_and_bytes) ... ok
+test_expression_depth_and_noncanonical_native_windows_root (__main__.AwsNativePreparation.test_expression_depth_and_noncanonical_native_windows_root) ... ok
+test_fixed_tool_and_upstream_schema_lock_mismatch (__main__.AwsNativePreparation.test_fixed_tool_and_upstream_schema_lock_mismatch) ... ok
+test_generated_output_inside_source_and_hidden_owners_block (__main__.AwsNativePreparation.test_generated_output_inside_source_and_hidden_owners_block) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_independently_authored_private_graph (__main__.AwsNativePreparation.test_independently_authored_private_graph) ... ok
+test_installed_runtime_mutation_denied (__main__.AwsNativePreparation.test_installed_runtime_mutation_denied) ... ok
+test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) ... ok
+test_malformed_compiled_outputs_always_typed_and_no_receipt (__main__.AwsNativePreparation.test_malformed_compiled_outputs_always_typed_and_no_receipt) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsNativePreparation.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_mixed_unsupported_missing_import_and_provider (__main__.AwsNativePreparation.test_mixed_unsupported_missing_import_and_provider) ... ok
+test_native_assembly_schema_assets_and_executable_surface_denials (__main__.AwsNativePreparation.test_native_assembly_schema_assets_and_executable_surface_denials) ... ok
+test_output_and_source_integrity (__main__.AwsNativePreparation.test_output_and_source_integrity) ... ok
+test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) ... ok
+test_real_synth_complete_locked_assembly_validate_without_execution (__main__.AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution) ... ok
+test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported (__main__.AwsNativePreparation.test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported) ... ok
+test_route_owner_identity_and_stable_intent (__main__.AwsNativePreparation.test_route_owner_identity_and_stable_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AwsNativePreparation.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AwsNativePreparation.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_executable_config_and_unlocked_sources (__main__.AwsNativePreparation.test_unsupported_executable_config_and_unlocked_sources) ... ok
+test_unsupported_filesystem_subprocess (__main__.AwsNativePreparation.test_unsupported_filesystem_subprocess) ... ok
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsRouting.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsRouting.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_mixed_unsupported_missing_import_and_provider (__main__.AwsRouting.test_mixed_unsupported_missing_import_and_provider) ... ok
+test_output_and_source_integrity (__main__.AwsRouting.test_output_and_source_integrity) ... ok
+test_route_owner_identity_and_stable_intent (__main__.AwsRouting.test_route_owner_identity_and_stable_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AwsRouting.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AwsRouting.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_filesystem_subprocess (__main__.AwsRouting.test_unsupported_filesystem_subprocess) ... ok
+test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) ... ok
+test_input_output_alias_is_not_overwritten (__main__.AzureCliContract.test_input_output_alias_is_not_overwritten) ... ok
+test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) ... ok
+test_unknown_operation_and_flag_are_typed_rejections (__main__.AzureCliContract.test_unknown_operation_and_flag_are_typed_rejections) ... ok
+test_commented_unlocked_compiler_reads_fail_closed (__main__.AzureNativePreparation.test_commented_unlocked_compiler_reads_fail_closed) ... ok
+test_compiled_outputs_and_variables_have_no_hidden_runtime_reads (__main__.AzureNativePreparation.test_compiled_outputs_and_variables_have_no_hidden_runtime_reads) ... ok
+test_compiled_public_ip_ingress_and_existing_resource_mutation (__main__.AzureNativePreparation.test_compiled_public_ip_ingress_and_existing_resource_mutation) ... ok
+test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureNativePreparation.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) ... ok
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AzureNativePreparation.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AzureNativePreparation.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_explicit_unsupported_inventory_and_provider_mismatch (__main__.AzureNativePreparation.test_explicit_unsupported_inventory_and_provider_mismatch) ... ok
+test_expression_depth_has_an_explicit_bound (__main__.AzureNativePreparation.test_expression_depth_has_an_explicit_bound) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AzureNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_independent_module_resource_order_names_and_settings_compile (__main__.AzureNativePreparation.test_independent_module_resource_order_names_and_settings_compile) ... ok
+test_missing_compiler_and_transitive_source_rejected (__main__.AzureNativePreparation.test_missing_compiler_and_transitive_source_rejected) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AzureNativePreparation.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_missing_owner_import_and_metadata_id_preservation (__main__.AzureNativePreparation.test_missing_owner_import_and_metadata_id_preservation) ... ok
+test_mutated_input_output_escape_alias_and_no_overwrite (__main__.AzureNativePreparation.test_mutated_input_output_escape_alias_and_no_overwrite) ... ok
+test_one_explicit_bicep_owner_routes_with_stable_apply_intent (__main__.AzureNativePreparation.test_one_explicit_bicep_owner_routes_with_stable_apply_intent) ... ok
+test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) ... ok
+test_provider_schema_required_fields_and_types_match_cli (__main__.AzureNativePreparation.test_provider_schema_required_fields_and_types_match_cli) ... ok
+test_real_compile_locked_plan_and_validate_exact_bytes (__main__.AzureNativePreparation.test_real_compile_locked_plan_and_validate_exact_bytes) ... ok
+test_secret_marker_publication_is_denied (__main__.AzureNativePreparation.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AzureNativePreparation.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AzureNativePreparation.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unlocked_and_mutated_upstream_and_tool_pin (__main__.AzureNativePreparation.test_unlocked_and_mutated_upstream_and_tool_pin) ... ok
+test_unsupported_filesystem_subprocess (__main__.AzureNativePreparation.test_unsupported_filesystem_subprocess) ... ok
+test_unsupported_only_unit_is_not_migrated (__main__.AzureNativePreparation.test_unsupported_only_unit_is_not_migrated) ... ok
+test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AzureRouting.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_explicit_unsupported_inventory_and_provider_mismatch (__main__.AzureRouting.test_explicit_unsupported_inventory_and_provider_mismatch) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AzureRouting.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AzureRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_missing_owner_import_and_metadata_id_preservation (__main__.AzureRouting.test_missing_owner_import_and_metadata_id_preservation) ... ok
+test_mutated_input_output_escape_alias_and_no_overwrite (__main__.AzureRouting.test_mutated_input_output_escape_alias_and_no_overwrite) ... ok
+test_one_explicit_bicep_owner_routes_with_stable_apply_intent (__main__.AzureRouting.test_one_explicit_bicep_owner_routes_with_stable_apply_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AzureRouting.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AzureRouting.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AzureRouting.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_only_unit_is_not_migrated (__main__.AzureRouting.test_unsupported_only_unit_is_not_migrated) ... ok
+test_explicit_provider_and_installed_identity_are_required (__main__.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required) ... ok
+test_installed_provider_guard_sensitivity (__main__.BootstrapInstalled.test_installed_provider_guard_sensitivity) ... ok
+test_owner_import_digest_and_output_guards_have_matched_controls (__main__.BootstrapInstalled.test_owner_import_digest_and_output_guards_have_matched_controls) ... ok
+test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... ok
+test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) ... ok
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ok
+test_required_native_missing_tools_fail_instead_of_skip (__main__.NormalDriverRegistration.test_required_native_missing_tools_fail_instead_of_skip) ... ok
+
+----------------------------------------------------------------------
+Ran 93 tests in 90.076s
+
+OK
+test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) ... ok
+test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) ... ok
+test_any_denied_or_unexpected_environment_history_requires_fresh_dispatch (__main__.Admission.test_any_denied_or_unexpected_environment_history_requires_fresh_dispatch) ... ok
+test_concurrency_key_conservative_canonical_and_scope_prerequisite (__main__.Admission.test_concurrency_key_conservative_canonical_and_scope_prerequisite) ... ok
+test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) ... ok
+test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) ... ok
+test_environment_policy_and_missing_api_data_fail_closed (__main__.Admission.test_environment_policy_and_missing_api_data_fail_closed) ... ok
+test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) ... ok
+test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) ... ok
+test_fresh_checks_on_every_mutation_and_dependency_default_denial (__main__.Admission.test_fresh_checks_on_every_mutation_and_dependency_default_denial) ... ok
+test_https_transport_disallows_redirects_and_sanitizes_failures (__main__.Admission.test_https_transport_disallows_redirects_and_sanitizes_failures) ... ok
+test_iam_templates_restrict_native_subjects_and_stage_actions (__main__.Admission.test_iam_templates_restrict_native_subjects_and_stage_actions) ... ok
+test_local_flags_receipts_and_missing_runtime_never_authorize (__main__.Admission.test_local_flags_receipts_and_missing_runtime_never_authorize) ... ok
+test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch (__main__.Admission.test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch) ... ok
+test_missing_oidc_claims_ambiguous_reviewers_and_lease_ttl (__main__.Admission.test_missing_oidc_claims_ambiguous_reviewers_and_lease_ttl) ... ok
+test_native_https_success_redirect_and_size_contract (__main__.Admission.test_native_https_success_redirect_and_size_contract) ... ok
+test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) ... ok
+test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) ... ok
+test_provider_identity_and_lease_mismatch_before_each_stage (__main__.Admission.test_provider_identity_and_lease_mismatch_before_each_stage) ... ok
+test_repair_same_request_prepare_preview_apply_separate_policies (__main__.Admission.test_repair_same_request_prepare_preview_apply_separate_policies) ... ok
+test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) ... ok
+test_replay_different_instance_tamper_and_unknown_submission_no_retry (__main__.Admission.test_replay_different_instance_tamper_and_unknown_submission_no_retry) ... ok
+test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) ... ok
+test_templates_have_distinct_environments_roles_and_no_cancellation (__main__.Admission.test_templates_have_distinct_environments_roles_and_no_cancellation) ... ok
+test_timeout_is_not_retried_and_receipt_is_retained (__main__.Admission.test_timeout_is_not_retried_and_receipt_is_retained) ... ok
+test_untrusted_endpoint_and_publication_failure_have_zero_writes (__main__.Admission.test_untrusted_endpoint_and_publication_failure_have_zero_writes) ... ok
+test_create_pending_status_poll_is_bounded (__main__.AwsExecution.test_create_pending_status_poll_is_bounded) ... ok
+test_create_response_loss_recovers_original_named_change_set_read_only (__main__.AwsExecution.test_create_response_loss_recovers_original_named_change_set_read_only) ... ok
+test_denied_prepare_and_revoked_apply_zero_mutations (__main__.AwsExecution.test_denied_prepare_and_revoked_apply_zero_mutations) ... ok
+test_destructive_reference_and_automatic_failure_policy_block (__main__.AwsExecution.test_destructive_reference_and_automatic_failure_policy_block) ... ok
+test_every_bound_file_mismatch_blocks_before_native_mutation (__main__.AwsExecution.test_every_bound_file_mismatch_blocks_before_native_mutation) ... ok
+test_exact_async_assets_native_role_failure_settings_and_single_execution (__main__.AwsExecution.test_exact_async_assets_native_role_failure_settings_and_single_execution) ... ok
+test_existing_stack_requires_exact_protected_owner_role_and_id (__main__.AwsExecution.test_existing_stack_requires_exact_protected_owner_role_and_id) ... ok
+test_fixture_supports_actual_new_run_and_native_role_session (__main__.AwsExecution.test_fixture_supports_actual_new_run_and_native_role_session) ... ok
+test_fresh_prepare_dispatch_after_unknown_create_is_fenced (__main__.AwsExecution.test_fresh_prepare_dispatch_after_unknown_create_is_fenced) ... ok
+test_fresh_prepare_dispatch_after_unknown_publication_is_fenced (__main__.AwsExecution.test_fresh_prepare_dispatch_after_unknown_publication_is_fenced) ... ok
+test_generic_failure_is_not_no_change_and_pending_is_bounded (__main__.AwsExecution.test_generic_failure_is_not_no_change_and_pending_is_bounded) ... ok
+test_inactive_acyclic_workflow_native_iam_and_cli_seam (__main__.AwsExecution.test_inactive_acyclic_workflow_native_iam_and_cli_seam) ... ok
+test_last_send_revocation_create (__main__.AwsExecution.test_last_send_revocation_create) ... ok
+test_last_send_revocation_execute (__main__.AwsExecution.test_last_send_revocation_execute) ... ok
+test_last_send_revocation_publish (__main__.AwsExecution.test_last_send_revocation_publish) ... ok
+test_lost_asset_version_cannot_be_replaced_with_latest_or_republished (__main__.AwsExecution.test_lost_asset_version_cannot_be_replaced_with_latest_or_republished) ... ok
+test_native_binding_substitutions_and_pagination_block (__main__.AwsExecution.test_native_binding_substitutions_and_pagination_block) ... ok
+test_native_bucket_checks_and_version_headers_are_not_invented (__main__.AwsExecution.test_native_bucket_checks_and_version_headers_are_not_invented) ... ok
+test_native_wire_schema_matches_official_model_no_impossible_role_or_token_readback (__main__.AwsExecution.test_native_wire_schema_matches_official_model_no_impossible_role_or_token_readback) ... ok
+test_no_change_only_unambiguous_native_failed_diagnosis (__main__.AwsExecution.test_no_change_only_unambiguous_native_failed_diagnosis) ... ok
+test_operation_intent_hashes_actual_native_bytes_and_recovery_rejects_tampering (__main__.AwsExecution.test_operation_intent_hashes_actual_native_bytes_and_recovery_rejects_tampering) ... ok
+test_readonly_recovery_expired_preview_and_revoked_mutation_approval (__main__.AwsExecution.test_readonly_recovery_expired_preview_and_revoked_mutation_approval) ... ok
+test_recovery_scope_mismatch_no_native_reads_even_after_expiry (__main__.AwsExecution.test_recovery_scope_mismatch_no_native_reads_even_after_expiry) ... ok
+test_timeout_original_id_read_only_recovery_and_old_archive_replay (__main__.AwsExecution.test_timeout_original_id_read_only_recovery_and_old_archive_replay) ... ok
+test_unknown_without_native_history_never_reexecutes_local_or_fresh (__main__.AwsExecution.test_unknown_without_native_history_never_reexecutes_local_or_fresh) ... ok
+test_versioned_asset_substitution_and_bucket_owner_fail_closed (__main__.AwsExecution.test_versioned_asset_substitution_and_bucket_owner_fail_closed) ... ok
+test_acyclic_render_order_external_policy_and_inert_placeholders (__main__.AzureCallerIntegration.test_acyclic_render_order_external_policy_and_inert_placeholders) ... ok
+test_archive_acquisition_is_immutable_digest_checked_and_data_only (__main__.AzureCallerIntegration.test_archive_acquisition_is_immutable_digest_checked_and_data_only) ... ok
+test_role_setup_actions_are_concrete_and_stage_separated (__main__.AzureCallerIntegration.test_role_setup_actions_are_concrete_and_stage_separated) ... ok
+test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) ... ok
+test_async_bad_or_missing_header_is_unknown_after_submission (__main__.AzureExecution.test_async_bad_or_missing_header_is_unknown_after_submission) ... ok
+test_async_location_and_status_headers_real_shapes (__main__.AzureExecution.test_async_location_and_status_headers_real_shapes) ... ok
+test_bound_field_mismatch_matrix_zero_deployments (__main__.AzureExecution.test_bound_field_mismatch_matrix_zero_deployments) ... ok
+test_bounded_async_poll_and_failed_native_state_not_health (__main__.AzureExecution.test_bounded_async_poll_and_failed_native_state_not_health) ... ok
+test_complete_history_prepare_none_and_other_intents_allow_single_put (__main__.AzureExecution.test_complete_history_prepare_none_and_other_intents_allow_single_put) ... ok
+test_cross_job_original_prepare_archive_cannot_repeat_unknown_put (__main__.AzureExecution.test_cross_job_original_prepare_archive_cannot_repeat_unknown_put) ... ok
+test_empty_authentic_preview_no_change_no_fabricated_apply_id (__main__.AzureExecution.test_empty_authentic_preview_no_change_no_fabricated_apply_id) ... ok
+test_exact_manifest_native_incremental_single_submission_no_compiler (__main__.AzureExecution.test_exact_manifest_native_incremental_single_submission_no_compiler) ... ok
+test_history_changed_preview_and_revision_still_fences_same_intent (__main__.AzureExecution.test_history_changed_preview_and_revision_still_fences_same_intent) ... ok
+test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) ... ok
+test_missing_revoked_expired_approvals_zero_submissions (__main__.AzureExecution.test_missing_revoked_expired_approvals_zero_submissions) ... ok
+test_output_outside_evidence_is_not_published (__main__.AzureExecution.test_output_outside_evidence_is_not_published) ... ok
+test_owner_conflict_added_after_preview_zero_submissions (__main__.AzureExecution.test_owner_conflict_added_after_preview_zero_submissions) ... ok
+test_owner_race_during_final_admission_zero_submissions (__main__.AzureExecution.test_owner_race_during_final_admission_zero_submissions) ... ok
+test_post_submit_evidence_failure_retains_unknown_original_id (__main__.AzureExecution.test_post_submit_evidence_failure_retains_unknown_original_id) ... ok
+test_prepare_admission_missing_is_zero_native_posts (__main__.AzureExecution.test_prepare_admission_missing_is_zero_native_posts) ... ok
+test_production_https_preserves_202_headers_and_does_not_retry (__main__.AzureExecution.test_production_https_preserves_202_headers_and_does_not_retry) ... ok
+test_public_reconcile_fence_reauthenticates_and_rejects_forged_identity (__main__.AzureExecution.test_public_reconcile_fence_reauthenticates_and_rejects_forged_identity) ... ok
+test_readonly_reconcile_missing_state_and_error_preserves_unknown_identity (__main__.AzureExecution.test_readonly_reconcile_missing_state_and_error_preserves_unknown_identity) ... ok
+test_readonly_recovery_needs_no_new_mutation_approval_or_fresh_preview (__main__.AzureExecution.test_readonly_recovery_needs_no_new_mutation_approval_or_fresh_preview) ... ok
+test_real_caller_acquisition_prepare_apply_uses_identical_manifest_bytes (__main__.AzureExecution.test_real_caller_acquisition_prepare_apply_uses_identical_manifest_bytes) ... ok
+test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) ... ok
+test_referenced_resources_only_explicit_additive_attachments (__main__.AzureExecution.test_referenced_resources_only_explicit_additive_attachments) ... ok
+test_reordered_semantics_still_one_submission (__main__.AzureExecution.test_reordered_semantics_still_one_submission) ... ok
+test_revocation_between_fresh_preview_and_put_blocks (__main__.AzureExecution.test_revocation_between_fresh_preview_and_put_blocks) ... ok
+test_semantic_drift_zero_submissions (__main__.AzureExecution.test_semantic_drift_zero_submissions) ... ok
+test_timeout_durable_original_id_reconcile_no_second_mutation (__main__.AzureExecution.test_timeout_durable_original_id_reconcile_no_second_mutation) ... ok
+test_unavailable_incomplete_or_excessive_intent_history_blocks_without_put (__main__.AzureExecution.test_unavailable_incomplete_or_excessive_intent_history_blocks_without_put) ... ok
+test_unknown_destructive_potential_diagnostics_are_not_dropped (__main__.AzureExecution.test_unknown_destructive_potential_diagnostics_are_not_dropped) ... ok
+test_unknown_semantics_at_real_callsite_blocks_zero_apply (__main__.AzureExecution.test_unknown_semantics_at_real_callsite_blocks_zero_apply) ... ok
+test_native_platform_refuses_file_execution (__main__.NativePlatformBoundary.test_native_platform_refuses_file_execution) ... skipped 'Native Windows refusal only'
+
+----------------------------------------------------------------------
+Ran 87 tests in 9.614s
+
+OK (skipped=1)
+test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) ... ok
+test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) ... ok
+test_other_alarm_field_semantics_remain_exact (__main__.AlarmNumericCases.test_other_alarm_field_semantics_remain_exact) ... ok
+test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) ... ok
+test_emitted_contracts_are_closed (__main__.AwsObservationOrchestration.test_emitted_contracts_are_closed) ... ok
+test_legacy_physical_config_rejected_before_admission (__main__.AwsObservationOrchestration.test_legacy_physical_config_rejected_before_admission) ... ok
+test_native_healthy_substitute_response_blocks (__main__.AwsObservationOrchestration.test_native_healthy_substitute_response_blocks) ... ok
+test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) ... ok
+test_original_native_operation_not_copied_receipt (__main__.AwsObservationOrchestration.test_original_native_operation_not_copied_receipt) ... ok
+test_publication_fresh_checks_never_reuse_saved_success (__main__.AwsObservationOrchestration.test_publication_fresh_checks_never_reuse_saved_success) ... ok
+test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) ... ok
+test_unknown_create_ids_resolved_without_request_edits (__main__.AwsObservationOrchestration.test_unknown_create_ids_resolved_without_request_edits) ... ok
+test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) ... ok
+test_native_positive_permission_closure_protocol (__main__.AzureClosureAndDcrCases.test_native_positive_permission_closure_protocol) ... ok
+test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) ... ok
+test_inert_template_has_literal_separate_phase_boundaries (__main__.AzureCompletionCases.test_inert_template_has_literal_separate_phase_boundaries) ... ok
+test_original_job_completion_matches_fixed_pinned_workflow (__main__.AzureCompletionCases.test_original_job_completion_matches_fixed_pinned_workflow) ... ok
+test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) ... ok
+test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) ... ok
+test_public_verify_uses_original_operation_and_received_signal (__main__.AzureObservationOrchestration.test_public_verify_uses_original_operation_and_received_signal) ... ok
+test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) ... ok
+test_approval_self_review_uses_stable_id_despite_extra_metadata (__main__.DependencyBoundaryCases.test_approval_self_review_uses_stable_id_despite_extra_metadata) ... ok
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyBoundaryCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyBoundaryCases.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyBoundaryCases.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_each_write_reacquires_and_final_scan_revocation_blocks (__main__.DependencyBoundaryCases.test_each_write_reacquires_and_final_scan_revocation_blocks) ... ok
+test_freshness_expires_during_final_acquisition_not_consumer_lease (__main__.DependencyBoundaryCases.test_freshness_expires_during_final_acquisition_not_consumer_lease) ... ok
+test_physically_resolved_temporary_root (__main__.DependencyBoundaryCases.test_physically_resolved_temporary_root) ... ok
+test_read_only_verify_policy_is_loadable_but_never_a_writer (__main__.DependencyBoundaryCases.test_read_only_verify_policy_is_loadable_but_never_a_writer) ... ok
+test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a) ... ok
+test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) ... ok
+test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) ... ok
+test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) ... ok
+test_consumer_request_and_trust_set (__main__.DependencyFieldMatrix.test_consumer_request_and_trust_set) ... ok
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyFieldMatrix.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyFieldMatrix.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyFieldMatrix.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) ... ok
+test_consumer_expiry_during_second_acquisition (__main__.DependencyFinalBoundaryCases.test_consumer_expiry_during_second_acquisition) ... ok
+test_consumer_revocation_during_second_predecessor_acquisition (__main__.DependencyFinalBoundaryCases.test_consumer_revocation_during_second_predecessor_acquisition) ... ok
+test_cross_provider_predecessors_and_foreign_provenance_denial (__main__.DependencyFinalBoundaryCases.test_cross_provider_predecessors_and_foreign_provenance_denial) ... ok
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyFinalBoundaryCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyFinalBoundaryCases.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyFinalBoundaryCases.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_final_consumer_metadata_latency_cannot_stale_predecessor (__main__.DependencyFinalBoundaryCases.test_final_consumer_metadata_latency_cannot_stale_predecessor) ... ok
+test_guards_are_sensitive_not_blanket_denial (__main__.DependencyFinalBoundaryCases.test_guards_are_sensitive_not_blanket_denial) ... ok
+test_standalone_provider_install_does_not_import_other_provider (__main__.DependencyFinalBoundaryCases.test_standalone_provider_install_does_not_import_other_provider) ... ok
+test_order_and_each_invalid_graph_before_callbacks (__main__.DependencyGraphCases.test_order_and_each_invalid_graph_before_callbacks) ... ok
+test_transitive_unknown_preserves_identity_without_retry (__main__.DependencyGraphCases.test_transitive_unknown_preserves_identity_without_retry) ... ok
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyReceiptCases.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_cli_without_trusted_executor_rejects_verify (__main__.EntryPreflight.test_cli_without_trusted_executor_rejects_verify) ... ok
+test_live_network_is_forbidden_before_transport (__main__.EntryPreflight.test_live_network_is_forbidden_before_transport) ... ok
+test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract) ... ok
+test_shared_reducer_available (__main__.EntryPreflight.test_shared_reducer_available) ... ok
+test_every_check_lease_expiry_during_native_response (__main__.ExpandedBindingCases.test_every_check_lease_expiry_during_native_response) ... ok
+test_nested_context_fields_and_untrusted_native_labels (__main__.ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels) ... ok
+test_query_digests_are_exact_transport_bytes (__main__.ExpandedBindingCases.test_query_digests_are_exact_transport_bytes) ... ok
+test_aws_backup_native_recent_query_window (__main__.FreshnessCases.test_aws_backup_native_recent_query_window) ... ok
+test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) ... ok
+test_native_selected_window_never_chooses_only_healthy_point (__main__.FreshnessCases.test_native_selected_window_never_chooses_only_healthy_point) ... ok
+test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) ... ok
+test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... ok
+test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) ... ok
+test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... ok
+test_azure_backup_does_not_require_future_recovery_id (__main__.NativeCollectorCases.test_azure_backup_does_not_require_future_recovery_id) ... ok
+test_backup_discovery_without_future_identifier (__main__.NativeCollectorCases.test_backup_discovery_without_future_identifier) ... ok
+test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) ... ok
+test_native_azure_incomplete_permission_proof_cannot_pass (__main__.NativeCollectorCases.test_native_azure_incomplete_permission_proof_cannot_pass) ... ok
+test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) ... ok
+test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) ... ok
+test_optional_backup_is_omitted_only_by_original_profile (__main__.NativeCollectorCases.test_optional_backup_is_omitted_only_by_original_profile) ... ok
+test_executed_preview_requires_actual_asset_readback (__main__.ProfileAwsReadbackCases.test_executed_preview_requires_actual_asset_readback) ... ok
+test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) ... ok
+test_every_plan_leaf_and_closed_object (__main__.ProfileCompletionCases.test_every_plan_leaf_and_closed_object) ... ok
+test_iac_required_and_preview_window_at_publication (__main__.ProfileCompletionCases.test_iac_required_and_preview_window_at_publication) ... ok
+test_original_profile_version_and_conditional_backup (__main__.ProfileCompletionCases.test_original_profile_version_and_conditional_backup) ... ok
+test_preview_guard_matrix (__main__.ProfileCompletionCases.test_preview_guard_matrix) ... ok
+test_protected_mandatory_checks_never_become_optional (__main__.ProfileCompletionCases.test_protected_mandatory_checks_never_become_optional) ... ok
+test_saved_observation_mismatch_sensitivity (__main__.ProfileCompletionCases.test_saved_observation_mismatch_sensitivity) ... ok
+test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks (__main__.ProfileDispatchIntegration.test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks) ... ok
+test_native_transport_protocol_double_reaches_positive_existing_boundary (__main__.ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary) ... ok
+test_preview_and_iac_mismatches_at_public_boundary (__main__.ProfileDispatchIntegration.test_preview_and_iac_mismatches_at_public_boundary) ... ok
+test_aws_native_preview_guard_is_necessary_not_a_saved_hash_check (__main__.ProfileGuardSensitivity.test_aws_native_preview_guard_is_necessary_not_a_saved_hash_check) ... ok
+test_bound_preview_guard_sensitivity_with_valid_rehashed_counterpart (__main__.ProfileGuardSensitivity.test_bound_preview_guard_sensitivity_with_valid_rehashed_counterpart) ... ok
+test_profile_allowlist_and_required_check_guard_sensitivity (__main__.ProfileGuardSensitivity.test_profile_allowlist_and_required_check_guard_sensitivity) ... ok
+test_self_consistent_postapply_preview_substitution_is_not_authenticated (__main__.ProfilePreviewProvenance.test_self_consistent_postapply_preview_substitution_is_not_authenticated) ... ok
+test_all_direct_consumers_explicit_selection_not_saved_authority (__main__.ProfileSavedConsumers.test_all_direct_consumers_explicit_selection_not_saved_authority) ... ok
+test_legacy_import_never_loads_cloud_runtime (__main__.ProfileSavedConsumers.test_legacy_import_never_loads_cloud_runtime) ... ok
+test_plan_fields_match_schema_and_recomputed_counterparts (__main__.ProfileSavedConsumers.test_plan_fields_match_schema_and_recomputed_counterparts) ... ok
+test_registry_protection_and_old_schema_mirrors (__main__.ProfileSavedConsumers.test_registry_protection_and_old_schema_mirrors) ... ok
+test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) ... ok
+test_legacy_cannot_accept_cloud_discriminator (__main__.ProtectedProfileCases.test_legacy_cannot_accept_cloud_discriminator) ... ok
+test_unsupported_profile_version_at_reducer (__main__.ProtectedProfileCases.test_unsupported_profile_version_at_reducer) ... ok
+test_all_emitted_required_fields_have_closed_schema_counterparts (__main__.PublicObservationCases.test_all_emitted_required_fields_have_closed_schema_counterparts) ... ok
+test_public_all_checks_matrix_native_protocol_fixtures (__main__.PublicObservationCases.test_public_all_checks_matrix_native_protocol_fixtures) ... ok
+test_public_request_and_trusted_policy_counterparts (__main__.PublicObservationCases.test_public_request_and_trusted_policy_counterparts) ... ok
+test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction (__main__.PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction) ... ok
+test_all_checks_synthetic_never_complete (__main__.ReducerCases.test_all_checks_synthetic_never_complete) ... ok
+test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) ... ok
+test_context_shape_and_window (__main__.ReducerCases.test_context_shape_and_window) ... ok
+test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) ... ok
+test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) ... ok
+test_each_payload_counterpart_mismatch (__main__.ReducerCases.test_each_payload_counterpart_mismatch) ... ok
+test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) ... ok
+test_profile_policy_and_check_set (__main__.ReducerCases.test_profile_policy_and_check_set) ... ok
+test_query_trace_shape (__main__.ReducerCases.test_query_trace_shape) ... ok
+test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) ... ok
+
+----------------------------------------------------------------------
+Ran 109 tests in 138.389s
+
+OK
+test_case_variants_at_operator_and_file_discovery_layers (__main__.InstalledLifecycle.test_case_variants_at_operator_and_file_discovery_layers) ... ok
+test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) ... ok
+test_missing_shared_dependency_aborts_before_placement (__main__.InstalledLifecycle.test_missing_shared_dependency_aborts_before_placement) ... ok
+test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) ... ok
+test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) ... ok
+test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) ... ok
+test_existing_name_and_version_guards (__main__.ManifestBoundary.test_existing_name_and_version_guards) ... ok
+test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) ... ok
+test_matched_control (__main__.ManifestBoundary.test_matched_control) ... ok
+test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) ... ok
+test_each_entry_frontmatter_and_relative_links (__main__.SkillVisibility.test_each_entry_frontmatter_and_relative_links) ... ok
+test_real_export_consumer_ignores_upstream_reference_skills (__main__.SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills) ... ok
+test_visibility_guards_with_matched_controls (__main__.SkillVisibility.test_visibility_guards_with_matched_controls) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 112.118s
+
+OK
+test_current_suite_remains_on_catalog_normal_and_native_ci_paths (__main__.CurrentAnchorTests.test_current_suite_remains_on_catalog_normal_and_native_ci_paths) ... ok
+test_fenced_heading_is_not_an_anchor (__main__.CurrentAnchorTests.test_fenced_heading_is_not_an_anchor) ... ok
+test_line_insertion_preserves_meaning (__main__.CurrentAnchorTests.test_line_insertion_preserves_meaning) ... ok
+test_missing_or_duplicate_heading_is_rejected (__main__.CurrentAnchorTests.test_missing_or_duplicate_heading_is_rejected) ... ok
+test_mixed_section_and_line_evidence_is_rejected (__main__.CurrentAnchorTests.test_mixed_section_and_line_evidence_is_rejected) ... ok
+test_requirement_in_another_section_does_not_satisfy_source (__main__.CurrentAnchorTests.test_requirement_in_another_section_does_not_satisfy_source) ... ok
+test_source_path_escape_is_rejected (__main__.CurrentAnchorTests.test_source_path_escape_is_rejected) ... ok
+test_symlinked_source_is_rejected (__main__.CurrentAnchorTests.test_symlinked_source_is_rejected) ... ok
+test_TEST_001a_interviewer_questions_and_layer_output (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001a_interviewer_questions_and_layer_output) ... ok
+test_TEST_001b_fixed_layer_template (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001b_fixed_layer_template) ... ok
+test_TEST_001c_risk_tier_verifier_contract (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001c_risk_tier_verifier_contract) ... ok
+test_TEST_001d_ui_design_loop (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001d_ui_design_loop) ... ok
+test_TEST_001e_endpoint_contract_checklist (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001e_endpoint_contract_checklist) ... ok
+test_TEST_001f_ci_mcp_package (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001f_ci_mcp_package) ... ok
+test_TEST_001g_provider_state_and_gate_stage_boundaries (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001g_provider_state_and_gate_stage_boundaries) ... ok
+test_TEST_001h_host_adapters_and_artifact_layout_migration (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001h_host_adapters_and_artifact_layout_migration) ... ok
+test_TEST_001i_compile_build_lint_checks_on_noncode_targets (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001i_compile_build_lint_checks_on_noncode_targets) ... ok
+test_duplicate_entry_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_duplicate_entry_id_is_rejected) ... ok
+test_full_inventory_has_no_outstanding_failures (historical_consumer_inventory.ConsumerInventoryTests.test_full_inventory_has_no_outstanding_failures) ... ok
+test_invalid_disposition_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_invalid_disposition_is_rejected) ... ok
+test_missing_required_entry_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_required_entry_is_rejected) ... ok
+test_missing_source_file_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_source_file_is_rejected) ... ok
+test_out_of_range_line_end_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_out_of_range_line_end_is_rejected) ... ok
+test_same_consumer_under_another_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_same_consumer_under_another_id_is_rejected) ... ok
+test_stale_source_keyword_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_stale_source_keyword_is_rejected) ... ok
+test_actual_registry_has_no_provider_terms (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_actual_registry_has_no_provider_terms) ... ok
+test_capability_registry_schema_rejects_provider_extra_field (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_capability_registry_schema_rejects_provider_extra_field) ... ok
+test_mutated_registry_with_provider_name_is_detected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_mutated_registry_with_provider_name_is_detected) ... ok
+test_nested_predicate_credentials_and_state_keys_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_nested_predicate_credentials_and_state_keys_are_rejected) ... ok
+test_provider_keys_in_predicates_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_keys_in_predicates_are_rejected) ... ok
+test_provider_neutral_nested_predicate_values_are_accepted (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_neutral_nested_predicate_values_are_accepted) ... ok
+test_actual_tools_are_exactly_the_five_read_only_tools (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_actual_tools_are_exactly_the_five_read_only_tools) ... ok
+test_core_api_dependency_mutations_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_api_dependency_mutations_are_rejected) ... ok
+test_core_contracts_have_no_api_dependency (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_contracts_have_no_api_dependency) ... ok
+test_duplicate_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_duplicate_tool_is_rejected) ... ok
+test_mutated_api_dependency_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_api_dependency_is_rejected) ... ok
+test_mutated_non_get_method_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_non_get_method_is_rejected) ... ok
+test_mutated_write_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_write_tool_is_rejected) ... ok
+test_removed_fetch_calls_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_removed_fetch_calls_are_rejected) ... ok
+test_row1_core_owns_lifecycle_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row1_core_owns_lifecycle_not_provider_identity) ... ok
+test_row2_capability_registry_owns_obligations_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row2_capability_registry_owns_obligations_not_provider_identity) ... ok
+test_row3_provider_binding_owns_identity_not_core_policy (foundation_contract_boundaries.OwnershipBoundaryTests.test_row3_provider_binding_owns_identity_not_core_policy) ... ok
+test_row4_host_adapter_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row4_host_adapter_boundary_is_recorded) ... ok
+test_row5_ui_provider_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row5_ui_provider_boundary_is_recorded) ... ok
+test_context_projection_keeps_legal_shapes_and_binding_ids (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_keeps_legal_shapes_and_binding_ids) ... ok
+test_context_projection_rejects_provider_fields (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_rejects_provider_fields) ... ok
+test_negative_provider_field_at_characteristics_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_characteristics_rejected) ... ok
+test_negative_provider_field_at_root_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_root_rejected) ... ok
+test_negative_provider_fields_at_component_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_component_rejected) ... ok
+test_negative_provider_fields_at_remaining_object_boundaries (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_remaining_object_boundaries) ... ok
+test_positive_ordinary_fields_and_binding_ids_accepted (foundation_contract_boundaries.ProjectContextBoundaryTests.test_positive_ordinary_fields_and_binding_ids_accepted) ... ok
+test_provider_binding_schema_accepts_provider_product_credentials_state (foundation_contract_boundaries.ProjectContextBoundaryTests.test_provider_binding_schema_accepts_provider_product_credentials_state) ... ok
+test_runtime_resolver_and_contract_reader_keep_legal_shapes (foundation_contract_boundaries.ProjectContextBoundaryTests.test_runtime_resolver_and_contract_reader_keep_legal_shapes) ... ok
+test_shared_path_shape_stays_exclusive_and_typed (foundation_contract_boundaries.ProjectContextBoundaryTests.test_shared_path_shape_stays_exclusive_and_typed) ... ok
+
+----------------------------------------------------------------------
+Ran 54 tests in 0.619s
+
+OK

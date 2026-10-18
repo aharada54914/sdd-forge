@@ -816,16 +816,27 @@ function commandReferencesProtectedPath(cmd, directories = []) {
   let position = 0;
   let verb = '';
   let firstCommand = true;
+  let cloudPrefix = false;
   for (const [index, [kind, text]] of tokens.entries()) {
     if (kind !== 'word') {
-      if (position > 0) firstCommand = false;
+      if (position > 0 || cloudPrefix) firstCommand = false;
       position = 0; verb = ''; continue;
     }
-    const scriptInput = literalContext && firstCommand && position === 1 && !text.startsWith('-') && !text.startsWith('~') &&
+    const scriptInput = literalContext && firstCommand && position === 1 &&
+      (!cloudPrefix || ['python', 'python3'].includes(verb)) && !text.startsWith('-') && !text.startsWith('~') &&
       ((['python', 'python3'].includes(verb) && text.endsWith('.py')) ||
        (['bash', 'sh'].includes(verb) && text.endsWith('.sh'))) && !text.includes('>') && !text.includes('<');
-    if (position === 0) verb = text;
-    position += 1;
+    // Only literal cloud metadata and Python's no-bytecode flag preserve
+    // the existing first-command script-input rule; still scan every token.
+    const cloudAssignment = literalContext && firstCommand && position === 0 &&
+      /^CLOUD_(?:WORKSPACE_ROOT|SHARED_RUNTIME_ROOT)=[^=<>]+$/.test(text);
+    const noBytecode = literalContext && firstCommand && position === 1 &&
+      ['python', 'python3'].includes(verb) && text === '-B';
+    if (cloudAssignment) cloudPrefix = true;
+    else if (!noBytecode) {
+      if (position === 0) verb = text;
+      position += 1;
+    }
     if (scriptInput || inputs.has(index)) continue;
     let candidate = text;
     if (text.includes('>')) {

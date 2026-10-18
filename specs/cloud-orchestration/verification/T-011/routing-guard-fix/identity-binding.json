@@ -1,0 +1,14 @@
+{
+  "task_id": "T-011",
+  "task_attempt_count": 2,
+  "run_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "session_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "agent_instance_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "model_tier": "strong",
+  "isolation_mode": "fresh-agent",
+  "source": "Native host identities explicitly supplied by caller in this task; not derived from process environment",
+  "scratch_root": "/tmp/cloud-T011-routing-guard-01a15001"
+}

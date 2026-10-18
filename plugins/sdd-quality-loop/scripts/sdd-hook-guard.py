@@ -49,6 +49,13 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import TypedDict
+
+
+class _PatchSection(TypedDict):
+    path: str
+    content: list[str]
+
 
 APPROVAL_RE = re.compile(r"Approval:\s*Approved")
 SECOND_APPROVAL_RE = re.compile(r"Second Approval:\s*Approved")
@@ -200,8 +207,8 @@ def impl_review_status_passed_increases(payload):
     file_path = tool_input.get("file_path") or ""
 
     if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
-        sections = []
-        current = None
+        sections: list[_PatchSection] = []
+        current: _PatchSection | None = None
         for line in (tool_input.get("command") or "").splitlines():
             header = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
             if header:
@@ -913,7 +920,7 @@ def agent_role_invalid(payload):
         patch = tool_input.get("command") or ""
         current_is_agent_role = False
         current_op = None
-        body_lines = []
+        body_lines: list[str] = []
         for raw in patch.splitlines():
             m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
             if m:
@@ -1006,23 +1013,23 @@ def _load_guard_invariants():
 
 _GUARD_INVARIANTS, _INVARIANT_LOAD_ERROR = _load_guard_invariants()
 if _INVARIANT_LOAD_ERROR:
-    _PROTECTED_GATE_SUFFIXES = ()
-    _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES = ()
+    _PROTECTED_GATE_SUFFIXES: tuple[str, ...] = ()
+    _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES: tuple[str, ...] = ()
     _SHELL_COMPOUND_RE = re.compile(r"$^")
-    _SHELL_WRITE_ARG_CMDS = ()
-    _SHELL_WRITE_DEST_CMDS = ()
-    _SHELL_PS_WRITE_CMDS = ()
-    _SHELL_INDIRECT_CMDS = ()
-    _SHELL_UNSAFE_TOKEN_CHARS = ()
+    _SHELL_WRITE_ARG_CMDS: tuple[str, ...] = ()
+    _SHELL_WRITE_DEST_CMDS: tuple[str, ...] = ()
+    _SHELL_PS_WRITE_CMDS: tuple[str, ...] = ()
+    _SHELL_INDIRECT_CMDS: tuple[str, ...] = ()
+    _SHELL_UNSAFE_TOKEN_CHARS: tuple[str, ...] = ()
     _SHELL_REDIRECT_TOKEN_RE = re.compile(r"$^")
     _SHELL_FD_DUP_RE = re.compile(r"$^")
-    _SHELL_CD_CMDS = ()
+    _SHELL_CD_CMDS: tuple[str, ...] = ()
     SHELL_SUDO_WRITE_RE = re.compile(r"$^")
     SHELL_SUDO_READ_ONLY_RE = re.compile(r"$^")
-    _SHELL_PATCH_APPLY_CMDS = ()
-    _SHELL_PATCH_APPLY_GIT_SUBCMDS = ()
-    _SHELL_PATCH_INSPECT_FLAGS = ()
-    _SHELL_PATH_BOUNDARY_CHARS = ()
+    _SHELL_PATCH_APPLY_CMDS: tuple[str, ...] = ()
+    _SHELL_PATCH_APPLY_GIT_SUBCMDS: tuple[str, ...] = ()
+    _SHELL_PATCH_INSPECT_FLAGS: tuple[str, ...] = ()
+    _SHELL_PATH_BOUNDARY_CHARS: tuple[str, ...] = ()
 else:
     _PROTECTED_GATE_SUFFIXES = _GUARD_INVARIANTS.PROTECTED_GATE_SUFFIXES
     _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES = _GUARD_INVARIANTS.PROTECTED_GATE_PLUGIN_JSON_SUFFIXES
@@ -1260,7 +1267,7 @@ def _shell_write_targets_are_safe(cmd):
     if tokens is None:
         return False
     commands = []
-    words = []
+    words: list[str] = []
     for kind, text in tokens:
         if kind == "sep":
             if words:
@@ -1386,7 +1393,7 @@ def _shell_cwd_write_hits_protected(cmd):
     if tokens is None:
         return False
     segments = []
-    words = []
+    words: list[str] = []
     for kind, text in tokens:
         if kind == "sep":
             if words:
@@ -1587,7 +1594,7 @@ def _shell_patch_apply_hits_protected(cmd):
         # _command_references_protected_path keeps its own fail-closed posture.
         return False
     segments = []
-    words = []
+    words: list[str] = []
     for kind, text in tokens:
         if kind == "sep":
             if words:
@@ -1701,19 +1708,30 @@ def _command_references_protected_path(cmd, directories=()):
         for kind, text in tokens)
     inputs = _readonly_input_indices(tokens, list(directories)) if literal_context else set()
     position, verb, first_command = 0, "", True
+    cloud_prefix = False
     for index, (kind, text) in enumerate(tokens):
         if kind != "word":
-            if position:
+            if position or cloud_prefix:
                 first_command = False
             position, verb = 0, ""
             continue
-        script_input = (literal_context and first_command and position == 1 and not text.startswith(("-", "~"))
+        script_input = (literal_context and first_command and position == 1
+                        and (not cloud_prefix or verb in ("python", "python3")) and not text.startswith(("-", "~"))
                         and ((verb in ("python", "python3") and text.endswith(".py"))
                              or (verb in ("bash", "sh") and text.endswith(".sh")))
                         and ">" not in text and "<" not in text)
-        if position == 0:
-            verb = text
-        position += 1
+        # Only literal cloud metadata and Python's no-bytecode flag preserve
+        # the existing first-command script-input rule; still scan every token.
+        cloud_assignment = (literal_context and first_command and position == 0
+                            and re.fullmatch(r"CLOUD_(?:WORKSPACE_ROOT|SHARED_RUNTIME_ROOT)=[^=<>]+", text))
+        no_bytecode = (literal_context and first_command and position == 1
+                       and verb in ("python", "python3") and text == "-B")
+        if cloud_assignment:
+            cloud_prefix = True
+        elif not no_bytecode:
+            if position == 0:
+                verb = text
+            position += 1
         if script_input or index in inputs:
             continue
         candidate = text
@@ -1801,7 +1819,7 @@ def _shell_read_segments(cmd):
     if not tokens:
         # Unsupported escapes can change quote boundaries; do not trust their flags.
         return {"segments": [], "read_safe": False, "ambiguous": False, "unknown_glob": any(ch in cmd for ch in "*?[")}
-    segments = [[]]
+    segments: list[list[str]] = [[]]
     for kind, word in tokens:
         if kind == "sep":
             segments.append([])
@@ -1898,7 +1916,8 @@ def _shell_targets_sdd_sudo(cmd):
 
     tokens = _tokenize_shell_command(cmd)
     if tokens is not None:
-        segments, words = [], []
+        segments: list[list[str]] = []
+        words: list[str] = []
         for kind, text in tokens:
             if kind == "sep":
                 if words:
@@ -1955,12 +1974,14 @@ def payload_is_malformed(payload):
     """Return True if required fields for the tool type are missing or empty."""
     tool_name = (payload.get("tool_name") or "").lower()
     tool_input = payload.get("tool_input") or {}
+    command = tool_input.get("command")
     if tool_name in TARGETED_COMMAND_TOOLS and (
-        not isinstance(tool_input.get("command"), str) or not tool_input.get("command").strip()
+        not isinstance(command, str) or not command.strip()
     ):
         return True
     if tool_name in TARGETED_FILE_TOOLS:
-        if not isinstance(tool_input.get("file_path"), str) or not tool_input.get("file_path").strip():
+        file_path = tool_input.get("file_path")
+        if not isinstance(file_path, str) or not file_path.strip():
             return True
         if not any(key in tool_input for key in ("edits", "new_string", "content")):
             return True

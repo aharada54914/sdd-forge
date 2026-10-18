@@ -1,0 +1,59 @@
+{
+  "directory": "/tmp/cloud-T011-routing-guard-01a15001/rollback",
+  "results": [
+    {
+      "phase": "rollback-generator",
+      "command": [
+        "python3",
+        "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "seconds": 0.03
+    },
+    {
+      "phase": "rollback-bootstrap",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py",
+        "BootstrapInstalled"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "seconds": 4.671
+    },
+    {
+      "phase": "rollback-guard",
+      "command": [
+        "bash",
+        "tests/guard-parity.tests.sh"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "seconds": 59.079
+    },
+    {
+      "phase": "reapply-generator",
+      "command": [
+        "python3",
+        "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "seconds": 0.031
+    },
+    {
+      "phase": "reapply-guard",
+      "command": [
+        "bash",
+        "tests/guard-parity.tests.sh"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "seconds": 57.63
+    }
+  ]
+}

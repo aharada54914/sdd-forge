@@ -674,6 +674,87 @@ for a9_dependency in \
         "{\"tool_name\":\"read\",\"tool_input\":{\"file_path\":\"$a9_dependency\"}}"
 done
 
+# T-011 cloud call-chain registration: exercise real generated consumers, not
+# just the scanner's membership. Commands are guard inputs, never executed.
+cloud_guard_check() {
+    local scenario="$1" expected="$2" payload="$3" code=0
+    parity_check "cloud $scenario" "$expected" "$payload"
+    printf '%s' "$payload" | CLAUDE_PROJECT_DIR="$WORK" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" --emit exit >/dev/null 2>&1 || code=$?
+    if [ "$code" = "$expected" ]; then
+        ok "cloud Bash dispatcher [$scenario]: exit $code"
+    else
+        fail "cloud Bash dispatcher [$scenario]: exit $code, expected $expected"
+    fi
+    if command -v pwsh >/dev/null 2>&1; then
+        code=0
+        printf '%s' "$payload" | CLAUDE_PROJECT_DIR="$WORK" pwsh -NoProfile -File "${SCRIPTS_DIR}/sdd-hook-guard.ps1" -Emit exit >/dev/null 2>&1 || code=$?
+        if [ "$code" = "$expected" ]; then
+            ok "cloud PowerShell [$scenario]: exit $code"
+        else
+            fail "cloud PowerShell [$scenario]: exit $code, expected $expected"
+        fi
+    fi
+}
+if ! command -v pwsh >/dev/null 2>&1; then
+    echo 'SKIP: cloud PowerShell guard controls require pwsh'
+fi
+for cloud_path in \
+    plugins/sdd-azure-cloud/scripts/cloud.py \
+    plugins/sdd-aws-cloud/scripts/cloud.py \
+    plugins/sdd-azure-cloud/scripts/governed-setup.md \
+    plugins/sdd-aws-cloud/scripts/governed-setup.md \
+    plugins/sdd-bootstrap/scripts/cloud-routing.py; do
+    cloud_guard_check "write $cloud_path" 2 \
+        "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"$cloud_path\",\"content\":\"replacement\"}}"
+    cloud_guard_check "redirect $cloud_path" 2 \
+        "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"printf replacement > $cloud_path\"}}"
+    cloud_guard_check "Set-Content $cloud_path" 2 \
+        "{\"tool_name\":\"shell\",\"tool_input\":{\"command\":\"Set-Content -Path $cloud_path -Value replacement\"}}"
+    cloud_guard_check "read $cloud_path" 0 \
+        "{\"tool_name\":\"read\",\"tool_input\":{\"file_path\":\"$cloud_path\"}}"
+    cloud_guard_check "cat $cloud_path" 0 \
+        "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"cat $cloud_path\"}}"
+    cloud_guard_check "Get-Content $cloud_path" 0 \
+        "{\"tool_name\":\"shell\",\"tool_input\":{\"command\":\"Get-Content -Path $cloud_path\"}}"
+    case "$cloud_path" in *.py)
+        cloud_args='route --request request.json --output result.json'
+        if [[ "$cloud_path" == *cloud-routing.py ]]; then
+            cloud_args="--provider azure --plugin-root /opt/plugins/sdd-azure-cloud $cloud_args"
+        fi
+        cloud_guard_check "script input $cloud_path" 0 \
+            "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"python3 $cloud_path $cloud_args\"}}"
+        cloud_guard_check "resolved environment invocation $cloud_path" 0 \
+            "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"CLOUD_WORKSPACE_ROOT=/tmp/workspace CLOUD_SHARED_RUNTIME_ROOT=/opt/runtime/scripts python3 -B /opt/$cloud_path $cloud_args\"}}"
+        cloud_guard_check "invocation cannot overwrite $cloud_path" 2 \
+            "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"python3 $cloud_path $cloud_args > $cloud_path\"}}"
+        ;;
+    esac
+done
+# Environment metadata must not become an interpreter-rebinding or output bypass.
+cloud_cli='plugins/sdd-azure-cloud/scripts/cloud.py'
+for cloud_unsafe in \
+    "PATH=/tmp python3 $cloud_cli route --request request.json --output result.json" \
+    "PYTHONPATH=/tmp python3 $cloud_cli route --request request.json --output result.json" \
+    "cloud_workspace_root=/tmp python3 $cloud_cli route --request request.json --output result.json" \
+    "CLOUD_WORKSPACE_ROOT=/tmp python3 -b $cloud_cli route --request request.json --output result.json" \
+    "CLOUD_WORKSPACE_ROOT=/tmp; python3 $cloud_cli route --request request.json --output result.json" \
+    "CLOUD_WORKSPACE_ROOT=/tmp python3 -B $cloud_cli route --request request.json --output result.json > $cloud_cli" \
+    "CLOUD_WORKSPACE_ROOT=/tmp python3 -B $cloud_cli route --request request.json --output $cloud_cli"; do
+    cloud_payload="$(python3 -c 'import json,sys; print(json.dumps({"tool_name":"bash","tool_input":{"command":sys.argv[1]}}))' "$cloud_unsafe")"
+    cloud_guard_check "unsafe invocation $cloud_unsafe" 2 "$cloud_payload"
+done
+
+# The public provider skills use variable operands and line continuations.
+cloud_documented_payload="$(python3 - <<'PY'
+import json
+command = ('CLOUD_WORKSPACE_ROOT="$WORKSPACE_ROOT" \\\n'
+           'CLOUD_SHARED_RUNTIME_ROOT="$PLUGIN_ROOT/runtime/scripts" \\\n'
+           'python3 "$PLUGIN_ROOT/scripts/cloud.py" route --request "$REQUEST" --output "$OUTPUT"')
+print(json.dumps({'tool_name': 'bash', 'tool_input': {'command': command}}))
+PY
+)"
+cloud_guard_check 'documented variable invocation' 0 "$cloud_documented_payload"
+
 wfi037_drift="$(cd "${REPO_ROOT}" && python3 - <<'PY'
 import glob, importlib.util, os
 spec = importlib.util.spec_from_file_location(

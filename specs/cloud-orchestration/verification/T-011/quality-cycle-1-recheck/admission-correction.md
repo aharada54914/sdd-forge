@@ -1,0 +1,7 @@
+# Unreserved caller admission correction
+
+The first launch was rejected before reservation/model evaluation because the caller included cross-feature mirror paths that the canonical report did not declare. Identity 01a15021-f0d8-7321-97ae-e2153a793306 was allocated but was never reserved and received no review turn. Its invocation and rejection are preserved under preallocation-launch-recovery-1. The canonical validator and its admission rules are unchanged.
+
+The corrected input set excludes 38 raw cross-feature mirror/pending-bundle files. It retains all current canonical implementation sources, the complete repair report snapshot, root verification of every output hash, actual mirror-check/preservation logs, and a narrowly scoped digest/equivalence inventory. It does not copy forbidden raw inputs into another path. Original #423 source dependencies already declared in the canonical report remain admitted. No test or source bytes changed and no product tests need repeating.
+
+The fresh caller uses the canonical preflight with --reserve once; that canonical operation performs full validation before reservation and revalidates during reservation. It omits only the caller launcher's separate redundant non-reserving invocation. No canonical check, reservation rule or timeout safety is disabled. The existing large-manifest caller timeout extension remains 600 seconds per canonical validation.

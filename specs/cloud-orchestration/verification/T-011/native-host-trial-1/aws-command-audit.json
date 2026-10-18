@@ -1,0 +1,50 @@
+{
+  "commands": [
+    {
+      "sha256": "6dda01090e259677e033b3496fb2c161c019d2758eee625e23a6e0e55d4273c6",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/openai-curated-remote/cloud-environment/0.1.2/skills/runtime/SKILL.md'"
+    },
+    {
+      "sha256": "e2a28c0a45d379c8efeadce891ca84c32201f2cc0f22193be6bbd90d3cb918b8",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/bootstrap/SKILL.md'"
+    },
+    {
+      "sha256": "7a9439d2136e6129d6ab4932a6bdaed7cc83db51c0a3814e2cea5d717ca769bc",
+      "exit_code": 1,
+      "command": "/bin/bash -lc \"pwd; rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'!'\"\\\\.git' . /workspace/.tools/sdd-forge-dev/verification-workspace 2>/dev/null\""
+    },
+    {
+      "sha256": "a57b9eedfd7bf522b612d5723540bb2fe36dbaf891c55ed1b87954357fee2a91",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat aws-supported/request.json aws-mixed-owner/request.json; rg --files --hidden aws-supported aws-mixed-owner'"
+    },
+    {
+      "sha256": "e4a0b9f168f818de8e75b7508c44253c8a8648058afafbd1f15fb195f45fb3ba",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/skills/orchestrate/SKILL.md'"
+    },
+    {
+      "sha256": "eb47e62ed675acebd4e765628b9b3e972b6a81a9306a70e789aac5d811dd659e",
+      "exit_code": 0,
+      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\npaths = [Path.cwd(), Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/bootstrap'), Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/skills/orchestrate')]\nseen=set()\nfor base in paths:\n for p in [base,*base.parents]:\n  f=p/'AGENTS.md'\n  if f not in seen and f.is_file():\n   seen.add(f)\n   print(str(f)+'\\\\n'+f.read_text())\nPY\""
+    },
+    {
+      "sha256": "fc3c6ea035f54b4d95037631da2307008f555c0ba99121c2e59b2d6660296332",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/scripts/cloud-routing.py /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/scripts/cloud.py'"
+    },
+    {
+      "sha256": "87f2043442497c2a8f2a31763e2e04122a19307f61e649747dd64c205cf9bb1f",
+      "exit_code": 0,
+      "command": "/bin/bash -lc 'cat /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/references/local-preparation.md /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/references/observations.md /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/scripts/governed-setup.md; rg --files --hidden /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0/runtime'"
+    },
+    {
+      "sha256": "34837719a2eafb83cc3419149e9c24f85160b50250081a355f15a71bb1804746",
+      "exit_code": 0,
+      "command": "/bin/bash -lc \"python3 -B - <<'PY'\nimport hashlib, json, os, pathlib, shlex, subprocess, sys\nbase = pathlib.Path('/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-trial-20261018')\nbootstrap = pathlib.Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0')\nplugin = pathlib.Path('/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0')\nruntime = plugin / 'runtime/scripts'\nassert os.name == 'posix' and sys.version_info >= (3,11)\nfor p in (base, bootstrap, plugin, runtime):\n assert p.is_absolute() and p.resolve() == p and p.is_dir(), str(p)\nfor p in [bootstrap/'scripts/cloud-routing.py', plugin/'scripts/cloud.py', *(runtime/n for n in ('cloud_contracts.py','cloud_authorization.py','cloud_verification.py','cloud_dependencies.py'))]:\n assert p.is_file() and p.resolve() == p, str(p)\ndef fingerprint():\n return {str(p.relative_to(base)): hashlib.sha256(p.read_bytes()).hexdigest() for name in ('aws-supported','aws-mixed-owner') for p in [base/name/'request.json', *sorted((base/name/'bundle').rglob('*'))] if p.is_file()}\nbefore = fingerprint()\nprint(json.dumps({'python': sys.version, 'trusted_bootstrap_root':str(bootstrap), 'trusted_provider_root':str(plugin), 'packaged_runtime':str(runtime), 'request_sha256_before':{k:v for k,v in before.items() if k.endswith('request.json')}}, sort_keys=True))\ncases = [('aws-supported','bootstrap','route','bootstrap-route.json'),('aws-supported','direct','route','direct-route.json'),('aws-supported','direct','prepare','direct-prepare.json'),('aws-supported','direct','apply','direct-apply.json'),('aws-mixed-owner','bootstrap','route','mixed-route.json')]\nrecords=[]\nfor unit, entry, operation, filename in cases:\n workspace=base/unit\n request=workspace/'request.json'\n evidence=workspace/json.loads(request.read_bytes())['local_context']['evidence_directory']\n output=evidence/filename\n assert not output.exists() and not pathlib.Path(str(output)+'.manifest.json').exists(), str(output)\n evidence.mkdir(parents=True,exist_ok=True)\n env={'PATH':os.defpath,'CLOUD_WORKSPACE_ROOT':str(workspace)}\n command=[sys.executable,'-B']\n if entry=='bootstrap':\n  command += [str(bootstrap/'scripts/cloud-routing.py'),'--provider','aws','--plugin-root',str(plugin)]\n else:\n  env['CLOUD_SHARED_RUNTIME_ROOT']=str(runtime)\n  command += [str(plugin/'scripts/cloud.py')]\n command += [operation,'--request',str(request),'--output',str(output)]\n actual='env -i '+shlex.join([k+'='+v for k,v in env.items()])+ ' '+shlex.join(command)\n completed=subprocess.run(command, env=env, cwd=base, capture_output=True, check=False)\n result=json.loads(completed.stdout)\n if output.exists():\n  assert output.read_bytes()==completed.stdout\n  publication='provider-published; matches stdout byte-for-byte'\n else:\n  with output.open('xb') as f:\n   f.write(completed.stdout)\n  publication='captured CLI stdout; provider did not publish denied result'\n record={'command':actual,'exit_code':completed.returncode,'result':result,'stderr':completed.stderr.decode(),'evidence_path':str(output),'publication':publication}\n records.append(record)\n print(json.dumps(record,sort_keys=True))\nafter=fingerprint()\nassert before==after, 'INPUTS_CHANGED'\na,b=records[0]['result'],records[1]['result']\nmanifest_a=json.loads((base/'aws-supported'/a['evidence_manifest_path']).read_bytes())\nmanifest_b=json.loads((base/'aws-supported'/b['evidence_manifest_path']).read_bytes())\nprint(json.dumps({'comparison':{'route_envelopes_equal_except_evidence_manifest_path':{k:v for k,v in a.items() if k\"'!='\"'evidence_manifest_path'}=={k:v for k,v in b.items() if k\"'!='\"'evidence_manifest_path'},'route_manifests_equal':manifest_a==manifest_b,'route_manifest':manifest_a,'all_original_requests_and_bundle_files_unchanged':before==after,'original_files_checked':len(before)},'new_evidence_files':[str(p) for unit in ('aws-supported','aws-mixed-owner') for p in sorted((base/unit/'specs').rglob('*')) if p.is_file()]},sort_keys=True))\nPY\""
+    }
+  ],
+  "inspection": "Caller inspected all nine command bodies: skill/reference/schema reads and one real installed CLI subprocess group; no provider API, credential access, governed wrapper execution or product modification."
+}

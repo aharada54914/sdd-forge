@@ -1,0 +1,4 @@
+Command: python3 plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+Working directory: /tmp/cloud-T011-routing-guard-01a15001/rollback
+
+Exit: 0

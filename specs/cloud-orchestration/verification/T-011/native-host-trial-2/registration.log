@@ -1,0 +1,51 @@
+["python3", "-B", "specs/cloud-orchestration/verification/T-011/attempt-1/prepare-host-fixture.py", "--destination", "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018"]
+Note: dependency resolution auto-included: sdd-review-loop sdd-quality-loop.
+
+SDD plugins installed at: /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/installed
+Plugin registration was skipped because --target=FilesOnly.
+/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/fixture.json
+["codex", "plugin", "marketplace", "remove", "sdd-plugins"]
+Removed marketplace `sdd-plugins`.
+["codex", "plugin", "marketplace", "add", "/workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/installed"]
+Added marketplace `sdd-plugins` from /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/installed.
+Installed marketplace root: /workspace/.tools/sdd-forge-dev/verification-workspace/cloud-routing-guard-trial-20261018/installed
+["codex", "plugin", "remove", "sdd-bootstrap@sdd-plugins"]
+Removed plugin `sdd-bootstrap` from marketplace `sdd-plugins`.
+["codex", "plugin", "add", "sdd-bootstrap@sdd-plugins"]
+Added plugin `sdd-bootstrap` from marketplace `sdd-plugins`.
+Installed plugin root: /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0
+["codex", "plugin", "remove", "sdd-ship@sdd-plugins"]
+Removed plugin `sdd-ship` from marketplace `sdd-plugins`.
+["codex", "plugin", "add", "sdd-ship@sdd-plugins"]
+Added plugin `sdd-ship` from marketplace `sdd-plugins`.
+Installed plugin root: /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-ship/1.18.0
+["codex", "plugin", "remove", "sdd-implementation@sdd-plugins"]
+Removed plugin `sdd-implementation` from marketplace `sdd-plugins`.
+["codex", "plugin", "add", "sdd-implementation@sdd-plugins"]
+Added plugin `sdd-implementation` from marketplace `sdd-plugins`.
+Installed plugin root: /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-implementation/1.18.0
+["codex", "plugin", "remove", "sdd-quality-loop@sdd-plugins"]
+Removed plugin `sdd-quality-loop` from marketplace `sdd-plugins`.
+["codex", "plugin", "add", "sdd-quality-loop@sdd-plugins"]
+Added plugin `sdd-quality-loop` from marketplace `sdd-plugins`.
+Installed plugin root: /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0
+["codex", "plugin", "remove", "sdd-lite@sdd-plugins"]
+Removed plugin `sdd-lite` from marketplace `sdd-plugins`.
+["codex", "plugin", "add", "sdd-lite@sdd-plugins"]
+Added plugin `sdd-lite` from marketplace `sdd-plugins`.
+Installed plugin root: /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-lite/1.18.0
+["codex", "plugin", "remove", "sdd-review-loop@sdd-plugins"]
+Removed plugin `sdd-review-loop` from marketplace `sdd-plugins`.
+["codex", "plugin", "add", "sdd-review-loop@sdd-plugins"]
+Added plugin `sdd-review-loop` from marketplace `sdd-plugins`.
+Installed plugin root: /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-review-loop/1.18.0
+["codex", "plugin", "remove", "sdd-azure-cloud@sdd-plugins"]
+Removed plugin `sdd-azure-cloud` from marketplace `sdd-plugins`.
+["codex", "plugin", "add", "sdd-azure-cloud@sdd-plugins"]
+Added plugin `sdd-azure-cloud` from marketplace `sdd-plugins`.
+Installed plugin root: /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-azure-cloud/1.18.0
+["codex", "plugin", "remove", "sdd-aws-cloud@sdd-plugins"]
+Removed plugin `sdd-aws-cloud` from marketplace `sdd-plugins`.
+["codex", "plugin", "add", "sdd-aws-cloud@sdd-plugins"]
+Added plugin `sdd-aws-cloud` from marketplace `sdd-plugins`.
+Installed plugin root: /workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-aws-cloud/1.18.0

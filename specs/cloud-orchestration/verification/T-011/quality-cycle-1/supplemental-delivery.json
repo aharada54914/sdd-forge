@@ -1,0 +1,3403 @@
+{
+  "schema": "supplemental-delivery-declaration/v1",
+  "feature": "cloud-orchestration",
+  "task_id": "T-011",
+  "implementation_report": {
+    "path": "reports/implementation/cloud-orchestration/T-011.md",
+    "sha256": "2956e2e48c00cfcb8b7e5380362ae9df7f6627bfa086ad9b987f869931c765ea"
+  },
+  "artifacts": [
+    {
+      "path": ".agents/plugins/marketplace.json",
+      "sha256": "dd4a8d5efb2d2f8eb5918897d9a499b4e532ec5654bab2fdd539500c5eaee36a"
+    },
+    {
+      "path": ".claude-plugin/marketplace.json",
+      "sha256": "dd935489bca5a357c90eec68081717e451c1d0b0b5f807f33b6ca8dd3b216155"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "48698cda10fa3d2ae083368fdc378f3def72271eeeb074f290fc63aad0f4d27a"
+    },
+    {
+      "path": "contracts/adversarial-review-evaluation.v1.schema.json",
+      "sha256": "79a3f7b75996474d318535dab04fd284706f2008ef7592fe66992e3dc39d054f"
+    },
+    {
+      "path": "contracts/adversarial-review-report.v1.schema.json",
+      "sha256": "3dd9bbb8cfd475444b4662abddedc86b9088d419323e4bfeb34b663a8353fb1a"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.json",
+      "sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "sha256": "847fe86588ea22dcb0a13b7b61548aa254f22a8244aa5153e63efefe8a4d200e"
+    },
+    {
+      "path": "contracts/approval-sidecar.schema.json",
+      "sha256": "f205da8f1103fc2ac876e7fbff4dc6f89db4146325e65aadc15d139ffa4265e3"
+    },
+    {
+      "path": "contracts/approver-registry.schema.json",
+      "sha256": "47c1c3e0eddfca0a6abbf22db2fd4b8d633e2bdc9362044ec3c903c82d85e94e"
+    },
+    {
+      "path": "contracts/capability-registry.json",
+      "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75"
+    },
+    {
+      "path": "contracts/capability-registry.schema.json",
+      "sha256": "ef70a27785d325cc32d2c4a2faeed099e9df3058fd7a918e2efbd4013ed8f319"
+    },
+    {
+      "path": "contracts/capability-summary.schema.json",
+      "sha256": "09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f"
+    },
+    {
+      "path": "contracts/ci-mcp-tools.v1.schema.json",
+      "sha256": "7e2cc1d88a07ab4e62c4088d0cc0c2d0b0b49972b23cbc95d70debd3449ec357"
+    },
+    {
+      "path": "contracts/cloud-authorization-receipt.schema.json",
+      "sha256": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8"
+    },
+    {
+      "path": "contracts/cloud-check-result.schema.json",
+      "sha256": "992b8f4d530d4aab0fe5bca1a28b459a6c9cd9bec7e6ed68b648f489127617c0"
+    },
+    {
+      "path": "contracts/cloud-collection-context.schema.json",
+      "sha256": "7706241bf1a949a64b18212ba09bd8a4aa66896df668084056ee6979fdb84272"
+    },
+    {
+      "path": "contracts/cloud-dependency-lock.schema.json",
+      "sha256": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec"
+    },
+    {
+      "path": "contracts/cloud-deployment-policy.schema.json",
+      "sha256": "a064217e4a68838a3d719749fb751ba63ffabb2094d16cf13090afeaed080eb8"
+    },
+    {
+      "path": "contracts/cloud-input-error.schema.json",
+      "sha256": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77"
+    },
+    {
+      "path": "contracts/cloud-observation-evidence.schema.json",
+      "sha256": "0d0dfccf3bd5982a2948a9db75fd459197b6bb683f19a993b5bfdce72df1d99e"
+    },
+    {
+      "path": "contracts/cloud-observation.schema.json",
+      "sha256": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826"
+    },
+    {
+      "path": "contracts/cloud-operation-result.schema.json",
+      "sha256": "a92bdac86499052256112babe5ff559c2e071adba411f4a2e92ec38b6b5b2aa6"
+    },
+    {
+      "path": "contracts/cloud-ownership.schema.json",
+      "sha256": "71079e7320c968bce57fba67bd105d59ab57c00a51165a3598d522919141f25d"
+    },
+    {
+      "path": "contracts/cloud-preview.schema.json",
+      "sha256": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99"
+    },
+    {
+      "path": "contracts/cloud-run-request.schema.json",
+      "sha256": "781d83fad3d8e883e2c4aa886c5356da12f93d5ef5e35f16a5d83e9c024c9d81"
+    },
+    {
+      "path": "contracts/cloud-verification-profile.schema.json",
+      "sha256": "b25112c7e73583b180941639cb8f137a89fcb7daa82b1afd7ec8eec66c9353bf"
+    },
+    {
+      "path": "contracts/cloud-verification-registry.schema.json",
+      "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392"
+    },
+    {
+      "path": "contracts/cloud-verification.schema.json",
+      "sha256": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e"
+    },
+    {
+      "path": "contracts/concept-test.v1.schema.json",
+      "sha256": "7b0bc534b1f0b819a19e5a70c0e3d39f35e3d5f6747e53086bb9c1dbbb810c71"
+    },
+    {
+      "path": "contracts/context-projection.schema.json",
+      "sha256": "3c8e39c6a8dedf948cbd7e6a8f36369f2a68a3fc3dd92192f90bbce917d32643"
+    },
+    {
+      "path": "contracts/cross-critique.v1.schema.json",
+      "sha256": "8c72c37907036cf00d1d8d341199d4d3502fabd57db1c60d0205926e23135991"
+    },
+    {
+      "path": "contracts/design-system.contract.v1.schema.json",
+      "sha256": "3b8d541218fda8e794350b8a545d6bcb3a85733f2e0ee00089eb49f7de3d1db1"
+    },
+    {
+      "path": "contracts/domain-contract.v1.schema.json",
+      "sha256": "0ab46b74c1e2561431b42b76106698339e79cd64ce0513b02aec5527b8b73841"
+    },
+    {
+      "path": "contracts/domain-contract.v2.schema.json",
+      "sha256": "ad69c28f323e5c2f83e07b78c4f14461b4f7152193a9021c0a12c3e0285aba16"
+    },
+    {
+      "path": "contracts/domain-review-contract.v1.schema.json",
+      "sha256": "b86f234e76f66887384284fed08ec3b5d951df3bcc7cc5722e9ed18489edfb35"
+    },
+    {
+      "path": "contracts/facet-manifest.schema.json",
+      "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51"
+    },
+    {
+      "path": "contracts/lite-check-catalog.json",
+      "sha256": "c251b3e02a2c93c45a7ea590bc5a7e36eef8e5915c485b0c6a6e83519afe086a"
+    },
+    {
+      "path": "contracts/lite-check-catalog.schema.json",
+      "sha256": "a4e458242d68237cf16e66aa28b362c30dae4a6d20109cb4af51711f6fc1cd19"
+    },
+    {
+      "path": "contracts/lite-upgrade-reason-catalog.json",
+      "sha256": "e73a730f9edacd7d2dad2da3e13b9e3df01f7002c25f7e947316ca249118eb76"
+    },
+    {
+      "path": "contracts/local-env-mcp-tools.v1.schema.json",
+      "sha256": "f1f81d484cd13b62c64b4802195efd6d50edb1ccedcd489626f699f6cac4ae1d"
+    },
+    {
+      "path": "contracts/project-context.schema.json",
+      "sha256": "a6a86903e8126ecc0d587499f75c7222aee0eb0f442a51b39fa8ff852829592e"
+    },
+    {
+      "path": "contracts/provider-bindings.schema.json",
+      "sha256": "7adfa236d2bb00055bd38f3fc6b7664f6d41e88989e9aedba1c0a9c5d55f8cd7"
+    },
+    {
+      "path": "contracts/resolver-evidence.schema.json",
+      "sha256": "0f37f39a8b45beff2cb53230568adeaa26ca4cc18683816f9331c0dbb38e92f3"
+    },
+    {
+      "path": "contracts/review-contract.v1.schema.json",
+      "sha256": "d1bf67c20a8b1229f5550ba6deab339962236a626d5a9aac84e847dc7727597a"
+    },
+    {
+      "path": "contracts/rollback-1.5.0.json",
+      "sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197"
+    },
+    {
+      "path": "contracts/sdd-forge-mcp-tools.v1.schema.json",
+      "sha256": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78"
+    },
+    {
+      "path": "contracts/selected-verification-plan-v2.schema.json",
+      "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5"
+    },
+    {
+      "path": "contracts/selected-verification-plan.schema.json",
+      "sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749"
+    },
+    {
+      "path": "contracts/terminal-tier-blocked-state.schema.json",
+      "sha256": "bcf0d1b969fb917b656b0d25e24dcb34021378cc2639bb4b30198c3ccb722dc5"
+    },
+    {
+      "path": "contracts/verification-contract-v3.schema.json",
+      "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a"
+    },
+    {
+      "path": "contracts/workflow-state-registry.schema.json",
+      "sha256": "bee4972d7d4d4ae8116ac0115d16295d1f167333edffd5a08d9dc8ceea3c31d7"
+    },
+    {
+      "path": "install.ps1",
+      "sha256": "2014193f4e31a234b0336087d434ed12d0f8d7f73ff87bd8bb9744c158ac42a7"
+    },
+    {
+      "path": "install.sh",
+      "sha256": "7827514addc02f00cb671d7963b8d70c80327113ea1bae5fa694bb69306e6f3d"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/.claude-plugin/plugin.json",
+      "sha256": "901affde1f22fd7f03420455ad247b89e6104a090940113e0d49b9024229642c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/.codex-plugin/plugin.json",
+      "sha256": "fbaee91e13ec9a1fb202d9505c27e519f09655cce0fcb1ab266c85a1057aebec"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/.plugin/plugin.json",
+      "sha256": "2cef9f5155320fb1164da6264f47b50c71800dd95663cfbc7bc53cda6e6e2773"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/README.md",
+      "sha256": "0caceb7832a0c3e467042a760789f03a47521eaca375e712ea15120931e2ea5a"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/app.js",
+      "sha256": "710c6889188eac80e9f5e6b505c3796ded52747c9a56c305c58a53d05f3c2b25"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/cdk.json",
+      "sha256": "7802e394180f0d618f4caf7d1a6647f406ad327fa0aaa38c84b8b6b8471b24a5"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json",
+      "sha256": "b106084fff5e18ca94260509133337891b58d5269d77166ff9320a36419cccec"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/package.json",
+      "sha256": "beddc07bfbf3d198ca58b3d500e746b7bd4ebc14a25b469033fb1c41ba50a00b"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/aws-local-config.schema.json",
+      "sha256": "1d8d1f63b8f2ff4836058d928752c5322b744727e03b14d2e34e1ec6b9d25f22"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/aws-local-evidence.schema.json",
+      "sha256": "d64402c81095bd9a0657d34f4723a02996d91bb93cb0d0906c4ca288aeaa3187"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/local-preparation.md",
+      "sha256": "2a890269fabb6128f125f5533d3eb4c6411589ca0d0843b642b47cc959f7a257"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/observations.md",
+      "sha256": "b474f3965405b3b5883d8550300aab4ac830261b14dc9cef615d47543794a748"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/toolchain-lock.json",
+      "sha256": "c46bafb8869840c879739f424746eda64ca6c62aafab906d9e98012dee7c3f5d"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream-lock.json",
+      "sha256": "1898ede044cc25e0fba804077559544f5f58e9e323d8d0701721b8545cc97766"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/SKILL.md",
+      "sha256": "af178f8e909efd66496b09c7301c5e11ef96681fd62bf91406dcb340a18aacf6"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md",
+      "sha256": "ce48bf13921481aa6d2df131f0bd32faa8cc07bb50b63b1805ddbfe6ca18a5f0"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md",
+      "sha256": "4d576be561b16fd140c7f44de3b905ca81718752003a5072fec7062f2a2e782c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/construct-patterns.md",
+      "sha256": "029a6450cc738c220051c1e2df94cb08e82b9fd80b20ab6b1b31696015222d6c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/fast-deployments.md",
+      "sha256": "b6ddc7a418ed0d2f6e450c1835e3dc83c0648cbcdf4b582ebd66234918b22171"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md",
+      "sha256": "375e247190c3ebe29b2b8b211f665d4f463c7d959d3a6a067f8816d1a5df3a26"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md",
+      "sha256": "bdc1dacfaaaef810923699fc19803b492815b404190f055f90bd3558587b335c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md",
+      "sha256": "87b36861e1cf656fdb576536c20c61dfff5316e1b7465954f9b1b01cce0f0ee0"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md",
+      "sha256": "80b97fe332046fb025cf6635b3add76046bf9b2933bd45394255585f1694a967"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md",
+      "sha256": "1397f0c8034ccafd1353c3053d119e721c4904b9dc2ba33a1f285f69bfb909ea"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md",
+      "sha256": "f88efb1a4b7451fe194e5c617ea2c467be93ecaa7221264b80361cca035dc181"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_control.py",
+      "sha256": "92842d7174dbb0bc8ba3ad796fd8a3bd7f46ed91178dfa80bbc6558762523d67"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+      "sha256": "69ba7b8b9fe43c1ddcb0a7af0b38f2c5f60affc7e86d02c3710e8a168b5974f7"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "sha256": "94f9f9c07aee2de6bb1e7229c0244cde7423441d59b813cc8c426e2a71943ff0"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_graph.py",
+      "sha256": "21896c758e64f5db7571c2c5209a4ab122cac8347dc18096c29e79f7396a42fd"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "sha256": "82bbf762e80d62abdc77b56f850729c72d4ae83c3e59f4de09751867f16e4b31"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+      "sha256": "1e2ea86be1852796c55c3858d40bef1afbcdc0594a95b0b160d88d1e5c817855"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "sha256": "6c42f914d8c1b959542da30d614c673f50a78987b7dea95dd6638ac476420c81"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/cloud.py",
+      "sha256": "167b3e37e88a5ab1c32344e226823ae0e9d1518d7927a7ab4221422a011cc933"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/governed-setup.md",
+      "sha256": "2bd8c9b4ddcd7d9879a5b58d1e7c30d4d9c8c0286501b6b4d066eaf967712578"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md",
+      "sha256": "27af791f755d21eefbf817dfa7e9b11b88fac34b075dbc3f413c1f20a163845a"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/.claude-plugin/plugin.json",
+      "sha256": "53b2dc69739b8035499407c40318599557e6773bc0d64c2e627521f602e2bec3"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/.codex-plugin/plugin.json",
+      "sha256": "72994a2916deec39493318312a22b21a7e81a643577fdc9f70e595d41c0c3b07"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/.plugin/plugin.json",
+      "sha256": "b8a3c04ec499f65f81494958067cf946c719f506e71464e56e4c92d015fe4c14"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/README.md",
+      "sha256": "18d4bac06d053a486ab77936c75cd7e4f0824fff90728431cbfdf7f89d9cc873"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/private-vm.bicep",
+      "sha256": "81ba478fb3744e96496243358f3aef3477646027a58e1220f3c16b7b428c9422"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-local-config.schema.json",
+      "sha256": "c8390b8b18bf5f4c5cd961892b78f0d3d7f08641d14ae5052f62fe17f795fc3f"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json",
+      "sha256": "e4584e317609585b3effc865412757ef730448d814b2ce7f78eebf485728b68a"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-parameters.schema.json",
+      "sha256": "5922b55565b1a506db4cc424560cbfaa0b07766f1e26bf50dd4247ade18fc3ae"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/local-contract.md",
+      "sha256": "68850cae945e1e5357fedb284079cce67fec809a07cd1a35f6f923a39b89fdfc"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/observations.md",
+      "sha256": "e356a56677f3f26ada8f507c8fd2f90d06e28b9204e3ced96c13df0fe789c9f7"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/upstream-lock.json",
+      "sha256": "f7e22249f21c062e6207579460b1ad1042af52e4eb619d8566fd4d99db675644"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "sha256": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "sha256": "cb8b14a85e305431aaf80eb568620aeb42b724aa13f485251338f9bde70c360a"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "sha256": "c919c2fe44f462db08ccfd5f766b7635ae3e9eb4bf416bac96e2c9ded1509bc8"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_graph.py",
+      "sha256": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "sha256": "43d37a2ec9ae8e5bfc60690480c7ec607237b03b4c3d6fbb7f1e8d2ee7792f10"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "sha256": "4b56fcba4f3017eebea8e97c565e2df8a3b2691f8cce21478dc7bdf7819bc8b8"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "sha256": "4ae02ced280a8267a99fbd18b92d5fbd7a61b3d3e64c369b02e02c63c15b5636"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/governed-setup.md",
+      "sha256": "b2f038ab953175e2fab863d5cc8baada77a79c0b8cef1281df68142831343388"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md",
+      "sha256": "5a906f317b352c84f1b38f39464f585ce66f2261651079a6c79df528a6c774e2"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
+      "sha256": "8a8bffda62ca60cbcd995a61895b661fb9092ed9bdddaa0816c767a583fe9b21"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.codex-plugin/plugin.json",
+      "sha256": "eab6d07fd3af9c1515ad1319af3d0f5675c9631060d9ae27a58439f06db0c474"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.plugin/plugin.json",
+      "sha256": "06332645cba0d780f671f9df1f03bbc281f0ff387950395ab926f37822e21e12"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/cloud-routing.py",
+      "sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "sha256": "9d78e75b7c98aaca5a4ef2ef0727b7924be84cf79346f327ff03c931a2a62000"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+      "sha256": "c8e82741a7bee882ea837813aa14becd52c83361d49f833212add5a968d3bfa2"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+      "sha256": "4e33234e370bbdf873cd370c90743172f86cb333f526667a7ee3a7a4714f6174"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
+      "sha256": "4f2373243ff346a8594c5e2810b243be6e182354b46b1257b99a8356fd4497ba"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "sha256": "91489f9fffc419f706e44cacfc6f93d7b6254e54c91e146a6b52e0a2d946fe5a"
+    },
+    {
+      "path": "plugins/sdd-domain/.claude-plugin/plugin.json",
+      "sha256": "c2e9846fca5fedd8357bc1cbf9bfd8c8ce3e2ee9e6cbc6c45a9a478c630a67f8"
+    },
+    {
+      "path": "plugins/sdd-domain/.codex-plugin/plugin.json",
+      "sha256": "a84504f1dd31b8554d5faa64b82e165ca4608d207ecfe28a369c4ac2c11e1729"
+    },
+    {
+      "path": "plugins/sdd-domain/.plugin/plugin.json",
+      "sha256": "e7ccb1b18c512710bb955336e3aeebd077dc9e20f95870156ab3e01faf768d2d"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/concept-test/SKILL.md",
+      "sha256": "81f7a75615404e0cd31bbc24e40b2f79e018102ff106a3eb80c42b00635f8faf"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/SKILL.md",
+      "sha256": "24171685e75415493bb1addfd2812853b300091b15fba40325c090a796f9f8c1"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-model/SKILL.md",
+      "sha256": "1f73139a596101269a5a123e51e51d6ec71a9b208b3696f6060b19c6df041dad"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+      "sha256": "a1a0136267b674d04a025e9eae701164c92049d783ddcc41a28ba48d5e2be2f2"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+      "sha256": "36484fe991db49da3bc5aaeb6421b661b1412270d8059daec6128c15389eec1f"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-sync/SKILL.md",
+      "sha256": "ae41f8da490ef18ceb0328151a322590a63526be99e6386fbf9a45ec72fc3f7e"
+    },
+    {
+      "path": "plugins/sdd-implementation/.claude-plugin/plugin.json",
+      "sha256": "82a292a165f42ff82df185cdbc343d41537bc0a29d4d9f8bcded2d6beafdeb77"
+    },
+    {
+      "path": "plugins/sdd-implementation/.codex-plugin/plugin.json",
+      "sha256": "6c5e68a63928e967b15eb795d5835d6b3e10d291a4402048a5bc2054f7e2a546"
+    },
+    {
+      "path": "plugins/sdd-implementation/.plugin/plugin.json",
+      "sha256": "fc13bdbe1b6513c06015d8f72b949e8729d0fcb5044827d15ed231fc5f138e6c"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/diagnose/SKILL.md",
+      "sha256": "39177f847eff6d547a8bec279bca6d6b623396c2c59ee412bad9e0470b22de44"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "sha256": "63ec0313cd660be60940bdcb0d8e88337b6e380ac4bb43a13100461ba388f291"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md",
+      "sha256": "7eadc63911214f798dc2c1a97b18609af7db8f474bc34c6246b791a0597edea0"
+    },
+    {
+      "path": "plugins/sdd-lite/.claude-plugin/plugin.json",
+      "sha256": "5ae17da3db2d23496a20fb188c7253d66e2fd2cc3719b9300845043bf3593749"
+    },
+    {
+      "path": "plugins/sdd-lite/.codex-plugin/plugin.json",
+      "sha256": "4a7c37d3a1b44bfeafd34b0bea2c4ea863e9ea73e979bddcc7cfbf4fedca17fd"
+    },
+    {
+      "path": "plugins/sdd-lite/.plugin/plugin.json",
+      "sha256": "a4fddd29ed226d93d528729b3d439c1f27fcda8f745c68dcd4a78f4856789071"
+    },
+    {
+      "path": "plugins/sdd-lite/skills/lite-gate/SKILL.md",
+      "sha256": "c07a099bf1fbe28ae2d75124181aa11d6c3e83362bcb4ce0c5817956b6a5cf59"
+    },
+    {
+      "path": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
+      "sha256": "132ffb6eb6e23f1a4d772f76065ecd9cb299370e0ed4bc4bb9d38ae3d8ba66b9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/.codex-plugin/plugin.json",
+      "sha256": "d957210bf8057abae2ad16472e1d6c36a46ceccd3a4ee2a4133f0126dd60d011"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/.plugin/plugin.json",
+      "sha256": "ae3dc271a5b56f88efb97949f6e2d66cfc906b3e5813bf1bcec9597e863ec099"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/capability-registry.json",
+      "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
+      "sha256": "ef70a27785d325cc32d2c4a2faeed099e9df3058fd7a918e2efbd4013ed8f319"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/capability-summary.schema.json",
+      "sha256": "09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+      "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/context-projection.schema.json",
+      "sha256": "3c8e39c6a8dedf948cbd7e6a8f36369f2a68a3fc3dd92192f90bbce917d32643"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/facet-manifest.schema.json",
+      "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/lite-check-catalog.json",
+      "sha256": "c251b3e02a2c93c45a7ea590bc5a7e36eef8e5915c485b0c6a6e83519afe086a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/lite-check-catalog.schema.json",
+      "sha256": "a4e458242d68237cf16e66aa28b362c30dae4a6d20109cb4af51711f6fc1cd19"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/lite-upgrade-reason-catalog.json",
+      "sha256": "e73a730f9edacd7d2dad2da3e13b9e3df01f7002c25f7e947316ca249118eb76"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+      "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json",
+      "sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+      "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+      "sha256": "de0153f09def1b805818f9bef1ddea065a30d3fee95e12f026bdaec40720d06d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+      "sha256": "2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+      "sha256": "93029c02bac7ef5390638cd0a2bcde77803bf07c780baa3d6080ca3caa2db800"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js",
+      "sha256": "6ceacdf43799b88ffb60618ea63abfb7b7fd9ee9722fcf1728a6109717a791d8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1",
+      "sha256": "90ec01f971c350041442a132289209543686423758893f27d5362bb03fdb0635"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+      "sha256": "b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh",
+      "sha256": "c144cd15c5ea474c7744be2b16a197c7930bd73e8078cc397ef185748a2052af"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.ps1",
+      "sha256": "f0fe69df5227e4eb21bc65b33e12ac95f1ad4dc6e1bc831426d4e64bb836279b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py",
+      "sha256": "69fc11d30af9214a5c24a791b215fdec8ff6d9f2a9c490288bf1a84647b331a9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.sh",
+      "sha256": "5eb24f5654f133ddfd5994b1e76cfa8981383ea24ee52d17b0e49ab4c2df368a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-classification-table.ps1",
+      "sha256": "a7e5741f05d4a55ca4858607b148c69674d33721164aa7bbb7658e6cdc24f2a5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-classification-table.py",
+      "sha256": "49752b8834db79ec6be60d90ecc400b98c2b692002d9bcf3827cad510a60e051"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-classification-table.sh",
+      "sha256": "bcae618488556503f80fd1677d3b276bfa3918cced915c3fe4bfcf8bd8cfdae1"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.ps1",
+      "sha256": "4d69f2d489d19f99888d8a3df116cdb6aa121ddf95f2ee568afe2dd3560477b3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.py",
+      "sha256": "d6982f2568b659e0ef7f88941973df0114adeb5ef4b8e91a035ce41430b345ac"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.sh",
+      "sha256": "3d876483af223d59c4dd0d425630db049b9c1e2d46b8bc1ad9dfe28c194fc5e5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "sha256": "f8ea0ded7c6b9b794dba617ba0575500dc9491f502ebfb78f8ddb975ee6d0ae5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+      "sha256": "d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.sh",
+      "sha256": "487e96a95f4aa999173ecb33ce8b1b0525bff5456360202ca84250383c0628d4"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "sha256": "66505c65b073bc083d32b734a4e073bc85a216dd98a3b81a5bf581ae4956d9b3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "sha256": "9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.sh",
+      "sha256": "fc3a081d4e584ac13e4e09821815b8a14ca637e214fc70b8d470aff1bfecb416"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.ps1",
+      "sha256": "33ecdaab4f9bb797106d79aff7e0ae36adcc1083b2f85776abae546d3d044a75"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "sha256": "dc456d22f68da79856a668e588194793ec9c09ccac57d979927dddb2ba9ced42"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.sh",
+      "sha256": "abf48c19906ce392e564240469923617989085bdb6291814acfe1e99435ab360"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
+      "sha256": "e1495c4b32d628aabedb58f12911f02afeb8840bfbfb3b057489bdc44a0bdfc7"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
+      "sha256": "f3c210ef9205cec0f054388fdd5308a644b6b91c0b71eb0a28584635c2871b3e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-design-system.ps1",
+      "sha256": "cff0c77f6cc0e79d68459e190d5b8c0cf56a8cbd4ab070bfc6005edad414a7b9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-design-system.sh",
+      "sha256": "73965bb6679ba8418a3130dc5fe236cd59a7f4c188192082ac16e2548a37a8af"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-domain-conformance.ps1",
+      "sha256": "da62db35889d2bf95da1d2894fe683c0a9157842b943fc5cbd06364d552c931a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-domain-conformance.sh",
+      "sha256": "4a776b186b6fce40fd0fc486df43230c185898655eb4fe03040b7fab117ae6a1"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1",
+      "sha256": "0f9b32251f645f0aa51684007c5489cc34597b5976e07c6c1d2da93a890b7582"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1",
+      "sha256": "5837fcfa74fd7ea277163df531e1b0d42841aa8a5f8ca68c2500f8e5d59a9f00"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+      "sha256": "c20dfa627a34d068dd5991345603a9b9440831b5e43352c23844449ab3622701"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh",
+      "sha256": "c9a6a330238e8b466a3e08345affc3e0d51545091c84150ade94f8f8a7b06e12"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.ps1",
+      "sha256": "1aaf8a07af7a7f36267cd3e16f970cb8e507adc73fa5a67c75d934908e9f197a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py",
+      "sha256": "c84be3e7d7f50147d7aad1a0118bf03811e30ea641e7f268c32e51ae9c96e2e9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.sh",
+      "sha256": "bcc0b34484841164e35ebcc103dd22efddb78cc043a08906eeb7fdd40a449f9a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.ps1",
+      "sha256": "4a93071e79c29c7392e10b14aefc4dfcc8124c87e413cb79399eb741a3e6807a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "sha256": "d380f71ff0385f305f655081d537ccb4668a644f34f821564d80418cf52ac263"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "sha256": "9b727915cfc1945b48a217b3a2ed251baca877cd252ed3c80fc4959dc7df61ed"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh",
+      "sha256": "21c74ddac1f742081c9d5f9a34021c4513f0efd6f2c4742fa559223716f9389f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-risk.ps1",
+      "sha256": "22d5acfb0674d99c8fbf7075def3d4cb1bea8c129f94b7a9af710f19bc9af3bb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "sha256": "ef5119f578fb242cd68cbdd35e41ac8d30a03af96d0ce3ea02f665fb33e2fe9d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-task-state.ps1",
+      "sha256": "51cf61779f4358748d21b0c2b13cbdf86253c0d2728d2822f9d53780ce832a0a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "sha256": "209dab3d0fa72d980dc6247fef2f4566950ca3c228543dda8d930a1eec9e286d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-traceability.ps1",
+      "sha256": "0344b1b557b15abdc0c35516f6da7e551dffb1e3359773d7ba7e343a357a96ac"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "sha256": "f735a2b315161a2dfe61e45a199ffc513b8461a2cccb3adf00d74830dc56016d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "sha256": "3871a8163305d5108c35983cb31b017bced02b4c90c2fa6ee8297fcb5dad630c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "sha256": "bd168e57efa163636d916d97baaa963d96a9b33566e61258d1cb3bea4fdda1a1"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
+      "sha256": "d62d3accc7fe28a3fe0ca0d6fd1ca739918d0b9878d3f6da05682523d0ee2238"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "sha256": "17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "sha256": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_dependencies.py",
+      "sha256": "7974e7e9a8d7da0c60b219a58db54c4747f0250653fda3af0146091f1f4fb475"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "sha256": "b2488aa48d32716b270fd920fbf4b13f43cf19440e975b48721d91e38de62a68"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.ps1",
+      "sha256": "9d45b32b3f0eefa4e2cabf49e1bb9c4427701b5bf44a1006a64931415d1ae419"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py",
+      "sha256": "e7b75cef97a477d98b1460d8f20124c144e4ecb96ea15866714e80e6d00e2f93"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.sh",
+      "sha256": "dc25d2e9fb2ed0e81420f43e52beb547ba547ade3bd13dd56d709eeb8360df68"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/detect-panel.ps1",
+      "sha256": "f59d1cbf8dcfb7087e9a43b102d2725ec3b12ab3a2edc88e72fe31a99825cd12"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/detect-panel.sh",
+      "sha256": "7c55c1232761589c2f5de6575a060d445d4499d49009cf03e63cfd43ca273b1a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/detect-policy-weakening.ps1",
+      "sha256": "fa4bd8087dd4dd83ca75fc24821b901eaf986ebabf7d25cb7dbca38cb20f743f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/detect-policy-weakening.py",
+      "sha256": "a40433693b5274de2816710b352a000736f806daa2b68a58bf34579488fd116c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh",
+      "sha256": "eee208c828f64d91d9949dd5b3ae12865d7178199faf23515b82080641b8ed16"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
+      "sha256": "e88ac07955691ef2350fe4e6bf92218824b08a47ea493f492af746901bb139cf"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "sha256": "4159a139e5997a79801bcbd9842285dd39b3259a168a990f03adafa0b8813129"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/evaluate-predicate.ps1",
+      "sha256": "d5dfbec3f7808ff204ea1a17494f212b4cdc436e9e5b1ccfcafbe6fd6f50920b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/evaluate-predicate.py",
+      "sha256": "4daa549e9bb06b71759580a0ed1389033745dee21c5a1ae7ef694c725a2b9156"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/evaluate-predicate.sh",
+      "sha256": "6304d64f0707f7ae1b65f71efa34cf5506a930cc4ccd7299e25656c43cb7133e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+      "sha256": "68b6ebecfb4996cae3e97e1723fa64d9e8d97ebbc2489058afddd442c7bd6e7c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1",
+      "sha256": "e43e21b37ea5fed7ead05b611639a86c5eec3e1f23deed0cc2e0aaa29d52d06e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+      "sha256": "19672f400b225d26d1f328d28e4176f90acb8c868bba10805b4f1f5206a72592"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh",
+      "sha256": "f75bb7613094c988c0b8d05204afeab507a6f64c055278c4a308dcbbee3301e5"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1",
+      "sha256": "b1a8e3fa0583747a0041ee122e4511e7152b27ded2214a34fb7dcc9a7b52ac2f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+      "sha256": "92999f5c81fe4a7cf75c6e630427a9ff866d4973a60aa4bf4df7043ad546f448"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.ps1",
+      "sha256": "26146457a7148c3ebebf3b22a939f3b7cf861ccf6b9ff1e69ac478c11f45fca0"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+      "sha256": "fba1559b635fedaa30b2e4cf716143e31ccf8f7d7b8bffd21f83fe4fca2b3eaa"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.sh",
+      "sha256": "819f28415323152b4f57aac086002dab4a0499f2cfce9036febe7a1d49ddfa85"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "a08c294f2a7fcfb0e9c574feda16db135a0d4f50509da98661769a6ddcee4aeb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.js",
+      "sha256": "675b6add2a3abb482741c82ad6626fee93bcfd55aacb48545318dd19f2b7415b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.ps1",
+      "sha256": "2fe45e533b1dec24bcebfe13c506a66aa6efcef704bf7796cb9150d1e4be6fe8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.py",
+      "sha256": "dd3a0642deeceac3d8def2c476c97fe6cf69fbfcebb2e1682bcd7939862b0aaf"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.sh",
+      "sha256": "b75fd5fc0859bb3c9f2228f5fce3bd0a56a45aa8d9f5c48dd83cf1ae68c56453"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/initialize-review-identity.py",
+      "sha256": "09d18de4572a758a8db987c5cf6d2b09f9d87d8d41ff35b4eafacfa37f7f73be"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py",
+      "sha256": "40fb8ec7238c7bf9b06c1894260c00698c39a963f9cef2f127e9c95554cb0e8a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/kill-switch.js",
+      "sha256": "3896e82a012b771390e20b38ec52453742ce77b81352762fbe5b67c9c742b01a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/kill-switch.ps1",
+      "sha256": "06c3bbf762fc11aec733b1e5c54413e8ceb2e51e03c72a139947059787115ee4"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/kill-switch.sh",
+      "sha256": "c87cb7a12d59b517006dd5d3d9f8ab0b2f55bcee61f9c9e349d9709fb365f0cd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "sha256": "4a9fa0c679b77959983eb3cc6c0674c03c2c3e3641d41b374fdbae51cb758a3e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+      "sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+      "sha256": "17cb11a0aa3c38b6f83bfe3324723f3349d5b088653ae78c28c204bf7f6be752"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "sha256": "5cb5fa8230a21e3b4d108b4643d3db474586b34601eb52c1fbcf932d259541da"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "sha256": "ac2118d4104e187a51b0ae8d04d3d591201ff0caf7f0a5072b29195a13903b05"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "sha256": "7de26e8f1c5aa9bd6b69c9224794f25b0dc35a8a08bb89640d9c54b70388ec26"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.sh",
+      "sha256": "f5852cb1960830e3d42214485d89e552423ec4246a4804851c8a2512a3b35528"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.ps1",
+      "sha256": "d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "sha256": "edbcad8326293e6c83cf96d9e457c819ebef64c19a9a4090ccb0cdcbc7a62b56"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-project-context.sh",
+      "sha256": "03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "sha256": "48a565069a10edb132c98d22d8efc24a714442faad7a71585d3067d06305acf2"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "sha256": "13ffd439854bef7756cbd4d4c0cdca85be8c70d0cda36a6ee2ef134dea678932"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
+      "sha256": "160e43c240be47536b068c7f968ad3d7f04d49b4e0a1b36243bb33484f877225"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "sha256": "da8adf0021ac10f1511e52c2def5404c7dd9b4772fdad0e9b45efc1c8771a5c1"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+      "sha256": "32aacffa4f8ba92e7a2d49cdc07d1073afef620c2e9d56f8213b008768173b81"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "78f6125f3a55617a6ede53881afd3cabc3b391c420f4086158ee15801d5ae29a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "1123c6d1ad7c79d33d86d55098526d9d41db43a922b7643e60dd1d58548e037c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "b95d798200b36c6d72a33c043a7837dc194732e2759a1f83709a5ae645716c8a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "sha256": "a9c23a27bee1174a46ec7203c90ace1988ea582d0d47cb5f029ed3e16c659766"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.ps1",
+      "sha256": "99616f83e2f8120745a31ad6442009c6903a986f71ee519d69211969ac6a85fd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "sha256": "d19f258b904dd168410f184f7854d47a3790319832b5bda919b3f7049ab41a06"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh",
+      "sha256": "5b6e7c83f35415d30cca173978abd6d70896d4fce087124d79a68af8ede9271e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.ps1",
+      "sha256": "ce2bbbcdf123a1c9f4afe3e55a19f6cb9a26461b8b0048024115c52173cd5556"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "sha256": "4aa0e97622b47687508e305b1832e182926d0595b7626180e5736b23e0ef174e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.sh",
+      "sha256": "ff95edd6b487142af51b08a37cd5d7df108d6228891bbfa8b700124a659c67d9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.ps1",
+      "sha256": "63a9066cd6f793a6ab3fca4c58f967a9ae500db30afd9884f763c62cb3f7ce90"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py",
+      "sha256": "7ef1abd13e6c15b8b6b3ec85757e1b3ba72663f2283a54c7a6fd2997e964604f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.sh",
+      "sha256": "b036a0dc08607d864b68a9abfe7f57ae4b262bb050fd392c56bec19a486785c3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.ps1",
+      "sha256": "263931aa9cf3b8ab6da0889c389fd3f59d24c24725b1e11f4104d9d475b482d8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+      "sha256": "7a0fc4c486e1341ce635f14d480779e25a60cdd3d078a877f9ee47c0fe0f2169"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.sh",
+      "sha256": "54b517ba7152a2e92d3693271d37ddf3d3759fb101e86c38d30bbaa53bfb5612"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.ps1",
+      "sha256": "b3a7d3aa6dd5891022f48d527abdbf9411dfef5e3c3882213f8134fb1f5da51f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.sh",
+      "sha256": "1b9114aacc964a79244b47b8afde5b0990529aae742c961b45c545d991718ce3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py",
+      "sha256": "0ca6da3eca4239d4d2bc5c9740effd67866b7f463310d0085f25d59a5fc6af6f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.ps1",
+      "sha256": "f246562e8995d1810b989843d2887477b4436ae87c8e05b2e356e79bdc21a976"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
+      "sha256": "ddafb7bf7494a4788443c1c1aba268da29ffe0fb1ccf34fc09335746f8d69420"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.sh",
+      "sha256": "1bacc058fd39668ca78c1b6778244772e410c5597cc1b24cb88e5dcdfbc292f2"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1",
+      "sha256": "146abd05148d331ea7dfc922a5e6474a806b037fb67572fe311a1d603ff01cb2"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py",
+      "sha256": "11bbff0409344168c57095631c333c714cd9dbffb22da664989494e50dc5757e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh",
+      "sha256": "acc9b90b7ac3e6b72438bcbb154098fdcf7a2dc07ff730550625125b6198a289"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "sha256": "e6325e03773792ad28081447a5884e040fa537f9261f81f13c87d6d597064cda"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "sha256": "47e7d8de3281e3b20b52a2c03ecde820167a20149bbdaac6022d7ebe4f7e9735"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate_path.py",
+      "sha256": "56306107b68809f5ee443085028019f6187cba7c99379ad290be51661933d2b9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/vendor-capability-registry.ps1",
+      "sha256": "6727f54b5032f5c3f2c28b539315436d1bd0238eed9d41ac4685ab26b04ebb7e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "sha256": "a61f889f274a8069d06c359caf813f79a444de5c77ee64c5a37404a8de8b973b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/vendor-capability-registry.sh",
+      "sha256": "5ae99d403710e7f2d1a5300148daf74a861726a8ebdc4539d83c0430cbcce5ce"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+      "sha256": "73ae95edb3c6dd7b1b8e85fd1e618cb78797a7c2269f72abb11ec23933e2a1f2"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md",
+      "sha256": "0215d3a6c097c893727276afc6078415cc83c3aa4273dc8bc62865bc3af6efa1"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "ce29654fc042e2e1fad4ce0f12c159dcbdc390137f5acc867a7e99d0dd4a21a2"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+      "sha256": "392e32a6478337274b0a927f58ed31d0fe0204c12bf5817e121d457de6a3ac98"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md",
+      "sha256": "452b2138848e71268a5b02c51f6642c274c21d4fb8a5d353352cd907c04d03be"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+      "sha256": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0"
+    },
+    {
+      "path": "plugins/sdd-review-loop/.claude-plugin/plugin.json",
+      "sha256": "044d03a31bb19b077b607f1473aa6bdb456fd5993169a8389ecf587006941f03"
+    },
+    {
+      "path": "plugins/sdd-review-loop/.codex-plugin/plugin.json",
+      "sha256": "5cf0d64e677030216ecec03c012446318d69426af159f663aa62befd12154517"
+    },
+    {
+      "path": "plugins/sdd-review-loop/.plugin/plugin.json",
+      "sha256": "e6573a4ebb23fed3a4456e4467e9cb1a3bdc63e0aaf5cef769136a4a82543470"
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75"
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656"
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3"
+    },
+    {
+      "path": "plugins/sdd-ship/.claude-plugin/plugin.json",
+      "sha256": "be1c1dfe8cba928db9073c1c6ee2cee85aa76b7c0711a30b365054113adf9499"
+    },
+    {
+      "path": "plugins/sdd-ship/.codex-plugin/plugin.json",
+      "sha256": "b3454c5c54fb5cf00f2f7e6422ed2af44b549d73d00314a63578242b34bcb327"
+    },
+    {
+      "path": "plugins/sdd-ship/.plugin/plugin.json",
+      "sha256": "44a3d211bf3112bd4431fc32d5b900b8aee6524eed6d3eb2cd1efa03a869aff6"
+    },
+    {
+      "path": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/LICENSE",
+      "sha256": "8a5d8efb70942e65032f930c761d097feeb41a7517ebd04c9d2e4ec3764071c5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/reference.md",
+      "sha256": "a4976e733b7793b0014b3be1d5a1c5282002ba16dd7be9a7fffd509c800b5505"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/README.md",
+      "sha256": "61a52989ee67dfe4ee30aeb88a06bd15460d3d61d9f1101f3d0d58c19d1e4852"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/main.bicep",
+      "sha256": "6fa0bd982a36436cc4a6929ce5a8bb2fff748248d2865000110de0a18ef51b5f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/references/output-adapters/bicep.md",
+      "sha256": "ab54837a3cde78093ebb59875c0cb1f471c57ee786d8b7d417f808cf94b56439"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/bash-normal-contracts-receipt.json",
+      "sha256": "737957c6fab8e0ca1772a47581172abc335c7f0259f16f15ca5f3528ff7f024a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/bash-normal-driver.log",
+      "sha256": "858097e70ceb56113e9936f742a1e58f760b8f0a747195dc89fd428ea8bdf828"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/catalog-regression.log",
+      "sha256": "63f7b61d9011dd2cdbcf454f8278de651ec8c7ef66253e28a15a9828d24eb431"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/changed-files.json",
+      "sha256": "9907b29dda2cdc4b651a32d3eea31d38b4759c17d6321ea8084424feea56cb33"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/cloud-profile-receipt.json",
+      "sha256": "aa96e80ed01cfa344fb57f0ebf48e17fcae92f7738d7ae96171fbfbacc63e725"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/cloud-profile.log",
+      "sha256": "8ef50f214393cfb638a44d96aa3ba52d1975e667040cbdc97619d7ddfdf3de07"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/collect-native-receipts.txt",
+      "sha256": "aa78bda0194488b1caea49f7afc7c6419b7fa8e7bd780d57e27c29ad411e37a7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/evaluation-dependencies.json",
+      "sha256": "6ffaff04a7a00d5e29dd7193b3f7ee6acab7c0cb4c5dccb6e572255ff9075dee"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/final-contracts-receipt.json",
+      "sha256": "f1ced215318eeea7168685d6118a88bcc4352379370d5e2a61ff5200e6a567b0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/final-contracts.log",
+      "sha256": "a6238c1701f7ad54dc4feb4e27aec035dd9764fd9f4341419e891ad9732b6b7b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/final-install-receipt.json",
+      "sha256": "531a40ce1428242af957e8a780e2650a966191acfedf889429a1abac40a1cf4c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/final-install.log",
+      "sha256": "61acc58e16fa4af632eb914201a48df0a5ac2b97d8612b9163133a9d50331786"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/final-routing-receipt.json",
+      "sha256": "6721d4f960ec8ff23a169dd7915a012de341cfd8b0ba4adb4756afe8371cf25b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/final-routing.log",
+      "sha256": "57a3c4bce0c43a8902ed1faad5417b23f9b09aa975066556b906ca32b53160b2"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/foundation-before.log",
+      "sha256": "b3f6ab8f1e8f2a99b266ab64e5cfe9deee14a7500adfa9e221d3a05652480f14"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/green-bootstrap-final-2.log",
+      "sha256": "7772a71689934ce64f3e5fc07f6393f28ebf468747e43a4faddfe9c9327ff81e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/green-bootstrap-final.log",
+      "sha256": "fd1bfb44eacbb8a133383e1f6a4339d0450fe4810dda67a9e5146468a39c83b7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/green-installed-final.log",
+      "sha256": "c2d75315c6e3a7234940cf0725e0eb4cc7dc033c73d947e0f667e15e5011e04b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/green-routing-initial.log",
+      "sha256": "39974873f2c04c71a9fc4ea29b4791bc623688a2436c9ccf7a7c66b5b791a9c6"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/host-fixture-final-setup.log",
+      "sha256": "f7b441a598c13c33f0fc1b27c7a913060d8dbf3b170caa119b71486fd8d78d45"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/host-fixture-setup.log",
+      "sha256": "6107e17cac140b1e18513d7ef52a9d92cfc08b44a97fc3cb713b4cbbf11a5e4b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/identity-binding.json",
+      "sha256": "a9aedf6dd5967a24c56e995c9fde1c672b8123086a2924dd33dc1543922c50a2"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/input-map.json",
+      "sha256": "247b17ebb0468ec979fe3d4ce0598c68566a2199c0bf22b17b9bab9a4b76bedf"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/integration-limits.md",
+      "sha256": "d89bd1cf56b68d2b259c39eb64fe4ca332c500eb8f101cd7b17dc2f9b289e0ac"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/manifest-revalidation.log",
+      "sha256": "6cd15a346de06d423036adeb54bc65780fbd52faeff37378a9e2e77afa4a63ba"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/manifest-validation.log",
+      "sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/mypy-final.log",
+      "sha256": "b0aba52cfa41f92cdd070aedfa38852f881ce6ea29986fb6c0da5d3ba09f0d09"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/mypy-initial.log",
+      "sha256": "16faa3740aa0e4b15e97225fddaea8a4f4735286efdeddcddccdef3c1370fe7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/mypy-t004-initial.log",
+      "sha256": "502ee9e716fe3039dfb4fc76f372bbcd3b6b848ae796c08794890b0a147cc660"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-acquired-routing.log",
+      "sha256": "520fafd41560a29f1d9ce78407949734fcc2311b789f34bfd14c459a42f8fcbe"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-candidate-stability.json",
+      "sha256": "742745cb8f32dcfa993d9d71a885bc692e26040a634eb2e49f92294d4f733499"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-host-trial.md",
+      "sha256": "4fed76bda897f2b76c30a81e6a96aa292becddcd5330c05af29de290393115b0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-npm-reproduction.log",
+      "sha256": "6b17e44888bc55105a1b0a4fe943c53e6d092d0d0f3002f3f48ba18a759f8faf"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts.log",
+      "sha256": "c634e5051d95deb8cdb4c847a1bc4e0ef3d5f74310fed41a6dd54efc74f72603"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799.request.json",
+      "sha256": "9d63b96ed592ce70745da1542728ee6cc68d63cb0596bd65b1a4fae33bc7c5ff"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.assets.json",
+      "sha256": "61dc41017079b19bf33c9456734c5ac6a6b40321a36736618f5e9a1309a2404b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.metadata.json",
+      "sha256": "cf3a379e5dbd93204a8fd8c25a4f56cda5db41cd4bb72a552a7d2d1ef616bf37"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.template.json",
+      "sha256": "5a38413c71992f0b05399d948f11b7853dfc2a34a4b59dee90ee7ea69e429113"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/cdk.out",
+      "sha256": "2801c31b9ddf660f597e3c9d9ba2a9505ac144717ede055f34dc916602a35b25"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/manifest.json",
+      "sha256": "5f9fef0f3c6a140e5899e8865438fa914b1c3ec5bb2790b01fbfdd8ea97d5139"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/tree.json",
+      "sha256": "3761ef1db74a85d2947a3d83e28066d5ec59e9167d13b0ff87a84115c8bd8a1f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/validation-report.json",
+      "sha256": "713595d21b48c4e60bfc38c3beaed49fa2d45bf8aa7cec61884e2ba6649d7ce1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/plan-manifest.json",
+      "sha256": "8ec2fa50fb3a86e4500108fbdfe76177594ef908c30d4bbe21001c873f90d2e5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/plan-result.json",
+      "sha256": "04752175efd2b076e783a5afc85384ab9364c194ae437cb8c6aa54d9a10676f1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/validate-manifest.json",
+      "sha256": "3fe6c45e4230d6118e0d7870b716f55501213eec78c40d1564b8b65072b6a943"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/validate-result.json",
+      "sha256": "290cc01eecd18a410dc4561b3c4daa68ff9764bd8e3dd316b7f8c78ebbb6e4ba"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.arm.json",
+      "sha256": "5d433080a667406b0e7372252cd1e3cace0fee1b505a295dbdc65561c6e96c7c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.request.json",
+      "sha256": "aa2abc4ddb432984ac48c57fdfe46778ea2fbe8356b6edc58307453324ed96a0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/plan-manifest.json",
+      "sha256": "ec1ff55baf0f5daf52e2ee7de17840004810925dccf28a2245a9f96052ddd2cf"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/plan-result.json",
+      "sha256": "4cfac93f020baa2acacdbd4c686071614f4abe50b47426f5e2fd9f5e6a803d47"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/validate-manifest.json",
+      "sha256": "4cd91e70549074b1e01dec86a9e36cc1bd04c7c50939135d9d520489cea522f5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/validate-result.json",
+      "sha256": "edf3db961639f96fedde6d9e6487a5e0cc8239fae383c62987f835640efabf87"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/receipt.json",
+      "sha256": "db23763159ddd7b06678c10f07dac5003158cf6969c44d040712f3ff9b6a66e8"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-setup-final.log",
+      "sha256": "aaf86f28961f7a447a68e030dde91c0a09bbf14548299cec237462d6348234b0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-setup.log",
+      "sha256": "83815777d978b5b5be00877b93930695ed5d245873ff2d3bc0413cd142d374e1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-toolchain-reproduction.json",
+      "sha256": "1e72856fe317e998b4a82fd0fbf0557f77db0f158220fda7c69b1693075e3f7e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/powershell-driver-final.log",
+      "sha256": "e4188acb46b8077aa3fb8a54200cc664feaa25438933d4f0555acae96e840572"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/powershell-driver.log",
+      "sha256": "f692b93e6047ba7224d48f038343556abad6c4a40e343f25ef171cdf395b2584"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/preflight.md",
+      "sha256": "8441f140fb9f75936da5ba9d01bf79fcd62ee714dcab81d98aae2d4cf03f5c97"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/prepare-host-fixture.py",
+      "sha256": "4b2eff4bf67a78136828609e131b0c13ec08f11feb1c39236bff39c50804f817"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/preserved-inputs.json",
+      "sha256": "b57cffca73e0193aae12cbc2d4071ceffa7b19671063bce40c95ff9582bf36d9"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/red-committed.log",
+      "sha256": "51fabb3cf06ae96c498903aa2416ad4e04ed9594d1818516e72811f3400025d0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/red-installed.log",
+      "sha256": "9acaefaa4df2a2a817cf766e741a3886ecfeaf2f7fd2525e632b1fc90c1a611a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/red-routing-registration.log",
+      "sha256": "0e622b0e1fc116e5277cdb80db9e8ccfa5d7162e5eeac8bc6dfc68f4c6272f46"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-bootstrap-cross-layer-index.tests.sh.log",
+      "sha256": "0d332dab19ac8b96c0fd1791ce9a1bb17173f061309b1d79527038b847677ea3"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-bootstrap-interview-guidance.tests.sh.log",
+      "sha256": "fda2dc422156955a39b209d70953e29f4d28c67ab02d75bffc2bd38887695f67"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-bootstrap-layer-templates.tests.sh.log",
+      "sha256": "b58a1b12ca8f97aa6ffdd0dc9c2bbf3e6e9dd7fed4daffc97a3f4afb035e51fd"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-guard-dispatch-fallback.tests.sh.log",
+      "sha256": "bc7a465505700376ff924a8fe3fa949aaab9acb9064c3603e9418c8845689df6"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-guard-negative-corpus.tests.sh.log",
+      "sha256": "71e9db039202d6f9ac2f86c3b1ad72b2c2ea6c52eeb1f6faa86e257161f3999e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-required-checks-posix.tests.py.log",
+      "sha256": "fb6b2244cad0faff78c4ef58c27b28dafec04b187bf71c85e47a54b0f4826747"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-sdd-domain-multitarget-T-003.tests.py.log",
+      "sha256": "19f74c8f5f78dded1a06d48d7a87d682dd4ccfb98b856986d716c9522fe2a722"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-sdd-domain-multitarget-T-004.tests.py.log",
+      "sha256": "dc807a4a5f637d36d09a20acb5d66b272bf9fe19a6fc13250761f5100ee7e0dc"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-sdd-domain-multitarget-foundation.tests.py.log",
+      "sha256": "82c7881823ef454a8930fd25e1aa70b7c8cef480bb4327e9f800aceea49cd39b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-verification-impact.tests.py.log",
+      "sha256": "bb4c0d5e4fbd269db327b522260218ab2d621765deb71968260048ad06343fae"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/report-validation.log",
+      "sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/rollback-AwsRouting.log",
+      "sha256": "02aaa1ba3e2f99e1409c43c09768ffabf71cceb01bb1f576c2c21386ed2e1eb6"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/rollback-bootstrap-interview-guidance.tests.sh.log",
+      "sha256": "fda2dc422156955a39b209d70953e29f4d28c67ab02d75bffc2bd38887695f67"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/rollback-sdd-domain-multitarget-foundation.tests.py.log",
+      "sha256": "3aefc252153fc9285ef52debeed7ef67ea3b24f8481601946eb662c5b5cae301"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/rollback.json",
+      "sha256": "97c488e2853f898cf0ed0d173fd4abd6c90ef7e0a7f3bda373fc265077c9f378"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/root-native-supplement-validation.log",
+      "sha256": "6d29ca6ac4ef0bb58afc9fb97983064a102e8da6ede1b3591b7bb3e063299dcb"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/ruff-final.log",
+      "sha256": "85d2e898d6db904df0f6ffe9c884d87f569ff616c9994f4d596d845d7d0a1aa9"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/scoped-regression-commands.txt",
+      "sha256": "338b4fbbd0957f7a26b10f266ffe60ce8a5f479d2eedcdc5b4a8a86923b9982f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/scoped-regressions.json",
+      "sha256": "73ff5b877735a930eb79e5150a2c72fd7a5602bd27bde52e99d59b513781aad1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/spec-revision.json",
+      "sha256": "8028f8748d8635ee2931e9baa8018e057021cca193595b9c3e4ed92418ab3367"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/static-commands.json",
+      "sha256": "fe002d49bf547cdbb95236725288134546b36a8cc2d6a8546e07781da3cc5f57"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/supplemental-input-map.json",
+      "sha256": "d16caed08eb85232c0c5f7da933a20e965a016d7f1e4f5ba11dd5d939476ce11"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/supplemental-manifest-validation.log",
+      "sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/supplemental-task-input-manifest.json",
+      "sha256": "64ff8ffbd52bd1df8239cb4bf02f6aabbb88a19492c8f6e294f61c572248eae1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/t004-extension-green.log",
+      "sha256": "4660c8e0b7fbdfdb987e99ef77d45d247c82f63ee30c2b57c9d6cb1af70b353e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/t004-extension-red.log",
+      "sha256": "d502c230afdd70c6e07ace0904504a290e11694da5a238f770c65eb9330df662"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/t004-preexisting-baseline.log",
+      "sha256": "c1b4c0c8fcd325f267c35c75a5923911e3e36f49625d371ea080c636195b149c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/t004-rollback.json",
+      "sha256": "b9801fac63bd59bbfcef70e6aac8ff5afaa9bf437a7585364e182c3c71a1aa75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/t004-static-followup.log",
+      "sha256": "e2ba3da9b4f0fa6775699dc97cf0948d004cacd9994b8e9edfd0d5be02a8d293"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/task-input-manifest.json",
+      "sha256": "008ed0e64419512c3c91d3d8f554da20dd2c0a91dc7513aaa0d220c587c1e238"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/workflow-proof-final.log",
+      "sha256": "a34499b1d6916900147c08ee3e10365d000192d1c9914089d8dc67d20f55bfec"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/attempt-1/workflow-proof-missing-pwsh.log",
+      "sha256": "c3791b9a7e7287128ef0a8ae0de5c086db947aef8cf23a4b102ba46a4e6466b3"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/acceptance.json",
+      "sha256": "22efb3e699a5a207800145f075b7f902cf5d3d13a6bcfa7b0f2e1caf2f6d98a1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/aws-mixed-owner/mixed-route.json",
+      "sha256": "4377bca2e2a013a40f706467a50c057c88d7fb72dbe8fd28d19b2d813f418add"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/aws-mixed-owner/request.json",
+      "sha256": "37cd42057190e5dd39d957f0711a2d7c9343482a0bb399d911c1d3625ed098b8"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/aws-supported/bootstrap-route.json",
+      "sha256": "30b3da1da1cbeb483989b8598cf2abee708eb3b5c4bb81375477152306cc7fca"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/aws-supported/bootstrap-route.json.manifest.json",
+      "sha256": "6d19ae7d316fbeb8668be8c9b00ad6e7bd9de65a167944e2e109f9193b89e177"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/aws-supported/direct-apply.json",
+      "sha256": "cb76ceee3c950644b8b984f17631d836c513252cee6806b996958efd6b957e91"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/aws-supported/direct-prepare.json",
+      "sha256": "b32b6d43865b348bb38293d1f96908b1bf0a6aaad7df86d5c04da188948c6260"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/aws-supported/direct-route.json",
+      "sha256": "0402aa78b33912336a3f7492373d55212a2a08a72eb3470f331e945557165edd"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/aws-supported/direct-route.json.manifest.json",
+      "sha256": "6d19ae7d316fbeb8668be8c9b00ad6e7bd9de65a167944e2e109f9193b89e177"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/aws-supported/request.json",
+      "sha256": "37cd42057190e5dd39d957f0711a2d7c9343482a0bb399d911c1d3625ed098b8"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/azure-mixed-owner/mixed-route.json",
+      "sha256": "a1ec8bb83045f6987fe82d3924c9d9d1eba85ebfda0b7f62f565433678d5f958"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/azure-mixed-owner/request.json",
+      "sha256": "415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/azure-supported/bootstrap-route.json",
+      "sha256": "36ffde86923d72b96ff0ef752849247f4e72ce3f07b62de449b4601b7248d77c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/azure-supported/bootstrap-route.json.manifest.json",
+      "sha256": "ec7dc4c6b1fe980ee8fbf65c024a5c2731b0915d7e50ad558f2069df4b96c3cc"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/azure-supported/direct-apply.json",
+      "sha256": "cc40170538544809c3a8196af7b7425fc28d363232127e2f8d86fe065279f8ee"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/azure-supported/direct-prepare.json",
+      "sha256": "ddf6e4c2f4b2ce1f6bbed643ed5c7940151801ab196af3c4e18743b5f210ee98"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/azure-supported/direct-route.json",
+      "sha256": "3ca6df51636af1c7b98078a9ef6db91b3dd048b92a476fef274b98505143a5a8"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/azure-supported/direct-route.json.manifest.json",
+      "sha256": "ec7dc4c6b1fe980ee8fbf65c024a5c2731b0915d7e50ad558f2069df4b96c3cc"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/artifacts/azure-supported/request.json",
+      "sha256": "415407edbd39fa12b4f68ed1b3490551f16e38d6f762b844233621c11dfda218"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/asset-hashes.json",
+      "sha256": "3450203a001f0d6aac00214c426c761778ac8fa50651d986730f335355273258"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/aws-command-audit.json",
+      "sha256": "3dbf30bb32d6bce7c09912a6771bec547f2c8707b7c64665f3240680af615c36"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/aws-delivery.json",
+      "sha256": "c3661d7b4e4f5527998762ae0ae3a2d86c6aa2405d9af2f8e05bbfe17364cddd"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/aws-executed-command.json",
+      "sha256": "c988b2c9f0a92e798ed94653cc1e2b825cdc077433001585a1d1392ee5558f80"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/aws-final.txt",
+      "sha256": "ca28e52f71ee05b8ec95d75ff9ec51bcbb865ba5be7eb2c315bd5a4bbb411601"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/aws-identity.json",
+      "sha256": "0449a08294e3aadfaa521842b69213078ba680bd3b1823f0f4df4809f23611ad"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/aws-prompt.txt",
+      "sha256": "e976b5bbe64918ebeaaebd5f5c9005b6718ac58f88b4b41aa492df684b7e15e4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/azure-command-audit.json",
+      "sha256": "485fc053452bfd86bcdf7726b87b341f7a75f13b98477115fb7314be2aa5a6df"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/azure-delivery.json",
+      "sha256": "6d8c7d298756cd2a03a7f1724b6c5eec27e9ae42e9d159ae78460fc00abdc46e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/azure-executed-command.json",
+      "sha256": "89fad0495616c80e774b2dd14fd3313f93610002f9f317d5d6396dd0b61f8f78"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/azure-final.txt",
+      "sha256": "1f01c5432e8fcc7202ae9d76c777f3bff1712486ab16b1af9153a74f2c466058"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/azure-identity.json",
+      "sha256": "fade135b9f50c1d54bae032baee0211fb88bc5673646c43dfd3676f230aed3e5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/azure-prompt.txt",
+      "sha256": "504ff7ed9661972b21c7a0c2ea6429de530e264d672121de81c6b02d4c51d382"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/caller-rubric.md",
+      "sha256": "58c6f17d5d8d55c91c362afc706dcb970f9e43a001284698bccfc318da37dbdc"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/current-source-binding.json",
+      "sha256": "45ab723ba3e7b0ad0f5aaab732a4148811678e8afb01ead1db6cbe7d91f2dd29"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/deliveries.json",
+      "sha256": "87186edbcd06548e93c3c95771d720a43ec64423424c290771d944005c521b90"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/launch-host-trial.py",
+      "sha256": "34e953f033548e67af3ffc021ce165b6b8ab2ef54d2174c9c286079481083565"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/profile-restoration.json",
+      "sha256": "5e60b64ae9226c6dce7d272caa56d3dd898f140716cf9d6ef8f40f1239ea8f24"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/setup.json",
+      "sha256": "c353706ccbf64584bbdaa1f6469e3a79851e6a7d939e983c238e0e885dea05e2"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/skill-discovery.json",
+      "sha256": "b5fa5fd1d596885e70511069c42d006f9417b8abdf9bfce1e9bebd981fc27077"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/native-host-trial-1/validate-host-delivery.py",
+      "sha256": "d36274741b30a10a183e39bed566069e22b14bca21d431bc17c4473da9d707c8"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/config.json",
+      "sha256": "ccc52fa5eb81253dec9a1edcbb6376c4f363cbcbe5cc6cd25e16bf51bdf1e6ea"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.arm.json",
+      "sha256": "5d433080a667406b0e7372252cd1e3cace0fee1b505a295dbdc65561c6e96c7c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.request.json",
+      "sha256": "aa2abc4ddb432984ac48c57fdfe46778ea2fbe8356b6edc58307453324ed96a0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/lock.json",
+      "sha256": "5d2f63bf39f892ae40d578f257af645bf1eccbdf468f4fb047a4187157a797c7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/ownership.json",
+      "sha256": "5405208196f15113bc06f82ee538997a19415517561e79a07f0077259ed2022c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/policy.json",
+      "sha256": "ca75f6b9e1a6362ba36fa496974bff564a957003f73da3f32443f412469531e4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/profile.json",
+      "sha256": "4ec5f27f718f26f6086dad4216fc8e1a909aba5fed9ba971575c7d57c69747d4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/unit/main.bicep",
+      "sha256": "81ba478fb3744e96496243358f3aef3477646027a58e1220f3c16b7b428c9422"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/unit/parameters.json",
+      "sha256": "361d0679465fa218a24786f54017a8b4441e8baf9691a4efdea02bd600fd0935"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/LICENSE",
+      "sha256": "8a5d8efb70942e65032f930c761d097feeb41a7517ebd04c9d2e4ec3764071c5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/reference.md",
+      "sha256": "a4976e733b7793b0014b3be1d5a1c5282002ba16dd7be9a7fffd509c800b5505"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/README.md",
+      "sha256": "61a52989ee67dfe4ee30aeb88a06bd15460d3d61d9f1101f3d0d58c19d1e4852"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/main.bicep",
+      "sha256": "6fa0bd982a36436cc4a6929ce5a8bb2fff748248d2865000110de0a18ef51b5f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/references/output-adapters/bicep.md",
+      "sha256": "ab54837a3cde78093ebb59875c0cb1f471c57ee786d8b7d417f808cf94b56439"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/config.json",
+      "sha256": "44f0deeb6b510736a1e2fd4b8449f20aefc738762e145ad0219b93888ce9c799"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799.request.json",
+      "sha256": "6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.assets.json",
+      "sha256": "61dc41017079b19bf33c9456734c5ac6a6b40321a36736618f5e9a1309a2404b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.metadata.json",
+      "sha256": "eca3c5a792ec796bccd3933f8016a843cbe404c87adc30672d9b73d6e0c620ae"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.template.json",
+      "sha256": "5a38413c71992f0b05399d948f11b7853dfc2a34a4b59dee90ee7ea69e429113"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/cdk.out",
+      "sha256": "2801c31b9ddf660f597e3c9d9ba2a9505ac144717ede055f34dc916602a35b25"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/manifest.json",
+      "sha256": "5f9fef0f3c6a140e5899e8865438fa914b1c3ec5bb2790b01fbfdd8ea97d5139"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/tree.json",
+      "sha256": "3761ef1db74a85d2947a3d83e28066d5ec59e9167d13b0ff87a84115c8bd8a1f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/validation-report.json",
+      "sha256": "37b01cf5f0a5b20784c30c5c70bddb00b633d76449ea5abec1fe334272da287a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/lock.json",
+      "sha256": "742c2c404cc22a8b93fef2e6958f431708643ae514eaf1ebbdda6cd70f990799"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/ownership.json",
+      "sha256": "13714b3f1d710d9fe65c99901041d0fa2add43360017fd979e5b8e9243e66293"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/policy.json",
+      "sha256": "9062f2dd81437a4c4b4072c84c6bedd63a5b58701b8becb2bfd43a3afcd3607d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/profile.json",
+      "sha256": "4ec5f27f718f26f6086dad4216fc8e1a909aba5fed9ba971575c7d57c69747d4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/app.js",
+      "sha256": "710c6889188eac80e9f5e6b505c3796ded52747c9a56c305c58a53d05f3c2b25"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/cdk.json",
+      "sha256": "9727d1b2d1513b0863b75f81d75d95db66a53d79dafdd78ab00a1338f4239112"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/package-lock.json",
+      "sha256": "b106084fff5e18ca94260509133337891b58d5269d77166ff9320a36419cccec"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/package.json",
+      "sha256": "beddc07bfbf3d198ca58b3d500e746b7bd4ebc14a25b469033fb1c41ba50a00b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/parameters.json",
+      "sha256": "1f5b55cda74fe4c5b95515db9b12c5e30df3feead79deb0ad19200c2aa7a8e02"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/SKILL.md",
+      "sha256": "af178f8e909efd66496b09c7301c5e11ef96681fd62bf91406dcb340a18aacf6"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md",
+      "sha256": "ce48bf13921481aa6d2df131f0bd32faa8cc07bb50b63b1805ddbfe6ca18a5f0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md",
+      "sha256": "4d576be561b16fd140c7f44de3b905ca81718752003a5072fec7062f2a2e782c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/construct-patterns.md",
+      "sha256": "029a6450cc738c220051c1e2df94cb08e82b9fd80b20ab6b1b31696015222d6c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/fast-deployments.md",
+      "sha256": "b6ddc7a418ed0d2f6e450c1835e3dc83c0648cbcdf4b582ebd66234918b22171"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md",
+      "sha256": "375e247190c3ebe29b2b8b211f665d4f463c7d959d3a6a067f8816d1a5df3a26"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md",
+      "sha256": "bdc1dacfaaaef810923699fc19803b492815b404190f055f90bd3558587b335c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md",
+      "sha256": "87b36861e1cf656fdb576536c20c61dfff5316e1b7465954f9b1b01cce0f0ee0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md",
+      "sha256": "80b97fe332046fb025cf6635b3add76046bf9b2933bd45394255585f1694a967"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md",
+      "sha256": "1397f0c8034ccafd1353c3053d119e721c4904b9dc2ba33a1f285f69bfb909ea"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md",
+      "sha256": "f88efb1a4b7451fe194e5c617ea2c467be93ecaa7221264b80361cca035dc181"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/reference.md",
+      "sha256": "a4976e733b7793b0014b3be1d5a1c5282002ba16dd7be9a7fffd509c800b5505"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/external/9/aws-cloudformation-2010-05-15.json",
+      "sha256": "142ac136f30bf2ba93723536c67e66443b00d86cc2128448916d6d7ab145eec3"
+    },
+    {
+      "path": "templates/cloud/github-aws.yml",
+      "sha256": "72ddd25758096b0844ed9e3b14d3563f90e3f80d67acc4090fe3294222b2c7b4"
+    },
+    {
+      "path": "templates/cloud/github-azure.yml",
+      "sha256": "5c9c208f3cc0eb4ea0fe11617a159acdcde9cb3bb61a8a92bc0ebf178299b4ab"
+    },
+    {
+      "path": "templates/cloud/iam/README.md",
+      "sha256": "5b0b6827c7c9eaaa794aea10d8474dcd0156d26f5f0673fe5364f61c596128c6"
+    },
+    {
+      "path": "templates/cloud/iam/aws-apply-permissions.json",
+      "sha256": "9b6ab4f6f70b6d138b8f5b143e25b51abf82f2a00d5606484bb17578bb6342cb"
+    },
+    {
+      "path": "templates/cloud/iam/aws-apply-trust.json",
+      "sha256": "b6a668ac1c6d6bfecf347823a7bf7f4211eab6eedeb8b70e80d5b1095c88546a"
+    },
+    {
+      "path": "templates/cloud/iam/aws-prepare-permissions.json",
+      "sha256": "97b33e38eb4b5c62c45006b1fa82d101b3c745d89053b7aef1975ae63aaf5135"
+    },
+    {
+      "path": "templates/cloud/iam/aws-prepare-trust.json",
+      "sha256": "fb816c23c404a2c6dc664885da932bd208fdda8c4675c991ff694e03ab17406c"
+    },
+    {
+      "path": "templates/cloud/iam/azure-apply-federation.json",
+      "sha256": "edbece3a3e08ad661a37bb5bbad33e5738aee8ea96e66148fd8b948f3fb01a24"
+    },
+    {
+      "path": "templates/cloud/iam/azure-apply-role.json",
+      "sha256": "305f5622da98f47d3b81df756eb5ef1959069e47b59f7ec012c3d0fd4812d889"
+    },
+    {
+      "path": "templates/cloud/iam/azure-prepare-federation.json",
+      "sha256": "50d8cbc667ee96d6667bbbb5313562a426ab826966483b20c4187fa5b9934370"
+    },
+    {
+      "path": "templates/cloud/iam/azure-prepare-role.json",
+      "sha256": "18558291d8f2bd725926e1a99c532ebd4952a0a192aa7740c3be18e6c76cf61d"
+    },
+    {
+      "path": "templates/cloud/iam/github-environment.json",
+      "sha256": "5bf72c589d439d0dc23b02b92c62fb6b4d897f1b95a2653b2aaa4d0069ddd291"
+    },
+    {
+      "path": "templates/cloud/iam/github-oidc-subject.json",
+      "sha256": "69a4c0a488e543cb5bb6587ffd6ab9ccd66706ad0423db76b2d4fcc2dbbb1d60"
+    },
+    {
+      "path": "templates/cloud/iam/trusted-policy.example.py",
+      "sha256": "7e70f84eec5094a6b4a2aee3fe16dcaec968f2ec330fb7f51226969a01bd64e9"
+    },
+    {
+      "path": "tests/bootstrap-cross-layer-index.tests.sh",
+      "sha256": "4b7ee150057258c73c10a5e83d787454710a92b827f2c0d7f847864bd2e6bff5"
+    },
+    {
+      "path": "tests/bootstrap-interview-guidance.tests.sh",
+      "sha256": "1b16b8012e7540c618c6ddde0845e37abc9e86d80a4dd2efbde6ad250eca51bf"
+    },
+    {
+      "path": "tests/bootstrap-layer-templates.tests.sh",
+      "sha256": "5705201ecf666d98c9ce7b354e0d4b0193eff2ceb9635de83b2846080354528b"
+    },
+    {
+      "path": "tests/cloud-orchestration-contracts.tests.py",
+      "sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2"
+    },
+    {
+      "path": "tests/cloud-orchestration-execution.tests.py",
+      "sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b"
+    },
+    {
+      "path": "tests/cloud-orchestration-routing.tests.py",
+      "sha256": "2ea10b036fcfe019f045b7912b15c11abf2975f61424f055b44822bc59fbf971"
+    },
+    {
+      "path": "tests/cloud-orchestration-verification.tests.py",
+      "sha256": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f"
+    },
+    {
+      "path": "tests/compatibility-byte-identical.tests.sh",
+      "sha256": "7c8ddcefc26c17540333ffa710f6e7682e24d205942b9568984148334ddf33a6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/caller-contract-baseline.json",
+      "sha256": "ca1d4a7c0b82d624a4fcbba541b9e7d58653a0a5a6f4cecaf5388ed6a471d7ee"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/capability-registry.json",
+      "sha256": "61cc575e7e82b384695ce85b4da41c10d621970af5193e6a3b587e483cf07c2e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/project-context-ff.yaml",
+      "sha256": "6ff77fc1a9ba9e2a839f8826c03ab50e9ab8afc58c8a4b6aaae9889815e2edf1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/project-context-ft.yaml",
+      "sha256": "f2e237c4f3eb60007ed266c72e95024810b9a67eb86b0dbfd5ed917af484821f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/project-context-tf.yaml",
+      "sha256": "e326ecd3bb30795d6ef5a8ca4cb981a8ee29b1b429710527191286d7e316f459"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/project-context-tt.yaml",
+      "sha256": "41416c1a88c73bb5686af6d54427f14375b483216bdf60de7720f48bd4fd75b4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/dependency-order-spy/capability-registry.json",
+      "sha256": "49325e4935a5c162eac6a7f39f037df0553a91a76d1e57148647ba548c86855f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/dependency-order-spy/project-context.yaml",
+      "sha256": "6e996660065c822d7272a66fc22d67b404328d1836805296c5fc2f312ad48b62"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/multi-true-dedup/capability-registry.json",
+      "sha256": "61cc575e7e82b384695ce85b4da41c10d621970af5193e6a3b587e483cf07c2e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/multi-true-dedup/project-context.yaml",
+      "sha256": "201f314cf1f6488282ac85f631704bdcc51a09a79357761fe63094f6f72403ab"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/capability-registry.json",
+      "sha256": "d7039d94c22c793d5212de34649d543000156c6b41082b1c07a209fdbea8e025"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/project-context.yaml",
+      "sha256": "510929d942f7623f996f0c55d497833e07f380f307492031811da7836e582493"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/resolve-component-paths-order-a.py",
+      "sha256": "5b3b6b50fccbe8961d4ee649296cd80d63bd91fe31ad6580ceaf2d69066045be"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/resolve-component-paths-order-b.py",
+      "sha256": "0cbd60e6c4cb74b89c90527676c6fb1b4a3081baec9726b50f523185b2952837"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/reason-template/capability-registry.json",
+      "sha256": "5d2a614e42f065724e2b4adf0f737fa8b50a3c6023800ee2a49899a72533f6ca"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/reason-template/project-context.yaml",
+      "sha256": "78b1398bc6f7a46a705cc22a65fe76e67600a1d0a5e941f35b3643f773508f60"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-conditional-facet/capability-registry.json",
+      "sha256": "437ee4ce34794ecde798035366318d8b2762be52bd525d5e2ffbfe0b28e92f8e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-conditional-facet/project-context.yaml",
+      "sha256": "5646248d85cf088015068ed77c564129da5b8365bdf98d2c6295797bd33d68ed"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-matched-trigger/capability-registry.json",
+      "sha256": "0da89b5aa3eef5332acf6f06b103b71e79841ce32a6d9e96edc4ecfa65afb2a7"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-matched-trigger/project-context.yaml",
+      "sha256": "e0f6cc07f2f672b9836dd0027f07e8eabc6ced9a6102ed1e34467c014c11d0a6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-unmatched-trigger/capability-registry.json",
+      "sha256": "45f2a1b7496399b3d5b8b65671810e734b0264d6895fab7d539181330f3f7968"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-unmatched-trigger/project-context.yaml",
+      "sha256": "def20368d2bddedffa29cfbe9ab4e2e540d4fe89138df18db0a68fe4971e351a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/nondeterminism-clean.py.txt",
+      "sha256": "5ef18775827e91d667a5dd3f631391ec1380730562b43d4c94024be59e950b4b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/nondeterminism-dirty.py.txt",
+      "sha256": "414aab389c59fc0ab8f6af41cd306d182abc10a565f5a7b15ec9838c0b5736a4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/provider-term-clean.txt",
+      "sha256": "e98e8d0af67d46a3f4ce409d440014adcf600750e9109450eec9a039b3668c44"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/provider-term-dirty.txt",
+      "sha256": "39b70371099480df949055bb3137a813a1bab8fd6abf64a4a486dec2d547dd43"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/parity/stable-sort-registry-reordered/capability-registry.json",
+      "sha256": "fd63081bf1536797279764ba07db490e34ccd23ce5f69759a1c42998ec4bb0f6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/capability-registry.json",
+      "sha256": "0b3b29d8b1d75fd460eec967cc0cc93e57a5a7c783c15d0b65154d7f0b308d2b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/project-context.yaml",
+      "sha256": "98db777d7b88df93c3d6596959a857731890d7dcd2bf9cac5c8cb3a27d146ba8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/resolve-component-paths.py",
+      "sha256": "aba58c21d5a47bfb780103514ad14da1bec16810541b287c065ae1d3f5be425a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/capability-registry.json",
+      "sha256": "0b3b29d8b1d75fd460eec967cc0cc93e57a5a7c783c15d0b65154d7f0b308d2b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/project-context.yaml",
+      "sha256": "98db777d7b88df93c3d6596959a857731890d7dcd2bf9cac5c8cb3a27d146ba8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/resolve-component-paths.py",
+      "sha256": "215f395703319b5e2b9360e617fca33563b870a62b02fb9a7455bdeb64e8751e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/project-context.yaml",
+      "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/resolve-component-paths.py",
+      "sha256": "8ef4761e79ca0fcab181f3736c9df930f34b38b9c98896b3caac6f4bf4a9a4e2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/artifact-publication-failed/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/canonicalizer-invocation-failed/canonicalize-sdd-yaml.py",
+      "sha256": "d4fc38410ab6783feebcdfcd83a33f36dfe05a95616bea9915eff44229041e8f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/canonicalizer-invocation-failed/project-context.yaml",
+      "sha256": "3e6f3f19f2305735fc202a2c8ba7214e641f43f60b18aee59bc38f1c2e4033a8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/clean-full-track-publication/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/clean-lite-track-publication/project-context.yaml",
+      "sha256": "78886aded07ff8b2f8aed77f7a32a65c2e66483cc8a0e1d849b7e0056c0a227d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/project-context.yaml",
+      "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/resolver-evidence.schema.json",
+      "sha256": "919024a80c6fa2b10274aa97b72c380f4c001c01504aca6851d5ee3ed3e1262a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/project-context.yaml",
+      "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/resolver-evidence.schema.json",
+      "sha256": "b83f5d80234b383d15ad15e9b8e6c9093318a5614d78599318575a6a948cc9ba"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed/project-context.yaml",
+      "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed/resolver-evidence.schema.json",
+      "sha256": "54dcf34a93a6f8f1c7b9132fd8dfa9cf9f9789fe2e63d83075202d5955e92c4f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-wrong-version/project-context.yaml",
+      "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-wrong-version/resolver-evidence.schema.json",
+      "sha256": "41634b0328c5acb1c95f80f156042d8fde9d81d8f4910924590cdf5bca1fd3eb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema/project-context.yaml",
+      "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed/project-context.yaml",
+      "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-output-malformed/canonicalize-sdd-yaml.py",
+      "sha256": "5c03e3a40fc22a6b84be1f84fd74643745686150984b35dd97aa9de50763be09"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-output-malformed/project-context.yaml",
+      "sha256": "ace500086f147c22e5e567105f0fc4f84becca78c35f3242556ad798cda3adb9"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/capability-registry.json",
+      "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/generate-registry-digest.py",
+      "sha256": "3af616fcc8fd2056aa6d48cfe17a6e7fd05289785038a8747b7d20ae186891aa"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/project-context.yaml",
+      "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-matched-nondetermining/capability-registry.json",
+      "sha256": "cfca5c8711db2c68c1238493b9913ab043095a235bed9670b0a741d88e1cffc1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-matched-nondetermining/project-context.yaml",
+      "sha256": "965043da3cff0bb3b9f6b035fa1244be59dc50728ed009fa437b23ef23b6315d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unmatched-trigger/capability-registry.json",
+      "sha256": "e244976ccd3a9bb4a82389680bb48c0494555043c8536d76cb2a264138fc087e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unmatched-trigger/project-context.yaml",
+      "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/capability-registry.json",
+      "sha256": "2f1f0255a60f25c72db115784c489f0198fffe063813e7aa147d6139139eac55"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/project-context.yaml",
+      "sha256": "eff959d0701ee400341a0fa0dceb6f16f6640ca7dab9c337c47dfdc2048c7c21"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/resolve-component-paths.py",
+      "sha256": "5f446beea05e58f35ede81981b0b25ff21dd68d1b4bb852069a6270d5f1da391"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/capability-registry.json",
+      "sha256": "c409a16a0f6e477664385036e8592aef0b4865d988b5cbc2cace564ceb2ed0bf"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/evaluate-predicate.py",
+      "sha256": "917fa018ff8bc918bea21482a394b31da1f6e3ad06798b318206ca879fb7b3be"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/project-context.yaml",
+      "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/capability-registry.json",
+      "sha256": "5c2704b6b1b3dab7b21896a100faf3e9854bf741fa5a6387bc296d37b5646f76"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/evaluate-predicate.py",
+      "sha256": "938f7d048b38410a31da8e943e00a7b4e54170d43f79ec1040a585af634a61c5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/project-context.yaml",
+      "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/capability-registry.json",
+      "sha256": "5c2704b6b1b3dab7b21896a100faf3e9854bf741fa5a6387bc296d37b5646f76"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/evaluate-predicate.py",
+      "sha256": "68d54f7e01b3a124d9d2e9393c68fdb4408e3975a883065acc3d332dd48a86b3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/project-context.yaml",
+      "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/capability-registry.json",
+      "sha256": "5c2704b6b1b3dab7b21896a100faf3e9854bf741fa5a6387bc296d37b5646f76"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/evaluate-predicate.py",
+      "sha256": "65c73b21f7084f571efef7ca57877c943a45eb1fd86f6f3f8c08a15d2d4a1514"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/project-context.yaml",
+      "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-schema-error/capability-registry.json",
+      "sha256": "337ed6f8f2addd9db70afa44050e3689655b6bf00c7b522e213c5eff1e8cf4ea"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-schema-error/project-context.yaml",
+      "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/lite-check-source-undefined/capability-registry.json",
+      "sha256": "f627d8c89a15d0cd5d9ebf106d242b5c58719413e7662901cd41fff36680423f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/lite-check-source-undefined/project-context.yaml",
+      "sha256": "e85b80930c2e887312c85feb50582bd19ce93e67b8b24f94520fe30e2b8387a8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-artifact/context-projection.schema.json",
+      "sha256": "d713de289a09366dcf04f72a2ccf0b2bf55be71699db13628abf7f52a96ef5da"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-artifact/project-context.yaml",
+      "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-evidence/project-context.yaml",
+      "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-evidence/resolver-evidence.schema.json",
+      "sha256": "9c3cacef8a599e96324609a3a568d1378408ccdf239bdcde39c0bcb486004064"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-facet-manifest/facet-manifest.schema.json",
+      "sha256": "949da1c07d4c339649b7e44f6e011fef6b3646580b8657eabbd6f20dc40ceb19"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-facet-manifest/project-context.yaml",
+      "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/registry_discovery.py",
+      "sha256": "20003aacda80503ddcee72c3fa94f7af9a3cbb28ef8acfbc5e3c244fecf073d1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/resolve-component-paths.py",
+      "sha256": "e7e9d5900992f96f5927a97ed3c85487bfc80de5b80d42e48249a61a015ead71"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-generation-mismatch/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-generation-mismatch/resolve-component-paths.py",
+      "sha256": "e7e9d5900992f96f5927a97ed3c85487bfc80de5b80d42e48249a61a015ead71"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/project-context-validation-failed/missing-enforcement.yaml",
+      "sha256": "70bef174f2ac3ce391f8705eb75aeba6df8f5a9e57d306dc73a96e5d90e20962"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-created-dir-fsync-failure/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-created-dir-fsync-failure/registry_discovery.py",
+      "sha256": "6a1fd82067858648657f1a17121d934a9c716c297641ca10b6f66a1001ed63ca"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py",
+      "sha256": "384474992f7d853cf92b46210b75e48e756c3f47aced9fc19e6fd697053fb9de"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery-crash/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery-crash/registry_discovery.py",
+      "sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery/registry_discovery.py",
+      "sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-roundtrip-unresolved-repo/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-roundtrip-unresolved-repo/registry_discovery.py",
+      "sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-target-escape/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py",
+      "sha256": "52e6b5ca0a91eaa8d770693d1197c2087aeb43ae9f1c9f1d39781f9c9e9b6280"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-parent-symlink/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-target-parent-symlink/project-context.yaml",
+      "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/project-context.yaml",
+      "sha256": "193379b1051fa49ffbfdc33571dacc9e5c24ab68db65d54ca65bd8dd3ff2d9a3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/resolve-component-paths.py",
+      "sha256": "746c8f384c7399329b967d2437cab3275eee217b92f865570ab00a18e4d64caa"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/project-context.yaml",
+      "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+      "sha256": "142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-unimportable/project-context.yaml",
+      "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-unimportable/registry_discovery.py",
+      "sha256": "b16af38d839bdcc28bdb1000a784a79a69eb2e00c78abe8b37d464bce2f7a34c"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/capability-registry.json",
+      "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/generate-registry-digest.py",
+      "sha256": "21b2faf08f66b9f95f82c86036cd30dce82014936efe8b83ea00fa5e2f5e7758"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/project-context.yaml",
+      "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-validation-failed/capability-registry.json",
+      "sha256": "b5871a40114579d08f0b1f61ccbf8c3156c6c858b9637dfa6b051af1ba354513"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-validation-failed/project-context.yaml",
+      "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/capability-registry.json",
+      "sha256": "0b3b29d8b1d75fd460eec967cc0cc93e57a5a7c783c15d0b65154d7f0b308d2b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/project-context.yaml",
+      "sha256": "98db777d7b88df93c3d6596959a857731890d7dcd2bf9cac5c8cb3a27d146ba8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/resolve-component-paths.py",
+      "sha256": "b36102a0cd8cdcbd0d71768baa39058919144ff2ce6f5de00f667d84de97671b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-launch-failed/project-context.yaml",
+      "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml",
+      "sha256": "705c7131882a6f98dab54c00648919548cafe2640e4104f07153d83e06ab41e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py",
+      "sha256": "868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/generate-registry-digest.py",
+      "sha256": "94ce16ed44066f4102d1b26483d0a144c6f946211e3586ec7c4ca6adf00ad2a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/project-context.yaml",
+      "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/validate-capability-registry-launch-failed/capability-registry.json",
+      "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/validate-capability-registry-launch-failed/project-context.yaml",
+      "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/workflow-combination-invalid/full-lite-layout.yaml",
+      "sha256": "314e462c73fb27f5ac4b191a4e4007f38292e9976ae687f802bb91dae48130a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/workflow-combination-invalid/lite-wrong-layout.yaml",
+      "sha256": "9f7a3e766432f0fd93fb66bf62b8a1f751103cd98f2b2e8bbcaa2c5dde4997e3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-cli/source-rev-default/project-context.yaml",
+      "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-cli/source-rev-default/resolve-component-paths.py",
+      "sha256": "f310576b7da26432e7ba9b52eabb94c98b0ff1305adddc2b1a7511eb09af1564"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/capability-registry.json",
+      "sha256": "fa3ee6f2317cd27bcdbc08fddd04e4ed8ca7b26bed6d049ea167b2e889b77fa3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/capability-registry.schema.json",
+      "sha256": "8c01dcbb31a3802a02e32cbd80a37779fb9ce8710b150920b5adfdfe9fe22a41"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/capability-summary.schema.json",
+      "sha256": "d8dd02960581109b81690f3c620fb48ddd30a49214fd2ff28638c1bb404a3720"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/context-projection.schema.json",
+      "sha256": "550a77008c3918f59b71db718ffe6c1ec4bf63a7c514cc3a757043d827650d0f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/facet-manifest.schema.json",
+      "sha256": "bfaab164c3dd8e14db6e47a42897b3e3877731e808c06207d5bd56b9a745b77e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/broken/resolver-evidence.schema.json",
+      "sha256": "9141eb2492d067d24f8ebe02d31d2b2ae063600735bd839091e5c9064ae4f471"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/capability-registry.json",
+      "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/full-pipeline/generate-registry-digest.py",
+      "sha256": "1662b2124d602fe99957879ac28b80cf7f6d267a87a778d40ebf34f4ded1d944"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/full-pipeline/project-context.yaml",
+      "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/generate-registry-digest.py",
+      "sha256": "5c6875a0901677f10fddefb56c880c6f4654e481a2964c6b093d6db341bef053"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/project-context-full.yaml",
+      "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/project-context-lite.yaml",
+      "sha256": "4d21bc8a7754bd8b5c313a704e7557ace2058a0449a3a46858dbdc1bed10ccc8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/resolve-component-paths.py",
+      "sha256": "c2a693a30dd1bb9b6cfaf61421e0797059e05628583e9dd0c8b0ea5e33918d83"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-discovery/installed-layout/validate-capability-registry.py",
+      "sha256": "269564ec65357ea29f01ec49bda30d15387038acf7425c4e9322999ab326ca58"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/advisory-missing/capability-registry.json",
+      "sha256": "d8afff8c3008846e9d7ba7455d8bc33dae6cc1d5fd798f15ce028443bf558b41"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/advisory-missing/generate-registry-digest.py",
+      "sha256": "972e4169b5d653deed2c68bc00119670a2e21730065ad25ee451646f57480a4d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/advisory-missing/project-context.yaml",
+      "sha256": "4d21bc8a7754bd8b5c313a704e7557ace2058a0449a3a46858dbdc1bed10ccc8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/zero-match/capability-registry.json",
+      "sha256": "d8afff8c3008846e9d7ba7455d8bc33dae6cc1d5fd798f15ce028443bf558b41"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/zero-match/generate-registry-digest.py",
+      "sha256": "972e4169b5d653deed2c68bc00119670a2e21730065ad25ee451646f57480a4d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-lite/zero-match/project-context.yaml",
+      "sha256": "9ad92bd8afdc7e829ea773e67059726b40fd673932a3f13ed1e3fc2a591c873e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/capability-registry.json",
+      "sha256": "2583c9a8c3f538a18d1fbc1678be17045b01e1c27aedb90b2cfca69a4985088b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/generate-registry-digest.py",
+      "sha256": "6bb714aed3b1e01676e91a73a219cfbbb28b78e62974a28d445ed263a6de62b1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-advisory.yaml",
+      "sha256": "78b1398bc6f7a46a705cc22a65fe76e67600a1d0a5e941f35b3643f773508f60"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-required.yaml",
+      "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/capability-registry.json",
+      "sha256": "5b0a8ec97e25ac7e754e19acc3e08d33e63e6b1205f06aa814db31643556e017"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/generate-registry-digest.py",
+      "sha256": "0e8c03ffdbf743bfe2bb66eba895008c0d1fdeaf22afa66de6f7a9f606d202c1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/project-context.yaml",
+      "sha256": "46014a91f5d52ef6d29903491477e53b47477faafe1f0d7ff4418a7b603c1f41"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/resolve-component-paths.py",
+      "sha256": "e88b3da3c38ccda7a3cf5d57985a4504fc0d0bacd1204851337b6b91a52d1d23"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-facet-node/capability-registry.json",
+      "sha256": "1642c9c5325820b5f924db872ac437b68b64cce3d2ba59e819030cde75f2c1c2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-facet-node/project-context.yaml",
+      "sha256": "dd94fc0799ff3135941e140792c74eb7fbf638dd0a0ba8e0cb79f8af98f1cb11"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/capability-registry.json",
+      "sha256": "ae0d763d1767e29fcf8695f37f580d2cd306cf173bb5d83ff0936692af23ff7a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/project-context.yaml",
+      "sha256": "290c85f8891a90a7644595064ecdbc8b62ae14e8fe727b09609192da5b48f448"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/capability-registry.json",
+      "sha256": "b5d9b5e2439da9e843cfd36de445f2df54e06455dbd7e694d954411311c84bc4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/project-context.yaml",
+      "sha256": "8a789a9432ba0e9d4293c99d2d41497f704ae415545f71871892b680169429ae"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/capability-registry.json",
+      "sha256": "5b0a8ec97e25ac7e754e19acc3e08d33e63e6b1205f06aa814db31643556e017"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/generate-registry-digest.py",
+      "sha256": "b285c8028982eed870e529375d185c30966a60b30bb49d0a36646267b5fff554"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/project-context.yaml",
+      "sha256": "46014a91f5d52ef6d29903491477e53b47477faafe1f0d7ff4418a7b603c1f41"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/canonicalize-sdd-yaml.py",
+      "sha256": "5520b44925770dcf7b784c874864dc2e88ef1989e3fd2568b5d75e0db2291ab0"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/capability-registry-empty.json",
+      "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/omits-components.yaml",
+      "sha256": "4b61a1c2bfafa72688216d30e267ad74edf2c6cfdf48c3767d26c7ba16f2094b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/resolve-component-paths-stub-empty.py",
+      "sha256": "8e11f63b463781e3be475124aad322db8ad573e277d79f1ea4a950edc17a594b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/two-components.yaml",
+      "sha256": "d6689e8863fd3a8d464c3febfedf14a87018e8ec17ec7a4ed6147ae3ee80d4ae"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/additional-property.json",
+      "sha256": "191e1cf07d86a6c527db17d5de42cf52cd0fe87ef02aec4cc3af58dcf8e9a7fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/bad-sha256-digest.json",
+      "sha256": "f21a62c4d0a457fae9d78c6803396d6a07b4f7356e1c1c201313cd7b224d2f66"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/matched-false-with-conditional-facets.json",
+      "sha256": "7f7f6a02e2e838393011ff1d2adf7960b1d677cc47fa2cab09ffcb9efd5ee420"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/missing-required-top-level.json",
+      "sha256": "9aa590c23bbc91a3505e69d36fb3e2ebb9ab6d9efe46927f162fcb0d47264d7c"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/pattern-violation-feature.json",
+      "sha256": "f6b7d01baf830838770569e6d32f5de6857567bd3362a1468b203e1febcc2c6d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/warn-outcome-missing-reason.json",
+      "sha256": "574055770384f78a6226f27130f67217fef24eeea1271d32d28f2fd9133b9303"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/wrong-enum-state.json",
+      "sha256": "67569163d1d7ed89d2cc7ffe9fb21e838339cc95e6c24310b4d4ac1f4302f6b1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/wrong-type-feature.json",
+      "sha256": "1971fe0f3275b7e3553415785e3164c145461cc363ffcea50a3d3b1c73d599a0"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/valid/clean-success.json",
+      "sha256": "980a623a3372abd69cc1c5e64a7c7936ec89f4d4620234782a79281864a00a4e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/valid/conditional-facet-scoping.json",
+      "sha256": "b16885a05b8c76e185fd38f582d059c5055acc6c40650f6b025d5a6647cd3f3f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/valid/exact-set-two-capabilities.json",
+      "sha256": "dc827195295c654df114e75a18e519eab8ad7645ad96e42c6b649a6b56b8b143"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/valid/zero-affected-components.json",
+      "sha256": "9a620f1615c11571f7f57e5df63ff564687ec2a1b7b2d20d540c3dc05375058a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/INDEX.json",
+      "sha256": "860bea006547348fad2c12688f69bf84d9e7b26305ce4299e94751c99d5fa490"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/case.json",
+      "sha256": "c1ca91513047f8af0dc64127749ab382153635b63c8d226d56b3e4edf7a646c0"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/manifest.json",
+      "sha256": "80915b2c53c065b94a10be263d9fcae539250f33cf9ede21e46a7015d8832565"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/case.json",
+      "sha256": "5eeb86a5748c3bb5aab0a729aa599a155946810343b53aae56d1af936e870038"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/evidence.json",
+      "sha256": "329d25bb7688e0cd05f9c8ab7190279624a7faefe3e54ff34a5755b74459c5d6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/case.json",
+      "sha256": "e694e5e897b2d7fd7b567838c04f261670ebe28fdba124bf4b7530e2eba44026"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/evidence.json",
+      "sha256": "99e5e6334c2ac50a085cefd5977281d25643c4835e087306eaf55661d8c402b3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/canonicalizer.py",
+      "sha256": "94f1a0d9a320e5754ee3c0c65a8502eb40d125fd9c9230a580d71369c0f9d6fd"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/case.json",
+      "sha256": "c6457d709eada3f40bbbc56d373a1289c498ec992bc265e8adfb456ed10f8da1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/case.json",
+      "sha256": "e0251aabc06704e59a93fa816ab15e846276f5fb3615180d7e88df3632c7caa4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/evidence.json",
+      "sha256": "7cdf9e9e27cbe654d61e045539b50f276a947bfb636ab67166dff398d64363f4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/case.json",
+      "sha256": "936fd6181a839023a943efe75fd2599cecaf99367f7642012c3a7254eb22be2e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/evidence.json",
+      "sha256": "721089989d902f4179de3e03022f04476bcb88efeb7af4822b9a2adc38787d59"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/clean/case.json",
+      "sha256": "76bced9d0e2596070d039934204bfd09103d7bb612135c4d0ced3345e4576e9b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/clean/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/clean/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/clean/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/case.json",
+      "sha256": "d5125bbd9b99e9dcf008abf828873d8a56e1ebb3146e3680a1a94f3163b94de1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/evidence.json",
+      "sha256": "3fad659b2fa8ab9b64653e06157ffd5a6107bb6549d5526601d7784bb0e975a6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/case.json",
+      "sha256": "db461865b4cddfca69226a58b0cf0234ab2c3d6826a9fc91de7f4db819494741"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/evidence.json",
+      "sha256": "dee3abd2cf760956acf886fba8e0f0371eb32edffd5224fab4e894268d2c18ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/case.json",
+      "sha256": "63eb6ff5388188b25cb4fe39a1b1dc4f68e61b3960d5e9e47fd1979d54bc9bfe"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/evidence.json",
+      "sha256": "ff80772e36f15bd9023f8d24a7ea4fb6278a09d4dbcef6cc05256a067e113f4a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/case.json",
+      "sha256": "4a1c5f84e24a36aa8830b9f0f6d8c079bdae5db243ad0313d2aa7b47e9ddcb1e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/evidence.json",
+      "sha256": "e35c53da014ce21b0a4b6ece374ca58873bbec96593c138269d1f842d5848edb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/case.json",
+      "sha256": "32d715a64dc1222bba9b514b29a832e7525580803ac2ab232be614419d5ad906"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/case.json",
+      "sha256": "6ed5a42934b47a12f4d2a7e631e22dc1bdd8a2f035815506f4df1ad25ce971d6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/case.json",
+      "sha256": "d75e7aae14f354ebab2babcc0efa7c4699a5b526ed412ca4d95fd57e01c2aa81"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/projection.json",
+      "sha256": "999fd71d693b8edaeb82f6b8e7956b331fa621a257466c15a945531f5770d7f3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/case.json",
+      "sha256": "1b7ff81d0515c0848bff3cc0b8bd86a9ade7d8ae4ff6d5b1d1752d14de1b3b01"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/override-registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/case.json",
+      "sha256": "d8315e1307ea30922d0086f5aa52921719a7f57e3b432f83e988cdd62800dd67"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/override-registry.json",
+      "sha256": "0b885764007e226207f677f0e4df04839102a90bb89a8b34f3dc5f6701db2b07"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/case.json",
+      "sha256": "97a7fd1ab6ba8fb38cc3f78fe0b267635a49f35f14bdac2fba211b3559043bd8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/digest-registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/registry.json",
+      "sha256": "0b885764007e226207f677f0e4df04839102a90bb89a8b34f3dc5f6701db2b07"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/case.json",
+      "sha256": "5ac02e4654e9c4a4514959b16dede50f2ac8f7da800684a6074b60b01ad2f978"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/case.json",
+      "sha256": "47aa94cd86c987a6878ad244be18f6c36841dd72bd0e5ad965a42c918d767bea"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/journal.json",
+      "sha256": "15db526aef805f24c1dd62552693dcd465da424674c6005a41b88ce87667dc93"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/case.json",
+      "sha256": "87d4b2d24bd9f6d3e2c65a7c274c996c17e575bb398537e028ad9cae477a73d7"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/journal.json",
+      "sha256": "7cbc11aabae8820ccbbf7d541f8115172949c2d3e3199f3c62d7cff17adc0aa0"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/case.json",
+      "sha256": "d2bf563e13e3a69dd2f1ee8c1dd733b335d4cb052c20f905fb154f7ad53a4f0d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/evidence.json",
+      "sha256": "3a12192a9a3b39fb241cf08331ee66244de5c93ff8cb41f4770c1620cd3565a4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/case.json",
+      "sha256": "f2a2918a78f5673e2bd8909ed16c032f509c36589a79bbb4628e15abf37b2872"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/override-registry.json",
+      "sha256": "6f6bb3ad3cdac7d5f138423030873b3a16889933c2f0e9c5f88c55aeebee46e0"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/case.json",
+      "sha256": "158e5de5cd6a143a2a86ec30168e70a6c6ba87d6872397fe6a3db0ce7fd38d3c"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/evidence.json",
+      "sha256": "88d23ab737dd005ce756f471e1acb40ed80a1697f6476cad17b98b32ae3db986"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/case.json",
+      "sha256": "12b006663723c3259c939893ac5d17ca0334102797091de8df49874470240d6c"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/evidence.json",
+      "sha256": "21c086de1b4a07693855a9dfbff2e42572bd164c6c34605ebab59ceb775aa2f5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/case.json",
+      "sha256": "2a9c41603d5631562f5b77789197a4282145f6b879509e2186d3330b4e26ec54"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/evidence.json",
+      "sha256": "f2d5ba46657ec2f158a7e2406dab7e47a3daccf40a9b6c93d33673d34d8e32c2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/structural-fixture-corpus/f1-full.json",
+      "sha256": "e3786da0280185bed7649ddb0c4cb200143d1ab92759ecf2192fd4e23beaec5c"
+    },
+    {
+      "path": "tests/fixtures/structural-fixture-corpus/f2-lite.json",
+      "sha256": "21b4275c6eb498a533cf07cdc92fed64cf93e79bfc22f73c5ab426e9cc79dcfe"
+    },
+    {
+      "path": "tests/fixtures/structural-fixture-corpus/f3-advisory.json",
+      "sha256": "eae48d90d6ccf2d9347f505da3cf2233b32ee893898e5df78719b953f3951673"
+    },
+    {
+      "path": "tests/fixtures/structural-fixture-corpus/f4-required.json",
+      "sha256": "7aa083dd3585e16ab06a694f28ceed86b64d57c5af62b9f936c3ccf9d8c548a2"
+    },
+    {
+      "path": "tests/guard-dispatch-fallback.tests.sh",
+      "sha256": "fea16dbfe5527b988563192202f2c6916bfa3221e8d66f2dbcec78cf1bb9621d"
+    },
+    {
+      "path": "tests/guard-negative-corpus.tests.sh",
+      "sha256": "bb834f8357a95f9c90d183c8bb1b136a68803f744ca2a545c8508290ba764666"
+    },
+    {
+      "path": "tests/install-cloud.tests.py",
+      "sha256": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5"
+    },
+    {
+      "path": "tests/required-checks-posix.tests.py",
+      "sha256": "88d530c5868060c539fce48f0eb9929c946b7d573b94c736bbbda5c7f102b1f5"
+    },
+    {
+      "path": "tests/resolve-project-context-block-check.py",
+      "sha256": "f6362655249c6d5ad296a23223fcbecf2b1e86b69999a376f5bc2b3a59ae2667"
+    },
+    {
+      "path": "tests/resolver-evidence-schema-check.py",
+      "sha256": "2f1b4b16f5fed85af37b18f3b274afc5a82c5519e437e83578bc8eefa40a3f9b"
+    },
+    {
+      "path": "tests/run-all-python.tests.ps1",
+      "sha256": "71d42e12d0fa548dfc22f364ac7d05a9311070317badeae2d4fa60f27425e163"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "abb3b0c8e5e8b33495376bd30130969709dc8f15e04204c0de0455744bd49bf9"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "e1d58fcae258fedcc4e0e3d78588f7fec2501bd6ff1e5a70e1f97feea9a79b14"
+    },
+    {
+      "path": "tests/run-ci-unwired.sh",
+      "sha256": "c738721d6eb682a2cb1bdb41b40768a14a1d994713e42c4f46983c8d870eafac"
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-T-003.tests.py",
+      "sha256": "40a50bb063c1a372b57105ab801733051567c479e0c4159575540c0120e78c34"
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-T-004.tests.py",
+      "sha256": "d577d1fbe440849b132038742d020a476253b2a7570a8229556311f0bb85ab2d"
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-T-004.tests.sh",
+      "sha256": "4ae16522d8e1c801db9bec3ca002ad5cd6f726545b948aab321dcf450a15c1f1"
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-foundation.tests.py",
+      "sha256": "9083c323d44f337373e2eeb21264eec5c132d495129233c4501f24a32b8e08a2"
+    },
+    {
+      "path": "tests/shared-launch-python/pyproject.toml",
+      "sha256": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12"
+    },
+    {
+      "path": "tests/structural-compatibility-live-refresh.tests.sh",
+      "sha256": "e73b81651a839f90d0c65fd8959d81fa82353953b8406b2d592f697282209014"
+    },
+    {
+      "path": "tests/validate-repository.ps1",
+      "sha256": "15d9932d0d6cbcc9f3244ffca09c74360c511c3aec81679cc61bf35d9c339d6f"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "94b56dd485f8a590e07f4fdd980158f28ef5d5cecef5ce25fe51fd62fb4b11a9"
+    },
+    {
+      "path": "tests/verification-impact.py",
+      "sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3"
+    },
+    {
+      "path": "tests/verification-impact.tests.py",
+      "sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc"
+    },
+    {
+      "path": "tests/verification-timings.json",
+      "sha256": "dc20362834826bd087a00b42243d4436a8266e67d7616346fcde3649952a33fd"
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "sha256": "eb6b9185f7b70be56ca91a834eaa9ac3371be20c385450bf0ab0d0c33986d6b9"
+    },
+    {
+      "path": "tests/verification.py",
+      "sha256": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1"
+    },
+    {
+      "path": "uninstall.ps1",
+      "sha256": "b6deb1791e5509aeb538215f944c19d03913baa4e3f771cc93fdc1f45763baa7"
+    },
+    {
+      "path": "uninstall.sh",
+      "sha256": "6d038c1208abd9c66da3d4a9188286bf76d0eb601b9ace5f5db25081472c373f"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "be21577343b8b2cc488c47b373ed68130ded00d994f58f1f81b7b69bddd6d537"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/normal-powershell-catalog.log",
+      "sha256": "26635ab2b431c9e91ef2bf01edfcc7215cdcd5888d5cf326fa0295ec675afbb9"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/build.log",
+      "sha256": "8d02f6f4477a7d5b2c49d4aa7aca35b07b0bf54a5eb6eddca26cf0114a6a6115"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/cloud-suite-receipt.json",
+      "sha256": "1e3aee22549f12089eb857c92b2fcd05f74c87178bf4391696761be727bc367d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/workflow-state.log",
+      "sha256": "387f17c2d67967ce989e3102169dc68b72a3b79b798ab85e35adafa73bae68a2"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/requirement-traceability.log",
+      "sha256": "f39a362f737599edcff40b9f425f3641d62f8c3dc3717dea6b4f52cb51f1a0f5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/risk.log",
+      "sha256": "9c7ed37cb06a49aaf2394cccc51c75f98812d2aeef2ed0273221a6d516f3585e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/typecheck.log",
+      "sha256": "14fdf673bd175fe32ef42df34666481bb15e465313f7dbef32d0aea2ba76a26e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/commands.json",
+      "sha256": "1fe057c58c4e2d484ef2b2e39ee36ab17b36e9748153a2a62667f5cb205982c5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/default-fail-contract.json",
+      "sha256": "15012f2769d61ef93fa5d5258873616daf56987789d1c251b0c9c8aa7a545c82"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/contract.log",
+      "sha256": "91cfa6b8a36cabaa540e1c38525ae3dfd2cf269f1e2dcdacc5312e549137e13e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/unit-tests.log",
+      "sha256": "96894672b23dbeb401c393154f7a55cfb39d59187166b6a858dac40a5b6c4399"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/task-state-check.log",
+      "sha256": "26dbb426f60453a236740800f259b0f6387a9a30dec2c0fe131a9cdd1157580f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/smoke-run.log",
+      "sha256": "9e902175137edbf69da035587f99733037ea118b3cf6befbf87151a41e907903"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/regression.log",
+      "sha256": "1e279dc393efb28f52bb7750d382f2b40857892ec1b91cf9d94ab40b081363c9"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/check-component-coverage.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/integration-tests.log",
+      "sha256": "6d29ca6ac4ef0bb58afc9fb97983064a102e8da6ede1b3591b7bb3e063299dcb"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011/quality-cycle-1/review-completion-policy.md",
+      "sha256": "e8e5b107fddd2898bb4b82c41761e287b3f6dcfe29bb98d8f1281045bb0816c3"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-011.contract.json",
+      "sha256": "6c47b04702f7c22f19592dfe69c02a90684edf146100382258fd809ff6a0fba9"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.json",
+      "sha256": "d25e4679fc24c444bec6b80c496b6778fbeb65a9f6c174fcd09ad8379e5c26a7"
+    },
+    {
+      "path": "docs/adr/0036-thin-cloud-orchestration.md",
+      "sha256": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/security-checklist.md",
+      "sha256": "2e25d44b824615bf9fe309a10e79d2f6f2a8f0afcfa65fb64b4d6fb91f7c97a5"
+    },
+    {
+      "path": "tests/shared-launch-python-requirements.txt",
+      "sha256": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d"
+    }
+  ]
+}

@@ -249,7 +249,8 @@
       "tests": [
         "TEST-011 packaging: tests/install-cloud.tests.py actual Bash/PowerShell Azure-only, AWS-only and combined installs, isolated cache layouts, shared runtime/registry/schema integrity, canonical predecessor route controls and write denial, retained dependencies and uninstall",
         "TEST-011 existing install, uninstall, idempotency, install-uninstall-matrix and Claude-install regression suites",
-        "TEST-011 sequential differing-selection installs and atomic failure preservation in both Bash and PowerShell; trusted current-source regeneration of prior runtime and staged provider entry checks"
+        "TEST-011 sequential differing-selection installs and atomic failure preservation in both Bash and PowerShell; trusted current-source regeneration of prior runtime and staged provider entry checks",
+        "TEST-011 installed bootstrap/direct route parity, complete-argument filesystem refusals and no-delegation controls in tests/cloud-orchestration-routing.tests.py"
       ],
       "evidence": [
         "specs/cloud-orchestration/verification/T-007/attempt-1/coverage-completion-packaging.log",
@@ -261,9 +262,32 @@
         "specs/cloud-orchestration/verification/T-007/install-selection-fix/final-rollback/rollback-result.json",
         "specs/cloud-orchestration/verification/T-007/quality-cycle-2/commands.json",
         "specs/cloud-orchestration/verification/T-007/quality-cycle-2/review-completion.json",
-        "specs/cloud-orchestration/verification/T-007.evidence.json"
+        "specs/cloud-orchestration/verification/T-007.evidence.json",
+        "reports/quality-gate/20261018-cloud-orchestration-T-011-cycle-2.md",
+        "specs/cloud-orchestration/verification/T-011.evidence.json",
+        "specs/cloud-orchestration/verification/T-011/quality-cycle-2/commands.json",
+        "specs/cloud-orchestration/verification/T-011/native-host-trial-2/acceptance.json",
+        "specs/cloud-orchestration/verification/T-011/installed-boundary-tests/after/results.json"
       ],
-      "scope": "T007 local packaging passed actual independent cycle2 after the sequential-selection retention repair. Original Critical cycle1 remains historical. Explicit repository installer materializes cloud runtime; bare provider source marketplace installation alone is insufficient. T011 bootstrap/native model-host trial and T008 actual matching-platform/full-release verification remain pending. REQ011 is Implementation Complete, not Done; no live provider acceptance claim."
+      "scope": "T007 packaging and T011 installed routing accepted by actual independent cycle2 PASS gates. Native local host trials use synthetic fixtures; current T011 routing has 96 passing tests. REQ011 Done within approved local scope. Full exact-commit release CI remains T008; no live provider acceptance."
+    },
+    {
+      "req": "REQ-012",
+      "acs": [
+        "AC-012"
+      ],
+      "tests": [
+        "TEST-012 canonical ci-cloud catalog registers four cloud regression suites plus packaging and #423 foundation compatibility; normal Bash/PowerShell and CI consumers",
+        "TEST-012 actual isolated native Azure/AWS installed host routing and denied prepare/apply/mixed-owner invocations"
+      ],
+      "evidence": [
+        "reports/quality-gate/20261018-cloud-orchestration-T-011-cycle-2.md",
+        "specs/cloud-orchestration/verification/T-011.evidence.json",
+        "specs/cloud-orchestration/verification/T-011/quality-cycle-2/commands.json",
+        "specs/cloud-orchestration/verification/T-011/native-host-trial-2/acceptance.json",
+        "specs/cloud-orchestration/verification/T-011/installed-boundary-tests/after/results.json"
+      ],
+      "scope": "T011 independent cycle2 PASS, local native-host evidence and scoped regression checks. Full release/native Windows/macOS CI remains T008; live cloud acceptance is not claimed."
     }
   ]
 }
