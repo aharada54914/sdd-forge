@@ -1,0 +1,87 @@
+test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) ... 
+  test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=1, maximum=1) ... ERROR
+  test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=0, maximum=1) ... FAIL
+  test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=1, maximum=2) ... ERROR
+  test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=0, maximum=2) ... ERROR
+  test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='azure', minimum=1, maximum=1) ... FAIL
+  test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='azure', minimum=0, maximum=1) ... FAIL
+  test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='azure', minimum=1, maximum=2) ... FAIL
+  test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='azure', minimum=0, maximum=2) ... FAIL
+
+======================================================================
+ERROR: test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=1, maximum=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2875, in test_native_bucket_minimum_and_maximum
+    if provider == "aws": self.assertEqual({query["Statistics.member.1"][0], query["Statistics.member.2"][0]}, {"Minimum", "Maximum"})
+                                                                             ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'Statistics.member.2'
+
+======================================================================
+ERROR: test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=1, maximum=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2875, in test_native_bucket_minimum_and_maximum
+    if provider == "aws": self.assertEqual({query["Statistics.member.1"][0], query["Statistics.member.2"][0]}, {"Minimum", "Maximum"})
+                                                                             ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'Statistics.member.2'
+
+======================================================================
+ERROR: test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=0, maximum=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2875, in test_native_bucket_minimum_and_maximum
+    if provider == "aws": self.assertEqual({query["Statistics.member.1"][0], query["Statistics.member.2"][0]}, {"Minimum", "Maximum"})
+                                                                             ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'Statistics.member.2'
+
+======================================================================
+FAIL: test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=0, maximum=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2872, in test_native_bucket_minimum_and_maximum
+    self.assertEqual(collector.workload()[0], minimum == maximum == 1)
+AssertionError: True != False
+
+======================================================================
+FAIL: test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='azure', minimum=1, maximum=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2876, in test_native_bucket_minimum_and_maximum
+    else: self.assertEqual(set(query["aggregation"][0].split(",")), {"Minimum", "Maximum"})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+'Minimum'
+
+======================================================================
+FAIL: test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='azure', minimum=0, maximum=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2872, in test_native_bucket_minimum_and_maximum
+    self.assertEqual(collector.workload()[0], minimum == maximum == 1)
+AssertionError: True != False
+
+======================================================================
+FAIL: test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='azure', minimum=1, maximum=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2876, in test_native_bucket_minimum_and_maximum
+    else: self.assertEqual(set(query["aggregation"][0].split(",")), {"Minimum", "Maximum"})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+'Minimum'
+
+======================================================================
+FAIL: test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='azure', minimum=0, maximum=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2876, in test_native_bucket_minimum_and_maximum
+    else: self.assertEqual(set(query["aggregation"][0].split(",")), {"Minimum", "Maximum"})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+'Minimum'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.037s
+
+FAILED (failures=5, errors=3)

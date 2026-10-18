@@ -83,3 +83,13 @@ Azure postcollection publication failure (AWS already blocks before publication)
 Public matrix first failure was fixture targeting: Azure unhealthy changed VM
 provisioning state but the scoped injection targeted instanceView only; repaired
 fixture now supplies actual stopped power state. It is not a product Red.
+
+## Within-bucket workload range preflight
+
+Root's static range concern is confirmed by executed WorkloadRangeCases. Persisted
+workload status/query digest/sample and verification result must agree with both
+configured minimum and maximum versus actual native bucket Minimum/Maximum.
+red-workload-range.log feeds a real collector bucket with minimum=0, maximum=1
+against required [1,1]; both providers accept it before correction. Query-shape
+assertions additionally expose absent requested Minimum. Matched [1,1] and high/
+mixed unhealthy controls are included. This is synthetic protocol Red, not live.

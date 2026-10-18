@@ -532,7 +532,7 @@ class FreshnessCases(unittest.TestCase):
                         if provider == "azure":
                             value = json.loads(result.body)
                             value["value"][0]["timeseries"][0]["data"].insert(
-                                0, dict(timeStamp=extra_time, maximum=extra_value)
+                                0, dict(timeStamp=extra_time, minimum=extra_value, maximum=extra_value)
                             )
                             result.body = encode(value)
                         else:
@@ -542,6 +542,7 @@ class FreshnessCases(unittest.TestCase):
                             assert points is not None
                             member = ET.SubElement(points, ns + "member")
                             ET.SubElement(member, ns + "Timestamp").text = extra_time
+                            ET.SubElement(member, ns + "Minimum").text = str(extra_value)
                             ET.SubElement(member, ns + "Maximum").text = str(
                                 extra_value
                             )
@@ -1340,7 +1341,15 @@ class NativeFixture:
                 ),
             )
         if path == cfg["vm_id"] + "/instanceView":
-            return dict(statuses=[dict(code="PowerState/stopped" if bad and self.check == "resource" else "PowerState/running")])
+            return dict(
+                statuses=[
+                    dict(
+                        code="PowerState/stopped"
+                        if bad and self.check == "resource"
+                        else "PowerState/running"
+                    )
+                ]
+            )
         if path == cfg["nic_id"]:
             return dict(
                 id=path,
@@ -1410,7 +1419,7 @@ class NativeFixture:
                         timeseries=[
                             dict(
                                 metadatavalues=metadata,
-                                data=[dict(timeStamp=self.stamp(), maximum=val)],
+                                data=[dict(timeStamp=self.stamp(), minimum=val, maximum=val)],
                             )
                         ],
                     )
@@ -1630,6 +1639,7 @@ class NativeFixture:
                     dict(
                         Timestamp=self.stamp(),
                         Maximum="999" if bad else ("1" if name == "Healthy" else "0"),
+                        Minimum="999" if bad else ("1" if name == "Healthy" else "0"),
                     )
                 ],
             )
@@ -2034,6 +2044,21 @@ class AzureCompletionCases(AzureTestBase):
 
     def test_original_job_counterpart_mismatches(self):
         cases = [
+            lambda r, j, listing, w: r.update(event="push"),
+            lambda r, j, listing, w: r.update(status="in_progress"),
+            lambda r, j, listing, w: r.update(conclusion="failure"),
+            lambda r, j, listing, w: r.update(path="other.yml"),
+            lambda r, j, listing, w: r.update(
+                head_repository=dict(id=99, full_name="other/repo")
+            ),
+            lambda r, j, listing, w: j.update(run_attempt=2),
+            lambda r, j, listing, w: j.update(status="queued"),
+            lambda r, j, listing, w: j.update(started_at="2026-10-18T06:02:00Z"),
+            lambda r, j, listing, w: j["steps"][0].update(status="in_progress"),
+            lambda r, j, listing, w: j["steps"][0].update(
+                completed_at="2026-10-18T06:03:00Z"
+            ),
+            lambda r, j, listing, w: listing.update(jobs=[]),
             lambda r, j, listing, w: r.update(id=999),
             lambda r, j, listing, w: r.update(run_attempt=2),
             lambda r, j, listing, w: r.update(head_sha="f" * 40),
@@ -2669,8 +2694,17 @@ class PublicObservationCases(unittest.TestCase):
                         setattr(health, "classification", "native")
                     with patch.object(health, "request", side_effect=response):
                         if variant.startswith("scanner"):
-                            scan_patch = (patch.object(module, "safe_publication", return_value=False)
-                                if variant == "scanner-false" else patch.object(module, "safe_publication", side_effect=OSError("scanner unavailable")))
+                            scan_patch = (
+                                patch.object(
+                                    module, "safe_publication", return_value=False
+                                )
+                                if variant == "scanner-false"
+                                else patch.object(
+                                    module,
+                                    "safe_publication",
+                                    side_effect=OSError("scanner unavailable"),
+                                )
+                            )
                             with scan_patch:
                                 result = self.run_public(case, module, "publish")
                         else:
@@ -2715,6 +2749,56 @@ class PublicObservationCases(unittest.TestCase):
                     else:
                         self.assertFalse(output.exists())
                     self.doCleanups()
+
+    def test_all_emitted_required_fields_have_closed_schema_counterparts(self):
+        spec = importlib.util.spec_from_file_location(
+            "schema_oracle",
+            ROOT / "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+        )
+        assert spec and spec.loader
+        oracle = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(oracle)
+        case, _, _, module = self.setup_execution("azure")
+        self.run_public(case, module, "schema")
+
+        def walk(value, schema, location):
+            if isinstance(value, dict):
+                for key in schema.get("required", []):
+                    changed = copy.deepcopy(value)
+                    del changed[key]
+                    with self.subTest(location=location, field=key):
+                        self.assertTrue(oracle._schema_validate(schema, changed))
+                if schema.get("additionalProperties") is False:
+                    with self.subTest(location=location, field="unknown"):
+                        self.assertTrue(
+                            oracle._schema_validate(
+                                schema, dict(value, unknown="extra")
+                            )
+                        )
+                for key, item in value.items():
+                    child = schema.get("properties", {}).get(key)
+                    if child:
+                        walk(item, child, location + "/" + key)
+            elif isinstance(value, list) and "items" in schema:
+                for i, item in enumerate(value):
+                    walk(item, schema["items"], location + "/" + str(i))
+
+        for contract, suffix in [
+            ("collection-context", ".context.json"),
+            ("check-result", ".resource.result.json"),
+            ("observation", ".resource.json"),
+            ("observation-evidence", ".manifest.json"),
+            ("verification", ".verification.json"),
+            ("operation-result", ""),
+        ]:
+            schema = json.loads(
+                (ROOT / ("contracts/cloud-" + contract + ".schema.json")).read_bytes()
+            )
+            value = json.loads(
+                (case.root / (case.directory + "/schema.json" + suffix)).read_bytes()
+            )
+            self.assertEqual(oracle._schema_validate(schema, value), [])
+            walk(value, schema, contract)
 
     def test_public_request_and_trusted_policy_counterparts(self):
         for provider in ("aws", "azure"):
@@ -2761,50 +2845,135 @@ class PublicObservationCases(unittest.TestCase):
                     self.doCleanups()
 
 
+class WorkloadRangeCases(unittest.TestCase):
+    def test_native_bucket_minimum_and_maximum(self):
+        import xml.etree.ElementTree as ET
+        from urllib.parse import parse_qs, urlsplit
+        for provider in ("aws", "azure"):
+            for minimum, maximum in ((1, 1), (0, 1), (1, 2), (0, 2)):
+                with self.subTest(provider=provider, minimum=minimum, maximum=maximum):
+                    collector, fixture = FreshnessCases().collector(provider, "workload", "healthy", "2026-10-18T06:00:00Z")
+                    original = fixture.request
+                    def response(method, url, headers, body=None):
+                        r = original(method, url, headers, body)
+                        if provider == "azure":
+                            value = json.loads(r.body)
+                            point = value["value"][0]["timeseries"][0]["data"][0]
+                            point.update(minimum=minimum, maximum=maximum)
+                            r.body = encode(value)
+                        else:
+                            tree = ET.fromstring(r.body)
+                            for n in tree.iter():
+                                if n.tag.endswith("}Minimum"): n.text = str(minimum)
+                                if n.tag.endswith("}Maximum"): n.text = str(maximum)
+                            r.body = ET.tostring(tree)
+                        return r
+                    with patch.object(fixture, "request", side_effect=response):
+                        self.assertEqual(collector.workload()[0], minimum == maximum == 1)
+                    _, url, body = fixture.calls[-1]
+                    query = parse_qs(body.decode() if body else urlsplit(url).query)
+                    if provider == "aws": self.assertEqual({query["Statistics.member.1"][0], query["Statistics.member.2"][0]}, {"Minimum", "Maximum"})
+                    else: self.assertEqual(set(query["aggregation"][0].split(",")), {"Minimum", "Maximum"})
+
+
 class NativeAdversarialCases(unittest.TestCase):
     def test_native_response_binding_pagination_and_unknown(self):
         import xml.etree.ElementTree as ET
+
         for provider in ("aws", "azure"):
-            for check in ("resource", "network", "identity", "monitoring", "workload", "backup"):
+            for check in (
+                "resource",
+                "network",
+                "identity",
+                "monitoring",
+                "workload",
+                "backup",
+            ):
                 for variant in ("tampered", "pagination", "unknown"):
                     if variant == "unknown" and check not in ("resource", "backup"):
                         continue  # unknown metrics/numbers and unsupported rights have their own concrete tests
                     with self.subTest(provider=provider, check=check, variant=variant):
-                        collector, fixture = FreshnessCases().collector(provider, check, "healthy", "2026-10-18T06:00:00Z")
+                        collector, fixture = FreshnessCases().collector(
+                            provider, check, "healthy", "2026-10-18T06:00:00Z"
+                        )
                         original = fixture.request
+
                         def response(method, url, headers, body=None):
                             r = original(method, url, headers, body)
                             if provider == "azure":
                                 value = json.loads(r.body)
-                                if variant == "pagination": value["nextLink"] = "https://untrusted.example"
+                                if variant == "pagination":
+                                    value["nextLink"] = "https://untrusted.example"
                                 elif variant == "tampered":
-                                    if check == "identity" and "principalId" in value.get("properties", {}): value["properties"]["principalId"] = "other"
-                                    elif check in ("monitoring", "workload") and "/metrics?" in url: value["value"][0]["id"] += "wrong"
-                                    elif "id" in value: value["id"] += "wrong"
+                                    if (
+                                        check == "identity"
+                                        and "principalId" in value.get("properties", {})
+                                    ):
+                                        value["properties"]["principalId"] = "other"
+                                    elif (
+                                        check in ("monitoring", "workload")
+                                        and "/metrics?" in url
+                                    ):
+                                        value["value"][0]["id"] += "wrong"
+                                    elif "id" in value:
+                                        value["id"] += "wrong"
                                 elif variant == "unknown":
-                                    if check == "resource" and "/instanceView?" in url: value["statuses"] = [dict(code="PowerState/unknown")]
-                                    elif check == "backup" and "lastBackupStatus" in value.get("properties", {}): value["properties"]["lastBackupStatus"] = "unknown"
+                                    if check == "resource" and "/instanceView?" in url:
+                                        value["statuses"] = [
+                                            dict(code="PowerState/unknown")
+                                        ]
+                                    elif (
+                                        check == "backup"
+                                        and "lastBackupStatus"
+                                        in value.get("properties", {})
+                                    ):
+                                        value["properties"]["lastBackupStatus"] = (
+                                            "unknown"
+                                        )
                                 r.body = encode(value)
                             elif r.body.startswith(b"{"):
                                 value = json.loads(r.body)
-                                if variant == "pagination": value["NextToken"] = "more"
+                                if variant == "pagination":
+                                    value["NextToken"] = "more"
                                 elif "RecoveryPoints" in value:
                                     point = value["RecoveryPoints"][0]
-                                    point["ResourceArn" if variant == "tampered" else "Status"] = "unknown"
+                                    point[
+                                        "ResourceArn"
+                                        if variant == "tampered"
+                                        else "Status"
+                                    ] = "unknown"
                                 r.body = encode(value)
                             else:
                                 tree = ET.fromstring(r.body)
                                 if variant == "pagination":
-                                    container = next((n for n in tree if n.tag.endswith("Result")), tree)
+                                    container = next(
+                                        (n for n in tree if n.tag.endswith("Result")),
+                                        tree,
+                                    )
                                     ns = tree.tag.split("}")[0] + "}"
-                                    ET.SubElement(container, ns + "NextToken").text = "more"
+                                    ET.SubElement(
+                                        container, ns + "NextToken"
+                                    ).text = "more"
                                 else:
-                                    key = {"resource": "instanceId" if variant == "tampered" else "name", "network": "groupId", "identity": "Arn", "monitoring": "AlarmName", "workload": "Label"}.get(check)
+                                    key = {
+                                        "resource": "instanceId"
+                                        if variant == "tampered"
+                                        else "name",
+                                        "network": "groupId",
+                                        "identity": "Arn",
+                                        "monitoring": "AlarmName",
+                                        "workload": "Label",
+                                    }.get(check)
                                     for node in tree.iter():
-                                        if node.tag.endswith("}" + str(key)): node.text = "unknown"
+                                        if node.tag.endswith("}" + str(key)):
+                                            node.text = "unknown"
                                 r.body = ET.tostring(tree)
                             return r
-                        with patch.object(fixture, "request", side_effect=response), self.assertRaises((ValueError, KeyError)):
+
+                        with (
+                            patch.object(fixture, "request", side_effect=response),
+                            self.assertRaises((ValueError, KeyError)),
+                        ):
                             getattr(collector, check)()
 
     def test_postcollection_lease_expiry_prevents_publication(self):
@@ -2815,11 +2984,15 @@ class NativeAdversarialCases(unittest.TestCase):
             now = [1792303320 if provider == "azure" else 1792303260]
             case.executor.clock = lambda: now[0]
             original = health.request
+
             def response(method, url, headers, body=None):
                 r = original(method, url, headers, body)
-                if "/recoveryPoints?" in url or "/recovery-points/?" in url: now[0] += 10000
+                if "/recoveryPoints?" in url or "/recovery-points/?" in url:
+                    now[0] += 10000
                 return r
-            with patch.object(health, "request", side_effect=response): result = harness.run_public(case, module, "expired")
+
+            with patch.object(health, "request", side_effect=response):
+                result = harness.run_public(case, module, "expired")
             self.assertEqual(result["result"], "BLOCKED")
             self.assertFalse((case.root / (case.directory + "/expired.json")).exists())
             self.doCleanups()
