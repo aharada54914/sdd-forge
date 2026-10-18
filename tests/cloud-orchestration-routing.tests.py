@@ -118,6 +118,11 @@ class AzureRouting(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name).resolve()
         self.contracts = load_contracts()
+        spec = importlib.util.spec_from_file_location("azure_schema_oracle",
+            ROOT / "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py")
+        assert spec and spec.loader
+        self.oracle = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.oracle)
         self.req = request("apply")
         self.req["scope"] = dict(account_id="11111111-1111-1111-1111-111111111111",
                                  region="eastus", deployment_scope="synthetic-group")
@@ -174,6 +179,10 @@ class AzureRouting(unittest.TestCase):
         self.assertEqual(result["operation"], phase)
         self.assertEqual(result["run_id"], self.req["run_id"])
         self.assertNotIn("native_operation_id", result)
+        if result.get("evidence_manifest_path"):
+            manifest = json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
+            schema = json.loads((ROOT/"plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json").read_bytes())
+            self.assertEqual(self.oracle._schema_validate(schema, manifest), [])
         return result
 
     def test_one_explicit_bicep_owner_routes_with_stable_apply_intent(self):
@@ -190,6 +199,7 @@ class AzureRouting(unittest.TestCase):
         for name, body in [("main.tf", b""), ("terraform.tfstate", b"{}"),
                            ("azure.yaml", b"name: synthetic"), ("cdk.json", b"{}"),
                            ("sam.yaml", b"Transform: AWS::Serverless-2016-10-31"),
+                           ("raw.yml", b"Resources: {}"),
                            ("template.json", b'{"AWSTemplateFormatVersion":"2010-09-09","Resources":{}}')]:
             with self.subTest(name=name):
                 ref = self.put("bundle/unit/" + name, body)
@@ -206,6 +216,18 @@ class AzureRouting(unittest.TestCase):
         self.refresh()
         self.req.update(provider="aws", owner="cdk", route="aws-cdk")
         self.assertEqual(self.invoke(expected=2)["error_code"], "PROVIDER_MISMATCH")
+
+
+    def test_unsupported_only_unit_is_not_migrated(self):
+        (self.root/self.source["path"]).unlink()
+        self.source = self.put("bundle/unit/main.tf", b"# Existing Terraform owner, not imported.\n")
+        self.req["input_artifacts"] = [dict(kind="source", **self.source)]
+        self.req.update(operation="route", owner="terraform", route=None)
+        self.owner["owners"][0]["owner"] = "terraform"
+        self.refresh()
+        before = (self.root/self.source["path"]).read_bytes()
+        self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_UNSUPPORTED")
+        self.assertEqual((self.root/self.source["path"]).read_bytes(), before)
 
     def test_missing_owner_import_and_metadata_id_preservation(self):
         self.owner["owners"] = []
@@ -545,6 +567,25 @@ resource changed 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
                 self.assertEqual(result["error_code"], expected)
                 self.assertFalse(list((self.root/"bundle/generated").iterdir()))
 
+
+
+    def test_provider_schema_required_fields_and_types_match_cli(self):
+        schema = json.loads((ROOT/"plugins/sdd-azure-cloud/references/azure-local-config.schema.json").read_bytes())
+        self.assertEqual(self.oracle._schema_validate(schema, self.config), [])
+        original = copy.deepcopy(self.config)
+        for key in original:
+            for mode in ("missing", "null"):
+                with self.subTest(key=key, mode=mode):
+                    self.config = copy.deepcopy(original)
+                    if mode == "missing":
+                        del self.config[key]
+                    else:
+                        self.config[key] = None
+                    self.assertTrue(self.oracle._schema_validate(schema, self.config))
+                    self.refresh()
+                    self.assertEqual(self.invoke("plan", expected=2)["result"], "BLOCKED")
+        self.config = original
+        self.refresh()
 
     def test_commented_unlocked_compiler_reads_fail_closed(self):
         # Whitespace/comments must not hide an absolute compiler dependency.
