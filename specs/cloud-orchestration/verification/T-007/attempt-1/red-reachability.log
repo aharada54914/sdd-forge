@@ -1,0 +1,20 @@
+test_real_export_consumer_ignores_upstream_reference_skills (__main__.SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills) ... FAIL
+
+======================================================================
+FAIL: test_real_export_consumer_ignores_upstream_reference_skills (__main__.SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 429, in test_real_export_consumer_ignores_upstream_reference_skills
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : Exception: /tmp/cloud-skill-exports-eld_vksq/boundary.ps1:208
+Line |
+ 208 |              throw "Internal skill must set user-invocable: false: $($ …
+     |              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Internal skill must set user-invocable: false:
+     | /tmp/cloud-skill-exports-eld_vksq/plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.699s
+
+FAILED (failures=1)

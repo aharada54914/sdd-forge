@@ -73,3 +73,11 @@ Field: public skill inventory/count; counterpart: manifest-exported skills roots
 not arbitrary SKILL.md files under references/. The test calls the real export
 consumer block with actual populated provider packages. This is not missing
 setup. Commit this failing test before narrowing discovery to exported roots.
+
+The full validator's later WFI-054 reachability consumer has its own public
+entry allowlist (original line 547 after this task's initial additions).
+`red-reachability.log` executes that verbatim tail block too: new orchestrate
+entries are wrongly classified internal. Field: public entry caller class;
+counterpart: frontmatter disable-model-invocation=true, no hidden-human flag.
+Extend the existing visibility test before adding orchestrate to that allowlist;
+retain the original six entry semantics and case-sensitive comparisons.

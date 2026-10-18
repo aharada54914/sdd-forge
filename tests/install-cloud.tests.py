@@ -88,6 +88,8 @@ def fixture(root: Path) -> None:
 def validate(root: Path, skills: bool = False) -> subprocess.CompletedProcess[str]:
     text = (ROOT / 'tests/validate-repository.ps1').read_text()
     block = text[text.index('$expectedPlugins ='):text.index('$forbiddenPaths =' if skills else '$skillFiles =')]
+    if skills:
+        block += text[text.index('$userVisibleSkills ='):text.index('Write-Host "Repository validation passed."')]
     driver = root / 'boundary.ps1'
     driver.write_text('param([string]$repositoryRoot)\n$ErrorActionPreference="Stop"\nSet-StrictMode -Version Latest\n' + block)
     return run([PWSH, '-NoProfile', '-File', str(driver), str(root)], root)
