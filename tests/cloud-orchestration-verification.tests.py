@@ -175,6 +175,32 @@ class ReducerCases(unittest.TestCase):
                         self.assertEqual(result['overall_result'],'FAIL' if variant=='FAIL' else 'BLOCKED')
                         self.assertFalse(result['evidence_complete'])
 
+    def test_context_shape_and_window(self):
+        for field, value in [('schema','unknown/v1'),('extra',True),('completed_at','2026-10-18T06:02:00Z'),
+                             ('collected_at','2026-10-18T06:02:00Z'),('classification','native')]:
+            case=reducer_case();case[4][field]=value
+            with self.subTest(field=field), self.assertRaises(ValueError): self.reduce(case)
+
+    def test_profile_policy_and_check_set(self):
+        for variant in ('missing-backup','profile-version','profile-digest','extra-check','duplicate-check'):
+            case=reducer_case()
+            if variant=='missing-backup': case[2]['required_check_ids'].remove('backup')
+            elif variant=='profile-version': case[2]['version']='9'
+            elif variant=='profile-digest': case[2]['max_age_seconds']=900
+            elif variant=='extra-check': case[2]['required_check_ids'].append('unknown')
+            else: case[5].append(copy.deepcopy(case[5][0]))
+            with self.subTest(variant=variant), self.assertRaises(ValueError): self.reduce(case)
+
+    def test_query_trace_shape(self):
+        for field,value in [('locator','http://untrusted.example'),('request_sha256','wrong'),
+                            ('response_sha256','wrong'),('http_status',-1),('extra','unknown')]:
+            case=reducer_case();record=case[5][0];payload=json.loads(record['payload_bytes'])
+            payload['queries'][0][field]=value;record['payload_bytes']=encode(payload)
+            observation=json.loads(record['observation_bytes'])
+            observation['result']['sha256']=hashlib.sha256(record['payload_bytes']).hexdigest()
+            record['observation_bytes']=encode(observation)
+            with self.subTest(field=field), self.assertRaises(ValueError):self.reduce(case)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
