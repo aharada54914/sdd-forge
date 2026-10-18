@@ -112,6 +112,14 @@ def exercise(source, runtime, case):
         manifest = root / "invocation.json"
         write_json(manifest, invocation)
         scripts = source / "plugins/sdd-quality-loop/scripts"
+        if case in ("helper-intact", "helper-missing", "helper-invalid"):
+            scripts = pathlib.Path(shutil.copytree(scripts, root / "tooling"))
+            helper = scripts / "validate-feature-scratch-history.py"
+            if case == "helper-missing":
+                helper.unlink()
+            elif case == "helper-invalid":
+                helper.write_text("this is deliberately invalid Python !!!\n")
+            expected = 0 if case == "helper-intact" else 1
         command = (["bash", str(scripts / "validate-review-context-set.sh"), str(manifest), str(root), "--reserve"]
                    if runtime == "bash" else
                    ["pwsh", "-NoProfile", "-File", str(scripts / "validate-review-context-set.ps1"),
@@ -119,6 +127,15 @@ def exercise(source, runtime, case):
         before = ledger.read_bytes()
         report_before = report.read_bytes()
         result = subprocess.run(command, capture_output=True, text=True, timeout=40)
+        if case in ("helper-missing", "helper-invalid"):
+            diagnostic = "can't open file" if case == "helper-missing" else "SyntaxError"
+            passed = (result.returncode != 0 and diagnostic in result.stderr and
+                      "validate-feature-scratch-history.py" in result.stderr and
+                      ledger.read_bytes() == before and
+                      report.read_bytes() == report_before and
+                      not (root / "reports/review-context/scratch-reservations").exists())
+            print(f"{'ok' if passed else 'not ok'}: {runtime} {case}: rejected before ledger/snapshot mutation")
+            return passed
         passed = (result.returncode == expected and
                   (expected == 0 or (ledger.read_bytes() == before and "REVIEW_CONTEXT_PATH" in result.stderr)))
         print(f"{'ok' if passed else 'not ok'}: {runtime} {case}: exit={result.returncode}, expected={expected}")
@@ -128,6 +145,12 @@ def exercise(source, runtime, case):
             saved = list((root / "reports/review-context/scratch-reservations").glob("*.json"))
             passed = len(saved) == 1 and json.loads(saved[0].read_text()) == invocation
             after = ledger.read_bytes()
+            snapshot_before = saved[0].read_bytes()
+            repeated = subprocess.run(["python3", str(scripts / "validate-feature-scratch-history.py"),
+                                       str(manifest), str(root), "--snapshot"],
+                                      capture_output=True, text=True, timeout=40)
+            passed = (passed and repeated.returncode == 1 and "REVIEW_CONTEXT_PATH" in repeated.stderr and
+                      saved[0].read_bytes() == snapshot_before and ledger.read_bytes() == after)
             verified = subprocess.run(command[:-1], capture_output=True, text=True, timeout=40)
             passed = passed and verified.returncode == 0 and ledger.read_bytes() == after
             invocation["scratch_root"] = "/opt/changed-evaluator"
@@ -165,7 +188,7 @@ def main():
     for runtime in ("bash", "pwsh"):
         if not shutil.which(runtime):
             raise SystemExit(f"Missing required runtime: {runtime}")
-    cases = ["clean", "other-equal", "other-child", "other-parent", "other-prefix",
+    cases = ["helper-intact", "helper-missing", "helper-invalid", "clean", "other-equal", "other-child", "other-parent", "other-prefix",
              "prior-equal", "prior-child", "prior-parent", "prior-prefix", "prior-missing",
              "legacy-missing", "snapshot-tampered", "snapshot-deleted"]
     cases += ["display-plain", "display-quoted", "display-crlf", "display-open", "display-close", "display-double",

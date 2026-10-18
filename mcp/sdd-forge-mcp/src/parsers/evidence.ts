@@ -17,12 +17,12 @@
  * `contractChecksSummaryData`.
  */
 
+import { isJsonObject, jsonValueText } from "./json-object.js";
 import { err, ok, type Result } from "../envelope.js";
 import { guardedRead } from "../path-guard.js";
 import type {
   ContractCheck,
   EvidenceBundle,
-  VerificationContract,
 } from "./evidence-bundle.js";
 import type { SddRoot } from "../root.js";
 
@@ -77,19 +77,19 @@ export function parseEvidenceBundle(
     });
   }
 
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+  if (!isJsonObject(parsed)) {
     return err("cannot-parse", `Evidence bundle is not a JSON object: ${relPath}`, {
       file: relPath,
       rule: "not-an-object",
     });
   }
 
-  const bundle = parsed as EvidenceBundle;
+  const bundle = parsed;
 
   if (bundle.task_id !== taskId) {
     return err(
       "cannot-parse",
-      `Evidence bundle task_id does not match requested task: ${String(bundle.task_id)} != ${taskId}`,
+      `Evidence bundle task_id does not match requested task: ${jsonValueText(bundle.task_id)} != ${taskId}`,
       { file: relPath, rule: "task-id-mismatch" },
     );
   }
@@ -194,19 +194,19 @@ export function parseVerificationContract(
     });
   }
 
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+  if (!isJsonObject(parsed)) {
     return err("cannot-parse", `Verification contract is not a JSON object: ${relPath}`, {
       file: relPath,
       rule: "not-an-object",
     });
   }
 
-  const contract = parsed as VerificationContract;
+  const contract = parsed;
 
   if (contract.task_id !== taskId) {
     return err(
       "cannot-parse",
-      `Verification contract task_id does not match requested task: ${String(contract.task_id)} != ${taskId}`,
+      `Verification contract task_id does not match requested task: ${jsonValueText(contract.task_id)} != ${taskId}`,
       { file: relPath, rule: "task-id-mismatch" },
     );
   }
@@ -221,14 +221,13 @@ export function parseVerificationContract(
   const checks: ContractChecksSummaryEntry[] = [];
   for (let i = 0; i < contract.checks.length; i += 1) {
     const rawCheck = contract.checks[i];
-    if (typeof rawCheck !== "object" || rawCheck === null) {
+    if (!isJsonObject(rawCheck)) {
       return err("cannot-parse", `Verification contract check at index ${i} is not an object: ${relPath}`, {
         file: relPath,
-        line: i,
         rule: "check-not-an-object",
       });
     }
-    const converted = toChecksSummaryEntry(rawCheck as ContractCheck, i);
+    const converted = toChecksSummaryEntry(rawCheck, i);
     if (!converted.ok) {
       return err(converted.error.code, converted.error.message, {
         ...converted.error.details,

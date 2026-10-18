@@ -79,7 +79,7 @@ function Test-RelationDeclared {
     foreach ($rel in $relations) {
         $from = Get-PropSafe $rel "from"
         $to = Get-PropSafe $rel "to"
-        if (($from -eq $A -and $to -eq $B) -or ($from -eq $B -and $to -eq $A)) { return $true }
+        if (($from -ceq $A -and $to -ceq $B) -or ($from -ceq $B -and $to -ceq $A)) { return $true }
     }
     return $false
 }
@@ -94,14 +94,14 @@ if ($RequirementsMd -ne "") {
             $bcRaw = [regex]::Replace($bcRaw, '\(.*\)\s*$', '')
             $bcParts = $bcRaw -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
             foreach ($ctx in $bcParts) {
-                if ($contextNames -notcontains $ctx) {
+                if ($contextNames -cnotcontains $ctx) {
                     $findings += "requirements.md: Bounded-Context '$ctx' not found in domain-contract.json"
                 }
             }
             if ($bcParts.Count -eq 2) {
                 $c1 = $bcParts[0]
                 $c2 = $bcParts[1]
-                if (($contextNames -contains $c1) -and ($contextNames -contains $c2)) {
+                if (($contextNames -ccontains $c1) -and ($contextNames -ccontains $c2)) {
                     if (-not (Test-RelationDeclared -A $c1 -B $c2)) {
                         $findings += "requirements.md: Bounded-Context lists two contexts ('$c1', '$c2') with no declared relation in context map"
                     }
@@ -120,7 +120,7 @@ if ($RequirementsMd -ne "") {
             $termMatches = [regex]::Matches($line, '\[\[term:([^\]]+)\]\]')
             foreach ($tm in $termMatches) {
                 $usedTerm = $tm.Groups[1].Value
-                if ($canonicalTerms -notcontains $usedTerm) {
+                if ($canonicalTerms -cnotcontains $usedTerm) {
                     $findings += "requirements.md:$($i + 1): unrecognized term '$usedTerm' (not a canonical term in domain-contract.json)"
                 }
             }
@@ -137,7 +137,7 @@ if ($DesignMd -ne "") {
         $linkMatches = [regex]::Matches($designText, '\[([A-Z][A-Za-z0-9]*)\]\(([^)]*aggregates/[^)]*)\)')
         foreach ($lm in $linkMatches) {
             $agg = $lm.Groups[1].Value
-            if ($aggregateNames -notcontains $agg) {
+            if ($aggregateNames -cnotcontains $agg) {
                 $findings += "design.md: aggregate reference '$agg' not found in domain-contract.json aggregates"
             }
             $card = Join-Path $domainDir (Join-Path "aggregates" "$agg.md")

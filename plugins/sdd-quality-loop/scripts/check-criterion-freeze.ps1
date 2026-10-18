@@ -75,7 +75,8 @@ if ($parents.Count -lt 2) {
 }
 $parent = $parents[1]
 
-$changed = @((Invoke-Git -GitArgs @("diff", "--name-only", $parent, $Commit)) -split "`n" |
+# Inspect both rename endpoints so reviewed source deletions cannot disappear.
+$changed = @((Invoke-Git -GitArgs @("diff", "--no-renames", "--name-only", $parent, $Commit)) -split "`n" |
     Where-Object { $_ -ne "" })
 if ($changed.Count -eq 0) {
     Write-Output "check-criterion-freeze: $short changes no files"
@@ -98,8 +99,10 @@ $violations = New-Object System.Collections.Generic.List[object]
 foreach ($path in $tasksFiles) {
     $after = Invoke-Git -GitArgs @("show", "${Commit}:${path}") -AllowFail
     $before = Invoke-Git -GitArgs @("show", "${parent}:${path}") -AllowFail
-    if ($null -eq $after -or $null -eq $before) { continue }
-    if ($after -cnotmatch '(?m)^Task-Review-Status:[ \t]*Passed[ \t]*\r?$') { continue }
+    if ($null -eq $before) { continue } # newly added: no prior criterion prose
+    if ($null -eq $after) { $after = "" } # deletion still changes reviewed prose
+    $frozenMark = '(?m)^Task-Review-Status:[ \t]*Passed[ \t]*\r?$'
+    if ($before -cnotmatch $frozenMark -and $after -cnotmatch $frozenMark) { continue }
 
     $beforeBlocks = Split-TaskBlocks (ConvertTo-NormalizedLines $before)
     $afterBlocks = Split-TaskBlocks (ConvertTo-NormalizedLines $after)

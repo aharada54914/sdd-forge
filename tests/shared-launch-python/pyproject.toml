@@ -11,4 +11,5 @@ files = [
   "plugins/sdd-review-loop/scripts/launch-impl-review.py",
   "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
   "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+  "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py",
 ]

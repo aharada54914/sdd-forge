@@ -35,6 +35,7 @@ mkdir -p "$REPO/specs/demo" "$REPO/specs/unreviewed" "$REPO/src"
 git -C "$REPO" init -q
 git -C "$REPO" config user.email t@example.invalid
 git -C "$REPO" config user.name "fixture"
+git -C "$REPO" config diff.renames true
 
 write_tasks() {
   # $1 = path, $2 = Task-Review-Status value, $3 = item-5 criterion text,
@@ -190,6 +191,62 @@ fi
 # --- CF.8 fail-closed on a bad ref ------------------------------------------
 expect_case "CF.8: an unknown ref is a runtime error, not a silent pass" \
   "not-a-real-ref" 2 "not a commit"
+
+# --- CF.9 review-state transitions cannot unfreeze criterion edits ---------
+transition_case() {
+  # Each case starts from its own committed before-image.
+  label="$1"; before_status="$2"; after_status="$3"; change="$4"; mixed="$5"; want="$6"
+  write_tasks "$REPO/specs/demo/tasks.md" "$before_status" "Original criterion" " " "Planned"
+  git -C "$REPO" add -A
+  git -C "$REPO" commit -qm "fixture: $label before" --allow-empty
+  if [ "$change" = "delete" ]; then
+    rm "$REPO/specs/demo/tasks.md"
+  else
+    criterion="Original criterion"
+    if [ "$change" = "rewrite" ]; then criterion="Changed criterion"; fi
+    write_tasks "$REPO/specs/demo/tasks.md" "$after_status" "$criterion" "x" "Implementation Complete"
+  fi
+  if [ "$mixed" = "yes" ]; then echo "$label" >> "$REPO/src/app.txt"; fi
+  git -C "$REPO" add -A
+  git -C "$REPO" commit -qm "fixture: $label after"
+  expect_case "$label" HEAD "$want"
+}
+transition_case "CF.9a: Passed to Pending cannot hide a criterion rewrite" Passed Pending rewrite yes 1
+transition_case "CF.9b: Passed to Pending lifecycle-only change passes" Passed Pending unchanged yes 0
+transition_case "CF.9c: Pending to Passed still checks the frozen after-image" Pending Passed rewrite yes 1
+transition_case "CF.9d: Pending to Pending criterion rewrite passes" Pending Pending rewrite yes 0
+transition_case "CF.9e: reset plus criterion rewrite remains valid in a specs-only commit" Passed Pending rewrite no 0
+transition_case "CF.9f: deleting a reviewed file alongside code is refused" Passed Pending delete yes 1
+transition_case "CF.9g: deleting an unreviewed file alongside code passes" Pending Pending delete yes 0
+
+# --- CF.10 rename detection must not hide the reviewed source path ---------
+for destination in "specs/demo/archive.md" "specs/renamed/tasks.md"; do
+  write_tasks "$REPO/specs/demo/tasks.md" "Passed" "Original criterion" " " "Planned"
+  git -C "$REPO" add -A
+  git -C "$REPO" commit -qm "fixture: reviewed rename source"
+  mkdir -p "$(dirname "$REPO/$destination")"
+  git -C "$REPO" mv specs/demo/tasks.md "$destination" || exit 1
+  # Keep enough content unchanged for Git to classify this as a rename.
+  write_tasks "$REPO/$destination" "Pending" "Changed criterion" " " "Planned"
+  echo "$destination" >> "$REPO/src/app.txt"
+  git -C "$REPO" add -A
+  git -C "$REPO" commit -qm "fixture: rename reviewed criteria alongside code"
+  rename_status="$(git -C "$REPO" diff --name-status HEAD^ HEAD)"
+  if ! printf '%s\n' "$rename_status" | awk -F '\t' -v dest="$destination" '
+    $1 ~ /^R[0-9]+$/ && $2 == "specs/demo/tasks.md" && $3 == dest { found = 1 }
+    END { exit !found }
+  '; then
+    bad "CF.10 fixture must contain a detected rename: $destination"
+  else
+    expect_case "CF.10: reviewed rename to $destination alongside code is refused" HEAD 1 \
+      "specs/demo/tasks.md: T-001"
+  fi
+  git -C "$REPO" reset --hard HEAD^ >/dev/null || exit 1
+  mkdir -p "$(dirname "$REPO/$destination")"
+  git -C "$REPO" mv specs/demo/tasks.md "$destination" || exit 1
+  git -C "$REPO" commit -qm "fixture: specs-only reviewed rename"
+  expect_case "CF.10 control: specs-only rename to $destination passes" HEAD 0 "is specs-only"
+done
 
 printf '\nResults: %s passed, %s failed.\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

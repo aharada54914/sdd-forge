@@ -70,6 +70,18 @@ interface CacheEntry {
  */
 const cache = new Map<CliName, CacheEntry>();
 
+// Slots belong to the process, not to an individual MCP request.
+let activeProbes = 0;
+const waitingProbes: Array<() => void> = [];
+
+async function acquireProbeSlot(): Promise<void> {
+  if (activeProbes < CONCURRENCY_LIMIT) {
+    activeProbes += 1;
+  } else {
+    await new Promise<void>((resolve) => waitingProbes.push(resolve));
+  }
+}
+
 /** Normalizes raw probe output to the first line, trimmed, <= 200 chars. */
 function normalizeVersion(raw: string): string {
   const firstLine = raw.split(/\r?\n/, 1)[0] ?? "";
@@ -180,38 +192,25 @@ export async function probeEngine(
   entries: readonly AllowlistEntry[],
   options: ProbeOptions = {},
 ): Promise<ProbeResult[]> {
-  const now = Date.now();
-  const results = new Array<ProbeResult>(entries.length);
-  const pending: number[] = [];
-
-  // Serve cache hits immediately; queue the rest.
-  for (let i = 0; i < entries.length; i += 1) {
-    const entry = entries[i]!;
-    const cached = cache.get(entry.name);
-    if (cached !== undefined && now - cached.at < CACHE_TTL_MS) {
-      results[i] = cached.result;
-    } else {
-      pending.push(i);
-    }
-  }
-
-  // Bounded worker pool over the pending indices.
-  let cursor = 0;
-  async function worker(): Promise<void> {
-    while (cursor < pending.length) {
-      const idx = pending[cursor]!;
-      cursor += 1;
-      const entry = entries[idx]!;
+  return Promise.all(entries.map(async (entry) => {
+    let cached = cache.get(entry.name);
+    if (cached !== undefined && Date.now() - cached.at < CACHE_TTL_MS) return cached.result;
+    await acquireProbeSlot();
+    try {
+      // A queued probe may have been cached while another request held its slot.
+      cached = cache.get(entry.name);
+      if (cached !== undefined && Date.now() - cached.at < CACHE_TTL_MS) {
+        return cached.result;
+      }
       const result = await probeOne(entry, options);
-      results[idx] = result;
       cache.set(entry.name, { at: Date.now(), result });
+      return result;
+    } finally {
+      const next = waitingProbes.shift();
+      if (next !== undefined) next();
+      else activeProbes -= 1;
     }
-  }
-
-  const workerCount = Math.min(CONCURRENCY_LIMIT, pending.length);
-  await Promise.all(Array.from({ length: workerCount }, () => worker()));
-
-  return results;
+  }));
 }
 
 /** Clears the TTL cache. Intended for tests only; unused in production paths. */

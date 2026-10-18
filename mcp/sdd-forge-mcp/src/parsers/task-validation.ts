@@ -3,6 +3,7 @@
  * reproduced 1:1 (message text included) for shell-equivalent failures.
  */
 
+import { isJsonObject } from "./json-object.js";
 import { verifyEvidenceBundle } from "./evidence-bundle.js";
 import { anyFileContaining, hasAnyFileMentioning, hasQualityGateVerdictPass } from "./report-lookup.js";
 import { guardedExists, guardedExistsNonEmpty, guardedRead } from "../path-guard.js";
@@ -152,9 +153,11 @@ function validateDoneEvidence(
     let contractRisk = "";
     if (contractRead.ok) {
       try {
-        const parsed = JSON.parse(contractRead.data.contents) as { task_id?: unknown; risk?: unknown };
-        contractTaskIdMatches = String(parsed.task_id ?? "") === taskId;
-        contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
+        const parsed: unknown = JSON.parse(contractRead.data.contents);
+        if (isJsonObject(parsed)) {
+          contractTaskIdMatches = parsed.task_id === taskId;
+          contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
+        }
       } catch {
         contractTaskIdMatches = false;
       }

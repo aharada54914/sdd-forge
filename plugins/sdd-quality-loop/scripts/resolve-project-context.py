@@ -2433,8 +2433,8 @@ def _block_reporting(
     round-9 fix existed to prevent: artifacts back at PRE, the SUCCESS-form
     Evidence still live from the commit, and no journal for anyone to notice.
 
-    Only the two post-publication branches need the second value; everything
-    else calls `_block` and is untouched."""
+    Publication failure finalization needs the second value; other Block
+    paths use `_block`."""
     try:
         _write_evidence(
             repo_root, feature, diagnostic_id, detail, state_marker,
@@ -2482,6 +2482,21 @@ def _block_reporting(
         ), False
     sys.stderr.write(f"capability-resolver: {diagnostic_id}: {detail}\n")
     return EXIT_BLOCK, True
+
+
+def _finalize_publication_failure(
+    transaction, rollback_complete, repo_root, feature, diagnostic_id, detail,
+    state_marker, capability_evaluations, *, context_binding, resolver_block,
+):
+    """Report an already-handled failure; retain its journal until both rollback
+    and the Block evidence write are complete. Never perform rollback here."""
+    result, wrote = _block_reporting(
+        repo_root, feature, diagnostic_id, detail, state_marker, capability_evaluations,
+        context_binding=context_binding, resolver_block=resolver_block,
+    )
+    if transaction is not None and rollback_complete and wrote:
+        _discard_batch(transaction.batch_dir)
+    return result
 
 
 def _projection(document, source_sha256):
@@ -3566,16 +3581,12 @@ def main(argv=None):
     try:
         transaction = _publish_bundle(repo_root, args.feature, targets)
     except ArtifactPublicationFailed as exc:
-        result, wrote = _block_reporting(
+        return _finalize_publication_failure(
+            exc.transaction, exc.rollback_complete,
             repo_root, args.feature, "artifact-publication-failed",
             f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {exc.rollback_clause}", state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
-        # The third and last Block-after-rollback path to adopt the same
-        # guard: the journal dies only once the failure record is durable.
-        if exc.transaction is not None and exc.rollback_complete and wrote:
-            _discard_batch(exc.transaction.batch_dir)
-        return result
 
     # Step 14's own Post-publication verification (B8, design.md step 4):
     # every rename above has now succeeded and the journal is still present,
@@ -3590,22 +3601,13 @@ def main(argv=None):
         )
     except SnapshotGenerationMismatch:
         rolled_back, complete = _rollback_transaction(transaction, discard=False)
-        result, wrote = _block_reporting(
+        return _finalize_publication_failure(
+            transaction, complete,
             repo_root, args.feature, "post-publication-generation-mismatch",
             f"{POST_PUBLICATION_MISMATCH_PREFIX}; {_rollback_clause(rolled_back, complete)}",
             state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
-        # BOTH conditions, not just `complete` (openai panel slot, round 12
-        # Major). `complete` says the rollback finished; `wrote` says the
-        # Block record actually reached Evidence's live path. Discarding on
-        # `complete` alone deleted the journal even when the Evidence write
-        # had failed, which is the very state round 9's deferral existed to
-        # prevent: artifacts back at PRE, the success-form Evidence still live
-        # from the commit, and no journal left for the recovery scan.
-        if complete and wrote:
-            _discard_batch(transaction.batch_dir)
-        return result
     except tuple(_POST_PUBLICATION_DEPENDENCY_BLOCKS) as exc:
         # A verification dependency that cannot even RUN is not a "mismatch"
         # -- re-labelling it `post-publication-generation-mismatch` would
@@ -3627,16 +3629,11 @@ def main(argv=None):
             mapped for exception_class, mapped in _POST_PUBLICATION_DEPENDENCY_BLOCKS.items()
             if isinstance(exc, exception_class)
         )
-        result, wrote = _block_reporting(
+        return _finalize_publication_failure(
+            transaction, _complete,
             repo_root, args.feature, diagnostic_id, detail, state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
-        # Same deferral, and the same two-condition guard, as the mismatch
-        # branch above: the journal outlives the rollback and dies only once
-        # the Block record is genuinely durable.
-        if _complete and wrote:
-            _discard_batch(transaction.batch_dir)
-        return result
 
     # Complete (design.md step 5): every rename succeeded AND the
     # post-publication verification passed -- delete the journal. This is
