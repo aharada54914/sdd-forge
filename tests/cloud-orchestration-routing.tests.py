@@ -212,10 +212,15 @@ class AzureRouting(unittest.TestCase):
                            ("quoted.yaml", b'"' + bytes([92]) + b'u0052esources": {}')):
             with self.subTest(name=name):
                 ref = self.put("bundle/unit/" + name, body)
-                result = self.invoke(expected=2)
-                self.assertEqual(result["result"], "BLOCKED")
-                self.assertIn(result["error_code"], ("OWNER_CONFLICT", "OWNER_UNRESOLVED"))
-                (self.root / ref["path"]).unlink()
+                try:
+                    result = self.invoke(expected=2)
+                    self.assertEqual(result["result"], "BLOCKED")
+                    self.assertIn(result["error_code"], ("OWNER_CONFLICT", "OWNER_UNRESOLVED"))
+                finally:
+                    (self.root / ref["path"]).unlink()
+                    for artifact in (self.root / self.evidence).iterdir():
+                        if artifact.is_file():
+                            artifact.unlink()
         self.put("bundle/unit/settings.json", {"description": "Resources", "enabled": True})
         self.assertEqual(self.invoke()["state"], "ROUTED")
 
