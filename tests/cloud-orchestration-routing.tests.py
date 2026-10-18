@@ -206,6 +206,19 @@ class AzureRouting(unittest.TestCase):
                 self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_CONFLICT")
                 (self.root/ref["path"]).unlink()
 
+    def test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route(self):
+        escaped = b'{"' + bytes([92]) + b'u0052esources":{"Bucket":{"Type":"AWS::S3::Bucket"}}}'
+        for name, body in (("escaped.json", escaped), ("escaped.yml", escaped),
+                           ("quoted.yaml", b'"' + bytes([92]) + b'u0052esources": {}')):
+            with self.subTest(name=name):
+                ref = self.put("bundle/unit/" + name, body)
+                result = self.invoke(expected=2)
+                self.assertEqual(result["result"], "BLOCKED")
+                self.assertIn(result["error_code"], ("OWNER_CONFLICT", "OWNER_UNRESOLVED"))
+                (self.root / ref["path"]).unlink()
+        self.put("bundle/unit/settings.json", {"description": "Resources", "enabled": True})
+        self.assertEqual(self.invoke()["state"], "ROUTED")
+
     def test_explicit_unsupported_inventory_and_provider_mismatch(self):
         for owner in ("terraform", "sam", "cloudformation", "azd", "cdk"):
             with self.subTest(owner=owner):
