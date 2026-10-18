@@ -1,0 +1,322 @@
+test_aws_backup_native_recent_query_window (__main__.FreshnessCases.test_aws_backup_native_recent_query_window) ... FAIL
+test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) ... 
+  test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='aws', completed='2026-10-18T04:00:00Z') ... FAIL
+  test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='aws', completed='2026-10-18T06:00:10Z') ... FAIL
+  test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='azure', completed='2026-10-18T04:00:00Z') ... FAIL
+  test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='azure', completed='2026-10-18T06:00:10Z') ... FAIL
+test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) ... 
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='monitoring', variant='healthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='workload', variant='healthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='workload', variant='unhealthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='backup', variant='healthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='backup', variant='unhealthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='monitoring', variant='healthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='monitoring', variant='unhealthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='workload', variant='healthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='workload', variant='unhealthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='backup', variant='healthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='backup', variant='unhealthy') ... ERROR
+test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... FAIL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='monitoring', variant='healthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 499, in monitoring
+    return self.metric(
+           ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 466, in metric
+    return samples(points, cfg, self.completed, utc(self.clock()), self.age)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='workload', variant='healthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 505, in workload
+    return self.metric(self.cfg["workload_metric"], workload=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 466, in metric
+    return samples(points, cfg, self.completed, utc(self.clock()), self.age)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='workload', variant='unhealthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 505, in workload
+    return self.metric(self.cfg["workload_metric"], workload=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 466, in metric
+    return samples(points, cfg, self.completed, utc(self.clock()), self.age)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='backup', variant='healthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 570, in backup
+    samples(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='backup', variant='unhealthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 570, in backup
+    samples(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='monitoring', variant='healthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 470, in monitoring
+    return self.metric(
+           ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 458, in metric
+    return samples(points, cfg, self.completed, utc(self.clock()), self.age)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='monitoring', variant='unhealthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 470, in monitoring
+    return self.metric(
+           ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 458, in metric
+    return samples(points, cfg, self.completed, utc(self.clock()), self.age)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='workload', variant='healthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 481, in workload
+    return self.metric(self.cfg["workload_metric"], workload=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 458, in metric
+    return samples(points, cfg, self.completed, utc(self.clock()), self.age)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='workload', variant='unhealthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 481, in workload
+    return self.metric(self.cfg["workload_metric"], workload=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 458, in metric
+    return samples(points, cfg, self.completed, utc(self.clock()), self.age)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='backup', variant='healthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 525, in backup
+    _, stamp = samples(
+               ^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='backup', variant='unhealthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 525, in backup
+    _, stamp = samples(
+               ^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 361, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+FAIL: test_aws_backup_native_recent_query_window (__main__.FreshnessCases.test_aws_backup_native_recent_query_window)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 523, in test_aws_backup_native_recent_query_window
+    self.assertEqual(query["createdAfter"], [str(1792303350 - 300)])
+AssertionError: Lists differ: ['1792296000'] != ['1792303050']
+
+First differing element 0:
+'1792296000'
+'1792303050'
+
+- ['1792296000']
+?       ^^^
+
++ ['1792303050']
+?       ^ + +
+
+
+======================================================================
+FAIL: test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='aws', completed='2026-10-18T04:00:00Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 502, in test_metric_query_recent_postcompletion_minute_window
+    self.assertEqual(query["StartTime"], [expected])
+AssertionError: Lists differ: ['2026-10-18T04:00:00Z'] != ['2026-10-18T05:58:00Z']
+
+First differing element 0:
+'2026-10-18T04:00:00Z'
+'2026-10-18T05:58:00Z'
+
+- ['2026-10-18T04:00:00Z']
+?               ^ ^^
+
++ ['2026-10-18T05:58:00Z']
+?               ^ ^^
+
+
+======================================================================
+FAIL: test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='aws', completed='2026-10-18T06:00:10Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 502, in test_metric_query_recent_postcompletion_minute_window
+    self.assertEqual(query["StartTime"], [expected])
+AssertionError: Lists differ: ['2026-10-18T06:00:10Z'] != ['2026-10-18T06:01:00Z']
+
+First differing element 0:
+'2026-10-18T06:00:10Z'
+'2026-10-18T06:01:00Z'
+
+- ['2026-10-18T06:00:10Z']
+?                   --
+
++ ['2026-10-18T06:01:00Z']
+?                  ++
+
+
+======================================================================
+FAIL: test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='azure', completed='2026-10-18T04:00:00Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 506, in test_metric_query_recent_postcompletion_minute_window
+    self.assertEqual(
+AssertionError: Lists differ: ['2026-10-18T04:00:00Z/2026-10-18T06:02:30Z'] != ['2026-10-18T05:58:00Z/2026-10-18T06:02:30Z']
+
+First differing element 0:
+'2026-10-18T04:00:00Z/2026-10-18T06:02:30Z'
+'2026-10-18T05:58:00Z/2026-10-18T06:02:30Z'
+
+- ['2026-10-18T04:00:00Z/2026-10-18T06:02:30Z']
+?               ^ ^^
+
++ ['2026-10-18T05:58:00Z/2026-10-18T06:02:30Z']
+?               ^ ^^
+
+
+======================================================================
+FAIL: test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='azure', completed='2026-10-18T06:00:10Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 506, in test_metric_query_recent_postcompletion_minute_window
+    self.assertEqual(
+AssertionError: Lists differ: ['2026-10-18T06:00:10Z/2026-10-18T06:02:30Z'] != ['2026-10-18T06:01:00Z/2026-10-18T06:02:30Z']
+
+First differing element 0:
+'2026-10-18T06:00:10Z/2026-10-18T06:02:30Z'
+'2026-10-18T06:01:00Z/2026-10-18T06:02:30Z'
+
+- ['2026-10-18T06:00:10Z/2026-10-18T06:02:30Z']
+?                   --
+
++ ['2026-10-18T06:01:00Z/2026-10-18T06:02:30Z']
+?                  ++
+
+
+======================================================================
+FAIL: test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 419, in test_old_deployment_recent_samples_and_time_order
+    self.assertTrue(fresh("2026-10-18T06:01:30Z", context, 300, now))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.034s
+
+FAILED (failures=6, errors=11)

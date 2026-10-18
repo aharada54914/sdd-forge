@@ -1,0 +1,61 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-006",
+  "run_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "session_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "agent_instance_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T10:30:10Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "freshness/specs/cloud-orchestration/verification/T-006/attempt-2/root-freshness-probe.json",
+      "sha256": "8a170c41a538c0821bfe46a810cde15f55fdfe0713fde5d1d4df63ab853eeef7"
+    },
+    {
+      "path": "freshness/specs/cloud-orchestration/verification/T-006/attempt-2/root-freshness-feedback.json",
+      "sha256": "ce255753ca795b19cdd7d0a5e0e33eb29be986f74cbad214f7a01d92a573248d"
+    },
+    {
+      "path": "freshness/specs/cloud-orchestration/verification/T-006/api/cloudwatch.json",
+      "sha256": "56b0a8bf43250cc80f9d74208da12665445d7b3ceba5a30111e2bc29e427272a"
+    },
+    {
+      "path": "freshness/specs/cloud-orchestration/verification/T-006/api/azure-metrics.json",
+      "sha256": "d7252e38426128a151a601d167b81da7cfc556070a87ec1809969af33517c6ba"
+    },
+    {
+      "path": "freshness/specs/cloud-orchestration/verification/T-006/api/azure-backup.json",
+      "sha256": "b970baf29949091c3d7ab7c73e4854e9870479f7e738c619150f949844053a97"
+    },
+    {
+      "path": "freshness/specs/cloud-orchestration/verification/T-006/api/backup.json",
+      "sha256": "da49a9f7562e493e913fd387379ad7d29a443cd0f977321cca9885bc6dc8e73b"
+    },
+    {
+      "path": "freshness/specs/cloud-orchestration/verification/T-006/api/sources.json",
+      "sha256": "698f30b1934d924804d370a16d2251c3665c499a80a959b439e2596d8963ea88"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "plugins/sdd-azure-cloud/scripts/",
+    "plugins/sdd-aws-cloud/scripts/",
+    "plugins/sdd-azure-cloud/references/",
+    "plugins/sdd-aws-cloud/references/",
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/cloud-orchestration-contracts.tests.py",
+    "contracts/cloud-collection-context.schema.json",
+    "contracts/cloud-check-result.schema.json",
+    "contracts/cloud-observation-evidence.schema.json",
+    "reports/implementation/cloud-orchestration/T-006.md",
+    "specs/cloud-orchestration/verification/T-006/attempt-2/"
+  ]
+}

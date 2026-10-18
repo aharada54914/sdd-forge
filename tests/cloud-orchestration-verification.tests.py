@@ -408,6 +408,121 @@ class ReducerCases(unittest.TestCase):
                 self.reduce(case)
 
 
+class FreshnessCases(unittest.TestCase):
+    def test_old_deployment_recent_samples_and_time_order(self):
+        from cloud_verification import fresh, samples
+
+        context = dict(
+            completed_at="2026-10-18T04:00:00Z", collected_at="2026-10-18T06:02:30Z"
+        )
+        now = context["collected_at"]
+        self.assertTrue(fresh("2026-10-18T06:01:30Z", context, 300, now))
+        self.assertEqual(
+            samples(
+                [("2026-10-18T06:01:30Z", 1)],
+                dict(minimum=1, maximum=1),
+                context["completed_at"],
+                now,
+                300,
+            ),
+            (True, "2026-10-18T06:01:30Z"),
+        )
+        for sample in (
+            "2026-10-18T03:59:59Z",
+            "2026-10-18T05:57:29Z",
+            "2026-10-18T06:02:31Z",
+        ):
+            with self.subTest(sample=sample):
+                self.assertFalse(fresh(sample, context, 300, now))
+        self.assertFalse(
+            fresh("2026-10-18T06:01:30Z", context, 300, "2026-10-18T06:02:29Z")
+        )
+        self.assertTrue(fresh("2026-10-18T05:57:30Z", context, 300, now))
+        self.assertFalse(
+            samples(
+                [("2026-10-18T06:00:00Z", 0), ("2026-10-18T06:01:00Z", 1)],
+                dict(minimum=1, maximum=1),
+                context["completed_at"],
+                now,
+                300,
+            )[0]
+        )
+
+    def collector(self, provider, check, variant, completed):
+        sys.path.insert(0, str(ROOT / f"plugins/sdd-{provider}-cloud/scripts"))
+        module = __import__(provider + "_observation")
+        fixture = NativeFixture(provider, check, variant)
+        collector = module.Collector(
+            fixture.scope,
+            fixture.cfg,
+            fixture.credentials,
+            principal=fixture.principal,
+            completed=completed,
+            age=300,
+            clock=lambda: 1792303350,
+            transport=fixture,
+            run_id="synthetic-run",
+            unit_id="synthetic-unit",
+        )
+        return collector, fixture
+
+    def test_old_deployment_native_recent_metric_and_backup(self):
+        for provider in ("aws", "azure"):
+            for check in ("monitoring", "workload", "backup"):
+                for variant in ("healthy", "unhealthy"):
+                    with self.subTest(provider=provider, check=check, variant=variant):
+                        collector, fixture = self.collector(
+                            provider, check, variant, "2026-10-18T04:00:00Z"
+                        )
+                        self.assertEqual(
+                            getattr(collector, check)()[0], variant == "healthy"
+                        )
+                        self.assertTrue(fixture.calls)
+
+    def test_metric_query_recent_postcompletion_minute_window(self):
+        from urllib.parse import parse_qs, urlsplit
+
+        for provider in ("aws", "azure"):
+            for completed, expected in (
+                ("2026-10-18T04:00:00Z", "2026-10-18T05:58:00Z"),
+                ("2026-10-18T06:00:10Z", "2026-10-18T06:01:00Z"),
+            ):
+                with self.subTest(provider=provider, completed=completed):
+                    collector, fixture = self.collector(
+                        provider, "workload", "healthy", completed
+                    )
+                    # Query assertion remains executable even while the old freshness guard rejects the response.
+                    try:
+                        collector.workload()
+                    except c.ContractError:
+                        pass
+                    _, url, body = fixture.calls[-1]
+                    query = parse_qs(body.decode() if body else urlsplit(url).query)
+                    if provider == "aws":
+                        self.assertEqual(query["StartTime"], [expected])
+                        self.assertEqual(query["EndTime"], ["2026-10-18T06:02:30Z"])
+                        self.assertEqual(query["Period"], ["60"])
+                    else:
+                        self.assertEqual(
+                            query["timespan"], [expected + "/2026-10-18T06:02:30Z"]
+                        )
+                        self.assertEqual(query["interval"], ["PT1M"])
+                        self.assertEqual(query["AutoAdjustTimegrain"], ["false"])
+
+    def test_aws_backup_native_recent_query_window(self):
+        from urllib.parse import parse_qs, urlsplit
+
+        collector, fixture = self.collector(
+            "aws", "backup", "healthy", "2026-10-18T04:00:00Z"
+        )
+        try:
+            collector.backup()
+        except c.ContractError:
+            pass
+        query = parse_qs(urlsplit(fixture.calls[-1][1]).query)
+        self.assertEqual(query["createdAfter"], [str(1792303350 - 300)])
+
+
 class NativeCollectorCases(unittest.TestCase):
     def test_native_collectors_have_closed_configuration_and_read_only_boundaries(self):
         for provider in ("azure", "aws"):
@@ -502,16 +617,26 @@ class NativeCollectorCases(unittest.TestCase):
         )
 
     def test_azure_backup_does_not_require_future_recovery_id(self):
-        sys.path.insert(0, str(ROOT / 'plugins/sdd-azure-cloud/scripts'))
+        sys.path.insert(0, str(ROOT / "plugins/sdd-azure-cloud/scripts"))
         import azure_observation as module
-        fixture = NativeFixture('azure', 'backup', 'healthy')
+
+        fixture = NativeFixture("azure", "backup", "healthy")
         config = copy.deepcopy(fixture.cfg)
-        config['backup'].pop('recovery_point_id', None)
-        collector = module.Collector(fixture.scope, config, fixture.credentials,
-            principal=fixture.principal, completed='2026-10-18T06:00:00Z', age=300,
-            clock=lambda:1792303260, transport=fixture, run_id='synthetic-run', unit_id='synthetic-unit')
+        config["backup"].pop("recovery_point_id", None)
+        collector = module.Collector(
+            fixture.scope,
+            config,
+            fixture.credentials,
+            principal=fixture.principal,
+            completed="2026-10-18T06:00:00Z",
+            age=300,
+            clock=lambda: 1792303260,
+            transport=fixture,
+            run_id="synthetic-run",
+            unit_id="synthetic-unit",
+        )
         self.assertTrue(collector.backup()[0])
-        self.assertTrue(any('/recoveryPoints?' in url for _,url,_ in fixture.calls))
+        self.assertTrue(any("/recoveryPoints?" in url for _, url, _ in fixture.calls))
 
     def test_expired_collector_lease_has_zero_reads(self):
         for provider in ("aws", "azure"):
@@ -633,7 +758,6 @@ def observation_config(provider: str) -> dict:
             protected_item_id=protected,
             policy_id=prefix
             + "Microsoft.RecoveryServices/vaults/vault/backupPolicies/daily",
-            recovery_point_id=protected + "/recoveryPoints/1",
         ),
     )
 
@@ -828,12 +952,17 @@ class NativeFixture:
                     lastBackupTime=self.stamp(),
                 ),
             )
-        if path == b["recovery_point_id"]:
+        if path == b["protected_item_id"] + "/recoveryPoints":
             return dict(
-                id=path,
-                properties=dict(
-                    recoveryPointTime=self.stamp(), recoveryPointType="AppConsistent"
-                ),
+                value=[
+                    dict(
+                        id=path + "/newly-created",
+                        properties=dict(
+                            recoveryPointTime=self.stamp(),
+                            recoveryPointType="AppConsistent",
+                        ),
+                    )
+                ]
             )
         raise AssertionError("unrecognized fixed Azure read " + path)
 
@@ -1496,79 +1625,177 @@ class AzureObservationOrchestration(unittest.TestCase):
         import base64
         from types import SimpleNamespace
         from urllib.parse import urlsplit
-        spec = importlib.util.spec_from_file_location('azure_observation_execution', ROOT / 'tests/cloud-orchestration-execution.tests.py')
+
+        spec = importlib.util.spec_from_file_location(
+            "azure_observation_execution",
+            ROOT / "tests/cloud-orchestration-execution.tests.py",
+        )
         assert spec and spec.loader
         fixtures = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(fixtures)
-        case = fixtures.AzureExecution('test_exact_manifest_native_incremental_single_submission_no_compiler')
+        case = fixtures.AzureExecution(
+            "test_exact_manifest_native_incremental_single_submission_no_compiler"
+        )
         case.setUp()
         self.addCleanup(case.doCleanups)
-        params = {k:v['value'] for k,v in case.arm.parameters['parameters'].items()}
-        resources = {r['type']:change['resourceId'] for r,change in zip(case.arm.resources,case.arm.changes)}
-        cfg = dict(vm_id=resources['Microsoft.Compute/virtualMachines'], nic_id=resources['Microsoft.Network/networkInterfaces'],
-            subnet_id=params['subnetId'], identity_id=params['identityId'],
-            association_id=resources['Microsoft.Insights/dataCollectionRuleAssociations'], data_collection_rule_id=params['dataCollectionRuleId'],
-            workload_metric=dict(namespace='Workload',name='Healthy',minimum=1,maximum=1),
-            backup=dict(protected_item_id=resources['Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems'],
-                policy_id=params['backupPolicyId'], recovery_point_id=resources['Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems']+'/recoveryPoints/1'))
-        ref = case.req['local_context']['provider_config']
-        config = json.loads((case.root/ref['path']).read_bytes())
-        config['observation']=cfg
-        (case.root/ref['path']).write_bytes(encode(config))
-        ref['sha256']=hashlib.sha256(encode(config)).hexdigest()
-        case.request_bytes=encode(case.req)
-        (case.root/case.request_ref['path']).write_bytes(case.request_bytes)
-        case.request_ref['sha256']=hashlib.sha256(case.request_bytes).hexdigest()
-        case.executor=case.stage('prepare')
+        params = {k: v["value"] for k, v in case.arm.parameters["parameters"].items()}
+        resources = {
+            r["type"]: change["resourceId"]
+            for r, change in zip(case.arm.resources, case.arm.changes)
+        }
+        cfg = dict(
+            vm_id=resources["Microsoft.Compute/virtualMachines"],
+            nic_id=resources["Microsoft.Network/networkInterfaces"],
+            subnet_id=params["subnetId"],
+            identity_id=params["identityId"],
+            association_id=resources[
+                "Microsoft.Insights/dataCollectionRuleAssociations"
+            ],
+            data_collection_rule_id=params["dataCollectionRuleId"],
+            workload_metric=dict(
+                namespace="Workload", name="Healthy", minimum=1, maximum=1
+            ),
+            backup=dict(
+                protected_item_id=resources[
+                    "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems"
+                ],
+                policy_id=params["backupPolicyId"],
+            ),
+        )
+        ref = case.req["local_context"]["provider_config"]
+        config = json.loads((case.root / ref["path"]).read_bytes())
+        config["observation"] = cfg
+        (case.root / ref["path"]).write_bytes(encode(config))
+        ref["sha256"] = hashlib.sha256(encode(config)).hexdigest()
+        case.request_bytes = encode(case.req)
+        (case.root / case.request_ref["path"]).write_bytes(case.request_bytes)
+        case.request_ref["sha256"] = hashlib.sha256(case.request_bytes).hexdigest()
+        case.executor = case.stage("prepare")
         case.prepare()
-        applied=case.apply()
-        self.assertEqual(applied['result'],'PASS')
-        self.g.require_native_apply(applied,case.executor)
-        for changed in [dict(applied,result='NO_CHANGE'),dict(applied,operation='reconcile'),dict(applied,native_operation_id='wrong')]:
-            with self.assertRaises(ValueError): self.g.require_native_apply(changed,case.executor)
-        health=NativeFixture('azure','all','healthy')
-        health.cfg=cfg
-        health.scope=case.req['scope']
-        health.principal=fixtures.APPLY_OBJECT
-        native_id=case.executor.client.native_id
-        original_arm=case.arm.request
-        def wire(method,url,headers,body=None):
-            path=urlsplit(url).path
-            if path==native_id+'/operations':
-                return SimpleNamespace(status=200,headers={},body=encode(dict(value=[dict(id=native_id+'/operations/'+str(i),operationId=str(i),
-                    properties=dict(provisioningState='Succeeded',provisioningOperation='Create',
-                        targetResource=dict(id=change['resourceId'],resourceType=change['after']['type']))) for i,change in enumerate(case.arm.changes)])))
-            if path==native_id:
-                response=original_arm(method,url,headers,body)
-                value=json.loads(response.body)
-                value['properties']['outputResources']=[dict(id=v) for v in resources.values()]
-                return SimpleNamespace(status=response.status,headers=response.headers,body=encode(value))
-            return health.request(method,url,headers,body)
-        workflow=self.g.workflow_template(executor_repository='synthetic/executor',executor_revision='d'*40,
-            subscription=case.req['scope']['account_id'],region=case.req['scope']['region'],input_repository='synthetic/plans')
-        auth=case.auths[-1]
-        original_auth=auth.request
-        def metadata(method,url,headers,body=None):
-            if '/contents/' in url:
-                return encode(dict(type='file',encoding='base64',path=fixtures.WORKFLOW,content=base64.b64encode(encode(workflow)).decode()))
-            if '/attempts/1/jobs?' in url:
-                return encode(dict(total_count=1,jobs=[dict(id=456,run_id=123,run_attempt=1,head_sha=fixtures.REV,name='apply',status='completed',conclusion='success',
-                    started_at='2026-10-18T06:00:00Z',completed_at='2026-10-18T06:01:00Z',steps=[dict(name='Execute original apply; require native completion',
-                        status='completed',conclusion='success',started_at='2026-10-18T06:00:01Z',completed_at='2026-10-18T06:00:59Z')])]))
-            if url.endswith('/actions/runs/123'):
-                return encode(dict(auth.run,status='completed',conclusion='success'))
-            return original_auth(method,url,headers,body)
-        case.executor.clock=lambda:1792303320
-        before=(case.root/case.request_ref['path']).read_bytes()
-        writes=case.arm.submissions
-        with patch.object(case.arm,'request',side_effect=wire),patch.object(auth,'request',side_effect=metadata):
-            result=case.executor.observe(case.directory+'/observed.json','verify')
-        verification=json.loads((case.root/(case.directory+'/observed.json.verification.json')).read_bytes())
-        self.assertEqual(verification['overall_result'],'PASS')
-        self.assertFalse(verification['evidence_complete'])
-        self.assertEqual(result['result'],'BLOCKED')
-        self.assertEqual(case.arm.submissions,writes)
-        self.assertEqual((case.root/case.request_ref['path']).read_bytes(),before)
+        applied = case.apply()
+        self.assertEqual(applied["result"], "PASS")
+        self.g.require_native_apply(applied, case.executor)
+        for changed in [
+            dict(applied, result="NO_CHANGE"),
+            dict(applied, operation="reconcile"),
+            dict(applied, native_operation_id="wrong"),
+        ]:
+            with self.assertRaises(ValueError):
+                self.g.require_native_apply(changed, case.executor)
+        health = NativeFixture("azure", "all", "healthy")
+        health.cfg = cfg
+        health.scope = case.req["scope"]
+        health.principal = fixtures.APPLY_OBJECT
+        native_id = case.executor.client.native_id
+        original_arm = case.arm.request
+
+        def wire(method, url, headers, body=None):
+            path = urlsplit(url).path
+            if path == native_id + "/operations":
+                return SimpleNamespace(
+                    status=200,
+                    headers={},
+                    body=encode(
+                        dict(
+                            value=[
+                                dict(
+                                    id=native_id + "/operations/" + str(i),
+                                    operationId=str(i),
+                                    properties=dict(
+                                        provisioningState="Succeeded",
+                                        provisioningOperation="Create",
+                                        targetResource=dict(
+                                            id=change["resourceId"],
+                                            resourceType=change["after"]["type"],
+                                        ),
+                                    ),
+                                )
+                                for i, change in enumerate(case.arm.changes)
+                            ]
+                        )
+                    ),
+                )
+            if path == native_id:
+                response = original_arm(method, url, headers, body)
+                value = json.loads(response.body)
+                value["properties"]["outputResources"] = [
+                    dict(id=v) for v in resources.values()
+                ]
+                return SimpleNamespace(
+                    status=response.status, headers=response.headers, body=encode(value)
+                )
+            return health.request(method, url, headers, body)
+
+        workflow = self.g.workflow_template(
+            executor_repository="synthetic/executor",
+            executor_revision="d" * 40,
+            subscription=case.req["scope"]["account_id"],
+            region=case.req["scope"]["region"],
+            input_repository="synthetic/plans",
+        )
+        auth = case.auths[-1]
+        original_auth = auth.request
+
+        def metadata(method, url, headers, body=None):
+            if "/contents/" in url:
+                return encode(
+                    dict(
+                        type="file",
+                        encoding="base64",
+                        path=fixtures.WORKFLOW,
+                        content=base64.b64encode(encode(workflow)).decode(),
+                    )
+                )
+            if "/attempts/1/jobs?" in url:
+                return encode(
+                    dict(
+                        total_count=1,
+                        jobs=[
+                            dict(
+                                id=456,
+                                run_id=123,
+                                run_attempt=1,
+                                head_sha=fixtures.REV,
+                                name="apply",
+                                status="completed",
+                                conclusion="success",
+                                started_at="2026-10-18T06:00:00Z",
+                                completed_at="2026-10-18T06:01:00Z",
+                                steps=[
+                                    dict(
+                                        name="Execute original apply; require native completion",
+                                        status="completed",
+                                        conclusion="success",
+                                        started_at="2026-10-18T06:00:01Z",
+                                        completed_at="2026-10-18T06:00:59Z",
+                                    )
+                                ],
+                            )
+                        ],
+                    )
+                )
+            if url.endswith("/actions/runs/123"):
+                return encode(dict(auth.run, status="completed", conclusion="success"))
+            return original_auth(method, url, headers, body)
+
+        case.executor.clock = lambda: 1792303320
+        before = (case.root / case.request_ref["path"]).read_bytes()
+        writes = case.arm.submissions
+        with (
+            patch.object(case.arm, "request", side_effect=wire),
+            patch.object(auth, "request", side_effect=metadata),
+        ):
+            result = case.executor.observe(case.directory + "/observed.json", "verify")
+        verification = json.loads(
+            (
+                case.root / (case.directory + "/observed.json.verification.json")
+            ).read_bytes()
+        )
+        self.assertEqual(verification["overall_result"], "PASS")
+        self.assertFalse(verification["evidence_complete"])
+        self.assertEqual(result["result"], "BLOCKED")
+        self.assertEqual(case.arm.submissions, writes)
+        self.assertEqual((case.root / case.request_ref["path"]).read_bytes(), before)
 
 
 class ObservationWire:
