@@ -1,0 +1,168 @@
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ERROR
+test_explicit_provider_and_installed_identity_are_required (__main__.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required) ... ERROR
+test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... 
+  test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) (provider='azure', field='provider') ... FAIL
+  test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) (provider='azure', field='owner') ... FAIL
+  test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) (provider='azure', field='route') ... FAIL
+test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... FAIL
+test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) ... 
+  test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='azure', phase='route') ... FAIL
+  test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='azure', phase='prepare') ... FAIL
+  test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='azure', phase='apply') ... FAIL
+  test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='aws', phase='route') ... FAIL
+  test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='aws', phase='prepare') ... FAIL
+  test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='aws', phase='apply') ... FAIL
+
+======================================================================
+ERROR: test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1235, in test_catalog_and_every_native_ci_cell_admit_all_six_suites
+    catalog = runner.load_catalog(ROOT / "tests/verification-catalog.json", ROOT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification.py", line 82, in load_catalog
+    raise ValueError('unregistered test suites: ' + ', '.join(sorted(candidates - suites.keys())))
+ValueError: unregistered test suites: tests/cloud-orchestration-contracts.tests.py, tests/cloud-orchestration-execution.tests.py, tests/cloud-orchestration-routing.tests.py, tests/cloud-orchestration-verification.tests.py, tests/install-cloud.tests.py, tests/sdd-domain-multitarget-foundation.tests.py
+
+======================================================================
+ERROR: test_explicit_provider_and_installed_identity_are_required (__main__.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1226, in test_explicit_provider_and_installed_identity_are_required
+    self.assertEqual(json.loads(result.stdout)["schema"], "cloud-input-error/v1")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+======================================================================
+FAIL: test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) (provider='azure', field='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1207, in test_request_mismatches_and_no_implicit_approval
+    code, routed = self.call(case, provider, "route", True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) (provider='azure', field='owner')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1207, in test_request_mismatches_and_no_implicit_approval
+    code, routed = self.call(case, provider, "route", True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) (provider='azure', field='route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1207, in test_request_mismatches_and_no_implicit_approval
+    code, routed = self.call(case, provider, "route", True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1211, in test_request_mismatches_and_no_implicit_approval
+    self.assertEqual(self.call(case, provider, "route", True, raw)[0], 2)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='azure', phase='route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1180, in test_same_canonical_request_route_and_direct_write_denial
+    code, routed = self.call(case, provider, phase, True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='azure', phase='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1180, in test_same_canonical_request_route_and_direct_write_denial
+    code, routed = self.call(case, provider, phase, True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='azure', phase='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1180, in test_same_canonical_request_route_and_direct_write_denial
+    code, routed = self.call(case, provider, phase, True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='aws', phase='route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1180, in test_same_canonical_request_route_and_direct_write_denial
+    code, routed = self.call(case, provider, phase, True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='aws', phase='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1180, in test_same_canonical_request_route_and_direct_write_denial
+    code, routed = self.call(case, provider, phase, True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) (provider='aws', phase='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1180, in test_same_canonical_request_route_and_direct_write_denial
+    code, routed = self.call(case, provider, phase, True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1167, in call
+    self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+AssertionError: b'' is not true : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/tmp/cloud-T011-installed-bxw695r0/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py': [Errno 2] No such file or directory
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.003s
+
+FAILED (failures=10, errors=2)
+exit_code=1

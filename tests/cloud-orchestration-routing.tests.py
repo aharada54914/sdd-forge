@@ -1108,5 +1108,148 @@ else: raise SystemExit(1)
         self.assertEqual(self.invoke("plan",expected=2)["error_code"],"UNLOCKED_SOURCE")
 
 
+# T-011: real installed subprocess integration, never a native model-host trial.
+class BootstrapInstalled(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import shutil
+        cls.temp = tempfile.TemporaryDirectory(prefix="cloud-T011-installed-")
+        cls.addClassCleanup(cls.temp.cleanup)
+        cls.install = Path(cls.temp.name).resolve() / "installed"
+        source = Path(cls.temp.name).resolve() / "source"
+        source.mkdir()
+        spec = importlib.util.spec_from_file_location("install_cloud", ROOT / "tests/install-cloud.tests.py")
+        assert spec and spec.loader
+        packaging = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(packaging)
+        packaging.fixture(source)
+        if os.name == "nt":
+            shell = shutil.which("pwsh")
+            if not shell:
+                raise AssertionError("Native Windows packaging requires PowerShell")
+            command = [shell, "-NoProfile", "-Command",
+                       "& '" + str(ROOT / "install.ps1") + "' -InstallRoot '" + str(cls.install)
+                       + "' -SourceDirectory '" + str(source)
+                       + "' -Target FilesOnly -Plugins 'sdd-bootstrap','sdd-azure-cloud','sdd-aws-cloud'"
+                       + " -SkipAgentInstall -SkipMcp"]
+        else:
+            command = ["bash", str(ROOT / "install.sh"), "--install-root", str(cls.install),
+                       "--target", "FilesOnly", "--plugins", "sdd-bootstrap,sdd-azure-cloud,sdd-aws-cloud",
+                       "--skip-agent-install", "--skip-mcp", "--source-directory", str(source)]
+        result = subprocess.run(command, text=True, capture_output=True, timeout=180)
+        if result.returncode:
+            raise AssertionError(result.stdout + result.stderr)
+
+    def fixture(self, provider):
+        case = AwsRouting() if provider == "aws" else LocalRoutingFixture()
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        return case
+
+    def call(self, case, provider, phase, bootstrap, request_bytes=None, extra=()):
+        source = case.root / "request.json"
+        raw = request_bytes if request_bytes is not None else json.dumps(case.req).encode()
+        source.write_bytes(raw)
+        plugin = self.install / "plugins" / ("sdd-" + provider + "-cloud")
+        output = case.evidence + "/" + ("bootstrap" if bootstrap else "direct") + ".json"
+        command = [sys.executable, "-B"]
+        if bootstrap:
+            command += [str(self.install / "plugins/sdd-bootstrap/scripts/cloud-routing.py"),
+                        "--provider", provider, "--plugin-root", str(plugin)]
+        else:
+            command += [str(plugin / "scripts/cloud.py")]
+        command += [phase, "--request", str(source), "--output", output, *extra]
+        env = {"PATH": os.defpath, "HOME": str(case.root), "PYTHONDONTWRITEBYTECODE": "1",
+               "CLOUD_WORKSPACE_ROOT": str(case.root),
+               "CLOUD_SHARED_RUNTIME_ROOT": str(plugin / "runtime/scripts")}
+        result = subprocess.run(command, cwd=case.root, env=env, capture_output=True, timeout=30)
+        self.assertEqual(source.read_bytes(), raw, "Canonical request bytes changed")
+        self.assertTrue(result.stdout.strip(), result.stderr.decode(errors="replace"))
+        value = case.contracts.parse_artifact(result.stdout)
+        for artifact in (case.root / case.evidence).iterdir():
+            if artifact.is_file():
+                artifact.unlink()
+        return result.returncode, value
+
+    def test_same_canonical_request_route_and_direct_write_denial(self):
+        for provider in ("azure", "aws"):
+            case = self.fixture(provider)
+            for phase in ("route", "prepare", "apply"):
+                with self.subTest(provider=provider, phase=phase):
+                    direct_code, direct = self.call(case, provider, phase, False)
+                    code, routed = self.call(case, provider, phase, True)
+                    self.assertEqual(code, direct_code)
+                    for key in ("run_id", "unit_id", "provider", "operation", "state", "result",
+                                "error_code", "input_manifest_sha256"):
+                        self.assertEqual(routed[key], direct[key], key)
+                    self.assertNotIn("native_operation_id", routed)
+                    if os.name == "nt":
+                        self.assertEqual(code, 2)
+                        self.assertEqual(routed["error_code"], "UNSUPPORTED_FILESYSTEM")
+                    else:
+                        self.assertEqual(code, 0 if phase == "route" else 2)
+                        self.assertEqual(routed["state"], "ROUTED" if phase == "route" else "BLOCKED")
+
+    def test_request_mismatches_and_no_implicit_approval(self):
+        if os.name == "nt":
+            self.skipTest("POSIX request-file guards unavailable; native typed refusal tested separately")
+        for provider in ("azure", "aws"):
+            for field, value, error in (("provider", "aws" if provider == "azure" else "azure", "PROVIDER_MISMATCH"),
+                                        ("owner", "terraform", "OWNER_UNSUPPORTED"),
+                                        ("route", "other", "ROUTE_UNSUPPORTED")):
+                with self.subTest(provider=provider, field=field):
+                    case = self.fixture(provider)
+                    self.assertEqual(self.call(case, provider, "route", False)[0], 0)
+                    case.req[field] = value
+                    direct_code, direct = self.call(case, provider, "route", False)
+                    self.assertEqual(direct_code, 2)
+                    self.assertIn(direct["schema"], ("cloud-input-error/v1", "cloud-operation-result/v1"))
+                    code, routed = self.call(case, provider, "route", True)
+                    self.assertEqual((code, routed["error_code"]), (direct_code, direct["error_code"]))
+            case = self.fixture(provider)
+            for raw in (b'{"provider":"azure","provider":"aws"}', b'{"schema":"cloud-run-request/v9"}'):
+                self.assertEqual(self.call(case, provider, "route", True, raw)[0], 2)
+            for phase in ("prepare", "apply"):
+                code, value = self.call(case, provider, phase, True, extra=("--approve",))
+                self.assertEqual(code, 2)
+                self.assertEqual(value["schema"], "cloud-input-error/v1")
+
+    def test_explicit_provider_and_installed_identity_are_required(self):
+        case = self.fixture("azure")
+        seam = self.install / "plugins/sdd-bootstrap/scripts/cloud-routing.py"
+        for arguments in ([], ["--provider", "Azure"], ["--provider", "azure", "--plugin-root",
+                           str(self.install / "plugins/sdd-aws-cloud")]):
+            result = subprocess.run([sys.executable, "-B", str(seam), *arguments, "route",
+                                     "--request", str(case.root / "request.json"), "--output", "out.json"],
+                                    capture_output=True, timeout=15)
+            self.assertEqual(result.returncode, 2)
+            self.assertEqual(json.loads(result.stdout)["schema"], "cloud-input-error/v1")
+
+
+class NormalDriverRegistration(unittest.TestCase):
+    def test_catalog_and_every_native_ci_cell_admit_all_six_suites(self):
+        spec = importlib.util.spec_from_file_location("verification", ROOT / "tests/verification.py")
+        assert spec and spec.loader
+        runner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(runner)
+        catalog = runner.load_catalog(ROOT / "tests/verification-catalog.json", ROOT)
+        expected = {"tests/cloud-orchestration-" + name + ".tests.py"
+                    for name in ("contracts", "routing", "execution", "verification")}
+        expected.update(("tests/install-cloud.tests.py", "tests/sdd-domain-multitarget-foundation.tests.py"))
+        for profile in ("local-posix", "local-powershell", "ci-cloud"):
+            self.assertTrue(expected <= set(catalog["profiles"].get(profile, [])), profile)
+        spec = importlib.util.spec_from_file_location("verification_workflow", ROOT / "tests/verification-workflow.py")
+        assert spec and spec.loader
+        workflow = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(workflow)
+        data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
+        self.assertEqual(workflow.coverage_errors(data, catalog), [])
+        for os_name in ("ubuntu-latest", "macos-latest", "windows-latest"):
+            isolated = copy.deepcopy(data)
+            isolated["jobs"] = {"test": isolated["jobs"]["test"]}
+            isolated["jobs"]["test"]["strategy"]["matrix"]["os"] = [os_name]
+            self.assertTrue(expected <= workflow.workflow_coverage(isolated, catalog)["test"], os_name)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

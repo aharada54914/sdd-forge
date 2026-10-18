@@ -1,0 +1,10 @@
+{
+  "run_id": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
+  "session_id": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
+  "agent_instance_id": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
+  "source": "Native host identities supplied explicitly by caller in task briefing; not read from process environment",
+  "model": "openai/gpt-6-astra",
+  "effort": "high",
+  "scratch_root": "/tmp/cloud-T011-01a14fdf",
+  "base_revision": "d901a3750d6b563622e8f06100c0043896022645"
+}

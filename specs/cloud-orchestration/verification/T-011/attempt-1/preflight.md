@@ -1,0 +1,14 @@
+### WFI-001 preflight before implementation
+
+| Persisted field / claim | Counterpart | Failing mismatch test and actual boundary |
+|---|---|---|
+| Six suite paths/runtime and local/CI profile membership | Actual six test files; Bash/PowerShell catalog consumers; each native CI OS | NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites invokes actual load_catalog with current mismatched inventory: rejects six unregistered existing suites. Not missing setup. |
+| provider selection / installed plugin identity | Explicit user provider / installed manifest name | BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required; new installed seam absent at Red, not executed seam validation. |
+| request provider, owner, route | Canonical request schema and selected installed CLI | BootstrapInstalled.test_request_mismatches_and_no_implicit_approval feeds actual mismatches to installed direct callable with matched route controls; direct guards reject. Bootstrap then fails at missing seam, NOT historical executed mismatch validation. Green must execute both bodies. |
+| run_id, unit_id, provider, operation, state, result, error_code, input_manifest_sha256; absence of native_operation_id | Same request bytes and installed direct CLI envelope | BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial; direct route and prepare/apply executed, bootstrap missing-component Red. No new result contract is introduced. |
+| request path/bytes and output path | Same direct CLI argv / canonical safe-file boundary | Installed subprocess parity tests plus existing malformed/path/owner/policy test bodies; Green must prove exact digest parity, denied overwrites/import/mixed owners and zero fabricated approval. |
+| identity, cost, input hashes, report output hashes | Caller allocation identities / snapshot files / v1 manifest and v2 report validators | Existing validator called against preserved snapshot; evidence records actual outcomes, not new authorization fields. |
+
+Red commands and genuine output: red-routing-registration.log (first installer invocation erroneously used remote default: setup failure only); red-installed.log (fixed local installer, initial assertion expected result for identity-free errors); red-committed.log (correct typed envelope assertions). Registration mismatch reaches existing loader. Missing bootstrap executable is not proof of executed field validation. No prior candidate tests are retroactive Red. All new seam mismatch bodies require post-implementation matched controls and sensitivity before claims.
+
+No schema or cloud authority is added. Same canonical request is forwarded to installed provider validation; no second owner/executor, automatic migration/import, or local approval. Platform/test fixture repairs do not relax production containment. CI path-selection remains unapproved and untouched.
