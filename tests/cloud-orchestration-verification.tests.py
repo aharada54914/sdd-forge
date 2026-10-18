@@ -25,6 +25,22 @@ sys.path.insert(0, str(SHARED))
 import cloud_contracts as c  # noqa: E402
 
 
+# Every protocol fixture is offline. A mock-target mistake must fail loudly,
+# never become an expected cloud-denial exception or an implicit live read.
+_network_guard = patch(
+    "urllib.request.OpenerDirector.open",
+    side_effect=AssertionError("LIVE_NETWORK_FORBIDDEN_IN_VERIFICATION_TESTS"),
+)
+
+
+def setUpModule():
+    _network_guard.start()
+
+
+def tearDownModule():
+    _network_guard.stop()
+
+
 def encode(value: object) -> bytes:
     return (json.dumps(value, sort_keys=True) + "\n").encode()
 
@@ -56,6 +72,16 @@ def request(provider: str) -> dict:
 
 
 class EntryPreflight(unittest.TestCase):
+    def test_live_network_is_forbidden_before_transport(self):
+        import urllib.request
+        from unittest.mock import Mock
+
+        self.assertIsInstance(urllib.request.OpenerDirector.open, Mock)
+        with self.assertRaisesRegex(
+            AssertionError, "LIVE_NETWORK_FORBIDDEN_IN_VERIFICATION_TESTS"
+        ):
+            urllib.request.OpenerDirector().open("https://invalid.example")
+
     def test_cli_without_trusted_executor_rejects_verify(self):
         # This tests direct CLI admission only; no saved observation is consumed.
         for provider in ("azure", "aws"):
@@ -66,6 +92,11 @@ class EntryPreflight(unittest.TestCase):
                     [
                         sys.executable,
                         "-B",
+                        "-c",
+                        "import runpy,sys; from unittest.mock import patch; "
+                        "path=sys.argv.pop(1); "
+                        "guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_CLI_TEST')); "
+                        "guard.start(); runpy.run_path(path,run_name='__main__')",
                         str(ROOT / f"plugins/sdd-{provider}-cloud/scripts/cloud.py"),
                         "verify",
                         "--request",
@@ -532,7 +563,12 @@ class FreshnessCases(unittest.TestCase):
                         if provider == "azure":
                             value = json.loads(result.body)
                             value["value"][0]["timeseries"][0]["data"].insert(
-                                0, dict(timeStamp=extra_time, minimum=extra_value, maximum=extra_value)
+                                0,
+                                dict(
+                                    timeStamp=extra_time,
+                                    minimum=extra_value,
+                                    maximum=extra_value,
+                                ),
                             )
                             result.body = encode(value)
                         else:
@@ -542,7 +578,9 @@ class FreshnessCases(unittest.TestCase):
                             assert points is not None
                             member = ET.SubElement(points, ns + "member")
                             ET.SubElement(member, ns + "Timestamp").text = extra_time
-                            ET.SubElement(member, ns + "Minimum").text = str(extra_value)
+                            ET.SubElement(member, ns + "Minimum").text = str(
+                                extra_value
+                            )
                             ET.SubElement(member, ns + "Maximum").text = str(
                                 extra_value
                             )
@@ -1160,7 +1198,7 @@ class AzureClosureAndDcrCases(unittest.TestCase):
 
 
 class AzureMetricContextCases(unittest.TestCase):
-    collector = AzureClosureAndDcrCases.collector
+    collector = staticmethod(AzureClosureAndDcrCases.collector)
 
     def test_metric_context_counterparts(self):
         for field in (
@@ -1419,7 +1457,11 @@ class NativeFixture:
                         timeseries=[
                             dict(
                                 metadatavalues=metadata,
-                                data=[dict(timeStamp=self.stamp(), minimum=val, maximum=val)],
+                                data=[
+                                    dict(
+                                        timeStamp=self.stamp(), minimum=val, maximum=val
+                                    )
+                                ],
                             )
                         ],
                     )
@@ -2748,6 +2790,10 @@ class PublicObservationCases(unittest.TestCase):
                         self.assertFalse((case.root / "outside.json").exists())
                     else:
                         self.assertFalse(output.exists())
+                        if variant.startswith("scanner"):
+                            self.assertFalse(
+                                Path(str(output) + ".context.json").exists()
+                            )
                     self.doCleanups()
 
     def test_all_emitted_required_fields_have_closed_schema_counterparts(self):
@@ -2763,7 +2809,9 @@ class PublicObservationCases(unittest.TestCase):
 
         def walk(value, schema, location):
             if isinstance(value, dict):
-                for key in schema.get("required", []):
+                for key in value:
+                    if location == "operation-result" and key == "native_operation_id":
+                        continue  # contract permits absent native ID for genuine no-op
                     changed = copy.deepcopy(value)
                     del changed[key]
                     with self.subTest(location=location, field=key):
@@ -2947,11 +2995,15 @@ class WorkloadRangeCases(unittest.TestCase):
     def test_native_bucket_minimum_and_maximum(self):
         import xml.etree.ElementTree as ET
         from urllib.parse import parse_qs, urlsplit
+
         for provider in ("aws", "azure"):
             for minimum, maximum in ((1, 1), (0, 1), (1, 2), (0, 2)):
                 with self.subTest(provider=provider, minimum=minimum, maximum=maximum):
-                    collector, fixture = FreshnessCases().collector(provider, "workload", "healthy", "2026-10-18T06:00:00Z")
+                    collector, fixture = FreshnessCases().collector(
+                        provider, "workload", "healthy", "2026-10-18T06:00:00Z"
+                    )
                     original = fixture.request
+
                     def response(method, url, headers, body=None):
                         r = original(method, url, headers, body)
                         if provider == "azure":
@@ -2962,16 +3014,32 @@ class WorkloadRangeCases(unittest.TestCase):
                         else:
                             tree = ET.fromstring(r.body)
                             for n in tree.iter():
-                                if n.tag.endswith("}Minimum"): n.text = str(minimum)
-                                if n.tag.endswith("}Maximum"): n.text = str(maximum)
+                                if n.tag.endswith("}Minimum"):
+                                    n.text = str(minimum)
+                                if n.tag.endswith("}Maximum"):
+                                    n.text = str(maximum)
                             r.body = ET.tostring(tree)
                         return r
+
                     with patch.object(fixture, "request", side_effect=response):
-                        self.assertEqual(collector.workload()[0], minimum == maximum == 1)
+                        self.assertEqual(
+                            collector.workload()[0], minimum == maximum == 1
+                        )
                     _, url, body = fixture.calls[-1]
                     query = parse_qs(body.decode() if body else urlsplit(url).query)
-                    if provider == "aws": self.assertEqual({query["Statistics.member.1"][0], query["Statistics.member.2"][0]}, {"Minimum", "Maximum"})
-                    else: self.assertEqual(set(query["aggregation"][0].split(",")), {"Minimum", "Maximum"})
+                    if provider == "aws":
+                        self.assertEqual(
+                            {
+                                query["Statistics.member.1"][0],
+                                query["Statistics.member.2"][0],
+                            },
+                            {"Minimum", "Maximum"},
+                        )
+                    else:
+                        self.assertEqual(
+                            set(query["aggregation"][0].split(",")),
+                            {"Minimum", "Maximum"},
+                        )
 
 
 class NativeAdversarialCases(unittest.TestCase):
@@ -3097,6 +3165,39 @@ class NativeAdversarialCases(unittest.TestCase):
 
 
 class ExpandedBindingCases(unittest.TestCase):
+    def test_query_digests_are_exact_transport_bytes(self):
+        for provider in ("aws", "azure"):
+            for check in (
+                "resource",
+                "network",
+                "identity",
+                "monitoring",
+                "workload",
+                "backup",
+            ):
+                with self.subTest(provider=provider, check=check):
+                    collector, fixture = FreshnessCases().collector(
+                        provider, check, "healthy", "2026-10-18T06:00:00Z"
+                    )
+                    original = fixture.request
+                    actual = []
+
+                    def response(method, url, headers, body=None):
+                        r = original(method, url, headers, body)
+                        actual.append(
+                            dict(
+                                locator=url,
+                                request_sha256=hashlib.sha256(body or b"").hexdigest(),
+                                response_sha256=hashlib.sha256(r.body).hexdigest(),
+                                http_status=r.status,
+                            )
+                        )
+                        return r
+
+                    with patch.object(fixture, "request", side_effect=response):
+                        self.assertTrue(getattr(collector, check)()[0])
+                    self.assertEqual(collector.trace, actual)
+
     def test_nested_context_fields_and_untrusted_native_labels(self):
         import cloud_verification as v
 
@@ -3160,6 +3261,44 @@ class ExpandedBindingCases(unittest.TestCase):
                         self.assertRaisesRegex(ValueError, "READ_CREDENTIAL_EXPIRED"),
                     ):
                         getattr(collector, check)()
+
+
+
+class ProtectedProfileCases(unittest.TestCase):
+    """T-009 additive dispatch Red at existing callable boundaries."""
+
+    def test_unsupported_profile_version_at_reducer(self):
+        import cloud_verification as v
+
+        case = reducer_case()
+        req, request_ref, profile, _, context, records = case
+        profile.update(id="cloud-compute", version="999")
+        req["verification_profile"] = dict(id=profile["id"], version=profile["version"], **ref("profile.json", profile))
+        request_ref.update(ref("request.json", req))
+        context.update(verification_profile=req["verification_profile"], request=request_ref)
+        for item in records:
+            payload = json.loads(item["payload_bytes"])
+            payload["context_sha256"] = ref("context.json", context)["sha256"]
+            item["payload_bytes"] = encode(payload)
+            obs = json.loads(item["observation_bytes"])
+            obs["result"]["sha256"] = hashlib.sha256(item["payload_bytes"]).hexdigest()
+            item["observation_bytes"] = encode(obs)
+        with self.assertRaisesRegex(ValueError, "PROFILE_UNSUPPORTED"):
+            v.reduce(*case, now="2026-10-18T06:01:01Z")
+
+    def test_legacy_cannot_accept_cloud_discriminator(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "evidence.log").write_text("Synthetic legacy control, not cloud evidence.\n")
+            contract = dict(schema="verification-contract/v2", task_id="T-009", profile="cloud", checks=[
+                dict(id=cid, required=True, passes=True, evidence="evidence.log")
+                for cid in ("lint", "typecheck", "unit-tests", "build", "placeholder-scan", "task-state-check")
+            ])
+            path = root / "contract.json"
+            path.write_text(json.dumps(contract))
+            proc = subprocess.run([sys.executable, "-B", str(SHARED / "check-contract.py"), str(path), str(root)], capture_output=True, text=True)
+            self.assertNotEqual(proc.returncode, 0, proc.stdout)
+            self.assertIn("cloud profile requires verification-contract/v3", proc.stdout)
 
 
 if __name__ == "__main__":
