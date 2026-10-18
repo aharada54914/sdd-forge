@@ -4097,9 +4097,9 @@ class DependencyReceiptCases(unittest.TestCase):
         stack.enter_context(patch.object(admission, "request", side_effect=producer.executor.boundary.transport.request))
         stack.enter_context(patch.object(holder, "transport", native))
         stack.enter_context(patch.object(producer.executor.boundary, "transport", admission))
-        result = harness.run_public(producer, module, "dependency")
+        result = harness.run_public(producer, module, "verify-result")
         self.assertEqual(result["result"], "PASS", result)
-        output = producer.directory + "/dependency.json"
+        output = producer.directory + "/verify-result.json"
         receipt_path = output + ".verification.json"
         receipt_raw = (producer.root / receipt_path).read_bytes()
         receipt = json.loads(receipt_raw)
@@ -4112,13 +4112,20 @@ class DependencyReceiptCases(unittest.TestCase):
         target.setUp()
         self.addCleanup(target.doCleanups)
         target.setup_case(provider, stage)
+        consumer_profile = target.request["verification_profile"]
+        consumer_profile["path"] = target.put("bundle/consumer-profile.json", (target.root / consumer_profile["path"]).read_bytes())["path"]
+        target.put(receipt["profile"]["path"], (producer.root / receipt["profile"]["path"]).read_bytes())
         # Same feature is required by the existing path contract; unit/run remain distinct.
+        for path in (producer.root / producer.directory).rglob("*"):
+            if path.is_file():
+                target.put(str(path.relative_to(producer.root)), path.read_bytes())
         ref = target.put(receipt_path, receipt_raw)
         target.request["predecessor_receipts"] = [dict(unit_id=receipt["unit_id"], **ref)]
         target.request_ref = target.put("request.json", target.request)
         if stage == "apply":
             preview = json.loads((target.root / target.preview_ref["path"]).read_bytes())
             preview["request"] = target.request_ref
+            preview["verification_profile"] = {k: consumer_profile[k] for k in ("path","sha256")}
             target.preview_ref = target.put(target.preview_ref["path"], preview)
         target.transport.run["display_title"] = "cloud:" + target.request_ref["sha256"] + ":" + (target.preview_ref["sha256"] if target.preview_ref else "none")
         # Consumer lease and producer completion are both fresh at this synthetic time.
@@ -4132,6 +4139,18 @@ class DependencyReceiptCases(unittest.TestCase):
                       input_repository="synthetic/plans", region=producer.executor.request["scope"]["region"])
         kwargs["subscription" if provider == "azure" else "account"] = producer.executor.request["scope"]["account_id"]
         workflow = governed.workflow_template(**kwargs)
+        if "verify" not in workflow["jobs"]:
+            # Test-first desired fixed verify job, not an existing shipped workflow claim.
+            job = copy.deepcopy(workflow["jobs"]["apply"])
+            job.update(environment="sandbox-verify", **{"if": "${{ github.run_attempt == 1 && inputs.operation == 'verify' }}"})
+            step = job["steps"][1]
+            step["name"] = "Execute fixed read-only verify"
+            step["env"].pop("CLOUD_PHASE")
+            step["env"]["AWS_CONTROL_POLICY"] = "${{ vars.AWS_VERIFY_POLICY }}"
+            step["run"] = 'set -euo pipefail\npython3 -I executor/plugins/sdd-aws-cloud/scripts/aws_governed.py verify --workspace "$RUNNER_TEMP/aws-data"'
+            job["steps"][2]["with"]["name"] = "aws-verify-${{ github.run_id }}"
+            workflow["jobs"]["verify"] = job
+            workflow["on"]["workflow_dispatch"]["inputs"]["operation"]["options"].append("verify")
         pin = dict(unit_id=receipt["unit_id"], run_id=receipt["run_id"], provider=provider,
                    request=producer.request_ref.copy(), verification=ref,
                    scope=copy.deepcopy(producer.executor.request["scope"]), profile=copy.deepcopy(receipt["profile"]),
@@ -4154,20 +4173,24 @@ class DependencyReceiptCases(unittest.TestCase):
                                 output=output,receipt=receipt,ref=ref,now=now,contract=contract,
                                 artifact_calls=[], api_calls=[], archive_override=None,
                                 metadata=dict(id=17, expired=False, name=provider+"-verify-789", workflow_run=dict(id=789,head_sha=pin["workflow_revision"],repository_id=77,head_repository_id=77)))
+        state.jobs = dict(total_count=1,jobs=[job])
+        state.file = dict(type="file",path=pin["workflow"],encoding="base64",content=base64.b64encode(encode(workflow)).decode())
+        state.environment = dict(target.transport.environment_response,id=88,name="sandbox-verify")
+        state.approvals = [dict(state="approved",user=dict(id=8,login="reviewer"),environments=[dict(id=88,name="sandbox-verify")])]
         old = target.transport.request
         def metadata(method, url, headers, body=None):
-            if "/repos/synthetic/producer/" not in url:
+            if "/repos/synthetic/" not in url or "/repos/synthetic/control/" in url:
                 return old(method,url,headers,body)
             state.api_calls.append(url)
             self.assertEqual(headers["Authorization"], "Bearer synthetic-github-bearer")
             if "/contents/" in url:
-                return encode(dict(type="file",path=pin["workflow"],encoding="base64",content=base64.b64encode(encode(workflow)).decode()))
+                return encode(dict(state.file, content=base64.b64encode(encode(workflow)).decode()) if state.file["content"] == "dynamic" else state.file)
             if "/jobs?" in url:
-                return encode(dict(total_count=1,jobs=[job]))
+                return encode(state.jobs)
             if url.endswith("/approvals"):
-                return encode([dict(state="approved",user=dict(id=8,login="reviewer"),environments=[dict(id=88,name="sandbox-verify")])])
+                return encode(state.approvals)
             if "/environments/" in url:
-                return encode(dict(target.transport.environment_response,id=88,name="sandbox-verify"))
+                return encode(state.environment)
             return encode(run)
         stack.enter_context(patch.object(target.transport,"request",side_effect=metadata))
         def artifact(method,url,headers,body=None):
@@ -4182,7 +4205,7 @@ class DependencyReceiptCases(unittest.TestCase):
                         archive.writestr(str(path.relative_to(producer.root)),path.read_bytes())
             raw = buffer.getvalue() if state.archive_override is None else state.archive_override
             meta = dict(digest="sha256:"+hashlib.sha256(raw).hexdigest(),**state.metadata)
-            if url.endswith("/artifacts/17"):
+            if "/actions/artifacts/" in url and not url.endswith("/zip"):
                 return SimpleNamespace(status=200,headers={},body=encode(meta))
             if url.endswith("/zip"):
                 return SimpleNamespace(status=302,headers={"Location":"https://synthetic.blob.core.windows.net/artifact"},body=b"")
@@ -4196,7 +4219,7 @@ class DependencyReceiptCases(unittest.TestCase):
 
     def failure(self, state, expected):
         seen=[]
-        original=c._require
+        original=state.target.a.contracts._require
         def require(condition, code="INVALID_ARTIFACT"):
             if not condition:
                 seen.append(code)
@@ -4206,7 +4229,11 @@ class DependencyReceiptCases(unittest.TestCase):
             if not condition:
                 seen.append(code)
             original_auth(condition,code)
-        with patch.object(c,"_require",side_effect=require), patch.object(state.target.a,"require",side_effect=auth_require):
+        from contextlib import ExitStack
+        with ExitStack() as stack:
+            for module in {c, state.target.a.contracts, sys.modules["cloud_contracts"]}:
+                stack.enter_context(patch.object(module,"_require",side_effect=require))
+            stack.enter_context(patch.object(state.target.a,"require",side_effect=auth_require))
             with self.assertRaises(state.target.a.AdmissionDenied):
                 state.target.write()
         self.assertEqual(state.target.writes,[])
@@ -4276,6 +4303,119 @@ class DependencyReceiptCases(unittest.TestCase):
                         guard="DIGEST_MISMATCH"
                 self.failure(state,guard)
                 self.doCleanups()
+
+
+
+def dependency_field_matrix():
+    """Every new protected configuration / authenticated producer binding leaf."""
+    rows = []
+    def add(target, values, guard):
+        rows.extend((target+"."+path, target, path.split("."), value, guard) for path,value in values.items())
+    add("pin", {"unit_id":"other", "verification.path":"other.json", "verification.sha256":"b"*64}, "DEPENDENCY_SET_MISMATCH")
+    add("pin", {"run_id":"other", "provider":"aws", "scope.account_id":"other", "scope.region":"westus", "scope.deployment_scope":"other", "profile.id":"other", "profile.version":"9", "profile.path":"other.json", "profile.sha256":"b"*64}, "DEPENDENCY_REQUEST_BINDING")
+    add("pin", {"request.path":"other.json"}, "UNSAFE_OR_UNAVAILABLE_FILE")
+    add("pin", {"request.sha256":"b"*64}, "DIGEST_MISMATCH")
+    add("pin", {"repository":"synthetic/other", "repository_id":78, "workflow":".github/workflows/other.yml", "workflow_revision":"b"*40, "ref":"refs/heads/other", "producer_run_id":790, "actors.0.0":9, "actors.0.1":"other"}, "DEPENDENCY_RUN_MISMATCH")
+    add("pin", {"workflow_sha256":"b"*64}, "DEPENDENCY_WORKFLOW_MISMATCH")
+    add("pin", {"executor_repository":"synthetic/other", "executor_revision":"b"*40}, "DEPENDENCY_EXECUTOR_MISMATCH")
+    add("pin", {"artifact_id":18}, "ARTIFACT_IDENTITY_CHANGED")
+    add("pin", {"environment_id":89, "reviewers.0.0":9, "reviewers.0.1":"other"}, "DEPENDENCY_ENVIRONMENT_MISMATCH")
+    add("run", {"id":790,"run_attempt":2,"status":"in_progress","conclusion":"failure","event":"push","head_sha":"b"*40,"head_branch":"other","path":".github/workflows/other.yml","display_title":"cloud:"+"b"*64+":"+"c"*64,"repository.id":78,"repository.full_name":"synthetic/other","head_repository.id":78,"head_repository.full_name":"synthetic/other","actor.id":9,"actor.login":"other","triggering_actor.id":9,"triggering_actor.login":"other"}, "DEPENDENCY_RUN_MISMATCH")
+    add("file", {"type":"dir","path":".github/workflows/other.yml","encoding":"none","content":"e30K"}, "DEPENDENCY_WORKFLOW_MISMATCH")
+    add("job", {"id":0,"name":"apply","run_id":790,"run_attempt":2,"head_sha":"b"*40,"status":"in_progress","conclusion":"failure"}, "DEPENDENCY_VERIFY_JOB_REQUIRED")
+    add("jobs", {"total_count":2}, "PAGINATION_INCOMPLETE")
+    add("job", {"started_at":"2026-10-18T07:00:00Z","completed_at":"2026-10-18T05:00:00Z"}, "DEPENDENCY_COMPLETION_WINDOW")
+    for index in range(3):
+        add("job", {f"steps.{index}.name":"other",f"steps.{index}.status":"in_progress",f"steps.{index}.conclusion":"failure"}, "DEPENDENCY_VERIFY_STEP_REQUIRED")
+        add("job", {f"steps.{index}.started_at":"2026-10-18T07:00:00Z",f"steps.{index}.completed_at":"2026-10-18T05:00:00Z"}, "DEPENDENCY_COMPLETION_WINDOW")
+    add("environment", {"id":89,"name":"other-verify","can_admins_bypass":True,"deployment_branch_policy.protected_branches":False,"deployment_branch_policy.custom_branch_policies":True,"protection_rules.0.type":"wait_timer","protection_rules.0.prevent_self_review":False,"protection_rules.0.reviewers.0.type":"Team","protection_rules.0.reviewers.0.reviewer.id":9,"protection_rules.0.reviewers.0.reviewer.login":"other"}, "DEPENDENCY_ENVIRONMENT_MISMATCH")
+    add("approvals", {"0.state":"rejected","0.user.id":9,"0.user.login":"other","0.environments.0.id":89,"0.environments.0.name":"other-verify"}, "DEPENDENCY_APPROVAL_MISMATCH")
+    add("metadata", {"id":18,"expired":True,"workflow_run.id":790}, "ARTIFACT_IDENTITY_CHANGED")
+    add("metadata", {"digest":None}, "ARTIFACT_DIGEST_REQUIRED")
+    add("metadata", {"digest":"sha256:"+"b"*64}, "ARTIFACT_DIGEST_MISMATCH")
+    add("metadata", {"name":"azure-apply-789","workflow_run.head_sha":"b"*40,"workflow_run.repository_id":78,"workflow_run.head_repository_id":78}, "DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH")
+    return rows
+
+
+class DependencyFieldMatrix(DependencyReceiptCases):
+    def test_every_new_trust_and_producer_binding(self):
+        for label,target,path,value,guard in dependency_field_matrix():
+            with self.subTest(field=label):
+                state=self.fixture()
+                obj=getattr(state,target)
+                for part in path[:-1]:
+                    obj=obj[int(part) if isinstance(obj,list) else part]
+                obj[int(path[-1]) if isinstance(obj,list) else path[-1]]=value
+                self.failure(state,guard)
+                self.doCleanups()
+
+    def test_consumer_request_and_trust_set(self):
+        for variant in ("request-sha", "trust-omitted", "trust-added", "receipt-omitted", "receipt-added"):
+            with self.subTest(field=variant):
+                state=self.fixture()
+                guard="DEPENDENCY_SET_MISMATCH"
+                if variant=="request-sha":
+                    object.__setattr__(state.target.policy,"dependency_request_sha256","b"*64)
+                    guard="DEPENDENCY_CONSUMER_MISMATCH"
+                elif variant=="trust-omitted":
+                    object.__setattr__(state.target.policy,"predecessor_trust",())
+                elif variant=="trust-added":
+                    other=copy.deepcopy(state.pin);other["unit_id"]="other"
+                    object.__setattr__(state.target.policy,"predecessor_trust",(state.pin,other))
+                else:
+                    if variant=="receipt-omitted":
+                        state.target.request["predecessor_receipts"]=[]
+                    else:
+                        # New valid-format independent receipt, not a duplicate/schema error.
+                        other=copy.deepcopy(state.receipt);other["unit_id"]="other"
+                        path=state.ref["path"].replace('/'+state.receipt["unit_id"]+'/', '/other/')
+                        ref=state.target.put(path,other)
+                        state.target.request["predecessor_receipts"].append(dict(unit_id="other",**ref))
+                    state.target.request_ref=state.target.put("request.json",state.target.request)
+                    state.target.transport.run["display_title"]="cloud:"+state.target.request_ref["sha256"]+":none"
+                    guard="DEPENDENCY_CONSUMER_MISMATCH"
+                self.failure(state,guard)
+                self.doCleanups()
+
+
+class DependencyGraphCases(unittest.TestCase):
+    def graph(self):
+        values=[]
+        for unit in ("C","B","A"):
+            value=request("aws");value["unit_id"]=unit
+            if unit=="C":value["predecessor_receipts"]=[dict(unit_id="B",path="b.json",sha256="a"*64)]
+            values.append(value)
+        return values
+
+    def test_order_and_each_invalid_graph_before_callbacks(self):
+        # Component-absence Red is recorded separately from executed boundary mismatches.
+        self.assertTrue((SHARED/"cloud_dependencies.py").is_file(),"Ordering component absent")
+        import cloud_dependencies as d
+        values=self.graph()
+        self.assertEqual([r["unit_id"] for r in d.ordered_units(values)],["A","B","C"])
+        for variant in ("cycle","self","duplicate-unit","duplicate-edge","missing"):
+            with self.subTest(variant=variant):
+                changed=copy.deepcopy(values)
+                edge=lambda unit:dict(unit_id=unit,path="b.json",sha256="a"*64)
+                if variant=="cycle":changed[1]["predecessor_receipts"]=[edge("C")]
+                elif variant=="self":changed[1]["predecessor_receipts"]=[edge("B")]
+                elif variant=="duplicate-unit":changed.append(copy.deepcopy(changed[1]))
+                elif variant=="duplicate-edge":changed[0]["predecessor_receipts"]*=2
+                else:changed[0]["predecessor_receipts"]=[edge("absent")]
+                with self.assertRaises(ValueError):d.ordered_units(changed)
+
+    def test_transitive_unknown_preserves_identity_without_retry(self):
+        self.assertTrue((SHARED/"cloud_dependencies.py").is_file(),"Ordering component absent")
+        import cloud_dependencies as d
+        values=self.graph();values[2]["predecessor_receipts"]=[dict(unit_id="C",path="c.json",sha256="a"*64)]
+        calls=[]
+        unknown=dict(result="UNKNOWN",native_operation_id="original-operation")
+        def execute(req):calls.append(req["unit_id"]);return unknown
+        result=d.dispatch(values,execute,{},None)
+        self.assertEqual(calls,["B"])
+        self.assertEqual(result["units"]["B"],unknown)
+        self.assertEqual(result["order"],["B","C","A"])
+        self.assertNotEqual(result["aggregate"],"VERIFIED")
 
 
 if __name__ == "__main__":

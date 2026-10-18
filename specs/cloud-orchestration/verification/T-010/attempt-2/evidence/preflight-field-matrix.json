@@ -1,0 +1,695 @@
+[
+  {
+    "field": "pin.unit_id",
+    "counterpart": "DEPENDENCY_SET_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.verification.path",
+    "counterpart": "DEPENDENCY_SET_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other.json",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.verification.sha256",
+    "counterpart": "DEPENDENCY_SET_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.run_id",
+    "counterpart": "DEPENDENCY_REQUEST_BINDING",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.provider",
+    "counterpart": "DEPENDENCY_REQUEST_BINDING",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "aws",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.scope.account_id",
+    "counterpart": "DEPENDENCY_REQUEST_BINDING",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.scope.region",
+    "counterpart": "DEPENDENCY_REQUEST_BINDING",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "westus",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.scope.deployment_scope",
+    "counterpart": "DEPENDENCY_REQUEST_BINDING",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.profile.id",
+    "counterpart": "DEPENDENCY_REQUEST_BINDING",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.profile.version",
+    "counterpart": "DEPENDENCY_REQUEST_BINDING",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "9",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.profile.path",
+    "counterpart": "DEPENDENCY_REQUEST_BINDING",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other.json",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.profile.sha256",
+    "counterpart": "DEPENDENCY_REQUEST_BINDING",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.request.path",
+    "counterpart": "UNSAFE_OR_UNAVAILABLE_FILE",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other.json",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.request.sha256",
+    "counterpart": "DIGEST_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.repository",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "synthetic/other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.repository_id",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 78,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.workflow",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": ".github/workflows/other.yml",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.workflow_revision",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.ref",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "refs/heads/other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.producer_run_id",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 790,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.actors.0.0",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 9,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.actors.0.1",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.workflow_sha256",
+    "counterpart": "DEPENDENCY_WORKFLOW_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.executor_repository",
+    "counterpart": "DEPENDENCY_EXECUTOR_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "synthetic/other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.executor_revision",
+    "counterpart": "DEPENDENCY_EXECUTOR_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.artifact_id",
+    "counterpart": "ARTIFACT_IDENTITY_CHANGED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 18,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.environment_id",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 89,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.reviewers.0.0",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 9,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "pin.reviewers.0.1",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.id",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 790,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.run_attempt",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 2,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.status",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "in_progress",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.conclusion",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "failure",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.event",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "push",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.head_sha",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.head_branch",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.path",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": ".github/workflows/other.yml",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.display_title",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "cloud:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.repository.id",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 78,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.repository.full_name",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "synthetic/other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.head_repository.id",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 78,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.head_repository.full_name",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "synthetic/other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.actor.id",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 9,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.actor.login",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.triggering_actor.id",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 9,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "run.triggering_actor.login",
+    "counterpart": "DEPENDENCY_RUN_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "file.type",
+    "counterpart": "DEPENDENCY_WORKFLOW_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "dir",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "file.path",
+    "counterpart": "DEPENDENCY_WORKFLOW_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": ".github/workflows/other.yml",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "file.encoding",
+    "counterpart": "DEPENDENCY_WORKFLOW_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "none",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "file.content",
+    "counterpart": "DEPENDENCY_WORKFLOW_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "e30K",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.id",
+    "counterpart": "DEPENDENCY_VERIFY_JOB_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 0,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.name",
+    "counterpart": "DEPENDENCY_VERIFY_JOB_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "apply",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.run_id",
+    "counterpart": "DEPENDENCY_VERIFY_JOB_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 790,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.run_attempt",
+    "counterpart": "DEPENDENCY_VERIFY_JOB_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 2,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.head_sha",
+    "counterpart": "DEPENDENCY_VERIFY_JOB_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.status",
+    "counterpart": "DEPENDENCY_VERIFY_JOB_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "in_progress",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.conclusion",
+    "counterpart": "DEPENDENCY_VERIFY_JOB_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "failure",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "jobs.total_count",
+    "counterpart": "PAGINATION_INCOMPLETE",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 2,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.started_at",
+    "counterpart": "DEPENDENCY_COMPLETION_WINDOW",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "2026-10-18T07:00:00Z",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.completed_at",
+    "counterpart": "DEPENDENCY_COMPLETION_WINDOW",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "2026-10-18T05:00:00Z",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.0.name",
+    "counterpart": "DEPENDENCY_VERIFY_STEP_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.0.status",
+    "counterpart": "DEPENDENCY_VERIFY_STEP_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "in_progress",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.0.conclusion",
+    "counterpart": "DEPENDENCY_VERIFY_STEP_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "failure",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.0.started_at",
+    "counterpart": "DEPENDENCY_COMPLETION_WINDOW",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "2026-10-18T07:00:00Z",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.0.completed_at",
+    "counterpart": "DEPENDENCY_COMPLETION_WINDOW",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "2026-10-18T05:00:00Z",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.1.name",
+    "counterpart": "DEPENDENCY_VERIFY_STEP_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.1.status",
+    "counterpart": "DEPENDENCY_VERIFY_STEP_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "in_progress",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.1.conclusion",
+    "counterpart": "DEPENDENCY_VERIFY_STEP_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "failure",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.1.started_at",
+    "counterpart": "DEPENDENCY_COMPLETION_WINDOW",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "2026-10-18T07:00:00Z",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.1.completed_at",
+    "counterpart": "DEPENDENCY_COMPLETION_WINDOW",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "2026-10-18T05:00:00Z",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.2.name",
+    "counterpart": "DEPENDENCY_VERIFY_STEP_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.2.status",
+    "counterpart": "DEPENDENCY_VERIFY_STEP_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "in_progress",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.2.conclusion",
+    "counterpart": "DEPENDENCY_VERIFY_STEP_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "failure",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.2.started_at",
+    "counterpart": "DEPENDENCY_COMPLETION_WINDOW",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "2026-10-18T07:00:00Z",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "job.steps.2.completed_at",
+    "counterpart": "DEPENDENCY_COMPLETION_WINDOW",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "2026-10-18T05:00:00Z",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.id",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 89,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.name",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other-verify",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.can_admins_bypass",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": true,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.deployment_branch_policy.protected_branches",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": false,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.deployment_branch_policy.custom_branch_policies",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": true,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.protection_rules.0.type",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "wait_timer",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.protection_rules.0.prevent_self_review",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": false,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.protection_rules.0.reviewers.0.type",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "Team",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.protection_rules.0.reviewers.0.reviewer.id",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 9,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "environment.protection_rules.0.reviewers.0.reviewer.login",
+    "counterpart": "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "approvals.0.state",
+    "counterpart": "DEPENDENCY_APPROVAL_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "rejected",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "approvals.0.user.id",
+    "counterpart": "DEPENDENCY_APPROVAL_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 9,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "approvals.0.user.login",
+    "counterpart": "DEPENDENCY_APPROVAL_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "approvals.0.environments.0.id",
+    "counterpart": "DEPENDENCY_APPROVAL_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 89,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "approvals.0.environments.0.name",
+    "counterpart": "DEPENDENCY_APPROVAL_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "other-verify",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "metadata.id",
+    "counterpart": "ARTIFACT_IDENTITY_CHANGED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 18,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "metadata.expired",
+    "counterpart": "ARTIFACT_IDENTITY_CHANGED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": true,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "metadata.workflow_run.id",
+    "counterpart": "ARTIFACT_IDENTITY_CHANGED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 790,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "metadata.digest",
+    "counterpart": "ARTIFACT_DIGEST_REQUIRED",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": null,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "metadata.digest",
+    "counterpart": "ARTIFACT_DIGEST_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "metadata.name",
+    "counterpart": "DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "azure-apply-789",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "metadata.workflow_run.head_sha",
+    "counterpart": "DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "metadata.workflow_run.repository_id",
+    "counterpart": "DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 78,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  },
+  {
+    "field": "metadata.workflow_run.head_repository_id",
+    "counterpart": "DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH",
+    "test": "DependencyFieldMatrix.test_every_new_trust_and_producer_binding",
+    "mutation": 78,
+    "red_actual": "DEPENDENCY_ADMISSION_REQUIRED; no field guard yet"
+  }
+]

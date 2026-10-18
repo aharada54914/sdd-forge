@@ -42,3 +42,115 @@ All new field guards require matched successful controls and sensitivity after
 implementation. This table does not backdate those results. No live cloud or
 credentials are used; urllib OpenerDirector.open is denied by an exercised suite
 sentinel. No cloud authorization is created by this report or protocol fixtures.
+
+## Per-field expansion before product edits
+
+Earlier red.log/red-boundary.log included setup failures (missing referenced observation/profile, profile collision, and absent AWS verify template), not completed preflight. Corrected fixture copies all required immutable evidence and separates the consumer profile. red-per-field.log now reaches the actual blanket seam for every configured mismatch; four matched controls reach WRITE_ADMISSION_BLOCKED at DEPENDENCY_ADMISSION_REQUIRED. Removing the predecessor list currently admits one synthetic callback despite the configured expected set: a genuine failing behavioral assertion, not missing setup. Graph tests fail component-absence assertions separately.
+
+| Exact field | Counterpart guard to implement | Executed mismatch case |
+|---|---|---|
+| `pin.unit_id` | `DEPENDENCY_SET_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.unit_id` |
+| `pin.verification.path` | `DEPENDENCY_SET_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.verification.path` |
+| `pin.verification.sha256` | `DEPENDENCY_SET_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.verification.sha256` |
+| `pin.run_id` | `DEPENDENCY_REQUEST_BINDING` | `test_every_new_trust_and_producer_binding`, `pin.run_id` |
+| `pin.provider` | `DEPENDENCY_REQUEST_BINDING` | `test_every_new_trust_and_producer_binding`, `pin.provider` |
+| `pin.scope.account_id` | `DEPENDENCY_REQUEST_BINDING` | `test_every_new_trust_and_producer_binding`, `pin.scope.account_id` |
+| `pin.scope.region` | `DEPENDENCY_REQUEST_BINDING` | `test_every_new_trust_and_producer_binding`, `pin.scope.region` |
+| `pin.scope.deployment_scope` | `DEPENDENCY_REQUEST_BINDING` | `test_every_new_trust_and_producer_binding`, `pin.scope.deployment_scope` |
+| `pin.profile.id` | `DEPENDENCY_REQUEST_BINDING` | `test_every_new_trust_and_producer_binding`, `pin.profile.id` |
+| `pin.profile.version` | `DEPENDENCY_REQUEST_BINDING` | `test_every_new_trust_and_producer_binding`, `pin.profile.version` |
+| `pin.profile.path` | `DEPENDENCY_REQUEST_BINDING` | `test_every_new_trust_and_producer_binding`, `pin.profile.path` |
+| `pin.profile.sha256` | `DEPENDENCY_REQUEST_BINDING` | `test_every_new_trust_and_producer_binding`, `pin.profile.sha256` |
+| `pin.request.path` | `UNSAFE_OR_UNAVAILABLE_FILE` | `test_every_new_trust_and_producer_binding`, `pin.request.path` |
+| `pin.request.sha256` | `DIGEST_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.request.sha256` |
+| `pin.repository` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.repository` |
+| `pin.repository_id` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.repository_id` |
+| `pin.workflow` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.workflow` |
+| `pin.workflow_revision` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.workflow_revision` |
+| `pin.ref` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.ref` |
+| `pin.producer_run_id` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.producer_run_id` |
+| `pin.actors.0.0` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.actors.0.0` |
+| `pin.actors.0.1` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.actors.0.1` |
+| `pin.workflow_sha256` | `DEPENDENCY_WORKFLOW_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.workflow_sha256` |
+| `pin.executor_repository` | `DEPENDENCY_EXECUTOR_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.executor_repository` |
+| `pin.executor_revision` | `DEPENDENCY_EXECUTOR_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.executor_revision` |
+| `pin.artifact_id` | `ARTIFACT_IDENTITY_CHANGED` | `test_every_new_trust_and_producer_binding`, `pin.artifact_id` |
+| `pin.environment_id` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.environment_id` |
+| `pin.reviewers.0.0` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.reviewers.0.0` |
+| `pin.reviewers.0.1` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `pin.reviewers.0.1` |
+| `run.id` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.id` |
+| `run.run_attempt` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.run_attempt` |
+| `run.status` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.status` |
+| `run.conclusion` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.conclusion` |
+| `run.event` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.event` |
+| `run.head_sha` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.head_sha` |
+| `run.head_branch` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.head_branch` |
+| `run.path` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.path` |
+| `run.display_title` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.display_title` |
+| `run.repository.id` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.repository.id` |
+| `run.repository.full_name` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.repository.full_name` |
+| `run.head_repository.id` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.head_repository.id` |
+| `run.head_repository.full_name` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.head_repository.full_name` |
+| `run.actor.id` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.actor.id` |
+| `run.actor.login` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.actor.login` |
+| `run.triggering_actor.id` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.triggering_actor.id` |
+| `run.triggering_actor.login` | `DEPENDENCY_RUN_MISMATCH` | `test_every_new_trust_and_producer_binding`, `run.triggering_actor.login` |
+| `file.type` | `DEPENDENCY_WORKFLOW_MISMATCH` | `test_every_new_trust_and_producer_binding`, `file.type` |
+| `file.path` | `DEPENDENCY_WORKFLOW_MISMATCH` | `test_every_new_trust_and_producer_binding`, `file.path` |
+| `file.encoding` | `DEPENDENCY_WORKFLOW_MISMATCH` | `test_every_new_trust_and_producer_binding`, `file.encoding` |
+| `file.content` | `DEPENDENCY_WORKFLOW_MISMATCH` | `test_every_new_trust_and_producer_binding`, `file.content` |
+| `job.id` | `DEPENDENCY_VERIFY_JOB_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.id` |
+| `job.name` | `DEPENDENCY_VERIFY_JOB_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.name` |
+| `job.run_id` | `DEPENDENCY_VERIFY_JOB_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.run_id` |
+| `job.run_attempt` | `DEPENDENCY_VERIFY_JOB_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.run_attempt` |
+| `job.head_sha` | `DEPENDENCY_VERIFY_JOB_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.head_sha` |
+| `job.status` | `DEPENDENCY_VERIFY_JOB_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.status` |
+| `job.conclusion` | `DEPENDENCY_VERIFY_JOB_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.conclusion` |
+| `jobs.total_count` | `PAGINATION_INCOMPLETE` | `test_every_new_trust_and_producer_binding`, `jobs.total_count` |
+| `job.started_at` | `DEPENDENCY_COMPLETION_WINDOW` | `test_every_new_trust_and_producer_binding`, `job.started_at` |
+| `job.completed_at` | `DEPENDENCY_COMPLETION_WINDOW` | `test_every_new_trust_and_producer_binding`, `job.completed_at` |
+| `job.steps.0.name` | `DEPENDENCY_VERIFY_STEP_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.steps.0.name` |
+| `job.steps.0.status` | `DEPENDENCY_VERIFY_STEP_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.steps.0.status` |
+| `job.steps.0.conclusion` | `DEPENDENCY_VERIFY_STEP_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.steps.0.conclusion` |
+| `job.steps.0.started_at` | `DEPENDENCY_COMPLETION_WINDOW` | `test_every_new_trust_and_producer_binding`, `job.steps.0.started_at` |
+| `job.steps.0.completed_at` | `DEPENDENCY_COMPLETION_WINDOW` | `test_every_new_trust_and_producer_binding`, `job.steps.0.completed_at` |
+| `job.steps.1.name` | `DEPENDENCY_VERIFY_STEP_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.steps.1.name` |
+| `job.steps.1.status` | `DEPENDENCY_VERIFY_STEP_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.steps.1.status` |
+| `job.steps.1.conclusion` | `DEPENDENCY_VERIFY_STEP_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.steps.1.conclusion` |
+| `job.steps.1.started_at` | `DEPENDENCY_COMPLETION_WINDOW` | `test_every_new_trust_and_producer_binding`, `job.steps.1.started_at` |
+| `job.steps.1.completed_at` | `DEPENDENCY_COMPLETION_WINDOW` | `test_every_new_trust_and_producer_binding`, `job.steps.1.completed_at` |
+| `job.steps.2.name` | `DEPENDENCY_VERIFY_STEP_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.steps.2.name` |
+| `job.steps.2.status` | `DEPENDENCY_VERIFY_STEP_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.steps.2.status` |
+| `job.steps.2.conclusion` | `DEPENDENCY_VERIFY_STEP_REQUIRED` | `test_every_new_trust_and_producer_binding`, `job.steps.2.conclusion` |
+| `job.steps.2.started_at` | `DEPENDENCY_COMPLETION_WINDOW` | `test_every_new_trust_and_producer_binding`, `job.steps.2.started_at` |
+| `job.steps.2.completed_at` | `DEPENDENCY_COMPLETION_WINDOW` | `test_every_new_trust_and_producer_binding`, `job.steps.2.completed_at` |
+| `environment.id` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.id` |
+| `environment.name` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.name` |
+| `environment.can_admins_bypass` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.can_admins_bypass` |
+| `environment.deployment_branch_policy.protected_branches` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.deployment_branch_policy.protected_branches` |
+| `environment.deployment_branch_policy.custom_branch_policies` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.deployment_branch_policy.custom_branch_policies` |
+| `environment.protection_rules.0.type` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.protection_rules.0.type` |
+| `environment.protection_rules.0.prevent_self_review` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.protection_rules.0.prevent_self_review` |
+| `environment.protection_rules.0.reviewers.0.type` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.protection_rules.0.reviewers.0.type` |
+| `environment.protection_rules.0.reviewers.0.reviewer.id` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.protection_rules.0.reviewers.0.reviewer.id` |
+| `environment.protection_rules.0.reviewers.0.reviewer.login` | `DEPENDENCY_ENVIRONMENT_MISMATCH` | `test_every_new_trust_and_producer_binding`, `environment.protection_rules.0.reviewers.0.reviewer.login` |
+| `approvals.0.state` | `DEPENDENCY_APPROVAL_MISMATCH` | `test_every_new_trust_and_producer_binding`, `approvals.0.state` |
+| `approvals.0.user.id` | `DEPENDENCY_APPROVAL_MISMATCH` | `test_every_new_trust_and_producer_binding`, `approvals.0.user.id` |
+| `approvals.0.user.login` | `DEPENDENCY_APPROVAL_MISMATCH` | `test_every_new_trust_and_producer_binding`, `approvals.0.user.login` |
+| `approvals.0.environments.0.id` | `DEPENDENCY_APPROVAL_MISMATCH` | `test_every_new_trust_and_producer_binding`, `approvals.0.environments.0.id` |
+| `approvals.0.environments.0.name` | `DEPENDENCY_APPROVAL_MISMATCH` | `test_every_new_trust_and_producer_binding`, `approvals.0.environments.0.name` |
+| `metadata.id` | `ARTIFACT_IDENTITY_CHANGED` | `test_every_new_trust_and_producer_binding`, `metadata.id` |
+| `metadata.expired` | `ARTIFACT_IDENTITY_CHANGED` | `test_every_new_trust_and_producer_binding`, `metadata.expired` |
+| `metadata.workflow_run.id` | `ARTIFACT_IDENTITY_CHANGED` | `test_every_new_trust_and_producer_binding`, `metadata.workflow_run.id` |
+| `metadata.digest` | `ARTIFACT_DIGEST_REQUIRED` | `test_every_new_trust_and_producer_binding`, `metadata.digest` |
+| `metadata.digest` | `ARTIFACT_DIGEST_MISMATCH` | `test_every_new_trust_and_producer_binding`, `metadata.digest` |
+| `metadata.name` | `DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH` | `test_every_new_trust_and_producer_binding`, `metadata.name` |
+| `metadata.workflow_run.head_sha` | `DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH` | `test_every_new_trust_and_producer_binding`, `metadata.workflow_run.head_sha` |
+| `metadata.workflow_run.repository_id` | `DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH` | `test_every_new_trust_and_producer_binding`, `metadata.workflow_run.repository_id` |
+| `metadata.workflow_run.head_repository_id` | `DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH` | `test_every_new_trust_and_producer_binding`, `metadata.workflow_run.head_repository_id` |
+
+Consumer configuration: `dependency_request_sha256` versus current request SHA (`request-sha`); configured `predecessor_trust` versus actual request predecessor receipts (`trust-omitted`, `trust-added`); omitted/added consumer predecessors invalidate the entire request pin (`receipt-omitted`, `receipt-added`). Exact cases: `test_consumer_request_and_trust_set`.
+
+Unchanged reducer field reuse is **not** a claim of cross-run authentication: `ReducerCases.test_each_context_counterpart_mismatch` independently mutates request, run_id, unit_id, provider, scope, dependency_lock, policy, verification_profile. `test_each_observation_counterpart_mismatch` independently mutates run_id, unit_id, provider, native_operation_id, resource_ids, principal, timestamp, query, classification, result, status, exit_code. `test_each_payload_counterpart_mismatch` independently mutates context_sha256, check_id, status with a rehashed observation reference. `test_context_shape_and_window` covers context unknown/missing shape and future/reversed collection window. `test_query_trace_shape` covers query locator, request_sha256, response_sha256, http_status and unknown fields. `test_check_fail_block_unknown_stale_missing_tampered` covers required missing/duplicate check, stale sampled_at, FAIL/BLOCKED/UNKNOWN and raw payload tamper. `ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels` covers nested request/scope/lock/policy/profile values and trusted-native denial. All ran in baseline.log; their unchanged implementations are reused after authenticated acquisition, not overridden. T009 `ProfileCompletionCases.test_every_plan_leaf_and_closed_object` and `ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard` enumerate saved contract/plan fields; their deliberate saved-file BLOCKED decision remains unchanged.
+
+Owner wiring discovered before production: AWS generator currently lacks verify job although governed CLI accepts verify; Azure generated sandbox-verify cannot pass the current apply-only policy suffix check. Minimal explicit read-only verify policy wiring is needed; WriteBoundary must explicitly reject that read-only environment. The AWS fixture's desired verify job is test-first synthetic shape, not falsely attributed to the current generator.
