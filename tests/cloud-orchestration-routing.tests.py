@@ -587,6 +587,23 @@ resource changed 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
         self.config = original
         self.refresh()
 
+
+    def test_compiled_outputs_and_variables_have_no_hidden_runtime_reads(self):
+        self.native_prerequisites()
+        original = (self.root/self.source["path"]).read_bytes()
+        unsafe = [
+            "\noutput hidden object = listKeys('/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/synthetic-group/providers/Microsoft.Storage/storageAccounts/synthetic', '2023-05-01')\n",
+            "\nvar hidden = reference('/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/synthetic-group/providers/Microsoft.Storage/storageAccounts/synthetic', '2023-05-01')\noutput expose object = hidden\n"]
+        for extra in unsafe:
+            self.source = self.put("bundle/unit/main.bicep", original + extra.encode())
+            self.write_parameters()
+            self.assertEqual(self.invoke("plan", expected=2)["error_code"], "ARM_EXPRESSION_UNSUPPORTED")
+            self.assertFalse(list((self.root/"bundle/generated").iterdir()))
+        benign = "\noutput machineId string = resourceId('Microsoft.Compute/virtualMachines', vmName)\n"
+        self.source = self.put("bundle/unit/main.bicep", original + benign.encode())
+        self.write_parameters()
+        self.assertEqual(self.invoke("plan")["state"], "PLANNED")
+
     def test_commented_unlocked_compiler_reads_fail_closed(self):
         # Whitespace/comments must not hide an absolute compiler dependency.
         additions = ["\nmodule /* gap */ other '/outside/main.bicep' = { name: 'no' }\n",
