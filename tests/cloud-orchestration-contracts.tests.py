@@ -991,7 +991,7 @@ class Contracts(unittest.TestCase):
     def test_repair_workspace_control_bytes_are_typed_blocked(self):
         from unittest.mock import patch
         for value in (str(self.root) + "\x00", str(self.root) + "\n", "/", str(self.root) + "//"):
-            with self.subTest(value=repr(value)), patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": value}):
+            with self.subTest(value=repr(value)), patch.object(self.c.os, "environ", {"CLOUD_WORKSPACE_ROOT": value}):
                 with self.assertRaises(self.c.ContractError):
                     self.c.workspace_root()
 
