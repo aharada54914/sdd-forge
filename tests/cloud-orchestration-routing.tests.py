@@ -125,18 +125,18 @@ class AzureRouting(unittest.TestCase):
         (self.root / self.evidence).mkdir(parents=True)
         self.source = self.put("bundle/unit/main.bicep", b"targetScope = 'resourceGroup'\n")
         self.req["input_artifacts"] = [dict(kind="source", **self.source)]
-        self.owner = dict(schema="cloud-ownership/v1",
+        self.owner: dict = dict(schema="cloud-ownership/v1",
             owners=[dict(owner="bicep", root="bundle/unit")], existing_resources=[])
-        self.policy = dict(schema="cloud-deployment-policy/v1", allowed_scopes=[self.req["scope"]],
+        self.policy: dict = dict(schema="cloud-deployment-policy/v1", allowed_scopes=[self.req["scope"]],
             allowed_resource_types=["Microsoft.Compute/virtualMachines"], backup_required=True,
             private_networking=True, budget=dict(ceiling_minor_units=10000, currency="USD"),
             evidence=dict(residency="synthetic-local", retention_days=7, access="restricted"))
-        self.profile = dict(schema="cloud-verification-profile/v1", id="synthetic-profile", version="1",
+        self.profile: dict = dict(schema="cloud-verification-profile/v1", id="synthetic-profile", version="1",
             required_check_ids=["resource", "network", "identity", "monitoring", "workload", "backup"],
             max_age_seconds=300)
-        self.config = dict(schema="azure-local-config/v1", import_resources=False)
+        self.config: dict = dict(schema="azure-local-config/v1", import_resources=False)
         file = self.put("bundle/upstream/reference.md", b"Synthetic routing integrity input.\n")
-        self.lock = dict(schema="cloud-dependency-lock/v1", adapter_version="1.0.0",
+        self.lock: dict = dict(schema="cloud-dependency-lock/v1", adapter_version="1.0.0",
             upstream=[dict(repository="https://example.invalid/synthetic", commit="a" * 40,
                            root="bundle/upstream", files=[dict(**file, references=[])])],
             tools=[dict(name="bicep", version="0.48.1", sha256="a" * 64)], managed_endpoints=[])
@@ -232,7 +232,8 @@ class AzureRouting(unittest.TestCase):
         for name, mutate in cases:
             with self.subTest(name=name):
                 self.policy, self.profile, self.owner = copy.deepcopy(initial)
-                mutate(); self.refresh()
+                mutate()
+                self.refresh()
                 self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
 
     def test_mutated_input_output_escape_alias_and_no_overwrite(self):
@@ -369,7 +370,9 @@ class AzureNativePreparation(AzureRouting):
         for i, mutate in enumerate(mutations):
             with self.subTest(case=i):
                 self.config, self.owner, self.policy, self.params = copy.deepcopy(initial)
-                mutate(); self.write_parameters(); self.refresh()
+                mutate()
+                self.write_parameters()
+                self.refresh()
                 result = self.invoke("plan", expected=2)
                 self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
                 self.assertFalse(list((self.root/"bundle/generated").iterdir()))
@@ -386,8 +389,144 @@ class AzureNativePreparation(AzureRouting):
                        lambda: self.lock["upstream"][0].update(commit="a"*40),
                        lambda: self.lock["upstream"][0]["files"].pop()):
             self.lock = copy.deepcopy(original)
-            mutate(); self.refresh()
+            mutate()
+            self.refresh()
             self.assertEqual(self.invoke("plan", expected=2)["result"], "BLOCKED")
+
+
+    def install_independent_module(self):
+        # Independently authored resource graph, not a copy or fixture hash of the example.
+        module = r"""
+param settings object
+var name = settings.vmName
+resource machine 'Microsoft.Compute/virtualMachines@2024-07-01' = {
+  name: name
+  location: settings.location
+  tags: { purpose: 'independent-module-case' }
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: { '${settings.identityId}': {} }
+  }
+  properties: {
+    hardwareProfile: { vmSize: settings.vmSize }
+    storageProfile: {
+      imageReference: { id: settings.imageId }
+      osDisk: {
+        createOption: 'FromImage'
+        managedDisk: { storageAccountType: 'StandardSSD_LRS' }
+        diskSizeGB: 64
+        deleteOption: 'Detach'
+      }
+    }
+    osProfile: {
+      computerName: name
+      adminUsername: settings.adminUsername
+      linuxConfiguration: {
+        disablePasswordAuthentication: true
+        ssh: { publicKeys: [{ path: '/home/${settings.adminUsername}/.ssh/authorized_keys', keyData: settings.adminPublicKey }] }
+      }
+    }
+    networkProfile: { networkInterfaces: [{ id: connection.id }] }
+  }
+}
+resource connection 'Microsoft.Network/networkInterfaces@2024-05-01' = {
+  name: '${name}-internal'
+  location: settings.location
+  properties: {
+    enableIPForwarding: false
+    enableAcceleratedNetworking: true
+    ipConfigurations: [{ name: 'internal', properties: { subnet: { id: settings.subnetId }, privateIPAllocationMethod: 'Dynamic' } }]
+  }
+}
+resource telemetry 'Microsoft.Compute/virtualMachines/extensions@2024-07-01' = {
+  parent: machine
+  name: 'monitorAgent'
+  location: settings.location
+  properties: {
+    publisher: 'Microsoft.Azure.Monitor'
+    type: 'AzureMonitorLinuxAgent'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: false
+    enableAutomaticUpgrade: false
+    settings: { authentication: { managedIdentity: { 'identifier-name': 'mi_res_id', 'identifier-value': settings.identityId } } }
+  }
+}
+resource monitoring 'Microsoft.Insights/dataCollectionRuleAssociations@2023-03-11' = {
+  scope: machine
+  name: '${name}-signals'
+  properties: { dataCollectionRuleId: settings.dataCollectionRuleId }
+}
+resource protection 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems@2024-04-01' = {
+  name: '${settings.vaultName}/Azure/iaasvmcontainer;iaasvmcontainerv2;${resourceGroup().name};${name}/vm;iaasvmcontainerv2;${resourceGroup().name};${name}'
+  properties: { protectedItemType: 'Microsoft.Compute/virtualMachines', sourceResourceId: machine.id, policyId: settings.backupPolicyId }
+}
+"""
+        module_ref = self.put("bundle/unit/modules/private.bicep", module.encode())
+        declarations = "\n".join("param " + k + " string" for k in self.params)
+        forwarding = "\n".join("      " + k + ": " + k for k in self.params)
+        main = declarations + "\nmodule workload './modules/private.bicep' = {\n  name: 'private-unit'\n  params: {\n    settings: {\n" + forwarding + "\n    }\n  }\n}\n"
+        self.source = self.put("bundle/unit/main.bicep", main.encode())
+        self.write_parameters()
+        self.req["input_artifacts"].append(dict(kind="module", **module_ref))
+        self.owner["existing_resources"][0]["attachments"][0]["name"] = "synthetic-vm-internal"
+        self.owner["existing_resources"][2]["attachments"][0]["name"] = "synthetic-vm-signals"
+        self.policy["allowed_resource_types"].append("Microsoft.Resources/deployments")
+        self.refresh()
+
+    def test_independent_module_resource_order_names_and_settings_compile(self):
+        self.native_prerequisites()
+        self.install_independent_module()
+        result = self.invoke("plan")
+        manifest = json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
+        self.assertEqual(len(manifest["source_closure"]), 3)
+        self.req = self.contracts.read_artifact(self.root, manifest["locked_request"], "cloud-run-request/v1")
+        self.assertEqual(self.invoke("validate")["state"], "LOCAL_VALIDATED")
+
+    def test_compiled_public_ip_ingress_and_existing_resource_mutation(self):
+        self.native_prerequisites()
+        original = (self.root/self.source["path"]).read_bytes()
+        mutations = [(
+            "Microsoft.Network/publicIPAddresses", "PUBLIC_NETWORK_DENIED", """
+resource publicAddress 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
+  name: 'forbidden-public'
+  location: location
+  properties: { publicIPAllocationMethod: 'Static' }
+  sku: { name: 'Standard' }
+}
+"""), ("Microsoft.Network/networkSecurityGroups", "PUBLIC_NETWORK_DENIED", """
+resource ingress 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
+  name: 'forbidden-ingress'
+  location: location
+  properties: {
+    securityRules: [{ name: 'internet', properties: {
+      priority: 100
+      access: 'Allow'
+      direction: 'Inbound'
+      protocol: 'Tcp'
+      sourceAddressPrefix: 'Internet'
+      sourcePortRange: '*'
+      destinationAddressPrefix: '*'
+      destinationPortRange: '22'
+    } }]
+  }
+}
+"""), ("Microsoft.Network/virtualNetworks/subnets", "EXISTING_RESOURCE_MUTATION", """
+resource network 'Microsoft.Network/virtualNetworks@2024-05-01' existing = { name: 'synthetic' }
+resource changed 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
+  parent: network
+  name: 'private'
+  properties: { addressPrefix: '10.99.0.0/24' }
+}
+""")]
+        for typ, expected, extra in mutations:
+            with self.subTest(resource_type=typ):
+                self.source = self.put("bundle/unit/main.bicep", original + extra.encode())
+                self.write_parameters()
+                self.policy["allowed_resource_types"].append(typ)
+                self.refresh()
+                result = self.invoke("plan", expected=2)
+                self.assertEqual(result["error_code"], expected)
+                self.assertFalse(list((self.root/"bundle/generated").iterdir()))
 
     def test_unsupported_filesystem_subprocess(self):
         self.put("request.json", self.req)
