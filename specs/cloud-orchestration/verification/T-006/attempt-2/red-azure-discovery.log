@@ -1,0 +1,28 @@
+test_azure_backup_does_not_require_future_recovery_id (__main__.NativeCollectorCases.test_azure_backup_does_not_require_future_recovery_id) ... ERROR
+
+======================================================================
+ERROR: test_azure_backup_does_not_require_future_recovery_id (__main__.NativeCollectorCases.test_azure_backup_does_not_require_future_recovery_id)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 510, in test_azure_backup_does_not_require_future_recovery_id
+    collector = module.Collector(fixture.scope, config, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 149, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 49, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 110, in _record
+    validator(value[name])
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 61, in <lambda>
+    backup=lambda v: c._record(
+                     ^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+----------------------------------------------------------------------
+Ran 1 test in 0.017s
+
+FAILED (errors=1)

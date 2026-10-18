@@ -17,6 +17,7 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+from types import ModuleType
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED = ROOT / "plugins/sdd-quality-loop/scripts"
@@ -500,6 +501,18 @@ class NativeCollectorCases(unittest.TestCase):
             )
         )
 
+    def test_azure_backup_does_not_require_future_recovery_id(self):
+        sys.path.insert(0, str(ROOT / 'plugins/sdd-azure-cloud/scripts'))
+        import azure_observation as module
+        fixture = NativeFixture('azure', 'backup', 'healthy')
+        config = copy.deepcopy(fixture.cfg)
+        config['backup'].pop('recovery_point_id', None)
+        collector = module.Collector(fixture.scope, config, fixture.credentials,
+            principal=fixture.principal, completed='2026-10-18T06:00:00Z', age=300,
+            clock=lambda:1792303260, transport=fixture, run_id='synthetic-run', unit_id='synthetic-unit')
+        self.assertTrue(collector.backup()[0])
+        self.assertTrue(any('/recoveryPoints?' in url for _,url,_ in fixture.calls))
+
     def test_expired_collector_lease_has_zero_reads(self):
         for provider in ("aws", "azure"):
             sys.path.insert(0, str(ROOT / f"plugins/sdd-{provider}-cloud/scripts"))
@@ -716,7 +729,7 @@ class NativeFixture:
         if path == cfg["vm_id"]:
             return dict(
                 id=path,
-                location="eastus",
+                location=self.scope["region"],
                 identity=dict(
                     type="UserAssigned",
                     userAssignedIdentities={
@@ -1208,125 +1221,354 @@ class AwsObservationOrchestration(unittest.TestCase):
 
 class AzureCompletionCases(unittest.TestCase):
     def setUp(self):
-        scripts = str(ROOT / 'plugins/sdd-azure-cloud/scripts')
+        scripts = str(ROOT / "plugins/sdd-azure-cloud/scripts")
         self.modules = patch.dict(sys.modules)
         self.modules.start()
         self.addCleanup(self.modules.stop)
-        for name in ('cloud', 'azure_governed', 'azure_execution', 'azure_observation', 'azure_arm', 'azure_local', 'azure_graph'):
+        for name in (
+            "cloud",
+            "azure_governed",
+            "azure_execution",
+            "azure_observation",
+            "azure_arm",
+            "azure_local",
+            "azure_graph",
+        ):
             sys.modules.pop(name, None)
-        paths = patch.object(sys, 'path', [scripts, *sys.path])
+        paths = patch.object(sys, "path", [scripts, *sys.path])
         paths.start()
         self.addCleanup(paths.stop)
         import azure_governed
         import azure_observation
+
         self.g, self.o = azure_governed, azure_observation
 
     def test_inert_template_has_literal_separate_phase_boundaries(self):
         workflow = self.g.workflow_template()
-        self.assertEqual(set(workflow['jobs']), {'prepare', 'apply', 'reconcile', 'observe', 'verify'})
-        for phase, job in workflow['jobs'].items():
-            self.assertEqual(job['environment'], 'sandbox-' + phase)
-            self.assertEqual(job['if'], "${{ github.run_attempt == 1 && inputs.operation == '" + phase + "' }}")
-            step = job['steps'][1]
-            self.assertNotIn('CLOUD_PHASE', step['env'])
-            self.assertIn('azure_governed.py ' + phase + ' --workspace', step['run'])
-            self.assertEqual('--require-native-apply' in step['run'], phase == 'apply')
+        self.assertEqual(
+            set(workflow["jobs"]),
+            {"prepare", "apply", "reconcile", "observe", "verify"},
+        )
+        for phase, job in workflow["jobs"].items():
+            self.assertEqual(job["environment"], "sandbox-" + phase)
+            self.assertEqual(
+                job["if"],
+                "${{ github.run_attempt == 1 && inputs.operation == '" + phase + "' }}",
+            )
+            step = job["steps"][1]
+            self.assertNotIn("CLOUD_PHASE", step["env"])
+            self.assertIn("azure_governed.py " + phase + " --workspace", step["run"])
+            self.assertEqual("--require-native-apply" in step["run"], phase == "apply")
 
     def completion(self, mutation=None):
         from types import SimpleNamespace
         import base64
-        repo, revision = 'synthetic/control', 'a' * 40
-        request_ref = dict(path='request.json', sha256='b' * 64)
-        preview = dict(path='preview.json', sha256='c' * 64)
-        scope = dict(account_id='00000000-0000-0000-0000-000000000001', region='eastus', deployment_scope='sandbox')
-        workflow = self.g.workflow_template(executor_repository='synthetic/executor', executor_revision='d' * 40,
-            subscription=scope['account_id'], region=scope['region'], input_repository='synthetic/plans')
-        run = dict(id=123, run_attempt=1, status='completed', conclusion='success', event='workflow_dispatch',
-            head_sha=revision, path='.github/workflows/cloud.yml', display_title='cloud:'+request_ref['sha256']+':'+preview['sha256'],
-            repository=dict(id=42, full_name=repo), head_repository=dict(id=42, full_name=repo))
-        job = dict(id=456, run_id=123, run_attempt=1, head_sha=revision, name='apply', status='completed', conclusion='success',
-            started_at='2026-10-18T06:00:00Z', completed_at='2026-10-18T06:01:00Z',
-            steps=[dict(number=2, name='Execute original apply; require native completion', status='completed', conclusion='success',
-                started_at='2026-10-18T06:00:01Z', completed_at='2026-10-18T06:00:59Z')])
+
+        repo, revision = "synthetic/control", "a" * 40
+        request_ref = dict(path="request.json", sha256="b" * 64)
+        preview = dict(path="preview.json", sha256="c" * 64)
+        scope = dict(
+            account_id="00000000-0000-0000-0000-000000000001",
+            region="eastus",
+            deployment_scope="sandbox",
+        )
+        workflow = self.g.workflow_template(
+            executor_repository="synthetic/executor",
+            executor_revision="d" * 40,
+            subscription=scope["account_id"],
+            region=scope["region"],
+            input_repository="synthetic/plans",
+        )
+        run = dict(
+            id=123,
+            run_attempt=1,
+            status="completed",
+            conclusion="success",
+            event="workflow_dispatch",
+            head_sha=revision,
+            path=".github/workflows/cloud.yml",
+            display_title="cloud:" + request_ref["sha256"] + ":" + preview["sha256"],
+            repository=dict(id=42, full_name=repo),
+            head_repository=dict(id=42, full_name=repo),
+        )
+        job = dict(
+            id=456,
+            run_id=123,
+            run_attempt=1,
+            head_sha=revision,
+            name="apply",
+            status="completed",
+            conclusion="success",
+            started_at="2026-10-18T06:00:00Z",
+            completed_at="2026-10-18T06:01:00Z",
+            steps=[
+                dict(
+                    number=2,
+                    name="Execute original apply; require native completion",
+                    status="completed",
+                    conclusion="success",
+                    started_at="2026-10-18T06:00:01Z",
+                    completed_at="2026-10-18T06:00:59Z",
+                )
+            ],
+        )
         jobs = dict(total_count=1, jobs=[job])
         if mutation:
             mutation(run, job, jobs, workflow)
+
         class Transport:
             calls = []
+
             def request(self, method, url, headers):
                 self.calls.append((method, url))
-                if '/contents/' in url:
-                    return encode(dict(type='file', encoding='base64', path='.github/workflows/cloud.yml',
-                        content=base64.b64encode(encode(workflow)).decode()))
-                return encode(jobs if '/jobs?' in url else run)
+                if "/contents/" in url:
+                    return encode(
+                        dict(
+                            type="file",
+                            encoding="base64",
+                            path=".github/workflows/cloud.yml",
+                            content=base64.b64encode(encode(workflow)).decode(),
+                        )
+                    )
+                return encode(jobs if "/jobs?" in url else run)
+
         transport = Transport()
-        policy = SimpleNamespace(repository=repo, repository_id=42, workflow='.github/workflows/cloud.yml', workflow_revision=revision)
-        executor = SimpleNamespace(request_ref=request_ref, request=dict(scope=scope), clock=lambda:1792303320,
-            boundary=SimpleNamespace(policy=policy, runtime=SimpleNamespace(github_token='synthetic'), transport=transport))
-        trace = []
+        policy = SimpleNamespace(
+            repository=repo,
+            repository_id=42,
+            workflow=".github/workflows/cloud.yml",
+            workflow_revision=revision,
+        )
+        executor = SimpleNamespace(
+            request_ref=request_ref,
+            request=dict(scope=scope),
+            clock=lambda: 1792303320,
+            boundary=SimpleNamespace(
+                policy=policy,
+                runtime=SimpleNamespace(github_token="synthetic"),
+                transport=transport,
+            ),
+        )
+        trace: list[dict] = []
         stamp = self.o.original_apply_completion(executor, 123, preview, trace)
-        self.assertTrue(all(method == 'GET' for method, _ in transport.calls))
+        self.assertTrue(all(method == "GET" for method, _ in transport.calls))
         self.assertEqual(len(trace), 3)
         return stamp
 
     def test_original_job_completion_matches_fixed_pinned_workflow(self):
-        self.assertEqual(self.completion(), '2026-10-18T06:01:00Z')
+        self.assertEqual(self.completion(), "2026-10-18T06:01:00Z")
 
     def test_original_job_counterpart_mismatches(self):
-        cases = [lambda r,j,l,w: r.update(id=999), lambda r,j,l,w: r.update(run_attempt=2),
-            lambda r,j,l,w: r.update(head_sha='f'*40), lambda r,j,l,w: r.update(display_title='copied'),
-            lambda r,j,l,w: r.update(repository=dict(id=99,full_name='other/repo')),
-            lambda r,j,l,w: j.update(run_id=999), lambda r,j,l,w: j.update(head_sha='f'*40),
-            lambda r,j,l,w: j.update(name='reconcile'), lambda r,j,l,w: j.update(conclusion='skipped'),
-            lambda r,j,l,w: j.update(completed_at=None), lambda r,j,l,w: j['steps'][0].update(conclusion='skipped'),
-            lambda r,j,l,w: l.update(total_count=101),
-            lambda r,j,l,w: w['jobs']['apply']['steps'][1].update(run='python arbitrary.py'),
-            lambda r,j,l,w: w['jobs']['apply']['steps'][0]['with'].update(ref='main')]
+        cases = [
+            lambda r, j, listing, w: r.update(id=999),
+            lambda r, j, listing, w: r.update(run_attempt=2),
+            lambda r, j, listing, w: r.update(head_sha="f" * 40),
+            lambda r, j, listing, w: r.update(display_title="copied"),
+            lambda r, j, listing, w: r.update(
+                repository=dict(id=99, full_name="other/repo")
+            ),
+            lambda r, j, listing, w: j.update(run_id=999),
+            lambda r, j, listing, w: j.update(head_sha="f" * 40),
+            lambda r, j, listing, w: j.update(name="reconcile"),
+            lambda r, j, listing, w: j.update(conclusion="skipped"),
+            lambda r, j, listing, w: j.update(completed_at=None),
+            lambda r, j, listing, w: j["steps"][0].update(conclusion="skipped"),
+            lambda r, j, listing, w: listing.update(total_count=101),
+            lambda r, j, listing, w: w["jobs"]["apply"]["steps"][1].update(
+                run="python arbitrary.py"
+            ),
+            lambda r, j, listing, w: w["jobs"]["apply"]["steps"][0]["with"].update(
+                ref="main"
+            ),
+        ]
         for index, mutation in enumerate(cases):
             with self.subTest(case=index), self.assertRaises(ValueError):
                 self.completion(mutation)
 
 
 class AzureResourceBindingCases(unittest.TestCase):
+    o: ModuleType
+    g: ModuleType
     setUp = AzureCompletionCases.setUp
 
     def test_compiled_and_original_operation_membership(self):
         from types import SimpleNamespace
-        scope = dict(account_id='00000000-0000-0000-0000-000000000001', region='eastus', deployment_scope='sandbox')
-        cfg = observation_config('azure')
-        vm = dict(type='Microsoft.Compute/virtualMachines', name='workload', properties={})
-        nic = dict(type='Microsoft.Network/networkInterfaces', name='workload-nic', properties={})
-        association = dict(type='Microsoft.Insights/dataCollectionRuleAssociations', name='monitor', scope=cfg['vm_id'], properties={})
-        native_id = '/subscriptions/'+scope['account_id']+'/resourceGroups/sandbox/providers/Microsoft.Resources/deployments/sdd-original'
-        targets = [('vm_id','Microsoft.Compute/virtualMachines'), ('nic_id','Microsoft.Network/networkInterfaces'),
-                   ('association_id','Microsoft.Insights/dataCollectionRuleAssociations')]
-        for variant in ('matched', 'compiled-substitute', 'native-substitute', 'type', 'state', 'pagination'):
+
+        scope = dict(
+            account_id="00000000-0000-0000-0000-000000000001",
+            region="eastus",
+            deployment_scope="sandbox",
+        )
+        cfg = observation_config("azure")
+        vm = dict(
+            type="Microsoft.Compute/virtualMachines", name="workload", properties={}
+        )
+        nic = dict(
+            type="Microsoft.Network/networkInterfaces",
+            name="workload-nic",
+            properties={},
+        )
+        association = dict(
+            type="Microsoft.Insights/dataCollectionRuleAssociations",
+            name="monitor",
+            scope=cfg["vm_id"],
+            properties={},
+        )
+        native_id = (
+            "/subscriptions/"
+            + scope["account_id"]
+            + "/resourceGroups/sandbox/providers/Microsoft.Resources/deployments/sdd-original"
+        )
+        targets = [
+            ("vm_id", "Microsoft.Compute/virtualMachines"),
+            ("nic_id", "Microsoft.Network/networkInterfaces"),
+            ("association_id", "Microsoft.Insights/dataCollectionRuleAssociations"),
+        ]
+        for variant in (
+            "matched",
+            "compiled-substitute",
+            "native-substitute",
+            "type",
+            "state",
+            "pagination",
+        ):
             current = copy.deepcopy(cfg)
-            current.pop('backup')
+            current.pop("backup")
             compiled = [vm, nic, association]
-            if variant == 'compiled-substitute':
-                compiled = [dict(vm, name='other'), nic, association]
-            operations = dict(value=[dict(id=native_id+'/operations/'+str(i), operationId=str(i),
-                properties=dict(provisioningState='Succeeded', provisioningOperation='Create',
-                    targetResource=dict(id=cfg[key],resourceType=typ))) for i,(key,typ) in enumerate(targets)])
-            if variant == 'native-substitute': operations['value'][0]['properties']['targetResource']['id'] += '-other'
-            if variant == 'type': operations['value'][0]['properties']['targetResource']['resourceType'] = 'Microsoft.Compute/disks'
-            if variant == 'state': operations['value'][0]['properties']['provisioningState'] = 'Failed'
-            if variant == 'pagination': operations['nextLink'] = 'https://untrusted.example/next'
+            if variant == "compiled-substitute":
+                compiled = [dict(vm, name="other"), nic, association]
+            operations: dict = dict(
+                value=[
+                    dict(
+                        id=native_id + "/operations/" + str(i),
+                        operationId=str(i),
+                        properties=dict(
+                            provisioningState="Succeeded",
+                            provisioningOperation="Create",
+                            targetResource=dict(id=cfg[key], resourceType=typ),
+                        ),
+                    )
+                    for i, (key, typ) in enumerate(targets)
+                ]
+            )
+            if variant == "native-substitute":
+                operations["value"][0]["properties"]["targetResource"]["id"] += "-other"
+            if variant == "type":
+                operations["value"][0]["properties"]["targetResource"][
+                    "resourceType"
+                ] = "Microsoft.Compute/disks"
+            if variant == "state":
+                operations["value"][0]["properties"]["provisioningState"] = "Failed"
+            if variant == "pagination":
+                operations["nextLink"] = "https://untrusted.example/next"
+
             class Client:
+                native_id: str
+
                 def call(self, method, url, credentials, request_id):
-                    self.last = (method,url)
-                    return SimpleNamespace(status=200,body=encode(operations))
+                    self.last = (method, url)
+                    return SimpleNamespace(status=200, body=encode(operations))
+
             client = Client()
             client.native_id = native_id
-            executor = SimpleNamespace(request=dict(scope=scope), client=client, request_id='synthetic-request-id')
+            executor = SimpleNamespace(
+                request=dict(scope=scope),
+                client=client,
+                request_id="synthetic-request-id",
+            )
             with self.subTest(variant=variant):
-                if variant == 'matched':
+                if variant == "matched":
                     self.o.bind_original_resources(executor, current, compiled, {}, [])
-                    self.assertEqual(client.last[0], 'GET')
+                    self.assertEqual(client.last[0], "GET")
                 else:
                     with self.assertRaises(ValueError):
-                        self.o.bind_original_resources(executor, current, compiled, {}, [])
+                        self.o.bind_original_resources(
+                            executor, current, compiled, {}, []
+                        )
+
+
+class AzureObservationOrchestration(unittest.TestCase):
+    setUp = AzureCompletionCases.setUp
+    o: ModuleType
+    g: ModuleType
+
+    def test_public_verify_uses_original_operation_and_received_signal(self):
+        import base64
+        from types import SimpleNamespace
+        from urllib.parse import urlsplit
+        spec = importlib.util.spec_from_file_location('azure_observation_execution', ROOT / 'tests/cloud-orchestration-execution.tests.py')
+        assert spec and spec.loader
+        fixtures = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixtures)
+        case = fixtures.AzureExecution('test_exact_manifest_native_incremental_single_submission_no_compiler')
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        params = {k:v['value'] for k,v in case.arm.parameters['parameters'].items()}
+        resources = {r['type']:change['resourceId'] for r,change in zip(case.arm.resources,case.arm.changes)}
+        cfg = dict(vm_id=resources['Microsoft.Compute/virtualMachines'], nic_id=resources['Microsoft.Network/networkInterfaces'],
+            subnet_id=params['subnetId'], identity_id=params['identityId'],
+            association_id=resources['Microsoft.Insights/dataCollectionRuleAssociations'], data_collection_rule_id=params['dataCollectionRuleId'],
+            workload_metric=dict(namespace='Workload',name='Healthy',minimum=1,maximum=1),
+            backup=dict(protected_item_id=resources['Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems'],
+                policy_id=params['backupPolicyId'], recovery_point_id=resources['Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems']+'/recoveryPoints/1'))
+        ref = case.req['local_context']['provider_config']
+        config = json.loads((case.root/ref['path']).read_bytes())
+        config['observation']=cfg
+        (case.root/ref['path']).write_bytes(encode(config))
+        ref['sha256']=hashlib.sha256(encode(config)).hexdigest()
+        case.request_bytes=encode(case.req)
+        (case.root/case.request_ref['path']).write_bytes(case.request_bytes)
+        case.request_ref['sha256']=hashlib.sha256(case.request_bytes).hexdigest()
+        case.executor=case.stage('prepare')
+        case.prepare()
+        applied=case.apply()
+        self.assertEqual(applied['result'],'PASS')
+        self.g.require_native_apply(applied,case.executor)
+        for changed in [dict(applied,result='NO_CHANGE'),dict(applied,operation='reconcile'),dict(applied,native_operation_id='wrong')]:
+            with self.assertRaises(ValueError): self.g.require_native_apply(changed,case.executor)
+        health=NativeFixture('azure','all','healthy')
+        health.cfg=cfg
+        health.scope=case.req['scope']
+        health.principal=fixtures.APPLY_OBJECT
+        native_id=case.executor.client.native_id
+        original_arm=case.arm.request
+        def wire(method,url,headers,body=None):
+            path=urlsplit(url).path
+            if path==native_id+'/operations':
+                return SimpleNamespace(status=200,headers={},body=encode(dict(value=[dict(id=native_id+'/operations/'+str(i),operationId=str(i),
+                    properties=dict(provisioningState='Succeeded',provisioningOperation='Create',
+                        targetResource=dict(id=change['resourceId'],resourceType=change['after']['type']))) for i,change in enumerate(case.arm.changes)])))
+            if path==native_id:
+                response=original_arm(method,url,headers,body)
+                value=json.loads(response.body)
+                value['properties']['outputResources']=[dict(id=v) for v in resources.values()]
+                return SimpleNamespace(status=response.status,headers=response.headers,body=encode(value))
+            return health.request(method,url,headers,body)
+        workflow=self.g.workflow_template(executor_repository='synthetic/executor',executor_revision='d'*40,
+            subscription=case.req['scope']['account_id'],region=case.req['scope']['region'],input_repository='synthetic/plans')
+        auth=case.auths[-1]
+        original_auth=auth.request
+        def metadata(method,url,headers,body=None):
+            if '/contents/' in url:
+                return encode(dict(type='file',encoding='base64',path=fixtures.WORKFLOW,content=base64.b64encode(encode(workflow)).decode()))
+            if '/attempts/1/jobs?' in url:
+                return encode(dict(total_count=1,jobs=[dict(id=456,run_id=123,run_attempt=1,head_sha=fixtures.REV,name='apply',status='completed',conclusion='success',
+                    started_at='2026-10-18T06:00:00Z',completed_at='2026-10-18T06:01:00Z',steps=[dict(name='Execute original apply; require native completion',
+                        status='completed',conclusion='success',started_at='2026-10-18T06:00:01Z',completed_at='2026-10-18T06:00:59Z')])]))
+            if url.endswith('/actions/runs/123'):
+                return encode(dict(auth.run,status='completed',conclusion='success'))
+            return original_auth(method,url,headers,body)
+        case.executor.clock=lambda:1792303320
+        before=(case.root/case.request_ref['path']).read_bytes()
+        writes=case.arm.submissions
+        with patch.object(case.arm,'request',side_effect=wire),patch.object(auth,'request',side_effect=metadata):
+            result=case.executor.observe(case.directory+'/observed.json','verify')
+        verification=json.loads((case.root/(case.directory+'/observed.json.verification.json')).read_bytes())
+        self.assertEqual(verification['overall_result'],'PASS')
+        self.assertFalse(verification['evidence_complete'])
+        self.assertEqual(result['result'],'BLOCKED')
+        self.assertEqual(case.arm.submissions,writes)
+        self.assertEqual((case.root/case.request_ref['path']).read_bytes(),before)
 
 
 class ObservationWire:
