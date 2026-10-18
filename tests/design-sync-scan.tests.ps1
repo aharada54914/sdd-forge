@@ -825,7 +825,7 @@ $runAllPs1Path053 = Join-Path $RepoRoot "tests/run-all.ps1"
 # Query the runner: its suite inventory is no longer embedded in its source.
 $runAllShEntries053 = @(& bash $runAllShPath053 --list)
 $runAllShExit053 = $LASTEXITCODE
-$runAllPs1Text053 = Get-Content -Raw -LiteralPath $runAllPs1Path053
+$runAllPs1Text053 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1Path053)
 if ($runAllShExit053 -eq 0 -and $runAllShEntries053 -ccontains "tests/design-sync-scan.tests.sh" -and $runAllPs1Text053.Contains("tests/design-sync-scan.tests.ps1")) {
     Ok "TEST-053: both tests/run-all.sh and tests/run-all.ps1 list the new suite"
 } else {

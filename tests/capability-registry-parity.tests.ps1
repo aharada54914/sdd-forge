@@ -474,7 +474,7 @@ try {
   } else {
     Fail 'self-registration: capability-registry-parity.tests.sh NOT registered in tests/run-all.sh'
   }
-  $runAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/run-all.ps1')
+  $runAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $root 'tests/run-all.ps1'))
   if ($runAllPs1.Contains('tests/capability-registry-parity.tests.ps1')) {
     Ok 'self-registration: capability-registry-parity.tests.ps1 registered in tests/run-all.ps1'
   } else {

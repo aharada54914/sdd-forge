@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -197,22 +198,56 @@ def execute(args: argparse.Namespace) -> tuple[int, dict]:
         if summary["full_upgrade_required"] and not args.full_gate_promotion:
             return 1, {"verdict": "FAIL", "reason": "full_upgrade_required: true", "checks": []}
     required = [] if summary is None else summary["required_lite_checks"]
-    checks = []
+    # Registry baseline ids were already executed by the caller. Explicit
+    # selections let that caller use this same executor for those checks too.
+    selected = list(args.check)
     for item in required:
         if not isinstance(item, str):
             raise RunnerError("required_lite_checks entries must be strings")
         if item in BASELINE:
             continue
-        checks.append(_run_one(root, item, args.runtime, args.timeout, args.max_output_bytes))
+        selected.append(item)
+    checks = []
+    for item in dict.fromkeys(selected):
+        try:
+            checks.append(_run_one(root, item, args.runtime, args.timeout, args.max_output_bytes))
+        except (RunnerError, OSError) as exc:
+            return 1, {"verdict": "FAIL", "reason": str(exc), "checks": checks,
+                       "failed_check": item}
     failed = [check for check in checks if check["timed_out"] or check["exit_code"] != 0]
     verdict = "FAIL" if failed else "PASS"
     reason = "all required Lite checks passed" if not failed else "one or more required Lite checks failed"
     return (0 if verdict == "PASS" else 1), {"verdict": verdict, "reason": reason, "checks": checks}
 
 
+
+def _source_snapshot(root: Path) -> dict:
+    """Observe Git state, without claiming an immutable execution snapshot."""
+    unknown = {"revision": None, "dirty": None}
+    try:
+        revision = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"], cwd=root,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5, check=False,
+        )
+        status = subprocess.run(
+            ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"], cwd=root,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5, check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return unknown
+    head = revision.stdout.decode("ascii", errors="replace").strip()
+    if revision.returncode != 0 or status.returncode != 0 or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", head):
+        return unknown
+    return {"revision": head, "dirty": bool(status.stdout)}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--summary")
+    parser.add_argument("--check", action="append", default=[],
+                        help="Run a named project check (repeatable); required, never treated as N/A")
+    parser.add_argument("--output", type=Path,
+                        help="Write the actual execution result as JSON evidence")
     parser.add_argument("--full-gate-promotion", action="store_true",
                         help="Execute Summary checks inside an already-selected full quality gate, not the Lite gate")
     parser.add_argument("--enforcement", choices=("none", "advisory", "required"), required=True)
@@ -225,11 +260,30 @@ def main() -> int:
         parser.error("full-gate promotion requires active capability enforcement")
     if args.timeout <= 0 or args.max_output_bytes <= 0:
         parser.error("--timeout and --max-output-bytes must be positive")
+    source_before = _source_snapshot(Path(args.repo_root).resolve())
     try:
         code, payload = execute(args)
     except RunnerError as exc:
         code, payload = 1, {"verdict": "FAIL", "reason": str(exc), "checks": []}
-    print(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+    source_after = _source_snapshot(Path(args.repo_root).resolve())
+    payload["source"] = {
+        "before": source_before,
+        "after": source_after,
+        "head_changed": (source_before["revision"] != source_after["revision"]
+                         if source_before["revision"] and source_after["revision"] else None),
+        "scope": "command-execution-only",
+        "reuse_allowed": False,
+    }
+    payload["runtime"] = args.runtime
+    payload["recorded_at"] = datetime.now(timezone.utc).isoformat()
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    if args.output:
+        try:
+            args.output.write_text(encoded + "\n", encoding="utf-8")
+        except OSError as exc:
+            print(f"execution evidence could not be written: {exc}", file=sys.stderr)
+            return 1
+    print(encoded)
     return code
 
 

@@ -287,7 +287,7 @@ if ($NonUtf8Result.Code -ne 0 -and $NonUtf8Result.Out.Contains('context-projecti
 # --- self-registration -------------------------------------------------------
 $RunAllPath = Join-Path $RepoRoot 'tests/run-all.ps1'
 if (Test-Path $RunAllPath) {
-    $runAll = Get-Content $RunAllPath -Raw
+    $runAll = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $RunAllPath)
 } else {
     $runAll = ''
 }

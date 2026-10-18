@@ -513,7 +513,7 @@ run_test_009() {
     fail "TEST-009 (AC-009): NOT registered in tests/run-all.sh"
   fi
 
-  if grep -qF 'model-freshness-check.tests.ps1' "$RUN_ALL_PS1" 2>/dev/null; then
+  if { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -qF 'model-freshness-check.tests.ps1' <<< "$registered_ps1"; }; then
     ok "TEST-009 (AC-009): registered in tests/run-all.ps1"
   else
     fail "TEST-009 (AC-009): NOT registered in tests/run-all.ps1"
@@ -580,7 +580,7 @@ run_test_016() {
 
   if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
       grep -Fx 'tests/model-freshness-check.tests.sh' <<< "$registered_suites" >/dev/null \
-      && grep -qF 'model-freshness-check.tests.ps1' "$RUN_ALL_PS1" 2>/dev/null; then
+      && { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -qF 'model-freshness-check.tests.ps1' <<< "$registered_ps1"; }; then
     ok "TEST-016 (AC-016): both twins register in tests/run-all.sh AND tests/run-all.ps1"
   else
     fail "TEST-016 (AC-016): one or both twins are NOT registered in tests/run-all.sh/.ps1"

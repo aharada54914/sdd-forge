@@ -72,13 +72,14 @@ function Get-ErrorCategory([string]$Stem, [string]$Probe) {
 function Test-RegistrationAudit([string]$RunSh, [string]$RunPs, [string]$Workflow, [string[]]$Suites) {
     $runShEntries = @(& bash $RunSh --list)
     if ($LASTEXITCODE -ne 0) { return $false }
-    $runPsText = [System.IO.File]::ReadAllText($RunPs)
+    $runPsEntries = @(& $RunPs -List)
+    if ($LASTEXITCODE -ne 0) { return $false }
     $workflowText = [System.IO.File]::ReadAllText($Workflow)
     foreach ($suite in $Suites) {
         $shToken = "tests/$suite.tests.sh"
         $psToken = "tests/$suite.tests.ps1"
         if (@($runShEntries | Where-Object { $_ -ceq $shToken }).Count -ne 1 -or
-            ($runPsText.Split($psToken).Count - 1) -ne 1 -or
+            @($runPsEntries | Where-Object { $_ -ceq $psToken }).Count -ne 1 -or
             ($workflowText.Split($shToken).Count - 1) -ne 1 -or
             ($workflowText.Split($psToken).Count - 1) -ne 1) {
             return $false
@@ -216,15 +217,15 @@ exit 0
     }
     if ($manifestStatus -eq 0) { Pass 'TEST-051 staged candidates match every manifest row' } else { Fail "TEST-051 staged candidates match every manifest row ($($manifestOutput -join '; '))" }
 
-    # Keep the runner's real layout so rejection proves an inventory defect,
-    # not failure to find the inventory beside a relocated script.
+    # Mutate observable registration, independent of the runner's storage format.
     $mutantTests = Join-Path $Tmp 'registration-mutant/tests'
     New-Item -ItemType Directory -Path $mutantTests -Force | Out-Null
     $mutantRunSh = Join-Path $mutantTests 'run-all.sh'
-    $mutantInventory = Join-Path $mutantTests 'suite-inventory.posix'
-    Copy-Item -LiteralPath (Join-Path $Root 'tests/run-all.sh') -Destination $mutantRunSh
-    $inventory = [System.IO.File]::ReadAllLines((Join-Path $Root 'tests/suite-inventory.posix'))
-    [System.IO.File]::WriteAllLines($mutantInventory, $inventory)
+    $mutantInventory = Join-Path $mutantTests 'listing.txt'
+    [IO.File]::WriteAllText($mutantRunSh, '[[ "$1" == --list ]] || exit 2' + "`n" + 'cat "$(dirname "$0")/listing.txt"' + "`n")
+    $inventory = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
+    if ($LASTEXITCODE -ne 0) { throw 'Baseline inventory query failed' }
+    [System.IO.File]::WriteAllLines($mutantInventory, [string[]]$inventory)
     if (Test-RegistrationAudit $mutantRunSh (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow $suiteBases) {
         Pass 'TEST-047 disposable registration baseline is accepted'
     } else {

@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-18T16:36:58.019538+00:00",
+  "checkpoint": "f0f269ef9a2115503f28c039e3d35de5cc7a8493",
+  "upstream": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+  "conflict_resolution": {
+    "tests/run-all-python.tests.ps1": "exact incoming canonical catalog consumer",
+    "tests/run-all.ps1": "exact incoming canonical catalog consumer",
+    "tests/run-all.sh": "exact incoming canonical catalog consumer"
+  },
+  "six_suite_hashes_preserved": {
+    "tests/cloud-orchestration-contracts.tests.py": "dcd2c5a89119d26be5c983ac54cd586b4b6742b7cdff48b30f55a1e1fdaceba4",
+    "tests/cloud-orchestration-routing.tests.py": "d038f799960a234e433dcc4a845ddb7b19394f4a5880c7ed9dd0f7f7037b243a",
+    "tests/cloud-orchestration-execution.tests.py": "3ded22c4377536bfa7925555935d4e14a614263674c1d3acf2a973570cb14703",
+    "tests/cloud-orchestration-verification.tests.py": "a3bfad88d8bff274ac3acc925cfb885b570aa931606e1a8a9a8580f26153de60",
+    "tests/install-cloud.tests.py": "bd6996663bc1dc10a3ef14390b4c6dd3c1aa327acd10594d86c27cfa73359ee9",
+    "tests/sdd-domain-multitarget-foundation.tests.py": "29a75f6cecce1bc8d1d2e5a5de043d1f883dfdecc6e40e310bfa619714495a81"
+  },
+  "cloud_sources_unchanged": true,
+  "pending": "T011 canonical registrations, adapted foundation regression, routing and native host validation. Transitional baseline is not full-suite PASS.",
+  "workflow": "Existing #423 direct CI test step preserved by auto-merge. T011 must reconcile authoritative catalog consumers without dropping assertions.",
+  "ci_efficiency": "Separate change-based CI selection implementation remains approval pending."
+}

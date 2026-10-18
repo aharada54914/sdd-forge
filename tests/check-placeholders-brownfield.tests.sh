@@ -203,7 +203,7 @@ else
     fail "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is NOT registered in run-all.sh and/or test.yml"
 fi
 
-if grep -q 'tests/check-placeholders-brownfield\.tests\.ps1' "$RUN_ALL_PS1" 2>/dev/null \
+if { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q 'tests/check-placeholders-brownfield\.tests\.ps1' <<< "$registered_ps1"; } \
    && grep -q 'check-placeholders-brownfield\.tests\.ps1' "$TEST_YML" 2>/dev/null; then
     ok "REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1 and test.yml"
 else

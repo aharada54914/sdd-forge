@@ -142,7 +142,7 @@ print("PASS" if all(x in text for x in required) and not any(x in text for x in 
   $bytesEqual = ([Convert]::ToHexString($shRaw) -eq [Convert]::ToHexString($jsRaw)) -and ([Convert]::ToHexString($shRaw) -eq [Convert]::ToHexString($psRaw))
   if ($shProcess.ExitCode -eq 0 -and $jsProcess.ExitCode -eq 0 -and $psProcess.ExitCode -eq 0 -and $framingOk -and $bytesEqual) { Ok 'wrapper parity: sh/ps1/js emit byte-identical digests' } else { Fail 'wrapper parity: sh/ps1/js outputs or exit codes differ' }
 
-  $runnerText = Get-Content -LiteralPath (Join-Path $root 'tests/run-all.ps1') -Raw
+  $runnerText = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $root 'tests/run-all.ps1'))
   if ($runnerText.Contains('tests/generate-registry-digest.tests.ps1')) { Ok 'run-all.ps1 registers this suite between T-004 and T-006' } else { Fail 'run-all.ps1 does not register this suite' }
 
   # Done When #4 (tasks.md) -- PowerShell twin of the bash suite's

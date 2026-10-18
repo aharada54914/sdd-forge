@@ -874,7 +874,7 @@ if ((Get-Classification $r.Output "contracts/schema.json") -eq "SHARED_BOUNDED")
 # Query the external inventory, not the runner's source text.
 $runAllSh = @(& bash (Join-Path $repoRoot "tests/run-all.sh") --list)
 $runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
-if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/component-path-resolver.tests.sh" -and (Select-String -LiteralPath $runAllPs1 -Pattern "component-path-resolver" -Quiet)) {
+if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/component-path-resolver.tests.sh" -and (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) -split "`n") -ccontains "tests/component-path-resolver.tests.ps1")) {
     Ok "TEST-045.4: component-path-resolver self-registers in run-all.sh and .ps1"
 } else {
     Fail "TEST-045.4: component-path-resolver missing from run-all.sh/.ps1 registration"

@@ -296,7 +296,7 @@ $testYml = Join-Path $repoRoot ".github/workflows/test.yml"
 # run-all.sh loads its inventory externally; query the executable list.
 $posixEntries = @(& bash $runAllSh --list)
 $posixListExit = $LASTEXITCODE
-$runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { Get-Content -LiteralPath $runAllPs1 -Raw } else { "" }
+$runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) } else { "" }
 $testYmlContent = if (Test-Path -LiteralPath $testYml) { Get-Content -LiteralPath $testYml -Raw } else { "" }
 
 if ($posixListExit -eq 0 -and $posixEntries -ccontains 'tests/hitl-wfi-terminal.tests.sh' -and $testYmlContent.Contains("hitl-wfi-terminal.tests.sh")) {

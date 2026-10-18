@@ -1932,7 +1932,7 @@ if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
 else
   fail "self-registration: tests/run-all.sh references apply-human-copy.tests.sh"
 fi
-if grep -q 'apply-human-copy.tests.ps1' "$ROOT/tests/run-all.ps1"; then
+if { registered_ps1="$(python3 "$ROOT/tests/verification.py" --profile local-powershell --list)" && grep -q 'apply-human-copy.tests.ps1' <<< "$registered_ps1"; }; then
   pass "self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1"
 else
   fail "self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1"

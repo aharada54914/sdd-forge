@@ -161,7 +161,7 @@ if ($LASTEXITCODE -eq 0 -and $posixEntries -ccontains 'tests/validate-capability
 } else {
   Fail 'self-registration: validate-capability-registry.tests.sh NOT registered in tests/run-all.sh'
 }
-$runAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/run-all.ps1')
+$runAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $root 'tests/run-all.ps1'))
 if ($runAllPs1 -match [regex]::Escape('tests/validate-capability-registry.tests.ps1')) {
   Ok 'self-registration: validate-capability-registry.tests.ps1 registered in tests/run-all.ps1'
 } else {

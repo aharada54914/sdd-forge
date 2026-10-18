@@ -534,7 +534,7 @@ Write-Output "=== registration self-check ==="
 # Query the external inventory, not the runner's source text.
 $runAllSh = @(& bash (Join-Path $suiteRepoRoot "tests/run-all.sh") --list)
 $runAllPs1 = Join-Path $suiteRepoRoot "tests/run-all.ps1"
-if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/component-path-diff-basis.tests.sh" -and (Select-String -LiteralPath $runAllPs1 -Pattern "component-path-diff-basis" -Quiet)) {
+if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/component-path-diff-basis.tests.sh" -and (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) -split "`n") -ccontains "tests/component-path-diff-basis.tests.ps1")) {
     Ok "component-path-diff-basis suite self-registers in run-all.sh and .ps1"
 } else {
     Fail "component-path-diff-basis missing from run-all.sh/.ps1 registration"

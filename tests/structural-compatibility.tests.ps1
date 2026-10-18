@@ -282,18 +282,19 @@ function Invoke-Canon([string]$Path) {
     & $AuditHost -NoProfile -File (Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1') audit (Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json') $SkipLog $EvidenceRepo origin/main
     Assert-True 'emitted dependency skips remain allowed on origin/main' ($LASTEXITCODE -eq 0)
 
-    $Runner = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.ps1')
-    # Array entries may use either quote style and an optional trailing comma.
-    # Anchor the whole line so comments and longer paths are not registrations.
-    $RegistrationPattern = '^\s*([''"])tests/structural-compatibility\.tests\.ps1\1\s*,?\s*$'
-    Assert-True 'PowerShell aggregate runner registers this shipped suite exactly once' (@($Runner -cmatch $RegistrationPattern).Count -eq 1)
-    Assert-True 'registration accepts single quotes and trailing comma' ("  'tests/structural-compatibility.tests.ps1'," -cmatch $RegistrationPattern)
-    Assert-True 'registration accepts double quotes without comma' ('    "tests/structural-compatibility.tests.ps1"' -cmatch $RegistrationPattern)
-    Assert-True 'registration rejects a comment-only reference' ('# "tests/structural-compatibility.tests.ps1"' -cnotmatch $RegistrationPattern)
-    Assert-True 'registration rejects a mis-cased path' ('"tests/Structural-compatibility.tests.ps1"' -cnotmatch $RegistrationPattern)
-    Assert-True 'registration rejects a longer path' ('"tests/structural-compatibility.tests.ps1.bak"' -cnotmatch $RegistrationPattern)
-    Assert-True 'registration rejects an absent entry' (@(@('') -cmatch $RegistrationPattern).Count -eq 0)
-    Assert-True 'registration detects duplicate entries' (@(@('"tests/structural-compatibility.tests.ps1"', "'tests/structural-compatibility.tests.ps1',") -cmatch $RegistrationPattern).Count -eq 2)
+    $Runner = @(& (Join-Path $RepoRoot 'tests/run-all.ps1') -List)
+    $target = 'tests/structural-compatibility.tests.ps1'
+    function Test-Registration([string[]]$Entries, [int]$Status) {
+        $Status -eq 0 -and @($Entries | Where-Object { $_ -ceq $target }).Count -eq 1
+    }
+    Assert-True 'PowerShell aggregate runner registers this shipped suite exactly once' (Test-Registration $Runner $LASTEXITCODE)
+    Assert-True 'registration accepts exact path' (Test-Registration @($target) 0)
+    Assert-True 'registration rejects a comment-only reference' (-not (Test-Registration @("# $target") 0))
+    Assert-True 'registration rejects a mis-cased path' (-not (Test-Registration @($target.ToUpperInvariant()) 0))
+    Assert-True 'registration rejects a longer path' (-not (Test-Registration @("$target.bak") 0))
+    Assert-True 'registration rejects an absent entry' (-not (Test-Registration @() 0))
+    Assert-True 'registration detects duplicate entries' (-not (Test-Registration @($target, $target) 0))
+    Assert-True 'registration rejects failed queries even with a matching path' (-not (Test-Registration @($target) 7))
 }
 finally { Remove-Item -LiteralPath $Temp -Recurse -Force }
 

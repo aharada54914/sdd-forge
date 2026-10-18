@@ -391,7 +391,7 @@ function Test-009 {
         Remove-Item -LiteralPath $probe
     }
 
-    $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { Get-Content -LiteralPath $runAllPs1 -Raw } else { "" }
+    $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) } else { "" }
     if ($runAllPs1Content.Contains("model-freshness-check.tests.ps1")) {
         Ok "TEST-009 (AC-009): registered in tests/run-all.ps1"
     } else {
@@ -459,7 +459,7 @@ function Test-016 {
         Fail "TEST-016 (AC-016): tests/model-freshness-check.tests.sh does not exist"
     }
 
-    $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { Get-Content -LiteralPath $runAllPs1 -Raw } else { "" }
+    $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) } else { "" }
     if ((Test-PosixRegistration) -and $runAllPs1Content.Contains("model-freshness-check.tests.ps1")) {
         Ok "TEST-016 (AC-016): both twins register in tests/run-all.sh AND tests/run-all.ps1"
     } else {

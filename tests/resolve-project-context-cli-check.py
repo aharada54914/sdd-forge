@@ -144,8 +144,16 @@ def main():
         run_missing_flag_case(args.launcher, counts, "feature", ["--config", "project-context.yaml", "--target-rev", "HEAD"])
         run_source_rev_default_case(args.launcher, counts)
 
-    sh_registered = "tests/resolve-project-context-cli.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
-    ps_registered = "tests/resolve-project-context-cli.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")
+    sh_registered = "tests/resolve-project-context-cli.tests.sh" in subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-posix", "--list"],
+        text=True,
+    ).splitlines()
+    ps_registered = "tests/resolve-project-context-cli.tests.ps1" in subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-powershell", "--list"],
+        text=True,
+    ).splitlines()
     counts.check(sh_registered, "POSIX suite registered in tests/run-all.sh")
     counts.check(ps_registered, "PowerShell suite registered in tests/run-all.ps1")
 

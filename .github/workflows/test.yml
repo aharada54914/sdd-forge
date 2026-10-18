@@ -106,9 +106,8 @@ jobs:
           # Raw evidence stays private and is deliberately never uploaded.
           # A safe summary/check success alone cannot complete release evidence.
 
-  # run-all.sh is the canonical POSIX suite inventory. This fallback runs
-  # every suite not already named by one of the specialized jobs below, so a
-  # new registration cannot remain local-only or duplicate expensive lanes.
+  # The shared catalog declares local and CI coverage. Missing registrations
+  # fail validation; CI never infers execution from workflow text.
   posix-regression:
     name: complete POSIX regression inventory
     runs-on: ubuntu-latest
@@ -117,8 +116,31 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      - name: Install structural YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
       - name: Test required-checks POSIX failure propagation
         run: python3 tests/required-checks-posix.tests.py
+      - name: Test verification catalog and shadow selection
+        shell: bash
+        run: |
+          python3 tests/verification-catalog.tests.py
+          python3 tests/verification-impact.tests.py
+      - name: Observe impact selection without skipping required checks
+        shell: bash
+        env:
+          VERIFICATION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          VERIFICATION_HEAD: ${{ github.sha }}
+        run: |
+          python3 tests/verification-impact.py --base "$VERIFICATION_BASE" --head "$VERIFICATION_HEAD" > "$RUNNER_TEMP/verification-impact.json"
+          python3 - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          result = json.loads((Path(os.environ['RUNNER_TEMP']) / 'verification-impact.json').read_text())
+          summary = {key: result[key] for key in ('mode', 'required_checks', 'reason', 'full_count')}
+          summary['selected_count'] = len(result['selected'])
+          summary['comparison'] = result['comparison']['status']
+          print(json.dumps(summary))
+          PYCODE
       - name: Install pinned RTK
         shell: bash
         run: |
@@ -147,7 +169,9 @@ jobs:
           subprocess.run([sys.executable, '-m', 'ruff', 'check', '--config', str(config), *files], check=True)
           subprocess.run([sys.executable, '-m', 'mypy', '--config-file', str(config)], check=True)
           PY
-          python3 -B tests/shared-launch-build.tests.py
+      - name: Test shared launch FilesOnly distribution
+        shell: bash
+        run: python3 -B tests/shared-launch-build.tests.py
       - name: Test traceability freeze normalization
         shell: bash
         run: python3 -B tests/traceability-freeze-contract.tests.py
@@ -156,24 +180,7 @@ jobs:
       - name: Test shared review launch and conditional input contracts
         shell: bash
         run: |
-          python3 -B tests/current-byte-capture.tests.py
-          python3 -B tests/concept-test.tests.py
-          python3 -B tests/concept-review-continuity.tests.py
-          python3 -B tests/domain-review-finalize.tests.py
-          python3 -B tests/fixed-review-inputs.tests.py
-          python3 -B tests/fixed-review-state.tests.py
-          python3 -B tests/fixed-review-launch.tests.py
-          python3 -B tests/fixed-review-precheck-ps.tests.py
-          python3 -B tests/fixed-review-precheck-bash.tests.py
-          python3 -B tests/review-conditional-inputs.tests.py
-          python3 -B tests/workflow-conditional-inputs.tests.py
-          python3 -B tests/spec-review-verify-inputs.tests.py
-          python3 -B tests/host-review-preflight.tests.py
-          python3 -B tests/unified-launch-order.tests.py
-          python3 -B tests/unified-task-launch.tests.py
-          python3 -B tests/task-structured-output.tests.py
-          python3 -B tests/supplemental-delivery-declaration.tests.py
-          python3 -B tests/t001-evaluation-preparation.tests.py
+          python3 tests/verification.py --profile ci-shared-python --run --receipt "$RUNNER_TEMP/verification-shared-python.json"
       - name: Install pinned domain regression test runner
         shell: pwsh
         run: Install-Module Pester -RequiredVersion 4.10.1 -Scope CurrentUser -Force -SkipPublisherCheck
@@ -205,9 +212,8 @@ jobs:
         shell: pwsh
         run: ./tests/design-sync-standing-consent.tests.ps1
 
-  # The inventory remains the source of truth, but otherwise-unwired suites
-  # run as independent shards so the longest POSIX lane is bounded by one
-  # shard instead of the full serial inventory.
+  # Measured suite costs balance the catalog partitions; every partition
+  # remains mandatory and together they execute the complete fallback set.
   posix-unwired-sharded:
     name: POSIX unwired shard (${{ matrix.shard }})
     strategy:
@@ -227,7 +233,7 @@ jobs:
         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
       - name: Run POSIX inventory shard
         shell: bash
-        run: bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 4
+        run: bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 4 --receipt "$RUNNER_TEMP/verification-shard.json"
 
   test:
     strategy:
@@ -370,10 +376,7 @@ jobs:
         if: runner.os != 'Windows'
         shell: pwsh
         run: |
-          ./tests/review-contract-foundation.tests.ps1
-          ./tests/downstream-review-precheck.tests.ps1
-          ./tests/impl-layer-review-inputs.tests.ps1
-          ./tests/task-layer-review-inputs.tests.ps1
+          python tests/verification.py --profile ci-portable-prechecks --run
 
       - name: "[deterministic] Test task prior-pass receipt (pwsh)"
         if: runner.os != 'Windows'
@@ -415,16 +418,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $tests = @(
-            './tests/golden-baseline-contract.tests.ps1'
-            './tests/structural-compatibility.tests.ps1'
-            './tests/skip-allowlist-manifest.tests.ps1'
-            './tests/promote-golden-baseline-ci-guard.tests.ps1'
-          )
-          foreach ($test in $tests) {
-            & $test
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
+          python tests/verification.py --profile ci-a7-native --run
 
       - name: "[deterministic] Test guards (bash)"
         if: runner.os != 'Windows'
@@ -883,29 +877,14 @@ jobs:
         shell: pwsh
         run: ./tests/validate-approval-sidecar.tests.ps1
 
-      # These suites use isolated temporary trees. Run both POSIX variants
-      # concurrently; Windows keeps the existing skip behavior.
-      - name: Test apply-human-copy publisher suites (POSIX parallel)
-        if: runner.os == 'macOS' || runner.os == 'Linux'
+      - name: Test apply-human-copy publisher (Bash)
+        if: runner.os != 'Windows'
         shell: bash
-        run: |
-          set -uo pipefail
-          bash_log="$RUNNER_TEMP/apply-human-copy-bash.log"
-          pwsh_log="$RUNNER_TEMP/apply-human-copy-pwsh.log"
-          bash ./tests/apply-human-copy.tests.sh >"$bash_log" 2>&1 &
-          bash_pid=$!
-          pwsh -NoProfile -File ./tests/apply-human-copy.tests.ps1 >"$pwsh_log" 2>&1 &
-          pwsh_pid=$!
-          bash_status=0
-          pwsh_status=0
-          wait "$bash_pid" || bash_status=$?
-          wait "$pwsh_pid" || pwsh_status=$?
-          cat "$bash_log"
-          cat "$pwsh_log"
-          if [ "$bash_status" -ne 0 ] || [ "$pwsh_status" -ne 0 ]; then
-            printf 'apply-human-copy parallel failure: bash=%s pwsh=%s\n' "$bash_status" "$pwsh_status" >&2
-            exit 1
-          fi
+        run: bash ./tests/apply-human-copy.tests.sh
+      - name: Test apply-human-copy publisher (PowerShell)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/apply-human-copy.tests.ps1
 
       - name: Test hook-activation handshake suite (bash)
         if: runner.os != 'Windows'
@@ -1302,74 +1281,24 @@ jobs:
   # Windows version gates use separate runners so the four deterministic
   # lanes do not contend for one runner's CPU.
   version-gates-windows-bump:
-    name: version-gates-windows-bump
+    name: version-gates-windows-bump (${{ matrix.runtime }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runtime: bash
+            suite: tests/bump-version-gate.tests.sh
+          - runtime: powershell
+            suite: tests/bump-version-gate.tests.ps1
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Test bump-version.sh loop-gate prerequisite (bash + pwsh, parallel)
+      - name: Test bump-version loop-gate prerequisite
         shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $workDir = (Get-Location).Path
-          $logRoot = Join-Path $env:RUNNER_TEMP 'bump-version-gate-parallel'
-          $bashOut = "$logRoot-bash.out"
-          $bashErr = "$logRoot-bash.err"
-          $pwshOut = "$logRoot-pwsh.out"
-          $pwshErr = "$logRoot-pwsh.err"
-          $processes = @()
-          $bash = $null
-          $pwsh = $null
-          $launchError = $null
-          $deadline = [DateTime]::UtcNow.AddMinutes(20)
-          try {
-            $bashPath = (Get-Command bash -ErrorAction Stop).Path
-            $bash = Start-Process -FilePath $bashPath `
-              -ArgumentList @('./tests/bump-version-gate.tests.sh') `
-              -WorkingDirectory $workDir `
-              -RedirectStandardOutput $bashOut `
-              -RedirectStandardError $bashErr `
-              -PassThru
-            $processes += $bash
-            $pwshPath = (Get-Command pwsh -ErrorAction Stop).Path
-            $pwsh = Start-Process -FilePath $pwshPath `
-              -ArgumentList @('-NoProfile', '-NonInteractive', '-File', './tests/bump-version-gate.tests.ps1') `
-              -WorkingDirectory $workDir `
-              -RedirectStandardOutput $pwshOut `
-              -RedirectStandardError $pwshErr `
-              -PassThru
-            $processes += $pwsh
-            while (@($processes | Where-Object { -not $_.HasExited }).Count -gt 0) {
-              if ([DateTime]::UtcNow -ge $deadline) {
-                throw 'bump-version-gate timed out after 20 minutes'
-              }
-              Start-Sleep -Seconds 1
-            }
-          } catch {
-            $launchError = $_
-          } finally {
-            foreach ($process in $processes) {
-              if (-not $process.HasExited) {
-                try { $process.Kill($true) } catch { $process.Kill() }
-                $process.WaitForExit()
-              }
-            }
-          }
-          Write-Host '=== bump-version-gate Bash output ==='
-          if (Test-Path -LiteralPath $bashOut) { Get-Content -LiteralPath $bashOut }
-          if (Test-Path -LiteralPath $bashErr) { Get-Content -LiteralPath $bashErr }
-          Write-Host '=== bump-version-gate PowerShell output ==='
-          if (Test-Path -LiteralPath $pwshOut) { Get-Content -LiteralPath $pwshOut }
-          if (Test-Path -LiteralPath $pwshErr) { Get-Content -LiteralPath $pwshErr }
-          if ($launchError) { throw $launchError }
-          $bashExit = if ($bash) { $bash.ExitCode } else { 'not-started' }
-          $pwshExit = if ($pwsh) { $pwsh.ExitCode } else { 'not-started' }
-          if (-not $bash -or -not $pwsh -or $bashExit -ne 0 -or $pwshExit -ne 0) {
-            throw "bump-version-gate failed (bash=$bashExit, pwsh=$pwshExit)"
-          }
-
+        run: python tests/verification.py --suite "${{ matrix.suite }}" --run
       - name: Test release.yml required loop-gate job (bash)
+        if: matrix.runtime == 'bash'
         shell: bash
         run: bash ./tests/release-loop-gate.tests.sh
 
@@ -1662,10 +1591,12 @@ jobs:
   # Keep the Windows-only deterministic suites in a parallel job.
   # Their assertions remain required by required-checks.
   test-windows-heavy:
-    name: test-windows-heavy
+    name: test-windows-heavy (${{ matrix.lane }})
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [compatibility, gates, a9]
     runs-on: windows-latest
-    # Native captures plus the expanded A9 suites need about 35-38 minutes,
-    # including the existing post-A9 checks; retain margin for runner variance.
     timeout-minutes: 45
     steps:
       - name: "[deterministic] Setup step 1"
@@ -1677,37 +1608,42 @@ jobs:
       # It remains a required native-Windows assertion, but runs in parallel
       # with the golden-baseline suite in the main Windows test job.
       - name: "[deterministic] Test A7 byte-identical compatibility (pwsh)"
+        if: matrix.lane == 'compatibility'
         shell: pwsh
         run: ./tests/compatibility-byte-identical.tests.ps1
 
       - name: "[deterministic] Test A7 current-product reachability"
+        if: matrix.lane == 'compatibility'
         shell: pwsh
         run: python -B tests/current-byte-capture.tests.py
 
       - name: "[deterministic] Test deterministic gate scripts"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/scripts.tests.ps1
       - name: "[deterministic] Test portable review-loop prechecks"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: |
-          ./tests/review-contract-foundation.tests.ps1
-          ./tests/review-hash-normalization.tests.ps1
-          ./tests/downstream-review-precheck.tests.ps1
-          ./tests/impl-layer-review-inputs.tests.ps1
-          ./tests/task-layer-review-inputs.tests.ps1
+          python tests/verification.py --profile ci-portable-prechecks --run
       - name: "[deterministic] Test task prior-pass receipt"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/task-prior-pass-receipt.tests.ps1
       - name: "[deterministic] Test A9 unpublished candidate and Pack"
+        if: matrix.lane == 'a9'
         shell: pwsh
         run: ./tests/a9-dogfood.tests.ps1
       - name: "[deterministic] Test cross-model gate"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/cross-model.tests.ps1
       - name: "[deterministic] Test hook guards"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/hooks.tests.ps1
       - name: "[deterministic] Test panelist-input consent gate"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/prepare-panelist.tests.ps1
 
@@ -1715,11 +1651,13 @@ jobs:
       # cross-runtime handoff contract and activation-gate fixture. The live
       # CLI path is opt-in inside the suite and is never used by CI.
       - name: "[deterministic] Test cross-runtime handoff fixture (pwsh)"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/cross-runtime-handoff.tests.ps1
 
       # epic-196-a8-integration T-002 (REQ-005, AC-022..AC-023): read-only
       # installed-plugin drift comparison in both wrapper runtimes.
       - name: "[deterministic] Test installed-plugin drift check (pwsh)"
+        if: matrix.lane == 'gates'
         shell: pwsh
         run: ./tests/check-installed-plugin-drift.tests.ps1

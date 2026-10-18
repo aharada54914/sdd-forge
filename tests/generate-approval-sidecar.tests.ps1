@@ -1124,7 +1124,7 @@ if ($LASTEXITCODE -eq 0 -and $PosixEntries -ccontains 'tests/generate-approval-s
 } else {
   Test-Fail 'self-registration: tests/generate-approval-sidecar.tests.sh registered in tests/run-all.sh'
 }
-$RunAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.ps1')
+$RunAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $Root 'tests/run-all.ps1'))
 if ($RunAllPs1 -match 'generate-approval-sidecar\.tests\.ps1') {
   Test-Pass 'self-registration: tests/generate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1'
 } else {

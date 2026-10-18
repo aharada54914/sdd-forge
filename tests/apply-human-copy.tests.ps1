@@ -1408,7 +1408,7 @@ if ($IsWindows) {
 # ---------------------------------------------------------------------------
 # Self-registration.
 # ---------------------------------------------------------------------------
-if ((Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.ps1')) -match 'apply-human-copy\.tests\.ps1') {
+if (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $Root 'tests/run-all.ps1'))) -match 'apply-human-copy\.tests\.ps1') {
     Test-Pass 'self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1'
 } else {
     Test-Fail 'self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1' 'not found'

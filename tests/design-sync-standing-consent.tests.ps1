@@ -747,7 +747,7 @@ if ((Test-HasPassPrefix $baselineLines "PASS: TEST-021 ") -and (Test-HasPassPref
 # not a literal path that no longer appears in the runner source.
 $registeredSuites = @(& bash $runAllShPath --list)
 $registrationExit = $LASTEXITCODE
-$runAllPs1Text = Get-TextOrEmpty $runAllPs1Path
+$runAllPs1Text = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1Path)
 if ($registrationExit -eq 0 `
         -and $registeredSuites -ccontains "tests/design-sync-standing-consent.tests.sh" `
         -and $runAllPs1Text.Contains("tests/design-sync-standing-consent.tests.ps1")) {

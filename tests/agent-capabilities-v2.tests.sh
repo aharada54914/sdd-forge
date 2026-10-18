@@ -309,7 +309,7 @@ if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
 else
   bad "self-registration: agent-capabilities-v2.tests.sh NOT registered in tests/run-all.sh"
 fi
-if [[ -f "$RUN_ALL_PS1" ]] && grep -q 'agent-capabilities-v2\.tests\.ps1' "$RUN_ALL_PS1"; then
+if [[ -f "$RUN_ALL_PS1" ]] && { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q 'agent-capabilities-v2\.tests\.ps1' <<< "$registered_ps1"; }; then
   ok "self-registration: agent-capabilities-v2.tests.ps1 registered in tests/run-all.ps1"
 else
   bad "self-registration: agent-capabilities-v2.tests.ps1 NOT registered in tests/run-all.ps1"

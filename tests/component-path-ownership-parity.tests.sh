@@ -81,9 +81,11 @@ registration_audit() {
   local run_sh="$1" run_ps="$2" workflow="$3" suite sh_count ps_count ci_sh_count ci_ps_count registered_suites
   shift 3
   registered_suites="$(bash "$run_sh" --list)" || return 1
+  local registered_ps1
+  registered_ps1="$(python3 "$(dirname "$run_ps")/verification.py" --profile local-powershell --list)" || return 1
   for suite in "$@"; do
     sh_count="$(grep -Fxc -- "tests/$suite.tests.sh" <<< "$registered_suites" || true)"
-    ps_count="$(grep -Fc -- "tests/$suite.tests.ps1" "$run_ps" 2>/dev/null || true)"
+    ps_count="$(grep -Fxc -- "tests/$suite.tests.ps1" <<< "$registered_ps1" || true)"
     ci_sh_count="$(grep -Fc -- "tests/$suite.tests.sh" "$workflow" 2>/dev/null || true)"
     ci_ps_count="$(grep -Fc -- "tests/$suite.tests.ps1" "$workflow" 2>/dev/null || true)"
     if [[ "$sh_count" != "1" || "$ps_count" != "1" || "$ci_sh_count" != "1" || "$ci_ps_count" != "1" ]]; then

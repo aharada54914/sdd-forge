@@ -482,7 +482,7 @@ Body text unaffected.
             Test-Ok "self-registration rejects $($negative.Name)"
         }
     }
-    if ((Test-Path $runAllPs1) -and (Select-String -Path $runAllPs1 -Pattern 'render-agent-frontmatter\.tests\.ps1' -Quiet)) {
+    if ((Test-Path $runAllPs1) -and (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) -split "`n") -ccontains "tests/render-agent-frontmatter.tests.ps1")) {
         Test-Ok 'self-registration: render-agent-frontmatter.tests.ps1 registered in tests/run-all.ps1'
     } else {
         Test-Bad 'self-registration: render-agent-frontmatter.tests.ps1 NOT registered in tests/run-all.ps1'

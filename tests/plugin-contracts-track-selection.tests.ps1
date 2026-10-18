@@ -597,7 +597,7 @@ function Test-ExactRegistration([string[]]$Listed, [int]$ExitCode, [string]$Targ
 $targetSh = 'tests/plugin-contracts-track-selection.tests.sh'
 $listedSh = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
 $listExit = $LASTEXITCODE
-$runAllPs1 = [IO.File]::ReadAllText((Join-Path $Root 'tests/run-all.ps1'))
+$runAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $Root 'tests/run-all.ps1'))
 Assert-True (Test-ExactRegistration $listedSh $listExit $targetSh) `
     'self-registration: tests/plugin-contracts-track-selection.tests.sh registered in tests/run-all.sh'
 Assert-True (Test-ExactRegistration @($targetSh) 0 $targetSh) 'registration control: exact entry accepted'

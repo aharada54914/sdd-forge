@@ -1,45 +1,16 @@
+# Exercise the shared runner's registration, missing runtime and failure behavior.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$tokens = $null
-$errors = $null
-$ast = [System.Management.Automation.Language.Parser]::ParseFile(
-    (Join-Path $PSScriptRoot 'run-all.ps1'), [ref]$tokens, [ref]$errors)
-if ($errors.Count) { throw 'run-all.ps1 syntax invalid' }
-$loops = @($ast.FindAll({ param($node)
-    $node -is [System.Management.Automation.Language.ForEachStatementAst] -and
-    $node.Condition.Extent.Text.Contains('tests/quality-nontty-transport.tests.py')
-}, $true))
-if ($loops.Count -ne 1) { throw 'expected exactly one Python suite loop' }
-$loop = [scriptblock]::Create($loops[0].Extent.Text)
-$suiteCount = @($loops[0].Condition.SafeGetValue()).Count
-if ($suiteCount -lt 1) { throw 'Python suite inventory must not be empty' }
-
-function Get-Command {
-    param($Name, $ErrorAction)
-    $script:lookups += $Name
-    if ($Name -ceq $script:available) { [pscustomobject]@{ Source = 'Invoke-FixturePython' } }
+$python = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $python) { $python = Get-Command python -ErrorAction SilentlyContinue }
+if (-not $python) { throw 'Verification requires python3 or python.' }
+& $python.Source -B (Join-Path $PSScriptRoot 'verification-catalog.tests.py')
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$hostPath = (Get-Process -Id $PID).Path
+$listed = @(& $hostPath -NoProfile -File (Join-Path $PSScriptRoot 'run-all.ps1') -List)
+if ($LASTEXITCODE -ne 0) { throw 'PowerShell catalog listing failed.' }
+$catalog = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'verification-catalog.json') -Raw | ConvertFrom-Json
+if (($listed -join "`n") -cne ($catalog.profiles.'local-powershell' -join "`n")) {
+    throw 'PowerShell launcher changed the catalog selection.'
 }
-function Invoke-FixturePython {
-    param([switch]$B, $Path)
-    if (-not $B -or -not $Path.EndsWith('.tests.py')) { throw 'Python arguments changed' }
-    $script:calls++
-    $global:LASTEXITCODE = $script:code
-}
-
-foreach ($case in @(
-    @{ Available = 'python3'; Code = 0; Failures = 0; Calls = $suiteCount; Lookups = $suiteCount },
-    @{ Available = 'python'; Code = 0; Failures = 0; Calls = $suiteCount; Lookups = (2 * $suiteCount) },
-    @{ Available = ''; Code = 0; Failures = $suiteCount; Calls = 0; Lookups = (2 * $suiteCount) },
-    @{ Available = 'python3'; Code = 9; Failures = $suiteCount; Calls = $suiteCount; Lookups = $suiteCount }
-)) {
-    $script:available = $case.Available
-    $script:code = $case.Code
-    $script:calls = 0
-    $script:lookups = @()
-    $failed = @()
-    . $loop
-    if ($failed.Count -ne $case.Failures -or $script:calls -ne $case.Calls -or
-        $script:lookups.Count -ne $case.Lookups) { throw "Python runner case failed: $($case.Available)/$($case.Code)" }
-}
-Write-Host 'PASS: Python runner preference, fallback, missing runtime, and failing suites (4 cases)'
+Write-Host 'PASS: native PowerShell launcher listing and shared runner behavior'

@@ -787,7 +787,7 @@ for k, v in sorted(mod.CATEGORY_EXIT_CODES.items()):
       Test-Pass "self-registration: invalid inventory rejected ($($probe.Entry), exit $($probe.Code))"
     }
   }
-  $RunAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.ps1')
+  $RunAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $Root 'tests/run-all.ps1'))
   if ($RunAllPs1 -match 'canonicalize-sdd-yaml\.tests\.ps1') {
     Test-Pass 'self-registration: tests/canonicalize-sdd-yaml.tests.ps1 registered in tests/run-all.ps1'
   } else {
