@@ -1,0 +1,1110 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-007",
+  "run_id": "01a14f96-e637-7773-aa3b-74e44216f500",
+  "session_id": "01a14f96-e637-7773-aa3b-74e44216f500",
+  "agent_instance_id": "01a14f96-e637-7773-aa3b-74e44216f500",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T15:19:27Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "initial/.agents/plugins/marketplace.json",
+      "sha256": "f9d0424f3b4202135ae0d33c95498ab45b8df87fb07ffaa0fe8d2720ec50cdbd"
+    },
+    {
+      "path": "initial/.claude-plugin/marketplace.json",
+      "sha256": "0369a585252bf9c87f759d91bc41b06261005161807457bd97c2977894a6b81e"
+    },
+    {
+      "path": "initial/.codex/agents/sdd-evaluator.toml",
+      "sha256": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a"
+    },
+    {
+      "path": "initial/.codex/agents/sdd-investigator.toml",
+      "sha256": "5a10183be5d4ba742d7c80d929ac1cdd59b4d32109c48c7615ea05e4b6d6886d"
+    },
+    {
+      "path": "initial/.codex/agents/sdd-panelist-gemini.toml",
+      "sha256": "cee875549343d2bc6bc8bee29694ee67b1f481819ed0a6e10a1044893c0ab270"
+    },
+    {
+      "path": "initial/.codex/agents/sdd-panelist-gpt.toml",
+      "sha256": "7dc97360df3e6656f065fa207dcd67f4ccbd5eabbc7c41e7011c1f59bf824816"
+    },
+    {
+      "path": "initial/AGENTS.md",
+      "sha256": "be21577343b8b2cc488c47b373ed68130ded00d994f58f1f81b7b69bddd6d537"
+    },
+    {
+      "path": "initial/CHANGELOG.md",
+      "sha256": "eb5c357606bf289013f6859d772bc759959ca08fc3177a6af806f1ad17d281e5"
+    },
+    {
+      "path": "initial/PLUGIN-CONTRACTS.md",
+      "sha256": "fb9987aa93948bdc55726b0c0e36b0c70eb626f677278a4862c484dd2b0ed913"
+    },
+    {
+      "path": "initial/README.md",
+      "sha256": "430e0a0894f2b673044fc6be2f6b6e0f1918657d91ebf989951a5dd68990b046"
+    },
+    {
+      "path": "initial/contracts/adversarial-review-evaluation.v1.schema.json",
+      "sha256": "79a3f7b75996474d318535dab04fd284706f2008ef7592fe66992e3dc39d054f"
+    },
+    {
+      "path": "initial/contracts/adversarial-review-report.v1.schema.json",
+      "sha256": "3dd9bbb8cfd475444b4662abddedc86b9088d419323e4bfeb34b663a8353fb1a"
+    },
+    {
+      "path": "initial/contracts/agent-model-capabilities.json",
+      "sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1"
+    },
+    {
+      "path": "initial/contracts/agent-model-capabilities.v2.json",
+      "sha256": "847fe86588ea22dcb0a13b7b61548aa254f22a8244aa5153e63efefe8a4d200e"
+    },
+    {
+      "path": "initial/contracts/approval-sidecar.schema.json",
+      "sha256": "f205da8f1103fc2ac876e7fbff4dc6f89db4146325e65aadc15d139ffa4265e3"
+    },
+    {
+      "path": "initial/contracts/approver-registry.schema.json",
+      "sha256": "47c1c3e0eddfca0a6abbf22db2fd4b8d633e2bdc9362044ec3c903c82d85e94e"
+    },
+    {
+      "path": "initial/contracts/capability-registry.json",
+      "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75"
+    },
+    {
+      "path": "initial/contracts/capability-registry.schema.json",
+      "sha256": "ef70a27785d325cc32d2c4a2faeed099e9df3058fd7a918e2efbd4013ed8f319"
+    },
+    {
+      "path": "initial/contracts/capability-summary.schema.json",
+      "sha256": "09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f"
+    },
+    {
+      "path": "initial/contracts/ci-mcp-tools.v1.schema.json",
+      "sha256": "7e2cc1d88a07ab4e62c4088d0cc0c2d0b0b49972b23cbc95d70debd3449ec357"
+    },
+    {
+      "path": "initial/contracts/cloud-authorization-receipt.schema.json",
+      "sha256": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8"
+    },
+    {
+      "path": "initial/contracts/cloud-check-result.schema.json",
+      "sha256": "992b8f4d530d4aab0fe5bca1a28b459a6c9cd9bec7e6ed68b648f489127617c0"
+    },
+    {
+      "path": "initial/contracts/cloud-collection-context.schema.json",
+      "sha256": "7706241bf1a949a64b18212ba09bd8a4aa66896df668084056ee6979fdb84272"
+    },
+    {
+      "path": "initial/contracts/cloud-dependency-lock.schema.json",
+      "sha256": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec"
+    },
+    {
+      "path": "initial/contracts/cloud-deployment-policy.schema.json",
+      "sha256": "a064217e4a68838a3d719749fb751ba63ffabb2094d16cf13090afeaed080eb8"
+    },
+    {
+      "path": "initial/contracts/cloud-input-error.schema.json",
+      "sha256": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77"
+    },
+    {
+      "path": "initial/contracts/cloud-observation-evidence.schema.json",
+      "sha256": "0d0dfccf3bd5982a2948a9db75fd459197b6bb683f19a993b5bfdce72df1d99e"
+    },
+    {
+      "path": "initial/contracts/cloud-observation.schema.json",
+      "sha256": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826"
+    },
+    {
+      "path": "initial/contracts/cloud-operation-result.schema.json",
+      "sha256": "a92bdac86499052256112babe5ff559c2e071adba411f4a2e92ec38b6b5b2aa6"
+    },
+    {
+      "path": "initial/contracts/cloud-ownership.schema.json",
+      "sha256": "71079e7320c968bce57fba67bd105d59ab57c00a51165a3598d522919141f25d"
+    },
+    {
+      "path": "initial/contracts/cloud-preview.schema.json",
+      "sha256": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99"
+    },
+    {
+      "path": "initial/contracts/cloud-run-request.schema.json",
+      "sha256": "781d83fad3d8e883e2c4aa886c5356da12f93d5ef5e35f16a5d83e9c024c9d81"
+    },
+    {
+      "path": "initial/contracts/cloud-verification-profile.schema.json",
+      "sha256": "b25112c7e73583b180941639cb8f137a89fcb7daa82b1afd7ec8eec66c9353bf"
+    },
+    {
+      "path": "initial/contracts/cloud-verification-registry.schema.json",
+      "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392"
+    },
+    {
+      "path": "initial/contracts/cloud-verification.schema.json",
+      "sha256": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e"
+    },
+    {
+      "path": "initial/contracts/concept-test.v1.schema.json",
+      "sha256": "7b0bc534b1f0b819a19e5a70c0e3d39f35e3d5f6747e53086bb9c1dbbb810c71"
+    },
+    {
+      "path": "initial/contracts/context-projection.schema.json",
+      "sha256": "3c8e39c6a8dedf948cbd7e6a8f36369f2a68a3fc3dd92192f90bbce917d32643"
+    },
+    {
+      "path": "initial/contracts/cross-critique.v1.schema.json",
+      "sha256": "8c72c37907036cf00d1d8d341199d4d3502fabd57db1c60d0205926e23135991"
+    },
+    {
+      "path": "initial/contracts/design-system.contract.v1.schema.json",
+      "sha256": "3b8d541218fda8e794350b8a545d6bcb3a85733f2e0ee00089eb49f7de3d1db1"
+    },
+    {
+      "path": "initial/contracts/domain-contract.v1.schema.json",
+      "sha256": "0ab46b74c1e2561431b42b76106698339e79cd64ce0513b02aec5527b8b73841"
+    },
+    {
+      "path": "initial/contracts/domain-contract.v2.schema.json",
+      "sha256": "ad69c28f323e5c2f83e07b78c4f14461b4f7152193a9021c0a12c3e0285aba16"
+    },
+    {
+      "path": "initial/contracts/domain-review-contract.v1.schema.json",
+      "sha256": "b86f234e76f66887384284fed08ec3b5d951df3bcc7cc5722e9ed18489edfb35"
+    },
+    {
+      "path": "initial/contracts/facet-manifest.schema.json",
+      "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51"
+    },
+    {
+      "path": "initial/contracts/lite-check-catalog.json",
+      "sha256": "c251b3e02a2c93c45a7ea590bc5a7e36eef8e5915c485b0c6a6e83519afe086a"
+    },
+    {
+      "path": "initial/contracts/lite-check-catalog.schema.json",
+      "sha256": "a4e458242d68237cf16e66aa28b362c30dae4a6d20109cb4af51711f6fc1cd19"
+    },
+    {
+      "path": "initial/contracts/lite-upgrade-reason-catalog.json",
+      "sha256": "e73a730f9edacd7d2dad2da3e13b9e3df01f7002c25f7e947316ca249118eb76"
+    },
+    {
+      "path": "initial/contracts/local-env-mcp-tools.v1.schema.json",
+      "sha256": "f1f81d484cd13b62c64b4802195efd6d50edb1ccedcd489626f699f6cac4ae1d"
+    },
+    {
+      "path": "initial/contracts/project-context.schema.json",
+      "sha256": "a6a86903e8126ecc0d587499f75c7222aee0eb0f442a51b39fa8ff852829592e"
+    },
+    {
+      "path": "initial/contracts/provider-bindings.schema.json",
+      "sha256": "7adfa236d2bb00055bd38f3fc6b7664f6d41e88989e9aedba1c0a9c5d55f8cd7"
+    },
+    {
+      "path": "initial/contracts/resolver-evidence.schema.json",
+      "sha256": "0f37f39a8b45beff2cb53230568adeaa26ca4cc18683816f9331c0dbb38e92f3"
+    },
+    {
+      "path": "initial/contracts/review-contract.v1.schema.json",
+      "sha256": "d1bf67c20a8b1229f5550ba6deab339962236a626d5a9aac84e847dc7727597a"
+    },
+    {
+      "path": "initial/contracts/rollback-1.5.0.json",
+      "sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197"
+    },
+    {
+      "path": "initial/contracts/sdd-forge-mcp-tools.v1.schema.json",
+      "sha256": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78"
+    },
+    {
+      "path": "initial/contracts/selected-verification-plan-v2.schema.json",
+      "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5"
+    },
+    {
+      "path": "initial/contracts/selected-verification-plan.schema.json",
+      "sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe"
+    },
+    {
+      "path": "initial/contracts/task-input-manifest.schema.json",
+      "sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749"
+    },
+    {
+      "path": "initial/contracts/terminal-tier-blocked-state.schema.json",
+      "sha256": "bcf0d1b969fb917b656b0d25e24dcb34021378cc2639bb4b30198c3ccb722dc5"
+    },
+    {
+      "path": "initial/contracts/verification-contract-v3.schema.json",
+      "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a"
+    },
+    {
+      "path": "initial/contracts/workflow-state-registry.schema.json",
+      "sha256": "bee4972d7d4d4ae8116ac0115d16295d1f167333edffd5a08d9dc8ceea3c31d7"
+    },
+    {
+      "path": "initial/docs/adr/0036-thin-cloud-orchestration.md",
+      "sha256": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"
+    },
+    {
+      "path": "initial/docs/contributor/shared-file-mirrors.md",
+      "sha256": "b9406eb20abf5732c26987fc71bfc9163aa175174b7e43e6c100f74fdb388cfa"
+    },
+    {
+      "path": "initial/install.ps1",
+      "sha256": "7dc0b742a29a18daf85809caf8a2e92be098608a6cc1b1a29612470c9b64e056"
+    },
+    {
+      "path": "initial/install.sh",
+      "sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/examples/private-ec2/README.md",
+      "sha256": "0caceb7832a0c3e467042a760789f03a47521eaca375e712ea15120931e2ea5a"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/examples/private-ec2/app.js",
+      "sha256": "710c6889188eac80e9f5e6b505c3796ded52747c9a56c305c58a53d05f3c2b25"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/examples/private-ec2/cdk.json",
+      "sha256": "7802e394180f0d618f4caf7d1a6647f406ad327fa0aaa38c84b8b6b8471b24a5"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json",
+      "sha256": "b106084fff5e18ca94260509133337891b58d5269d77166ff9320a36419cccec"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/examples/private-ec2/package.json",
+      "sha256": "beddc07bfbf3d198ca58b3d500e746b7bd4ebc14a25b469033fb1c41ba50a00b"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/aws-local-config.schema.json",
+      "sha256": "1d8d1f63b8f2ff4836058d928752c5322b744727e03b14d2e34e1ec6b9d25f22"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/aws-local-evidence.schema.json",
+      "sha256": "d64402c81095bd9a0657d34f4723a02996d91bb93cb0d0906c4ca288aeaa3187"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/local-preparation.md",
+      "sha256": "2a890269fabb6128f125f5533d3eb4c6411589ca0d0843b642b47cc959f7a257"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/observations.md",
+      "sha256": "b474f3965405b3b5883d8550300aab4ac830261b14dc9cef615d47543794a748"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/toolchain-lock.json",
+      "sha256": "c46bafb8869840c879739f424746eda64ca6c62aafab906d9e98012dee7c3f5d"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/SKILL.md",
+      "sha256": "af178f8e909efd66496b09c7301c5e11ef96681fd62bf91406dcb340a18aacf6"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md",
+      "sha256": "ce48bf13921481aa6d2df131f0bd32faa8cc07bb50b63b1805ddbfe6ca18a5f0"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md",
+      "sha256": "4d576be561b16fd140c7f44de3b905ca81718752003a5072fec7062f2a2e782c"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/construct-patterns.md",
+      "sha256": "029a6450cc738c220051c1e2df94cb08e82b9fd80b20ab6b1b31696015222d6c"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/fast-deployments.md",
+      "sha256": "b6ddc7a418ed0d2f6e450c1835e3dc83c0648cbcdf4b582ebd66234918b22171"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md",
+      "sha256": "375e247190c3ebe29b2b8b211f665d4f463c7d959d3a6a067f8816d1a5df3a26"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md",
+      "sha256": "bdc1dacfaaaef810923699fc19803b492815b404190f055f90bd3558587b335c"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md",
+      "sha256": "87b36861e1cf656fdb576536c20c61dfff5316e1b7465954f9b1b01cce0f0ee0"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md",
+      "sha256": "80b97fe332046fb025cf6635b3add76046bf9b2933bd45394255585f1694a967"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md",
+      "sha256": "1397f0c8034ccafd1353c3053d119e721c4904b9dc2ba33a1f285f69bfb909ea"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md",
+      "sha256": "f88efb1a4b7451fe194e5c617ea2c467be93ecaa7221264b80361cca035dc181"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/references/upstream-lock.json",
+      "sha256": "1898ede044cc25e0fba804077559544f5f58e9e323d8d0701721b8545cc97766"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/scripts/aws_control.py",
+      "sha256": "92842d7174dbb0bc8ba3ad796fd8a3bd7f46ed91178dfa80bbc6558762523d67"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/scripts/aws_execution.py",
+      "sha256": "69ba7b8b9fe43c1ddcb0a7af0b38f2c5f60affc7e86d02c3710e8a168b5974f7"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "sha256": "94f9f9c07aee2de6bb1e7229c0244cde7423441d59b813cc8c426e2a71943ff0"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/scripts/aws_graph.py",
+      "sha256": "21896c758e64f5db7571c2c5209a4ab122cac8347dc18096c29e79f7396a42fd"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "sha256": "82bbf762e80d62abdc77b56f850729c72d4ae83c3e59f4de09751867f16e4b31"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/scripts/aws_native.py",
+      "sha256": "1e2ea86be1852796c55c3858d40bef1afbcdc0594a95b0b160d88d1e5c817855"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "sha256": "6c42f914d8c1b959542da30d614c673f50a78987b7dea95dd6638ac476420c81"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/scripts/cloud.py",
+      "sha256": "167b3e37e88a5ab1c32344e226823ae0e9d1518d7927a7ab4221422a011cc933"
+    },
+    {
+      "path": "initial/plugins/sdd-aws-cloud/scripts/governed-setup.md",
+      "sha256": "2bd8c9b4ddcd7d9879a5b58d1e7c30d4d9c8c0286501b6b4d066eaf967712578"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/examples/README.md",
+      "sha256": "18d4bac06d053a486ab77936c75cd7e4f0824fff90728431cbfdf7f89d9cc873"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/examples/private-vm.bicep",
+      "sha256": "81ba478fb3744e96496243358f3aef3477646027a58e1220f3c16b7b428c9422"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/references/azure-local-config.schema.json",
+      "sha256": "c8390b8b18bf5f4c5cd961892b78f0d3d7f08641d14ae5052f62fe17f795fc3f"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json",
+      "sha256": "e4584e317609585b3effc865412757ef730448d814b2ce7f78eebf485728b68a"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/references/azure-parameters.schema.json",
+      "sha256": "5922b55565b1a506db4cc424560cbfaa0b07766f1e26bf50dd4247ade18fc3ae"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/references/local-contract.md",
+      "sha256": "68850cae945e1e5357fedb284079cce67fec809a07cd1a35f6f923a39b89fdfc"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/references/observations.md",
+      "sha256": "e356a56677f3f26ada8f507c8fd2f90d06e28b9204e3ced96c13df0fe789c9f7"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/references/upstream-lock.json",
+      "sha256": "f7e22249f21c062e6207579460b1ad1042af52e4eb619d8566fd4d99db675644"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "sha256": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "sha256": "cb8b14a85e305431aaf80eb568620aeb42b724aa13f485251338f9bde70c360a"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "sha256": "c919c2fe44f462db08ccfd5f766b7635ae3e9eb4bf416bac96e2c9ded1509bc8"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/scripts/azure_graph.py",
+      "sha256": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "sha256": "43d37a2ec9ae8e5bfc60690480c7ec607237b03b4c3d6fbb7f1e8d2ee7792f10"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "sha256": "4b56fcba4f3017eebea8e97c565e2df8a3b2691f8cce21478dc7bdf7819bc8b8"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/scripts/cloud.py",
+      "sha256": "4ae02ced280a8267a99fbd18b92d5fbd7a61b3d3e64c369b02e02c63c15b5636"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/scripts/governed-setup.md",
+      "sha256": "b2f038ab953175e2fab863d5cc8baada77a79c0b8cef1281df68142831343388"
+    },
+    {
+      "path": "initial/plugins/sdd-bootstrap/.claude-plugin/plugin.json",
+      "sha256": "8a8bffda62ca60cbcd995a61895b661fb9092ed9bdddaa0816c767a583fe9b21"
+    },
+    {
+      "path": "initial/plugins/sdd-bootstrap/.codex-plugin/plugin.json",
+      "sha256": "eab6d07fd3af9c1515ad1319af3d0f5675c9631060d9ae27a58439f06db0c474"
+    },
+    {
+      "path": "initial/plugins/sdd-bootstrap/.plugin/plugin.json",
+      "sha256": "06332645cba0d780f671f9df1f03bbc281f0ff387950395ab926f37822e21e12"
+    },
+    {
+      "path": "initial/plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "sha256": "252ea8af1726a7684747d2db512c775928db4bc2f1405125aff4f789385fda25"
+    },
+    {
+      "path": "initial/plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+      "sha256": "c8e82741a7bee882ea837813aa14becd52c83361d49f833212add5a968d3bfa2"
+    },
+    {
+      "path": "initial/plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+      "sha256": "4e33234e370bbdf873cd370c90743172f86cb333f526667a7ee3a7a4714f6174"
+    },
+    {
+      "path": "initial/plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
+      "sha256": "4f2373243ff346a8594c5e2810b243be6e182354b46b1257b99a8356fd4497ba"
+    },
+    {
+      "path": "initial/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "sha256": "91489f9fffc419f706e44cacfc6f93d7b6254e54c91e146a6b52e0a2d946fe5a"
+    },
+    {
+      "path": "initial/plugins/sdd-domain/.claude-plugin/plugin.json",
+      "sha256": "c2e9846fca5fedd8357bc1cbf9bfd8c8ce3e2ee9e6cbc6c45a9a478c630a67f8"
+    },
+    {
+      "path": "initial/plugins/sdd-domain/.codex-plugin/plugin.json",
+      "sha256": "a84504f1dd31b8554d5faa64b82e165ca4608d207ecfe28a369c4ac2c11e1729"
+    },
+    {
+      "path": "initial/plugins/sdd-domain/.plugin/plugin.json",
+      "sha256": "e7ccb1b18c512710bb955336e3aeebd077dc9e20f95870156ab3e01faf768d2d"
+    },
+    {
+      "path": "initial/plugins/sdd-domain/skills/concept-test/SKILL.md",
+      "sha256": "81f7a75615404e0cd31bbc24e40b2f79e018102ff106a3eb80c42b00635f8faf"
+    },
+    {
+      "path": "initial/plugins/sdd-domain/skills/domain-interviewer/SKILL.md",
+      "sha256": "24171685e75415493bb1addfd2812853b300091b15fba40325c090a796f9f8c1"
+    },
+    {
+      "path": "initial/plugins/sdd-domain/skills/domain-model/SKILL.md",
+      "sha256": "1f73139a596101269a5a123e51e51d6ec71a9b208b3696f6060b19c6df041dad"
+    },
+    {
+      "path": "initial/plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+      "sha256": "a1a0136267b674d04a025e9eae701164c92049d783ddcc41a28ba48d5e2be2f2"
+    },
+    {
+      "path": "initial/plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+      "sha256": "36484fe991db49da3bc5aaeb6421b661b1412270d8059daec6128c15389eec1f"
+    },
+    {
+      "path": "initial/plugins/sdd-domain/skills/domain-sync/SKILL.md",
+      "sha256": "ae41f8da490ef18ceb0328151a322590a63526be99e6386fbf9a45ec72fc3f7e"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/.claude-plugin/plugin.json",
+      "sha256": "82a292a165f42ff82df185cdbc343d41537bc0a29d4d9f8bcded2d6beafdeb77"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/.codex-plugin/plugin.json",
+      "sha256": "6c5e68a63928e967b15eb795d5835d6b3e10d291a4402048a5bc2054f7e2a546"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/.plugin/plugin.json",
+      "sha256": "fc13bdbe1b6513c06015d8f72b949e8729d0fcb5044827d15ed231fc5f138e6c"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "430e0e45c6bb417cd65f7f7f228bb59280d6d0817c8b34236223b8fbd4702029"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1",
+      "sha256": "18402647758202f2a8c6bd87245cf7450abf599e6f94de09a4fb9255e2cf5a2d"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "sha256": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/skills/diagnose/SKILL.md",
+      "sha256": "39177f847eff6d547a8bec279bca6d6b623396c2c59ee412bad9e0470b22de44"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d0622d44f13693cf6e32c918aba53efbcc5089dbfbba8a539bec3be601017051"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "sha256": "63ec0313cd660be60940bdcb0d8e88337b6e380ac4bb43a13100461ba388f291"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md",
+      "sha256": "7eadc63911214f798dc2c1a97b18609af7db8f474bc34c6246b791a0597edea0"
+    },
+    {
+      "path": "initial/plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75"
+    },
+    {
+      "path": "initial/plugins/sdd-lite/.claude-plugin/plugin.json",
+      "sha256": "5ae17da3db2d23496a20fb188c7253d66e2fd2cc3719b9300845043bf3593749"
+    },
+    {
+      "path": "initial/plugins/sdd-lite/.codex-plugin/plugin.json",
+      "sha256": "4a7c37d3a1b44bfeafd34b0bea2c4ea863e9ea73e979bddcc7cfbf4fedca17fd"
+    },
+    {
+      "path": "initial/plugins/sdd-lite/.plugin/plugin.json",
+      "sha256": "a4fddd29ed226d93d528729b3d439c1f27fcda8f745c68dcd4a78f4856789071"
+    },
+    {
+      "path": "initial/plugins/sdd-lite/skills/lite-gate/SKILL.md",
+      "sha256": "bfdf9eda0e99fd43cf77fd7d6e3471739e282ec228bd69d702ff4d8d9d811998"
+    },
+    {
+      "path": "initial/plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/.claude-plugin/plugin.json",
+      "sha256": "132ffb6eb6e23f1a4d772f76065ecd9cb299370e0ed4bc4bb9d38ae3d8ba66b9"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/.codex-plugin/plugin.json",
+      "sha256": "d957210bf8057abae2ad16472e1d6c36a46ceccd3a4ee2a4133f0126dd60d011"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/.plugin/plugin.json",
+      "sha256": "ae3dc271a5b56f88efb97949f6e2d66cfc906b3e5813bf1bcec9597e863ec099"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/capability-registry.json",
+      "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
+      "sha256": "ef70a27785d325cc32d2c4a2faeed099e9df3058fd7a918e2efbd4013ed8f319"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/capability-summary.schema.json",
+      "sha256": "09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+      "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/context-projection.schema.json",
+      "sha256": "3c8e39c6a8dedf948cbd7e6a8f36369f2a68a3fc3dd92192f90bbce917d32643"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/facet-manifest.schema.json",
+      "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/lite-check-catalog.json",
+      "sha256": "c251b3e02a2c93c45a7ea590bc5a7e36eef8e5915c485b0c6a6e83519afe086a"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/lite-check-catalog.schema.json",
+      "sha256": "a4e458242d68237cf16e66aa28b362c30dae4a6d20109cb4af51711f6fc1cd19"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/lite-upgrade-reason-catalog.json",
+      "sha256": "e73a730f9edacd7d2dad2da3e13b9e3df01f7002c25f7e947316ca249118eb76"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+      "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json",
+      "sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+      "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+      "sha256": "de0153f09def1b805818f9bef1ddea065a30d3fee95e12f026bdaec40720d06d"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+      "sha256": "b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py",
+      "sha256": "69fc11d30af9214a5c24a791b215fdec8ff6d9f2a9c490288bf1a84647b331a9"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/check-a8-classification-table.py",
+      "sha256": "49752b8834db79ec6be60d90ecc400b98c2b692002d9bcf3827cad510a60e051"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.py",
+      "sha256": "d6982f2568b659e0ef7f88941973df0114adeb5ef4b8e91a035ce41430b345ac"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+      "sha256": "d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/check-contract.py",
+      "sha256": "9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/check-criterion-freeze.py",
+      "sha256": "dc456d22f68da79856a668e588194793ec9c09ccac57d979927dddb2ba9ced42"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+      "sha256": "c20dfa627a34d068dd5991345603a9b9440831b5e43352c23844449ab3622701"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py",
+      "sha256": "c84be3e7d7f50147d7aad1a0118bf03811e30ea641e7f268c32e51ae9c96e2e9"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
+      "sha256": "d62d3accc7fe28a3fe0ca0d6fd1ca739918d0b9878d3f6da05682523d0ee2238"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "sha256": "17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "sha256": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/cloud_dependencies.py",
+      "sha256": "7974e7e9a8d7da0c60b219a58db54c4747f0250653fda3af0146091f1f4fb475"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "sha256": "b2488aa48d32716b270fd920fbf4b13f43cf19440e975b48721d91e38de62a68"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py",
+      "sha256": "e7b75cef97a477d98b1460d8f20124c144e4ecb96ea15866714e80e6d00e2f93"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/detect-policy-weakening.py",
+      "sha256": "a40433693b5274de2816710b352a000736f806daa2b68a58bf34579488fd116c"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/evaluate-predicate.py",
+      "sha256": "4daa549e9bb06b71759580a0ed1389033745dee21c5a1ae7ef694c725a2b9156"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+      "sha256": "68b6ebecfb4996cae3e97e1723fa64d9e8d97ebbc2489058afddd442c7bd6e7c"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+      "sha256": "19672f400b225d26d1f328d28e4176f90acb8c868bba10805b4f1f5206a72592"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+      "sha256": "fba1559b635fedaa30b2e4cf716143e31ccf8f7d7b8bffd21f83fe4fca2b3eaa"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "a08c294f2a7fcfb0e9c574feda16db135a0d4f50509da98661769a6ddcee4aeb"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/generate-registry-digest.py",
+      "sha256": "dd3a0642deeceac3d8def2c476c97fe6cf69fbfcebb2e1682bcd7939862b0aaf"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/initialize-review-identity.py",
+      "sha256": "09d18de4572a758a8db987c5cf6d2b09f9d87d8d41ff35b4eafacfa37f7f73be"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py",
+      "sha256": "40fb8ec7238c7bf9b06c1894260c00698c39a963f9cef2f127e9c95554cb0e8a"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "sha256": "4a9fa0c679b77959983eb3cc6c0674c03c2c3e3641d41b374fdbae51cb758a3e"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "sha256": "5cb5fa8230a21e3b4d108b4643d3db474586b34601eb52c1fbcf932d259541da"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "sha256": "7de26e8f1c5aa9bd6b69c9224794f25b0dc35a8a08bb89640d9c54b70388ec26"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "sha256": "edbcad8326293e6c83cf96d9e457c819ebef64c19a9a4090ccb0cdcbc7a62b56"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "sha256": "48a565069a10edb132c98d22d8efc24a714442faad7a71585d3067d06305acf2"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "b95d798200b36c6d72a33c043a7837dc194732e2759a1f83709a5ae645716c8a"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py",
+      "sha256": "a9c23a27bee1174a46ec7203c90ace1988ea582d0d47cb5f029ed3e16c659766"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "sha256": "d19f258b904dd168410f184f7854d47a3790319832b5bda919b3f7049ab41a06"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "sha256": "4aa0e97622b47687508e305b1832e182926d0595b7626180e5736b23e0ef174e"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/validate-capability-summary.py",
+      "sha256": "7ef1abd13e6c15b8b6b3ec85757e1b3ba72663f2283a54c7a6fd2997e964604f"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+      "sha256": "7a0fc4c486e1341ce635f14d480779e25a60cdd3d078a877f9ee47c0fe0f2169"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py",
+      "sha256": "0ca6da3eca4239d4d2bc5c9740effd67866b7f463310d0085f25d59a5fc6af6f"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
+      "sha256": "ddafb7bf7494a4788443c1c1aba268da29ffe0fb1ccf34fc09335746f8d69420"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py",
+      "sha256": "11bbff0409344168c57095631c333c714cd9dbffb22da664989494e50dc5757e"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/validate_path.py",
+      "sha256": "56306107b68809f5ee443085028019f6187cba7c99379ad290be51661933d2b9"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "sha256": "a61f889f274a8069d06c359caf813f79a444de5c77ee64c5a37404a8de8b973b"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+      "sha256": "73ae95edb3c6dd7b1b8e85fd1e618cb78797a7c2269f72abb11ec23933e2a1f2"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md",
+      "sha256": "0215d3a6c097c893727276afc6078415cc83c3aa4273dc8bc62865bc3af6efa1"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "ce29654fc042e2e1fad4ce0f12c159dcbdc390137f5acc867a7e99d0dd4a21a2"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+      "sha256": "392e32a6478337274b0a927f58ed31d0fe0204c12bf5817e121d457de6a3ac98"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md",
+      "sha256": "452b2138848e71268a5b02c51f6642c274c21d4fb8a5d353352cd907c04d03be"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+      "sha256": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0"
+    },
+    {
+      "path": "initial/plugins/sdd-review-loop/.claude-plugin/plugin.json",
+      "sha256": "044d03a31bb19b077b607f1473aa6bdb456fd5993169a8389ecf587006941f03"
+    },
+    {
+      "path": "initial/plugins/sdd-review-loop/.codex-plugin/plugin.json",
+      "sha256": "5cf0d64e677030216ecec03c012446318d69426af159f663aa62befd12154517"
+    },
+    {
+      "path": "initial/plugins/sdd-review-loop/.plugin/plugin.json",
+      "sha256": "e6573a4ebb23fed3a4456e4467e9cb1a3bdc63e0aaf5cef769136a4a82543470"
+    },
+    {
+      "path": "initial/plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75"
+    },
+    {
+      "path": "initial/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656"
+    },
+    {
+      "path": "initial/plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3"
+    },
+    {
+      "path": "initial/plugins/sdd-ship/.claude-plugin/plugin.json",
+      "sha256": "be1c1dfe8cba928db9073c1c6ee2cee85aa76b7c0711a30b365054113adf9499"
+    },
+    {
+      "path": "initial/plugins/sdd-ship/.codex-plugin/plugin.json",
+      "sha256": "b3454c5c54fb5cf00f2f7e6422ed2af44b549d73d00314a63578242b34bcb327"
+    },
+    {
+      "path": "initial/plugins/sdd-ship/.plugin/plugin.json",
+      "sha256": "44a3d211bf3112bd4431fc32d5b900b8aee6524eed6d3eb2cd1efa03a869aff6"
+    },
+    {
+      "path": "initial/plugins/sdd-ship/skills/ship/SKILL.md",
+      "sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d"
+    },
+    {
+      "path": "initial/reports/implementation/cloud-orchestration/T-009.md",
+      "sha256": "8a771e42e4b0e03e8ee10cb21d404cb6115597d1ef21a7378c2899015e155f0e"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/design.md",
+      "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/investigation.md",
+      "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/tasks.md",
+      "sha256": "001b6498b6d12b6302eaea383aefb0bf3fec467317e7b8c37c55a4cc5849a2c0"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/traceability.md",
+      "sha256": "458a995f9852298e6e156ee58bab30077bcbf652746b3813577dd003a13722a5"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/verification/T-009/attempt-2/consumer-inventory.json",
+      "sha256": "cad0806312e39c293ab09477740daa3508db9fc8a61405d6724c9b9fdf130f89"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/verification/T-009/attempt-2/final-source-inventory.json",
+      "sha256": "1ffc50af16fc70e8d113ea5efc17b5ab6c23e21ae37b8ca67d3c9702b142797d"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/verification/T-009/attempt-2/runtime-policy.json",
+      "sha256": "28cd9174f3f13cb22ed54305aaccbadb0d57593a0cf08a36343fd15eb8341806"
+    },
+    {
+      "path": "initial/tests/check-installed-plugin-drift.tests.ps1",
+      "sha256": "932f1d61cdc5116184cd6087bb241df6fb5e9e6353232aff94edeb00d19140c6"
+    },
+    {
+      "path": "initial/tests/check-installed-plugin-drift.tests.sh",
+      "sha256": "4a111a1cb43f7c8e2d0632182b2bc848036a901810ca122166d37e128984b4f2"
+    },
+    {
+      "path": "initial/tests/ci-claude-install.tests.sh",
+      "sha256": "f179d86e578c2b96fe1e59b76e7a14f1c319cfcf54cdaf16ac4256817d47498a"
+    },
+    {
+      "path": "initial/tests/cloud-orchestration-contracts.tests.py",
+      "sha256": "dcd2c5a89119d26be5c983ac54cd586b4b6742b7cdff48b30f55a1e1fdaceba4"
+    },
+    {
+      "path": "initial/tests/cloud-orchestration-execution.tests.py",
+      "sha256": "3ded22c4377536bfa7925555935d4e14a614263674c1d3acf2a973570cb14703"
+    },
+    {
+      "path": "initial/tests/cloud-orchestration-routing.tests.py",
+      "sha256": "d038f799960a234e433dcc4a845ddb7b19394f4a5880c7ed9dd0f7f7037b243a"
+    },
+    {
+      "path": "initial/tests/cloud-orchestration-verification.tests.py",
+      "sha256": "a3bfad88d8bff274ac3acc925cfb885b570aa931606e1a8a9a8580f26153de60"
+    },
+    {
+      "path": "initial/tests/install-uninstall-matrix.tests.ps1",
+      "sha256": "dd7ce269ddde8c9aebc555e3fe312c8c8d8164a72116af5bd0db42581fd6d2c2"
+    },
+    {
+      "path": "initial/tests/install-uninstall-matrix.tests.sh",
+      "sha256": "0fff05292729ac66e19efcd480a9f3251e7c18e64770fcaa92d0e09ca0e16eaa"
+    },
+    {
+      "path": "initial/tests/install.tests.ps1",
+      "sha256": "acd17824c334e9cc2b43e5e91f964ae975942f481a131922ca30779eda57e78f"
+    },
+    {
+      "path": "initial/tests/install.tests.sh",
+      "sha256": "35793b501a760dcca70d07b54271dd31c0c2d794a52e7eec9da76731e11dd554"
+    },
+    {
+      "path": "initial/tests/installer-idempotency.tests.ps1",
+      "sha256": "c4849e1d35ff7b04e9dda4fcd524f3c0cf70e8a83936a5550188c28d0a7b8db6"
+    },
+    {
+      "path": "initial/tests/installer-idempotency.tests.sh",
+      "sha256": "088246ed295f1187a5cafa94f1980155c00033a6052292aa4818db23a05ff274"
+    },
+    {
+      "path": "initial/tests/lib/a2-guard-invariants-evolution.py",
+      "sha256": "1d6015a8cf9461cfbbf9bac10dff6dfb3fcae3b5a763d5508eafc3c897b38441"
+    },
+    {
+      "path": "initial/tests/lib/a2-workflow-evolution.py",
+      "sha256": "d00723e38b339760a6acbfc9f6e89d9692eb0fe5c0ce2344ce4f1f879dc765d0"
+    },
+    {
+      "path": "initial/tests/lib/cross-runtime-consumer-evidence.py",
+      "sha256": "5c30afdfe847fd07cbe4ca1ee4d1f59e2d88cc11b5324de483d822ff23a6acf7"
+    },
+    {
+      "path": "initial/tests/lib/current-byte-capture.py",
+      "sha256": "3cdee3f37d93c8249cd2265f69861343d2e3dfcdd0222a982bb2182d3aa00c40"
+    },
+    {
+      "path": "initial/tests/lib/fixture-matrix-builder.ps1",
+      "sha256": "d859b3249e7d5d5e849df2a586392f9c5380cf3e98234ee59bf3d196c226cd5b"
+    },
+    {
+      "path": "initial/tests/lib/fixture-matrix-builder.sh",
+      "sha256": "71ec0a0653f182f0ee40aaa36161cfcbfab63d1ce12a5b982b542cbb3231fb8c"
+    },
+    {
+      "path": "initial/tests/lib/guard-invariants-evolution.py",
+      "sha256": "1563eedc84bf7e997dad52b43fcf6f50ba2e5c3c3768c5f1e4742d2be3ef29d1"
+    },
+    {
+      "path": "initial/tests/lib/loop-driver.ps1",
+      "sha256": "7de5e30dc4332a7166297d77aba99c4d2a52f120f3118e110c92f93fe601f3c2"
+    },
+    {
+      "path": "initial/tests/lib/loop-driver.sh",
+      "sha256": "4f2e03816b9a3f92ef22676aae764c131fe304e5f4f1f9d086a3ea881135779c"
+    },
+    {
+      "path": "initial/tests/lib/markdown-ast-canonicalizer.mjs",
+      "sha256": "9d9ce7b84391079c15f7710c658c6006222eac67daed828c95fe273bc32ce70c"
+    },
+    {
+      "path": "initial/tests/lib/markdown-ast-canonicalizer.ps1",
+      "sha256": "14aa191d9d3aa422105923293d59e819d6e3f62d8735e25079cf8dba8bc6f1ed"
+    },
+    {
+      "path": "initial/tests/lib/markdown-ast-canonicalizer.sh",
+      "sha256": "10e300c456125d3ab0af3318d8b006e6d17bee7986b4d7d4aed4ae3df695b7d2"
+    },
+    {
+      "path": "initial/tests/lib/skip-allowlist-evaluator.ps1",
+      "sha256": "2ffc86a9c263f1912c039524236a2c4aa23c5451a2f7d2bc76c8cb189518630e"
+    },
+    {
+      "path": "initial/tests/lib/skip-allowlist-evaluator.sh",
+      "sha256": "6c3f7e2194dfe69f8ed20445294600b2f264db7564523fc04cbc96dda81accf6"
+    },
+    {
+      "path": "initial/tests/lib/structural-context-lite.py",
+      "sha256": "a517a4df3b9e3be4cc475bf2d37fb25b8d93170dd9a063e7d9a8d2dd1e464adf"
+    },
+    {
+      "path": "initial/tests/shared-launch-python/pyproject.toml",
+      "sha256": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12"
+    },
+    {
+      "path": "initial/tests/uninstall.tests.ps1",
+      "sha256": "eccf8be0d76fa234dbaa2afc4b6c946baa3ab294a1c80e58e18c487b623e280c"
+    },
+    {
+      "path": "initial/tests/uninstall.tests.sh",
+      "sha256": "e992a1bca0dc4b66098b59c73c26e56481ab368394a635577b31f3cadfd1af3d"
+    },
+    {
+      "path": "initial/tests/validate-repository.ps1",
+      "sha256": "f5cfe7527a177288882ff12ace1ddcc583cccb6eeac0e15746b80800d3112c1d"
+    },
+    {
+      "path": "initial/uninstall.ps1",
+      "sha256": "235a0d6825d6559e9ab584351b6b52da1dc79837499769e0972c19b5529419e1"
+    },
+    {
+      "path": "initial/uninstall.sh",
+      "sha256": "35bfd5691ac6310e30fab3e2bc03d7bced33444f8b3c8f0b1cfd79b858ad3905"
+    }
+  ],
+  "allowed_outputs": [
+    "install.sh",
+    "install.ps1",
+    "uninstall.sh",
+    "uninstall.ps1",
+    ".agents/plugins/marketplace.json",
+    ".claude-plugin/marketplace.json",
+    "tests/validate-repository.ps1",
+    "tests/install-cloud.tests.py",
+    "tests/install.tests.sh",
+    "tests/install.tests.ps1",
+    "tests/install-uninstall-matrix.tests.sh",
+    "tests/install-uninstall-matrix.tests.ps1",
+    "reports/implementation/cloud-orchestration/T-007.md",
+    "specs/cloud-orchestration/verification/T-007/attempt-1/",
+    "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md",
+    "plugins/sdd-azure-cloud/.claude-plugin/plugin.json",
+    "plugins/sdd-azure-cloud/.codex-plugin/plugin.json",
+    "plugins/sdd-azure-cloud/.plugin/plugin.json",
+    "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md",
+    "plugins/sdd-aws-cloud/.claude-plugin/plugin.json",
+    "plugins/sdd-aws-cloud/.codex-plugin/plugin.json",
+    "plugins/sdd-aws-cloud/.plugin/plugin.json"
+  ]
+}

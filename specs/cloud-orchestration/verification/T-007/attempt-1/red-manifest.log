@@ -1,0 +1,703 @@
+test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) ... 
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.claude-plugin', field='name') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.claude-plugin', field='version') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.claude-plugin', field='skills') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.codex-plugin', field='name') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.codex-plugin', field='version') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.codex-plugin', field='skills') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.plugin', field='name') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.plugin', field='version') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.plugin', field='skills') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.claude-plugin', field='name') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.claude-plugin', field='version') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.claude-plugin', field='skills') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.codex-plugin', field='name') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.codex-plugin', field='version') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.codex-plugin', field='skills') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.plugin', field='name') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.plugin', field='version') ... FAIL
+  test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.plugin', field='skills') ... FAIL
+test_existing_name_and_version_guards (__main__.ManifestBoundary.test_existing_name_and_version_guards) ... 
+  test_existing_name_and_version_guards (__main__.ManifestBoundary.test_existing_name_and_version_guards) (key='name') ... FAIL
+test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) ... 
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='azure', field='name') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='azure', field='source') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='azure', field='version') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='azure', field='policy') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='aws', field='name') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='aws', field='source') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='aws', field='version') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='aws', field='policy') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='azure', field='name') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='azure', field='source') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='azure', field='version') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='aws', field='name') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='aws', field='source') ... FAIL
+  test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='aws', field='version') ... FAIL
+test_matched_control (__main__.ManifestBoundary.test_matched_control) ... ok
+test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) ... 
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='scripts/cloud_contracts.py') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='scripts/cloud_authorization.py') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='scripts/cloud_verification.py') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='scripts/cloud_dependencies.py') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='references/cloud-verification-registry.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-check-result.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-operation-result.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-verification-registry.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-dependency-lock.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-collection-context.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-run-request.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-input-error.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-deployment-policy.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-verification-profile.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-ownership.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-preview.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-observation.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-authorization-receipt.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-verification.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-observation-evidence.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/verification-contract-v3.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/selected-verification-plan-v2.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='scripts/cloud_contracts.py') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='scripts/cloud_authorization.py') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='scripts/cloud_verification.py') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='scripts/cloud_dependencies.py') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='references/cloud-verification-registry.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-check-result.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-operation-result.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-verification-registry.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-dependency-lock.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-collection-context.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-run-request.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-input-error.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-deployment-policy.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-verification-profile.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-ownership.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-preview.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-observation.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-authorization-receipt.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-verification.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-observation-evidence.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/verification-contract-v3.schema.json') ... FAIL
+  test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/selected-verification-plan-v2.schema.json') ... FAIL
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.claude-plugin', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-azure-cloud/.claude-plugin/name
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.claude-plugin', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-azure-cloud/.claude-plugin/version
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.claude-plugin', field='skills')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-azure-cloud/.claude-plugin/skills
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.codex-plugin', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-azure-cloud/.codex-plugin/name
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.codex-plugin', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-azure-cloud/.codex-plugin/version
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.codex-plugin', field='skills')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-azure-cloud/.codex-plugin/skills
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.plugin', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-azure-cloud/.plugin/name
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.plugin', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-azure-cloud/.plugin/version
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='azure', host='.plugin', field='skills')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-azure-cloud/.plugin/skills
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.claude-plugin', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-aws-cloud/.claude-plugin/name
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.claude-plugin', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-aws-cloud/.claude-plugin/version
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.claude-plugin', field='skills')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-aws-cloud/.claude-plugin/skills
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.codex-plugin', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-aws-cloud/.codex-plugin/name
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.codex-plugin', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-aws-cloud/.codex-plugin/version
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.codex-plugin', field='skills')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-aws-cloud/.codex-plugin/skills
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.plugin', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-aws-cloud/.plugin/name
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.plugin', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-aws-cloud/.plugin/version
+
+======================================================================
+FAIL: test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) (provider='aws', host='.plugin', field='skills')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 140, in test_cloud_manifest_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {name}/{host}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched sdd-aws-cloud/.plugin/skills
+
+======================================================================
+FAIL: test_existing_name_and_version_guards (__main__.ManifestBoundary.test_existing_name_and_version_guards) (key='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 122, in test_existing_name_and_version_guards
+    self.assertNotEqual(p.returncode, 0)
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='azure', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .agents/plugins/marketplace.json/sdd-azure-cloud/name
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='azure', field='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .agents/plugins/marketplace.json/sdd-azure-cloud/source
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='azure', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .agents/plugins/marketplace.json/sdd-azure-cloud/version
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='azure', field='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .agents/plugins/marketplace.json/sdd-azure-cloud/policy
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='aws', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .agents/plugins/marketplace.json/sdd-aws-cloud/name
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='aws', field='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .agents/plugins/marketplace.json/sdd-aws-cloud/source
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='aws', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .agents/plugins/marketplace.json/sdd-aws-cloud/version
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.agents/plugins/marketplace.json', provider='aws', field='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .agents/plugins/marketplace.json/sdd-aws-cloud/policy
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='azure', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .claude-plugin/marketplace.json/sdd-azure-cloud/name
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='azure', field='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .claude-plugin/marketplace.json/sdd-azure-cloud/source
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='azure', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .claude-plugin/marketplace.json/sdd-azure-cloud/version
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='aws', field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .claude-plugin/marketplace.json/sdd-aws-cloud/name
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='aws', field='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .claude-plugin/marketplace.json/sdd-aws-cloud/source
+
+======================================================================
+FAIL: test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) (market='.claude-plugin/marketplace.json', provider='aws', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 159, in test_marketplace_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted mismatched {rel}/{name}/{key}')
+AssertionError: 0 == 0 : validator accepted mismatched .claude-plugin/marketplace.json/sdd-aws-cloud/version
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='scripts/cloud_contracts.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/scripts/cloud_contracts.py
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='scripts/cloud_authorization.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/scripts/cloud_authorization.py
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='scripts/cloud_verification.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/scripts/cloud_verification.py
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='scripts/cloud_dependencies.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/scripts/cloud_dependencies.py
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='references/cloud-verification-registry.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/references/cloud-verification-registry.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-check-result.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-check-result.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-operation-result.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-operation-result.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-verification-registry.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-verification-registry.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-dependency-lock.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-dependency-lock.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-collection-context.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-collection-context.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-run-request.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-run-request.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-input-error.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-input-error.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-deployment-policy.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-deployment-policy.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-verification-profile.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-verification-profile.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-ownership.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-ownership.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-preview.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-preview.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-observation.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-observation.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-authorization-receipt.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-authorization-receipt.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-verification.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-verification.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/cloud-observation-evidence.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/cloud-observation-evidence.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/verification-contract-v3.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/verification-contract-v3.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='azure', runtime='contracts/selected-verification-plan-v2.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime azure/contracts/selected-verification-plan-v2.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='scripts/cloud_contracts.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/scripts/cloud_contracts.py
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='scripts/cloud_authorization.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/scripts/cloud_authorization.py
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='scripts/cloud_verification.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/scripts/cloud_verification.py
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='scripts/cloud_dependencies.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/scripts/cloud_dependencies.py
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='references/cloud-verification-registry.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/references/cloud-verification-registry.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-check-result.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-check-result.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-operation-result.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-operation-result.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-verification-registry.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-verification-registry.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-dependency-lock.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-dependency-lock.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-collection-context.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-collection-context.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-run-request.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-run-request.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-input-error.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-input-error.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-deployment-policy.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-deployment-policy.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-verification-profile.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-verification-profile.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-ownership.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-ownership.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-preview.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-preview.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-observation.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-observation.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-authorization-receipt.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-authorization-receipt.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-verification.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-verification.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/cloud-observation-evidence.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/cloud-observation-evidence.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/verification-contract-v3.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/verification-contract-v3.schema.json
+
+======================================================================
+FAIL: test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) (provider='aws', runtime='contracts/selected-verification-plan-v2.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 172, in test_runtime_field_mismatches
+    self.assertNotEqual(p.returncode, 0, f'validator accepted divergent runtime {provider}/{rel}')
+AssertionError: 0 == 0 : validator accepted divergent runtime aws/contracts/selected-verification-plan-v2.schema.json
+
+----------------------------------------------------------------------
+Ran 5 tests in 23.449s
+
+FAILED (failures=77)
