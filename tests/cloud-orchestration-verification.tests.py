@@ -18,7 +18,7 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED = ROOT / "plugins/sdd-quality-loop/scripts"
@@ -4074,12 +4074,10 @@ class ProfileAwsReadbackCases(unittest.TestCase):
                     preview_path.write_bytes(preview_raw)
         observation.profile_preview_readback(executor, preview_ref)
 
-
-
 class DependencyReceiptCases(unittest.TestCase):
     """T-010: actual collector output + authenticated-protocol doubles, never live."""
 
-    def fixture(self, provider="azure", stage="prepare"):
+    def fixture(self, provider="azure", stage="prepare", consumer_provider=None):
         import base64
         from contextlib import ExitStack
         from types import SimpleNamespace
@@ -4090,101 +4088,245 @@ class DependencyReceiptCases(unittest.TestCase):
         harness = PublicObservationCases()
         self.addCleanup(harness.doCleanups)
         producer, _, _, module = harness.setup_execution(provider, protected=True)
-        holder = producer.executor.client if provider == "azure" else producer.executor.native
-        native_type = sys.modules[provider + ("_arm" if provider == "azure" else "_native")].HttpsTransport
+        holder = (
+            producer.executor.client
+            if provider == "azure"
+            else producer.executor.native
+        )
+        native_type = sys.modules[
+            provider + ("_arm" if provider == "azure" else "_native")
+        ].HttpsTransport
         native, admission = native_type(), auth.HttpsTransport()
-        stack.enter_context(patch.object(native, "request", side_effect=holder.transport.request))
-        stack.enter_context(patch.object(admission, "request", side_effect=producer.executor.boundary.transport.request))
+        stack.enter_context(
+            patch.object(native, "request", side_effect=holder.transport.request)
+        )
+        stack.enter_context(
+            patch.object(
+                admission,
+                "request",
+                side_effect=producer.executor.boundary.transport.request,
+            )
+        )
         stack.enter_context(patch.object(holder, "transport", native))
-        stack.enter_context(patch.object(producer.executor.boundary, "transport", admission))
+        stack.enter_context(
+            patch.object(producer.executor.boundary, "transport", admission)
+        )
         result = harness.run_public(producer, module, "verify-result")
         self.assertEqual(result["result"], "PASS", result)
         output = producer.directory + "/verify-result.json"
         receipt_path = output + ".verification.json"
         receipt_raw = (producer.root / receipt_path).read_bytes()
         receipt = json.loads(receipt_raw)
-        contract = json.loads((producer.root / (output + ".contract.json")).read_bytes())
-        spec = importlib.util.spec_from_file_location("dependency_execution", ROOT / "tests/cloud-orchestration-execution.tests.py")
+        contract = json.loads(
+            (producer.root / (output + ".contract.json")).read_bytes()
+        )
+        spec = importlib.util.spec_from_file_location(
+            "dependency_execution",
+            ROOT / "tests/cloud-orchestration-execution.tests.py",
+        )
         assert spec and spec.loader
         execution = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(execution)
         target = execution.Admission()
         target.setUp()
         self.addCleanup(target.doCleanups)
-        target.setup_case(provider, stage)
+        target.setup_case(consumer_provider or provider, stage)
         consumer_profile = target.request["verification_profile"]
-        consumer_profile["path"] = target.put("bundle/consumer-profile.json", (target.root / consumer_profile["path"]).read_bytes())["path"]
-        target.put(receipt["profile"]["path"], (producer.root / receipt["profile"]["path"]).read_bytes())
+        consumer_profile["path"] = target.put(
+            "bundle/consumer-profile.json",
+            (target.root / consumer_profile["path"]).read_bytes(),
+        )["path"]
+        target.put(
+            receipt["profile"]["path"],
+            (producer.root / receipt["profile"]["path"]).read_bytes(),
+        )
         # Same feature is required by the existing path contract; unit/run remain distinct.
         for path in (producer.root / producer.directory).rglob("*"):
             if path.is_file():
                 target.put(str(path.relative_to(producer.root)), path.read_bytes())
         ref = target.put(receipt_path, receipt_raw)
-        target.request["predecessor_receipts"] = [dict(unit_id=receipt["unit_id"], **ref)]
+        target.request["predecessor_receipts"] = [
+            dict(unit_id=receipt["unit_id"], **ref)
+        ]
         target.request_ref = target.put("request.json", target.request)
         if stage == "apply":
-            preview = json.loads((target.root / target.preview_ref["path"]).read_bytes())
+            preview = json.loads(
+                (target.root / target.preview_ref["path"]).read_bytes()
+            )
             preview["request"] = target.request_ref
-            preview["verification_profile"] = {k: consumer_profile[k] for k in ("path","sha256")}
+            preview["verification_profile"] = {
+                k: consumer_profile[k] for k in ("path", "sha256")
+            }
             target.preview_ref = target.put(target.preview_ref["path"], preview)
-        target.transport.run["display_title"] = "cloud:" + target.request_ref["sha256"] + ":" + (target.preview_ref["sha256"] if target.preview_ref else "none")
+        target.transport.run["display_title"] = (
+            "cloud:"
+            + target.request_ref["sha256"]
+            + ":"
+            + (target.preview_ref["sha256"] if target.preview_ref else "none")
+        )
         # Consumer lease and producer completion are both fresh at this synthetic time.
         now = int(producer.executor.clock()) + 5
         target.boundary.clock = lambda: now
-        target.transport.claims.update(iat=now-10, nbf=now-10, exp=now+600)
-        target.transport.lease_end = now+300
-        target.transport.azure_claims.update(iat=now-10, nbf=now-10, exp=now+300)
+        target.transport.claims.update(iat=now - 10, nbf=now - 10, exp=now + 600)
+        target.transport.lease_end = now + 300
+        target.transport.azure_claims.update(iat=now - 10, nbf=now - 10, exp=now + 300)
         governed = __import__(provider + "_governed")
-        kwargs = dict(executor_repository="synthetic/executor", executor_revision="d" * 40,
-                      input_repository="synthetic/plans", region=producer.executor.request["scope"]["region"])
-        kwargs["subscription" if provider == "azure" else "account"] = producer.executor.request["scope"]["account_id"]
+        kwargs = dict(
+            executor_repository="synthetic/executor",
+            executor_revision="d" * 40,
+            input_repository="synthetic/plans",
+            region=producer.executor.request["scope"]["region"],
+        )
+        kwargs["subscription" if provider == "azure" else "account"] = (
+            producer.executor.request["scope"]["account_id"]
+        )
         workflow = governed.workflow_template(**kwargs)
         if "verify" not in workflow["jobs"]:
             # Test-first desired fixed verify job, not an existing shipped workflow claim.
             job = copy.deepcopy(workflow["jobs"]["apply"])
-            job.update(environment="sandbox-verify", **{"if": "${{ github.run_attempt == 1 && inputs.operation == 'verify' }}"})
+            job.update(
+                environment="sandbox-verify",
+                **{
+                    "if": "${{ github.run_attempt == 1 && inputs.operation == 'verify' }}"
+                },
+            )
             step = job["steps"][1]
             step["name"] = "Execute fixed read-only verify"
             step["env"].pop("CLOUD_PHASE")
             step["env"]["AWS_CONTROL_POLICY"] = "${{ vars.AWS_VERIFY_POLICY }}"
-            step["run"] = 'set -euo pipefail\npython3 -I executor/plugins/sdd-aws-cloud/scripts/aws_governed.py verify --workspace "$RUNNER_TEMP/aws-data"'
+            step["run"] = (
+                'set -euo pipefail\npython3 -I executor/plugins/sdd-aws-cloud/scripts/aws_governed.py verify --workspace "$RUNNER_TEMP/aws-data"'
+            )
             job["steps"][2]["with"]["name"] = "aws-verify-${{ github.run_id }}"
             workflow["jobs"]["verify"] = job
-            workflow["on"]["workflow_dispatch"]["inputs"]["operation"]["options"].append("verify")
-        pin = dict(unit_id=receipt["unit_id"], run_id=receipt["run_id"], provider=provider,
-                   request=producer.request_ref.copy(), verification=ref,
-                   scope=copy.deepcopy(producer.executor.request["scope"]), profile=copy.deepcopy(receipt["profile"]),
-                   repository="synthetic/producer", repository_id=77, workflow=".github/workflows/cloud.yml",
-                   workflow_revision="a" * 40, ref="refs/heads/main", workflow_sha256=hashlib.sha256(encode(workflow)).hexdigest(),
-                   executor_repository="synthetic/executor", executor_revision="d" * 40,
-                   producer_run_id=789, artifact_id=17, environment_id=88,
-                   actors=[[7,"operator"]], reviewers=[[8,"reviewer"]])
+            workflow["on"]["workflow_dispatch"]["inputs"]["operation"][
+                "options"
+            ].append("verify")
+        pin = dict(
+            unit_id=receipt["unit_id"],
+            run_id=receipt["run_id"],
+            provider=provider,
+            request=producer.request_ref.copy(),
+            verification=ref,
+            scope=copy.deepcopy(producer.executor.request["scope"]),
+            profile=copy.deepcopy(receipt["profile"]),
+            repository="synthetic/producer",
+            repository_id=77,
+            workflow=".github/workflows/cloud.yml",
+            workflow_revision="a" * 40,
+            ref="refs/heads/main",
+            workflow_sha256=hashlib.sha256(encode(workflow)).hexdigest(),
+            executor_repository="synthetic/executor",
+            executor_revision="d" * 40,
+            producer_run_id=789,
+            artifact_id=17,
+            environment_id=88,
+            actors=[[7, "operator"]],
+            reviewers=[[8, "reviewer"]],
+        )
         object.__setattr__(target.policy, "predecessor_trust", (pin,))
-        object.__setattr__(target.policy, "dependency_request_sha256", target.request_ref["sha256"])
-        run = dict(id=789, run_attempt=1, status="completed", conclusion="success", event="workflow_dispatch",
-                   head_sha=pin["workflow_revision"], head_branch="main", path=pin["workflow"],
-                   display_title="cloud:" + pin["request"]["sha256"] + ":" + contract["preview"]["sha256"],
-                   repository=dict(id=77,full_name=pin["repository"]), head_repository=dict(id=77,full_name=pin["repository"]),
-                   actor=dict(id=7,login="operator"), triggering_actor=dict(id=7,login="operator"))
-        steps = [dict(name=s["name"], status="completed", conclusion="success", started_at=auth.utc(now-5), completed_at=auth.utc(now-3)) for s in workflow["jobs"]["verify"]["steps"]]
-        job = dict(id=456,run_id=789,run_attempt=1,head_sha=pin["workflow_revision"],name="verify",
-                   status="completed",conclusion="success",started_at=auth.utc(now-6),completed_at=auth.utc(now-2),steps=steps)
-        state = SimpleNamespace(target=target,producer=producer,pin=pin,run=run,job=job,workflow=workflow,
-                                output=output,receipt=receipt,ref=ref,now=now,contract=contract,
-                                artifact_calls=[], api_calls=[], archive_override=None,
-                                metadata=dict(id=17, expired=False, name=provider+"-verify-789", workflow_run=dict(id=789,head_sha=pin["workflow_revision"],repository_id=77,head_repository_id=77)))
-        state.jobs = dict(total_count=1,jobs=[job])
-        state.file = dict(type="file",path=pin["workflow"],encoding="base64",content=base64.b64encode(encode(workflow)).decode())
-        state.environment = dict(target.transport.environment_response,id=88,name="sandbox-verify")
-        state.approvals = [dict(state="approved",user=dict(id=8,login="reviewer"),environments=[dict(id=88,name="sandbox-verify")])]
+        object.__setattr__(
+            target.policy, "dependency_request_sha256", target.request_ref["sha256"]
+        )
+        run = dict(
+            id=789,
+            run_attempt=1,
+            status="completed",
+            conclusion="success",
+            event="workflow_dispatch",
+            head_sha=pin["workflow_revision"],
+            head_branch="main",
+            path=pin["workflow"],
+            display_title="cloud:"
+            + pin["request"]["sha256"]
+            + ":"
+            + contract["preview"]["sha256"],
+            repository=dict(id=77, full_name=pin["repository"]),
+            head_repository=dict(id=77, full_name=pin["repository"]),
+            actor=dict(id=7, login="operator"),
+            triggering_actor=dict(id=7, login="operator"),
+        )
+        steps = [
+            dict(
+                name=s["name"],
+                status="completed",
+                conclusion="success",
+                started_at=auth.utc(now - 5),
+                completed_at=auth.utc(now - 3),
+            )
+            for s in workflow["jobs"]["verify"]["steps"]
+        ]
+        job = dict(
+            id=456,
+            run_id=789,
+            run_attempt=1,
+            head_sha=pin["workflow_revision"],
+            name="verify",
+            status="completed",
+            conclusion="success",
+            started_at=auth.utc(now - 6),
+            completed_at=auth.utc(now - 2),
+            steps=steps,
+        )
+        state = SimpleNamespace(
+            target=target,
+            producer=producer,
+            pin=pin,
+            run=run,
+            job=job,
+            workflow=workflow,
+            output=output,
+            receipt=receipt,
+            ref=ref,
+            now=now,
+            contract=contract,
+            artifact_calls=[],
+            api_calls=[],
+            archive_override=None,
+            metadata=dict(
+                id=17,
+                expired=False,
+                name=provider + "-verify-789",
+                workflow_run=dict(
+                    id=789,
+                    head_sha=pin["workflow_revision"],
+                    repository_id=77,
+                    head_repository_id=77,
+                ),
+            ),
+        )
+        state.jobs = dict(total_count=1, jobs=[job])
+        state.file = dict(
+            type="file",
+            path=pin["workflow"],
+            encoding="base64",
+            content=base64.b64encode(encode(workflow)).decode(),
+        )
+        state.environment = dict(
+            target.transport.environment_response, id=88, name="sandbox-verify"
+        )
+        state.approvals = [
+            dict(
+                state="approved",
+                user=dict(id=8, login="reviewer"),
+                environments=[dict(id=88, name="sandbox-verify")],
+            )
+        ]
         old = target.transport.request
+
         def metadata(method, url, headers, body=None):
             if "/repos/synthetic/" not in url or "/repos/synthetic/control/" in url:
-                return old(method,url,headers,body)
+                return old(method, url, headers, body)
             state.api_calls.append(url)
             self.assertEqual(headers["Authorization"], "Bearer synthetic-github-bearer")
             if "/contents/" in url:
-                return encode(dict(state.file, content=base64.b64encode(encode(workflow)).decode()) if state.file["content"] == "dynamic" else state.file)
+                return encode(
+                    dict(
+                        state.file, content=base64.b64encode(encode(workflow)).decode()
+                    )
+                    if state.file["content"] == "dynamic"
+                    else state.file
+                )
             if "/jobs?" in url:
                 return encode(state.jobs)
             if url.endswith("/approvals"):
@@ -4192,61 +4334,116 @@ class DependencyReceiptCases(unittest.TestCase):
             if "/environments/" in url:
                 return encode(state.environment)
             return encode(run)
-        stack.enter_context(patch.object(target.transport,"request",side_effect=metadata))
-        def artifact(method,url,headers,body=None):
+
+        stack.enter_context(
+            patch.object(target.transport, "request", side_effect=metadata)
+        )
+
+        def artifact(method, url, headers, body=None):
             from types import SimpleNamespace
             import io
             import zipfile
-            state.artifact_calls.append((url,headers.copy()))
-            buffer=io.BytesIO()
-            with zipfile.ZipFile(buffer,"w") as archive:
+
+            state.artifact_calls.append((url, headers.copy()))
+            buffer = io.BytesIO()
+            with zipfile.ZipFile(buffer, "w") as archive:
                 for path in sorted(producer.root.rglob("*")):
                     if path.is_file():
-                        archive.writestr(str(path.relative_to(producer.root)),path.read_bytes())
-            raw = buffer.getvalue() if state.archive_override is None else state.archive_override
-            meta = dict(digest="sha256:"+hashlib.sha256(raw).hexdigest(),**state.metadata)
+                        archive.writestr(
+                            str(path.relative_to(producer.root)), path.read_bytes()
+                        )
+            raw = (
+                buffer.getvalue()
+                if state.archive_override is None
+                else state.archive_override
+            )
             if "/actions/artifacts/" in url and not url.endswith("/zip"):
-                return SimpleNamespace(status=200,headers={},body=encode(meta))
+                state.download_bytes = raw
+            else:
+                raw = state.download_bytes
+            meta = {
+                "digest": "sha256:" + hashlib.sha256(raw).hexdigest(),
+                **state.metadata,
+            }
+            if "/actions/artifacts/" in url and not url.endswith("/zip"):
+                return SimpleNamespace(status=200, headers={}, body=encode(meta))
             if url.endswith("/zip"):
-                return SimpleNamespace(status=302,headers={"Location":"https://synthetic.blob.core.windows.net/artifact"},body=b"")
-            self.assertEqual(headers,{})
-            return SimpleNamespace(status=200,headers={},body=raw)
+                return SimpleNamespace(
+                    status=302,
+                    headers={
+                        "Location": "https://synthetic.blob.core.windows.net/artifact"
+                    },
+                    body=b"",
+                )
+            self.assertEqual(headers, {})
+            return SimpleNamespace(status=200, headers={}, body=raw)
+
         # Before implementation the existing callable must execute, not fail at import/setup.
         if importlib.util.find_spec("cloud_dependencies"):
             import cloud_dependencies as dependencies
-            stack.enter_context(patch.object(dependencies.ArtifactHttps,"request",side_effect=artifact))
+
+            stack.enter_context(
+                patch.object(
+                    dependencies.ArtifactHttps, "request", side_effect=artifact
+                )
+            )
         return state
 
     def failure(self, state, expected):
-        seen=[]
-        original=state.target.a.contracts._require
+        seen = []
+        original = state.target.a.contracts._require
+
         def require(condition, code="INVALID_ARTIFACT"):
             if not condition:
                 seen.append(code)
-            original(condition,code)
+            original(condition, code)
+
         original_auth = state.target.a.require
+
         def auth_require(condition, code="ADMISSION_DENIED"):
             if not condition:
                 seen.append(code)
-            original_auth(condition,code)
+            original_auth(condition, code)
+
         from contextlib import ExitStack
+
         with ExitStack() as stack:
             for module in {c, state.target.a.contracts, sys.modules["cloud_contracts"]}:
-                stack.enter_context(patch.object(module,"_require",side_effect=require))
-            stack.enter_context(patch.object(state.target.a,"require",side_effect=auth_require))
+                stack.enter_context(
+                    patch.object(module, "_require", side_effect=require)
+                )
+                original_read = module.read_verified
+
+                def read(*args, _read=original_read, **kwargs):
+                    try:
+                        return _read(*args, **kwargs)
+                    except ValueError as exc:
+                        seen.append(str(exc))
+                        raise
+
+                stack.enter_context(
+                    patch.object(module, "read_verified", side_effect=read)
+                )
+            stack.enter_context(
+                patch.object(state.target.a, "require", side_effect=auth_require)
+            )
             with self.assertRaises(state.target.a.AdmissionDenied):
                 state.target.write()
-        self.assertEqual(state.target.writes,[])
-        self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+        self.assertEqual(state.target.writes, [])
+        self.assertIn(
+            expected,
+            seen,
+            "Mismatch reached existing boundary; blanket denial is not this field guard",
+        )
 
     def test_dependency_matched_control_at_both_shared_stages(self):
-        for provider in ("azure","aws"):
-            for stage in ("prepare","apply"):
-                with self.subTest(provider=provider,stage=stage):
-                    state=self.fixture(provider,stage)
+        for provider in ("azure", "aws"):
+            for stage in ("prepare", "apply"):
+                with self.subTest(provider=provider, stage=stage):
+                    state = self.fixture(provider, stage)
                     state.target.write()
-                    self.assertEqual(state.target.writes,["write"])
-                    self.assertGreaterEqual(len(state.artifact_calls),6)
+                    self.assertEqual(state.target.writes, ["write"])
+                    self.assertGreaterEqual(len(state.artifact_calls), 6)
                     self.doCleanups()
 
     def test_dependency_per_field_red_mismatches(self):
@@ -4254,168 +4451,1109 @@ class DependencyReceiptCases(unittest.TestCase):
             "run_id": ("wrong-run", "DEPENDENCY_REQUEST_BINDING"),
             "unit_id": ("wrong-unit", "DEPENDENCY_SET_MISMATCH"),
             "provider": ("aws", "DEPENDENCY_REQUEST_BINDING"),
-            "scope": (dict(account_id="wrong",region="wrong",deployment_scope="wrong"), "DEPENDENCY_REQUEST_BINDING"),
-            "profile": (dict(id="cloud-compute",version="999",path="bundle/profile.json",sha256="b"*64), "DEPENDENCY_REQUEST_BINDING"),
-            "workflow_sha256": ("b"*64, "DEPENDENCY_WORKFLOW_MISMATCH"),
-            "executor_revision": ("b"*40, "DEPENDENCY_EXECUTOR_MISMATCH"),
-            "producer_run_id": (790, "DEPENDENCY_RUN_MISMATCH"),
+            "scope": (
+                dict(account_id="wrong", region="wrong", deployment_scope="wrong"),
+                "DEPENDENCY_REQUEST_BINDING",
+            ),
+            "profile": (
+                dict(
+                    id="cloud-compute",
+                    version="999",
+                    path="bundle/profile.json",
+                    sha256="b" * 64,
+                ),
+                "DEPENDENCY_REQUEST_BINDING",
+            ),
+            "workflow_sha256": ("b" * 64, "DEPENDENCY_WORKFLOW_MISMATCH"),
+            "executor_revision": ("b" * 40, "DEPENDENCY_EXECUTOR_MISMATCH"),
+            "producer_run_id": (790, "ARTIFACT_IDENTITY_CHANGED"),
             "repository_id": (78, "DEPENDENCY_RUN_MISMATCH"),
             "environment_id": (89, "DEPENDENCY_ENVIRONMENT_MISMATCH"),
         }
-        for field,(value,guard) in variants.items():
+        for field, (value, guard) in variants.items():
             with self.subTest(field=field):
-                state=self.fixture()
-                state.pin[field]=value
-                self.failure(state,guard)
+                state = self.fixture()
+                state.pin[field] = value
+                self.failure(state, guard)
                 self.doCleanups()
 
     def test_dependency_producer_and_evidence_red_mismatches(self):
-        variants = ["job", "run", "artifact", "classification", "context", "observation", "payload", "verification", "plan", "operation", "stale"]
+        variants = [
+            "job",
+            "run",
+            "artifact",
+            "classification",
+            "context",
+            "observation",
+            "payload",
+            "verification",
+            "plan",
+            "operation",
+            "stale",
+        ]
         for variant in variants:
             with self.subTest(field=variant):
-                state=self.fixture()
-                guard="DEPENDENCY_PRODUCER_OUTPUT_MISMATCH"
-                if variant=="job":
-                    state.job["conclusion"]="failure"; guard="DEPENDENCY_VERIFY_JOB_REQUIRED"
-                elif variant=="run":
-                    state.run["conclusion"]="failure"; guard="DEPENDENCY_RUN_MISMATCH"
-                elif variant=="artifact":
-                    state.metadata["expired"]=True; guard="ARTIFACT_IDENTITY_CHANGED"
-                elif variant=="stale":
-                    state.target.boundary.clock=lambda: state.now+10000; guard="DEPENDENCY_NOT_VERIFIED"
+                state = self.fixture()
+                guard = "DEPENDENCY_PRODUCER_OUTPUT_MISMATCH"
+                if variant == "job":
+                    state.job["conclusion"] = "failure"
+                    guard = "DEPENDENCY_VERIFY_JOB_REQUIRED"
+                elif variant == "run":
+                    state.run["conclusion"] = "failure"
+                    guard = "DEPENDENCY_RUN_MISMATCH"
+                elif variant == "artifact":
+                    state.metadata["expired"] = True
+                    guard = "ARTIFACT_IDENTITY_CHANGED"
+                elif variant == "stale":
+                    state.target.boundary.clock = lambda: state.now + 10000
+                    guard = "DEPENDENCY_NOT_VERIFIED"
                 else:
-                    suffix={"classification":".manifest.json", "context":".context.json", "observation":".manifest.json", "payload":".manifest.json", "verification":".verification.json", "plan":".selected-plan.json", "operation":""}[variant]
-                    path=state.producer.root/(state.output+suffix)
-                    value=json.loads(path.read_bytes())
-                    if variant=="classification": value["classification"]="synthetic"
-                    elif variant=="context": value["principal"]="wrong-principal"
-                    elif variant in ("observation","payload"):
-                        row=value["observations"][0]
-                        ref=row["observation" if variant=="observation" else "result"]
-                        path=state.producer.root/ref["path"]
-                        value=json.loads(path.read_bytes())
-                        value["principal" if variant=="observation" else "context_sha256"]="wrong" if variant=="observation" else "b"*64
-                    elif variant=="verification": value["evidence_complete"]=False
-                    elif variant=="plan": value["verdict"]="BLOCKED"
-                    else: value.update(result="BLOCKED",state="BLOCKED",error_code="EVIDENCE_INCOMPLETE")
+                    suffix = {
+                        "classification": ".manifest.json",
+                        "context": ".context.json",
+                        "observation": ".manifest.json",
+                        "payload": ".manifest.json",
+                        "verification": ".verification.json",
+                        "plan": ".selected-plan.json",
+                        "operation": "",
+                    }[variant]
+                    path = state.producer.root / (state.output + suffix)
+                    value = json.loads(path.read_bytes())
+                    if variant == "classification":
+                        value["classification"] = "synthetic"
+                    elif variant == "context":
+                        value["principal"] = "wrong-principal"
+                    elif variant in ("observation", "payload"):
+                        row = value["observations"][0]
+                        ref = row[
+                            "observation" if variant == "observation" else "result"
+                        ]
+                        path = state.producer.root / ref["path"]
+                        value = json.loads(path.read_bytes())
+                        value[
+                            "principal"
+                            if variant == "observation"
+                            else "context_sha256"
+                        ] = "wrong" if variant == "observation" else "b" * 64
+                    elif variant == "verification":
+                        value["evidence_complete"] = False
+                    elif variant == "plan":
+                        value["verdict"] = "BLOCKED"
+                    else:
+                        value.update(
+                            result="BLOCKED",
+                            state="BLOCKED",
+                            error_code="EVIDENCE_INCOMPLETE",
+                        )
                     path.write_bytes(encode(value))
-                    if variant in ("context","observation","payload","verification"):
-                        guard="DIGEST_MISMATCH"
-                self.failure(state,guard)
+                    if variant in ("context", "observation", "payload", "verification"):
+                        guard = "DIGEST_MISMATCH"
+                self.failure(state, guard)
                 self.doCleanups()
-
 
 
 def dependency_field_matrix():
     """Every new protected configuration / authenticated producer binding leaf."""
-    rows = []
+    rows: list[tuple[str, str, list[str], object, str]] = []
+
     def add(target, values, guard):
-        rows.extend((target+"."+path, target, path.split("."), value, guard) for path,value in values.items())
-    add("pin", {"unit_id":"other", "verification.path":"other.json", "verification.sha256":"b"*64}, "DEPENDENCY_SET_MISMATCH")
-    add("pin", {"run_id":"other", "provider":"aws", "scope.account_id":"other", "scope.region":"westus", "scope.deployment_scope":"other", "profile.id":"other", "profile.version":"9", "profile.path":"other.json", "profile.sha256":"b"*64}, "DEPENDENCY_REQUEST_BINDING")
-    add("pin", {"request.path":"other.json"}, "UNSAFE_OR_UNAVAILABLE_FILE")
-    add("pin", {"request.sha256":"b"*64}, "DIGEST_MISMATCH")
-    add("pin", {"repository":"synthetic/other", "repository_id":78, "workflow":".github/workflows/other.yml", "workflow_revision":"b"*40, "ref":"refs/heads/other", "producer_run_id":790, "actors.0.0":9, "actors.0.1":"other"}, "DEPENDENCY_RUN_MISMATCH")
-    add("pin", {"workflow_sha256":"b"*64}, "DEPENDENCY_WORKFLOW_MISMATCH")
-    add("pin", {"executor_repository":"synthetic/other", "executor_revision":"b"*40}, "DEPENDENCY_EXECUTOR_MISMATCH")
-    add("pin", {"artifact_id":18}, "ARTIFACT_IDENTITY_CHANGED")
-    add("pin", {"environment_id":89, "reviewers.0.0":9, "reviewers.0.1":"other"}, "DEPENDENCY_ENVIRONMENT_MISMATCH")
-    add("run", {"id":790,"run_attempt":2,"status":"in_progress","conclusion":"failure","event":"push","head_sha":"b"*40,"head_branch":"other","path":".github/workflows/other.yml","display_title":"cloud:"+"b"*64+":"+"c"*64,"repository.id":78,"repository.full_name":"synthetic/other","head_repository.id":78,"head_repository.full_name":"synthetic/other","actor.id":9,"actor.login":"other","triggering_actor.id":9,"triggering_actor.login":"other"}, "DEPENDENCY_RUN_MISMATCH")
-    add("file", {"type":"dir","path":".github/workflows/other.yml","encoding":"none","content":"e30K"}, "DEPENDENCY_WORKFLOW_MISMATCH")
-    add("job", {"id":0,"name":"apply","run_id":790,"run_attempt":2,"head_sha":"b"*40,"status":"in_progress","conclusion":"failure"}, "DEPENDENCY_VERIFY_JOB_REQUIRED")
-    add("jobs", {"total_count":2}, "PAGINATION_INCOMPLETE")
-    add("job", {"started_at":"2026-10-18T07:00:00Z","completed_at":"2026-10-18T05:00:00Z"}, "DEPENDENCY_COMPLETION_WINDOW")
+        rows.extend(
+            (target + "." + path, target, path.split("."), value, guard)
+            for path, value in values.items()
+        )
+
+    add(
+        "pin",
+        {
+            "unit_id": "other",
+            "verification.path": "other.json",
+            "verification.sha256": "b" * 64,
+        },
+        "DEPENDENCY_SET_MISMATCH",
+    )
+    add(
+        "pin",
+        {
+            "run_id": "other",
+            "provider": "aws",
+            "scope.account_id": "other",
+            "scope.region": "westus",
+            "scope.deployment_scope": "other",
+            "profile.id": "other",
+            "profile.version": "9",
+            "profile.path": "other.json",
+            "profile.sha256": "b" * 64,
+        },
+        "DEPENDENCY_REQUEST_BINDING",
+    )
+    add("pin", {"request.path": "other.json"}, "UNSAFE_OR_UNAVAILABLE_FILE")
+    add("pin", {"request.sha256": "b" * 64}, "DIGEST_MISMATCH")
+    add(
+        "pin",
+        {
+            "repository": "synthetic/other",
+            "repository_id": 78,
+            "workflow": ".github/workflows/other.yml",
+            "workflow_revision": "b" * 40,
+            "ref": "refs/heads/other",
+            "producer_run_id": 790,
+            "actors.0.0": 9,
+            "actors.0.1": "other",
+        },
+        "DEPENDENCY_RUN_MISMATCH",
+    )
+    add("pin", {"workflow_sha256": "b" * 64}, "DEPENDENCY_WORKFLOW_MISMATCH")
+    add(
+        "pin",
+        {"executor_repository": "synthetic/other", "executor_revision": "b" * 40},
+        "DEPENDENCY_EXECUTOR_MISMATCH",
+    )
+    add("pin", {"artifact_id": 18}, "ARTIFACT_IDENTITY_CHANGED")
+    add(
+        "pin",
+        {"environment_id": 89, "reviewers.0.0": 9, "reviewers.0.1": "other"},
+        "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    )
+    add(
+        "run",
+        {
+            "id": 790,
+            "run_attempt": 2,
+            "status": "in_progress",
+            "conclusion": "failure",
+            "event": "push",
+            "head_sha": "b" * 40,
+            "head_branch": "other",
+            "path": ".github/workflows/other.yml",
+            "display_title": "cloud:" + "b" * 64 + ":" + "c" * 64,
+            "repository.id": 78,
+            "repository.full_name": "synthetic/other",
+            "head_repository.id": 78,
+            "head_repository.full_name": "synthetic/other",
+            "actor.id": 9,
+            "actor.login": "other",
+            "triggering_actor.id": 9,
+            "triggering_actor.login": "other",
+        },
+        "DEPENDENCY_RUN_MISMATCH",
+    )
+    add(
+        "file",
+        {
+            "type": "dir",
+            "path": ".github/workflows/other.yml",
+            "encoding": "none",
+            "content": "e30K",
+        },
+        "DEPENDENCY_WORKFLOW_MISMATCH",
+    )
+    add(
+        "job",
+        {
+            "id": 0,
+            "name": "apply",
+            "run_id": 790,
+            "run_attempt": 2,
+            "head_sha": "b" * 40,
+            "status": "in_progress",
+            "conclusion": "failure",
+        },
+        "DEPENDENCY_VERIFY_JOB_REQUIRED",
+    )
+    add("jobs", {"total_count": 2}, "PAGINATION_INCOMPLETE")
+    add(
+        "job",
+        {"started_at": "2026-10-18T07:00:00Z", "completed_at": "2026-10-18T05:00:00Z"},
+        "DEPENDENCY_COMPLETION_WINDOW",
+    )
     for index in range(3):
-        add("job", {f"steps.{index}.name":"other",f"steps.{index}.status":"in_progress",f"steps.{index}.conclusion":"failure"}, "DEPENDENCY_VERIFY_STEP_REQUIRED")
-        add("job", {f"steps.{index}.started_at":"2026-10-18T07:00:00Z",f"steps.{index}.completed_at":"2026-10-18T05:00:00Z"}, "DEPENDENCY_COMPLETION_WINDOW")
-    add("environment", {"id":89,"name":"other-verify","can_admins_bypass":True,"deployment_branch_policy.protected_branches":False,"deployment_branch_policy.custom_branch_policies":True,"protection_rules.0.type":"wait_timer","protection_rules.0.prevent_self_review":False,"protection_rules.0.reviewers.0.type":"Team","protection_rules.0.reviewers.0.reviewer.id":9,"protection_rules.0.reviewers.0.reviewer.login":"other"}, "DEPENDENCY_ENVIRONMENT_MISMATCH")
-    add("approvals", {"0.state":"rejected","0.user.id":9,"0.user.login":"other","0.environments.0.id":89,"0.environments.0.name":"other-verify"}, "DEPENDENCY_APPROVAL_MISMATCH")
-    add("metadata", {"id":18,"expired":True,"workflow_run.id":790}, "ARTIFACT_IDENTITY_CHANGED")
-    add("metadata", {"digest":None}, "ARTIFACT_DIGEST_REQUIRED")
-    add("metadata", {"digest":"sha256:"+"b"*64}, "ARTIFACT_DIGEST_MISMATCH")
-    add("metadata", {"name":"azure-apply-789","workflow_run.head_sha":"b"*40,"workflow_run.repository_id":78,"workflow_run.head_repository_id":78}, "DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH")
+        add(
+            "job",
+            {
+                f"steps.{index}.name": "other",
+                f"steps.{index}.status": "in_progress",
+                f"steps.{index}.conclusion": "failure",
+            },
+            "DEPENDENCY_VERIFY_STEP_REQUIRED",
+        )
+        add(
+            "job",
+            {
+                f"steps.{index}.started_at": "2026-10-18T07:00:00Z",
+                f"steps.{index}.completed_at": "2026-10-18T05:00:00Z",
+            },
+            "DEPENDENCY_COMPLETION_WINDOW",
+        )
+    add(
+        "environment",
+        {
+            "id": 89,
+            "name": "other-verify",
+            "can_admins_bypass": True,
+            "deployment_branch_policy.protected_branches": False,
+            "deployment_branch_policy.custom_branch_policies": True,
+            "protection_rules.0.type": "wait_timer",
+            "protection_rules.0.prevent_self_review": False,
+            "protection_rules.0.reviewers.0.type": "Team",
+            "protection_rules.0.reviewers.0.reviewer.id": 9,
+            "protection_rules.0.reviewers.0.reviewer.login": "other",
+        },
+        "DEPENDENCY_ENVIRONMENT_MISMATCH",
+    )
+    add(
+        "approvals",
+        {
+            "0.state": "rejected",
+            "0.user.id": 9,
+            "0.user.login": "other",
+            "0.environments.0.id": 89,
+            "0.environments.0.name": "other-verify",
+        },
+        "DEPENDENCY_APPROVAL_MISMATCH",
+    )
+    add(
+        "metadata",
+        {"id": 18, "expired": True, "workflow_run.id": 790},
+        "ARTIFACT_IDENTITY_CHANGED",
+    )
+    add("metadata", {"digest": None}, "ARTIFACT_DIGEST_REQUIRED")
+    add("metadata", {"digest": "sha256:" + "b" * 64}, "ARTIFACT_DIGEST_MISMATCH")
+    add(
+        "metadata",
+        {
+            "name": "azure-apply-789",
+            "workflow_run.head_sha": "b" * 40,
+            "workflow_run.repository_id": 78,
+            "workflow_run.head_repository_id": 78,
+        },
+        "DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH",
+    )
+    rows = [
+        (
+            label,
+            target,
+            path,
+            value,
+            "ARTIFACT_IDENTITY_CHANGED" if label == "pin.producer_run_id" else guard,
+        )
+        for label, target, path, value, guard in rows
+    ]
     return rows
 
 
 class DependencyFieldMatrix(DependencyReceiptCases):
     def test_every_new_trust_and_producer_binding(self):
-        for label,target,path,value,guard in dependency_field_matrix():
+        for label, target, path, value, guard in dependency_field_matrix():
             with self.subTest(field=label):
-                state=self.fixture()
-                obj=getattr(state,target)
+                state = self.fixture()
+                obj = getattr(state, target)
                 for part in path[:-1]:
-                    obj=obj[int(part) if isinstance(obj,list) else part]
-                obj[int(path[-1]) if isinstance(obj,list) else path[-1]]=value
-                self.failure(state,guard)
+                    obj = obj[int(part) if isinstance(obj, list) else part]
+                key = int(path[-1]) if isinstance(obj, list) else path[-1]
+                original_value = (
+                    copy.deepcopy(obj[key])
+                    if key in obj or isinstance(obj, list)
+                    else None
+                )
+                existed = isinstance(obj, list) or key in obj
+                obj[key] = value
+                self.failure(state, guard)
+                if existed:
+                    obj[key] = original_value
+                else:
+                    del obj[key]
+                state.target.write()
+                self.assertEqual(state.target.writes, ["write"])
                 self.doCleanups()
 
     def test_consumer_request_and_trust_set(self):
-        for variant in ("request-sha", "trust-omitted", "trust-added", "receipt-omitted", "receipt-added"):
+        for variant in (
+            "request-sha",
+            "trust-omitted",
+            "trust-added",
+            "receipt-omitted",
+            "receipt-added",
+        ):
             with self.subTest(field=variant):
-                state=self.fixture()
-                guard="DEPENDENCY_SET_MISMATCH"
-                if variant=="request-sha":
-                    object.__setattr__(state.target.policy,"dependency_request_sha256","b"*64)
-                    guard="DEPENDENCY_CONSUMER_MISMATCH"
-                elif variant=="trust-omitted":
-                    object.__setattr__(state.target.policy,"predecessor_trust",())
-                elif variant=="trust-added":
-                    other=copy.deepcopy(state.pin);other["unit_id"]="other"
-                    object.__setattr__(state.target.policy,"predecessor_trust",(state.pin,other))
+                state = self.fixture()
+                guard = "DEPENDENCY_SET_MISMATCH"
+                if variant == "request-sha":
+                    object.__setattr__(
+                        state.target.policy, "dependency_request_sha256", "b" * 64
+                    )
+                    guard = "DEPENDENCY_CONSUMER_MISMATCH"
+                elif variant == "trust-omitted":
+                    object.__setattr__(state.target.policy, "predecessor_trust", ())
+                elif variant == "trust-added":
+                    other = copy.deepcopy(state.pin)
+                    other["unit_id"] = "other"
+                    object.__setattr__(
+                        state.target.policy, "predecessor_trust", (state.pin, other)
+                    )
                 else:
-                    if variant=="receipt-omitted":
-                        state.target.request["predecessor_receipts"]=[]
+                    if variant == "receipt-omitted":
+                        state.target.request["predecessor_receipts"] = []
                     else:
                         # New valid-format independent receipt, not a duplicate/schema error.
-                        other=copy.deepcopy(state.receipt);other["unit_id"]="other"
-                        path=state.ref["path"].replace('/'+state.receipt["unit_id"]+'/', '/other/')
-                        ref=state.target.put(path,other)
-                        state.target.request["predecessor_receipts"].append(dict(unit_id="other",**ref))
-                    state.target.request_ref=state.target.put("request.json",state.target.request)
-                    state.target.transport.run["display_title"]="cloud:"+state.target.request_ref["sha256"]+":none"
-                    guard="DEPENDENCY_CONSUMER_MISMATCH"
-                self.failure(state,guard)
+                        other = copy.deepcopy(state.receipt)
+                        other["unit_id"] = "other"
+                        path = state.ref["path"].replace(
+                            "/" + state.receipt["unit_id"] + "/", "/other/"
+                        )
+                        ref = state.target.put(path, other)
+                        state.target.request["predecessor_receipts"].append(
+                            dict(unit_id="other", **ref)
+                        )
+                    state.target.request_ref = state.target.put(
+                        "request.json", state.target.request
+                    )
+                    state.target.transport.run["display_title"] = (
+                        "cloud:" + state.target.request_ref["sha256"] + ":none"
+                    )
+                    guard = "DEPENDENCY_CONSUMER_MISMATCH"
+                self.failure(state, guard)
                 self.doCleanups()
 
 
 class DependencyGraphCases(unittest.TestCase):
     def graph(self):
-        values=[]
-        for unit in ("C","B","A"):
-            value=request("aws");value["unit_id"]=unit
-            if unit=="C":value["predecessor_receipts"]=[dict(unit_id="B",path="b.json",sha256="a"*64)]
+        values = []
+        for unit in ("C", "B", "A"):
+            value = request("aws")
+            value["unit_id"] = unit
+            if unit == "C":
+                value["predecessor_receipts"] = [
+                    dict(unit_id="B", path="b.json", sha256="a" * 64)
+                ]
             values.append(value)
         return values
 
     def test_order_and_each_invalid_graph_before_callbacks(self):
         # Component-absence Red is recorded separately from executed boundary mismatches.
-        self.assertTrue((SHARED/"cloud_dependencies.py").is_file(),"Ordering component absent")
+        self.assertTrue(
+            (SHARED / "cloud_dependencies.py").is_file(), "Ordering component absent"
+        )
         import cloud_dependencies as d
-        values=self.graph()
-        self.assertEqual([r["unit_id"] for r in d.ordered_units(values)],["A","B","C"])
-        for variant in ("cycle","self","duplicate-unit","duplicate-edge","missing"):
+
+        values = self.graph()
+        self.assertEqual(
+            [r["unit_id"] for r in d.ordered_units(values)], ["A", "B", "C"]
+        )
+        for variant in ("cycle", "self", "duplicate-unit", "duplicate-edge", "missing"):
             with self.subTest(variant=variant):
-                changed=copy.deepcopy(values)
-                edge=lambda unit:dict(unit_id=unit,path="b.json",sha256="a"*64)
-                if variant=="cycle":changed[1]["predecessor_receipts"]=[edge("C")]
-                elif variant=="self":changed[1]["predecessor_receipts"]=[edge("B")]
-                elif variant=="duplicate-unit":changed.append(copy.deepcopy(changed[1]))
-                elif variant=="duplicate-edge":changed[0]["predecessor_receipts"]*=2
-                else:changed[0]["predecessor_receipts"]=[edge("absent")]
-                with self.assertRaises(ValueError):d.ordered_units(changed)
+                changed = copy.deepcopy(values)
+
+                def edge(unit):
+                    return dict(unit_id=unit, path="b.json", sha256="a" * 64)
+
+                if variant == "cycle":
+                    changed[1]["predecessor_receipts"] = [edge("C")]
+                elif variant == "self":
+                    changed[1]["predecessor_receipts"] = [edge("B")]
+                elif variant == "duplicate-unit":
+                    changed.append(copy.deepcopy(changed[1]))
+                elif variant == "duplicate-edge":
+                    changed[0]["predecessor_receipts"] *= 2
+                else:
+                    changed[0]["predecessor_receipts"] = [edge("absent")]
+                with self.assertRaises(ValueError):
+                    d.ordered_units(changed)
 
     def test_transitive_unknown_preserves_identity_without_retry(self):
-        self.assertTrue((SHARED/"cloud_dependencies.py").is_file(),"Ordering component absent")
+        self.assertTrue(
+            (SHARED / "cloud_dependencies.py").is_file(), "Ordering component absent"
+        )
         import cloud_dependencies as d
-        values=self.graph();values[2]["predecessor_receipts"]=[dict(unit_id="C",path="c.json",sha256="a"*64)]
-        calls=[]
-        unknown=dict(result="UNKNOWN",native_operation_id="original-operation")
-        def execute(req):calls.append(req["unit_id"]);return unknown
-        result=d.dispatch(values,execute,{},None)
-        self.assertEqual(calls,["B"])
-        self.assertEqual(result["units"]["B"],unknown)
-        self.assertEqual(result["order"],["B","C","A"])
-        self.assertNotEqual(result["aggregate"],"VERIFIED")
+
+        values = self.graph()
+        values[2]["predecessor_receipts"] = [
+            dict(unit_id="C", path="c.json", sha256="a" * 64)
+        ]
+        calls = []
+        unknown = dict(result="UNKNOWN", native_operation_id="original-operation")
+
+        def execute(req):
+            calls.append(req["unit_id"])
+            return unknown
+
+        result = d.dispatch(values, execute, {}, None)
+        self.assertEqual(calls, ["B"])
+        self.assertEqual(result["units"]["B"], unknown)
+        self.assertEqual(result["order"], ["B", "C", "A"])
+        self.assertNotEqual(result["aggregate"], "VERIFIED")
+
+
+class DependencyBoundaryCases(DependencyReceiptCases):
+    def test_freshness_expires_during_final_acquisition_not_consumer_lease(self):
+        import cloud_dependencies as d
+        from dataclasses import replace
+
+        state = self.fixture(stage="apply")
+        target = state.target
+        target.policy = replace(target.policy, ttl_seconds=3600)
+        target.boundary.policy = target.policy
+        target.transport.claims["exp"] = state.now + 3600
+        target.transport.azure_claims["exp"] = state.now + 3600
+        target.transport.lease_end = state.now + 3600
+        preview = json.loads((target.root / target.preview_ref["path"]).read_bytes())
+        preview["expires_at"] = target.a.utc(state.now + 3600)
+        target.preview_ref = target.put(target.preview_ref["path"], preview)
+        target.transport.run["display_title"] = (
+            "cloud:" + target.request_ref["sha256"] + ":" + target.preview_ref["sha256"]
+        )
+        tick = [state.now]
+        target.boundary.clock = lambda: tick[0]
+        original = d.ArtifactHttps.request
+        metadata_calls = []
+
+        def acquire(method, url, headers, body=None):
+            response = original(method, url, headers, body)
+            if url.endswith("/artifacts/17"):
+                metadata_calls.append(url)
+                if len(metadata_calls) == 2:
+                    tick[0] += 1000
+            return response
+
+        with patch.object(d.ArtifactHttps, "request", side_effect=acquire):
+            self.failure(state, "DEPENDENCY_NOT_VERIFIED")
+        self.assertEqual(len(metadata_calls), 2)
+        self.assertLess(tick[0], state.now + 3600 - 10)
+        self.assertTrue(list(target.evidence.glob("*.authorization.json")))
+
+    def test_approval_self_review_uses_stable_id_despite_extra_metadata(self):
+        state = self.fixture()
+        state.pin["actors"] = [[8, "reviewer"]]
+        state.run["actor"] = dict(
+            id=8, login="reviewer", html_url="https://example.invalid/actor"
+        )
+        state.run["triggering_actor"] = dict(id=8, login="reviewer", type="User")
+        self.failure(state, "DEPENDENCY_APPROVAL_MISMATCH")
+
+    def test_each_write_reacquires_and_final_scan_revocation_blocks(self):
+        for stage in ("prepare", "apply"):
+            state = self.fixture(stage=stage)
+            state.target.write(mutation="first")
+            self.assertEqual(len(state.target.writes), 1)
+            state.run["conclusion"] = "failure"
+            with self.assertRaises(state.target.a.AdmissionDenied):
+                state.target.write(mutation="second")
+            self.assertEqual(len(state.target.writes), 1)
+            self.doCleanups()
+            state = self.fixture(stage=stage)
+
+            def scan(raw):
+                state.run["conclusion"] = "failure"
+                return True
+
+            with self.assertRaises(state.target.a.AdmissionDenied):
+                state.target.boundary.write(
+                    state.target.root,
+                    state.target.request_ref,
+                    state.target.preview_ref,
+                    mutation_id="final",
+                    submit=lambda credentials: state.target.writes.append("write"),
+                    scan=scan,
+                )
+            self.assertEqual(state.target.writes, [])
+            self.doCleanups()
+
+    def test_physically_resolved_temporary_root(self):
+        from contextlib import contextmanager
+        import cloud_dependencies as d
+
+        state = self.fixture()
+        factory = tempfile.TemporaryDirectory
+
+        @contextmanager
+        def alias_root(*args, **kwargs):
+            with factory(*args, **kwargs) as temp:
+                parent = Path(temp)
+                physical = parent / "physical"
+                physical.mkdir()
+                alias = parent / "alias"
+                alias.symlink_to(physical, target_is_directory=True)
+                yield str(alias)
+
+        with patch.object(d.tempfile, "TemporaryDirectory", side_effect=alias_root):
+            state.target.write()
+        self.assertEqual(state.target.writes, ["write"])
+
+    def test_read_only_verify_policy_is_loadable_but_never_a_writer(self):
+        from dataclasses import asdict, replace
+
+        for provider in ("azure", "aws"):
+            state = self.fixture(provider)
+            policy = replace(
+                state.target.policy, operation="apply", environment="sandbox-verify"
+            )
+            governed = __import__(provider + "_governed")
+            loaded = governed.load_policy(json.dumps(asdict(policy)), "verify")
+            self.assertEqual(loaded, policy)
+            state.target.boundary.policy = loaded
+            with self.assertRaises(state.target.a.AdmissionDenied):
+                state.target.write()
+            self.assertEqual(state.target.writes, [])
+            self.doCleanups()
+
+    def test_three_actual_adapter_units_partial_failure_preserves_a(self):
+        import cloud_dependencies as d
+
+        # A prototype only supplies deterministic input bytes; acceptance A runs
+        # its real prepare/apply/verify pipeline inside the dispatcher callback.
+        prototype = self.fixture()
+        a_request = copy.deepcopy(prototype.producer.executor.request)
+        runtime = prototype.target.runtime
+        self.doCleanups()
+        # Other protocol cases may leave AWS's same-basename `cloud` CLI loaded.
+        # Use the established scoped provider module isolation before constructing
+        # the Azure adapters; otherwise their owner detector can bind to AWS code.
+        isolation = AzureTestBase()
+        isolation.setUp()
+        self.addCleanup(isolation.doCleanups)
+        spec = importlib.util.spec_from_file_location(
+            "dependency_adapters", ROOT / "tests/cloud-orchestration-execution.tests.py"
+        )
+        assert spec and spec.loader
+        execution = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(execution)
+        units = {}
+        for label in ("unit-b", "unit-c"):
+            case = execution.AzureExecution()
+            case.setUp()
+            self.addCleanup(case.doCleanups)
+            self.assertEqual(
+                Path(case.e.detect_owner.__code__.co_filename),
+                ROOT / "plugins/sdd-azure-cloud/scripts/cloud.py",
+            )
+            case.req["unit_id"] = label
+            old = case.directory
+            case.directory = old.rsplit("/", 1)[0] + "/" + label
+            case.req["local_context"]["evidence_directory"] = case.directory
+            (case.root / case.directory).mkdir(parents=True)
+            owner = case.req["local_context"]["ownership"]
+            value = json.loads((case.root / owner["path"]).read_bytes())
+            raw = encode(value)
+            (case.root / owner["path"]).write_bytes(raw)
+            owner["sha256"] = hashlib.sha256(raw).hexdigest()
+            if label == "unit-c":
+                path = (
+                    case.directory.replace("/unit-c", "/unit-b")
+                    + "/verify-result.json.verification.json"
+                )
+                receipt = dict(
+                    schema="cloud-verification/v1",
+                    run_id=case.req["run_id"],
+                    unit_id="unit-b",
+                    provider="azure",
+                    profile=case.req["verification_profile"],
+                    required_check_ids=["resource"],
+                    checks=[
+                        dict(
+                            check_id="resource",
+                            observation=case.req["policy"],
+                            result="FAIL",
+                        )
+                    ],
+                    overall_result="FAIL",
+                    evidence_complete=False,
+                )
+                raw = encode(receipt)
+                (case.root / path).parent.mkdir(parents=True)
+                (case.root / path).write_bytes(raw)
+                case.req["predecessor_receipts"] = [
+                    dict(
+                        unit_id="unit-b",
+                        path=path,
+                        sha256=hashlib.sha256(raw).hexdigest(),
+                    )
+                ]
+            case.request_bytes = encode(case.req)
+            (case.root / case.request_ref["path"]).write_bytes(case.request_bytes)
+            case.request_ref["sha256"] = hashlib.sha256(case.request_bytes).hexdigest()
+            case.executor = case.stage("prepare")
+            units[label] = case
+        proofs = {}
+        accepted: list[SimpleNamespace] = []
+        a_bytes = []
+        calls = []
+
+        class Transport:
+            def request(self, *args, **kwargs):
+                return accepted[0].target.transport.request(*args, **kwargs)
+
+        def execute(req):
+            key = req["unit_id"]
+            calls.append(key)
+            if key == a_request["unit_id"]:
+                state = self.fixture()
+                accepted.append(state)
+                a_bytes.append((state.producer.root / state.ref["path"]).read_bytes())
+                proofs[key] = state.pin
+                return json.loads((state.producer.root / state.output).read_bytes())
+            case = units[key]
+            with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(case.root)}):
+                case.prepare()
+                case.arm.state = "Failed"
+                return case.apply()
+
+        result = d.dispatch(
+            [units["unit-c"].req, units["unit-b"].req, a_request],
+            execute,
+            proofs,
+            runtime,
+            transport=Transport(),
+            clock=lambda: 1792303325,
+        )
+        self.assertEqual(calls, [a_request["unit_id"], "unit-b"])
+        self.assertEqual(result["units"][a_request["unit_id"]]["result"], "PASS")
+        self.assertEqual(result["units"]["unit-b"]["result"], "FAIL")
+        self.assertEqual(result["units"]["unit-c"]["result"], "BLOCKED")
+        self.assertNotEqual(result["aggregate"], "VERIFIED")
+        a = accepted[0]
+        original = a_bytes[0]
+        self.assertEqual(a.producer.arm.submissions, 1)
+        self.assertEqual(units["unit-b"].arm.submissions, 1)
+        dependent = units["unit-c"]
+        self.assertEqual(dependent.arm.calls, [])
+        # A direct provider call cannot bypass scheduling/admission of C either.
+        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(dependent.root)}):
+            blocked = dependent.executor.prepare(dependent.directory + "/direct.json")
+        self.assertEqual(blocked["result"], "BLOCKED")
+        self.assertEqual(dependent.arm.submissions, 0)
+        self.assertFalse(
+            any(call[0] in ("POST", "PUT") for call in dependent.arm.calls)
+        )
+        self.assertEqual((a.producer.root / a.ref["path"]).read_bytes(), original)
+        # Successful independent A remains usable through authenticated acquisition.
+        operation, raw, _ = d._verified(
+            a.pin, runtime, a.target.transport, clock=lambda: a.now
+        )
+        self.assertEqual(raw, original)
+        self.assertEqual(operation["result"], "PASS")
+        single = d.dispatch(
+            [a_request],
+            lambda request: operation,
+            proofs,
+            runtime,
+            transport=a.target.transport,
+            clock=lambda: a.now,
+        )
+        self.assertEqual(single["aggregate"], "VERIFIED")
+
+
+class DependencyFinalBoundaryCases(DependencyReceiptCases):
+    def test_consumer_expiry_during_second_acquisition(self):
+        import cloud_dependencies as d
+
+        for elapsed in (0, 111):
+            with self.subTest(elapsed=elapsed):
+                state = self.fixture(stage="apply")
+                now = [state.now]
+                state.target.boundary.clock = lambda: now[0]
+                original = d.ArtifactHttps.request
+                acquisitions = []
+
+                def acquire(method, url, headers, body=None):
+                    response = original(method, url, headers, body)
+                    if url.endswith("/artifacts/17"):
+                        acquisitions.append(url)
+                        if len(acquisitions) == 2:
+                            now[0] += elapsed
+                    return response
+
+                with patch.object(d.ArtifactHttps, "request", side_effect=acquire):
+                    if elapsed:
+                        self.failure(state, "CREDENTIAL_EXPIRED")
+                    else:
+                        state.target.write()
+                        self.assertEqual(state.target.writes, ["write"])
+                self.assertEqual(len(acquisitions), 2)
+                self.doCleanups()
+
+    def test_final_consumer_metadata_latency_cannot_stale_predecessor(self):
+        from dataclasses import replace
+
+        for elapsed in (0, 301):
+            with self.subTest(elapsed=elapsed):
+                state = self.fixture()
+                target = state.target
+                target.boundary.policy = replace(target.policy, ttl_seconds=1000)
+                target.transport.lease_end = state.now + 1200
+                target.transport.azure_claims["exp"] = state.now + 1200
+                now = [state.now]
+                target.boundary.clock = lambda: now[0]
+                original = target.a.GitHubAdmission.metadata
+                calls = []
+
+                def metadata(admission, *args, **kwargs):
+                    result = original(admission, *args, **kwargs)
+                    calls.append(result)
+                    if len(calls) == 3:
+                        now[0] += elapsed
+                    return result
+
+                with patch.object(target.a.GitHubAdmission, "metadata", metadata):
+                    if elapsed:
+                        self.failure(state, "DEPENDENCY_NOT_VERIFIED")
+                    else:
+                        target.write()
+                        self.assertEqual(target.writes, ["write"])
+                self.assertEqual(len(calls), 3)
+                self.assertLess(now[0], target.transport.claims["exp"])
+                self.assertLess(now[0], target.transport.lease_end)
+                self.doCleanups()
+
+    def test_cross_provider_predecessors_and_foreign_provenance_denial(self):
+        for predecessor, consumer in (("aws", "azure"), ("azure", "aws")):
+            for stage in ("prepare", "apply"):
+                with self.subTest(
+                    predecessor=predecessor, consumer=consumer, stage=stage
+                ):
+                    state = self.fixture(predecessor, stage, consumer_provider=consumer)
+                    original = state.pin["scope"]["account_id"]
+                    state.pin["scope"]["account_id"] = "foreign-scope"
+                    self.failure(state, "DEPENDENCY_REQUEST_BINDING")
+                    state.pin["scope"]["account_id"] = original
+                    original_sha = state.run["head_sha"]
+                    state.run["head_sha"] = "b" * 40
+                    self.failure(state, "DEPENDENCY_RUN_MISMATCH")
+                    state.run["head_sha"] = original_sha
+                    state.target.write()
+                    self.assertEqual(state.target.writes, ["write"])
+                    self.doCleanups()
+
+    def test_consumer_revocation_during_second_predecessor_acquisition(self):
+        import cloud_dependencies as d
+
+        for variant in ("approval", "run"):
+            with self.subTest(variant=variant):
+                state = self.fixture(stage="apply")
+                target = state.target
+                original = d.ArtifactHttps.request
+                acquisitions = []
+
+                def acquire(method, url, headers, body=None):
+                    response = original(method, url, headers, body)
+                    if url.endswith("/artifacts/17"):
+                        acquisitions.append(url)
+                        if len(acquisitions) == 2:
+                            if variant == "approval":
+                                target.transport.approvals[0]["state"] = "rejected"
+                            else:
+                                target.transport.run.update(
+                                    status="completed", conclusion="cancelled"
+                                )
+                    return response
+
+                with patch.object(d.ArtifactHttps, "request", side_effect=acquire):
+                    with self.assertRaises(target.a.AdmissionDenied):
+                        target.write()
+                self.assertEqual(len(acquisitions), 2)
+                self.assertEqual(target.writes, [])
+                self.assertLess(target.boundary.clock(), target.transport.lease_end)
+                self.assertTrue(list(target.evidence.glob("*.authorization.json")))
+                self.doCleanups()
+
+    def test_guards_are_sensitive_not_blanket_denial(self):
+        from contextlib import ExitStack
+        import cloud_dependencies as d
+
+        selected = {
+            "pin.run_id",
+            "run.event",
+            "pin.workflow_sha256",
+            "pin.executor_revision",
+            "job.conclusion",
+            "job.started_at",
+            "environment.can_admins_bypass",
+            "approvals.0.state",
+            "metadata.expired",
+            "metadata.digest",
+            "metadata.name",
+        }
+        for label, target, path, value, guard in dependency_field_matrix():
+            if label not in selected or value is None:
+                continue
+            with self.subTest(field=label):
+                state = self.fixture()
+                obj = getattr(state, target)
+                for part in path[:-1]:
+                    obj = obj[int(part) if isinstance(obj, list) else part]
+                obj[int(path[-1]) if isinstance(obj, list) else path[-1]] = value
+                self.failure(state, guard)
+                original = d.c._require
+                hits = []
+
+                def bypass(condition, code="INVALID_ARTIFACT"):
+                    if code == guard and not condition:
+                        hits.append(code)
+                        return
+                    original(condition, code)
+
+                with ExitStack() as stack:
+                    for module in {d.c, state.target.a.contracts, c}:
+                        stack.enter_context(
+                            patch.object(module, "_require", side_effect=bypass)
+                        )
+                    state.target.write()
+                self.assertTrue(hits)
+                self.assertEqual(state.target.writes, ["write"])
+                self.doCleanups()
+
+    def test_standalone_provider_install_does_not_import_other_provider(self):
+        for provider in ("azure", "aws"):
+            with self.subTest(provider=provider), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                scripts = root / f"plugins/sdd-{provider}-cloud/scripts"
+                shutil.copytree(
+                    ROOT / f"plugins/sdd-{provider}-cloud/scripts",
+                    scripts,
+                    ignore=shutil.ignore_patterns("__pycache__"),
+                )
+                shared = root / "plugins/sdd-quality-loop/scripts"
+                shared.mkdir(parents=True)
+                for name in (
+                    "cloud_contracts",
+                    "cloud_authorization",
+                    "cloud_verification",
+                    "cloud_dependencies",
+                ):
+                    shutil.copy2(SHARED / (name + ".py"), shared / (name + ".py"))
+                code = (
+                    "import sys;from unittest.mock import patch;"
+                    "guard=patch('urllib.request.OpenerDirector.open',side_effect=AssertionError('OFFLINE'));guard.start();"
+                    "sys.path.insert(0,sys.argv[1]);"
+                    "m=__import__(sys.argv[2]);"
+                    "assert m.workflow_template()['jobs']['verify'];"
+                    "import cloud_dependencies;"
+                    "assert not any(k.startswith(sys.argv[3]) for k in sys.modules)"
+                )
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        "-I",
+                        "-c",
+                        code,
+                        str(scripts),
+                        provider + "_governed",
+                        ("aws" if provider == "azure" else "azure") + "_",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=20,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+
+
+class DependencyCallbackExpiryCases(unittest.TestCase):
+    """Synthetic admitted deadline, real boundary/provider guards and wire counters.
+
+    This isolates deadline handoff, NOT predecessor provenance. The separate
+    DependencyReceipt/FieldMatrix/FinalBoundary cases exercise real acquisition.
+    """
+
+    def fixtures(self):
+        spec = importlib.util.spec_from_file_location(
+            "dependency_expiry_execution", ROOT / "tests/cloud-orchestration-execution.tests.py"
+        )
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def callback_case(self, provider, mutation, checkpoint, elapsed):
+        import cloud_dependencies as dependencies
+
+        fixtures = self.fixtures()
+        if provider == "azure":
+            isolation = AzureTestBase()
+            isolation.setUp()
+            self.addCleanup(isolation.doCleanups)
+        case = fixtures.AzureExecution() if provider == "azure" else fixtures.AwsExecution()
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        if mutation in ("deploy", "execute"):
+            case.prepare()
+        executor = case.executor
+        now = [fixtures.NOW]
+        executor.clock = executor.boundary.clock = lambda: now[0]
+        deadline = c._utc(fixtures.utc(fixtures.NOW + 10))
+        acquisitions = []
+        delays = []
+        guards = []
+        journal = case.root / case.directory / (mutation + "-submission.json")
+        if provider == "azure":
+            journal = case.root / case.directory / (
+                "deployment-submission.json" if mutation == "deploy"
+                else "prepare-what-if-submission.json"
+            )
+        original_require = case.e.c._require
+
+        def observe_guard(condition, code="INVALID_ARTIFACT"):
+            if delays and code == "CREDENTIAL_EXPIRED":
+                guards.append(bool(condition))
+            original_require(condition, code)
+
+        def admitted(*args, **kwargs):
+            self.assertLess(now[0], fixtures.NOW + 10)
+            acquisitions.append(now[0])
+            return deadline
+
+        def delay():
+            if not delays:
+                # Two dependency admissions completed while fresh; delay is INSIDE
+                # the provider callback, never another shared pre-submit check.
+                self.assertGreaterEqual(len(acquisitions), 2)
+                self.assertEqual(len(acquisitions) % 2, 0)
+                delays.append(checkpoint)
+                now[0] += elapsed
+
+        from contextlib import ExitStack
+        with ExitStack() as stack:
+            stack.enter_context(patch.object(dependencies, "admit_predecessors", side_effect=admitted))
+            stack.enter_context(patch.object(case.e.c, "_require", side_effect=observe_guard))
+            if checkpoint == "journal":
+                original = executor.audit
+
+                def audit(path, value):
+                    result = original(path, value)
+                    if case.root / path == journal:
+                        delay()
+                    return result
+
+                stack.enter_context(patch.object(executor, "audit", side_effect=audit))
+            elif checkpoint == "validation":
+                original_check = executor.check
+
+                def check():
+                    result = original_check()
+                    if len(acquisitions) >= (4 if mutation == "deploy" else 2):
+                        delay()
+                    return result
+
+                stack.enter_context(patch.object(executor, "check", side_effect=check))
+            elif checkpoint == "authentication":
+                original_metadata = case.a.GitHubAdmission.metadata
+
+                def metadata(admission, *args, **kwargs):
+                    result = original_metadata(admission, *args, **kwargs)
+                    if journal.exists():
+                        delay()
+                    return result
+
+                stack.enter_context(patch.object(case.a.GitHubAdmission, "metadata", metadata))
+            elif checkpoint == "history":
+                original_history = case.e.intent_history
+
+                def history(*args, **kwargs):
+                    result = original_history(*args, **kwargs)
+                    if journal.exists():
+                        delay()
+                    return result
+
+                stack.enter_context(patch.object(case.e, "intent_history", side_effect=history))
+            else:
+                self.assertEqual(checkpoint, "readback")
+                holder = executor.native if mutation == "create" else executor
+                method = "read_object" if mutation == "create" else "readback"
+                original_read = getattr(holder, method)
+
+                def read(*args, **kwargs):
+                    result = original_read(*args, **kwargs)
+                    if journal.exists():
+                        delay()
+                    return result
+
+                stack.enter_context(patch.object(holder, method, side_effect=read))
+            result = (
+                case.apply("dependency-expiry.json") if mutation in ("deploy", "execute")
+                else executor.prepare(case.directory + "/dependency-expiry.json")
+            )
+        if provider == "azure":
+            writes = case.arm.submissions if mutation == "deploy" else sum(
+                method == "POST" and "/whatIf?" in url for method, url, _ in case.arm.calls
+            )
+        else:
+            writes = case.native.writes.count(
+                dict(publish="PutObject", create="CreateChangeSet", execute="ExecuteChangeSet")[mutation]
+            )
+        print("SYNTHETIC_DEADLINE_REAL_FINAL_GUARD", provider, mutation, checkpoint,
+              "elapsed", elapsed, "admissions", acquisitions, "guards", guards,
+              "target_native_submissions", writes, "result", result["result"], flush=True)
+        self.assertEqual(delays, [checkpoint])
+        self.assertTrue(guards, "real final expiry guard must execute")
+        self.assertTrue(journal.is_file(), "consumed intent retained")
+        self.assertLess(now[0], fixtures.NOW + 110, "consumer TTL still valid")
+        if mutation in ("deploy", "execute"):
+            preview = c.read_artifact(case.root, case.preview_ref, "cloud-preview/v1")
+            self.assertLess(now[0], case.a.epoch(preview["expires_at"]))
+        self.assertEqual(writes, 0 if elapsed >= 10 else 1)
+        self.assertEqual(result["result"], "BLOCKED" if elapsed >= 10 else "PASS")
+
+    def test_azure_callback_freshness_validation_and_journal(self):
+        for mutation in ("preview", "deploy"):
+            for checkpoint in ("validation", "journal"):
+                for elapsed in (0, 10, 11):
+                    with self.subTest(mutation=mutation, checkpoint=checkpoint, elapsed=elapsed):
+                        try:
+                            self.callback_case("azure", mutation, checkpoint, elapsed)
+                        finally:
+                            self.doCleanups()
+
+    def test_aws_callback_freshness_readback_history_and_authentication(self):
+        for mutation, checkpoint in (
+            ("publish", "authentication"), ("create", "authentication"),
+            ("execute", "authentication"), ("create", "readback"),
+            ("execute", "readback"), ("execute", "history"),
+        ):
+            for elapsed in (0, 10, 11):
+                with self.subTest(mutation=mutation, checkpoint=checkpoint, elapsed=elapsed):
+                    try:
+                        self.callback_case("aws", mutation, checkpoint, elapsed)
+                    finally:
+                        self.doCleanups()
+
+    def test_receipt_expiry_minimum_and_empty_predecessors(self):
+        import cloud_dependencies as dependencies
+
+        fixtures = self.fixtures()
+        for provider in ("azure", "aws"):
+            for stage in ("prepare", "apply"):
+                for bound in ("predecessor", "policy", "oidc", "provider", "preview", "empty"):
+                    if bound == "preview" and stage == "prepare":
+                        continue
+                    with self.subTest(provider=provider, stage=stage, bound=bound):
+                        case = fixtures.Admission()
+                        case.setUp()
+                        try:
+                            case.setup_case(provider, stage)
+                            end = fixtures.NOW + (10 if bound == "predecessor" else 110)
+                            if bound == "oidc":
+                                case.transport.claims["exp"] = end = fixtures.NOW + 20
+                            if bound == "provider":
+                                case.transport.lease_end = end = fixtures.NOW + 20
+                                case.transport.azure_claims["exp"] = end
+                            if bound == "preview":
+                                preview = json.loads((case.root / case.preview_ref["path"]).read_bytes())
+                                preview["expires_at"] = case.a.utc(end := fixtures.NOW + 20)
+                                case.preview_ref = case.put(case.preview_ref["path"], preview)
+                                case.transport.run["display_title"] = (
+                                    "cloud:" + case.request_ref["sha256"] + ":" + case.preview_ref["sha256"]
+                                )
+                            deadline = c._utc(fixtures.utc(
+                                fixtures.NOW + (10 if bound == "predecessor" else 200)
+                            ))
+                            if bound == "empty":
+                                # Execute the real empty predecessor admission, not a stub.
+                                ref, _ = case.write()
+                            else:
+                                with patch.object(dependencies, "admit_predecessors", return_value=deadline):
+                                    ref, _ = case.write()
+                            receipt = c.read_artifact(case.root, ref, "cloud-authorization-receipt/v1")
+                            self.assertEqual(case.writes, ["write"])
+                            self.assertEqual(receipt["expires_at"], case.a.utc(end))
+                        finally:
+                            case.doCleanups()
 
 
 if __name__ == "__main__":
