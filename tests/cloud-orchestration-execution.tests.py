@@ -1677,7 +1677,8 @@ class AzureExecution(unittest.TestCase):
                            ("native_operation_id", self.executor.client.native_id + "other"),
                            ("repository", "elsewhere/control"), ("prior_run_ids", [777])):
             with self.subTest(field=key):
-                forged = json.loads(original); forged[key] = value
+                forged = json.loads(original)
+                forged[key] = value
                 path.write_bytes(encode(forged))
                 before = len(self.arm.calls)
                 answer = cloud.run(["reconcile", "--request", self.request_ref["path"],
@@ -1690,6 +1691,73 @@ class AzureExecution(unittest.TestCase):
             "--output", self.directory + "/unavailable-reconcile.json"], executor=self.executor)
         self.assertNotEqual(answer["result"], "PASS")
         self.assertEqual(self.arm.submissions, 0)
+
+    def test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads(self):
+        from dataclasses import replace
+        for kind in ("journal", "fence"):
+            case = AzureExecution()
+            case.setUp()
+            try:
+                case.prepare()
+                if kind == "fence":
+                    auth = case.auths[-1]
+                    auth.history = [{**copy.deepcopy(auth.run), "id": 122}, auth.run]
+                else:
+                    case.arm.timeout = True
+                first = case.apply()
+                self.assertEqual(first["result"], "UNKNOWN")
+                manifest = json.loads((case.root / first["evidence_manifest_path"]).read_bytes())
+                operation = manifest["submission"]
+                case.arm.timeout = False
+                case.arm.existing = True
+                original = case.executor.boundary.policy
+                fields = dict(provider="aws", account_id="99999999-9999-9999-9999-999999999999",
+                              region="westus", deployment_scope="different-approved-group",
+                              target_environment="other-target", policy_sha256="f" * 64,
+                              operation="prepare", exclusive_repository="elsewhere/control")
+                for field, value in fields.items():
+                    with self.subTest(kind=kind, field=field):
+                        case.executor.boundary.policy = replace(original, **{field: value})
+                        before = len(case.arm.calls)
+                        auth_before = len(case.auths[-1].calls)
+                        result = case.executor.reconcile(operation, case.directory + "/policy-" + field + ".json")
+                        self.assertEqual(result["result"], "UNKNOWN")
+                        self.assertEqual(result["native_operation_id"], first["native_operation_id"])
+                        self.assertEqual(len(case.arm.calls), before)
+                        self.assertEqual(len(case.auths[-1].calls), auth_before)
+            finally:
+                case.doCleanups()
+
+    def test_readonly_recovery_needs_no_new_mutation_approval_or_fresh_preview(self):
+        for kind in ("journal", "fence"):
+            case = AzureExecution()
+            case.setUp()
+            try:
+                case.prepare()
+                auth = case.auths[-1]
+                if kind == "fence":
+                    auth.history = [{**copy.deepcopy(auth.run), "id": 122}, auth.run]
+                else:
+                    case.arm.timeout = True
+                first = case.apply()
+                self.assertEqual(first["result"], "UNKNOWN")
+                manifest = json.loads((case.root / first["evidence_manifest_path"]).read_bytes())
+                operation = manifest["submission"]
+                # Fresh read identity after both old apply lease and preview expiry;
+                # no mutation approval history is present for read-only recovery.
+                auth.approvals = []
+                auth.claims.update(iat=NOW + 390, nbf=NOW + 390, exp=NOW + 900)
+                auth.azure_claims.update(iat=NOW + 390, nbf=NOW + 390, exp=NOW + 900)
+                case.executor.clock = case.executor.boundary.clock = lambda: NOW + 400
+                case.arm.timeout = False
+                case.arm.existing = True
+                before = len(case.arm.calls)
+                result = case.executor.reconcile(operation, case.directory + "/expired-preview-read.json")
+                self.assertEqual(result["result"], "PASS", kind)
+                self.assertEqual(result["native_operation_id"], first["native_operation_id"])
+                self.assertTrue(all(row[0] == "GET" for row in case.arm.calls[before:]))
+            finally:
+                case.doCleanups()
 
     def test_prepare_admission_missing_is_zero_native_posts(self):
         self.auths[-1].approvals = []

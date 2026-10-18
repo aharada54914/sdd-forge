@@ -1,0 +1,201 @@
+test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) ... 
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='provider') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='account_id') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='region') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='deployment_scope') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='target_environment') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='policy_sha256') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='operation') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='exclusive_repository') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='provider') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='account_id') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='region') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='deployment_scope') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='target_environment') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='policy_sha256') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='operation') ... FAIL
+  test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='exclusive_repository') ... FAIL
+test_readonly_recovery_needs_no_new_mutation_approval_or_fresh_preview (__main__.AzureExecution.test_readonly_recovery_needs_no_new_mutation_approval_or_fresh_preview) ... FAIL
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1727, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(len(case.auths[-1].calls), auth_before)
+AssertionError: 30 != 29
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='account_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1727, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(len(case.auths[-1].calls), auth_before)
+AssertionError: 33 != 30
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='region')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='deployment_scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='target_environment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='policy_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='operation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='journal', field='exclusive_repository')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'BLOCKED' != 'UNKNOWN'
+- BLOCKED
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='account_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1727, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(len(case.auths[-1].calls), auth_before)
+AssertionError: 13 != 5
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='region')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='deployment_scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='target_environment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='policy_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='operation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'BLOCKED' != 'UNKNOWN'
+- BLOCKED
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads (__main__.AzureExecution.test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads) (kind='fence', field='exclusive_repository')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1724, in test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'BLOCKED' != 'UNKNOWN'
+- BLOCKED
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_readonly_recovery_needs_no_new_mutation_approval_or_fresh_preview (__main__.AzureExecution.test_readonly_recovery_needs_no_new_mutation_approval_or_fresh_preview)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1756, in test_readonly_recovery_needs_no_new_mutation_approval_or_fresh_preview
+    self.assertEqual(result["result"], "PASS", kind)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : fence
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.364s
+
+FAILED (failures=17)
