@@ -139,6 +139,71 @@ class RequiredChecksTests(unittest.TestCase):
     def test_catalog_declared_ci_jobs_have_actual_execution(self):
         self.assertEqual(WF.coverage_errors(self.workflow, self.catalog), [])
 
+    def assert_a9_private_workflow(self, workflow):
+        jobs = {name: workflow['jobs'][name] for name in ('a9-advisory-inputs', 'a9-advisory')}
+        self.assertNotIn('pull_request_target', workflow.get('on', {}))
+        for job in jobs.values():
+            self.assertEqual(job.get('permissions'), {'contents': 'read'})
+            checkouts = [step for step in job['steps']
+                         if step.get('uses', '').startswith('actions/checkout@')]
+            self.assertEqual(len(checkouts), 2)
+            for step in checkouts:
+                self.assertIs(step.get('with', {}).get('persist-credentials'), False)
+            self.assertEqual({(step['with'].get('path'), step['with'].get('ref')) for step in checkouts}, {
+                ('trusted', '${{ github.event.pull_request.base.sha }}'),
+                ('subject', '${{ github.event.pull_request.head.sha }}'),
+            })
+        serialized = json.dumps(jobs)
+        for forbidden in ('secrets.', 'upload-artifact', 'pull_request_target',
+                          'python3 subject/', 'source subject/', 'bash subject/'):
+            self.assertNotIn(forbidden, serialized)
+        self.assertEqual(jobs['a9-advisory'].get('if'),
+                         "needs.a9-advisory-inputs.outputs.active == 'true'")
+
+    def test_a9_workflow_trust_and_private_retention_boundary(self):
+        # Workflow-only validation belongs in this required structural lane;
+        # native A9 consumer tests need no Node dependency for YAML parsing.
+        self.assert_a9_private_workflow(self.workflow)
+        changed = copy.deepcopy(self.workflow)
+        changed['jobs']['unrelated-upload'] = {'steps': [{'uses': 'actions/upload-artifact@v4'}]}
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'workflow.yml'
+            path.write_text('# Different comments and layout\n' + json.dumps(changed, indent=3))
+            self.assert_a9_private_workflow(WF.load_workflow(path))
+
+    def test_a9_workflow_privacy_mutations_are_rejected(self):
+        for name in ('a9-advisory-inputs', 'a9-advisory'):
+            for mutation in ('upload', 'permissions', 'credentials', 'missing-credentials',
+                             'head-ref', 'secrets', 'python', 'source', 'bash'):
+                with self.subTest(job=name, mutation=mutation):
+                    changed = copy.deepcopy(self.workflow)
+                    job = changed['jobs'][name]
+                    if mutation == 'upload':
+                        job['steps'].append({'uses': 'actions/upload-artifact@v4'})
+                    elif mutation == 'permissions':
+                        job['permissions']['contents'] = 'write'
+                    elif mutation in ('credentials', 'missing-credentials', 'head-ref'):
+                        checkout = next(step for step in job['steps']
+                                        if step.get('with', {}).get('path') == 'subject')['with']
+                        if mutation == 'credentials':
+                            checkout['persist-credentials'] = True
+                        elif mutation == 'missing-credentials':
+                            del checkout['persist-credentials']
+                        else:
+                            checkout['ref'] = '${{ github.sha }}'
+                    else:
+                        command = {'secrets': 'echo "${{ secrets.PRIVATE }}"',
+                                   'python': 'python3 subject/script.py',
+                                   'source': 'source subject/script.sh',
+                                   'bash': 'bash subject/script.sh'}[mutation]
+                        job['steps'].append({'run': command})
+                    with self.assertRaises(AssertionError):
+                        self.assert_a9_private_workflow(changed)
+        changed = copy.deepcopy(self.workflow)
+        changed['jobs']['a9-advisory']['if'] = 'always()'
+        with self.assertRaises(AssertionError):
+            self.assert_a9_private_workflow(changed)
+
     def test_yaml_format_and_step_names_do_not_define_coverage(self):
         changed = copy.deepcopy(self.workflow)
         for job in changed['jobs'].values():

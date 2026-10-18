@@ -35,7 +35,11 @@ def validate(archived, manifest, live, candidate):
         raise ValueError('current candidate drops live jobs')
     # Every post-archive job needs its actual current definition, not just its name.
     for name in (current.keys() - old.keys()) | {'required-checks'}:
-        if proposed[name] != current[name]:
+        # A comment at job-key indentation belongs to neither executable job.
+        # Preserve every nested line, including shell-body comments and spacing.
+        actual = '\n'.join(line for line in current[name].splitlines() if not line.startswith('  #')).rstrip()
+        replacement = '\n'.join(line for line in proposed[name].splitlines() if not line.startswith('  #')).rstrip()
+        if replacement != actual:
             raise ValueError('current candidate changes a new job or required aggregation')
 
 
@@ -46,8 +50,15 @@ def self_test(archived, manifest, live, candidate):
     if not additions:
         raise ValueError('workflow mutation controls require a real added job')
     added = additions[0]
-    new_block = current[added].encode()
-    aggregate = current['required-checks'].encode()
+    proposed = jobs(candidate)
+    new_block = proposed[added].encode()
+    aggregate = proposed['required-checks'].encode()
+    # Commentary at job indentation may move or change without altering CI.
+    for comments in (b'', b'  # Different wording\n', b'  # First line\n  # Second line\n'):
+        changed = re.sub(rb'^  #[^\n]*\n?', b'', candidate, flags=re.M)
+        changed = changed.replace(b'    name:', comments + b'    name:', 1)
+        changed = changed.replace(b'  required-checks:\n', b'  required-checks:\n' + comments, 1)
+        validate(archived, manifest, live, changed)
     changed_archive = archived + b'\n# synthetic historical mutation\n'
     changed_manifest = manifest.replace(ARCHIVE_SHA256.encode(), hashlib.sha256(changed_archive).hexdigest().encode())
     cases = [
@@ -59,6 +70,10 @@ def self_test(archived, manifest, live, candidate):
         ('unknown future job omission', archived, manifest,
          live + b'\n  synthetic-future-job:\n    runs-on: ubuntu-latest\n    steps: []\n', candidate),
         ('new job change', archived, manifest, live, candidate.replace(new_block, new_block + b'\n    if: false', 1)),
+        ('new job permission change', archived, manifest, live,
+         candidate.replace(new_block, new_block.replace(b'contents: read', b'contents: write', 1), 1)),
+        ('new job execution change', archived, manifest, live,
+         candidate.replace(new_block, new_block.replace(b'run: |', b'run: echo bypassed\n        ignored: |', 1), 1)),
         ('aggregate dependency removal', archived, manifest, live,
          candidate.replace(aggregate, aggregate.replace(b', ' + added.encode(), b'', 1), 1)),
         ('aggregate result weakening', archived, manifest, live,

@@ -553,18 +553,5 @@ except Exception as exc:
             self.assertEqual(result.stderr,'')
             self.assertNotIn(raw,result.stdout+result.stderr)
 
-    def test_workflow_trust_and_private_retention_boundary(self):
-        text=(ROOT/'.github/workflows/test.yml').read_text()
-        jobs=text.split('  a9-advisory-inputs:',1)[1].split('  # run-all.sh',1)[0]
-        self.assertEqual(jobs.count('persist-credentials: false'),4)
-        self.assertEqual(jobs.count('contents: read'),2)
-        for forbidden in ('secrets.', 'upload-artifact', 'pull_request_target', 'contents: write',
-                          'python3 subject/', 'source subject/', 'bash subject/'):
-            self.assertNotIn(forbidden,jobs)
-        self.assertIn("if: needs.a9-advisory-inputs.outputs.active == 'true'",jobs)
-        self.assertIn('ref: ${{ github.event.pull_request.head.sha }}',jobs)
-        self.assertIn('ref: ${{ github.event.pull_request.base.sha }}',jobs)
-
-
 if __name__ == '__main__':
     unittest.main()
