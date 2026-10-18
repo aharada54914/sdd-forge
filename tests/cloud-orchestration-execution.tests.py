@@ -2113,28 +2113,46 @@ class AwsExecution(unittest.TestCase):
 
     def setUp(self):
         import shutil
+
         scripts = ROOT / "plugins/sdd-aws-cloud/scripts"
-        self.assertTrue((scripts / "aws_execution.py").is_file(), "T-013 AWS executor absent")
+        self.assertTrue(
+            (scripts / "aws_execution.py").is_file(), "T-013 AWS executor absent"
+        )
         # Provider modules share the historical CLI basename. Scope module aliases.
         self.modules = patch.dict(sys.modules)
         self.modules.start()
         self.addCleanup(self.modules.stop)
-        for name in ("cloud", "aws_local", "aws_graph", "aws_execution", "aws_native", "aws_control", "aws_governed"):
+        for name in (
+            "cloud",
+            "aws_local",
+            "aws_graph",
+            "aws_execution",
+            "aws_native",
+            "aws_control",
+            "aws_governed",
+        ):
             sys.modules.pop(name, None)
         self.paths = patch.object(sys, "path", [str(scripts), *sys.path])
         self.paths.start()
         self.addCleanup(self.paths.stop)
         import aws_execution as execution
         import cloud_authorization as auth
+
         self.e, self.a = execution, auth
         self.tmp = tempfile.TemporaryDirectory(prefix="cloud-T013-synthetic-")
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
-        shutil.copytree(ROOT / "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle", self.root / "bundle")
+        shutil.copytree(
+            ROOT / "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle",
+            self.root / "bundle",
+        )
         locked = next((self.root / "bundle/generated").glob("*.request.json"))
         self.request_bytes = locked.read_bytes()
         self.req = json.loads(self.request_bytes)
-        self.request_ref = dict(path=str(locked.relative_to(self.root)), sha256=hashlib.sha256(self.request_bytes).hexdigest())
+        self.request_ref = dict(
+            path=str(locked.relative_to(self.root)),
+            sha256=hashlib.sha256(self.request_bytes).hexdigest(),
+        )
         self.directory = self.req["local_context"]["evidence_directory"]
         (self.root / self.directory).mkdir(parents=True)
         self.anchor = patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)})
@@ -2146,217 +2164,641 @@ class AwsExecution(unittest.TestCase):
 
     def stage(self, stage, preview=None):
         transport = AwsAuthFixture(stage, self.req["scope"]["account_id"])
-        transport.run["display_title"] = "cloud:" + self.request_ref["sha256"] + ":" + (preview["sha256"] if preview else "none")
+        transport.run["display_title"] = (
+            "cloud:"
+            + self.request_ref["sha256"]
+            + ":"
+            + (preview["sha256"] if preview else "none")
+        )
         self.auths.append(transport)
-        policy = self.a.Policy(provider="aws", repository=REPO, repository_id=42, workflow=WORKFLOW,
-            workflow_revision=REV, ref="refs/heads/main", operation=stage, environment="sandbox-" + stage,
-            target_environment=self.req["environment"], environment_id=99, **self.req["scope"],
-            policy_sha256=self.req["policy"]["sha256"], actors=((7,"operator"),), reviewers=((8,"reviewer"),),
-            exclusive_repository=REPO, ttl_seconds=120,
-            aws_role_arn="arn:aws:iam::"+self.req["scope"]["account_id"]+":role/cloud-"+stage)
-        boundary = self.a.WriteBoundary(policy, self.a.Runtime("synthetic-github-bearer",OIDC_URL,"synthetic-oidc-bearer"),
-            self.root/self.directory, transport=transport, clock=lambda:NOW)
-        return self.e.AwsExecutor(self.root,self.request_ref,boundary, self.native.control,
-            transport=self.native,clock=lambda:NOW,sleep=lambda _:None)
+        policy = self.a.Policy(
+            provider="aws",
+            repository=REPO,
+            repository_id=42,
+            workflow=WORKFLOW,
+            workflow_revision=REV,
+            ref="refs/heads/main",
+            operation=stage,
+            environment="sandbox-" + stage,
+            target_environment=self.req["environment"],
+            environment_id=99,
+            **self.req["scope"],
+            policy_sha256=self.req["policy"]["sha256"],
+            actors=((7, "operator"),),
+            reviewers=((8, "reviewer"),),
+            exclusive_repository=REPO,
+            ttl_seconds=120,
+            aws_role_arn="arn:aws:iam::"
+            + self.req["scope"]["account_id"]
+            + ":role/cloud-"
+            + stage,
+        )
+        boundary = self.a.WriteBoundary(
+            policy,
+            self.a.Runtime(
+                "synthetic-github-bearer", OIDC_URL, "synthetic-oidc-bearer"
+            ),
+            self.root / self.directory,
+            transport=transport,
+            clock=lambda: NOW,
+        )
+        return self.e.AwsExecutor(
+            self.root,
+            self.request_ref,
+            boundary,
+            self.native.control,
+            transport=self.native,
+            clock=lambda: NOW,
+            sleep=lambda _: None,
+        )
 
     def prepare(self):
-        result=self.executor.prepare(self.directory+"/prepare.json")
-        self.assertEqual(result["result"],"PASS",result)
-        self.preview_ref=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())["preview"]
-        self.executor=self.stage("apply",self.preview_ref)
+        result = self.executor.prepare(self.directory + "/prepare.json")
+        self.assertEqual(result["result"], "PASS", result)
+        self.preview_ref = json.loads(
+            (self.root / result["evidence_manifest_path"]).read_bytes()
+        )["preview"]
+        self.executor = self.stage("apply", self.preview_ref)
         return result
 
     def apply(self, name="apply.json"):
-        return self.executor.apply(self.preview_ref,self.directory+"/"+name)
+        return self.executor.apply(self.preview_ref, self.directory + "/" + name)
 
     def test_exact_async_assets_native_role_failure_settings_and_single_execution(self):
-        with patch("subprocess.run",side_effect=AssertionError("credentialed app execution")):
+        with patch(
+            "subprocess.run", side_effect=AssertionError("credentialed app execution")
+        ):
             self.prepare()
-            result=self.apply()
-        self.assertEqual(result["result"],"PASS",result)
-        self.assertEqual(self.native.writes.count("PutObject"),1)
-        self.assertEqual(self.native.writes.count("CreateChangeSet"),1)
-        self.assertEqual(self.native.writes.count("ExecuteChangeSet"),1)
-        self.assertEqual(self.native.create["RoleARN"],self.native.control.execution_role_arn)
-        self.assertNotIn("OnStackFailure",self.native.create)
-        self.assertEqual(self.native.execute["DisableRollback"],"true")
-        self.assertEqual(self.native.execute["RetainExceptOnCreate"],"false")
-        self.assertEqual(self.native.execute["ClientRequestToken"],self.native.create["ClientToken"])
-        self.assertIn("versionId=",self.native.create["TemplateURL"])
-        self.assertEqual((self.root/self.request_ref["path"]).read_bytes(),self.request_bytes)
-        self.assertNotEqual(result["state"],"VERIFIED")
+            result = self.apply()
+        self.assertEqual(result["result"], "PASS", result)
+        self.assertEqual(self.native.writes.count("PutObject"), 1)
+        self.assertEqual(self.native.writes.count("CreateChangeSet"), 1)
+        self.assertEqual(self.native.writes.count("ExecuteChangeSet"), 1)
+        self.assertEqual(
+            self.native.create["RoleARN"], self.native.control.execution_role_arn
+        )
+        self.assertNotIn("OnStackFailure", self.native.create)
+        self.assertEqual(self.native.execute["DisableRollback"], "true")
+        self.assertEqual(self.native.execute["RetainExceptOnCreate"], "false")
+        self.assertEqual(
+            self.native.execute["ClientRequestToken"], self.native.create["ClientToken"]
+        )
+        self.assertIn("versionId=", self.native.create["TemplateURL"])
+        self.assertEqual(
+            (self.root / self.request_ref["path"]).read_bytes(), self.request_bytes
+        )
+        self.assertNotEqual(result["state"], "VERIFIED")
 
     def test_every_bound_file_mismatch_blocks_before_native_mutation(self):
         self.prepare()
-        refs=[self.request_ref,self.req["policy"],self.req["dependency_lock"],self.req["verification_profile"],
-              self.req["local_context"]["ownership"],self.req["local_context"]["provider_config"],
-              *self.req["input_artifacts"],self.preview_ref]
-        for i,ref in enumerate(refs):
+        refs = [
+            self.request_ref,
+            self.req["policy"],
+            self.req["dependency_lock"],
+            self.req["verification_profile"],
+            self.req["local_context"]["ownership"],
+            self.req["local_context"]["provider_config"],
+            *self.req["input_artifacts"],
+            self.preview_ref,
+        ]
+        for i, ref in enumerate(refs):
             with self.subTest(path=ref["path"]):
-                p=self.root/ref["path"]; original=p.read_bytes();p.write_bytes(original+b" ")
-                try:self.assertEqual(self.apply("mismatch-"+str(i)+".json")["result"],"BLOCKED")
-                finally:p.write_bytes(original)
-        self.assertNotIn("ExecuteChangeSet",self.native.writes)
+                p = self.root / ref["path"]
+                original = p.read_bytes()
+                p.write_bytes(original + b" ")
+                try:
+                    self.assertEqual(
+                        self.apply("mismatch-" + str(i) + ".json")["result"], "BLOCKED"
+                    )
+                finally:
+                    p.write_bytes(original)
+        self.assertNotIn("ExecuteChangeSet", self.native.writes)
 
     def test_native_binding_substitutions_and_pagination_block(self):
         self.prepare()
-        for field,value in [("ChangeSetId","arn:aws:cloudformation:us-east-1:111111111111:changeSet/wrong/id"),
-                            ("StackName","Other"),("Parameters",[{"ParameterKey":"unexpected","ParameterValue":"x"}]),
-                            ("Capabilities",["CAPABILITY_IAM"]),("NextToken","unconsumed"),
-                            ("ExecutionStatus","UNAVAILABLE"),("Description","unbound")]:
+        for field, value in [
+            (
+                "ChangeSetId",
+                "arn:aws:cloudformation:us-east-1:111111111111:changeSet/wrong/id",
+            ),
+            ("StackName", "Other"),
+            ("Parameters", [{"ParameterKey": "unexpected", "ParameterValue": "x"}]),
+            ("Capabilities", ["CAPABILITY_IAM"]),
+            ("NextToken", "unconsumed"),
+            ("ExecutionStatus", "UNAVAILABLE"),
+            ("Description", "unbound"),
+        ]:
             with self.subTest(field=field):
-                self.native.override={field:value}
-                self.assertEqual(self.apply(field+".json")["result"],"BLOCKED")
-        self.native.override={}
-        self.native.template_override=b'{"Resources":{}}'
-        self.assertEqual(self.apply("template.json")["result"],"BLOCKED")
-        self.assertNotIn("ExecuteChangeSet",self.native.writes)
+                self.native.override = {field: value}
+                self.assertEqual(self.apply(field + ".json")["result"], "BLOCKED")
+        self.native.override = {}
+        self.native.template_override = b'{"Resources":{}}'
+        self.assertEqual(self.apply("template.json")["result"], "BLOCKED")
+        self.assertNotIn("ExecuteChangeSet", self.native.writes)
 
     def test_denied_prepare_and_revoked_apply_zero_mutations(self):
-        self.auths[-1].approvals[0]["state"]="rejected"
-        self.assertEqual(self.executor.prepare(self.directory+"/denied.json")["result"],"BLOCKED")
-        self.assertEqual(self.native.writes,[])
-        self.auths[-1].approvals[0]["state"]="approved"
+        self.auths[-1].approvals[0]["state"] = "rejected"
+        self.assertEqual(
+            self.executor.prepare(self.directory + "/denied.json")["result"], "BLOCKED"
+        )
+        self.assertEqual(self.native.writes, [])
+        self.auths[-1].approvals[0]["state"] = "approved"
         self.prepare()
-        self.auths[-1].approvals[0]["state"]="rejected"
-        self.assertEqual(self.apply()["result"],"BLOCKED")
-        self.assertNotIn("ExecuteChangeSet",self.native.writes)
+        self.auths[-1].approvals[0]["state"] = "rejected"
+        self.assertEqual(self.apply()["result"], "BLOCKED")
+        self.assertNotIn("ExecuteChangeSet", self.native.writes)
 
     def test_versioned_asset_substitution_and_bucket_owner_fail_closed(self):
-        self.prepare();self.native.object_bytes=b"substituted"
-        self.assertEqual(self.apply()["result"],"BLOCKED")
-        self.assertNotIn("ExecuteChangeSet",self.native.writes)
+        self.prepare()
+        self.native.object_bytes = b"substituted"
+        self.assertEqual(self.apply()["result"], "BLOCKED")
+        self.assertNotIn("ExecuteChangeSet", self.native.writes)
 
     def test_no_change_only_unambiguous_native_failed_diagnosis(self):
-        self.native.no_change=True
-        result=self.executor.prepare(self.directory+"/prepare.json")
-        self.assertEqual(result["result"],"NO_CHANGE",result)
-        self.preview_ref=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())["preview"]
-        self.executor=self.stage("apply",self.preview_ref)
-        result=self.apply()
-        self.assertEqual(result["result"],"NO_CHANGE",result)
-        self.assertNotIn("native_operation_id",result)
-        self.assertNotIn("ExecuteChangeSet",self.native.writes)
+        self.native.no_change = True
+        result = self.executor.prepare(self.directory + "/prepare.json")
+        self.assertEqual(result["result"], "NO_CHANGE", result)
+        self.preview_ref = json.loads(
+            (self.root / result["evidence_manifest_path"]).read_bytes()
+        )["preview"]
+        self.executor = self.stage("apply", self.preview_ref)
+        result = self.apply()
+        self.assertEqual(result["result"], "NO_CHANGE", result)
+        self.assertNotIn("native_operation_id", result)
+        self.assertNotIn("ExecuteChangeSet", self.native.writes)
 
     def test_timeout_original_id_read_only_recovery_and_old_archive_replay(self):
         import shutil
+
         self.prepare()
-        old=self.root/"old-prepare";shutil.copytree(self.root/self.directory,old)
-        self.native.lose_execute=True
-        result=self.apply()
-        self.assertEqual(result["result"],"UNKNOWN",result)
-        operation=self.executor.submission
-        self.native.lose_execute=False
-        recovery=self.stage("apply",self.preview_ref)
-        result=recovery.reconcile(operation,self.directory+"/recovery.json")
-        self.assertEqual(result["result"],"PASS",result)
-        prior=copy.deepcopy(self.auths[-2].run);prior.update(id=122,status="completed",conclusion="failure")
-        shutil.rmtree(self.root/self.directory);shutil.copytree(old,self.root/self.directory)
-        fresh=self.stage("apply",self.preview_ref);self.auths[-1].history=[prior,self.auths[-1].run]
-        self.native.history_missing=True
-        result=fresh.apply(self.preview_ref,self.directory+"/fresh.json")
-        self.assertEqual(result["result"],"UNKNOWN",result)
-        self.assertEqual(self.native.writes.count("ExecuteChangeSet"),1)
+        old = self.root / "old-prepare"
+        shutil.copytree(self.root / self.directory, old)
+        self.native.lose_execute = True
+        result = self.apply()
+        self.assertEqual(result["result"], "UNKNOWN", result)
+        operation = self.executor.submission
+        self.native.lose_execute = False
+        recovery = self.stage("apply", self.preview_ref)
+        result = recovery.reconcile(operation, self.directory + "/recovery.json")
+        self.assertEqual(result["result"], "PASS", result)
+        prior = copy.deepcopy(self.auths[-2].run)
+        prior.update(id=122, status="completed", conclusion="failure")
+        shutil.rmtree(self.root / self.directory)
+        shutil.copytree(old, self.root / self.directory)
+        fresh = self.stage("apply", self.preview_ref)
+        self.auths[-1].history = [prior, self.auths[-1].run]
+        self.native.history_missing = True
+        result = fresh.apply(self.preview_ref, self.directory + "/fresh.json")
+        self.assertEqual(result["result"], "UNKNOWN", result)
+        self.assertEqual(self.native.writes.count("ExecuteChangeSet"), 1)
 
     def test_recovery_scope_mismatch_no_native_reads_even_after_expiry(self):
-        self.prepare();self.native.lose_execute=True;self.apply()
-        recovery=self.stage("apply",self.preview_ref)
-        recovery.boundary.policy=replace(recovery.boundary.policy,deployment_scope="Other")
-        before=len(self.native.calls)
-        result=recovery.reconcile(self.executor.submission,self.directory+"/recovery.json")
-        self.assertIn(result["result"],("UNKNOWN","BLOCKED"))
-        self.assertEqual(len(self.native.calls),before)
+        self.prepare()
+        self.native.lose_execute = True
+        self.apply()
+        recovery = self.stage("apply", self.preview_ref)
+        recovery.boundary.policy = replace(
+            recovery.boundary.policy, deployment_scope="Other"
+        )
+        before = len(self.native.calls)
+        result = recovery.reconcile(
+            self.executor.submission, self.directory + "/recovery.json"
+        )
+        self.assertIn(result["result"], ("UNKNOWN", "BLOCKED"))
+        self.assertEqual(len(self.native.calls), before)
+
+
+    def test_existing_stack_requires_exact_protected_owner_role_and_id(self):
+        self.native.existing = True
+        result = self.executor.prepare(self.directory + '/unowned.json')
+        self.assertEqual(result['result'], 'BLOCKED')
+        self.assertEqual(self.native.writes, [])
+        self.native.control = replace(self.native.control, existing_stack_id=self.native.stack)
+        self.executor = self.stage('prepare')
+        self.prepare()
+        self.assertEqual(self.native.create['ChangeSetType'], 'UPDATE')
+        self.assertEqual(self.apply()['result'], 'PASS')
+
+    def test_native_bucket_checks_and_version_headers_are_not_invented(self):
+        for mode in ('foreign-owner', 'wrong-region', 'unversioned', 'public', 'denied'):
+            with self.subTest(mode=mode):
+                self.native.bucket_fault = mode
+                result = self.executor.prepare(self.directory + '/' + mode + '.json')
+                self.assertEqual(result['result'], 'BLOCKED', result)
+                self.assertEqual(self.native.writes, [])
+        self.native.bucket_fault = None
+        self.native.version = 'null'
+        result = self.executor.prepare(self.directory + '/missing-version.json')
+        self.assertEqual(result['result'], 'UNKNOWN', result)
+        self.assertNotIn('CreateChangeSet', self.native.writes)
+
+    def test_destructive_reference_and_automatic_failure_policy_block(self):
+        self.prepare()
+        base = dict(Action='Modify', LogicalResourceId='Workload', ResourceType='AWS::EC2::Instance',
+                    Replacement='False', Scope=['Properties'], Details=[dict(Evaluation='Static',
+                    ChangeSource='DirectModification', Target=dict(Attribute='Properties', RequiresRecreation='Never'))])
+        referenced = self.req['local_context']['ownership']
+        owner = json.loads((self.root / referenced['path']).read_bytes())
+        for i, change in enumerate((dict(base, Action='Remove'), dict(base, Replacement='True'),
+                                   dict(base, Replacement='Conditional'), dict(base, PhysicalResourceId=owner['existing_resources'][0]['resource_id']))):
+            self.native.override = dict(Changes=[dict(Type='Resource', ResourceChange=change)])
+            self.assertEqual(self.apply('destructive-' + str(i) + '.json')['result'], 'BLOCKED')
+        self.native.override = dict(OnStackFailure='ROLLBACK')
+        self.assertEqual(self.apply('rollback.json')['result'], 'BLOCKED')
+        self.assertNotIn('ExecuteChangeSet', self.native.writes)
+
+    def test_generic_failure_is_not_no_change_and_pending_is_bounded(self):
+        self.native.no_change = True
+        self.native.override = dict(StatusReason='Access denied')
+        result = self.executor.prepare(self.directory + '/failed.json')
+        self.assertNotEqual(result['result'], 'NO_CHANGE')
+        self.assertNotIn('ExecuteChangeSet', self.native.writes)
+
+    def test_readonly_recovery_expired_preview_and_revoked_mutation_approval(self):
+        self.prepare()
+        self.native.lose_execute = True
+        self.apply()
+        recovery = self.stage('apply', self.preview_ref)
+        self.auths[-1].approvals[0]['state'] = 'rejected'
+        # No preview bytes are needed merely to query the original native identity.
+        (self.root / self.preview_ref['path']).unlink()
+        result = recovery.reconcile(self.executor.submission, self.directory + '/read-only.json')
+        self.assertEqual(result['result'], 'PASS', result)
+        self.assertEqual(self.native.writes.count('ExecuteChangeSet'), 1)
+
+    def test_unknown_without_native_history_never_reexecutes_local_or_fresh(self):
+        self.prepare()
+        self.native.lose_execute = True
+        self.apply()
+        result = self.apply('again.json')
+        self.assertEqual(result['result'], 'UNKNOWN', result)
+        recovery = self.stage('apply', self.preview_ref)
+        self.native.history_missing = True
+        result = recovery.reconcile(self.executor.submission, self.directory + '/missing-events.json')
+        self.assertEqual(result['result'], 'UNKNOWN', result)
+        self.auths[-1].history_error = True
+        result = recovery.apply(self.preview_ref, self.directory + '/missing-history.json')
+        self.assertIn(result['result'], ('UNKNOWN', 'BLOCKED'))
+        self.assertEqual(self.native.writes.count('ExecuteChangeSet'), 1)
+
+    def test_native_wire_schema_matches_official_model_no_impossible_role_or_token_readback(self):
+        import aws_native
+        source = ROOT / 'specs/cloud-orchestration/verification/T-013/inputs/external'
+        model = json.loads(next(source.glob('*/aws-cloudformation-2010-05-15.json')).read_bytes())
+        for op, fields in aws_native.OPERATIONS.items():
+            shape = model['shapes'][model['operations'][op]['input']['shape']]
+            self.assertLessEqual(fields, set(shape['members']))
+        described = model['shapes'][model['operations']['DescribeChangeSet']['output']['shape']]['members']
+        self.assertNotIn('RoleARN', described)
+        self.assertNotIn('ClientToken', described)
+        with self.assertRaises(ValueError):
+            aws_native.query('ExecuteChangeSet', dict(ChangeSetName='x', StackName='y',
+                ClientRequestToken='z', DisableRollback=False, RetainExceptOnCreate=True))
+        self.prepare()
+        self.assertNotIn('RoleARN', self.native.override)
+        self.assertNotIn('ClientToken', self.native.override)
+
+    def test_inactive_acyclic_workflow_native_iam_and_cli_seam(self):
+        import aws_governed as governed
+        workflow = governed.workflow_template(executor_repository='synthetic/executor', executor_revision='b'*40,
+            account=self.req['scope']['account_id'], region=self.req['scope']['region'], input_repository='synthetic/input')
+        text = json.dumps(workflow)
+        self.assertIn('AWS_EXECUTION_CONTROL', text)
+        self.assertNotIn('npm ', text)
+        self.assertNotIn('cdk ', text)
+        self.assertFalse(workflow['concurrency']['cancel-in-progress'])
+        self.assertEqual(workflow['jobs']['prepare']['steps'][0]['with']['ref'], 'b'*40)
+        self.assertEqual(workflow['jobs']['reconcile']['environment'], 'sandbox-recovery-apply')
+        iam = governed.role_setup(self.req['scope']['account_id'], self.req['scope']['region'],
+                                 self.req['scope']['deployment_scope'], self.native.control)
+        create = next(x for x in iam['prepare']['Statement'] if x['Action'] == 'cloudformation:CreateChangeSet')
+        execute = next(x for x in iam['apply']['Statement'] if x['Action'] == 'cloudformation:ExecuteChangeSet')
+        self.assertIn(':stack/', create['Resource'])
+        self.assertEqual(create['Condition']['ArnEquals']['cloudformation:RoleArn'], self.native.control.execution_role_arn)
+        self.assertNotIn('RoleArn', json.dumps(execute))
+        self.assertNotIn('ec2:', json.dumps(iam['prepare']))
+        from cloud import run
+        result = run(['prepare','--request',self.request_ref['path'],'--output',self.directory+'/cli.json'],executor=self.executor)
+        self.assertEqual(result['result'], 'PASS', result)
+
+
+    def late_revocation(self, mutation, phase, trigger):
+        if phase == 'apply':
+            self.prepare()
+        original = self.native.request
+        fired = []
+        def intercepted(method, url, headers, body=None):
+            response = original(method, url, headers, body)
+            journal = self.root / self.directory / (mutation + '-submission.json')
+            if journal.exists() and trigger in (url + (body.decode() if body else '')):
+                self.auths[-1].approvals[0]['state'] = 'rejected'
+                fired.append(True)
+            return response
+        with patch.object(self.native, 'request', side_effect=intercepted):
+            result = self.apply() if phase == 'apply' else self.executor.prepare(self.directory + '/prepare.json')
+        self.assertTrue(fired, 'probe must fire after original consumed receipt and journal exist')
+        self.assertEqual(result['result'], 'BLOCKED', result)
+        action = {'publish':'PutObject','create':'CreateChangeSet','execute':'ExecuteChangeSet'}[mutation]
+        self.assertNotIn(action, self.native.writes)
+        receipt = self.root / self.directory / (self.req['unit_id'] + '.' + phase + '.' + mutation + '.authorization.json')
+        self.assertTrue(receipt.is_file())
+        stored = json.loads(receipt.read_bytes())
+        self.assertEqual(stored['expires_at'], utc(NOW + 110))
+        self.assertNotIn('native_operation_id', result)
+
+    def test_last_send_revocation_publish(self):
+        self.late_revocation('publish', 'prepare', 'publicAccessBlock')
+
+    def test_last_send_revocation_create(self):
+        self.late_revocation('create', 'prepare', 'Action=DescribeStacks')
+
+    def test_last_send_revocation_execute(self):
+        self.late_revocation('execute', 'apply', 'Action=GetTemplate')
 
 
 class AwsAuthFixture(DeterministicTransport):
-    def __init__(self,stage,account):
-        super().__init__("aws",stage);self.actual_account=account
-        self.history=None;self.history_error=False
-    def request(self,method,url,headers,body=None):
+    def __init__(self, stage, account):
+        super().__init__("aws", stage)
+        self.actual_account = account
+        self.history = None
+        self.history_error = False
+
+    def request(self, method, url, headers, body=None):
         if "?event=workflow_dispatch&per_page=100&page=1" in url:
-            if self.history_error:raise OSError("synthetic unavailable history")
-            history=self.history if self.history is not None else [self.run]
-            return encode(dict(total_count=len(history),workflow_runs=history))
-        old="123456789012"
-        sent=body.replace(self.actual_account.encode(),old.encode()) if body else body
-        return super().request(method,url,headers,sent).replace(old.encode(),self.actual_account.encode())
+            if self.history_error:
+                raise OSError("synthetic unavailable history")
+            history = self.history if self.history is not None else [self.run]
+            return encode(dict(total_count=len(history), workflow_runs=history))
+        old = "123456789012"
+        sent = (
+            body.replace(self.actual_account.encode(), old.encode()) if body else body
+        )
+        return (
+            super()
+            .request(method, url, headers, sent)
+            .replace(old.encode(), self.actual_account.encode())
+        )
 
 
 class AwsWireFixture:
     """Real AWS adapter consumes XML/headers; this double is NOT a cloud sandbox."""
-    def __init__(self,e,request):
-        self.e,self.request=e,request
-        scope=request["scope"]
-        self.control=e.Control(execution_role_arn="arn:aws:iam::"+scope["account_id"]+":role/cfn-execution",
-            bucket="cdk-hnb659fds-assets-"+scope["account_id"]+"-"+scope["region"],
-            unit_id=request["unit_id"], existing_stack_id=None)
-        self.calls=[];self.writes=[];self.create={};self.execute={};self.override={}
-        self.object_bytes=b"";self.version="native-version-1";self.template_override=None
-        self.no_change=False;self.lose_execute=False;self.history_missing=False;self.describes=0
-        self.arn="";self.stack="arn:aws:cloudformation:"+scope["region"]+":"+scope["account_id"]+":stack/"+scope["deployment_scope"]+"/native-id"
 
-    def xml(self,action,value):
+    def __init__(self, e, request):
+        self.e, self.req = e, request
+        scope = request["scope"]
+        self.control = e.Control(
+            execution_role_arn="arn:aws:iam::"
+            + scope["account_id"]
+            + ":role/cfn-execution",
+            bucket="cdk-hnb659fds-assets-"
+            + scope["account_id"]
+            + "-"
+            + scope["region"],
+            unit_id=request["unit_id"],
+            existing_stack_id=None,
+        )
+        self.calls = []
+        self.writes = []
+        self.create = {}
+        self.execute = {}
+        self.override = {}
+        self.object_bytes = b""
+        self.version = "native-version-1"
+        self.template_override = None
+        self.existing = False
+        self.bucket_fault = None
+        self.no_change = False
+        self.lose_execute = False
+        self.history_missing = False
+        self.describes = 0
+        self.arn = ""
+        self.stack = (
+            "arn:aws:cloudformation:"
+            + scope["region"]
+            + ":"
+            + scope["account_id"]
+            + ":stack/"
+            + scope["deployment_scope"]
+            + "/native-id"
+        )
+
+    def xml(self, action, value):
         import xml.etree.ElementTree as ET
-        root=ET.Element(action+"Response",xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/")
-        result=ET.SubElement(root,action+"Result")
-        def fill(node,value):
-            if isinstance(value,dict):
-                for k,v in value.items():fill(ET.SubElement(node,k),v)
-            elif isinstance(value,list):
-                for v in value:fill(ET.SubElement(node,"member"),v)
-            else:node.text=str(value).lower() if isinstance(value,bool) else str(value)
-        fill(result,value)
-        return self.e.Response(200,{},ET.tostring(root))
 
-    def request(self,method,url,headers,body=None):
+        root = ET.Element(
+            action + "Response",
+            xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/",
+        )
+        result = ET.SubElement(root, action + "Result")
+
+        def fill(node, value):
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    fill(ET.SubElement(node, k), v)
+            elif isinstance(value, list):
+                for v in value:
+                    fill(ET.SubElement(node, "member"), v)
+            else:
+                node.text = (
+                    str(value).lower() if isinstance(value, bool) else str(value)
+                )
+
+        fill(result, value)
+        return self.e.Response(200, {}, ET.tostring(root))
+
+    def request(self, method, url, headers, body=None):
         from urllib.parse import urlsplit
-        self.calls.append((method,url,body))
-        assert headers["Authorization"].startswith("AWS4-HMAC-SHA256 Credential=SYNTHETICKEY/")
+
+        self.calls.append((method, url, body))
+        assert headers["Authorization"].startswith(
+            "AWS4-HMAC-SHA256 Credential=SYNTHETICKEY/"
+        )
         if ".s3." in url:
-            assert headers["x-amz-expected-bucket-owner"]==self.request["scope"]["account_id"]
-            if "versioning" in url:return self.e.Response(200,{},b'<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>')
-            if "location" in url:return self.e.Response(200,{},b'<LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/"/>')
-            if "publicAccessBlock" in url:return self.e.Response(200,{},b'<PublicAccessBlockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><BlockPublicAcls>true</BlockPublicAcls><IgnorePublicAcls>true</IgnorePublicAcls><BlockPublicPolicy>true</BlockPublicPolicy><RestrictPublicBuckets>true</RestrictPublicBuckets></PublicAccessBlockConfiguration>')
-            if method=="PUT":
-                assert headers["x-amz-server-side-encryption"]=="AES256"
+            if self.bucket_fault in ('foreign-owner','denied'):
+                return self.e.Response(403, {}, b'')
+            if self.bucket_fault == 'wrong-region' and 'location' in url:
+                return self.e.Response(200, {}, b'<LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/">eu-west-1</LocationConstraint>')
+            if self.bucket_fault == 'unversioned' and 'versioning' in url:
+                return self.e.Response(200, {}, b'<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Suspended</Status></VersioningConfiguration>')
+            if self.bucket_fault == 'public' and 'publicAccessBlock' in url:
+                return self.e.Response(200, {}, b'<PublicAccessBlockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"/>')
+            assert (
+                headers["x-amz-expected-bucket-owner"]
+                == self.req["scope"]["account_id"]
+            )
+            if "versioning" in url:
+                return self.e.Response(
+                    200,
+                    {},
+                    b'<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>',
+                )
+            if "location" in url:
+                return self.e.Response(
+                    200,
+                    {},
+                    b'<LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/"/>',
+                )
+            if "publicAccessBlock" in url:
+                return self.e.Response(
+                    200,
+                    {},
+                    b'<PublicAccessBlockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><BlockPublicAcls>true</BlockPublicAcls><IgnorePublicAcls>true</IgnorePublicAcls><BlockPublicPolicy>true</BlockPublicPolicy><RestrictPublicBuckets>true</RestrictPublicBuckets></PublicAccessBlockConfiguration>',
+                )
+            if method == "PUT":
+                assert headers["x-amz-server-side-encryption"] == "AES256"
                 assert body is not None
-                self.writes.append("PutObject");self.object_bytes=body
-                return self.e.Response(200,{"x-amz-version-id":self.version,"ETag":'"native-etag"',"x-amz-server-side-encryption":"AES256"},b"")
+                self.writes.append("PutObject")
+                self.object_bytes = body
+                return self.e.Response(
+                    200,
+                    {
+                        "x-amz-version-id": self.version,
+                        "ETag": '"native-etag"',
+                        "x-amz-server-side-encryption": "AES256",
+                    },
+                    b"",
+                )
             assert "versionId=" in urlsplit(url).query
-            return self.e.Response(200,{"x-amz-version-id":self.version,"ETag":'"native-etag"',"x-amz-server-side-encryption":"AES256"},self.object_bytes)
-        assert method=="POST" and body is not None
-        p={k:v[0] for k,v in parse_qs(body.decode()).items()};action=p.pop("Action");assert p.pop("Version")=="2010-05-15"
-        if action=="CreateChangeSet":
-            self.writes.append(action);self.create=p
-            self.arn="arn:aws:cloudformation:"+self.request["scope"]["region"]+":"+self.request["scope"]["account_id"]+":changeSet/"+p["ChangeSetName"]+"/native-id"
-            return self.xml(action,dict(Id=self.arn,StackId=self.stack))
-        if action=="DescribeStacks":
-            if not self.create:
-                return self.e.Response(400,{},b'<ErrorResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/"><Error><Code>ValidationError</Code><Message>Stack with id '+self.request["scope"]["deployment_scope"].encode()+b' does not exist</Message></Error></ErrorResponse>')
-            return self.xml(action,dict(Stacks=[dict(StackId=self.stack,StackName=self.request["scope"]["deployment_scope"],RoleARN=self.control.execution_role_arn,
-                StackStatus="CREATE_COMPLETE" if self.execute else "REVIEW_IN_PROGRESS",
-                Tags=[dict(Key="sdd-unit",Value=self.request["unit_id"]),dict(Key="sdd-owner",Value="cdk")])]))
-        if action=="DescribeChangeSet":
-            assert p["IncludePropertyValues"]=="true"
-            self.describes+=1
-            changes=[dict(Type="Resource",ResourceChange=dict(Action="Add",LogicalResourceId="Workload",ResourceType="AWS::EC2::Instance",Scope=["Properties"],Details=[]))]
-            value=dict(ChangeSetName=self.create["ChangeSetName"],ChangeSetId=self.arn,StackId=self.stack,StackName=self.create["StackName"],Description=self.create["Description"],
-                ExecutionStatus="UNAVAILABLE" if self.no_change else "AVAILABLE",Status="FAILED" if self.no_change else "CREATE_COMPLETE",Parameters=[],Capabilities=[],Changes=[] if self.no_change else changes,
-                Tags=[dict(Key="sdd-unit",Value=self.request["unit_id"]),dict(Key="sdd-owner",Value="cdk")])
-            if self.no_change:value["StatusReason"]="The submitted information didn't contain changes. Submit different information to create a change set."
-            if self.describes==1 and not self.no_change:value.update(Status="CREATE_IN_PROGRESS",ExecutionStatus="UNAVAILABLE",Changes=[])
+            return self.e.Response(
+                200,
+                {
+                    "x-amz-version-id": self.version,
+                    "ETag": '"native-etag"',
+                    "x-amz-server-side-encryption": "AES256",
+                },
+                self.object_bytes,
+            )
+        assert method == "POST" and body is not None
+        p = {k: v[0] for k, v in parse_qs(body.decode()).items()}
+        action = p.pop("Action")
+        assert p.pop("Version") == "2010-05-15"
+        if action == "CreateChangeSet":
+            self.writes.append(action)
+            self.create = p
+            self.arn = (
+                "arn:aws:cloudformation:"
+                + self.req["scope"]["region"]
+                + ":"
+                + self.req["scope"]["account_id"]
+                + ":changeSet/"
+                + p["ChangeSetName"]
+                + "/native-id"
+            )
+            return self.xml(action, dict(Id=self.arn, StackId=self.stack))
+        if action == "DescribeStacks":
+            if not self.create and not self.existing:
+                return self.e.Response(
+                    400,
+                    {},
+                    b'<ErrorResponse xmlns="http://cloudformation.amazonaws.com/doc/2010-05-15/"><Error><Code>ValidationError</Code><Message>Stack with id '
+                    + self.req["scope"]["deployment_scope"].encode()
+                    + b" does not exist</Message></Error></ErrorResponse>",
+                )
+            return self.xml(
+                action,
+                dict(
+                    Stacks=[
+                        dict(
+                            StackId=self.stack,
+                            StackName=self.req["scope"]["deployment_scope"],
+                            RoleARN=self.control.execution_role_arn,
+                            StackStatus="UPDATE_COMPLETE" if self.existing else ("CREATE_COMPLETE" if self.execute else "REVIEW_IN_PROGRESS"),
+                            Tags=[
+                                dict(Key="sdd-unit", Value=self.req["unit_id"]),
+                                dict(Key="sdd-owner", Value="cdk"),
+                            ],
+                        )
+                    ]
+                ),
+            )
+        if action == "DescribeChangeSet":
+            assert p["IncludePropertyValues"] == "true"
+            self.describes += 1
+            changes = [
+                dict(
+                    Type="Resource",
+                    ResourceChange=dict(
+                        Action="Add",
+                        LogicalResourceId="Workload",
+                        ResourceType="AWS::EC2::Instance",
+                        Scope=["Properties"],
+                        Details=[],
+                    ),
+                )
+            ]
+            value = dict(
+                ChangeSetName=self.create["ChangeSetName"],
+                ChangeSetId=self.arn,
+                StackId=self.stack,
+                StackName=self.create["StackName"],
+                Description=self.create["Description"],
+                ExecutionStatus="UNAVAILABLE" if self.no_change else "AVAILABLE",
+                Status="FAILED" if self.no_change else "CREATE_COMPLETE",
+                Parameters=[
+                    dict(
+                        ParameterKey=v,
+                        ParameterValue=self.create[
+                            k.replace("ParameterKey", "ParameterValue")
+                        ],
+                    )
+                    for k, v in self.create.items()
+                    if k.endswith(".ParameterKey")
+                ],
+                Capabilities=[],
+                Changes=[] if self.no_change else changes,
+                Tags=[
+                    dict(Key="sdd-unit", Value=self.req["unit_id"]),
+                    dict(Key="sdd-owner", Value="cdk"),
+                ],
+            )
+            if self.no_change:
+                value["StatusReason"] = (
+                    "The submitted information didn't contain changes. Submit different information to create a change set."
+                )
+            if self.describes == 1 and not self.no_change:
+                value.update(
+                    Status="CREATE_IN_PROGRESS",
+                    ExecutionStatus="UNAVAILABLE",
+                    Changes=[],
+                )
             value.update(self.override)
-            return self.xml(action,value)
-        if action=="GetTemplate":return self.xml(action,dict(TemplateBody=(self.template_override or self.object_bytes).decode(),StagesAvailable=["Original"]))
-        if action=="ExecuteChangeSet":
-            self.writes.append(action);self.execute=p
-            assert p["DisableRollback"]=="true" and p["RetainExceptOnCreate"]=="false"
+            return self.xml(action, value)
+        if action == "GetTemplate":
+            return self.xml(
+                action,
+                dict(
+                    TemplateBody=(self.template_override or self.object_bytes).decode(),
+                    StagesAvailable=["Original"],
+                ),
+            )
+        if action == "ExecuteChangeSet":
+            self.writes.append(action)
+            self.execute = p
+            assert (
+                p["DisableRollback"] == "true" and p["RetainExceptOnCreate"] == "false"
+            )
             assert "OnStackFailure" not in self.create
-            if self.lose_execute:raise TimeoutError("synthetic response loss")
-            return self.xml(action,{})
-        if action=="DescribeStackEvents":
-            return self.xml(action,dict(StackEvents=[] if self.history_missing else [dict(StackId=self.stack,ResourceType="AWS::CloudFormation::Stack",LogicalResourceId=self.request["scope"]["deployment_scope"],ClientRequestToken=self.create["ClientToken"],ResourceStatus="CREATE_COMPLETE")]))
-        raise AssertionError("Unexpected native action "+action)
+            if self.lose_execute:
+                raise TimeoutError("synthetic response loss")
+            return self.xml(action, {})
+        if action == "DescribeStackEvents":
+            return self.xml(
+                action,
+                dict(
+                    StackEvents=[]
+                    if self.history_missing
+                    else [
+                        dict(
+                            StackId=self.stack,
+                            ResourceType="AWS::CloudFormation::Stack",
+                            LogicalResourceId=self.req["scope"]["deployment_scope"],
+                            ClientRequestToken=self.create["ClientToken"],
+                            ResourceStatus="UPDATE_COMPLETE" if self.existing else "CREATE_COMPLETE",
+                        )
+                    ]
+                ),
+            )
+        raise AssertionError("Unexpected native action " + action)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,44 @@
+test_last_send_revocation_publish (__main__.AwsExecution.test_last_send_revocation_publish) ... FAIL
+test_last_send_revocation_create (__main__.AwsExecution.test_last_send_revocation_create) ... FAIL
+test_last_send_revocation_execute (__main__.AwsExecution.test_last_send_revocation_execute) ... FAIL
+
+======================================================================
+FAIL: test_last_send_revocation_publish (__main__.AwsExecution.test_last_send_revocation_publish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2510, in test_last_send_revocation_publish
+    self.late_revocation('publish', 'prepare', 'publicAccessBlock')
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2502, in late_revocation
+    self.assertNotIn(action, self.native.writes)
+AssertionError: 'PutObject' unexpectedly found in ['PutObject']
+
+======================================================================
+FAIL: test_last_send_revocation_create (__main__.AwsExecution.test_last_send_revocation_create)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2513, in test_last_send_revocation_create
+    self.late_revocation('create', 'prepare', 'Action=DescribeStacks')
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2500, in late_revocation
+    self.assertEqual(result['result'], 'BLOCKED', result)
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'PASS', 'state': 'PREVIEW_READY', 'error_code': None, 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': '6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/prepare.json.manifest.json'}
+
+======================================================================
+FAIL: test_last_send_revocation_execute (__main__.AwsExecution.test_last_send_revocation_execute)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2516, in test_last_send_revocation_execute
+    self.late_revocation('execute', 'apply', 'Action=GetTemplate')
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2500, in late_revocation
+    self.assertEqual(result['result'], 'BLOCKED', result)
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'apply', 'result': 'PASS', 'state': 'OBSERVED', 'error_code': None, 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': '6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/apply.json.manifest.json', 'native_operation_id': 'arn:aws:cloudformation:us-east-1:111111111111:changeSet/sdd-6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e/native-id'}
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.580s
+
+FAILED (failures=3)
