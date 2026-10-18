@@ -1,0 +1,54 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-011",
+  "run_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "session_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "agent_instance_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T17:25:57Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "initial/plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md",
+      "sha256": "27af791f755d21eefbf817dfa7e9b11b88fac34b075dbc3f413c1f20a163845a"
+    },
+    {
+      "path": "initial/plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md",
+      "sha256": "5a906f317b352c84f1b38f39464f585ce66f2261651079a6c79df528a6c774e2"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "78f6125f3a55617a6ede53881afd3cabc3b391c420f4086158ee15801d5ae29a"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "1123c6d1ad7c79d33d86d55098526d9d41db43a922b7643e60dd1d58548e037c"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "b95d798200b36c6d72a33c043a7837dc194732e2759a1f83709a5ae645716c8a"
+    },
+    {
+      "path": "initial/tests/guard-parity.tests.sh",
+      "sha256": "b68c8c555b661fc4edb2e1613caf80128df92a1ce88ddef6b3bfda4b341f1437"
+    },
+    {
+      "path": "initial/tests/shared-launch-python/pyproject.toml",
+      "sha256": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+    "specs/cloud-orchestration/verification/T-011/routing-guard-fix/",
+    "tests/guard-parity.tests.sh",
+    "reports/implementation/cloud-orchestration/T-011-routing-guard-fix.md"
+  ]
+}

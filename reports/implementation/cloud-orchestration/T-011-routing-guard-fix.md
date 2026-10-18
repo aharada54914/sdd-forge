@@ -147,3 +147,12 @@ union. JSON-only insertion was rejected by the real generator; initial-generate.
 records that mismatch. generator-preflight.md and supplemental-task-input-manifest.json
 bind the necessary five-member baseline update before changing the generator.
 The committed consumer Red remains the guard execution evidence.
+
+### Shared invocation preflight before guard edit
+
+Root confirmed the necessary minimal shared fix remains authorized. The actual
+registered paths fail 9 resolved-environment allowance checks, while corrected
+Set-Content denies. invocation-preflight.md records field/counterpart/mismatch
+and narrow first-command, metadata-name, flag and protected-output constraints.
+invocation-task-input-manifest.json extends allowed outputs to the three existing
+guard consumers before their modification. No provider/helper/skill change.

@@ -709,13 +709,13 @@ for cloud_path in \
     cloud_guard_check "redirect $cloud_path" 2 \
         "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"printf replacement > $cloud_path\"}}"
     cloud_guard_check "Set-Content $cloud_path" 2 \
-        "{\"tool_name\":\"powershell\",\"tool_input\":{\"command\":\"Set-Content -Path $cloud_path -Value replacement\"}}"
+        "{\"tool_name\":\"shell\",\"tool_input\":{\"command\":\"Set-Content -Path $cloud_path -Value replacement\"}}"
     cloud_guard_check "read $cloud_path" 0 \
         "{\"tool_name\":\"read\",\"tool_input\":{\"file_path\":\"$cloud_path\"}}"
     cloud_guard_check "cat $cloud_path" 0 \
         "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"cat $cloud_path\"}}"
     cloud_guard_check "Get-Content $cloud_path" 0 \
-        "{\"tool_name\":\"powershell\",\"tool_input\":{\"command\":\"Get-Content -Path $cloud_path\"}}"
+        "{\"tool_name\":\"shell\",\"tool_input\":{\"command\":\"Get-Content -Path $cloud_path\"}}"
     case "$cloud_path" in *.py)
         cloud_args='route --request request.json --output result.json'
         if [[ "$cloud_path" == *cloud-routing.py ]]; then
@@ -730,6 +730,20 @@ for cloud_path in \
         ;;
     esac
 done
+# Environment metadata must not become an interpreter-rebinding or output bypass.
+cloud_cli='plugins/sdd-azure-cloud/scripts/cloud.py'
+for cloud_unsafe in \
+    "PATH=/tmp python3 $cloud_cli route --request request.json --output result.json" \
+    "PYTHONPATH=/tmp python3 $cloud_cli route --request request.json --output result.json" \
+    "cloud_workspace_root=/tmp python3 $cloud_cli route --request request.json --output result.json" \
+    "CLOUD_WORKSPACE_ROOT=/tmp python3 -b $cloud_cli route --request request.json --output result.json" \
+    "CLOUD_WORKSPACE_ROOT=/tmp; python3 $cloud_cli route --request request.json --output result.json" \
+    "CLOUD_WORKSPACE_ROOT=/tmp python3 -B $cloud_cli route --request request.json --output result.json > $cloud_cli" \
+    "CLOUD_WORKSPACE_ROOT=/tmp python3 -B $cloud_cli route --request request.json --output $cloud_cli"; do
+    cloud_payload="$(python3 -c 'import json,sys; print(json.dumps({"tool_name":"bash","tool_input":{"command":sys.argv[1]}}))' "$cloud_unsafe")"
+    cloud_guard_check "unsafe invocation $cloud_unsafe" 2 "$cloud_payload"
+done
+
 # The public provider skills use variable operands and line continuations.
 cloud_documented_payload="$(python3 - <<'PY'
 import json
