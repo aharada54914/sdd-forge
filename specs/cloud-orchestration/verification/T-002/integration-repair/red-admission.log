@@ -1,0 +1,1130 @@
+test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) ... 
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='empty') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='rejected') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='pending') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='duplicate') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='wrong-user') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='wrong-env') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='missing-user') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='empty') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='rejected') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='pending') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='duplicate') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='wrong-user') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='wrong-env') ... ERROR
+  test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='missing-user') ... ERROR
+test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) ... ERROR
+test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) ... 
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='source.bin') ... ERROR
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='compiled.bin') ... ERROR
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='asset.bin') ... ERROR
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='parameters.bin') ... ERROR
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='module.bin') ... ERROR
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='policy.json') ... ERROR
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='profile.json') ... ERROR
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='lock.json') ... ERROR
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='upstream/main.md') ... ERROR
+  test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='tool.json') ... ERROR
+test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) ... ERROR
+test_any_denied_or_unexpected_environment_history_requires_fresh_dispatch (__main__.Admission.test_any_denied_or_unexpected_environment_history_requires_fresh_dispatch) ... ERROR
+test_concurrency_key_conservative_canonical_and_scope_prerequisite (__main__.Admission.test_concurrency_key_conservative_canonical_and_scope_prerequisite) ... ERROR
+test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) ... 
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='iss') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='sub') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='aud') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='repository') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='repository_id') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='workflow_ref') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='workflow_sha') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='ref') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='sha') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='run_id') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='run_attempt') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='actor_id') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='actor') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='environment') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='event_name') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='iat') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='nbf') ... ERROR
+  test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='exp') ... ERROR
+test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) ... 
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='id') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='run_attempt') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='status') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='conclusion') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='event') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='head_sha') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='head_branch') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='path') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='display_title') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='repository') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='head_repository') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='actor') ... ERROR
+  test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='triggering_actor') ... ERROR
+test_environment_policy_and_missing_api_data_fail_closed (__main__.Admission.test_environment_policy_and_missing_api_data_fail_closed) ... ERROR
+test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) ... 
+  test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='expiry') ... ERROR
+  test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='swap') ... ERROR
+  test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='revoked') ... ERROR
+test_fresh_checks_on_every_mutation_and_dependency_default_denial (__main__.Admission.test_fresh_checks_on_every_mutation_and_dependency_default_denial) ... ERROR
+test_https_transport_disallows_redirects_and_sanitizes_failures (__main__.Admission.test_https_transport_disallows_redirects_and_sanitizes_failures) ... ok
+test_iam_templates_restrict_native_subjects_and_stage_actions (__main__.Admission.test_iam_templates_restrict_native_subjects_and_stage_actions) ... ok
+test_local_flags_receipts_and_missing_runtime_never_authorize (__main__.Admission.test_local_flags_receipts_and_missing_runtime_never_authorize) ... ERROR
+test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch (__main__.Admission.test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch) ... ERROR
+test_missing_oidc_claims_ambiguous_reviewers_and_lease_ttl (__main__.Admission.test_missing_oidc_claims_ambiguous_reviewers_and_lease_ttl) ... ERROR
+test_native_https_success_redirect_and_size_contract (__main__.Admission.test_native_https_success_redirect_and_size_contract) ... ok
+test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) ... 
+  test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) (provider='aws', stage='prepare') ... ERROR
+  test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) (provider='aws', stage='apply') ... ERROR
+  test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) (provider='azure', stage='prepare') ... ERROR
+  test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) (provider='azure', stage='apply') ... ERROR
+test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) ... FAIL
+test_provider_identity_and_lease_mismatch_before_each_stage (__main__.Admission.test_provider_identity_and_lease_mismatch_before_each_stage) ... ERROR
+test_repair_same_request_prepare_preview_apply_separate_policies (__main__.Admission.test_repair_same_request_prepare_preview_apply_separate_policies) ... ERROR
+test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) ... 
+  test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='phase') ... ERROR
+  test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='target') ... ERROR
+  test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='protected') ... ERROR
+  test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='digest') ... ERROR
+  test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='missing-context') ... ERROR
+  test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='missing-anchor') ... ERROR
+  test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='evidence-root') ... ERROR
+  test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='preview') ... ERROR
+test_replay_different_instance_tamper_and_unknown_submission_no_retry (__main__.Admission.test_replay_different_instance_tamper_and_unknown_submission_no_retry) ... ERROR
+test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) ... 
+  test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='aws', stage='prepare', case='revoked') ... ERROR
+  test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='aws', stage='prepare', case='missing') ... ERROR
+  test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='aws', stage='apply', case='revoked') ... ERROR
+  test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='aws', stage='apply', case='missing') ... ERROR
+  test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='azure', stage='prepare', case='revoked') ... ERROR
+  test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='azure', stage='prepare', case='missing') ... ERROR
+  test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='azure', stage='apply', case='revoked') ... ERROR
+  test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='azure', stage='apply', case='missing') ... ERROR
+test_templates_have_distinct_environments_roles_and_no_cancellation (__main__.Admission.test_templates_have_distinct_environments_roles_and_no_cancellation) ... ok
+test_timeout_is_not_retried_and_receipt_is_retained (__main__.Admission.test_timeout_is_not_retried_and_receipt_is_retained) ... ERROR
+test_untrusted_endpoint_and_publication_failure_have_zero_writes (__main__.Admission.test_untrusted_endpoint_and_publication_failure_have_zero_writes) ... ERROR
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='empty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='rejected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='pending')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='duplicate')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='wrong-user')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='wrong-env')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='prepare', case='missing-user')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='empty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='rejected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='pending')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='duplicate')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='wrong-user')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='wrong-env')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) (stage='apply', case='missing-user')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 447, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 461, in test_absent_revoked_denied_unknown_duplicate_approval_history
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='source.bin')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='compiled.bin')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='asset.bin')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='parameters.bin')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='module.bin')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='policy.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='profile.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='lock.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='upstream/main.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch) (path='tool.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 691, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_all_bound_artifact_mutations_and_preview_dispatch_mismatch (__main__.Admission.test_all_bound_artifact_mutations_and_preview_dispatch_mismatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 694, in test_all_bound_artifact_mutations_and_preview_dispatch_mismatch
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_any_denied_or_unexpected_environment_history_requires_fresh_dispatch (__main__.Admission.test_any_denied_or_unexpected_environment_history_requires_fresh_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 722, in test_any_denied_or_unexpected_environment_history_requires_fresh_dispatch
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_concurrency_key_conservative_canonical_and_scope_prerequisite (__main__.Admission.test_concurrency_key_conservative_canonical_and_scope_prerequisite)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 607, in test_concurrency_key_conservative_canonical_and_scope_prerequisite
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='iss')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='sub')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='aud')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='repository')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='repository_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='workflow_ref')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='workflow_sha')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='ref')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='sha')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='run_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='run_attempt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='actor_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='actor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='environment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='event_name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='iat')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='nbf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) (field='exp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 409, in test_each_authenticated_oidc_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='run_attempt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='conclusion')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='event')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='head_sha')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='head_branch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='display_title')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='repository')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='head_repository')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='actor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) (field='triggering_actor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 431, in test_each_authenticated_run_binding_mismatch_denies
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_environment_policy_and_missing_api_data_fail_closed (__main__.Admission.test_environment_policy_and_missing_api_data_fail_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 475, in test_environment_policy_and_missing_api_data_fail_closed
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='expiry')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 653, in test_expiry_or_artifact_swap_during_scan_denies_before_submit
+    self.setup_case("azure")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='swap')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 653, in test_expiry_or_artifact_swap_during_scan_denies_before_submit
+    self.setup_case("azure")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='revoked')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 653, in test_expiry_or_artifact_swap_during_scan_denies_before_submit
+    self.setup_case("azure")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_fresh_checks_on_every_mutation_and_dependency_default_denial (__main__.Admission.test_fresh_checks_on_every_mutation_and_dependency_default_denial)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 565, in test_fresh_checks_on_every_mutation_and_dependency_default_denial
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_local_flags_receipts_and_missing_runtime_never_authorize (__main__.Admission.test_local_flags_receipts_and_missing_runtime_never_authorize)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 373, in test_local_flags_receipts_and_missing_runtime_never_authorize
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch (__main__.Admission.test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 507, in test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_missing_oidc_claims_ambiguous_reviewers_and_lease_ttl (__main__.Admission.test_missing_oidc_claims_ambiguous_reviewers_and_lease_ttl)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 730, in test_missing_oidc_claims_ambiguous_reviewers_and_lease_ttl
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) (provider='aws', stage='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 331, in test_native_positive_both_stages_providers_and_receipt_contract
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) (provider='aws', stage='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 331, in test_native_positive_both_stages_providers_and_receipt_contract
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) (provider='azure', stage='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 331, in test_native_positive_both_stages_providers_and_receipt_contract
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) (provider='azure', stage='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 331, in test_native_positive_both_stages_providers_and_receipt_contract
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_provider_identity_and_lease_mismatch_before_each_stage (__main__.Admission.test_provider_identity_and_lease_mismatch_before_each_stage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 489, in test_provider_identity_and_lease_mismatch_before_each_stage
+    self.setup_case(stage=stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_repair_same_request_prepare_preview_apply_separate_policies (__main__.Admission.test_repair_same_request_prepare_preview_apply_separate_policies)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 807, in test_repair_same_request_prepare_preview_apply_separate_policies
+    self.setup_case(provider, "prepare")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='phase')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 844, in test_repair_stage_target_context_and_digest_controls_zero_submissions
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='target')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 844, in test_repair_stage_target_context_and_digest_controls_zero_submissions
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='protected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 844, in test_repair_stage_target_context_and_digest_controls_zero_submissions
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 844, in test_repair_stage_target_context_and_digest_controls_zero_submissions
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='missing-context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 844, in test_repair_stage_target_context_and_digest_controls_zero_submissions
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='missing-anchor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 844, in test_repair_stage_target_context_and_digest_controls_zero_submissions
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='evidence-root')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 844, in test_repair_stage_target_context_and_digest_controls_zero_submissions
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_repair_stage_target_context_and_digest_controls_zero_submissions (__main__.Admission.test_repair_stage_target_context_and_digest_controls_zero_submissions) (case='preview')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 844, in test_repair_stage_target_context_and_digest_controls_zero_submissions
+    self.setup_case(stage="apply")
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_replay_different_instance_tamper_and_unknown_submission_no_retry (__main__.Admission.test_replay_different_instance_tamper_and_unknown_submission_no_retry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 531, in test_replay_different_instance_tamper_and_unknown_submission_no_retry
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='aws', stage='prepare', case='revoked')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 705, in test_revocation_during_federation_and_missing_native_identity_denies
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='aws', stage='prepare', case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 705, in test_revocation_during_federation_and_missing_native_identity_denies
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='aws', stage='apply', case='revoked')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 705, in test_revocation_during_federation_and_missing_native_identity_denies
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='aws', stage='apply', case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 705, in test_revocation_during_federation_and_missing_native_identity_denies
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='azure', stage='prepare', case='revoked')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 705, in test_revocation_during_federation_and_missing_native_identity_denies
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='azure', stage='prepare', case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 705, in test_revocation_during_federation_and_missing_native_identity_denies
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='azure', stage='apply', case='revoked')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 705, in test_revocation_during_federation_and_missing_native_identity_denies
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_revocation_during_federation_and_missing_native_identity_denies (__main__.Admission.test_revocation_during_federation_and_missing_native_identity_denies) (provider='azure', stage='apply', case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 705, in test_revocation_during_federation_and_missing_native_identity_denies
+    self.setup_case(provider, stage)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_timeout_is_not_retried_and_receipt_is_retained (__main__.Admission.test_timeout_is_not_retried_and_receipt_is_retained)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 549, in test_timeout_is_not_retried_and_receipt_is_retained
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+ERROR: test_untrusted_endpoint_and_publication_failure_have_zero_writes (__main__.Admission.test_untrusted_endpoint_and_publication_failure_have_zero_writes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 584, in test_untrusted_endpoint_and_publication_failure_have_zero_writes
+    self.setup_case()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 283, in setup_case
+    self.policy = self.a.Policy(
+                  ^^^^^^^^^^^^^^
+TypeError: Policy.__init__() got an unexpected keyword argument 'target_environment'
+
+======================================================================
+FAIL: test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 370, in test_native_positive_both_stages_providers_and_receipt_contract
+    self.assertEqual(len(self.writes), 4)
+AssertionError: 0 != 4
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.657s
+
+FAILED (failures=1, errors=92)

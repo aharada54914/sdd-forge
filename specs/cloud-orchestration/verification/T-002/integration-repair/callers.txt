@@ -1,0 +1,27 @@
+templates/cloud/iam/README.md:74:boundary = WriteBoundary(policy, runtime, protected_run_evidence_directory)
+templates/cloud/iam/trusted-policy.example.py:12:POLICY = Policy(
+tests/cloud-orchestration-routing.tests.py:22:    path = ROOT / "plugins/sdd-quality-loop/scripts/cloud_contracts.py"
+tests/cloud-orchestration-routing.tests.py:23:    spec = importlib.util.spec_from_file_location("cloud_contracts", path)
+tests/cloud-orchestration-execution.tests.py:26:import cloud_contracts as contracts  # noqa: E402
+tests/cloud-orchestration-execution.tests.py:265:        self.policy = self.a.Policy(
+tests/cloud-orchestration-execution.tests.py:289:        self.boundary = self.a.WriteBoundary(
+tests/cloud-orchestration-execution.tests.py:357:            self.boundary = self.a.WriteBoundary(
+tests/cloud-orchestration-execution.tests.py:517:        other = self.a.WriteBoundary(
+tests/cloud-orchestration-execution.tests.py:566:            self.boundary = self.a.WriteBoundary(
+tests/cloud-orchestration-execution.tests.py:592:        self.boundary = self.a.WriteBoundary(
+tests/cloud-orchestration-contracts.tests.py:17:MODULE = ROOT / "plugins/sdd-quality-loop/scripts/cloud_contracts.py"
+tests/cloud-orchestration-contracts.tests.py:204:        self.c = load(MODULE, "cloud_contracts")
+tests/cloud-orchestration-contracts.tests.py:377:        return self.c.verify_binding(self.root, *refs, now=NOW)
+tests/cloud-orchestration-contracts.tests.py:443:            self.c.verify_binding(self.root, *refs, now=END)
+tests/cloud-orchestration-contracts.tests.py:605:        self.c.verify_binding(self.root, request_ref, None, receipt_ref, now=NOW)
+tests/cloud-orchestration-contracts.tests.py:609:            self.c.verify_binding(self.root, request_ref, None, receipt_ref, now=NOW)
+tests/cloud-orchestration-contracts.tests.py:808:                self.c.verify_binding(self.root, refs[0], changed_ref, None, now=NOW)
+tests/cloud-orchestration-contracts.tests.py:813:            self.c.verify_binding(self.root, refs[0], changed_ref, None, now=NOW)
+tests/cloud-orchestration-contracts.tests.py:823:                self.c.verify_binding(self.root, refs[0], refs[1], changed_ref, now=NOW)
+tests/cloud-orchestration-contracts.tests.py:825:            self.c.verify_binding(self.root, refs[0], None, None, now=NOW)
+tests/capability-registry-schema.tests.ps1:129:function Test-LitePolicy($lp) {
+plugins/sdd-quality-loop/scripts/cloud_contracts.py:403:def verify_binding(root, request_ref, preview_ref, receipt_ref=None, *, now):
+plugins/sdd-quality-loop/scripts/cloud_authorization.py:35:import cloud_contracts as contracts
+plugins/sdd-quality-loop/scripts/cloud_authorization.py:526:                contracts.verify_binding(root, request_ref, preview_ref, now=utc(now))
+plugins/sdd-quality-loop/scripts/cloud_authorization.py:556:                contracts.verify_binding(root, request_ref, preview_ref, now=utc(now))
+plugins/sdd-quality-loop/scripts/cloud_authorization.py:594:                contracts.verify_binding(root, request_ref, preview_ref, now=utc(int(self.clock())))

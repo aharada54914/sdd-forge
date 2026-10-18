@@ -1,0 +1,16 @@
+{
+  "pre-repair/contracts/cloud-authorization-receipt.schema.json": "contracts/cloud-authorization-receipt.schema.json",
+  "pre-repair/contracts/cloud-dependency-lock.schema.json": "contracts/cloud-dependency-lock.schema.json",
+  "pre-repair/contracts/cloud-input-error.schema.json": "contracts/cloud-input-error.schema.json",
+  "pre-repair/contracts/cloud-observation.schema.json": "contracts/cloud-observation.schema.json",
+  "pre-repair/contracts/cloud-operation-result.schema.json": "contracts/cloud-operation-result.schema.json",
+  "pre-repair/contracts/cloud-preview.schema.json": "contracts/cloud-preview.schema.json",
+  "pre-repair/contracts/cloud-run-request.schema.json": "contracts/cloud-run-request.schema.json",
+  "pre-repair/contracts/cloud-verification.schema.json": "contracts/cloud-verification.schema.json",
+  "pre-repair/plugins/sdd-quality-loop/scripts/cloud_authorization.py": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+  "pre-repair/plugins/sdd-quality-loop/scripts/cloud_contracts.py": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+  "pre-repair/templates/cloud/iam/README.md": "templates/cloud/iam/README.md",
+  "pre-repair/templates/cloud/iam/trusted-policy.example.py": "templates/cloud/iam/trusted-policy.example.py",
+  "pre-repair/tests/cloud-orchestration-contracts.tests.py": "tests/cloud-orchestration-contracts.tests.py",
+  "pre-repair/tests/cloud-orchestration-execution.tests.py": "tests/cloud-orchestration-execution.tests.py"
+}

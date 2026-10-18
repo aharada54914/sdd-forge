@@ -1,0 +1,2136 @@
+diff --git a/tests/cloud-orchestration-contracts.tests.py b/tests/cloud-orchestration-contracts.tests.py
+index 11b6487e..e36e11df 100644
+--- a/tests/cloud-orchestration-contracts.tests.py
++++ b/tests/cloud-orchestration-contracts.tests.py
+@@ -3,6 +3,7 @@
+ Stdlib only. Independent structural schema oracle is the repository's existing
+ sidecar schema validator; semantic/date/filesystem checks are runtime-only.
+ """
++
+ import copy
+ import hashlib
+ import importlib.util
+@@ -13,79 +14,180 @@ import tempfile
+ import unittest
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-MODULE = ROOT / 'plugins/sdd-quality-loop/scripts/cloud_contracts.py'
+-NOW = '2026-10-18T06:00:00Z'
+-END = '2026-10-18T07:00:00Z'
+-SHA = 'a' * 64
++MODULE = ROOT / "plugins/sdd-quality-loop/scripts/cloud_contracts.py"
++NOW = "2026-10-18T06:00:00Z"
++END = "2026-10-18T07:00:00Z"
++SHA = "a" * 64
+ 
+ 
+ def load(path, name):
+     spec = importlib.util.spec_from_file_location(name, path)
++    if spec is None or spec.loader is None:
++        raise ImportError(f"Cannot load test dependency: {path}")
+     module = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(module)
+     return module
+ 
+ 
+ def encode(value):
+-    return (json.dumps(value, sort_keys=True, ensure_ascii=True) + '\n').encode()
++    return (json.dumps(value, sort_keys=True, ensure_ascii=True) + "\n").encode()
+ 
+ 
+-def ref(path, data=b'fixture'):
+-    return {'path': path, 'sha256': hashlib.sha256(data).hexdigest()}
++def ref(path, data=b"fixture"):
++    return {"path": path, "sha256": hashlib.sha256(data).hexdigest()}
+ 
+ 
+ def fixtures():
+-    identity = dict(run_id='run-1', unit_id='unit-1', provider='aws')
+-    scope = dict(account_id='123456789012', region='us-east-1', deployment_scope='stack-1')
+-    request = dict(schema='cloud-run-request/v1', **identity, binding_id='binding-1',
+-                   environment='sandbox', scope=scope, owner='cdk', route='aws-cdk',
+-                   operation='apply', predecessor_receipts=[], source_revision='a'*40,
+-                   input_artifacts=[dict(kind=k, **ref(k+'.bin')) for k in
+-                                    ('source', 'compiled', 'asset', 'parameters', 'module')],
+-                   dependency_lock=ref('lock.json'), policy=ref('policy.json'),
+-                   verification_profile=dict(id='health', version='1', **ref('profile.json')))
+-    lock = dict(schema='cloud-dependency-lock/v1', adapter_version='1.0.0',
+-                upstream=[dict(repository='https://example.invalid/source', commit='a'*40,
+-                               root='upstream', files=[dict(**ref('upstream/main.md'), references=['upstream/child.md']),
+-                                                        dict(**ref('upstream/child.md'), references=[])])],
+-                tools=[dict(name='cdk', version='2.1.0', sha256=SHA)],
+-                managed_endpoints=[dict(endpoint='https://example.invalid/mcp', tool_schema=ref('tool.json'))])
+-    preview = dict(schema='cloud-preview/v1', **identity, scope=copy.deepcopy(scope),
+-                   request=ref('request.json'), dependency_lock=ref('lock.json'), policy=ref('policy.json'),
+-                   verification_profile=ref('profile.json'), preview_identity='change-set-1',
+-                   semantic_sha256=SHA, changes=ref('changes.json'), replacements=[], deletes=[],
+-                   created_at=NOW, expires_at=END)
+-    receipt = dict(schema='cloud-authorization-receipt/v1', **identity, scope=copy.deepcopy(scope),
+-                   operation='apply', issuer='https://token.actions.githubusercontent.com',
+-                   principal='principal-1', subject='repo:example/project:environment:sandbox',
+-                   ci=dict(repository='example/project', workflow='.github/workflows/cloud.yml',
+-                           workflow_revision='a'*40, ref='refs/heads/main', environment='sandbox',
+-                           run_id='123', run_attempt=1), request=ref('request.json'), preview=ref('preview.json'),
+-                   dependency_lock=ref('lock.json'), policy=ref('policy.json'),
+-                   verification_profile=ref('profile.json'), issued_at=NOW, expires_at=END,
+-                   approval_evidence=dict(locator='https://example.invalid/approvals/1', sha256=SHA))
+-    observation = dict(schema='cloud-observation/v1', **identity, native_operation_id='operation-1',
+-                       resource_ids=['resource-1'], principal='observer-1', query='describe-health',
+-                       timestamp=NOW, exit_code=0, status='PASS', result=ref('query.json'), classification='synthetic')
+-    verification = dict(schema='cloud-verification/v1', **identity,
+-                        profile=dict(id='health', version='1', **ref('profile.json')),
+-                        required_check_ids=['network'], checks=[dict(check_id='network', observation=ref('observation.json'), result='PASS')],
+-                        overall_result='PASS', evidence_complete=True)
+-    result = dict(schema='cloud-operation-result/v1', **identity, operation='apply', state='BLOCKED',
+-                  result='BLOCKED', error_code='AUTH_UNAVAILABLE', message='Use the protected workflow.',
+-                  input_manifest_sha256=SHA, evidence_manifest_path='evidence/manifest.json')
+-    error = dict(schema='cloud-input-error/v1', error_code='INVALID_INPUT', message='Invalid request.', field='run_id')
+-    return {v['schema']: v for v in (request, lock, preview, receipt, observation, verification, result, error)}
++    identity = dict(run_id="run-1", unit_id="unit-1", provider="aws")
++    scope = dict(
++        account_id="123456789012", region="us-east-1", deployment_scope="stack-1"
++    )
++    request = dict(
++        schema="cloud-run-request/v1",
++        **identity,
++        binding_id="binding-1",
++        environment="sandbox",
++        scope=scope,
++        owner="cdk",
++        route="aws-cdk",
++        operation="apply",
++        predecessor_receipts=[],
++        source_revision="a" * 40,
++        input_artifacts=[
++            dict(kind=k, **ref(k + ".bin"))
++            for k in ("source", "compiled", "asset", "parameters", "module")
++        ],
++        dependency_lock=ref("lock.json"),
++        policy=ref("policy.json"),
++        verification_profile=dict(id="health", version="1", **ref("profile.json")),
++    )
++    lock = dict(
++        schema="cloud-dependency-lock/v1",
++        adapter_version="1.0.0",
++        upstream=[
++            dict(
++                repository="https://example.invalid/source",
++                commit="a" * 40,
++                root="upstream",
++                files=[
++                    dict(**ref("upstream/main.md"), references=["upstream/child.md"]),
++                    dict(**ref("upstream/child.md"), references=[]),
++                ],
++            )
++        ],
++        tools=[dict(name="cdk", version="2.1.0", sha256=SHA)],
++        managed_endpoints=[
++            dict(endpoint="https://example.invalid/mcp", tool_schema=ref("tool.json"))
++        ],
++    )
++    preview = dict(
++        schema="cloud-preview/v1",
++        **identity,
++        scope=copy.deepcopy(scope),
++        request=ref("request.json"),
++        dependency_lock=ref("lock.json"),
++        policy=ref("policy.json"),
++        verification_profile=ref("profile.json"),
++        preview_identity="change-set-1",
++        semantic_sha256=SHA,
++        changes=ref("changes.json"),
++        replacements=[],
++        deletes=[],
++        created_at=NOW,
++        expires_at=END,
++    )
++    receipt = dict(
++        schema="cloud-authorization-receipt/v1",
++        **identity,
++        scope=copy.deepcopy(scope),
++        operation="apply",
++        issuer="https://token.actions.githubusercontent.com",
++        principal="principal-1",
++        subject="repo:example/project:environment:sandbox",
++        ci=dict(
++            repository="example/project",
++            workflow=".github/workflows/cloud.yml",
++            workflow_revision="a" * 40,
++            ref="refs/heads/main",
++            environment="sandbox",
++            run_id="123",
++            run_attempt=1,
++        ),
++        request=ref("request.json"),
++        preview=ref("preview.json"),
++        dependency_lock=ref("lock.json"),
++        policy=ref("policy.json"),
++        verification_profile=ref("profile.json"),
++        issued_at=NOW,
++        expires_at=END,
++        approval_evidence=dict(
++            locator="https://example.invalid/approvals/1", sha256=SHA
++        ),
++    )
++    observation = dict(
++        schema="cloud-observation/v1",
++        **identity,
++        native_operation_id="operation-1",
++        resource_ids=["resource-1"],
++        principal="observer-1",
++        query="describe-health",
++        timestamp=NOW,
++        exit_code=0,
++        status="PASS",
++        result=ref("query.json"),
++        classification="synthetic",
++    )
++    verification = dict(
++        schema="cloud-verification/v1",
++        **identity,
++        profile=dict(id="health", version="1", **ref("profile.json")),
++        required_check_ids=["network"],
++        checks=[
++            dict(check_id="network", observation=ref("observation.json"), result="PASS")
++        ],
++        overall_result="PASS",
++        evidence_complete=True,
++    )
++    result = dict(
++        schema="cloud-operation-result/v1",
++        **identity,
++        operation="apply",
++        state="BLOCKED",
++        result="BLOCKED",
++        error_code="AUTH_UNAVAILABLE",
++        message="Use the protected workflow.",
++        input_manifest_sha256=SHA,
++        evidence_manifest_path="evidence/manifest.json",
++    )
++    error = dict(
++        schema="cloud-input-error/v1",
++        error_code="INVALID_INPUT",
++        message="Invalid request.",
++        field="run_id",
++    )
++    return {
++        v["schema"]: v
++        for v in (
++            request,
++            lock,
++            preview,
++            receipt,
++            observation,
++            verification,
++            result,
++            error,
++        )
++    }
+ 
+ 
+ def nodes(value, path=()):
+     yield path, value
+     if isinstance(value, dict):
+         for key, child in value.items():
+-            yield from nodes(child, path+(key,))
++            yield from nodes(child, path + (key,))
+     elif isinstance(value, list):
+         for i, child in enumerate(value):
+-            yield from nodes(child, path+(i,))
++            yield from nodes(child, path + (i,))
+ 
+ 
+ def at(value, path):
+@@ -96,23 +198,30 @@ def at(value, path):
+ 
+ class Contracts(unittest.TestCase):
+     def setUp(self):
+-        self.assertTrue(MODULE.is_file(), 'T-002 shared contract implementation is absent')
+-        self.c = load(MODULE, 'cloud_contracts')
+-        self.oracle = load(ROOT/'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py', 'schema_oracle')
++        self.assertTrue(
++            MODULE.is_file(), "T-002 shared contract implementation is absent"
++        )
++        self.c = load(MODULE, "cloud_contracts")
++        self.oracle = load(
++            ROOT / "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
++            "schema_oracle",
++        )
+         self.f = fixtures()
+-        self.temp = tempfile.TemporaryDirectory(prefix='cloud-contracts-')
++        self.temp = tempfile.TemporaryDirectory(prefix="cloud-contracts-")
+         self.addCleanup(self.temp.cleanup)
+         self.root = Path(self.temp.name)
+ 
+     def schema(self, kind):
+-        return json.loads((ROOT/'contracts'/(kind.split('/')[0]+'.schema.json')).read_bytes())
++        return json.loads(
++            (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
++        )
+ 
+     def rejects(self, value):
+         with self.assertRaises(self.c.ContractError):
+             self.c.parse_artifact(encode(value))
+ 
+     def both(self, value, valid):
+-        errors = self.oracle._schema_validate(self.schema(value['schema']), value)
++        errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+         self.assertEqual(not errors, valid, errors)
+         if valid:
+             self.assertEqual(self.c.parse_artifact(encode(value)), value)
+@@ -121,13 +230,13 @@ class Contracts(unittest.TestCase):
+ 
+     def test_positive_all_families_and_both_providers(self):
+         for value in self.f.values():
+-            with self.subTest(schema=value['schema']):
++            with self.subTest(schema=value["schema"]):
+                 self.both(value, True)
+-        request = copy.deepcopy(self.f['cloud-run-request/v1'])
+-        request.update(provider='azure', owner='bicep', route='azure-bicep')
+-        request['scope']['account_id'] = '00000000-0000-0000-0000-000000000001'
++        request = copy.deepcopy(self.f["cloud-run-request/v1"])
++        request.update(provider="azure", owner="bicep", route="azure-bicep")
++        request["scope"]["account_id"] = "00000000-0000-0000-0000-000000000001"
+         self.both(request, True)
+-        request['owner'] = 'cdk'
++        request["owner"] = "cdk"
+         self.both(request, False)
+ 
+     def test_all_object_boundaries_unknown_and_missing_fields(self):
+@@ -136,339 +245,599 @@ class Contracts(unittest.TestCase):
+                 if not isinstance(node, dict):
+                     continue
+                 bad = copy.deepcopy(original)
+-                at(bad, path)['unexpected'] = True
+-                with self.subTest(kind=kind, path=path, case='extra'):
++                at(bad, path)["unexpected"] = True
++                with self.subTest(kind=kind, path=path, case="extra"):
+                     self.both(bad, False)
+                 for key in node:
+-                    if key == 'schema':
++                    if key == "schema":
+                         continue
+                     bad = copy.deepcopy(original)
+                     del at(bad, path)[key]
+-                    with self.subTest(kind=kind, path=path+(key,), case='missing'):
++                    with self.subTest(kind=kind, path=path + (key,), case="missing"):
+                         self.both(bad, False)
+ 
+     def test_all_scalar_types_and_schema_versions(self):
+         for kind, original in self.f.items():
+             for path, node in nodes(original):
+-                if isinstance(node, (dict, list)) or not path or path[-1] == 'schema':
++                if isinstance(node, (dict, list)) or not path or path[-1] == "schema":
+                     continue
+                 bad = copy.deepcopy(original)
+                 at(bad, path[:-1])[path[-1]] = {}  # no coercion
+                 with self.subTest(kind=kind, path=path):
+                     self.both(bad, False)
+-            for version in ('/v0', '/v2', '/V1', '/v1\n'):
+-                bad = dict(original, schema=kind.split('/')[0]+version)
++            for version in ("/v0", "/v2", "/V1", "/v1\n"):
++                bad = dict(original, schema=kind.split("/")[0] + version)
+                 self.rejects(bad)
+ 
+     def test_parser_rejects_ambiguous_json_without_echo(self):
+-        canary = 'canary-' + 'do-not-publish-482'
+-        for raw in (b'{}{}', b'[]', b'null', b'\xef\xbb\xbf{}', b'\xff', b'{',
+-                    b'{"schema":"cloud-input-error/v1","schema":"cloud-input-error/v1"}',
+-                    b'{"nested":{"x":1,"x":2}}', b'{"x":NaN}', b'{"x":Infinity}',
+-                    b'{"x":-Infinity}', b'{"x":1e999}', ('{"'+canary+'":').encode()):
++        canary = "canary-" + "do-not-publish-482"
++        for raw in (
++            b"{}{}",
++            b"[]",
++            b"null",
++            b"\xef\xbb\xbf{}",
++            b"\xff",
++            b"{",
++            b'{"schema":"cloud-input-error/v1","schema":"cloud-input-error/v1"}',
++            b'{"nested":{"x":1,"x":2}}',
++            b'{"x":NaN}',
++            b'{"x":Infinity}',
++            b'{"x":-Infinity}',
++            b'{"x":1e999}',
++            ('{"' + canary + '":').encode(),
++        ):
+             with self.subTest(raw=raw[:10]):
+                 with self.assertRaises(self.c.ContractError) as caught:
+                     self.c.parse_artifact(raw)
+                 self.assertNotIn(canary, str(caught.exception))
+ 
+     def test_digests_utc_paths_and_scalar_edge_cases(self):
+-        original = self.f['cloud-preview/v1']
+-        for key in ('created_at', 'expires_at'):
+-            for value in ('2026-02-30T00:00:00Z', '2026-10-18T06:00:00+00:00',
+-                          '2026-10-18T06:00:00z', NOW+'\n', '0000-01-01T00:00:00Z'):
+-                self.rejects(dict(original, **{key:value}))
+-        for digest in ('A'*64, 'a'*63, SHA+'\n', 'sha256:'+SHA, None):
++        original = self.f["cloud-preview/v1"]
++        for key in ("created_at", "expires_at"):
++            for value in (
++                "2026-02-30T00:00:00Z",
++                "2026-10-18T06:00:00+00:00",
++                "2026-10-18T06:00:00z",
++                NOW + "\n",
++                "0000-01-01T00:00:00Z",
++            ):
++                self.rejects(dict(original, **{key: value}))
++        for digest in ("A" * 64, "a" * 63, SHA + "\n", "sha256:" + SHA, None):
+             self.both(dict(original, semantic_sha256=digest), False)
+-        paths = ('../x', '/x', 'C:/x', 'a\\x', 'a//x', './x', 'a/../x', 'a/',
+-                 'a\nx', 'a/%2e%2e/x', 'a/CON', 'a/x.', 'a/x ', 'a/aux.txt', 'a/NUL')
++        paths = (
++            "../x",
++            "/x",
++            "C:/x",
++            "a\\x",
++            "a//x",
++            "./x",
++            "a/../x",
++            "a/",
++            "a\nx",
++            "a/%2e%2e/x",
++            "a/CON",
++            "a/x.",
++            "a/x ",
++            "a/aux.txt",
++            "a/NUL",
++        )
+         for path in paths:
+-            bad = copy.deepcopy(original); bad['changes']['path'] = path
++            bad = copy.deepcopy(original)
++            bad["changes"]["path"] = path
+             with self.subTest(path=path):
+                 self.both(bad, False)
+-        bad = copy.deepcopy(self.f['cloud-observation/v1']); bad['exit_code'] = True
++        bad = copy.deepcopy(self.f["cloud-observation/v1"])
++        bad["exit_code"] = True
+         self.both(bad, False)
+         self.rejects(dict(original, expires_at=NOW))
+ 
+     def make_bundle(self):
+         f = copy.deepcopy(self.f)
+-        for name in ('source.bin','compiled.bin','asset.bin','parameters.bin','module.bin',
+-                     'policy.json','profile.json','upstream/main.md','upstream/child.md','tool.json','changes.json'):
+-            p=self.root/name; p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(b'fixture')
+-        lock=f['cloud-dependency-lock/v1']; lock_ref=self.put('lock.json',lock)
+-        request=f['cloud-run-request/v1']; request['dependency_lock']=lock_ref
+-        request_ref=self.put('request.json',request)
+-        preview=f['cloud-preview/v1']; preview.update(request=request_ref, dependency_lock=lock_ref,
+-                                                     semantic_sha256=ref('changes.json')['sha256'])
+-        preview_ref=self.put('preview.json',preview)
+-        receipt=f['cloud-authorization-receipt/v1']; receipt.update(request=request_ref,preview=preview_ref,dependency_lock=lock_ref)
+-        receipt_ref=self.put('receipt.json',receipt)
+-        return request_ref,preview_ref,receipt_ref
+-
+-    def put(self,path,value):
+-        data=encode(value); (self.root/path).write_bytes(data); return ref(path,data)
+-
+-    def bound(self,refs):
+-        return self.c.verify_binding(self.root,*refs,now=NOW)
++        for name in (
++            "source.bin",
++            "compiled.bin",
++            "asset.bin",
++            "parameters.bin",
++            "module.bin",
++            "policy.json",
++            "profile.json",
++            "upstream/main.md",
++            "upstream/child.md",
++            "tool.json",
++            "changes.json",
++        ):
++            p = self.root / name
++            p.parent.mkdir(parents=True, exist_ok=True)
++            p.write_bytes(b"fixture")
++        lock = f["cloud-dependency-lock/v1"]
++        lock_ref = self.put("lock.json", lock)
++        request = f["cloud-run-request/v1"]
++        request["dependency_lock"] = lock_ref
++        request_ref = self.put("request.json", request)
++        preview = f["cloud-preview/v1"]
++        preview.update(
++            request=request_ref,
++            dependency_lock=lock_ref,
++            semantic_sha256=ref("changes.json")["sha256"],
++        )
++        preview_ref = self.put("preview.json", preview)
++        receipt = f["cloud-authorization-receipt/v1"]
++        receipt.update(
++            request=request_ref, preview=preview_ref, dependency_lock=lock_ref
++        )
++        receipt_ref = self.put("receipt.json", receipt)
++        return request_ref, preview_ref, receipt_ref
++
++    def put(self, path, value):
++        data = encode(value)
++        (self.root / path).write_bytes(data)
++        return ref(path, data)
++
++    def bound(self, refs):
++        return self.c.verify_binding(self.root, *refs, now=NOW)
+ 
+     def test_every_bound_file_mutation_is_rejected(self):
+-        refs=self.make_bundle()
++        refs = self.make_bundle()
+         self.bound(refs)
+-        for path in sorted(p for p in self.root.rglob('*') if p.is_file()):
+-            data=path.read_bytes(); path.write_bytes(data+b' ')
++        for path in sorted(p for p in self.root.rglob("*") if p.is_file()):
++            data = path.read_bytes()
++            path.write_bytes(data + b" ")
+             with self.subTest(file=path.name), self.assertRaises(self.c.ContractError):
+                 self.bound(refs)
+             path.write_bytes(data)
+ 
+     def test_bound_scope_owner_profile_policy_identity_and_preview_drift(self):
+-        refs=self.make_bundle()
+-        for schema,path,ref_index in (('cloud-run-request/v1','request.json',0),
+-                                      ('cloud-preview/v1','preview.json',1),
+-                                      ('cloud-authorization-receipt/v1','receipt.json',2)):
+-            original=json.loads((self.root/path).read_bytes())
+-            fields=['run_id','unit_id','provider','scope']
+-            if ref_index==0: fields += ['owner','binding_id','environment','source_revision','verification_profile','policy']
+-            if ref_index==1: fields += ['preview_identity','semantic_sha256','request','dependency_lock','policy','verification_profile']
+-            if ref_index==2: fields += ['request','preview','dependency_lock','policy','verification_profile']
++        refs = self.make_bundle()
++        for schema, path, ref_index in (
++            ("cloud-run-request/v1", "request.json", 0),
++            ("cloud-preview/v1", "preview.json", 1),
++            ("cloud-authorization-receipt/v1", "receipt.json", 2),
++        ):
++            original = json.loads((self.root / path).read_bytes())
++            fields = ["run_id", "unit_id", "provider", "scope"]
++            if ref_index == 0:
++                fields += [
++                    "owner",
++                    "binding_id",
++                    "environment",
++                    "source_revision",
++                    "verification_profile",
++                    "policy",
++                ]
++            if ref_index == 1:
++                fields += [
++                    "preview_identity",
++                    "semantic_sha256",
++                    "request",
++                    "dependency_lock",
++                    "policy",
++                    "verification_profile",
++                ]
++            if ref_index == 2:
++                fields += [
++                    "request",
++                    "preview",
++                    "dependency_lock",
++                    "policy",
++                    "verification_profile",
++                ]
+             for key in fields:
+-                bad=copy.deepcopy(original)
+-                if key=='scope': bad[key]['region']='different-region'
+-                elif isinstance(bad[key],dict): bad[key]['sha256']='b'*64
+-                elif key in ('source_revision','semantic_sha256'): bad[key]='b'*len(bad[key])
+-                else: bad[key]='different'
+-                changed=list(refs); changed[ref_index]=self.put(path,bad)
+-                with self.subTest(schema=schema,key=key),self.assertRaises(self.c.ContractError):
++                bad = copy.deepcopy(original)
++                if key == "scope":
++                    bad[key]["region"] = "different-region"
++                elif isinstance(bad[key], dict):
++                    bad[key]["sha256"] = "b" * 64
++                elif key in ("source_revision", "semantic_sha256"):
++                    bad[key] = "b" * len(bad[key])
++                else:
++                    bad[key] = "different"
++                changed = list(refs)
++                changed[ref_index] = self.put(path, bad)
++                with (
++                    self.subTest(schema=schema, key=key),
++                    self.assertRaises(self.c.ContractError),
++                ):
+                     self.bound(changed)
+-                self.put(path,original)
++                self.put(path, original)
+         with self.assertRaises(self.c.ContractError):
+-            self.c.verify_binding(self.root,*refs,now=END)
++            self.c.verify_binding(self.root, *refs, now=END)
+ 
+     def test_lock_closure_versions_packages_schemas_and_adapter(self):
+-        self.make_bundle(); lock=json.loads((self.root/'lock.json').read_bytes())
+-        kwargs=dict(consumed_paths=['upstream/main.md','upstream/child.md'],
+-                    tools=copy.deepcopy(lock['tools']),adapter_version='1.0.0',
+-                    tool_schemas={'https://example.invalid/mcp':ref('tool.json')['sha256']})
+-        self.c.verify_lock(self.root,lock,**kwargs)
+-        for key,value in [('consumed_paths',['upstream/main.md']),('consumed_paths',kwargs['consumed_paths']+['upstream/unlocked.md']),
+-                          ('tools',[]),('adapter_version','2.0.0'),('tool_schemas',{}),
+-                          ('tool_schemas',{'https://example.invalid/mcp':'b'*64})]:
+-            with self.subTest(key=key),self.assertRaises(self.c.ContractError):
+-                self.c.verify_lock(self.root,lock,**dict(kwargs,**{key:value}))
+-        for key in ('version','sha256'):
+-            bad=copy.deepcopy(kwargs); bad['tools'][0][key]='2.2.2' if key=='version' else 'b'*64
+-            with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,lock,**bad)
+-        for target in ('upstream/missing.md','elsewhere.md','../escape'):
+-            bad=copy.deepcopy(lock); bad['upstream'][0]['files'][0]['references']=[target]
+-            with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,bad,**kwargs)
+-        bad=copy.deepcopy(lock); bad['upstream'][0]['files'].append(copy.deepcopy(bad['upstream'][0]['files'][0]))
+-        with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,bad,**kwargs)
++        self.make_bundle()
++        lock = json.loads((self.root / "lock.json").read_bytes())
++        kwargs = dict(
++            consumed_paths=["upstream/main.md", "upstream/child.md"],
++            tools=copy.deepcopy(lock["tools"]),
++            adapter_version="1.0.0",
++            tool_schemas={"https://example.invalid/mcp": ref("tool.json")["sha256"]},
++        )
++        self.c.verify_lock(self.root, lock, **kwargs)
++        for key, value in [
++            ("consumed_paths", ["upstream/main.md"]),
++            ("consumed_paths", kwargs["consumed_paths"] + ["upstream/unlocked.md"]),
++            ("tools", []),
++            ("adapter_version", "2.0.0"),
++            ("tool_schemas", {}),
++            ("tool_schemas", {"https://example.invalid/mcp": "b" * 64}),
++        ]:
++            with self.subTest(key=key), self.assertRaises(self.c.ContractError):
++                self.c.verify_lock(self.root, lock, **dict(kwargs, **{key: value}))
++        for key in ("version", "sha256"):
++            bad = copy.deepcopy(kwargs)
++            bad["tools"][0][key] = "2.2.2" if key == "version" else "b" * 64
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_lock(self.root, lock, **bad)
++        for target in ("upstream/missing.md", "elsewhere.md", "../escape"):
++            bad = copy.deepcopy(lock)
++            bad["upstream"][0]["files"][0]["references"] = [target]
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_lock(self.root, bad, **kwargs)
++        bad = copy.deepcopy(lock)
++        bad["upstream"][0]["files"].append(
++            copy.deepcopy(bad["upstream"][0]["files"][0])
++        )
++        with self.assertRaises(self.c.ContractError):
++            self.c.verify_lock(self.root, bad, **kwargs)
+ 
+     def test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles(self):
+-        (self.root/'real').mkdir(); (self.root/'real/x').write_bytes(b'fixture')
+-        (self.root/'alias').symlink_to(self.root/'real',target_is_directory=True)
+-        (self.root/'link').symlink_to(self.root/'real/x')
+-        os.link(self.root/'real/x',self.root/'hard')
+-        for path in ('alias/x','link','hard','real','missing'):
+-            with self.subTest(path=path),self.assertRaises(self.c.ContractError):
+-                self.c.read_verified(self.root,ref(path))
++        (self.root / "real").mkdir()
++        (self.root / "real/x").write_bytes(b"fixture")
++        (self.root / "alias").symlink_to(self.root / "real", target_is_directory=True)
++        (self.root / "link").symlink_to(self.root / "real/x")
++        os.link(self.root / "real/x", self.root / "hard")
++        for path in ("alias/x", "link", "hard", "real", "missing"):
++            with self.subTest(path=path), self.assertRaises(self.c.ContractError):
++                self.c.read_verified(self.root, ref(path))
+         with self.assertRaises(self.c.ContractError):
+-            self.c.read_verified(self.root/'alias',ref('x'))
+-        os.mkfifo(self.root/'fifo')
+-        with self.assertRaises(self.c.ContractError): self.c.read_verified(self.root,ref('fifo'))
++            self.c.read_verified(self.root / "alias", ref("x"))
++        os.mkfifo(self.root / "fifo")
++        with self.assertRaises(self.c.ContractError):
++            self.c.read_verified(self.root, ref("fifo"))
+ 
+     def test_publication_atomic_no_overwrite_containment_and_scan_failure(self):
+-        value=self.f['cloud-input-error/v1']; data=encode(value)
+-        self.c.publish_artifact(self.root,'new.json',data,scan=lambda b:True)
+-        self.assertEqual((self.root/'new.json').read_bytes(),data)
+-        with self.assertRaises(self.c.ContractError): self.c.publish_artifact(self.root,'new.json',data,scan=lambda b:True)
+-        (self.root/'alias').symlink_to(self.root,target_is_directory=True)
+-        for path in ('alias/out.json','../escape.json'):
+-            with self.assertRaises(self.c.ContractError): self.c.publish_artifact(self.root,path,data,scan=lambda b:True)
+-        canary='canary-'+'do-not-publish-482'; bad=encode(dict(value,message=canary))
+-        for scanner in (lambda b:False,lambda b:None,lambda b:1):
+-            with self.assertRaises(self.c.ContractError): self.c.publish_artifact(self.root,'secret.json',bad,scan=scanner)
+-            self.assertFalse((self.root/'secret.json').exists())
+-        def broken(_): raise RuntimeError(canary)
++        value = self.f["cloud-input-error/v1"]
++        data = encode(value)
++        self.c.publish_artifact(self.root, "new.json", data, scan=lambda b: True)
++        self.assertEqual((self.root / "new.json").read_bytes(), data)
++        with self.assertRaises(self.c.ContractError):
++            self.c.publish_artifact(self.root, "new.json", data, scan=lambda b: True)
++        (self.root / "alias").symlink_to(self.root, target_is_directory=True)
++        for path in ("alias/out.json", "../escape.json"):
++            with self.assertRaises(self.c.ContractError):
++                self.c.publish_artifact(self.root, path, data, scan=lambda b: True)
++        canary = "canary-" + "do-not-publish-482"
++        bad = encode(dict(value, message=canary))
++        for scanner in (lambda b: False, lambda b: None, lambda b: 1):
++            with self.assertRaises(self.c.ContractError):
++                self.c.publish_artifact(self.root, "secret.json", bad, scan=scanner)
++            self.assertFalse((self.root / "secret.json").exists())
++
++        def broken(_):
++            raise RuntimeError(canary)
++
+         with self.assertRaises(self.c.ContractError) as caught:
+-            self.c.publish_artifact(self.root,'secret.json',bad,scan=broken)
+-        self.assertNotIn(canary,str(caught.exception))
+-        self.assertEqual(sorted(p.name for p in self.root.iterdir()),['alias','new.json'])
++            self.c.publish_artifact(self.root, "secret.json", bad, scan=broken)
++        self.assertNotIn(canary, str(caught.exception))
++        self.assertEqual(
++            sorted(p.name for p in self.root.iterdir()), ["alias", "new.json"]
++        )
+ 
+     def test_result_exit_mapping_and_invalid_identity(self):
+-        original=self.f['cloud-operation-result/v1']
+-        for result,state,code in [('PASS','LOCAL_VALIDATED',0),('NO_CHANGE','NO_CHANGE',0),
+-                                  ('BLOCKED','BLOCKED',2),('FAIL','FAILED',1),('UNKNOWN','UNKNOWN',3)]:
+-            value=dict(original,result=result,state=state,error_code=None if code==0 else 'ERROR')
+-            self.both(value,True); self.assertEqual(self.c.exit_code(value),code)
+-            self.both(dict(value,state='Done'),False)
+-            self.both(dict(value,error_code='ERROR' if code==0 else None),False)
+-        self.both(dict(original,result='NO_CHANGE',state='NO_CHANGE',error_code=None,native_operation_id='fake'),False)
+-        self.both(dict(original,result='PASS',state='FAILED',error_code=None),False)
+-        for bad in ('',None,'../run','run\n'):
+-            self.rejects(dict(original,run_id=bad))
+-        error=self.c.input_error('INVALID_INPUT','run_id')
+-        self.both(error,True); self.assertEqual(self.c.exit_code(error),2)
+-        self.assertEqual(set(error),{'schema','error_code','message','field'})
++        original = self.f["cloud-operation-result/v1"]
++        for result, state, code in [
++            ("PASS", "LOCAL_VALIDATED", 0),
++            ("NO_CHANGE", "NO_CHANGE", 0),
++            ("BLOCKED", "BLOCKED", 2),
++            ("FAIL", "FAILED", 1),
++            ("UNKNOWN", "UNKNOWN", 3),
++        ]:
++            value = dict(
++                original,
++                result=result,
++                state=state,
++                error_code=None if code == 0 else "ERROR",
++            )
++            self.both(value, True)
++            self.assertEqual(self.c.exit_code(value), code)
++            self.both(dict(value, state="Done"), False)
++            self.both(dict(value, error_code="ERROR" if code == 0 else None), False)
++        self.both(
++            dict(
++                original,
++                result="NO_CHANGE",
++                state="NO_CHANGE",
++                error_code=None,
++                native_operation_id="fake",
++            ),
++            False,
++        )
++        self.both(dict(original, result="PASS", state="FAILED", error_code=None), False)
++        for bad in ("", None, "../run", "run\n"):
++            self.rejects(dict(original, run_id=bad))
++        error = self.c.input_error("INVALID_INPUT", "run_id")
++        self.both(error, True)
++        self.assertEqual(self.c.exit_code(error), 2)
++        self.assertEqual(set(error), {"schema", "error_code", "message", "field"})
+ 
+     def test_verification_inconsistent_claims_and_duplicate_checks(self):
+-        original=self.f['cloud-verification/v1']
+-        for result in ('FAIL','BLOCKED'):
+-            bad=copy.deepcopy(original); bad['checks'][0]['result']=result
++        original = self.f["cloud-verification/v1"]
++        for result in ("FAIL", "BLOCKED"):
++            bad = copy.deepcopy(original)
++            bad["checks"][0]["result"] = result
+             self.rejects(bad)
+-        for field in ('checks','required_check_ids'):
+-            bad=copy.deepcopy(original); bad[field]*=2; self.rejects(bad)
+-        bad=copy.deepcopy(original); bad['checks'][0]['check_id']='other'; self.rejects(bad)
+-        self.rejects(dict(original,overall_result='FAIL',evidence_complete=True))
+-
++        for field in ("checks", "required_check_ids"):
++            bad = copy.deepcopy(original)
++            bad[field] *= 2
++            self.rejects(bad)
++        bad = copy.deepcopy(original)
++        bad["checks"][0]["check_id"] = "other"
++        self.rejects(bad)
++        self.rejects(dict(original, overall_result="FAIL", evidence_complete=True))
+ 
+     def test_read_artifact_checks_observation_and_verification_references(self):
+-        observation = self.f['cloud-observation/v1']
+-        (self.root/'query.json').write_bytes(b'fixture')
+-        observation_ref = self.put('observation.json', observation)
++        observation = self.f["cloud-observation/v1"]
++        (self.root / "query.json").write_bytes(b"fixture")
++        observation_ref = self.put("observation.json", observation)
+         self.assertEqual(self.c.read_artifact(self.root, observation_ref), observation)
+-        (self.root/'query.json').write_bytes(b'drift')
++        (self.root / "query.json").write_bytes(b"drift")
+         with self.assertRaises(self.c.ContractError):
+             self.c.read_artifact(self.root, observation_ref)
+-        (self.root/'query.json').write_bytes(b'fixture')
+-        verification = self.f['cloud-verification/v1']
+-        verification['checks'][0]['observation'] = observation_ref
+-        (self.root/'profile.json').write_bytes(b'fixture')
+-        verification_ref = self.put('verification.json', verification)
+-        self.assertEqual(self.c.read_artifact(self.root, verification_ref), verification)
+-        (self.root/'observation.json').write_bytes(b'drift')
++        (self.root / "query.json").write_bytes(b"fixture")
++        verification = self.f["cloud-verification/v1"]
++        verification["checks"][0]["observation"] = observation_ref
++        (self.root / "profile.json").write_bytes(b"fixture")
++        verification_ref = self.put("verification.json", verification)
++        self.assertEqual(
++            self.c.read_artifact(self.root, verification_ref), verification
++        )
++        (self.root / "observation.json").write_bytes(b"drift")
+         with self.assertRaises(self.c.ContractError):
+             self.c.read_artifact(self.root, verification_ref)
+ 
+     def test_prepare_binding_does_not_invent_preview(self):
+-        refs = self.make_bundle()
+-        request = json.loads((self.root/'request.json').read_bytes())
+-        request['operation'] = 'prepare'
+-        request_ref = self.put('request.json', request)
+-        receipt = json.loads((self.root/'receipt.json').read_bytes())
+-        receipt.update(operation='prepare', request=request_ref, preview=None)
+-        receipt_ref = self.put('receipt.json', receipt)
++        self.make_bundle()
++        request = json.loads((self.root / "request.json").read_bytes())
++        request["operation"] = "prepare"
++        request_ref = self.put("request.json", request)
++        receipt = json.loads((self.root / "receipt.json").read_bytes())
++        receipt.update(operation="prepare", request=request_ref, preview=None)
++        receipt_ref = self.put("receipt.json", receipt)
+         self.c.verify_binding(self.root, request_ref, None, receipt_ref, now=NOW)
+-        receipt['ci']['environment'] = 'other'
+-        receipt_ref = self.put('receipt.json', receipt)
++        receipt["ci"]["environment"] = "other"
++        receipt_ref = self.put("receipt.json", receipt)
+         with self.assertRaises(self.c.ContractError):
+             self.c.verify_binding(self.root, request_ref, None, receipt_ref, now=NOW)
+ 
+     def test_large_numbers_bounded_payloads_and_unpaired_unicode(self):
+-        for raw in (b'{"n":'+b'9'*5000+b'}', b' '* (self.c.MAX_BYTES+1),
+-                    encode(dict(self.f['cloud-input-error/v1'],message=chr(0xd800)))):
++        for raw in (
++            b'{"n":' + b"9" * 5000 + b"}",
++            b" " * (self.c.MAX_BYTES + 1),
++            encode(dict(self.f["cloud-input-error/v1"], message=chr(0xD800))),
++        ):
+             with self.assertRaises(self.c.ContractError):
+                 self.c.parse_artifact(raw)
+-        bad=copy.deepcopy(self.f['cloud-dependency-lock/v1'])
++        bad = copy.deepcopy(self.f["cloud-dependency-lock/v1"])
+         with self.assertRaises(self.c.ContractError):
+-            self.c.verify_lock(self.root,bad,consumed_paths=['upstream/main.md','upstream/child.md'],
+-                               tools=[{}],adapter_version='1.0.0',tool_schemas={})
++            self.c.verify_lock(
++                self.root,
++                bad,
++                consumed_paths=["upstream/main.md", "upstream/child.md"],
++                tools=[{}],
++                adapter_version="1.0.0",
++                tool_schemas={},
++            )
+ 
+     def test_scanner_receives_exact_bytes_and_no_secret_publication(self):
+-        canary = 'synthetic-' + 'secret-canary-924'
+-        safe = encode(self.f['cloud-input-error/v1'])
+-        unsafe = encode(dict(self.f['cloud-input-error/v1'],message=canary))
+-        seen=[]
++        canary = "synthetic-" + "secret-canary-924"
++        safe = encode(self.f["cloud-input-error/v1"])
++        unsafe = encode(dict(self.f["cloud-input-error/v1"], message=canary))
++        seen = []
++
+         def scan(data):
+             seen.append(data)
+             return canary.encode() not in data
+-        self.c.publish_artifact(self.root,'safe.json',safe,scan=scan)
++
++        self.c.publish_artifact(self.root, "safe.json", safe, scan=scan)
+         with self.assertRaises(self.c.ContractError):
+-            self.c.publish_artifact(self.root,'unsafe.json',unsafe,scan=scan)
+-        self.assertEqual(seen,[safe,unsafe])
+-        self.assertFalse((self.root/'unsafe.json').exists())
+-        self.assertNotIn(canary.encode(),(self.root/'safe.json').read_bytes())
++            self.c.publish_artifact(self.root, "unsafe.json", unsafe, scan=scan)
++        self.assertEqual(seen, [safe, unsafe])
++        self.assertFalse((self.root / "unsafe.json").exists())
++        self.assertNotIn(canary.encode(), (self.root / "safe.json").read_bytes())
+ 
+     def test_concurrent_publication_has_one_complete_winner(self):
+         from concurrent.futures import ThreadPoolExecutor
+-        values=[encode(dict(self.f['cloud-input-error/v1'],message='writer-'+str(i))) for i in range(8)]
++
++        values = [
++            encode(dict(self.f["cloud-input-error/v1"], message="writer-" + str(i)))
++            for i in range(8)
++        ]
++
+         def publish(data):
+             try:
+-                self.c.publish_artifact(self.root,'winner.json',data,scan=lambda b:True)
++                self.c.publish_artifact(
++                    self.root, "winner.json", data, scan=lambda b: True
++                )
+                 return data
+             except self.c.ContractError:
+                 return None
++
+         with ThreadPoolExecutor(max_workers=8) as pool:
+-            winners=[data for data in pool.map(publish,values) if data is not None]
+-        self.assertEqual(len(winners),1)
+-        self.assertEqual((self.root/'winner.json').read_bytes(),winners[0])
+-        self.assertEqual([p.name for p in self.root.iterdir()],['winner.json'])
++            winners = [data for data in pool.map(publish, values) if data is not None]
++        self.assertEqual(len(winners), 1)
++        self.assertEqual((self.root / "winner.json").read_bytes(), winners[0])
++        self.assertEqual([p.name for p in self.root.iterdir()], ["winner.json"])
+ 
+     def test_unavailable_safe_filesystem_primitives_fail_closed(self):
+         from unittest.mock import patch
+-        with patch.object(os,'supports_dir_fd',set()):
++
++        with patch.object(os, "supports_dir_fd", set()):
+             with self.assertRaises(self.c.ContractError):
+-                self.c.read_verified(self.root,ref('x'))
++                self.c.read_verified(self.root, ref("x"))
+             with self.assertRaises(self.c.ContractError):
+-                self.c.publish_artifact(self.root,'x',encode(self.f['cloud-input-error/v1']),scan=lambda b:True)
+-        self.assertEqual(list(self.root.iterdir()),[])
+-
++                self.c.publish_artifact(
++                    self.root,
++                    "x",
++                    encode(self.f["cloud-input-error/v1"]),
++                    scan=lambda b: True,
++                )
++        self.assertEqual(list(self.root.iterdir()), [])
+ 
+     def test_schema_scalar_domains_and_optional_field_boundaries(self):
+         for kind, original in self.f.items():
+             schema = self.schema(kind)
+             for path, value in nodes(original):
+-                if not path or isinstance(value,(dict,list)) or path[-1]=='schema':
++                if not path or isinstance(value, (dict, list)) or path[-1] == "schema":
+                     continue
+-                fragment=schema
++                fragment = schema
+                 for key in path:
+-                    if 'oneOf' in fragment and 'properties' not in fragment:
+-                        fragment=next(branch for branch in fragment['oneOf'] if branch.get('type')!='null')
+-                    fragment=fragment['items'] if type(key) is int else fragment['properties'][key]
+-                candidates=[]
+-                if 'enum' in fragment:
+-                    candidates=['not-a-member','',value.lower(),value+'X']
+-                elif 'pattern' in fragment:
+-                    candidates=['',value+'\n',value+' ',value+'/', 'x'*3000]
++                    if "oneOf" in fragment and "properties" not in fragment:
++                        fragment = next(
++                            branch
++                            for branch in fragment["oneOf"]
++                            if branch.get("type") != "null"
++                        )
++                    fragment = (
++                        fragment["items"]
++                        if type(key) is int
++                        else fragment["properties"][key]
++                    )
++                candidates = []
++                if "enum" in fragment:
++                    candidates = ["not-a-member", "", value.lower(), value + "X"]
++                elif "pattern" in fragment:
++                    candidates = [
++                        "",
++                        value + "\n",
++                        value + " ",
++                        value + "/",
++                        "x" * 3000,
++                    ]
+                 for candidate in candidates:
+-                    bad=copy.deepcopy(original); at(bad,path[:-1])[path[-1]]=candidate
+-                    schema_valid=not self.oracle._schema_validate(schema,bad)
+-                    with self.subTest(kind=kind,path=path,candidate=candidate[:30]):
++                    bad = copy.deepcopy(original)
++                    at(bad, path[:-1])[path[-1]] = candidate
++                    schema_valid = not self.oracle._schema_validate(schema, bad)
++                    with self.subTest(kind=kind, path=path, candidate=candidate[:30]):
+                         # Some independent semantic checks are strictly stronger than
+                         # JSON Schema (e.g. dates and unique IDs); never weaker.
+                         if not schema_valid:
+                             self.rejects(bad)
+-        for field in ('issuer',):
+-            for url in ('https://example.invalid/../escape','https://example.invalid/./x',
+-                        'https://user:pass@example.invalid/x','http://example.invalid/x'):
+-                bad=dict(self.f['cloud-authorization-receipt/v1'],**{field:url})
+-                self.both(bad,False)
+-        request=copy.deepcopy(self.f['cloud-run-request/v1'])
+-        request['predecessor_receipts']=[dict(unit_id='prior',**ref('prior.json'))]
+-        self.both(request,True)
+-        for field in ('unit_id','path','sha256'):
+-            bad=copy.deepcopy(request);del bad['predecessor_receipts'][0][field]
+-            self.both(bad,False)
+-        for extra in (None,7,{},''):
+-            self.both(dict(self.f['cloud-operation-result/v1'],native_operation_id=extra),False)
+-        self.both(dict(self.f['cloud-operation-result/v1'],native_operation_id='native-1'),True)
++        for field in ("issuer",):
++            for url in (
++                "https://example.invalid/../escape",
++                "https://example.invalid/./x",
++                "https://user:pass@example.invalid/x",
++                "http://example.invalid/x",
++            ):
++                bad = dict(self.f["cloud-authorization-receipt/v1"], **{field: url})
++                self.both(bad, False)
++        request = copy.deepcopy(self.f["cloud-run-request/v1"])
++        request["predecessor_receipts"] = [dict(unit_id="prior", **ref("prior.json"))]
++        self.both(request, True)
++        for field in ("unit_id", "path", "sha256"):
++            bad = copy.deepcopy(request)
++            del bad["predecessor_receipts"][0][field]
++            self.both(bad, False)
++        extra: object
++        for extra in (None, 7, {}, ""):
++            self.both(
++                dict(self.f["cloud-operation-result/v1"], native_operation_id=extra),
++                False,
++            )
++        self.both(
++            dict(self.f["cloud-operation-result/v1"], native_operation_id="native-1"),
++            True,
++        )
+ 
+     def test_schema_published_limits_have_executable_runtime_counterparts(self):
+-        original=self.f['cloud-observation/v1']; schema=self.schema(original['schema'])
+-        self.assertEqual(schema['properties']['exit_code']['maximum'],2147483647)
+-        self.assertEqual(schema['properties']['resource_ids']['maxItems'],4096)
+-        self.assertEqual(schema['properties']['timestamp']['format'],'date-time')
+-        self.c.parse_artifact(encode(dict(original,status='FAIL',exit_code=2147483647)))
+-        for value in (-1,2147483648): self.rejects(dict(original,exit_code=value))
+-        self.c.parse_artifact(encode(dict(original,resource_ids=['r'+str(i) for i in range(4096)])))
+-        self.rejects(dict(original,resource_ids=['r'+str(i) for i in range(4097)]))
+-        for field,size in (('run_id',128),('query',2048)):
+-            self.both(dict(original,**{field:'x'*size}),True)
+-            self.both(dict(original,**{field:'x'*(size+1)}),False)
++        original = self.f["cloud-observation/v1"]
++        schema = self.schema(original["schema"])
++        self.assertEqual(schema["properties"]["exit_code"]["maximum"], 2147483647)
++        self.assertEqual(schema["properties"]["resource_ids"]["maxItems"], 4096)
++        self.assertEqual(schema["properties"]["timestamp"]["format"], "date-time")
++        self.c.parse_artifact(
++            encode(dict(original, status="FAIL", exit_code=2147483647))
++        )
++        for value in (-1, 2147483648):
++            self.rejects(dict(original, exit_code=value))
++        self.c.parse_artifact(
++            encode(dict(original, resource_ids=["r" + str(i) for i in range(4096)]))
++        )
++        self.rejects(dict(original, resource_ids=["r" + str(i) for i in range(4097)]))
++        for field, size in (("run_id", 128), ("query", 2048)):
++            self.both(dict(original, **{field: "x" * size}), True)
++            self.both(dict(original, **{field: "x" * (size + 1)}), False)
+         with self.assertRaises(self.c.ContractError):
+             self.c.parse_artifact(b'{"x":1,"\\u0078":2}')
+ 
+     def test_schema_inventory_has_no_open_object_or_unexercised_family(self):
+-        expected={kind.split('/')[0]+'.schema.json' for kind in self.f}
+-        self.assertEqual({p.name for p in (ROOT/'contracts').glob('cloud-*.schema.json')},expected)
++        expected = {kind.split("/")[0] + ".schema.json" for kind in self.f}
++        self.assertEqual(
++            {p.name for p in (ROOT / "contracts").glob("cloud-*.schema.json")}, expected
++        )
+         for kind in self.f:
+-            schema=self.schema(kind)
+-            for path,node in nodes(schema):
+-                if isinstance(node,dict) and node.get('type')=='object':
+-                    self.assertIs(node.get('additionalProperties'),False,(kind,path))
+-                    optional={'native_operation_id'} if kind=='cloud-operation-result/v1' and not path else set()
+-                    self.assertEqual(set(node['required']),set(node['properties'])-optional,(kind,path))
+-            self.assertEqual(schema['properties']['schema']['const'],kind)
+-        self.assertEqual(set(self.c.VALIDATORS),set(self.f))
++            schema = self.schema(kind)
++            for path, node in nodes(schema):
++                if isinstance(node, dict) and node.get("type") == "object":
++                    self.assertIs(node.get("additionalProperties"), False, (kind, path))
++                    optional = (
++                        {"native_operation_id"}
++                        if kind == "cloud-operation-result/v1" and not path
++                        else set()
++                    )
++                    self.assertEqual(
++                        set(node["required"]),
++                        set(node["properties"]) - optional,
++                        (kind, path),
++                    )
++            self.assertEqual(schema["properties"]["schema"]["const"], kind)
++        self.assertEqual(set(self.c.VALIDATORS), set(self.f))
++
++    def test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash(self):
++        refs = self.make_bundle()
++        preview = json.loads((self.root / "preview.json").read_bytes())
++        for field, value in (
++            ("run_id", "other-run"),
++            ("unit_id", "other-unit"),
++            ("provider", "azure"),
++            ("semantic_sha256", "b" * 64),
++            ("created_at", "2026-10-18T06:30:00Z"),
++        ):
++            changed = dict(preview, **{field: value})
++            changed_ref = self.put("preview.json", changed)
++            with self.subTest(field=field), self.assertRaises(self.c.ContractError):
++                self.c.verify_binding(self.root, refs[0], changed_ref, None, now=NOW)
++        scope = copy.deepcopy(preview)
++        scope["scope"]["account_id"] = "other-account"
++        changed_ref = self.put("preview.json", scope)
++        with self.assertRaises(self.c.ContractError):
++            self.c.verify_binding(self.root, refs[0], changed_ref, None, now=NOW)
++        self.put("preview.json", preview)
++        receipt = json.loads((self.root / "receipt.json").read_bytes())
++        for fields in (
++            {"issued_at": "2026-10-18T06:30:00Z"},
++            {"issued_at": "2026-10-18T05:00:00Z", "expires_at": NOW},
++            {"operation": "prepare"},
++        ):
++            changed_ref = self.put("receipt.json", dict(receipt, **fields))
++            with self.subTest(fields=fields), self.assertRaises(self.c.ContractError):
++                self.c.verify_binding(self.root, refs[0], refs[1], changed_ref, now=NOW)
++        with self.assertRaises(self.c.ContractError):
++            self.c.verify_binding(self.root, refs[0], None, None, now=NOW)
++
++    def test_input_alias_output_and_expected_type_are_rejected(self):
++        data = encode(self.f["cloud-input-error/v1"])
++        original = self.put("input.json", self.f["cloud-input-error/v1"])
++        (self.root / "link.json").symlink_to(self.root / "input.json")
++        for path in ("input.json", "link.json"):
++            with self.assertRaises(self.c.ContractError):
++                self.c.publish_artifact(self.root, path, data, scan=lambda b: True)
++        self.assertEqual((self.root / "input.json").read_bytes(), data)
++        with self.assertRaises(self.c.ContractError):
++            self.c.read_artifact(self.root, original, "cloud-run-request/v1")
++        with self.assertRaises(self.c.ContractError):
++            self.c.read_verified(self.root, dict(original, sha256="b" * 64))
++        self.assertEqual(self.c.read_verified(self.root, original), data)
+ 
+ 
+-if __name__ == '__main__':
++if __name__ == "__main__":
+     unittest.main(verbosity=2)
+diff --git a/tests/cloud-orchestration-execution.tests.py b/tests/cloud-orchestration-execution.tests.py
+index d0cf0cc5..685cbd71 100644
+--- a/tests/cloud-orchestration-execution.tests.py
++++ b/tests/cloud-orchestration-execution.tests.py
+@@ -3,6 +3,7 @@
+ No live GitHub, OIDC, IAM or cloud writes. Future provider execution tests belong
+ in this suite but are not implemented by T-003.
+ """
++
+ import base64
+ import copy
+ from dataclasses import replace
+@@ -17,64 +18,112 @@ import tempfile
+ import unittest
+ from urllib.parse import parse_qs
+ from unittest.mock import patch
++from typing import Any
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-SCRIPTS = ROOT / 'plugins/sdd-quality-loop/scripts'
++SCRIPTS = ROOT / "plugins/sdd-quality-loop/scripts"
+ sys.path.insert(0, str(SCRIPTS))
+ import cloud_contracts as contracts  # noqa: E402
+ 
+ NOW = 1792303200  # synthetic 2026-10-18T06:00:00Z
+-REV = 'a' * 40
+-REPO = 'synthetic/control'
+-WORKFLOW = '.github/workflows/cloud.yml'
+-SUBSCRIPTION = '00000000-0000-0000-0000-000000000001'
+-TENANT = '00000000-0000-0000-0000-000000000002'
+-CLIENT = '00000000-0000-0000-0000-000000000003'
+-OBJECT = '00000000-0000-0000-0000-000000000004'
+-OIDC_URL = 'https://pipelines.actions.githubusercontent.com/synthetic/idtoken?api-version=2.0'
++REV = "a" * 40
++REPO = "synthetic/control"
++WORKFLOW = ".github/workflows/cloud.yml"
++SUBSCRIPTION = "00000000-0000-0000-0000-000000000001"
++TENANT = "00000000-0000-0000-0000-000000000002"
++CLIENT = "00000000-0000-0000-0000-000000000003"
++OBJECT = "00000000-0000-0000-0000-000000000004"
++OIDC_URL = "https://pipelines.actions.githubusercontent.com/synthetic/idtoken?api-version=2.0"
+ 
+ 
+ def encode(value):
+-    return (json.dumps(value, sort_keys=True) + '\n').encode()
++    return (json.dumps(value, sort_keys=True) + "\n").encode()
+ 
+ 
+ def jwt(claims):
+     # Synthetic token; only the deterministic HTTPS double returns this value.
+-    return 'synthetic.' + base64.urlsafe_b64encode(encode(claims)).decode().rstrip('=') + '.synthetic'
++    return "synthetic." + base64.urlsafe_b64encode(encode(claims)).decode().rstrip("=") + ".synthetic"
+ 
+ 
+ def utc(epoch):
+-    return datetime.fromtimestamp(epoch, timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
++    return datetime.fromtimestamp(epoch, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+ 
+ 
+ class DeterministicTransport:
+     """Exact HTTP contract double, never a production authority source."""
++
+     def __init__(self, provider, stage):
+         self.provider, self.stage = provider, stage
+-        self.environment = 'sandbox-' + stage
+-        self.subject = f'repo:{REPO}:environment:{self.environment}:workflow_ref:{REPO}/{WORKFLOW}@refs/heads/main'
+-        self.claims = dict(iss='https://token.actions.githubusercontent.com', sub=self.subject,
+-                           aud='sts.amazonaws.com' if provider == 'aws' else 'api://AzureADTokenExchange',
+-                           repository=REPO, repository_id='42', workflow_ref=f'{REPO}/{WORKFLOW}@refs/heads/main',
+-                           workflow_sha=REV, ref='refs/heads/main', sha=REV, run_id='123', run_attempt='1',
+-                           actor='operator', actor_id='7', environment=self.environment,
+-                           event_name='workflow_dispatch', iat=NOW-10, nbf=NOW-10, exp=NOW+600)
+-        self.run = dict(id=123, run_attempt=1, status='in_progress', conclusion=None,
+-                        event='workflow_dispatch', head_sha=REV, head_branch='main', path=WORKFLOW,
+-                        repository=dict(id=42, full_name=REPO), head_repository=dict(id=42, full_name=REPO),
+-                        actor=dict(id=7, login='operator'), triggering_actor=dict(id=7, login='operator'))
+-        self.environment_response = dict(id=99, name=self.environment, can_admins_bypass=False,
++        self.environment = "sandbox-" + stage
++        self.subject = f"repo:{REPO}:environment:{self.environment}:workflow_ref:{REPO}/{WORKFLOW}@refs/heads/main:workflow_sha:{REV}"
++        self.claims = dict(
++            iss="https://token.actions.githubusercontent.com",
++            sub=self.subject,
++            aud="sts.amazonaws.com" if provider == "aws" else "api://AzureADTokenExchange",
++            repository=REPO,
++            repository_id="42",
++            workflow_ref=f"{REPO}/{WORKFLOW}@refs/heads/main",
++            workflow_sha=REV,
++            ref="refs/heads/main",
++            sha=REV,
++            run_id="123",
++            run_attempt="1",
++            actor="operator",
++            actor_id="7",
++            environment=self.environment,
++            event_name="workflow_dispatch",
++            iat=NOW - 10,
++            nbf=NOW - 10,
++            exp=NOW + 600,
++        )
++        self.run = dict(
++            id=123,
++            run_attempt=1,
++            status="in_progress",
++            conclusion=None,
++            event="workflow_dispatch",
++            head_sha=REV,
++            head_branch="main",
++            path=WORKFLOW,
++            repository=dict(id=42, full_name=REPO),
++            head_repository=dict(id=42, full_name=REPO),
++            actor=dict(id=7, login="operator"),
++            triggering_actor=dict(id=7, login="operator"),
++        )
++        self.environment_response = dict(
++            id=99,
++            name=self.environment,
++            can_admins_bypass=False,
+             deployment_branch_policy=dict(protected_branches=True, custom_branch_policies=False),
+-            protection_rules=[dict(type='required_reviewers', prevent_self_review=True,
+-                                   reviewers=[dict(type='User', reviewer=dict(id=8, login='reviewer'))])])
+-        self.approvals = [dict(state='approved', comment='', user=dict(id=8, login='reviewer'),
+-                               environments=[dict(id=99, name=self.environment)])]
+-        self.principal = f'arn:aws:sts::123456789012:assumed-role/cloud-{stage}/sdd-123'
+-        self.account = '123456789012'
+-        self.lease_end = NOW+300
+-        self.azure_claims = dict(oid=OBJECT, tid=TENANT, appid=CLIENT,
+-                                aud='https://management.azure.com/', iat=NOW-10, nbf=NOW-10, exp=NOW+300)
+-        self.subscription = dict(subscriptionId=SUBSCRIPTION, tenantId=TENANT, state='Enabled')
++            protection_rules=[
++                dict(
++                    type="required_reviewers",
++                    prevent_self_review=True,
++                    reviewers=[dict(type="User", reviewer=dict(id=8, login="reviewer"))],
++                )
++            ],
++        )
++        self.approvals: list[dict[str, Any]] = [
++            dict(
++                state="approved",
++                comment="",
++                user=dict(id=8, login="reviewer"),
++                environments=[dict(id=99, name=self.environment)],
++            )
++        ]
++        self.principal = f"arn:aws:sts::123456789012:assumed-role/cloud-{stage}/sdd-123"
++        self.account = "123456789012"
++        self.lease_end = NOW + 300
++        self.azure_claims = dict(
++            oid=OBJECT,
++            tid=TENANT,
++            appid=CLIENT,
++            aud="https://management.azure.com/",
++            iat=NOW - 10,
++            nbf=NOW - 10,
++            exp=NOW + 300,
++        )
++        self.subscription = dict(subscriptionId=SUBSCRIPTION, tenantId=TENANT, state="Enabled")
+         self.calls = []
+         self.fail_suffix = None
+         self.raw_approvals = None
+@@ -82,124 +131,174 @@ class DeterministicTransport:
+     def request(self, method, url, headers, body=None):
+         self.calls.append((method, url, dict(headers), body))
+         if self.fail_suffix and self.fail_suffix in url:
+-            raise OSError('synthetic-private-error')
+-        if url.startswith(OIDC_URL + '&audience='):
+-            assert method == 'GET' and headers['Authorization'] == 'Bearer synthetic-oidc-bearer'
++            raise OSError("synthetic-private-error")
++        if url.startswith(OIDC_URL + "&audience="):
++            assert method == "GET" and headers["Authorization"] == "Bearer synthetic-oidc-bearer"
+             return encode(dict(value=jwt(self.claims)))
+-        base = f'https://api.github.com/repos/{REPO}'
++        base = f"https://api.github.com/repos/{REPO}"
+         if url.startswith(base):
+-            assert method == 'GET' and body is None
+-            assert headers['Authorization'] == 'Bearer synthetic-github-bearer'
+-            assert headers['Accept'] == 'application/vnd.github+json'
+-            assert headers['X-GitHub-Api-Version'] == '2022-11-28'
+-            if url == base + '/actions/runs/123':
++            assert method == "GET" and body is None
++            assert headers["Authorization"] == "Bearer synthetic-github-bearer"
++            assert headers["Accept"] == "application/vnd.github+json"
++            assert headers["X-GitHub-Api-Version"] == "2022-11-28"
++            if url == base + "/actions/runs/123":
+                 return encode(self.run)
+-            if url == base + '/actions/runs/123/approvals':
++            if url == base + "/actions/runs/123/approvals":
+                 return self.raw_approvals if self.raw_approvals is not None else encode(self.approvals)
+-            if url == base + '/environments/' + self.environment:
++            if url == base + "/environments/" + self.environment:
+                 return encode(self.environment_response)
+-        if url == 'https://sts.amazonaws.com/':
+-            assert method == 'POST'
++        if url == "https://sts.amazonaws.com/":
++            assert method == "POST"
+             args = parse_qs(body.decode())
+-            assert args['Version'] == ['2011-06-15']
+-            if args['Action'] == ['AssumeRoleWithWebIdentity']:
+-                assert args['RoleArn'] == [f'arn:aws:iam::123456789012:role/cloud-{self.stage}']
+-                assert args['RoleSessionName'] == ['sdd-123']
+-                assert args['WebIdentityToken'] == [jwt(self.claims)]
+-                return (f'<AssumeRoleWithWebIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">'
+-                        f'<AssumeRoleWithWebIdentityResult><SubjectFromWebIdentityToken>{self.subject}</SubjectFromWebIdentityToken>'
+-                        f'<Audience>sts.amazonaws.com</Audience><Provider>token.actions.githubusercontent.com</Provider>'
+-                        f'<AssumedRoleUser><Arn>{self.principal}</Arn></AssumedRoleUser><Credentials>'
+-                        f'<AccessKeyId>SYNTHETICKEY</AccessKeyId><SecretAccessKey>synthetic-secret</SecretAccessKey>'
+-                        f'<SessionToken>synthetic-session</SessionToken><Expiration>{utc(self.lease_end)}</Expiration>'
+-                        '</Credentials></AssumeRoleWithWebIdentityResult></AssumeRoleWithWebIdentityResponse>').encode()
+-            assert args['Action'] == ['GetCallerIdentity']
+-            assert headers['Authorization'].startswith('AWS4-HMAC-SHA256 Credential=SYNTHETICKEY/')
+-            assert headers['X-Amz-Security-Token'] == 'synthetic-session'
+-            return (f'<GetCallerIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">'
+-                    f'<GetCallerIdentityResult><Account>{self.account}</Account><Arn>{self.principal}</Arn>'
+-                    '<UserId>SYNTHETIC:sdd-123</UserId></GetCallerIdentityResult></GetCallerIdentityResponse>').encode()
+-        if url == f'https://login.microsoftonline.com/{TENANT}/oauth2/v2.0/token':
+-            assert method == 'POST'
++            assert args["Version"] == ["2011-06-15"]
++            if args["Action"] == ["AssumeRoleWithWebIdentity"]:
++                assert args["RoleArn"] == [f"arn:aws:iam::123456789012:role/cloud-{self.stage}"]
++                assert args["RoleSessionName"] == ["sdd-123"]
++                assert args["WebIdentityToken"] == [jwt(self.claims)]
++                return (
++                    f'<AssumeRoleWithWebIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">'
++                    f"<AssumeRoleWithWebIdentityResult><SubjectFromWebIdentityToken>{self.subject}</SubjectFromWebIdentityToken>"
++                    f"<Audience>sts.amazonaws.com</Audience><Provider>https://token.actions.githubusercontent.com</Provider>"
++                    f"<AssumedRoleUser><Arn>{self.principal}</Arn></AssumedRoleUser><Credentials>"
++                    f"<AccessKeyId>SYNTHETICKEY</AccessKeyId><SecretAccessKey>synthetic-secret</SecretAccessKey>"
++                    f"<SessionToken>synthetic-session</SessionToken><Expiration>{utc(self.lease_end)}</Expiration>"
++                    "</Credentials></AssumeRoleWithWebIdentityResult></AssumeRoleWithWebIdentityResponse>"
++                ).encode()
++            assert args["Action"] == ["GetCallerIdentity"]
++            assert headers["Authorization"].startswith("AWS4-HMAC-SHA256 Credential=SYNTHETICKEY/")
++            assert headers["X-Amz-Security-Token"] == "synthetic-session"
++            return (
++                f'<GetCallerIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">'
++                f"<GetCallerIdentityResult><Account>{self.account}</Account><Arn>{self.principal}</Arn>"
++                "<UserId>SYNTHETIC:sdd-123</UserId></GetCallerIdentityResult></GetCallerIdentityResponse>"
++            ).encode()
++        if url == f"https://login.microsoftonline.com/{TENANT}/oauth2/v2.0/token":
++            assert method == "POST"
+             args = parse_qs(body.decode())
+-            assert args == dict(client_id=[CLIENT], grant_type=['client_credentials'],
+-                scope=['https://management.azure.com/.default'],
+-                client_assertion_type=['urn:ietf:params:oauth:client-assertion-type:jwt-bearer'],
+-                client_assertion=[jwt(self.claims)])
+-            return encode(dict(token_type='Bearer', expires_in=300, access_token=jwt(self.azure_claims)))
+-        if url == f'https://management.azure.com/subscriptions/{SUBSCRIPTION}?api-version=2022-12-01':
+-            assert method == 'GET' and headers['Authorization'] == 'Bearer ' + jwt(self.azure_claims)
++            assert args == dict(
++                client_id=[CLIENT],
++                grant_type=["client_credentials"],
++                scope=["https://management.azure.com/.default"],
++                client_assertion_type=["urn:ietf:params:oauth:client-assertion-type:jwt-bearer"],
++                client_assertion=[jwt(self.claims)],
++            )
++            return encode(dict(token_type="Bearer", expires_in=300, access_token=jwt(self.azure_claims)))
++        if url == f"https://management.azure.com/subscriptions/{SUBSCRIPTION}?api-version=2022-12-01":
++            assert method == "GET" and headers["Authorization"] == "Bearer " + jwt(self.azure_claims)
+             return encode(self.subscription)
+-        raise AssertionError('Unexpected deterministic transport request: ' + url)
++        raise AssertionError("Unexpected deterministic transport request: " + url)
+ 
+ 
+ class Admission(unittest.TestCase):
+     def setUp(self):
+-        self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
++        self.assertTrue((SCRIPTS / "cloud_authorization.py").is_file(), "T-003 admission boundary is absent")
+         import cloud_authorization
++
+         self.a = cloud_authorization
+-        self.tmp = tempfile.TemporaryDirectory(prefix='cloud-T-003-fixture-')
++        self.tmp = tempfile.TemporaryDirectory(prefix="cloud-T-003-fixture-")
+         self.addCleanup(self.tmp.cleanup)
+         self.root = Path(self.tmp.name)
+-        self.evidence = self.root/'evidence'
++        self.evidence = self.root / "evidence"
+         self.evidence.mkdir()
+         self.writes = []
+ 
+     def put(self, path, value):
+         data = value if isinstance(value, bytes) else encode(value)
+-        dest = self.root/path
++        dest = self.root / path
+         dest.parent.mkdir(parents=True, exist_ok=True)
+         dest.write_bytes(data)
+         return dict(path=path, sha256=hashlib.sha256(data).hexdigest())
+ 
+-    def setup_case(self, provider='aws', stage='prepare'):
+-        spec = importlib.util.spec_from_file_location('contract_fixtures', ROOT/'tests/cloud-orchestration-contracts.tests.py')
++    def setup_case(self, provider="aws", stage="prepare"):
++        spec = importlib.util.spec_from_file_location(
++            "contract_fixtures", ROOT / "tests/cloud-orchestration-contracts.tests.py"
++        )
++        assert spec is not None and spec.loader is not None
+         module = importlib.util.module_from_spec(spec)
+         spec.loader.exec_module(module)
+         fixtures = module.fixtures()
+-        lock = fixtures['cloud-dependency-lock/v1']
+-        for item in lock['upstream'][0]['files']:
+-            self.put(item['path'], b'fixture')
+-        self.put('tool.json', b'fixture')
+-        lock_ref = self.put('lock.json', lock)
+-        policy_ref = self.put('policy.json', b'synthetic-external-policy-copy')
+-        profile_ref = self.put('profile.json', b'synthetic-profile')
+-        request = fixtures['cloud-run-request/v1']
+-        request.update(operation=stage, environment='sandbox-'+stage, provider=provider,
+-                       dependency_lock=lock_ref, policy=policy_ref,
+-                       verification_profile=dict(id='health', version='1', **profile_ref))
+-        if provider == 'azure':
+-            request.update(owner='bicep', route='azure-bicep')
+-            request['scope'].update(account_id=SUBSCRIPTION, region='eastus', deployment_scope='group-1')
+-        for item in request['input_artifacts']:
+-            self.put(item['path'], b'fixture')
++        lock = fixtures["cloud-dependency-lock/v1"]
++        for item in lock["upstream"][0]["files"]:
++            self.put(item["path"], b"fixture")
++        self.put("tool.json", b"fixture")
++        lock_ref = self.put("lock.json", lock)
++        policy_ref = self.put("policy.json", b"synthetic-external-policy-copy")
++        profile_ref = self.put("profile.json", b"synthetic-profile")
++        request = fixtures["cloud-run-request/v1"]
++        request.update(
++            operation=stage,
++            environment="sandbox-" + stage,
++            provider=provider,
++            dependency_lock=lock_ref,
++            policy=policy_ref,
++            verification_profile=dict(id="health", version="1", **profile_ref),
++        )
++        if provider == "azure":
++            request.update(owner="bicep", route="azure-bicep")
++            request["scope"].update(account_id=SUBSCRIPTION, region="eastus", deployment_scope="group-1")
++        for item in request["input_artifacts"]:
++            self.put(item["path"], b"fixture")
+         self.request = request
+-        self.request_ref = self.put('request.json', request)
++        self.request_ref = self.put("request.json", request)
+         self.preview_ref = None
+-        if stage == 'apply':
+-            preview = fixtures['cloud-preview/v1']
+-            changes = self.put('changes.json', b'synthetic-changes')
+-            preview.update(provider=provider, scope=copy.deepcopy(request['scope']), request=self.request_ref,
+-                           policy=policy_ref, dependency_lock=lock_ref, verification_profile=profile_ref,
+-                           changes=changes, semantic_sha256=changes['sha256'])
+-            self.preview_ref = self.put('preview.json', preview)
++        if stage == "apply":
++            preview = fixtures["cloud-preview/v1"]
++            changes = self.put("changes.json", b"synthetic-changes")
++            preview.update(
++                provider=provider,
++                scope=copy.deepcopy(request["scope"]),
++                request=self.request_ref,
++                policy=policy_ref,
++                dependency_lock=lock_ref,
++                verification_profile=profile_ref,
++                changes=changes,
++                semantic_sha256=changes["sha256"],
++            )
++            self.preview_ref = self.put("preview.json", preview)
+         self.transport = DeterministicTransport(provider, stage)
+-        self.transport.run['display_title'] = 'cloud:'+self.request_ref['sha256']+':'+(self.preview_ref['sha256'] if self.preview_ref else 'none')
+-        self.policy = self.a.Policy(provider=provider, repository=REPO, repository_id=42,
+-            workflow=WORKFLOW, workflow_revision=REV, ref='refs/heads/main', operation=stage,
+-            environment='sandbox-'+stage, environment_id=99,
+-            account_id=request['scope']['account_id'], region=request['scope']['region'],
+-            deployment_scope=request['scope']['deployment_scope'], policy_sha256=policy_ref['sha256'],
+-            actors=((7, 'operator'),), reviewers=((8, 'reviewer'),), exclusive_repository=REPO,
+-            ttl_seconds=120, aws_role_arn=f'arn:aws:iam::123456789012:role/cloud-{stage}',
+-            azure_tenant=TENANT, azure_client=CLIENT, azure_principal=OBJECT)
+-        self.runtime = self.a.Runtime('synthetic-github-bearer', OIDC_URL, 'synthetic-oidc-bearer')
+-        self.boundary = self.a.WriteBoundary(self.policy, self.runtime, self.evidence,
+-                                           transport=self.transport, clock=lambda: NOW)
+-
+-    def write(self, boundary=None, mutation='submit'):
+-        return (boundary or self.boundary).write(self.root, self.request_ref, self.preview_ref,
+-            mutation_id=mutation, submit=lambda credentials: self.writes.append('write'), scan=lambda b: True)
++        self.transport.run["display_title"] = (
++            "cloud:"
++            + self.request_ref["sha256"]
++            + ":"
++            + (self.preview_ref["sha256"] if self.preview_ref else "none")
++        )
++        self.policy = self.a.Policy(
++            provider=provider,
++            repository=REPO,
++            repository_id=42,
++            workflow=WORKFLOW,
++            workflow_revision=REV,
++            ref="refs/heads/main",
++            operation=stage,
++            environment="sandbox-" + stage,
++            environment_id=99,
++            account_id=request["scope"]["account_id"],
++            region=request["scope"]["region"],
++            deployment_scope=request["scope"]["deployment_scope"],
++            policy_sha256=policy_ref["sha256"],
++            actors=((7, "operator"),),
++            reviewers=((8, "reviewer"),),
++            exclusive_repository=REPO,
++            ttl_seconds=120,
++            aws_role_arn=f"arn:aws:iam::123456789012:role/cloud-{stage}",
++            azure_tenant=TENANT,
++            azure_client=CLIENT,
++            azure_principal=OBJECT,
++        )
++        self.runtime = self.a.Runtime("synthetic-github-bearer", OIDC_URL, "synthetic-oidc-bearer")
++        self.boundary = self.a.WriteBoundary(
++            self.policy, self.runtime, self.evidence, transport=self.transport, clock=lambda: NOW
++        )
++
++    def write(self, boundary=None, mutation="submit"):
++        return (boundary or self.boundary).write(
++            self.root,
++            self.request_ref,
++            self.preview_ref,
++            mutation_id=mutation,
++            submit=lambda credentials: self.writes.append("write"),
++            scan=lambda b: True,
++        )
+ 
+     def denied(self):
+         with self.assertRaises(self.a.AdmissionDenied):
+@@ -207,8 +306,8 @@ class Admission(unittest.TestCase):
+         self.assertEqual(self.writes, [])
+ 
+     def test_native_positive_both_stages_providers_and_receipt_contract(self):
+-        for provider in ('aws', 'azure'):
+-            for stage in ('prepare', 'apply'):
++        for provider in ("aws", "azure"):
++            for stage in ("prepare", "apply"):
+                 with self.subTest(provider=provider, stage=stage):
+                     self.setup_case(provider, stage)
+                     # Each fixture is an independent protected job evidence directory.
+@@ -216,40 +315,76 @@ class Admission(unittest.TestCase):
+                         p.unlink()
+                     ref, _ = self.write()
+                     receipt = contracts.parse_artifact(contracts.read_verified(self.evidence, ref))
+-                    self.assertEqual(receipt['schema'], 'cloud-authorization-receipt/v1')
+-                    for field in ('run_id', 'unit_id', 'provider', 'scope', 'dependency_lock', 'policy'):
++                    self.assertEqual(receipt["schema"], "cloud-authorization-receipt/v1")
++                    for field in ("run_id", "unit_id", "provider", "scope", "dependency_lock", "policy"):
+                         self.assertEqual(receipt[field], self.request[field])
+-                    self.assertEqual(receipt['request'], self.request_ref)
+-                    self.assertEqual(receipt['preview'], self.preview_ref)
+-                    self.assertEqual(receipt['operation'], stage)
+-                    self.assertEqual(receipt['issued_at'], utc(NOW-10))
+-                    self.assertEqual(receipt['expires_at'], utc(NOW+110))
+-                    self.assertEqual(receipt['ci'], dict(repository=REPO, workflow=WORKFLOW,
+-                        workflow_revision=REV, ref='refs/heads/main', environment='sandbox-'+stage,
+-                        run_id='123', run_attempt=1))
+-                    self.assertEqual(receipt['subject'], self.transport.subject)
+-                    self.assertEqual(receipt['issuer'], 'https://token.actions.githubusercontent.com')
+-                    self.assertEqual(receipt['principal'], self.transport.principal if provider == 'aws' else OBJECT)
+-                    self.assertEqual(receipt['approval_evidence'], dict(
+-                        locator=f'https://api.github.com/repos/{REPO}/actions/runs/123/approvals',
+-                        sha256=hashlib.sha256(encode(self.transport.approvals)).hexdigest()))
+-                    self.assertNotIn(b'synthetic-secret', encode(receipt))
++                    self.assertEqual(receipt["request"], self.request_ref)
++                    self.assertEqual(receipt["preview"], self.preview_ref)
++                    self.assertEqual(receipt["operation"], stage)
++                    self.assertEqual(receipt["issued_at"], utc(NOW - 10))
++                    self.assertEqual(receipt["expires_at"], utc(NOW + 110))
++                    self.assertEqual(
++                        receipt["ci"],
++                        dict(
++                            repository=REPO,
++                            workflow=WORKFLOW,
++                            workflow_revision=REV,
++                            ref="refs/heads/main",
++                            environment="sandbox-" + stage,
++                            run_id="123",
++                            run_attempt=1,
++                        ),
++                    )
++                    self.assertEqual(receipt["subject"], self.transport.subject)
++                    self.assertEqual(receipt["issuer"], "https://token.actions.githubusercontent.com")
++                    self.assertEqual(
++                        receipt["principal"], self.transport.principal if provider == "aws" else OBJECT
++                    )
++                    self.assertEqual(
++                        receipt["approval_evidence"],
++                        dict(
++                            locator=f"https://api.github.com/repos/{REPO}/actions/runs/123/approvals",
++                            sha256=hashlib.sha256(encode(self.transport.approvals)).hexdigest(),
++                        ),
++                    )
++                    self.assertNotIn(b"synthetic-secret", encode(receipt))
+         self.assertEqual(len(self.writes), 4)
+ 
+     def test_local_flags_receipts_and_missing_runtime_never_authorize(self):
+         self.setup_case()
+-        self.put('approved.json', dict(approved=True))
+-        with patch.dict(os.environ, {'GITHUB_ACTIONS':'true', 'CLOUD_APPROVED':'true'}):
+-            self.boundary = self.a.WriteBoundary(self.policy, self.a.Runtime('', '', ''), self.evidence,
+-                                                transport=self.transport, clock=lambda: NOW)
++        self.put("approved.json", dict(approved=True))
++        with patch.dict(os.environ, {"GITHUB_ACTIONS": "true", "CLOUD_APPROVED": "true"}):
++            self.boundary = self.a.WriteBoundary(
++                self.policy,
++                self.a.Runtime("", "", ""),
++                self.evidence,
++                transport=self.transport,
++                clock=lambda: NOW,
++            )
+             self.denied()
+         self.assertEqual(self.transport.calls, [])
+ 
+     def test_each_authenticated_oidc_binding_mismatch_denies(self):
+-        changes = dict(iss='https://example.invalid', sub='forged', aud='other', repository='other/repo',
+-                       repository_id='43', workflow_ref='other', workflow_sha='b'*40, ref='refs/heads/other',
+-                       sha='b'*40, run_id='124', run_attempt='2', actor_id='9', actor='other',
+-                       environment='other', event_name='pull_request', iat=NOW+1, nbf=NOW+1, exp=NOW)
++        changes = dict(
++            iss="https://example.invalid",
++            sub="forged",
++            aud="other",
++            repository="other/repo",
++            repository_id="43",
++            workflow_ref="other",
++            workflow_sha="b" * 40,
++            ref="refs/heads/other",
++            sha="b" * 40,
++            run_id="124",
++            run_attempt="2",
++            actor_id="9",
++            actor="other",
++            environment="other",
++            event_name="pull_request",
++            iat=NOW + 1,
++            nbf=NOW + 1,
++            exp=NOW,
++        )
+         for key, value in changes.items():
+             with self.subTest(field=key):
+                 self.setup_case()
+@@ -257,143 +392,396 @@ class Admission(unittest.TestCase):
+                 self.denied()
+ 
+     def test_each_authenticated_run_binding_mismatch_denies(self):
+-        changes = dict(id=124, run_attempt=2, status='completed', conclusion='cancelled', event='push',
+-                       head_sha='b'*40, head_branch='other', path='other.yml', display_title='cloud:forged',
+-                       repository=dict(id=43, full_name=REPO), head_repository=dict(id=43, full_name=REPO),
+-                       actor=dict(id=9, login='operator'), triggering_actor=dict(id=9, login='operator'))
++        changes = dict(
++            id=124,
++            run_attempt=2,
++            status="completed",
++            conclusion="cancelled",
++            event="push",
++            head_sha="b" * 40,
++            head_branch="other",
++            path="other.yml",
++            display_title="cloud:forged",
++            repository=dict(id=43, full_name=REPO),
++            head_repository=dict(id=43, full_name=REPO),
++            actor=dict(id=9, login="operator"),
++            triggering_actor=dict(id=9, login="operator"),
++        )
+         for key, value in changes.items():
+             with self.subTest(field=key):
+-                self.setup_case(); self.transport.run[key] = value; self.denied()
++                self.setup_case()
++                self.transport.run[key] = value
++                self.denied()
+ 
+     def test_absent_revoked_denied_unknown_duplicate_approval_history(self):
+-        for stage in ('prepare', 'apply'):
+-            for case in ('empty', 'rejected', 'pending', 'duplicate', 'wrong-user', 'wrong-env', 'missing-user'):
++        for stage in ("prepare", "apply"):
++            for case in (
++                "empty",
++                "rejected",
++                "pending",
++                "duplicate",
++                "wrong-user",
++                "wrong-env",
++                "missing-user",
++            ):
+                 with self.subTest(stage=stage, case=case):
+                     self.setup_case(stage=stage)
+-                    if case == 'empty': self.transport.approvals = []
+-                    elif case == 'duplicate': self.transport.approvals *= 2
+-                    elif case == 'wrong-user': self.transport.approvals[0]['user']['id'] = 9
+-                    elif case == 'wrong-env': self.transport.approvals[0]['environments'][0]['id'] = 100
+-                    elif case == 'missing-user': del self.transport.approvals[0]['user']
+-                    else: self.transport.approvals[0]['state'] = case
++                    if case == "empty":
++                        self.transport.approvals = []
++                    elif case == "duplicate":
++                        self.transport.approvals *= 2
++                    elif case == "wrong-user":
++                        self.transport.approvals[0]["user"]["id"] = 9
++                    elif case == "wrong-env":
++                        self.transport.approvals[0]["environments"][0]["id"] = 100
++                    elif case == "missing-user":
++                        del self.transport.approvals[0]["user"]
++                    else:
++                        self.transport.approvals[0]["state"] = case
+                     self.denied()
+         self.setup_case()
+-        denied = copy.deepcopy(self.transport.approvals[0]); denied['state'] = 'rejected'
+-        self.transport.approvals.append(denied); self.denied()
++        denied = copy.deepcopy(self.transport.approvals[0])
++        denied["state"] = "rejected"
++        self.transport.approvals.append(denied)
++        self.denied()
+ 
+     def test_environment_policy_and_missing_api_data_fail_closed(self):
+-        for field, value in [('id',100), ('name','other'), ('can_admins_bypass',True),
+-                             ('deployment_branch_policy',None), ('protection_rules',[])]:
+-            self.setup_case(); self.transport.environment_response[field] = value; self.denied()
+-        for endpoint in ('/approvals', '/environments/', '/actions/runs/'):
+-            self.setup_case(); self.transport.fail_suffix = endpoint; self.denied()
+-        self.setup_case(); self.transport.raw_approvals = b'[{"state":"approved","state":"rejected"}]'; self.denied()
++        for field, value in [
++            ("id", 100),
++            ("name", "other"),
++            ("can_admins_bypass", True),
++            ("deployment_branch_policy", None),
++            ("protection_rules", []),
++        ]:
++            self.setup_case()
++            self.transport.environment_response[field] = value
++            self.denied()
++        for endpoint in ("/approvals", "/environments/", "/actions/runs/"):
++            self.setup_case()
++            self.transport.fail_suffix = endpoint
++            self.denied()
++        self.setup_case()
++        self.transport.raw_approvals = b'[{"state":"approved","state":"rejected"}]'
++        self.denied()
+ 
+     def test_provider_identity_and_lease_mismatch_before_each_stage(self):
+-        for stage in ('prepare', 'apply'):
+-            for case in ('principal','account','lease'):
++        for stage in ("prepare", "apply"):
++            for case in ("principal", "account", "lease"):
+                 self.setup_case(stage=stage)
+-                if case == 'principal': self.transport.principal += '-other'
+-                if case == 'account': self.transport.account = '999999999999'
+-                if case == 'lease': self.transport.lease_end = NOW
++                if case == "principal":
++                    self.transport.principal += "-other"
++                if case == "account":
++                    self.transport.account = "999999999999"
++                if case == "lease":
++                    self.transport.lease_end = NOW
+                 self.denied()
+-            for key in ('oid','tid','appid','aud','exp'):
+-                self.setup_case('azure', stage)
+-                self.transport.azure_claims[key] = NOW if key == 'exp' else 'other'
++            for key in ("oid", "tid", "appid", "aud", "exp"):
++                self.setup_case("azure", stage)
++                self.transport.azure_claims[key] = NOW if key == "exp" else "other"
+                 self.denied()
+-            self.setup_case('azure', stage); self.transport.subscription['subscriptionId'] = TENANT; self.denied()
++            self.setup_case("azure", stage)
++            self.transport.subscription["subscriptionId"] = TENANT
++            self.denied()
+ 
+     def test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch(self):
+-        for field in ('account_id','region','deployment_scope'):
++        for field in ("account_id", "region", "deployment_scope"):
+             self.setup_case()
+-            self.request['scope'][field] = 'other'
+-            self.request_ref = self.put('request.json', self.request)
++            self.request["scope"][field] = "other"
++            self.request_ref = self.put("request.json", self.request)
+             self.denied()
+-        for field, value in [('operation','apply'),('environment','other'),('run_id','other'),
+-                             ('unit_id','other'),('source_revision','b'*40)]:
+-            self.setup_case(); self.request[field] = value
+-            self.request_ref = self.put('request.json', self.request); self.denied()
+-        self.setup_case(); self.put('asset.bin', b'swapped'); self.denied()
+-        self.setup_case(); self.request['policy'] = self.put('policy.json', b'changed')
+-        self.request_ref = self.put('request.json', self.request); self.denied()
++        for field, value in [
++            ("operation", "apply"),
++            ("environment", "other"),
++            ("run_id", "other"),
++            ("unit_id", "other"),
++            ("source_revision", "b" * 40),
++        ]:
++            self.setup_case()
++            self.request[field] = value
++            self.request_ref = self.put("request.json", self.request)
++            self.denied()
++        self.setup_case()
++        self.put("asset.bin", b"swapped")
++        self.denied()
++        self.setup_case()
++        self.request["policy"] = self.put("policy.json", b"changed")
++        self.request_ref = self.put("request.json", self.request)
++        self.denied()
+ 
+     def test_replay_different_instance_tamper_and_unknown_submission_no_retry(self):
+         self.setup_case()
+         ref, _ = self.write()
+-        self.assertEqual(self.writes, ['write'])
+-        with self.assertRaises(self.a.AdmissionDenied): self.write()
+-        other = self.a.WriteBoundary(self.policy, self.runtime, self.evidence,
+-                                     transport=self.transport, clock=lambda: NOW)
+-        with self.assertRaises(self.a.AdmissionDenied): self.write(other)
+-        self.assertEqual(self.writes, ['write'])
++        self.assertEqual(self.writes, ["write"])
++        with self.assertRaises(self.a.AdmissionDenied):
++            self.write()
++        other = self.a.WriteBoundary(
++            self.policy, self.runtime, self.evidence, transport=self.transport, clock=lambda: NOW
++        )
++        with self.assertRaises(self.a.AdmissionDenied):
++            self.write(other)
++        self.assertEqual(self.writes, ["write"])
+         data = contracts.read_verified(self.evidence, ref)
+-        (self.evidence/ref['path']).write_bytes(data.replace(b'"prepare"', b'"apply"'))
+-        with self.assertRaises(self.a.AdmissionDenied): self.write(other)
+-        self.assertEqual(self.writes, ['write'])
++        (self.evidence / ref["path"]).write_bytes(data.replace(b'"prepare"', b'"apply"'))
++        with self.assertRaises(self.a.AdmissionDenied):
++            self.write(other)
++        self.assertEqual(self.writes, ["write"])
+ 
+     def test_timeout_is_not_retried_and_receipt_is_retained(self):
+         self.setup_case()
++
+         def submit(_):
+-            self.writes.append('uncertain'); raise TimeoutError('synthetic timeout')
++            self.writes.append("uncertain")
++            raise TimeoutError("synthetic timeout")
++
+         with self.assertRaises(TimeoutError):
+-            self.boundary.write(self.root,self.request_ref,None,mutation_id='submit',submit=submit,scan=lambda b: True)
+-        with self.assertRaises(self.a.AdmissionDenied): self.write()
+-        self.assertEqual(self.writes, ['uncertain'])
++            self.boundary.write(
++                self.root, self.request_ref, None, mutation_id="submit", submit=submit, scan=lambda b: True
++            )
++        with self.assertRaises(self.a.AdmissionDenied):
++            self.write()
++        self.assertEqual(self.writes, ["uncertain"])
+         self.assertEqual(len(list(self.evidence.iterdir())), 1)
+ 
+     def test_fresh_checks_on_every_mutation_and_dependency_default_denial(self):
+-        self.setup_case(); self.write(mutation='asset-1')
++        self.setup_case()
++        self.write(mutation="asset-1")
+         self.transport.approvals = []
+-        with self.assertRaises(self.a.AdmissionDenied): self.write(mutation='asset-2')
+-        self.assertEqual(self.writes, ['write'])
+-        self.writes.clear(); self.setup_case()
+-        self.request['predecessor_receipts'] = [dict(unit_id='prior', **self.put('prior.json', b'fixture'))]
+-        self.request_ref = self.put('request.json',self.request)
+-        self.transport.run['display_title'] = 'cloud:'+self.request_ref['sha256']+':none'
++        with self.assertRaises(self.a.AdmissionDenied):
++            self.write(mutation="asset-2")
++        self.assertEqual(self.writes, ["write"])
++        self.writes.clear()
++        self.setup_case()
++        self.request["predecessor_receipts"] = [dict(unit_id="prior", **self.put("prior.json", b"fixture"))]
++        self.request_ref = self.put("request.json", self.request)
++        self.transport.run["display_title"] = "cloud:" + self.request_ref["sha256"] + ":none"
+         self.denied()
+ 
+     def test_untrusted_endpoint_and_publication_failure_have_zero_writes(self):
+-        for url in ('https://example.invalid/token', OIDC_URL.replace('https:', 'http:'),
+-                    'https://pipelines.actions.githubusercontent.com@evil.invalid/token'):
++        for url in (
++            "https://example.invalid/token",
++            OIDC_URL.replace("https:", "http:"),
++            "https://pipelines.actions.githubusercontent.com@evil.invalid/token",
++        ):
+             self.setup_case()
+-            self.boundary = self.a.WriteBoundary(self.policy, replace(self.runtime, oidc_url=url), self.evidence,
+-                                                transport=self.transport, clock=lambda: NOW)
+-            self.denied(); self.assertEqual(self.transport.calls, [])
++            self.boundary = self.a.WriteBoundary(
++                self.policy,
++                replace(self.runtime, oidc_url=url),
++                self.evidence,
++                transport=self.transport,
++                clock=lambda: NOW,
++            )
++            self.denied()
++            self.assertEqual(self.transport.calls, [])
+         self.setup_case()
+         with self.assertRaises(self.a.AdmissionDenied):
+-            self.boundary.write(self.root,self.request_ref,None,mutation_id='submit',submit=lambda _: self.writes.append('write'),scan=lambda b: False)
++            self.boundary.write(
++                self.root,
++                self.request_ref,
++                None,
++                mutation_id="submit",
++                submit=lambda _: self.writes.append("write"),
++                scan=lambda b: False,
++            )
+         self.assertEqual(self.writes, [])
+ 
+     def test_concurrency_key_conservative_canonical_and_scope_prerequisite(self):
+         self.setup_case()
+         key = self.a.concurrency_key(self.policy)
+-        self.assertEqual(key, 'cloud-aws-123456789012-us-east-1')
+-        self.assertEqual(key,self.a.concurrency_key(replace(self.policy,deployment_scope='another-stack')))
+-        self.boundary = self.a.WriteBoundary(replace(self.policy,exclusive_repository='other/repo'),self.runtime,self.evidence,
+-                                            transport=self.transport,clock=lambda:NOW)
++        self.assertEqual(key, "cloud-aws-123456789012-us-east-1")
++        self.assertEqual(key, self.a.concurrency_key(replace(self.policy, deployment_scope="another-stack")))
++        self.boundary = self.a.WriteBoundary(
++            replace(self.policy, exclusive_repository="other/repo"),
++            self.runtime,
++            self.evidence,
++            transport=self.transport,
++            clock=lambda: NOW,
++        )
+         self.denied()
+ 
+     def test_https_transport_disallows_redirects_and_sanitizes_failures(self):
+-        self.assertTrue(issubclass(self.a.NoRedirect, __import__('urllib.request',fromlist=['HTTPRedirectHandler']).HTTPRedirectHandler))
+-        with patch('urllib.request.OpenerDirector.open',side_effect=OSError('synthetic-sensitive-error')):
++        self.assertTrue(
++            issubclass(
++                self.a.NoRedirect,
++                __import__("urllib.request", fromlist=["HTTPRedirectHandler"]).HTTPRedirectHandler,
++            )
++        )
++        with patch("urllib.request.OpenerDirector.open", side_effect=OSError("synthetic-sensitive-error")):
+             with self.assertRaises(self.a.AdmissionDenied) as caught:
+-                self.a.HttpsTransport().request('GET','https://api.github.com/',{})
+-        self.assertNotIn('sensitive', str(caught.exception))
++                self.a.HttpsTransport().request("GET", "https://api.github.com/", {})
++        self.assertNotIn("sensitive", str(caught.exception))
+ 
+     def test_templates_have_distinct_environments_roles_and_no_cancellation(self):
+-        for provider in ('aws','azure'):
+-            content = (ROOT/f'templates/cloud/github-{provider}.yml').read_text()
+-            self.assertIn('cancel-in-progress: false',content)
+-            self.assertIn('sandbox-prepare',content); self.assertIn('sandbox-apply',content)
+-            self.assertIn('id-token: write',content)
+-            self.assertIn('inputs.request_sha256',content)
+-            self.assertIn('inputs.preview_sha256',content)
+-            self.assertIn('exclusive',content)
+-        policies = list((ROOT/'templates/cloud/iam').glob('*.json'))
+-        self.assertGreaterEqual(len(policies),4)
++        for provider in ("aws", "azure"):
++            content = (ROOT / f"templates/cloud/github-{provider}.yml").read_text()
++            workflow = json.loads(content)
++            self.assertIs(workflow["concurrency"]["cancel-in-progress"], False)
++            self.assertNotIn("${{", workflow["concurrency"]["group"])
++            self.assertIn("sandbox-prepare", content)
++            self.assertIn("sandbox-apply", content)
++            self.assertEqual(workflow["jobs"]["prepare"]["permissions"]["id-token"], "write")
++            self.assertEqual(workflow["jobs"]["apply"]["permissions"]["id-token"], "write")
++            self.assertIn("inputs.request_sha256", content)
++            self.assertIn("inputs.preview_sha256", content)
++            self.assertIn("exclusive", content)
++        policies = list((ROOT / "templates/cloud/iam").glob("*.json"))
++        self.assertGreaterEqual(len(policies), 4)
+         for path in policies:
+             json.loads(path.read_bytes())
+ 
++    def test_expiry_or_artifact_swap_during_scan_denies_before_submit(self):
++        for case in ("expiry", "swap", "revoked"):
++            with self.subTest(case=case):
++                self.setup_case("azure")
++                for p in self.evidence.iterdir():
++                    p.unlink()
++
++                def scan(_):
++                    if case == "expiry":
++                        self.boundary.clock = lambda: NOW + 1000
++                    elif case == "revoked":
++                        self.transport.approvals = []
++                    else:
++                        self.put("asset.bin", b"changed-during-scan")
++                    return True
++
++                with self.assertRaises(self.a.AdmissionDenied):
++                    self.boundary.write(
++                        self.root,
++                        self.request_ref,
++                        None,
++                        mutation_id="submit",
++                        submit=lambda _: self.writes.append("write"),
++                        scan=scan,
++                    )
++                self.assertEqual(self.writes, [])
++
++    def test_all_bound_artifact_mutations_and_preview_dispatch_mismatch(self):
++        for path in (
++            "source.bin",
++            "compiled.bin",
++            "asset.bin",
++            "parameters.bin",
++            "module.bin",
++            "policy.json",
++            "profile.json",
++            "lock.json",
++            "upstream/main.md",
++            "tool.json",
++        ):
++            with self.subTest(path=path):
++                self.setup_case(stage="apply")
++                self.put(path, b"changed")
++                self.denied()
++        self.setup_case(stage="apply")
++        preview = json.loads((self.root / "preview.json").read_bytes())
++        preview["preview_identity"] = "other-native-preview"
++        self.preview_ref = self.put("preview.json", preview)
++        self.denied()
++
++    def test_revocation_during_federation_and_missing_native_identity_denies(self):
++        for provider in ("aws", "azure"):
++            for stage in ("prepare", "apply"):
++                for case in ("revoked", "missing"):
++                    with self.subTest(provider=provider, stage=stage, case=case):
++                        self.setup_case(provider, stage)
++                        original = self.transport.request
++
++                        def transport(method, url, headers, body=None):
++                            data = original(method, url, headers, body)
++                            if (
++                                provider == "aws" and b"GetCallerIdentity" in (body or b"")
++                            ) or url.startswith("https://management.azure.com/"):
++                                if case == "missing":
++                                    return b"{}"
++                                self.transport.approvals = []
++                            return data
++
++                        with patch.object(self.transport, "request", side_effect=transport):
++                            self.denied()
++
++    def test_any_denied_or_unexpected_environment_history_requires_fresh_dispatch(self):
++        self.setup_case()
++        extra = copy.deepcopy(self.transport.approvals[0])
++        extra["state"] = "rejected"
++        extra["environments"] = [dict(id=100, name="other-environment")]
++        self.transport.approvals.append(extra)
++        self.denied()
+ 
+-if __name__ == '__main__':
++    def test_missing_oidc_claims_ambiguous_reviewers_and_lease_ttl(self):
++        self.setup_case()
++        keys = list(self.transport.claims)
++        for key in keys:
++            with self.subTest(key=key):
++                self.setup_case()
++                del self.transport.claims[key]
++                self.denied()
++        self.setup_case()
++        self.transport.environment_response["protection_rules"][0]["prevent_self_review"] = False
++        self.denied()
++        self.setup_case()
++        self.transport.environment_response["protection_rules"][0]["reviewers"][0]["type"] = "Team"
++        self.denied()
++        self.setup_case()
++        self.boundary.clock = lambda: NOW + 120
++        self.denied()
++
++    def test_native_https_success_redirect_and_size_contract(self):
++        from io import BytesIO
++
++        class Response(BytesIO):
++            status = 200
++
++            def geturl(self):
++                return "https://api.github.com/"
++
++        with patch("urllib.request.OpenerDirector.open", return_value=Response(b"{}")) as opened:
++            self.assertEqual(self.a.HttpsTransport().request("GET", "https://api.github.com/", {}), b"{}")
++            self.assertEqual(opened.call_args.kwargs["timeout"], 20)
++        with self.assertRaises(self.a.AdmissionDenied):
++            self.a.NoRedirect().redirect_request(None, None, 302, "redirect", {}, "https://example.invalid/")
++        with patch(
++            "urllib.request.OpenerDirector.open", return_value=Response(b"x" * (self.a.MAX_RESPONSE + 1))
++        ):
++            with self.assertRaises(self.a.AdmissionDenied):
++                self.a.HttpsTransport().request("GET", "https://api.github.com/", {})
++
++    def test_iam_templates_restrict_native_subjects_and_stage_actions(self):
++        for stage in ("prepare", "apply"):
++            trust = json.loads((ROOT / f"templates/cloud/iam/aws-{stage}-trust.json").read_bytes())
++            statement = trust["Statement"][0]
++            self.assertEqual(statement["Action"], "sts:AssumeRoleWithWebIdentity")
++            condition = statement["Condition"]["StringEquals"]
++            self.assertEqual(condition["token.actions.githubusercontent.com:aud"], "sts.amazonaws.com")
++            self.assertIn(
++                ":environment:sandbox-" + stage + ":workflow_ref:",
++                condition["token.actions.githubusercontent.com:sub"],
++            )
++            permissions = json.loads(
++                (ROOT / f"templates/cloud/iam/aws-{stage}-permissions.json").read_bytes()
++            )
++            actions = {a for statement in permissions["Statement"] for a in statement["Action"]}
++            if stage == "prepare":
++                self.assertIn("s3:PutObject", actions)
++                self.assertIn("cloudformation:CreateChangeSet", actions)
++                self.assertNotIn("cloudformation:ExecuteChangeSet", actions)
++            else:
++                self.assertIn("cloudformation:ExecuteChangeSet", actions)
++                self.assertNotIn("s3:PutObject", actions)
++                self.assertNotIn("cloudformation:CreateChangeSet", actions)
++            self.assertNotIn("*", actions)
++            self.assertIn(
++                ":workflow_sha:REPLACE_REVIEWED_40_HEX_CONTROL_COMMIT",
++                condition["token.actions.githubusercontent.com:sub"],
++            )
++            federation = json.loads(
++                (ROOT / f"templates/cloud/iam/azure-{stage}-federation.json").read_bytes()
++            )
++            self.assertEqual(federation["audiences"], ["api://AzureADTokenExchange"])
++            self.assertIn(":environment:sandbox-" + stage + ":workflow_ref:", federation["subject"])
++            role = json.loads((ROOT / f"templates/cloud/iam/azure-{stage}-role.json").read_bytes())
++            self.assertEqual("Microsoft.Resources/deployments/write" in role["Actions"], stage == "apply")
++            self.assertNotIn("*", role["Actions"])
++
++
++if __name__ == "__main__":
+     unittest.main(verbosity=2)

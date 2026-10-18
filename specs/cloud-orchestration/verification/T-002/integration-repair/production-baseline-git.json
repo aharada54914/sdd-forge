@@ -1,0 +1,18 @@
+{
+  "tree": "6d5ca00ddfa2650b8e95eb07ad4e18d358bc0ad2",
+  "blobs": {
+    "contracts/cloud-operation-result.schema.json": "2bab4610ee7e8278929add73db3b6dc7440f7120",
+    "contracts/cloud-dependency-lock.schema.json": "0d99aa7730e48ec7083755743519984d6667779f",
+    "contracts/cloud-run-request.schema.json": "84cc206ce0cd42964560a5d53571c4a3393217c4",
+    "contracts/cloud-input-error.schema.json": "9338a1cba730da2a69a58faaa63d572925ad79f0",
+    "contracts/cloud-preview.schema.json": "ce204c42f289dcf026128d6448e4e0651a0ec6ce",
+    "contracts/cloud-observation.schema.json": "c20bf0fe1cdacb5ccd770cdb17a0e1c87590177d",
+    "contracts/cloud-authorization-receipt.schema.json": "821220b415cf95c01b75d20661ae3b612001e2b2",
+    "contracts/cloud-verification.schema.json": "ce9a2b16e39aab0aabeba52155426302bdc7ef64",
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": "40641557918ecb5886df7716fea6799ff5f6e146",
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "dd236bf80208e488df480a699ed52ef72db08887",
+    "templates/cloud/iam/trusted-policy.example.py": "4796ff1c81d007f5bd582294af9fc1fbdbc92693",
+    "templates/cloud/iam/README.md": "473f5bfa0a2eeade4460a5a288e854a48eaf814a"
+  },
+  "note": "Exact PRE-REPAIR candidate blobs; untracked production absent from HEAD is not absent implementation."
+}
