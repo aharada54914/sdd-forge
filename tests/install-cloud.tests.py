@@ -152,12 +152,15 @@ class ManifestBoundary(unittest.TestCase):
             raw = path.read_bytes()
             for provider in PROVIDERS:
                 name = f'sdd-{provider}-cloud'
-                fields = ['name', 'source', 'version'] + (['policy'] if rel.startswith('.agents') else [])
+                fields = ['name', 'source', 'version'] + (['policy', 'authentication'] if rel.startswith('.agents') else [])
                 for key in fields:
                     with self.subTest(market=rel, provider=provider, field=key):
                         record = json.loads(raw)
                         entry = next(p for p in record['plugins'] if p['name'] == name)
-                        entry[key] = {'installation': 'REQUIRED', 'authentication': 'ON_INSTALL'} if key == 'policy' else name.upper() if key == 'name' else '0.0.0' if key == 'version' else '../outside'
+                        if key == 'authentication':
+                            entry['policy']['authentication'] = 'on_install'
+                        else:
+                            entry[key] = {'installation': 'REQUIRED', 'authentication': 'ON_INSTALL'} if key == 'policy' else name.upper() if key == 'name' else '0.0.0' if key == 'version' else '../outside'
                         try:
                             write_json(path, record)
                             p = validate(self.root)
@@ -354,20 +357,43 @@ class InstalledLifecycle(unittest.TestCase):
                 if phase != 'route':
                     self.assertEqual(result['error_code'], 'OPERATION_UNIMPLEMENTED')
                     self.assertFalse((work / output).exists())
-            for variant in ('missing', 'invalid'):
-                prior = work / 'prior.json'
-                if variant == 'missing':
-                    prior.unlink(missing_ok=True)
-                else:
-                    prior.write_text('{}')
-                request['predecessor_receipts'] = [dict(unit_id='prior-unit', path='prior.json', sha256=hashlib.sha256(b'{}').hexdigest())]
-                write_json(request_path, request)
-                for phase in ('route', 'prepare', 'apply'):
-                    output = request['local_context']['evidence_directory'] + '/' + variant + '-' + phase + '.json'
-                    p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), phase, '--request', str(request_path), '--output', output], work, env)
-                    self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
-                    self.assertEqual(json.loads(p.stdout)['result'], 'BLOCKED')
-                    self.assertFalse((work / output).exists())
+            # Structural LOCAL route integrity only: these saved files confer no
+            # authority and are not authenticated/live predecessor evidence.
+            # Keep this distinct from the no-executor write denials above and
+            # the scoped authenticated-deadline callable probe in RUNTIME_PROBE.
+            prior_dir = 'specs/cloud-orchestration/verification/T-007/cloud/prior-run/prior-unit'
+            prior = work / prior_dir / 'verification.json'
+            observation = work / prior_dir / 'synthetic-observation.json'
+            write_json(observation, dict(classification='synthetic', purpose='local structural fixture only'))
+            observation_ref = dict(path=observation.relative_to(work).as_posix(), sha256=hashlib.sha256(observation.read_bytes()).hexdigest())
+            check_ids = json.loads((work / request['verification_profile']['path']).read_bytes())['required_check_ids']
+            receipt = dict(schema='cloud-verification/v1', run_id='prior-run', unit_id='prior-unit', provider=provider,
+                           profile=request['verification_profile'], required_check_ids=check_ids,
+                           checks=[dict(check_id=check, observation=observation_ref, result='PASS') for check in check_ids],
+                           overall_result='PASS', evidence_complete=True)
+            for variant, expected_error in (('matched', None), ('missing', 'UNSAFE_OR_UNAVAILABLE_FILE'),
+                                            ('invalid', 'CHECK_SET_MISMATCH'), ('restored', None)):
+                with self.subTest(provider=provider, plugin=str(plugin), predecessor=variant):
+                    # All bodies use the canonical path and actual byte digest.
+                    # The invalid body differs ONLY in its required check set;
+                    # no path/digest/setup failure can satisfy its assertion.
+                    body = dict(receipt)
+                    if variant == 'invalid':
+                        body['checks'] = receipt['checks'][:-1]
+                    write_json(prior, body)
+                    request['predecessor_receipts'] = [dict(unit_id='prior-unit', path=prior.relative_to(work).as_posix(),
+                                                          sha256=hashlib.sha256(prior.read_bytes()).hexdigest())]
+                    if variant == 'missing':
+                        prior.unlink()
+                    write_json(request_path, request)
+                    output = request['local_context']['evidence_directory'] + '/' + variant + '-route.json'
+                    p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), 'route', '--request', str(request_path), '--output', output], work, env)
+                    self.assertEqual(p.returncode, 0 if expected_error is None else 2, p.stdout + p.stderr)
+                    result = json.loads(p.stdout)
+                    self.assertEqual(result['result'], 'PASS' if expected_error is None else 'BLOCKED')
+                    self.assertEqual(result['error_code'], expected_error)
+                    self.assertEqual((work / output).exists(), expected_error is None)
+            print(f'installed {provider}: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH')
             module = runtime / 'scripts/cloud_dependencies.py'
             raw = module.read_bytes()
             try:
@@ -396,6 +422,81 @@ class InstalledLifecycle(unittest.TestCase):
                     self.assertFalse(dest.exists())
         finally:
             path.write_bytes(raw)
+
+    def test_sequential_selections_rebuild_prior_runtime(self) -> None:
+        for shell in ('bash', 'pwsh'):
+            for first, second in (PROVIDERS, tuple(reversed(PROVIDERS))):
+                with tempfile.TemporaryDirectory(dir=self.root) as temp:
+                    dest = Path(temp) / 'installed'
+                    installed: list[str] = []
+                    selections = ((f'sdd-{first}-cloud',), (f'sdd-{second}-cloud',), (), ('sdd-review-loop',))
+                    for step, selection in enumerate(selections):
+                        print(f'sequential {shell}: {first}->{second}, step={step}, selection={selection or "default"}', flush=True)
+                        p = self.installer(shell, selection, dest)
+                        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                        if step < 2:
+                            installed.append((first, second)[step])
+                        for provider in PROVIDERS:
+                            plugin = dest / f'plugins/sdd-{provider}-cloud'
+                            if provider not in installed:
+                                self.assertFalse((plugin / 'runtime').exists(), 'unselected provider was materialized')
+                                continue
+                            with self.subTest(shell=shell, first=first, step=step, provider=provider, check='canonical bytes'):
+                                mismatches = [rel for rel, canonical in runtime_sources().items()
+                                              if not (plugin / 'runtime' / rel).is_file()
+                                              or (plugin / 'runtime' / rel).read_bytes() != canonical.read_bytes()]
+                                self.assertEqual(mismatches, [])
+                            with self.subTest(shell=shell, first=first, step=step, provider=provider, check='installed CLI'):
+                                self.check_runtime_and_cli(plugin, provider, Path(temp))
+                            with self.subTest(shell=shell, first=first, step=step, provider=provider, check='direct route'), tempfile.TemporaryDirectory(dir=temp) as work_temp:
+                                work = Path(work_temp)
+                                request = local_request(work, provider)
+                                write_json(work / 'request.json', request)
+                                env = dict(PATH=os.defpath, HOME=work_temp, CLOUD_WORKSPACE_ROOT=work_temp,
+                                           CLOUD_SHARED_RUNTIME_ROOT=str(plugin / 'runtime/scripts'), PYTHONDONTWRITEBYTECODE='1')
+                                p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), 'route', '--request', str(work / 'request.json'),
+                                         '--output', request['local_context']['evidence_directory'] + '/route.json'], work, env)
+                                print(f'direct {shell}/{provider} step={step}: exit={p.returncode} {p.stdout.strip()}', flush=True)
+                                self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                        # Prior executable/schema bytes are NOT trusted upgrade inputs.
+                        # The next real install must regenerate every payload from source.
+                        if step < len(selections) - 1:
+                            for provider in installed:
+                                for rel in runtime_sources():
+                                    path = dest / f'plugins/sdd-{provider}-cloud/runtime' / rel
+                                    if path.is_file():
+                                        path.write_bytes(b'stale or tampered prior payload\n')
+
+    def test_prior_runtime_rebuild_failure_preserves_installation(self) -> None:
+        # Remove inputs from the export index, leaving their untracked source
+        # bytes available: neither source fallback nor the old runtime is trusted.
+        groups = (
+            ('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',),
+            ('plugins/sdd-quality-loop/references/cloud-verification-registry.json',),
+            ('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',),
+            tuple(str(p.relative_to(ROOT)) for p in (ROOT / 'contracts').glob('cloud-*.schema.json')),
+        )
+        for shell in ('bash', 'pwsh'):
+            for missing in groups:
+                with self.subTest(shell=shell, missing=missing), tempfile.TemporaryDirectory(dir=self.root) as temp:
+                    dest = Path(temp) / 'installed'
+                    p = self.installer(shell, ('sdd-azure-cloud',), dest)
+                    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                    before = {str(p.relative_to(dest)): hashlib.sha256(p.read_bytes()).hexdigest()
+                              for p in dest.rglob('*') if p.is_file()}
+                    p = run(['git', 'rm', '--cached', '--', *missing], self.source)
+                    self.assertEqual(p.returncode, 0, p.stderr)
+                    try:
+                        p = self.installer(shell, ('sdd-review-loop',), dest)
+                    finally:
+                        restored = run(['git', 'add', '--', *missing], self.source)
+                        self.assertEqual(restored.returncode, 0, restored.stderr)
+                    after = {str(p.relative_to(dest)): hashlib.sha256(p.read_bytes()).hexdigest()
+                             for p in dest.rglob('*') if p.is_file()}
+                    print(f'prior rebuild {shell}: missing={missing}, exit={p.returncode}, preserved={before == after}', flush=True)
+                    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+                    self.assertEqual(after, before)
+                    self.check_runtime_and_cli(dest / 'plugins/sdd-azure-cloud', 'azure', Path(temp))
 
     def test_case_variants_at_operator_and_file_discovery_layers(self) -> None:
         for shell in ('bash', 'pwsh'):
@@ -428,6 +529,29 @@ class SkillVisibility(unittest.TestCase):
             result = validate(root, skills=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+
+    def test_visibility_guards_with_matched_controls(self) -> None:
+        with tempfile.TemporaryDirectory(prefix='cloud-visibility-guards-') as temp:
+            root = Path(temp)
+            fixture(root)
+            self.assertEqual(validate(root, skills=True).returncode, 0)
+            for provider in PROVIDERS:
+                path = root / f'plugins/sdd-{provider}-cloud/skills/orchestrate/SKILL.md'
+                original = path.read_text()
+                variants = [
+                    original.replace('name: orchestrate', 'name: Orchestrate'),
+                    original.replace('disable-model-invocation: true', 'disable-model-invocation: false'),
+                    original.replace('disable-model-invocation: true', 'disable-model-invocation: true\nuser-invocable: false'),
+                ]
+                for index, variant in enumerate(variants):
+                    with self.subTest(provider=provider, variant=index):
+                        try:
+                            path.write_text(variant)
+                            result = validate(root, skills=True)
+                            self.assertNotEqual(result.returncode, 0)
+                        finally:
+                            path.write_text(original)
+                self.assertEqual(validate(root, skills=True).returncode, 0)
 
     def test_each_entry_frontmatter_and_relative_links(self) -> None:
         import re

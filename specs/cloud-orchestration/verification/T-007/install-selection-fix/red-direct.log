@@ -1,0 +1,943 @@
+test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) ... sequential bash: azure->aws, step=0, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: azure->aws, step=1, selection=('sdd-aws-cloud',)
+
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=1, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=1, provider='azure', check='installed CLI') ... FAIL
+direct bash/azure step=1: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=1, provider='azure', check='direct route') ... FAIL
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: azure->aws, step=2, selection=default
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='azure', check='installed CLI') ... FAIL
+direct bash/azure step=2: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='azure', check='direct route') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='aws', check='installed CLI') ... FAIL
+direct bash/aws step=2: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='aws', check='direct route') ... FAIL
+sequential bash: azure->aws, step=3, selection=('sdd-review-loop',)
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='azure', check='installed CLI') ... FAIL
+direct bash/azure step=3: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='azure', check='direct route') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='aws', check='installed CLI') ... FAIL
+direct bash/aws step=3: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='aws', check='direct route') ... FAIL
+sequential bash: aws->azure, step=0, selection=('sdd-aws-cloud',)
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: aws->azure, step=1, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=1, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=1, provider='aws', check='installed CLI') ... FAIL
+direct bash/aws step=1: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=1, provider='aws', check='direct route') ... FAIL
+sequential bash: aws->azure, step=2, selection=default
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='azure', check='installed CLI') ... FAIL
+direct bash/azure step=2: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='azure', check='direct route') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='aws', check='installed CLI') ... FAIL
+direct bash/aws step=2: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='aws', check='direct route') ... FAIL
+sequential bash: aws->azure, step=3, selection=('sdd-review-loop',)
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='azure', check='installed CLI') ... FAIL
+direct bash/azure step=3: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='azure', check='direct route') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='aws', check='installed CLI') ... FAIL
+direct bash/aws step=3: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='aws', check='direct route') ... FAIL
+sequential pwsh: azure->aws, step=0, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=1, selection=('sdd-aws-cloud',)
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=1, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=1, provider='azure', check='installed CLI') ... FAIL
+direct pwsh/azure step=1: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=1, provider='azure', check='direct route') ... FAIL
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=2, selection=default
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='azure', check='installed CLI') ... FAIL
+direct pwsh/azure step=2: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='azure', check='direct route') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='aws', check='installed CLI') ... FAIL
+direct pwsh/aws step=2: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='aws', check='direct route') ... FAIL
+sequential pwsh: azure->aws, step=3, selection=('sdd-review-loop',)
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='azure', check='installed CLI') ... FAIL
+direct pwsh/azure step=3: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='azure', check='direct route') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='aws', check='installed CLI') ... FAIL
+direct pwsh/aws step=3: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='aws', check='direct route') ... FAIL
+sequential pwsh: aws->azure, step=0, selection=('sdd-aws-cloud',)
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: aws->azure, step=1, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=1, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=1, provider='aws', check='installed CLI') ... FAIL
+direct pwsh/aws step=1: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=1, provider='aws', check='direct route') ... FAIL
+sequential pwsh: aws->azure, step=2, selection=default
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='azure', check='installed CLI') ... FAIL
+direct pwsh/azure step=2: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='azure', check='direct route') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='aws', check='installed CLI') ... FAIL
+direct pwsh/aws step=2: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='aws', check='direct route') ... FAIL
+sequential pwsh: aws->azure, step=3, selection=('sdd-review-loop',)
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='azure', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='azure', check='installed CLI') ... FAIL
+direct pwsh/azure step=3: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='azure', check='direct route') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='aws', check='canonical bytes') ... FAIL
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='aws', check='installed CLI') ... FAIL
+direct pwsh/aws step=3: exit=2 {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+  test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='aws', check='direct route') ... FAIL
+test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) ... prior rebuild bash: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=0, preserved=False
+
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',)) ... FAIL
+prior rebuild bash: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=0, preserved=False
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',)) ... FAIL
+prior rebuild bash: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=0, preserved=False
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',)) ... FAIL
+prior rebuild bash: missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'), exit=0, preserved=False
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json')) ... FAIL
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=0, preserved=False
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',)) ... FAIL
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=0, preserved=False
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',)) ... FAIL
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=0, preserved=False
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',)) ... FAIL
+prior rebuild pwsh: missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'), exit=0, preserved=False
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json')) ... FAIL
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=1, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=1, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=1, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=2, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='azure', step=3, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=1, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=1, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=1, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=2, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='bash', first='aws', step=3, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=1, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=1, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=1, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=2, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='azure', step=3, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=1, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=1, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=1, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=2, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='azure', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='azure', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='azure', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='aws', check='canonical bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 448, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(mismatches, [])
+AssertionError: Lists differ: ['scripts/cloud_contracts.py', 'scripts/cl[936 chars]son'] != []
+
+First list contains 22 additional elements.
+First extra element 0:
+'scripts/cloud_contracts.py'
+
+Diff is 1054 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='aws', check='installed CLI')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 450, in test_sequential_selections_rebuild_prior_runtime
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 347, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'cloud_contracts'
+
+
+======================================================================
+FAIL: test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) (shell='pwsh', first='aws', step=3, provider='aws', check='direct route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 460, in test_sequential_selections_rebuild_prior_runtime
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 2 != 0 : {"schema": "cloud-input-error/v1", "error_code": "SHARED_RUNTIME_UNAVAILABLE", "message": "Install the trusted shared runtime before retrying.", "field": "runtime"}
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 497, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-au6n2oco/tmpq7chup9j/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 497, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-au6n2oco/tmpnciae97q/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 497, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-au6n2oco/tmplc159hd_/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 497, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-au6n2oco/tmpjo23eino/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 497, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-au6n2oco/tmpnl872ukm/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 497, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-au6n2oco/tmpf8cejm5v/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 497, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-au6n2oco/tmp7v75v3u5/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 497, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-au6n2oco/tmpwjm1ns4m/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 18.728s
+
+FAILED (failures=68)

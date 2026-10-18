@@ -1,0 +1,56 @@
+{
+  "run_id": "01a14fbf-f5c9-7882-9812-3f4c3010db2f",
+  "session_id": "01a14fbf-f5c9-7882-9812-3f4c3010db2f",
+  "agent_instance_id": "01a14fbf-f5c9-7882-9812-3f4c3010db2f",
+  "identity_source": "caller supplied native host identity; no inherited process identity",
+  "task_attempt_count": 2,
+  "scratch_root": "/tmp/cloud-t007-01a14fbf",
+  "base_revision": "fc7e58beaab89a7863be41cbe44b260d1786276a",
+  "spec_revision": "8bc2b9bc60fc89cd29082d988934e4e6bdfb8e09875f0d62183399fc05c507cf",
+  "spec_revision_algorithm": "SHA-256 of sorted UTF-8 path + TAB + SHA-256 + LF rows",
+  "spec_inputs": [
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "sha256": "458a995f9852298e6e156ee58bab30077bcbf652746b3813577dd003a13722a5"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    }
+  ],
+  "canonical_report_sha256": "1e495b37972714f923600a9c75b8023fb2561d0e68fd0d36d88aeb665ac1ba25",
+  "before": [
+    {
+      "path": "initial/install.ps1",
+      "sha256": "8928011600e821d882e80914445f3d9b2ac12a948019f1858ccc9f4bc7c4bc0a"
+    },
+    {
+      "path": "initial/install.sh",
+      "sha256": "04436898b4d8d260f0743882f70ddcb6e01687b0d8b0373f41dfafb76ee5d221"
+    }
+  ]
+}

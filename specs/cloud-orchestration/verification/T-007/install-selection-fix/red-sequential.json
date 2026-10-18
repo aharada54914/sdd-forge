@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/install-cloud.tests.py",
+    "InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime",
+    "InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:04:45Z",
+  "exit_code": 1
+}
