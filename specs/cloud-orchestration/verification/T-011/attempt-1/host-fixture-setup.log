@@ -1,0 +1,6 @@
+Note: dependency resolution auto-included: sdd-review-loop sdd-quality-loop.
+
+SDD plugins installed at: /tmp/cloud-T011-01a14fdf/host-fixture/installed
+Plugin registration was skipped because --target=FilesOnly.
+/tmp/cloud-T011-01a14fdf/host-fixture/fixture.json
+exit_code=0

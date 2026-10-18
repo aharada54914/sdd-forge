@@ -1,0 +1,31 @@
+{
+  "classification": "Local rollback: restores the original known compatibility mismatch, not a release PASS",
+  "checks": [
+    {
+      "state": "candidate",
+      "source_sha256": "84415b0e19b7a44e728192cbfa545b9eef00964ceea634fde48c54d4ff1dd7e6",
+      "command": [
+        "python3",
+        "-B",
+        "tests/sdd-domain-multitarget-T-004.tests.py",
+        "CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.001s\n\nOK\n"
+    },
+    {
+      "state": "restored",
+      "source_sha256": "a3f440cd0a8a28a1deac3d804d798133b326e44df02c96b265af87c1e0ee2f40",
+      "command": [
+        "python3",
+        "-B",
+        "tests/sdd-domain-multitarget-T-004.tests.py",
+        "CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) ... \n  test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) (path='plugins/sdd-quality-loop/scripts/check-contract.py') ... FAIL\n\n======================================================================\nFAIL: test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) (path='plugins/sdd-quality-loop/scripts/check-contract.py')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/tmp/cloud-T011-01a14fdf/rollback/tests/sdd-domain-multitarget-T-004.tests.py\", line 63, in test_005_007_reviewed_contracts_templates_and_checks_unchanged\n    self.assert_reviewed_consumer(path, (ROOT / path).read_bytes(), expected)\n  File \"/tmp/cloud-T011-01a14fdf/rollback/tests/sdd-domain-multitarget-T-004.tests.py\", line 56, in assert_reviewed_consumer\n    self.assertEqual(hashlib.sha256(content).hexdigest(), expected)\nAssertionError: '9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7' != '2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3'\n- 9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7\n+ 2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.001s\n\nFAILED (failures=1)\n"
+    }
+  ]
+}

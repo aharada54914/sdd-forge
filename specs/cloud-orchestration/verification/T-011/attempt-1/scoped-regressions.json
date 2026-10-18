@@ -1,0 +1,97 @@
+[
+  {
+    "command": [
+      "bash",
+      "tests/bootstrap-interview-guidance.tests.sh"
+    ],
+    "at": "2026-10-18T16:47:02Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-bootstrap-interview-guidance.tests.sh.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/bootstrap-layer-templates.tests.sh"
+    ],
+    "at": "2026-10-18T16:47:02Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-bootstrap-layer-templates.tests.sh.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/bootstrap-cross-layer-index.tests.sh"
+    ],
+    "at": "2026-10-18T16:47:02Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-bootstrap-cross-layer-index.tests.sh.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/guard-negative-corpus.tests.sh"
+    ],
+    "at": "2026-10-18T16:47:09Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-guard-negative-corpus.tests.sh.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/guard-dispatch-fallback.tests.sh"
+    ],
+    "at": "2026-10-18T16:47:16Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-guard-dispatch-fallback.tests.sh.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/sdd-domain-multitarget-foundation.tests.py"
+    ],
+    "at": "2026-10-18T16:47:26Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-sdd-domain-multitarget-foundation.tests.py.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/sdd-domain-multitarget-T-003.tests.py"
+    ],
+    "at": "2026-10-18T16:47:26Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-sdd-domain-multitarget-T-003.tests.py.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/sdd-domain-multitarget-T-004.tests.py"
+    ],
+    "at": "2026-10-18T16:47:53Z",
+    "exit_code": 1,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-sdd-domain-multitarget-T-004.tests.py.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/required-checks-posix.tests.py"
+    ],
+    "at": "2026-10-18T16:48:12Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-required-checks-posix.tests.py.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/verification-impact.tests.py"
+    ],
+    "at": "2026-10-18T16:48:14Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-011/attempt-1/regression-verification-impact.tests.py.log"
+  }
+]

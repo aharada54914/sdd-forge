@@ -1,0 +1,8 @@
+Command: python3 -B tests/verification-impact.tests.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.062s
+
+OK
+
+exit_code=0

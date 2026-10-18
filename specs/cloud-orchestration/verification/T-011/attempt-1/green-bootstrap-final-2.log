@@ -1,0 +1,13 @@
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ok
+test_required_native_missing_tools_fail_instead_of_skip (__main__.NormalDriverRegistration.test_required_native_missing_tools_fail_instead_of_skip) ... ok
+test_explicit_provider_and_installed_identity_are_required (__main__.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required) ... ok
+test_installed_provider_guard_sensitivity (__main__.BootstrapInstalled.test_installed_provider_guard_sensitivity) ... ok
+test_owner_import_digest_and_output_guards_have_matched_controls (__main__.BootstrapInstalled.test_owner_import_digest_and_output_guards_have_matched_controls) ... ok
+test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... ok
+test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 4.451s
+
+OK
+exit_code=0

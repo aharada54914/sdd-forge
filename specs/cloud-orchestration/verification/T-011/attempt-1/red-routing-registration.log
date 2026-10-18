@@ -1,0 +1,29 @@
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ERROR
+setUpClass (__main__.BootstrapInstalled) ... ERROR
+
+======================================================================
+ERROR: test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1227, in test_catalog_and_every_native_ci_cell_admit_all_six_suites
+    catalog = runner.load_catalog(ROOT / "tests/verification-catalog.json", ROOT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification.py", line 82, in load_catalog
+    raise ValueError('unregistered test suites: ' + ', '.join(sorted(candidates - suites.keys())))
+ValueError: unregistered test suites: tests/cloud-orchestration-contracts.tests.py, tests/cloud-orchestration-execution.tests.py, tests/cloud-orchestration-routing.tests.py, tests/cloud-orchestration-verification.tests.py, tests/install-cloud.tests.py, tests/sdd-domain-multitarget-foundation.tests.py
+
+======================================================================
+ERROR: setUpClass (__main__.BootstrapInstalled)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 1133, in setUpClass
+    raise AssertionError(result.stdout + result.stderr)
+AssertionError: Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+Note: dependency resolution auto-included: sdd-review-loop sdd-quality-loop.
+Error: Required file is missing: plugins/sdd-azure-cloud/.claude-plugin/plugin.json
+
+
+----------------------------------------------------------------------
+Ran 1 test in 10.835s
+
+FAILED (errors=2)

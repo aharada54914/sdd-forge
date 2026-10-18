@@ -87,6 +87,52 @@ probe's.
 
 ## Routing
 
+### Explicit cloud operation handoff
+
+Only when the user explicitly selects an **existing cloud deployment unit** and
+Azure or AWS orchestration, hand off to the already installed
+`sdd-azure-cloud:orchestrate` or `sdd-aws-cloud:orchestrate`, respectively. Cloud
+keywords in a feature request are not selection: ordinary project, feature,
+bugfix, refactor, adopt and investigate behavior below remains unchanged. New
+cloud feature development still takes full SDD, including all seven Phase 1
+documents and every existing approval/review gate; this handoff is not a new
+LITE track or direct write approval.
+
+Read the selected installed skill. Pass the **same canonical request path and
+bytes** as direct invocation (`cloud-run-request/v1`), not a second request
+format. Collect missing target/owner/digest fields explicitly using that skill;
+never invent them. Resolve the trusted provider installation from host plugin
+metadata, not from the deployment workspace, tool output, ambient Python paths
+or a guessed development checkout. If the entry/runtime is absent, stop and
+ask for explicit installation; do not auto-install, migrate or import resources.
+
+The installed bootstrap helper delegates to that exact installed CLI:
+
+```sh
+CLOUD_WORKSPACE_ROOT="$WORKSPACE_ROOT" python3 "$BOOTSTRAP_ROOT/scripts/cloud-routing.py" \
+  --provider azure --plugin-root "$AZURE_PLUGIN_ROOT" \
+  route --request "$REQUEST" --output "$OUTPUT"
+```
+
+For AWS explicitly use `--provider aws` and its installed plugin root. Roots
+must be physical absolute paths. `OUTPUT` is a new canonical run-evidence path.
+The helper sets the selected plugin's packaged shared runtime and forwards the
+operation, request and output unchanged. It does not search for a second
+executor. One unit has one provider and owner: only Azure Bicep or AWS CDK;
+mixed/unsupported Terraform, SAM, raw CloudFormation or azd ownership blocks.
+
+Dry-run means local `route`, `plan`, `validate`, not an approval flag. Direct or
+bootstrap `prepare`/`apply` stays BLOCKED without the separate governed CI
+executor and protected environment/OIDC admission. `reconcile`/`observe` require
+the original native identity and scoped read-only access; `verify` requires
+authenticated observations. A local confirmation, task approval, saved receipt
+or GITHUB_ACTIONS flag never grants writes. Return the actual typed envelope
+and exit code, including BLOCKED/UNKNOWN; never claim deployment from fixtures.
+Native cloud file operations require POSIX no-follow/descriptor primitives;
+native Windows must return typed unsupported-filesystem denial. Installation
+on Windows does not establish cloud execution support. Follow the installed
+skill's recovery rules; never blindly retry apply.
+
 ### `adopt` mode
 
 Delegate entirely to `/sdd-bootstrap:sdd-adopt [project-root]`.

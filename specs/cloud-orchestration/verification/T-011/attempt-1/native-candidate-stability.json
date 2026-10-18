@@ -1,0 +1,19 @@
+{
+  "classification": "Root launch input stability check only; native behavior remains pending root delivery",
+  "source": "/tmp/cloud-T011-native-trial-inputs/setup.json",
+  "source_sha256": "c353706ccbf64584bbdaa1f6469e3a79851e6a7d939e983c238e0e885dea05e2",
+  "files": [
+    {
+      "path": "plugins/sdd-bootstrap/scripts/cloud-routing.py",
+      "pinned_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+      "current_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "pinned_sha256": "9d78e75b7c98aaca5a4ef2ef0727b7924be84cf79346f327ff03c931a2a62000",
+      "current_sha256": "9d78e75b7c98aaca5a4ef2ef0727b7924be84cf79346f327ff03c931a2a62000",
+      "unchanged": true
+    }
+  ]
+}

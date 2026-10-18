@@ -1,0 +1,9 @@
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ok
+test_explicit_provider_and_installed_identity_are_required (__main__.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required) ... ok
+test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... ok
+test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.595s
+
+OK

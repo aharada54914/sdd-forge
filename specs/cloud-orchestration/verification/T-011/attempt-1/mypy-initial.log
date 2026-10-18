@@ -1,0 +1,13 @@
+plugins/sdd-bootstrap/scripts/cloud-routing.py:21: error: Return type "None" of "error" incompatible with return type "Never" in supertype "argparse.ArgumentParser"  [override]
+tests/cloud-orchestration-routing.tests.py:1123: error: "type[BootstrapInstalled]" has no attribute "temp"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1124: error: "type[BootstrapInstalled]" has no attribute "temp"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1125: error: "type[BootstrapInstalled]" has no attribute "install"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1125: error: "type[BootstrapInstalled]" has no attribute "temp"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1126: error: "type[BootstrapInstalled]" has no attribute "temp"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1138: error: "type[BootstrapInstalled]" has no attribute "install"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1143: error: "type[BootstrapInstalled]" has no attribute "install"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1160: error: "BootstrapInstalled" has no attribute "install"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1164: error: "BootstrapInstalled" has no attribute "install"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1228: error: "BootstrapInstalled" has no attribute "install"  [attr-defined]
+tests/cloud-orchestration-routing.tests.py:1230: error: "BootstrapInstalled" has no attribute "install"  [attr-defined]
+Found 12 errors in 2 files (checked 6 source files)

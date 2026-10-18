@@ -1,0 +1,59 @@
+Command: bash tests/bootstrap-cross-layer-index.tests.sh
+PASS: TEST-007 design links UX layer
+PASS: TEST-007 design links frontend layer
+PASS: TEST-007 design links infrastructure layer
+PASS: TEST-007 design links security layer
+PASS: TEST-007 cross-layer dependencies
+PASS: TEST-007 ADR change log
+PASS: TEST-007 retains test strategy
+PASS: TEST-007 retains constraints
+PASS: TEST-007 retains open questions
+PASS: TEST-007 retains risks
+PASS: TEST-007 removes legacy inline plan placeholders
+PASS: TEST-008 Layer Spec traceability column
+PASS: TEST-008 traceability retains investigation provenance
+PASS: TEST-008 layer coverage summary
+PASS: TEST-008 canonical UX anchor example
+PASS: TEST-008 canonical frontend anchor example
+PASS: TEST-008 canonical infrastructure anchor example
+PASS: TEST-008 canonical security anchor example
+PASS: TEST-008 reasoned cross-layer example
+PASS: TEST-008 no blank or bare N/A Layer Spec examples
+PASS: TEST-008 traceability validator ignores requirement-keyed side tables
+PASS: TEST-008 PowerShell validator ignores requirement-keyed side tables
+PASS: TEST-008 existing REQ-ID traceability header remains valid
+PASS: TEST-008 PowerShell existing REQ-ID traceability header remains valid
+PASS: TEST-008 rejects noncanonical or displaced header: req-id
+PASS: TEST-008 PowerShell rejects noncanonical or displaced header: req-id
+PASS: TEST-008 rejects noncanonical or displaced header: REQ-id
+PASS: TEST-008 PowerShell rejects noncanonical or displaced header: REQ-id
+PASS: TEST-008 rejects noncanonical or displaced header: Notes | REQ-ID
+PASS: TEST-008 PowerShell rejects noncanonical or displaced header: Notes | REQ-ID
+PASS: TEST-008 table boundary # Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary # Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary # Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary # Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ## Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ## Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ## Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ## Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ### Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary #### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary #### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary #### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary #### Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ##### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ##### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ##### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ##### Notes, next layer invalid-anchor
+PASS: TEST-008 table boundary ###### Notes, next layer security-spec.md#access
+PASS: TEST-008 PowerShell table boundary ###### Notes, next layer security-spec.md#access
+PASS: TEST-008 table boundary ###### Notes, next layer invalid-anchor
+PASS: TEST-008 PowerShell table boundary ###### Notes, next layer invalid-anchor
+PASS: 54
+FAIL: 0
+
+exit_code=0

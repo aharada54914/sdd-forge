@@ -1,0 +1,1 @@
+PASS: two actual native contexts, ten CLI calls, exact captured assets/source pins, and profile restoration. No live cloud acceptance.

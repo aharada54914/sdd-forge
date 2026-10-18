@@ -1,0 +1,62 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "ci-cloud",
+  "revision": "d9072eb80b04572d1b09b41bc0c04deb3e5e193f",
+  "clean_before": false,
+  "reusable": false,
+  "catalog_sha256": "ea1fa869091f1eeae6bf3fc6e8b337a55f4bd4878015118806d7669c5745a4f3",
+  "selected": [
+    "tests/cloud-orchestration-contracts.tests.py",
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/cloud-orchestration-execution.tests.py",
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/install-cloud.tests.py",
+    "tests/sdd-domain-multitarget-foundation.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-contracts.tests.py",
+      "source_sha256": "2aa74cdb410539291c84f3c174dd93ccfe09e8a91d782b01b399f6138cb254c7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.415451
+    },
+    {
+      "suite": "tests/cloud-orchestration-routing.tests.py",
+      "source_sha256": "6da2aaf221464195879171b387306fe119e467b7a5e7122ca97b66c56eb5e454",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 87.013952
+    },
+    {
+      "suite": "tests/cloud-orchestration-execution.tests.py",
+      "source_sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.398524
+    },
+    {
+      "suite": "tests/cloud-orchestration-verification.tests.py",
+      "source_sha256": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 146.898024
+    },
+    {
+      "suite": "tests/install-cloud.tests.py",
+      "source_sha256": "8210e1e05c9e781a89dd48cd9657bb50980cfaff1a399167f6b5a40aa9579675",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 113.089612
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-foundation.tests.py",
+      "source_sha256": "9083c323d44f337373e2eeb21264eec5c132d495129233c4501f24a32b8e08a2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.66963
+    }
+  ],
+  "revision_after": "d9072eb80b04572d1b09b41bc0c04deb3e5e193f",
+  "clean_after": false
+}

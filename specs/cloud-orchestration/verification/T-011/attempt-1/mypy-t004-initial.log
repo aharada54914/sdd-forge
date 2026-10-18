@@ -1,0 +1,11 @@
+tests/sdd-domain-multitarget-T-004.tests.py:57: error: Argument 1 to "module_from_spec" has incompatible type "ModuleSpec | None"; expected "ModuleSpec"  [arg-type]
+tests/sdd-domain-multitarget-T-004.tests.py:59: error: Item "None" of "ModuleSpec | None" has no attribute "loader"  [union-attr]
+tests/sdd-domain-multitarget-T-004.tests.py:59: error: Item "None" of "Loader | Any | None" has no attribute "exec_module"  [union-attr]
+tests/sdd-domain-multitarget-T-004.tests.py:184: error: Value of type "Collection[Collection[str]]" is not indexable  [index]
+tests/sdd-domain-multitarget-T-004.tests.py:185: error: Value of type "Collection[Collection[str]]" is not indexable  [index]
+tests/sdd-domain-multitarget-T-004.tests.py:194: error: Value of type "Collection[Collection[str]]" is not indexable  [index]
+tests/sdd-domain-multitarget-T-004.tests.py:197: error: Value of type "Collection[Collection[str]]" is not indexable  [index]
+tests/sdd-domain-multitarget-T-004.tests.py:201: error: Unsupported target for indexed assignment ("Collection[Collection[str]]")  [index]
+tests/sdd-domain-multitarget-T-004.tests.py:204: error: Value of type "Collection[Collection[str]]" is not indexable  [index]
+Found 9 errors in 1 file (checked 9 source files)
+exit_code=1

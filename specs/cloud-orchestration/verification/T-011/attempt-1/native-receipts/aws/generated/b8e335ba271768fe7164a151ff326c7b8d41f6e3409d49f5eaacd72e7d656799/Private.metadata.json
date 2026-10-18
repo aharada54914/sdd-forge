@@ -1,0 +1,82 @@
+{
+  "/Private": [
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/tmp/aws-local-cdk-u8n_cpy1/bundle/unit/app.js:5:15)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/Private/PrivateGroup": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PrivateGroup"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/tmp/aws-local-cdk-u8n_cpy1/bundle/unit/app.js:9:15)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/Private/Image": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Image"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/tmp/aws-local-cdk-u8n_cpy1/bundle/unit/app.js:14:15)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/Private/Workload": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Workload"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/tmp/aws-local-cdk-u8n_cpy1/bundle/unit/app.js:15:17)",
+        "...node internals..."
+      ]
+    },
+    {
+      "type": "aws:cdk:acknowledged-rules",
+      "data": {
+        "CloudFormation-Validate::W9010": "Exact image is bound in the immutable request."
+      }
+    }
+  ],
+  "/Private/Health": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Health"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/tmp/aws-local-cdk-u8n_cpy1/bundle/unit/app.js:24:1)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/Private/Protection": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Protection"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/tmp/aws-local-cdk-u8n_cpy1/bundle/unit/app.js:30:1)",
+        "...node internals..."
+      ]
+    }
+  ]
+}

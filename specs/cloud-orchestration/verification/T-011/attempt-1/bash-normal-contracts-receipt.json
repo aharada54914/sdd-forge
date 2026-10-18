@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "d9072eb80b04572d1b09b41bc0c04deb3e5e193f",
+  "clean_before": false,
+  "reusable": false,
+  "catalog_sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80",
+  "selected": [
+    "tests/cloud-orchestration-contracts.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-contracts.tests.py",
+      "source_sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.417629
+    }
+  ],
+  "revision_after": "d9072eb80b04572d1b09b41bc0c04deb3e5e193f",
+  "clean_after": false
+}

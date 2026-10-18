@@ -54,6 +54,7 @@ REVIEWED_CLOUD_INSERTION = b"""    # Cloud runtime is deliberately lazy: the leg
 
 def load(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
+    assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
     spec.loader.exec_module(module)
@@ -74,6 +75,10 @@ class CompatibilityTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_REQUIREMENTS_SHA256)
             self.assertTrue(content.startswith(REVIEWED_REQUIREMENTS_PREFIX))
             content = OLD_REQUIREMENTS_PREFIX + content[len(REVIEWED_REQUIREMENTS_PREFIX):]
+        elif path == CHECK_CONTRACT:
+            self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_CLOUD_SHA256)
+            self.assertEqual(content.count(REVIEWED_CLOUD_INSERTION), 1)
+            content = content.replace(REVIEWED_CLOUD_INSERTION, b'', 1)
         self.assertEqual(hashlib.sha256(content).hexdigest(), expected)
 
     def test_005_007_reviewed_contracts_templates_and_checks_unchanged(self):
@@ -164,7 +169,7 @@ class CompatibilityTests(unittest.TestCase):
 
     def test_additive_override_contract_preserves_existing_context_boundaries(self):
         resolver = load('t004_resolver', SCRIPTS / 'resolve-project-context.py')
-        context = {"schema": "sdd-project-context/v1", "workflow": {
+        context: dict = {"schema": "sdd-project-context/v1", "workflow": {
             "spec_profile": "full", "artifact_layout": "legacy-seven-layer",
             "capability_enforcement": "advisory"}, "components": [{
             "id": "app", "paths": {"include": ["app/**"]}}],

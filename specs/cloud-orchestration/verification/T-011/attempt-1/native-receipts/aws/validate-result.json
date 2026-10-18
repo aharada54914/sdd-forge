@@ -1,0 +1,13 @@
+{
+  "error_code": null,
+  "evidence_manifest_path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/validate.json.manifest.json",
+  "input_manifest_sha256": "9d63b96ed592ce70745da1542728ee6cc68d63cb0596bd65b1a4fae33bc7c5ff",
+  "message": "Local check only; no cloud validation or authorization.",
+  "operation": "validate",
+  "provider": "aws",
+  "result": "PASS",
+  "run_id": "synthetic-run",
+  "schema": "cloud-operation-result/v1",
+  "state": "LOCAL_VALIDATED",
+  "unit_id": "synthetic-unit"
+}

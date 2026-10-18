@@ -262,7 +262,7 @@ class Contracts(unittest.TestCase):
         self.f = {**fixtures(), **local_bodies()}
         self.temp = tempfile.TemporaryDirectory(prefix="cloud-contracts-")
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
 
     def schema(self, kind):
         return json.loads(
@@ -429,6 +429,7 @@ class Contracts(unittest.TestCase):
     def bound(self, refs):
         return self.c.verify_binding(self.root, *refs, now=NOW)
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_every_bound_file_mutation_is_rejected(self):
         refs = self.make_bundle()
         self.bound(refs)
@@ -439,6 +440,7 @@ class Contracts(unittest.TestCase):
                 self.bound(refs)
             path.write_bytes(data)
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_bound_scope_owner_profile_policy_identity_and_preview_drift(self):
         refs = self.make_bundle()
         for schema, path, ref_index in (
@@ -495,6 +497,7 @@ class Contracts(unittest.TestCase):
         with self.assertRaises(self.c.ContractError):
             self.c.verify_binding(self.root, *refs, now=END)
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_lock_closure_versions_packages_schemas_and_adapter(self):
         self.make_bundle()
         lock = json.loads((self.root / "lock.json").read_bytes())
@@ -532,6 +535,7 @@ class Contracts(unittest.TestCase):
         with self.assertRaises(self.c.ContractError):
             self.c.verify_lock(self.root, bad, **kwargs)
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles(self):
         (self.root / "real").mkdir()
         (self.root / "real/x").write_bytes(b"fixture")
@@ -547,6 +551,7 @@ class Contracts(unittest.TestCase):
         with self.assertRaises(self.c.ContractError):
             self.c.read_verified(self.root, ref("fifo"))
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_publication_atomic_no_overwrite_containment_and_scan_failure(self):
         value = self.f["cloud-input-error/v1"]
         data = encode(value)
@@ -627,6 +632,7 @@ class Contracts(unittest.TestCase):
         self.rejects(bad)
         self.rejects(dict(original, overall_result="FAIL", evidence_complete=True))
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_read_artifact_checks_observation_and_verification_references(self):
         observation = self.f["cloud-observation/v1"]
         (self.root / "query.json").write_bytes(b"fixture")
@@ -647,6 +653,7 @@ class Contracts(unittest.TestCase):
         with self.assertRaises(self.c.ContractError):
             self.c.read_artifact(self.root, verification_ref)
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_prepare_binding_does_not_invent_preview(self):
         self.make_bundle()
         request = json.loads((self.root / "request.json").read_bytes())
@@ -680,6 +687,7 @@ class Contracts(unittest.TestCase):
                 tool_schemas={},
             )
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_scanner_receives_exact_bytes_and_no_secret_publication(self):
         canary = "synthetic-" + "secret-canary-924"
         safe = encode(self.f["cloud-input-error/v1"])
@@ -697,6 +705,7 @@ class Contracts(unittest.TestCase):
         self.assertFalse((self.root / "unsafe.json").exists())
         self.assertNotIn(canary.encode(), (self.root / "safe.json").read_bytes())
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_concurrent_publication_has_one_complete_winner(self):
         from concurrent.futures import ThreadPoolExecutor
 
@@ -719,6 +728,12 @@ class Contracts(unittest.TestCase):
         self.assertEqual(len(winners), 1)
         self.assertEqual((self.root / "winner.json").read_bytes(), winners[0])
         self.assertEqual([p.name for p in self.root.iterdir()], ["winner.json"])
+
+    @unittest.skipUnless(os.name == "nt", "Native Windows refusal only")
+    def test_native_windows_filesystem_refusal(self):
+        with self.assertRaisesRegex(self.c.ContractError, "UNSUPPORTED_FILESYSTEM"):
+            self.c.read_verified(self.root, ref("input.json"))
+        self.assertEqual(list(self.root.iterdir()), [])
 
     def test_unavailable_safe_filesystem_primitives_fail_closed(self):
         from unittest.mock import patch
@@ -911,6 +926,7 @@ class Contracts(unittest.TestCase):
                 del changed[key]
                 self.assertTrue(self.oracle._schema_validate(schema, changed), (value['schema'], key))
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash(self):
         refs = self.make_bundle()
         preview = json.loads((self.root / "preview.json").read_bytes())
@@ -943,6 +959,7 @@ class Contracts(unittest.TestCase):
         with self.assertRaises(self.c.ContractError):
             self.c.verify_binding(self.root, refs[0], None, None, now=NOW)
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_input_alias_output_and_expected_type_are_rejected(self):
         data = encode(self.f["cloud-input-error/v1"])
         original = self.put("input.json", self.f["cloud-input-error/v1"])
@@ -1001,6 +1018,7 @@ class Contracts(unittest.TestCase):
             self.both(dict(original, result=result, state=state,
                 error_code="UNCERTAIN" if result == "UNKNOWN" else None, evidence_manifest_path=None), False)
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_repair_explicit_phase_preserves_legacy_integrity_api(self):
         from unittest.mock import patch
         request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
@@ -1012,6 +1030,7 @@ class Contracts(unittest.TestCase):
             with self.assertRaises(self.c.ContractError):
                 self.c.verify_binding(self.root, rr, None, now=NOW, operation="route")
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_repair_physical_workspace_and_declared_boundary(self):
         from unittest.mock import patch
         request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
@@ -1054,6 +1073,7 @@ class Contracts(unittest.TestCase):
 
 
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_repair_workspace_control_bytes_are_typed_blocked(self):
         from unittest.mock import patch
         for value in (str(self.root) + "\x00", str(self.root) + "\n", "/", str(self.root) + "//"):
@@ -1061,6 +1081,7 @@ class Contracts(unittest.TestCase):
                 with self.assertRaises(self.c.ContractError):
                     self.c.workspace_root()
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_repair_context_cross_artifact_controls(self):
         from unittest.mock import patch
         request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
@@ -1126,6 +1147,7 @@ class Contracts(unittest.TestCase):
             with self.assertRaises(self.c.ContractError):
                 self.c.verify_local_context(self.root, request)
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_repair_phase_receipt_and_evidence_path_controls(self):
         from unittest.mock import patch
         request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
@@ -1167,6 +1189,7 @@ class Contracts(unittest.TestCase):
 
 
 
+    @unittest.skipIf(os.name == "nt", "Requires safe POSIX fd/no-follow operations")
     def test_repair_predecessor_paths_are_separate_run_unit_evidence_not_authority(self):
         from unittest.mock import patch
         request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])

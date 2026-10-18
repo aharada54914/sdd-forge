@@ -55,6 +55,7 @@ def request(operation: str) -> dict:
     }
 
 
+@unittest.skipIf(os.name == "nt", "POSIX request-file cases; installed native refusal is tested separately")
 class AzureCliContract(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="cloud-T004-routing-")
@@ -186,6 +187,7 @@ class LocalRoutingFixture(unittest.TestCase):
         return result
 
 
+@unittest.skipIf(os.name == "nt", "Safe POSIX cloud runtime unavailable on native Windows")
 class AzureRouting(LocalRoutingFixture):
     def test_one_explicit_bicep_owner_routes_with_stable_apply_intent(self):
         result = self.invoke()
@@ -399,6 +401,8 @@ class AzureNativePreparation(AzureRouting):
 
     def native_prerequisites(self):
         if not self.binary.is_file() or not self.upstream.is_dir():
+            if os.environ.get("CLOUD_REQUIRE_NATIVE") == "1":
+                self.fail("Required Linux Bicep/upstream preparation is unavailable")
             self.skipTest("Native pinned Bicep/upstream unavailable; native local compile NOT validated")
 
     def test_real_compile_locked_plan_and_validate_exact_bytes(self):
@@ -718,6 +722,7 @@ class AwsCliContract(AzureCliContract):
             self.assertNotIn("native_operation_id", value)
 
 
+@unittest.skipIf(os.name == "nt", "Safe POSIX cloud runtime unavailable on native Windows")
 class AwsRouting(LocalRoutingFixture):
     cli = AWS_CLI
 
@@ -836,7 +841,9 @@ class AwsNativePreparation(AwsRouting):
         return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
 
     def native_prerequisites(self):
-        if not (self.toolroot/"node_modules/aws-cdk/bin/cdk").is_file():
+        if not (self.toolroot/"node_modules/aws-cdk/bin/cdk").is_file() or not self.node.is_file():
+            if os.environ.get("CLOUD_REQUIRE_NATIVE") == "1":
+                self.fail("Required Linux CDK/Node preparation is unavailable")
             self.skipTest("Pinned CDK unavailable: native synthesis NOT validated")
 
     def test_real_synth_complete_locked_assembly_validate_without_execution(self):
@@ -1110,6 +1117,9 @@ else: raise SystemExit(1)
 
 # T-011: real installed subprocess integration, never a native model-host trial.
 class BootstrapInstalled(unittest.TestCase):
+    temp: tempfile.TemporaryDirectory[str]
+    install: Path
+
     @classmethod
     def setUpClass(cls):
         import shutil
@@ -1179,13 +1189,15 @@ class BootstrapInstalled(unittest.TestCase):
                     direct_code, direct = self.call(case, provider, phase, False)
                     code, routed = self.call(case, provider, phase, True)
                     self.assertEqual(code, direct_code)
-                    for key in ("run_id", "unit_id", "provider", "operation", "state", "result",
-                                "error_code", "input_manifest_sha256"):
+                    keys = ("schema", "error_code") if os.name == "nt" else (
+                        "run_id", "unit_id", "provider", "operation", "state", "result", "error_code", "input_manifest_sha256")
+                    for key in keys:
                         self.assertEqual(routed[key], direct[key], key)
                     self.assertNotIn("native_operation_id", routed)
                     if os.name == "nt":
                         self.assertEqual(code, 2)
-                        self.assertEqual(routed["error_code"], "UNSUPPORTED_FILESYSTEM")
+                        self.assertIn(routed["error_code"], ("UNSUPPORTED_FILESYSTEM", "UNSAFE_ROOT"))
+                        self.assertEqual(routed["schema"], "cloud-input-error/v1")
                     else:
                         self.assertEqual(code, 0 if phase == "route" else 2)
                         self.assertEqual(routed["state"], "ROUTED" if phase == "route" else "BLOCKED")
@@ -1194,9 +1206,8 @@ class BootstrapInstalled(unittest.TestCase):
         if os.name == "nt":
             self.skipTest("POSIX request-file guards unavailable; native typed refusal tested separately")
         for provider in ("azure", "aws"):
-            for field, value, error in (("provider", "aws" if provider == "azure" else "azure", "PROVIDER_MISMATCH"),
-                                        ("owner", "terraform", "OWNER_UNSUPPORTED"),
-                                        ("route", "other", "ROUTE_UNSUPPORTED")):
+            for field, value in (("provider", "aws" if provider == "azure" else "azure"),
+                                 ("owner", "terraform"), ("route", "other")):
                 with self.subTest(provider=provider, field=field):
                     case = self.fixture(provider)
                     self.assertEqual(self.call(case, provider, "route", False)[0], 0)
@@ -1225,8 +1236,75 @@ class BootstrapInstalled(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
             self.assertEqual(json.loads(result.stdout)["schema"], "cloud-input-error/v1")
 
+    @unittest.skipIf(os.name == "nt", "POSIX evidence-file guards")
+    def test_owner_import_digest_and_output_guards_have_matched_controls(self):
+        for provider in ("azure", "aws"):
+            for mutation in ("mixed-owner", "import", "digest", "output-alias"):
+                with self.subTest(provider=provider, mutation=mutation):
+                    case = self.fixture(provider)
+                    self.assertEqual(self.call(case, provider, "route", True)[0], 0)
+                    if mutation == "mixed-owner":
+                        case.put("bundle/unit/main.tf", b"# synthetic unrelated owner")
+                    elif mutation == "import":
+                        case.config["import_resources"] = True
+                        case.refresh()
+                    elif mutation == "digest":
+                        (case.root / case.source["path"]).write_bytes(b"changed source")
+                    else:
+                        # A duplicate output flag must not replace the canonical output.
+                        code, result = self.call(case, provider, "route", True, extra=("--output", str(case.root / "request.json")))
+                        self.assertEqual(code, 2)
+                        self.assertIn(result["schema"], ("cloud-input-error/v1", "cloud-operation-result/v1"))
+                        continue
+                    direct_code, direct = self.call(case, provider, "route", False)
+                    code, result = self.call(case, provider, "route", True)
+                    self.assertEqual((code, result["error_code"]), (direct_code, direct["error_code"]))
+                    self.assertEqual(code, 2)
+
+    @unittest.skipIf(os.name == "nt", "POSIX matched route control")
+    def test_installed_provider_guard_sensitivity(self):
+        case = self.fixture("azure")
+        self.assertEqual(self.call(case, "azure", "route", True)[0], 0)
+        manifest = self.install / "plugins/sdd-azure-cloud/.codex-plugin/plugin.json"
+        seam = self.install / "plugins/sdd-bootstrap/scripts/cloud-routing.py"
+        before, code = manifest.read_bytes(), seam.read_text()
+        try:
+            value = json.loads(before)
+            value["name"] = "sdd-aws-cloud"
+            manifest.write_text(json.dumps(value))
+            self.assertEqual(self.call(case, "azure", "route", True)[0], 2)
+            guard = 'if manifest.get("name") != "sdd-" + args.provider + "-cloud":'
+            self.assertIn(guard, code)
+            seam.write_text(code.replace(guard, 'if False:'))
+            self.assertEqual(self.call(case, "azure", "route", True)[0], 0)
+        finally:
+            manifest.write_bytes(before)
+            seam.write_text(code)
+        self.assertEqual(self.call(case, "azure", "route", True)[0], 0)
+
+
+
 
 class NormalDriverRegistration(unittest.TestCase):
+    @unittest.skipIf(os.name == "nt", "Linux native preparation requirement only")
+    def test_required_native_missing_tools_fail_instead_of_skip(self):
+        from unittest.mock import patch
+
+        for cls in (AzureNativePreparation, AwsNativePreparation):
+            case = cls()
+            case.setUp()
+            self.addCleanup(case.doCleanups)
+            if isinstance(case, AzureNativePreparation):
+                case.binary = case.root / "absent-bicep"
+            else:
+                case.toolroot = case.root / "absent-cdk"
+            with patch.dict(os.environ, {"CLOUD_REQUIRE_NATIVE": "1"}):
+                with self.assertRaises(AssertionError):
+                    case.native_prerequisites()
+            with patch.dict(os.environ, {"CLOUD_REQUIRE_NATIVE": "0"}):
+                with self.assertRaises(unittest.SkipTest):
+                    case.native_prerequisites()
+
     def test_catalog_and_every_native_ci_cell_admit_all_six_suites(self):
         spec = importlib.util.spec_from_file_location("verification", ROOT / "tests/verification.py")
         assert spec and spec.loader

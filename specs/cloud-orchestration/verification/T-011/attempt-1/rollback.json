@@ -1,0 +1,87 @@
+{
+  "base_revision": "d901a3750d6b563622e8f06100c0043896022645",
+  "scratch": "/tmp/cloud-T011-01a14fdf/rollback",
+  "procedure": "Overlay only task-owned current source/tests, then restore exact initial snapshot bytes or remove newly introduced helper; untouched historical evidence/tasks",
+  "files": [
+    {
+      "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "candidate_sha256": "9d78e75b7c98aaca5a4ef2ef0727b7924be84cf79346f327ff03c931a2a62000",
+      "restored_sha256": "252ea8af1726a7684747d2db512c775928db4bc2f1405125aff4f789385fda25"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/cloud-routing.py",
+      "candidate_sha256": "5363fe2e48c6ef829576acd37a05346170ab3c893ffd488e0c2fdfcebb4c6d54",
+      "restored_sha256": null
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "candidate_sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80",
+      "restored_sha256": "571f58f32bd9a7670a6a81cabee0328254f0ee19998b96992ccb12ff8a7f20b7"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "candidate_sha256": "ecc0a48e5f04e32f2bdef6538daa1dbb83520a0c2c5adddf90eb99f9e558fb6a",
+      "restored_sha256": "0e1ab2396e5c622577042a63eaca886487685f5849e5e70d7ebc3d5100b71cac"
+    },
+    {
+      "path": "tests/cloud-orchestration-routing.tests.py",
+      "candidate_sha256": "29aac7bcb55bbaf63a7afc042ffdd55e84a4436ae6797028b3ab75cb85a21b33",
+      "restored_sha256": "d038f799960a234e433dcc4a845ddb7b19394f4a5880c7ed9dd0f7f7037b243a"
+    },
+    {
+      "path": "tests/cloud-orchestration-contracts.tests.py",
+      "candidate_sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+      "restored_sha256": "dcd2c5a89119d26be5c983ac54cd586b4b6742b7cdff48b30f55a1e1fdaceba4"
+    },
+    {
+      "path": "tests/cloud-orchestration-execution.tests.py",
+      "candidate_sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+      "restored_sha256": "3ded22c4377536bfa7925555935d4e14a614263674c1d3acf2a973570cb14703"
+    },
+    {
+      "path": "tests/cloud-orchestration-verification.tests.py",
+      "candidate_sha256": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f",
+      "restored_sha256": "a3bfad88d8bff274ac3acc925cfb885b570aa931606e1a8a9a8580f26153de60"
+    },
+    {
+      "path": "tests/install-cloud.tests.py",
+      "candidate_sha256": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5",
+      "restored_sha256": "bd6996663bc1dc10a3ef14390b4c6dd3c1aa327acd10594d86c27cfa73359ee9"
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-foundation.tests.py",
+      "candidate_sha256": "9083c323d44f337373e2eeb21264eec5c132d495129233c4501f24a32b8e08a2",
+      "restored_sha256": "29a75f6cecce1bc8d1d2e5a5de043d1f883dfdecc6e40e310bfa619714495a81"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "bash",
+        "tests/bootstrap-interview-guidance.tests.sh"
+      ],
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-011/attempt-1/rollback-bootstrap-interview-guidance.tests.sh.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/sdd-domain-multitarget-foundation.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-011/attempt-1/rollback-sdd-domain-multitarget-foundation.tests.py.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py",
+        "AzureRouting",
+        "AwsRouting"
+      ],
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-011/attempt-1/rollback-AwsRouting.log"
+    }
+  ]
+}

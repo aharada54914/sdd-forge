@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": null,
+  "revision": "53015c3f81c3bba128cbf466a76fd736666383a5",
+  "clean_before": false,
+  "reusable": false,
+  "catalog_sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80",
+  "selected": [
+    "tests/cloud-orchestration-routing.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-routing.tests.py",
+      "source_sha256": "2ea10b036fcfe019f045b7912b15c11abf2975f61424f055b44822bc59fbf971",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 86.724178
+    }
+  ],
+  "revision_after": "53015c3f81c3bba128cbf466a76fd736666383a5",
+  "clean_after": false
+}

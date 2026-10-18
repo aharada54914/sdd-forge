@@ -254,9 +254,35 @@ jobs:
       - name: "[deterministic] Install structural YAML parser"
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
 
-      - name: "[deterministic] Test current multitarget inventory and contract boundaries"
+      - name: "[deterministic] Install pinned local cloud compilation tools (Linux only)"
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools=$(mktemp -d "$RUNNER_TEMP/cloud-native.XXXXXX")
+          tools=$(cd "$tools" && pwd -P)
+          curl --fail --silent --show-error --location --connect-timeout 30 --max-time 180 https://github.com/Azure/bicep/releases/download/v0.48.1/bicep-linux-x64 --output "$tools/bicep"
+          printf '%s  %s\n' b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e "$tools/bicep" | sha256sum --check --strict
+          chmod +x "$tools/bicep"
+          curl --fail --silent --show-error --location --connect-timeout 30 --max-time 180 https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-x64.tar.xz --output "$tools/node.tar.xz"
+          printf '%s  %s\n' 14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647 "$tools/node.tar.xz" | sha256sum --check --strict
+          tar -xJf "$tools/node.tar.xz" -C "$tools"
+          export PATH="$tools/node-v24.19.0-linux-x64/bin:$PATH"
+          test "$(node --version)" = v24.19.0
+          test "$(npm --version)" = 11.17.0
+          mkdir "$tools/cdk"
+          cp plugins/sdd-aws-cloud/examples/private-ec2/package.json plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json "$tools/cdk/"
+          npm ci --prefix "$tools/cdk" --ignore-scripts --no-audit --no-fund
+          echo "CLOUD_BICEP_BIN=$tools/bicep" >> "$GITHUB_ENV"
+          echo "CLOUD_NODE_BIN=$tools/node-v24.19.0-linux-x64/bin/node" >> "$GITHUB_ENV"
+          echo "CLOUD_CDK_ROOT=$tools/cdk" >> "$GITHUB_ENV"
+          echo "CLOUD_REQUIRE_NATIVE=1" >> "$GITHUB_ENV"
+
+      - name: "[deterministic] Test cloud suites, installed packages and current multitarget boundaries"
+        env:
+          CLOUD_REQUIRE_NATIVE: ${{ runner.os == 'Linux' && '1' || '0' }}
         shell: pwsh
-        run: python -B tests/sdd-domain-multitarget-foundation.tests.py
+        run: python -B tests/verification.py --profile ci-cloud --run --receipt "${{ runner.temp }}/verification-cloud.json"
 
       - name: "[deterministic] Test selected-plan and Lite full promotion on native platforms"
         shell: pwsh

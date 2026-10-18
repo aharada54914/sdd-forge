@@ -1,0 +1,112 @@
+{
+  "classification": "native local preparation NOT native model host or live sandbox",
+  "environment": {
+    "CLOUD_BICEP_BIN": "/tmp/cloud-T011-01a14fdf/ci-native/cloud-native.KEYszG/bicep",
+    "CLOUD_NODE_BIN": "/tmp/cloud-T011-01a14fdf/ci-native/cloud-native.KEYszG/node-v24.19.0-linux-x64/bin/node",
+    "CLOUD_CDK_ROOT": "/tmp/cloud-T011-01a14fdf/ci-native/cloud-native.KEYszG/cdk"
+  },
+  "records": [
+    {
+      "provider": "azure",
+      "classification": "real pinned local compiler/synthesizer; synthetic resource inputs; no cloud API",
+      "plan_state": "PLANNED",
+      "validate_state": "LOCAL_VALIDATED",
+      "compiler": {
+        "diagnostics_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit_code": 0,
+        "name": "bicep",
+        "sha256": "b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e",
+        "version": "0.48.1"
+      },
+      "artifacts": [
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.arm.json",
+          "sha256": "5d433080a667406b0e7372252cd1e3cace0fee1b505a295dbdc65561c6e96c7c"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.request.json",
+          "sha256": "aa2abc4ddb432984ac48c57fdfe46778ea2fbe8356b6edc58307453324ed96a0"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/plan-manifest.json",
+          "sha256": "ec1ff55baf0f5daf52e2ee7de17840004810925dccf28a2245a9f96052ddd2cf"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/plan-result.json",
+          "sha256": "4cfac93f020baa2acacdbd4c686071614f4abe50b47426f5e2fd9f5e6a803d47"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/validate-manifest.json",
+          "sha256": "4cd91e70549074b1e01dec86a9e36cc1bd04c7c50939135d9d520489cea522f5"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/azure/validate-result.json",
+          "sha256": "edf3db961639f96fedde6d9e6487a5e0cc8239fae383c62987f835640efabf87"
+        }
+      ]
+    },
+    {
+      "provider": "aws",
+      "classification": "real pinned local compiler/synthesizer; synthetic resource inputs; no cloud API",
+      "plan_state": "PLANNED",
+      "validate_state": "LOCAL_VALIDATED",
+      "compiler": {
+        "diagnostics_sha256": "a834d48d0d6b7e5ed5e490e9ff83d517f5e0f4f3a9ae606cc1a4017f79ea4c5f",
+        "exit_code": 0,
+        "name": "aws-cdk",
+        "stdout_sha256": "49fc0739665879acb410dc7fa7c03d5b8b6d706a9e9774c18613a7c75dbd6c9a",
+        "version": "2.1145.0"
+      },
+      "artifacts": [
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.assets.json",
+          "sha256": "61dc41017079b19bf33c9456734c5ac6a6b40321a36736618f5e9a1309a2404b"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.metadata.json",
+          "sha256": "cf3a379e5dbd93204a8fd8c25a4f56cda5db41cd4bb72a552a7d2d1ef616bf37"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.template.json",
+          "sha256": "5a38413c71992f0b05399d948f11b7853dfc2a34a4b59dee90ee7ea69e429113"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/cdk.out",
+          "sha256": "2801c31b9ddf660f597e3c9d9ba2a9505ac144717ede055f34dc916602a35b25"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/manifest.json",
+          "sha256": "5f9fef0f3c6a140e5899e8865438fa914b1c3ec5bb2790b01fbfdd8ea97d5139"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/tree.json",
+          "sha256": "3761ef1db74a85d2947a3d83e28066d5ec59e9167d13b0ff87a84115c8bd8a1f"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/validation-report.json",
+          "sha256": "713595d21b48c4e60bfc38c3beaed49fa2d45bf8aa7cec61884e2ba6649d7ce1"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799.request.json",
+          "sha256": "9d63b96ed592ce70745da1542728ee6cc68d63cb0596bd65b1a4fae33bc7c5ff"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/plan-manifest.json",
+          "sha256": "8ec2fa50fb3a86e4500108fbdfe76177594ef908c30d4bbe21001c873f90d2e5"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/plan-result.json",
+          "sha256": "04752175efd2b076e783a5afc85384ab9364c194ae437cb8c6aa54d9a10676f1"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/validate-manifest.json",
+          "sha256": "3fe6c45e4230d6118e0d7870b716f55501213eec78c40d1564b8b65072b6a943"
+        },
+        {
+          "path": "specs/cloud-orchestration/verification/T-011/attempt-1/native-receipts/aws/validate-result.json",
+          "sha256": "290cc01eecd18a410dc4561b3c4daa68ff9764bd8e3dd316b7f8c78ebbb6e4ba"
+        }
+      ]
+    }
+  ]
+}

@@ -83,11 +83,12 @@ class EntryPreflight(unittest.TestCase):
         ):
             urllib.request.OpenerDirector().open("https://invalid.example")
 
+    @unittest.skipIf(os.name == "nt", "POSIX request-file admission; native refusal covered by contract suite")
     def test_cli_without_trusted_executor_rejects_verify(self):
         # This tests direct CLI admission only; no saved observation is consumed.
         for provider in ("azure", "aws"):
             with self.subTest(provider=provider), tempfile.TemporaryDirectory() as temp:
-                root = Path(temp)
+                root = Path(temp).resolve()
                 (root / "request.json").write_bytes(encode(request(provider)))
                 proc = subprocess.run(
                     [
@@ -108,7 +109,7 @@ class EntryPreflight(unittest.TestCase):
                     env={
                         "PATH": os.defpath,
                         "HOME": temp,
-                        "CLOUD_WORKSPACE_ROOT": temp,
+                        "CLOUD_WORKSPACE_ROOT": str(root),
                     },
                     capture_output=True,
                     timeout=10,
@@ -1723,6 +1724,7 @@ def use_protected_profile(case):
     reference.update(id=profile["id"], version=profile["version"], sha256=hashlib.sha256(encode(profile)).hexdigest())
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class AwsObservationOrchestration(unittest.TestCase):
     """Production prepare/apply/observe code over explicitly synthetic transports."""
 
@@ -2286,6 +2288,7 @@ class AzureResourceBindingCases(AzureTestBase):
                         )
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class AzureObservationOrchestration(AzureTestBase):
     o: ModuleType
     g: ModuleType
@@ -2581,6 +2584,7 @@ class ObservationWire:
         return response
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class PublicObservationCases(unittest.TestCase):
     def setup_execution(self, provider, protected=False):
         harness: AzureObservationOrchestration | AwsObservationOrchestration
@@ -3309,7 +3313,7 @@ class ProtectedProfileCases(unittest.TestCase):
 
     def test_legacy_cannot_accept_cloud_discriminator(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             (root / "evidence.log").write_text("Synthetic legacy control, not cloud evidence.\n")
             contract = dict(schema="verification-contract/v2", task_id="T-009", profile="cloud", checks=[
                 dict(id=cid, required=True, passes=True, evidence="evidence.log")
@@ -3323,6 +3327,7 @@ class ProtectedProfileCases(unittest.TestCase):
 
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class ProfileDispatchIntegration(unittest.TestCase):
     """Real public/provider consumers with synthetic API transports; no live proof."""
 
@@ -3402,6 +3407,7 @@ class ProfileDispatchIntegration(unittest.TestCase):
 
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class ProfileSavedConsumers(unittest.TestCase):
     def fixture(self):
         helper = ProfileDispatchIntegration()
@@ -3582,6 +3588,7 @@ class ProfileSavedConsumers(unittest.TestCase):
 
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class ProfilePreviewProvenance(unittest.TestCase):
     def test_self_consistent_postapply_preview_substitution_is_not_authenticated(self):
         import cloud_authorization as auth
@@ -3634,6 +3641,7 @@ class ProfilePreviewProvenance(unittest.TestCase):
 
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class ProfileGuardSensitivity(unittest.TestCase):
     def test_bound_preview_guard_sensitivity_with_valid_rehashed_counterpart(self):
         import cloud_verification as v
@@ -3718,6 +3726,7 @@ class ProfileGuardSensitivity(unittest.TestCase):
 
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class ProfileCompletionCases(unittest.TestCase):
     def test_protected_mandatory_checks_never_become_optional(self):
         import cloud_authorization as auth
@@ -3946,6 +3955,7 @@ class ProfileCompletionCases(unittest.TestCase):
             v.protected_selection(profile, dict(backup_required=True))
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class ProfileAwsReadbackCases(unittest.TestCase):
     def test_executed_preview_requires_actual_asset_readback(self):
         helper = ProfileDispatchIntegration()
@@ -4074,6 +4084,7 @@ class ProfileAwsReadbackCases(unittest.TestCase):
                     preview_path.write_bytes(preview_raw)
         observation.profile_preview_readback(executor, preview_ref)
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class DependencyReceiptCases(unittest.TestCase):
     """T-010: actual collector output + authenticated-protocol doubles, never live."""
 
@@ -4883,6 +4894,7 @@ class DependencyGraphCases(unittest.TestCase):
         self.assertNotEqual(result["aggregate"], "VERIFIED")
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class DependencyBoundaryCases(DependencyReceiptCases):
     def test_freshness_expires_during_final_acquisition_not_consumer_lease(self):
         import cloud_dependencies as d
@@ -4967,7 +4979,7 @@ class DependencyBoundaryCases(DependencyReceiptCases):
         @contextmanager
         def alias_root(*args, **kwargs):
             with factory(*args, **kwargs) as temp:
-                parent = Path(temp)
+                parent = Path(temp).resolve()
                 physical = parent / "physical"
                 physical.mkdir()
                 alias = parent / "alias"
@@ -5141,6 +5153,7 @@ class DependencyBoundaryCases(DependencyReceiptCases):
         self.assertEqual(single["aggregate"], "VERIFIED")
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class DependencyFinalBoundaryCases(DependencyReceiptCases):
     def test_consumer_expiry_during_second_acquisition(self):
         import cloud_dependencies as d
@@ -5303,7 +5316,7 @@ class DependencyFinalBoundaryCases(DependencyReceiptCases):
     def test_standalone_provider_install_does_not_import_other_provider(self):
         for provider in ("azure", "aws"):
             with self.subTest(provider=provider), tempfile.TemporaryDirectory() as temp:
-                root = Path(temp)
+                root = Path(temp).resolve()
                 scripts = root / f"plugins/sdd-{provider}-cloud/scripts"
                 shutil.copytree(
                     ROOT / f"plugins/sdd-{provider}-cloud/scripts",
@@ -5345,6 +5358,7 @@ class DependencyFinalBoundaryCases(DependencyReceiptCases):
                 self.assertEqual(result.returncode, 0, result.stderr)
 
 
+@unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
 class DependencyCallbackExpiryCases(unittest.TestCase):
     """Synthetic admitted deadline, real boundary/provider guards and wire counters.
 

@@ -1,6 +1,13 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/cloud-orchestration-contracts.tests.py", "runtime": "python", "ci_jobs": ["test"]},
+    {"path": "tests/cloud-orchestration-routing.tests.py", "runtime": "python", "ci_jobs": ["test"]},
+    {"path": "tests/cloud-orchestration-execution.tests.py", "runtime": "python", "ci_jobs": ["test"]},
+    {"path": "tests/cloud-orchestration-verification.tests.py", "runtime": "python", "ci_jobs": ["test"]},
+    {"path": "tests/install-cloud.tests.py", "runtime": "python", "requires": ["powershell"], "ci_jobs": ["test"]},
+    {"path": "tests/sdd-domain-multitarget-foundation.tests.py", "runtime": "python", "ci_jobs": ["test"]},
+
     {"path": "tests/a9-advisory-evidence.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
     {"path": "tests/a9-dogfood.tests.ps1", "runtime": "powershell", "ci_jobs": ["test-windows-heavy", "version-gates"]},
     {"path": "tests/a9-dogfood.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
@@ -360,7 +367,15 @@
     {"path": "tests/workflow-state.tests.sh", "runtime": "bash"}
   ],
   "profiles": {
+    "ci-cloud": ["tests/cloud-orchestration-contracts.tests.py", "tests/cloud-orchestration-routing.tests.py", "tests/cloud-orchestration-execution.tests.py", "tests/cloud-orchestration-verification.tests.py", "tests/install-cloud.tests.py", "tests/sdd-domain-multitarget-foundation.tests.py"],
     "local-posix": [
+      "tests/cloud-orchestration-contracts.tests.py",
+      "tests/cloud-orchestration-routing.tests.py",
+      "tests/cloud-orchestration-execution.tests.py",
+      "tests/cloud-orchestration-verification.tests.py",
+      "tests/install-cloud.tests.py",
+      "tests/sdd-domain-multitarget-foundation.tests.py",
+
       "tests/ci-suite-wiring.tests.sh",
       "tests/ci-claude-install.tests.sh",
       "tests/wfi-034-scratch-metric.tests.sh",
@@ -553,6 +568,13 @@
       "tests/verification-impact.tests.py"
     ],
     "local-powershell": [
+      "tests/cloud-orchestration-contracts.tests.py",
+      "tests/cloud-orchestration-routing.tests.py",
+      "tests/cloud-orchestration-execution.tests.py",
+      "tests/cloud-orchestration-verification.tests.py",
+      "tests/install-cloud.tests.py",
+      "tests/sdd-domain-multitarget-foundation.tests.py",
+
       "tests/validate-repository.ps1",
       "tests/sdd-domain.tests.ps1",
       "tests/scripts.tests.ps1",

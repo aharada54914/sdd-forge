@@ -2,9 +2,11 @@
   "run_id": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
   "session_id": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
   "agent_instance_id": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120",
-  "source": "Native host identities supplied explicitly by caller in task briefing; not read from process environment",
+  "source": "Explicit caller identity, now corroborated by stable native allocation thread.id; no inherited environment identity",
   "model": "openai/gpt-6-astra",
   "effort": "high",
   "scratch_root": "/tmp/cloud-T011-01a14fdf",
-  "base_revision": "d901a3750d6b563622e8f06100c0043896022645"
+  "base_revision": "d901a3750d6b563622e8f06100c0043896022645",
+  "allocation_sha256": "b433ff272a8a546e1d07c2a68b4cb97c3c72c094979e8c14f02f08b48a3e4923",
+  "allocation_thread_id": "01a14fdf-c933-7a80-8ab7-0f75d5c8e120"
 }

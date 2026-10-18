@@ -1,0 +1,74 @@
+test_a9_workflow_privacy_mutations_are_rejected (__main__.RequiredChecksTests.test_a9_workflow_privacy_mutations_are_rejected) ... ok
+test_a9_workflow_trust_and_private_retention_boundary (__main__.RequiredChecksTests.test_a9_workflow_trust_and_private_retention_boundary) ... ok
+test_all_success (__main__.RequiredChecksTests.test_all_success) ... ok
+test_catalog_declared_ci_jobs_have_actual_execution (__main__.RequiredChecksTests.test_catalog_declared_ci_jobs_have_actual_execution) ... ok
+test_dependencies_and_always (__main__.RequiredChecksTests.test_dependencies_and_always) ... ok
+test_domain_finalization_has_its_own_unconditional_native_step (__main__.RequiredChecksTests.test_domain_finalization_has_its_own_unconditional_native_step) ... ok
+test_duplicate_yaml_keys_and_wrong_shell_are_not_execution (__main__.RequiredChecksTests.test_duplicate_yaml_keys_and_wrong_shell_are_not_execution) ... ok
+test_each_dependency_non_success (__main__.RequiredChecksTests.test_each_dependency_non_success) ... ok
+test_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) ... 
+  test_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) (suite='tests/concept-test.tests.py') ... ERROR
+  test_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) (suite='tests/domain-review-finalize.tests.py') ... ERROR
+test_fallback_shards_are_complete_unconditional_and_required (__main__.RequiredChecksTests.test_fallback_shards_are_complete_unconditional_and_required) ... ok
+test_inactive_advisory_is_skipped_not_success (__main__.RequiredChecksTests.test_inactive_advisory_is_skipped_not_success) ... ok
+test_matrix_suite_profile_and_condition_coverage (__main__.RequiredChecksTests.test_matrix_suite_profile_and_condition_coverage) ... ok
+test_powershell_multiline_native_failure_is_not_coverage (__main__.RequiredChecksTests.test_powershell_multiline_native_failure_is_not_coverage) ... ERROR
+test_previously_missing_suites_have_unconditional_steps (__main__.RequiredChecksTests.test_previously_missing_suites_have_unconditional_steps) ... ok
+test_removed_disabled_or_prose_invocations_cannot_prove_coverage (__main__.RequiredChecksTests.test_removed_disabled_or_prose_invocations_cannot_prove_coverage) ... ok
+test_selected_plan_full_suite_runs_on_all_native_platforms (__main__.RequiredChecksTests.test_selected_plan_full_suite_runs_on_all_native_platforms) ... ok
+test_transport_dependency_is_pinned_and_installed_first (__main__.RequiredChecksTests.test_transport_dependency_is_pinned_and_installed_first) ... ok
+test_yaml_format_and_step_names_do_not_define_coverage (__main__.RequiredChecksTests.test_yaml_format_and_step_names_do_not_define_coverage) ... ok
+
+======================================================================
+ERROR: test_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) (suite='tests/concept-test.tests.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/required-checks-posix.tests.py", line 135, in test_each_native_python_failure_propagates_to_the_step
+    run = subprocess.run([shutil.which('pwsh') or 'pwsh', '-NoProfile', '-Command', script],
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'pwsh'
+
+======================================================================
+ERROR: test_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) (suite='tests/domain-review-finalize.tests.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/required-checks-posix.tests.py", line 135, in test_each_native_python_failure_propagates_to_the_step
+    run = subprocess.run([shutil.which('pwsh') or 'pwsh', '-NoProfile', '-Command', script],
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'pwsh'
+
+======================================================================
+ERROR: test_powershell_multiline_native_failure_is_not_coverage (__main__.RequiredChecksTests.test_powershell_multiline_native_failure_is_not_coverage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/required-checks-posix.tests.py", line 291, in test_powershell_multiline_native_failure_is_not_coverage
+    run = subprocess.run([shutil.which('pwsh') or 'pwsh', '-NoProfile', '-Command', body],
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'pwsh'
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.368s
+
+FAILED (errors=3)
+exit_code=1

@@ -1,0 +1,15 @@
+from pathlib import Path
+import subprocess,json,datetime,os
+root=Path.cwd(); ev=root/'specs/cloud-orchestration/verification/T-011/attempt-1'
+commands=[['bash','tests/bootstrap-interview-guidance.tests.sh'],['bash','tests/bootstrap-layer-templates.tests.sh'],['bash','tests/bootstrap-cross-layer-index.tests.sh'],['bash','tests/guard-negative-corpus.tests.sh'],['bash','tests/guard-dispatch-fallback.tests.sh'],['python3','-B','tests/sdd-domain-multitarget-foundation.tests.py'],['python3','-B','tests/sdd-domain-multitarget-T-003.tests.py'],['python3','-B','tests/sdd-domain-multitarget-T-004.tests.py'],['python3','-B','tests/required-checks-posix.tests.py'],['python3','-B','tests/verification-impact.tests.py']]
+records=[]
+for cmd in commands:
+ log=ev/('regression-'+Path(cmd[1] if cmd[0]=='bash' else cmd[2]).name+'.log')
+ now=datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+ with log.open('w') as out:
+  out.write('Command: '+ ' '.join(cmd)+'\n'); out.flush()
+  p=subprocess.run(cmd,stdout=out,stderr=subprocess.STDOUT,env=dict(os.environ,PATH='/workspace/.tools/sdd-forge-dev/bin:'+os.environ['PATH']),timeout=300)
+  out.write('\nexit_code='+str(p.returncode)+'\n')
+ records.append(dict(command=cmd,at=now,exit_code=p.returncode,log=str(log.relative_to(root))))
+ print(cmd[-1],p.returncode,flush=True)
+ (ev/'scoped-regressions.json').write_text(json.dumps(records,indent=2)+'\n')

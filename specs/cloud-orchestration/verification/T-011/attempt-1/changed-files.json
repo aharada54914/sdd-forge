@@ -1,0 +1,46 @@
+[
+  {
+    "path": "plugins/sdd-bootstrap/scripts/cloud-routing.py",
+    "sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b"
+  },
+  {
+    "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+    "sha256": "9d78e75b7c98aaca5a4ef2ef0727b7924be84cf79346f327ff03c931a2a62000"
+  },
+  {
+    "path": "tests/verification-catalog.json",
+    "sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80"
+  },
+  {
+    "path": ".github/workflows/test.yml",
+    "sha256": "48698cda10fa3d2ae083368fdc378f3def72271eeeb074f290fc63aad0f4d27a"
+  },
+  {
+    "path": "tests/cloud-orchestration-contracts.tests.py",
+    "sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2"
+  },
+  {
+    "path": "tests/cloud-orchestration-routing.tests.py",
+    "sha256": "2ea10b036fcfe019f045b7912b15c11abf2975f61424f055b44822bc59fbf971"
+  },
+  {
+    "path": "tests/cloud-orchestration-execution.tests.py",
+    "sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b"
+  },
+  {
+    "path": "tests/cloud-orchestration-verification.tests.py",
+    "sha256": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f"
+  },
+  {
+    "path": "tests/install-cloud.tests.py",
+    "sha256": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5"
+  },
+  {
+    "path": "tests/sdd-domain-multitarget-foundation.tests.py",
+    "sha256": "9083c323d44f337373e2eeb21264eec5c132d495129233c4501f24a32b8e08a2"
+  },
+  {
+    "path": "tests/sdd-domain-multitarget-T-004.tests.py",
+    "sha256": "d577d1fbe440849b132038742d020a476253b2a7570a8229556311f0bb85ab2d"
+  }
+]

@@ -1,0 +1,9 @@
+test_reviewed_cloud_extension_is_exact_and_retains_original_baseline (__main__.CompatibilityTests.test_reviewed_cloud_extension_is_exact_and_retains_original_baseline) ... ok
+test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy (__main__.CompatibilityTests.test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy) ... ok
+test_additive_override_contract_preserves_existing_context_boundaries (__main__.CompatibilityTests.test_additive_override_contract_preserves_existing_context_boundaries) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.490s
+
+OK
+exit_code=0

@@ -1,0 +1,3 @@
+$ /tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-bootstrap/scripts/cloud-routing.py tests/cloud-orchestration-contracts.tests.py tests/cloud-orchestration-routing.tests.py tests/cloud-orchestration-execution.tests.py tests/cloud-orchestration-verification.tests.py tests/install-cloud.tests.py tests/sdd-domain-multitarget-foundation.tests.py tests/sdd-domain-multitarget-T-004.tests.py specs/cloud-orchestration/verification/T-011/attempt-1/prepare-host-fixture.py
+All checks passed!
+exit_code=0

@@ -6,6 +6,9 @@ import json
 from pathlib import Path, PurePosixPath
 import re
 import tempfile
+import os
+import shutil
+import subprocess
 import unittest
 
 
@@ -81,6 +84,36 @@ def resolve_inventory(inventory, root):
 
 
 class CurrentAnchorTests(unittest.TestCase):
+    def test_current_suite_remains_on_catalog_normal_and_native_ci_paths(self):
+        runner = load_module("verification", ROOT / "tests/verification.py")
+        workflow = load_module("verification_workflow", ROOT / "tests/verification-workflow.py")
+        path = "tests/sdd-domain-multitarget-foundation.tests.py"
+        catalog = runner.load_catalog(ROOT / "tests/verification-catalog.json", ROOT)
+        for profile in ("local-posix", "local-powershell"):
+            self.assertIn(path, catalog["profiles"][profile])
+        commands = []
+        if os.name != "nt":
+            commands.append(["bash", str(ROOT / "tests/run-all.sh"), "--list"])
+        pwsh = os.environ.get("SDD_TEST_PWSH") or shutil.which("pwsh")
+        if pwsh:
+            commands.append([pwsh, "-NoProfile", "-File", str(ROOT / "tests/run-all.ps1"), "-List"])
+        else:
+            print("Native PowerShell launcher unavailable: its execution remains pending")
+        for command in commands:
+            result = subprocess.run(command, text=True, capture_output=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn(path, result.stdout.splitlines())
+        data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
+        for os_name in ("windows-latest", "macos-latest", "ubuntu-latest"):
+            one = copy.deepcopy(data)
+            one["jobs"] = {"test": one["jobs"]["test"]}
+            one["jobs"]["test"]["strategy"]["matrix"]["os"] = [os_name]
+            self.assertIn(path, workflow.workflow_coverage(one, catalog)["test"])
+        # The real YAML consumer must detect removed execution, not find prose.
+        missing = copy.deepcopy(data)
+        missing["jobs"]["test"]["steps"] = []
+        self.assertNotIn(path, workflow.workflow_coverage(missing, catalog)["test"])
+
     def test_line_insertion_preserves_meaning(self):
         text = "# Skill\n\n## Required Outputs\nseven Markdown files\n## Next\nother\n"
         self.assertEqual(section_range(text, "## Required Outputs"), (3, 4))

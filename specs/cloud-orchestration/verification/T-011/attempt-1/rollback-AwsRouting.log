@@ -1,0 +1,33 @@
+Command: python3 -B tests/cloud-orchestration-routing.tests.py AzureRouting AwsRouting
+test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AzureRouting.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_explicit_unsupported_inventory_and_provider_mismatch (__main__.AzureRouting.test_explicit_unsupported_inventory_and_provider_mismatch) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AzureRouting.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AzureRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_missing_owner_import_and_metadata_id_preservation (__main__.AzureRouting.test_missing_owner_import_and_metadata_id_preservation) ... ok
+test_mutated_input_output_escape_alias_and_no_overwrite (__main__.AzureRouting.test_mutated_input_output_escape_alias_and_no_overwrite) ... ok
+test_one_explicit_bicep_owner_routes_with_stable_apply_intent (__main__.AzureRouting.test_one_explicit_bicep_owner_routes_with_stable_apply_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AzureRouting.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AzureRouting.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AzureRouting.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_only_unit_is_not_migrated (__main__.AzureRouting.test_unsupported_only_unit_is_not_migrated) ... ok
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsRouting.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsRouting.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_mixed_unsupported_missing_import_and_provider (__main__.AwsRouting.test_mixed_unsupported_missing_import_and_provider) ... ok
+test_output_and_source_integrity (__main__.AwsRouting.test_output_and_source_integrity) ... ok
+test_route_owner_identity_and_stable_intent (__main__.AwsRouting.test_route_owner_identity_and_stable_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AwsRouting.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AwsRouting.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_filesystem_subprocess (__main__.AwsRouting.test_unsupported_filesystem_subprocess) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 4.251s
+
+OK
+
+exit_code=0

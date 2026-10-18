@@ -1,0 +1,13 @@
+{
+  "error_code": null,
+  "evidence_manifest_path": "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/validate.json.manifest.json",
+  "input_manifest_sha256": "aa2abc4ddb432984ac48c57fdfe46778ea2fbe8356b6edc58307453324ed96a0",
+  "message": "Local check only; no cloud validation or authorization.",
+  "operation": "validate",
+  "provider": "azure",
+  "result": "PASS",
+  "run_id": "synthetic-run",
+  "schema": "cloud-operation-result/v1",
+  "state": "LOCAL_VALIDATED",
+  "unit_id": "synthetic-unit"
+}

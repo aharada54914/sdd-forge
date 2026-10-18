@@ -191,6 +191,7 @@ class DeterministicTransport:
         raise AssertionError("Unexpected deterministic transport request: " + url)
 
 
+@unittest.skipIf(os.name == "nt", "Governed fixtures require safe POSIX fd/no-follow operations; no native Windows cloud execution")
 class Admission(unittest.TestCase):
     def setUp(self):
         self.assertTrue((SCRIPTS / "cloud_authorization.py").is_file(), "T-003 admission boundary is absent")
@@ -199,7 +200,7 @@ class Admission(unittest.TestCase):
         self.a = cloud_authorization
         self.tmp = tempfile.TemporaryDirectory(prefix="cloud-T-003-fixture-")
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         self.evidence = self.root / "evidence"
         self.evidence.mkdir()
         self.writes = []
@@ -938,6 +939,7 @@ class Admission(unittest.TestCase):
 
 
 # T-012: native ARM request shapes, deterministic transports only; never live IAM.
+@unittest.skipIf(os.name == "nt", "Governed fixtures require safe POSIX fd/no-follow operations; no native Windows cloud execution")
 class AzureExecution(unittest.TestCase):
     def setUp(self):
         import shutil
@@ -953,7 +955,7 @@ class AzureExecution(unittest.TestCase):
         self.e, self.a = execution, auth
         self.tmp = tempfile.TemporaryDirectory(prefix="cloud-T012-synthetic-")
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         source = (
             ROOT
             / "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle"
@@ -1548,7 +1550,7 @@ class AzureExecution(unittest.TestCase):
         self.prepare()
         fresh = tempfile.TemporaryDirectory(prefix="cloud-T012-fresh-job-")
         self.addCleanup(fresh.cleanup)
-        restored = Path(fresh.name) / "data"
+        restored = Path(fresh.name).resolve() / "data"
         # Preserve the original immutable PREPARE output, before any apply marker.
         shutil.copytree(self.root, restored)
         prior_run = copy.deepcopy(self.auths[-1].run)
@@ -1914,6 +1916,7 @@ class ArmFixture:
         )
 
 
+@unittest.skipIf(os.name == "nt", "Governed fixtures require safe POSIX fd/no-follow operations; no native Windows cloud execution")
 class AzureCallerIntegration(unittest.TestCase):
     def setUp(self):
         sys.path.insert(0, str(ROOT / "plugins/sdd-azure-cloud/scripts"))
@@ -2108,6 +2111,7 @@ class ArtifactFixture:
         raise AssertionError("Unexpected artifact URL")
 
 
+@unittest.skipIf(os.name == "nt", "Governed fixtures require safe POSIX fd/no-follow operations; no native Windows cloud execution")
 class AwsExecution(unittest.TestCase):
     """T-013 native wire-contract tests; synthetic HTTPS only, NOT live IAM."""
 
@@ -2141,7 +2145,7 @@ class AwsExecution(unittest.TestCase):
         self.e, self.a = execution, auth
         self.tmp = tempfile.TemporaryDirectory(prefix="cloud-T013-synthetic-")
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         shutil.copytree(
             ROOT / "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle",
             self.root / "bundle",
@@ -3117,6 +3121,14 @@ class AwsWireFixture:
                 ),
             )
         raise AssertionError("Unexpected native action " + action)
+
+
+class NativePlatformBoundary(unittest.TestCase):
+    @unittest.skipUnless(os.name == "nt", "Native Windows refusal only")
+    def test_native_platform_refuses_file_execution(self):
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaisesRegex(contracts.ContractError, "UNSUPPORTED_FILESYSTEM"):
+                contracts.read_verified(Path(temp).resolve(), dict(path="input.json", sha256="a" * 64))
 
 
 if __name__ == "__main__":

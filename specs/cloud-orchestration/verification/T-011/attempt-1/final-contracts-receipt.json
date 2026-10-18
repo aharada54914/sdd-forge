@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": null,
+  "revision": "53015c3f81c3bba128cbf466a76fd736666383a5",
+  "clean_before": false,
+  "reusable": false,
+  "catalog_sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80",
+  "selected": [
+    "tests/cloud-orchestration-contracts.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-contracts.tests.py",
+      "source_sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.45643
+    }
+  ],
+  "revision_after": "53015c3f81c3bba128cbf466a76fd736666383a5",
+  "clean_after": false
+}

@@ -17,7 +17,8 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-PWSH = os.environ.get('SDD_TEST_PWSH', '/workspace/.tools/sdd-forge-dev/bin/pwsh')
+PWSH = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh') or '/workspace/.tools/sdd-forge-dev/bin/pwsh'
+SHELLS = ('pwsh',) if os.name == 'nt' else ('bash', 'pwsh')
 PROVIDERS = ('azure', 'aws')
 MODULES = ('cloud_contracts.py', 'cloud_authorization.py', 'cloud_verification.py', 'cloud_dependencies.py')
 HOSTS = ('.claude-plugin', '.codex-plugin', '.plugin')
@@ -102,7 +103,7 @@ class ManifestBoundary(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.temp = tempfile.TemporaryDirectory(prefix='cloud-package-fields-')
-        cls.root = Path(cls.temp.name)
+        cls.root = Path(cls.temp.name).resolve()
         fixture(cls.root)
         seeded_manifests(cls.root)
 
@@ -212,7 +213,7 @@ def local_request(root: Path, provider: str) -> dict:
 # No fixture imports from the repository; the fake authenticated response here
 # is synthetic. Network access is intercepted with a scoped unittest mock.
 RUNTIME_PROBE = r"""
-import json, sys
+import json, os, sys
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -242,7 +243,13 @@ try:
 finally: registry.write_bytes(raw)
 for name, version in [('verification-contract-v3.schema.json','verification-contract/v3'),('selected-verification-plan-v2.schema.json','selected-verification-plan/v2')]:
     assert json.loads((runtime / 'contracts' / name).read_bytes())['properties']['schema']['const'] == version
-root = Path.cwd()
+root = Path.cwd().resolve()
+if os.name == 'nt':
+    try: c.read_verified(root, dict(path='probe.json', sha256='a'*64))
+    except c.ContractError as exc: assert str(exc) == 'UNSUPPORTED_FILESYSTEM'
+    else: raise AssertionError('native Windows unexpectedly admitted POSIX runtime')
+    print('installed schemas/modules PASS; native Windows cloud filesystem explicitly unsupported')
+    sys.exit(0)
 receipt = root / 'prior.json'; receipt.write_bytes(b'synthetic authenticated receipt')
 ref = dict(path='prior.json', sha256=v.digest(receipt.read_bytes()))
 pin = dict(unit_id='prior-unit', verification=ref)
@@ -277,6 +284,8 @@ class InstalledLifecycle(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        if os.name == 'nt':
+            print('Native Windows: exercise PowerShell installation; Bash lifecycle and POSIX cloud execution not claimed')
         cls.temp = tempfile.TemporaryDirectory(prefix='cloud-install-lifecycle-')
         cls.root = Path(cls.temp.name).resolve()
         cls.source = cls.root / 'source'
@@ -307,7 +316,7 @@ class InstalledLifecycle(unittest.TestCase):
         return run(args, self.root, env)
 
     def test_each_provider_and_both_real_install_and_uninstall(self) -> None:
-        for shell in ('bash', 'pwsh'):
+        for shell in SHELLS:
             for providers in (('azure',), ('aws',), PROVIDERS):
                 with self.subTest(shell=shell, providers=providers), tempfile.TemporaryDirectory(dir=self.root) as temp:
                     dest = Path(temp) / 'installed'
@@ -340,9 +349,9 @@ class InstalledLifecycle(unittest.TestCase):
 
     def check_runtime_and_cli(self, plugin: Path, provider: str, parent: Path) -> None:
         with tempfile.TemporaryDirectory(dir=parent) as temp:
-            work = Path(temp)
+            work = Path(temp).resolve()
             runtime = plugin / 'runtime'
-            env = dict(PATH=os.defpath, HOME=temp, CLOUD_WORKSPACE_ROOT=temp, CLOUD_SHARED_RUNTIME_ROOT=str(runtime / 'scripts'), PYTHONDONTWRITEBYTECODE='1')
+            env = dict(PATH=os.defpath, HOME=str(work), CLOUD_WORKSPACE_ROOT=str(work), CLOUD_SHARED_RUNTIME_ROOT=str(runtime / 'scripts'), PYTHONDONTWRITEBYTECODE='1')
             p = run([sys.executable, '-I', '-B', '-c', RUNTIME_PROBE, str(runtime)], work, env)
             self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
             request = local_request(work, provider)
@@ -351,12 +360,19 @@ class InstalledLifecycle(unittest.TestCase):
                 write_json(request_path, request)
                 output = request['local_context']['evidence_directory'] + '/' + phase + '.json'
                 p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), phase, '--request', str(request_path), '--output', output], work, env)
+                if os.name == 'nt':
+                    self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+                    self.assertIn(json.loads(p.stdout)['error_code'], ('UNSUPPORTED_FILESYSTEM', 'UNSAFE_ROOT'))
+                    self.assertFalse((work / output).exists())
+                    continue
                 self.assertEqual(p.returncode, 0 if phase == 'route' else 2, p.stdout + p.stderr)
                 result = json.loads(p.stdout)
                 self.assertEqual(result['result'], 'PASS' if phase == 'route' else 'BLOCKED')
                 if phase != 'route':
                     self.assertEqual(result['error_code'], 'OPERATION_UNIMPLEMENTED')
                     self.assertFalse((work / output).exists())
+            if os.name == 'nt':
+                return  # Native refusal above is not POSIX cloud execution evidence.
             # Structural LOCAL route integrity only: these saved files confer no
             # authority and are not authenticated/live predecessor evidence.
             # Keep this distinct from the no-executor write denials above and
@@ -414,7 +430,7 @@ class InstalledLifecycle(unittest.TestCase):
         raw = path.read_bytes()
         try:
             path.unlink()
-            for shell in ('bash', 'pwsh'):
+            for shell in SHELLS:
                 with self.subTest(shell=shell):
                     dest = self.root / ('missing-' + shell)
                     p = self.installer(shell, ('sdd-azure-cloud',), dest)
@@ -424,7 +440,7 @@ class InstalledLifecycle(unittest.TestCase):
             path.write_bytes(raw)
 
     def test_sequential_selections_rebuild_prior_runtime(self) -> None:
-        for shell in ('bash', 'pwsh'):
+        for shell in SHELLS:
             for first, second in (PROVIDERS, tuple(reversed(PROVIDERS))):
                 with tempfile.TemporaryDirectory(dir=self.root) as temp:
                     dest = Path(temp) / 'installed'
@@ -449,15 +465,17 @@ class InstalledLifecycle(unittest.TestCase):
                             with self.subTest(shell=shell, first=first, step=step, provider=provider, check='installed CLI'):
                                 self.check_runtime_and_cli(plugin, provider, Path(temp))
                             with self.subTest(shell=shell, first=first, step=step, provider=provider, check='direct route'), tempfile.TemporaryDirectory(dir=temp) as work_temp:
-                                work = Path(work_temp)
+                                work = Path(work_temp).resolve()
                                 request = local_request(work, provider)
                                 write_json(work / 'request.json', request)
-                                env = dict(PATH=os.defpath, HOME=work_temp, CLOUD_WORKSPACE_ROOT=work_temp,
+                                env = dict(PATH=os.defpath, HOME=str(work), CLOUD_WORKSPACE_ROOT=str(work),
                                            CLOUD_SHARED_RUNTIME_ROOT=str(plugin / 'runtime/scripts'), PYTHONDONTWRITEBYTECODE='1')
                                 p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), 'route', '--request', str(work / 'request.json'),
                                          '--output', request['local_context']['evidence_directory'] + '/route.json'], work, env)
                                 print(f'direct {shell}/{provider} step={step}: exit={p.returncode} {p.stdout.strip()}', flush=True)
-                                self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                                self.assertEqual(p.returncode, 2 if os.name == 'nt' else 0, p.stdout + p.stderr)
+                                if os.name == 'nt':
+                                    self.assertIn(json.loads(p.stdout)['error_code'], ('UNSUPPORTED_FILESYSTEM', 'UNSAFE_ROOT'))
                         # Prior executable/schema bytes are NOT trusted upgrade inputs.
                         # The next real install must regenerate every payload from source.
                         if step < len(selections) - 1:
@@ -480,7 +498,7 @@ class InstalledLifecycle(unittest.TestCase):
             ('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',),
             ('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',),
         )
-        for shell in ('bash', 'pwsh'):
+        for shell in SHELLS:
             for missing in groups:
                 with self.subTest(shell=shell, missing=missing), tempfile.TemporaryDirectory(dir=self.root) as temp:
                     dest = Path(temp) / 'installed'
@@ -508,7 +526,7 @@ class InstalledLifecycle(unittest.TestCase):
                     self.check_runtime_and_cli(dest / 'plugins/sdd-azure-cloud', 'azure', Path(temp))
 
     def test_case_variants_at_operator_and_file_discovery_layers(self) -> None:
-        for shell in ('bash', 'pwsh'):
+        for shell in SHELLS:
             for plugin in ('SDD-AZURE-CLOUD', 'sdd-Aws-cloud'):
                 with self.subTest(shell=shell, plugin=plugin):
                     dest = self.root / (shell + '-' + plugin)
@@ -521,7 +539,7 @@ class InstalledLifecycle(unittest.TestCase):
         p = run(['git', 'add', '--', 'contracts/CLOUD-CASE.schema.json'], self.source)
         self.assertEqual(p.returncode, 0, p.stderr)
         try:
-            for shell in ('bash', 'pwsh'):
+            for shell in SHELLS:
                 dest = self.root / ('case-schema-' + shell)
                 p = self.installer(shell, ('sdd-azure-cloud',), dest)
                 self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
@@ -533,7 +551,7 @@ class InstalledLifecycle(unittest.TestCase):
 class SkillVisibility(unittest.TestCase):
     def test_real_export_consumer_ignores_upstream_reference_skills(self) -> None:
         with tempfile.TemporaryDirectory(prefix='cloud-skill-exports-') as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             fixture(root)
             result = validate(root, skills=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -541,7 +559,7 @@ class SkillVisibility(unittest.TestCase):
 
     def test_visibility_guards_with_matched_controls(self) -> None:
         with tempfile.TemporaryDirectory(prefix='cloud-visibility-guards-') as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             fixture(root)
             self.assertEqual(validate(root, skills=True).returncode, 0)
             for provider in PROVIDERS:

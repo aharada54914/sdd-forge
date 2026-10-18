@@ -1,0 +1,19 @@
+from pathlib import Path
+import json,importlib.util,hashlib,shutil,os
+root=Path.cwd();ev=root/'specs/cloud-orchestration/verification/T-011/attempt-1'
+spec=importlib.util.spec_from_file_location('cloud_routing_tests',root/'tests/cloud-orchestration-routing.tests.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+records=[]
+for provider,cls in [('azure',m.AzureNativePreparation),('aws',m.AwsNativePreparation)]:
+ case=cls();case.setUp()
+ try:
+  case.native_prerequisites()
+  result=case.invoke('plan'); manifest=json.loads((case.root/result['evidence_manifest_path']).read_bytes()); case.req=case.contracts.read_artifact(case.root,manifest['locked_request'],'cloud-run-request/v1'); validated=case.invoke('validate')
+  directory=ev/'native-receipts'/provider;directory.mkdir(parents=True)
+  (directory/'plan-result.json').write_text(json.dumps(result,indent=2)+'\n');(directory/'validate-result.json').write_text(json.dumps(validated,indent=2)+'\n')
+  (directory/'plan-manifest.json').write_bytes((case.root/result['evidence_manifest_path']).read_bytes());(directory/'validate-manifest.json').write_bytes((case.root/validated['evidence_manifest_path']).read_bytes())
+  source=case.root/'bundle/generated';shutil.copytree(source,directory/'generated')
+  records.append(dict(provider=provider,classification='real pinned local compiler/synthesizer; synthetic resource inputs; no cloud API',plan_state=result['state'],validate_state=validated['state'],compiler=manifest['compiler'],artifacts=[dict(path=p.relative_to(root).as_posix(),sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(directory.rglob('*')) if p.is_file()]))
+ finally:case.doCleanups()
+(env:=ev/'native-receipts').mkdir(exist_ok=True)
+(env/'receipt.json').write_text(json.dumps(dict(classification='native local preparation NOT native model host or live sandbox',environment={k:os.environ[k] for k in ('CLOUD_BICEP_BIN','CLOUD_NODE_BIN','CLOUD_CDK_ROOT')},records=records),indent=2)+'\n')
+print('two real local plan/validate receipts persisted')

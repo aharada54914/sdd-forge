@@ -1,0 +1,16 @@
+{
+  "classification": "fresh public native tool acquisition and local package reproduction; no cloud API",
+  "at": "2026-10-18T16:50:12Z",
+  "bicep_sha256": "b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e",
+  "node_archive_sha256": "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647",
+  "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+  "node_version": "24.19.0",
+  "official_archive_bundled_npm": "11.17.0",
+  "prior_operator_npm": "11.9.0",
+  "command": "npm ci --prefix <physical scratch>/cdk --ignore-scripts --no-audit --no-fund",
+  "exit_code": 0,
+  "installed_file_count": 8095,
+  "installed_tree_sha256": "34824a391a509c6907a9e6bb64f3a370a473bfbacd6e7f1cf1987ddd7431c1e1",
+  "matches_existing_pin": true,
+  "initial_setup_failure": "An incorrect assumption npm == 11.9.0 failed AFTER both official digests passed. Corrected to actual bundled npm 11.17.0; native acquired routing then passed 92 tests without skips."
+}
