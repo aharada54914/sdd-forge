@@ -1,0 +1,199 @@
+test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) ... 
+  test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0.0') ... FAIL
+  test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0.000') ... FAIL
+  test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0e0') ... FAIL
+  test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0E+12') ... FAIL
+  test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0e-4000') ... FAIL
+  test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='-0') ... FAIL
+  test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='-0.0') ... FAIL
+  test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='-0e-12') ... FAIL
+  test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='+0.0') ... FAIL
+test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) ... ok
+test_other_alarm_field_semantics_remain_exact (__main__.AlarmNumericCases.test_other_alarm_field_semantics_remain_exact) ... ok
+test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) ... 
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0.0') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0.000') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0e0') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0E+12') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0e-4000') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-0') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-0.0') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-0e-12') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='+0.0') ... FAIL
+test_live_network_is_forbidden_before_transport (__main__.EntryPreflight.test_live_network_is_forbidden_before_transport) ... ok
+
+======================================================================
+FAIL: test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0.0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2934, in test_native_xml_threshold_numeric_zero
+    self.assertTrue(collector.monitoring()[0])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0.000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2934, in test_native_xml_threshold_numeric_zero
+    self.assertTrue(collector.monitoring()[0])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0e0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2934, in test_native_xml_threshold_numeric_zero
+    self.assertTrue(collector.monitoring()[0])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0E+12')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2934, in test_native_xml_threshold_numeric_zero
+    self.assertTrue(collector.monitoring()[0])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='0e-4000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2934, in test_native_xml_threshold_numeric_zero
+    self.assertTrue(collector.monitoring()[0])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='-0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2934, in test_native_xml_threshold_numeric_zero
+    self.assertTrue(collector.monitoring()[0])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='-0.0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2934, in test_native_xml_threshold_numeric_zero
+    self.assertTrue(collector.monitoring()[0])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='-0e-12')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2934, in test_native_xml_threshold_numeric_zero
+    self.assertTrue(collector.monitoring()[0])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) (threshold='+0.0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2934, in test_native_xml_threshold_numeric_zero
+    self.assertTrue(collector.monitoring()[0])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0.0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0.000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0e0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0E+12')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0e-4000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-0.0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-0e-12')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='+0.0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 11.994s
+
+FAILED (failures=18)

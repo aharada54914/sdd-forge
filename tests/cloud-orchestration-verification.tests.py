@@ -2845,6 +2845,104 @@ class PublicObservationCases(unittest.TestCase):
                     self.doCleanups()
 
 
+class AlarmNumericCases(unittest.TestCase):
+    """CloudWatch double semantics over real XML decoding; all I/O is synthetic."""
+
+    ZEROS = ("0", "0.0", "0.000", "0e0", "0E+12", "0e-4000", "-0", "-0.0", "-0e-12", "+0.0")
+    REJECTED = (
+        "1", "-1", "0.01", "-0.01", "1e-4000", "-1e-4000", "1e4000",
+        "NaN", "sNaN", "Inf", "-Inf", "Infinity", "-Infinity", "nan",
+        "", "garbage", "0x0", "0_0", "0e", "0 0", "０", "0.0junk",
+    )
+
+    @staticmethod
+    def alarm_response(original, value, *, field="Threshold"):
+        import xml.etree.ElementTree as ET
+        from urllib.parse import parse_qs
+
+        hits = []
+
+        def response(method, url, headers, body=None):
+            result = original(method, url, headers, body)
+            if body and parse_qs(body.decode()).get("Action") == ["DescribeAlarms"]:
+                tree = ET.fromstring(result.body)
+                nodes = [n for n in tree.iter() if n.tag.endswith("}" + field)]
+                assert len(nodes) == 1
+                nodes[0].text = value
+                result.body = ET.tostring(tree)
+                hits.append(hashlib.sha256(result.body).hexdigest())
+            return result
+
+        return response, hits
+
+    def test_native_xml_threshold_numeric_zero(self):
+        for value in self.ZEROS:
+            with self.subTest(threshold=value):
+                collector, fixture = FreshnessCases().collector(
+                    "aws", "monitoring", "healthy", "2026-10-18T06:00:00Z"
+                )
+                response, hits = self.alarm_response(fixture.request, value)
+                with patch.object(fixture, "request", side_effect=response):
+                    self.assertTrue(collector.monitoring()[0])
+                self.assertEqual(len(hits), 1)
+                self.assertIn(hits[0], [q["response_sha256"] for q in collector.trace])
+
+    def test_native_xml_threshold_rejects_nonzero_and_invalid(self):
+        for value in self.REJECTED:
+            with self.subTest(threshold=value):
+                collector, fixture = FreshnessCases().collector(
+                    "aws", "monitoring", "healthy", "2026-10-18T06:00:00Z"
+                )
+                response, hits = self.alarm_response(fixture.request, value)
+                with patch.object(fixture, "request", side_effect=response):
+                    self.assertFalse(collector.monitoring()[0])
+                self.assertEqual(len(hits), 1)
+
+    def test_other_alarm_field_semantics_remain_exact(self):
+        for field, value in (("Period", "60.0"), ("EvaluationPeriods", "2e0"), ("MetricName", "statuscheckfailed")):
+            with self.subTest(field=field, value=value):
+                collector, fixture = FreshnessCases().collector(
+                    "aws", "monitoring", "healthy", "2026-10-18T06:00:00Z"
+                )
+                response, hits = self.alarm_response(fixture.request, value, field=field)
+                with patch.object(fixture, "request", side_effect=response):
+                    self.assertFalse(collector.monitoring()[0])
+                self.assertEqual(len(hits), 1)
+
+    def test_public_synthetic_threshold_result_counterparts(self):
+        for value in self.ZEROS + self.REJECTED:
+            with self.subTest(threshold=value):
+                harness = PublicObservationCases()
+                self.addCleanup(harness.doCleanups)
+                case, wire, health, module = harness.setup_execution("aws")
+                response, hits = self.alarm_response(health.request, value)
+                with patch.object(health, "request", side_effect=response):
+                    result = harness.run_public(case, module, "numeric")
+                expected = "PASS" if value in self.ZEROS else "FAIL"
+                verification = json.loads((case.root / (case.directory + "/numeric.json.verification.json")).read_bytes())
+                check = next(q for q in verification["checks"] if q["check_id"] == "monitoring")
+                self.assertEqual(check["result"], expected)
+                obs_data = (case.root / check["observation"]["path"]).read_bytes()
+                self.assertEqual(hashlib.sha256(obs_data).hexdigest(), check["observation"]["sha256"])
+                obs = json.loads(obs_data)
+                self.assertEqual(obs["status"], expected)
+                self.assertEqual(obs["exit_code"], 0 if expected == "PASS" else 1)
+                self.assertEqual(obs["classification"], "synthetic")
+                payload_data = (case.root / obs["result"]["path"]).read_bytes()
+                self.assertEqual(hashlib.sha256(payload_data).hexdigest(), obs["result"]["sha256"])
+                payload = json.loads(payload_data)
+                self.assertEqual(payload["status"], expected)
+                self.assertEqual(payload["reason"], "HEALTHY" if expected == "PASS" else "UNHEALTHY")
+                self.assertEqual(len(hits), 1)
+                self.assertIn(hits[0], [q["response_sha256"] for q in payload["queries"]])
+                self.assertFalse(verification["evidence_complete"])
+                public = "BLOCKED" if expected == "PASS" else "FAIL"
+                self.assertEqual(verification["overall_result"], expected)
+                self.assertEqual(result["result"], public)
+                self.assertNotEqual(result["state"], "EVIDENCE_COMPLETE")
+                self.doCleanups()
+
+
 class WorkloadRangeCases(unittest.TestCase):
     def test_native_bucket_minimum_and_maximum(self):
         import xml.etree.ElementTree as ET
