@@ -1,0 +1,123 @@
+test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) ... 
+  test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=0) ... FAIL
+  test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=1) ... FAIL
+  test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=2) ... FAIL
+  test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=3) ... FAIL
+  test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=4) ... FAIL
+  test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=5) ... FAIL
+  test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=6) ... FAIL
+  test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=7) ... FAIL
+  test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=8) ... FAIL
+test_history_changed_preview_and_revision_still_fences_same_intent (__main__.AzureExecution.test_history_changed_preview_and_revision_still_fences_same_intent) ... FAIL
+test_complete_history_prepare_none_and_other_intents_allow_single_put (__main__.AzureExecution.test_complete_history_prepare_none_and_other_intents_allow_single_put) ... FAIL
+test_public_reconcile_fence_reauthenticates_and_rejects_forged_identity (__main__.AzureExecution.test_public_reconcile_fence_reauthenticates_and_rejects_forged_identity) ... FAIL
+
+======================================================================
+FAIL: test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1625, in test_history_wrong_repository_duplicate_title_and_bound_are_denied
+    self.assertEqual(result["result"], "BLOCKED")
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+
+
+======================================================================
+FAIL: test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1626, in test_history_wrong_repository_duplicate_title_and_bound_are_denied
+    self.assertEqual(self.arm.submissions, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1626, in test_history_wrong_repository_duplicate_title_and_bound_are_denied
+    self.assertEqual(self.arm.submissions, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1626, in test_history_wrong_repository_duplicate_title_and_bound_are_denied
+    self.assertEqual(self.arm.submissions, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1626, in test_history_wrong_repository_duplicate_title_and_bound_are_denied
+    self.assertEqual(self.arm.submissions, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1626, in test_history_wrong_repository_duplicate_title_and_bound_are_denied
+    self.assertEqual(self.arm.submissions, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1626, in test_history_wrong_repository_duplicate_title_and_bound_are_denied
+    self.assertEqual(self.arm.submissions, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1626, in test_history_wrong_repository_duplicate_title_and_bound_are_denied
+    self.assertEqual(self.arm.submissions, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_history_wrong_repository_duplicate_title_and_bound_are_denied (__main__.AzureExecution.test_history_wrong_repository_duplicate_title_and_bound_are_denied) (n=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1626, in test_history_wrong_repository_duplicate_title_and_bound_are_denied
+    self.assertEqual(self.arm.submissions, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_history_changed_preview_and_revision_still_fences_same_intent (__main__.AzureExecution.test_history_changed_preview_and_revision_still_fences_same_intent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1636, in test_history_changed_preview_and_revision_still_fences_same_intent
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_complete_history_prepare_none_and_other_intents_allow_single_put (__main__.AzureExecution.test_complete_history_prepare_none_and_other_intents_allow_single_put)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1653, in test_complete_history_prepare_none_and_other_intents_allow_single_put
+    self.assertTrue(calls, "No authenticated complete history was checked")
+AssertionError: [] is not true : No authenticated complete history was checked
+
+======================================================================
+FAIL: test_public_reconcile_fence_reauthenticates_and_rejects_forged_identity (__main__.AzureExecution.test_public_reconcile_fence_reauthenticates_and_rejects_forged_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1662, in test_public_reconcile_fence_reauthenticates_and_rejects_forged_identity
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.549s
+
+FAILED (failures=12)

@@ -1601,6 +1601,96 @@ class AzureExecution(unittest.TestCase):
         self.assertEqual(self.apply("history-unavailable.json")["result"], "BLOCKED")
         self.assertEqual(self.arm.submissions, 0)
 
+    def test_history_wrong_repository_duplicate_title_and_bound_are_denied(self):
+        self.prepare()
+        auth = self.auths[-1]
+        current = copy.deepcopy(auth.run)
+        prior = {**current, "id": 122, "status": "completed", "conclusion": "failure"}
+        variants = [
+            dict(total_count=True, workflow_runs=[current]),
+            dict(total_count=101, workflow_runs=[current]),
+            dict(total_count=2, workflow_runs=[current, current]),
+            dict(total_count=1, workflow_runs=[{**current, "display_title": "truncated"}]),
+        ]
+        for key in ("repository", "head_repository"):
+            variants.append(dict(total_count=2, workflow_runs=[current, {
+                **prior, key: dict(id=77, full_name="elsewhere/control")}]))
+        for key, value in (("event", "push"), ("id", "122"),
+                           ("display_title", "cloud:truncated")):
+            variants.append(dict(total_count=2, workflow_runs=[current, {**prior, key: value}]))
+        for n, value in enumerate(variants):
+            with self.subTest(n=n):
+                auth.history_response = value
+                result = self.apply("malformed-history-" + str(n) + ".json")
+                self.assertEqual(result["result"], "BLOCKED")
+                self.assertEqual(self.arm.submissions, 0)
+
+    def test_history_changed_preview_and_revision_still_fences_same_intent(self):
+        self.prepare()
+        auth = self.auths[-1]
+        prior = {**copy.deepcopy(auth.run), "id": 122, "head_sha": "b" * 40,
+                 "status": "completed", "conclusion": "failure",
+                 "display_title": "cloud:" + self.request_ref["sha256"] + ":" + "f" * 64}
+        auth.history = [prior, auth.run]
+        result = self.apply()
+        self.assertEqual(result["result"], "UNKNOWN")
+        self.assertEqual(result["native_operation_id"], self.executor.client.native_id)
+        self.assertEqual(self.arm.submissions, 0)
+        self.assertFalse(any(x[0] == "POST" for x in self.arm.calls[1:]))
+
+    def test_complete_history_prepare_none_and_other_intents_allow_single_put(self):
+        self.prepare()
+        auth = self.auths[-1]
+        prior = copy.deepcopy(auth.run)
+        auth.history = [auth.run, {**prior, "id": 122,
+            "display_title": "cloud:" + self.request_ref["sha256"] + ":none"}]
+        auth.history.extend({**prior, "id": n,
+            "display_title": "cloud:" + "f" * 64 + ":" + "e" * 64} for n in range(1, 99))
+        result = self.apply()
+        self.assertEqual(result["result"], "PASS")
+        self.assertEqual(self.arm.submissions, 1)
+        calls = [x for x in auth.calls if "/actions/runs?" in x[1]]
+        self.assertTrue(calls, "No authenticated complete history was checked")
+        self.assertTrue(all(x[0] == "GET" and "per_page=100&page=1" in x[1] for x in calls))
+
+    def test_public_reconcile_fence_reauthenticates_and_rejects_forged_identity(self):
+        import cloud
+        self.prepare()
+        auth = self.auths[-1]
+        auth.history = [{**copy.deepcopy(auth.run), "id": 122}, auth.run]
+        result = self.apply()
+        self.assertEqual(result["result"], "UNKNOWN")
+        manifest = json.loads((self.root / result["evidence_manifest_path"]).read_bytes())
+        fence = manifest["submission"]
+        path = self.root / fence["path"]
+        original = path.read_bytes()
+        self.executor.preview_ref = self.preview_ref
+        self.arm.existing = True
+        before = len(self.arm.calls)
+        reconciled = cloud.run(["reconcile", "--request", self.request_ref["path"],
+            "--output", self.directory + "/cli-reconcile.json"], executor=self.executor)
+        self.assertEqual(reconciled["result"], "PASS")
+        self.assertEqual(reconciled["native_operation_id"], self.executor.client.native_id)
+        self.assertTrue(all(x[0] == "GET" for x in self.arm.calls[before:]))
+        for key, value in (("request", {**self.request_ref, "sha256": "f" * 64}),
+                           ("scope", {**self.req["scope"], "region": "elsewhere"}),
+                           ("native_operation_id", self.executor.client.native_id + "other"),
+                           ("repository", "elsewhere/control"), ("prior_run_ids", [777])):
+            with self.subTest(field=key):
+                forged = json.loads(original); forged[key] = value
+                path.write_bytes(encode(forged))
+                before = len(self.arm.calls)
+                answer = cloud.run(["reconcile", "--request", self.request_ref["path"],
+                    "--output", self.directory + "/forged-" + key + ".json"], executor=self.executor)
+                self.assertEqual(answer["result"], "BLOCKED")
+                self.assertEqual(len(self.arm.calls), before)
+        path.write_bytes(original)
+        auth.history_error = True
+        answer = cloud.run(["reconcile", "--request", self.request_ref["path"],
+            "--output", self.directory + "/unavailable-reconcile.json"], executor=self.executor)
+        self.assertNotEqual(answer["result"], "PASS")
+        self.assertEqual(self.arm.submissions, 0)
+
     def test_prepare_admission_missing_is_zero_native_posts(self):
         self.auths[-1].approvals = []
         result = self.executor.prepare(self.directory + "/blocked.json")
