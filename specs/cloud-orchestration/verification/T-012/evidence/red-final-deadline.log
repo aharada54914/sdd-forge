@@ -1,0 +1,54 @@
+test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) ... 
+  test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) (stage='prepare', limit='policy') ... FAIL
+  test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) (stage='apply', limit='policy') ... FAIL
+  test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) (stage='apply', limit='provider') ... FAIL
+  test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) (stage='apply', limit='preview') ... FAIL
+
+======================================================================
+FAIL: test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) (stage='prepare', limit='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1561, in test_admission_deadline_crossed_in_final_local_work_never_sends
+    self.assertEqual(result["result"], "BLOCKED")
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+
+
+======================================================================
+FAIL: test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) (stage='apply', limit='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1561, in test_admission_deadline_crossed_in_final_local_work_never_sends
+    self.assertEqual(result["result"], "BLOCKED")
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+
+
+======================================================================
+FAIL: test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) (stage='apply', limit='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1561, in test_admission_deadline_crossed_in_final_local_work_never_sends
+    self.assertEqual(result["result"], "BLOCKED")
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+
+
+======================================================================
+FAIL: test_admission_deadline_crossed_in_final_local_work_never_sends (__main__.AzureExecution.test_admission_deadline_crossed_in_final_local_work_never_sends) (stage='apply', limit='preview')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1561, in test_admission_deadline_crossed_in_final_local_work_never_sends
+    self.assertEqual(result["result"], "BLOCKED")
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.347s
+
+FAILED (failures=4)
