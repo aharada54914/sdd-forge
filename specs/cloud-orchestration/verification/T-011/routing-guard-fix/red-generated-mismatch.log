@@ -1,0 +1,4 @@
+Command: python3 <scratch>/generator-mismatch/scripts/generate-guard-invariants.py --check
+Mutation: append LF to generated Python module only
+Exit: 1
+guard invariants are stale: /tmp/cloud-T011-routing-guard-01a15001/generator-mismatch/scripts/generated/guard_invariants.py
