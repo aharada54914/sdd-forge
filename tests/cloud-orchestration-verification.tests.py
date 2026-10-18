@@ -209,6 +209,11 @@ class NativeCollectorCases(unittest.TestCase):
                 sys.path.insert(0,str(ROOT/f'plugins/sdd-{provider}-cloud/scripts'))
                 module=__import__(provider+'_observation')
                 cfg=observation_config(provider)
+                if provider == "aws":
+                    cfg.pop("instance_id"); cfg.pop("security_group_ids"); cfg.pop("alarm_name")
+                    cfg.update(instance_logical_id="Workload", security_group_logical_ids=["PrivateGroup"], alarm_logical_id="Health")
+                    cfg["backup"].pop("selection_id")
+                    cfg["backup"]["selection_logical_id"]="Protection"
                 module.configuration(cfg)
                 for field in cfg:
                     changed=copy.deepcopy(cfg);changed[field]='; arbitrary command'
@@ -240,7 +245,6 @@ class NativeCollectorCases(unittest.TestCase):
         import aws_observation as module
         fixture = NativeFixture('aws', 'backup', 'healthy')
         config = copy.deepcopy(fixture.cfg)
-        config['backup'].pop('recovery_point_arn')
         collector = module.Collector(fixture.scope, config, fixture.credentials,
             principal=fixture.principal, completed='2026-10-18T06:00:00Z', age=300,
             clock=lambda:1792303260, transport=fixture, run_id='synthetic-run', unit_id='synthetic-unit')
@@ -267,7 +271,6 @@ def observation_config(provider: str) -> dict:
             role_arn='arn:aws:iam::123456789012:role/workload',guard_policy_name='ObservationGuard',alarm_name='workload-health',
             workload_metric=dict(namespace='Workload',name='Healthy',minimum=1,maximum=1),
             backup=dict(plan_id='plan',selection_id='selection',vault_name='vault',
-                recovery_point_arn='arn:aws:backup:us-east-1:123456789012:recovery-point:point',
                 role_arn='arn:aws:iam::123456789012:role/backup'))
     prefix='/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/sandbox/providers/'
     vm=prefix+'Microsoft.Compute/virtualMachines/workload'
@@ -357,7 +360,7 @@ class NativeFixture:
         if host.startswith('backup.'):
             assert method=='GET'
             if '/selections/' in url:return dict(BackupPlanId='plan',SelectionId='selection',BackupSelection=dict(Resources=['arn:aws:ec2:us-east-1:123456789012:instance/'+cfg['instance_id']],IamRoleArn=cfg['backup']['role_arn']))
-            recovery = dict(RecoveryPointArn=cfg['backup']['recovery_point_arn'],BackupVaultName='vault',ResourceArn='arn:aws:ec2:us-east-1:123456789012:instance/'+cfg['instance_id'],
+            recovery = dict(RecoveryPointArn='arn:aws:backup:us-east-1:123456789012:recovery-point:point',BackupVaultName='vault',ResourceArn='arn:aws:ec2:us-east-1:123456789012:instance/'+cfg['instance_id'],
                 CreatedBy=dict(BackupPlanId='plan'),Status='PARTIAL' if bad else 'COMPLETED',IsEncrypted=True,
                 CreationDate=1792299600 if self.variant=='stale' else 1792303260,
                 CompletionDate=1792299600 if self.variant=='stale' else 1792303260)
@@ -431,6 +434,8 @@ class AwsObservationOrchestration(unittest.TestCase):
         cfg = observation_config("aws")
         cfg = json.loads(json.dumps(cfg).replace("123456789012", case.req["scope"]["account_id"]))
         cfg["instance_profile_arn"] = "arn:aws:iam::111111111111:instance-profile/synthetic-profile"
+        cfg["vpc_id"] = "vpc-11111111"
+        cfg["subnet_id"] = "subnet-11111111"
         cfg["backup"]["plan_id"] = "synthetic-plan"
         if selectors:
             cfg.pop("instance_id")
@@ -438,7 +443,6 @@ class AwsObservationOrchestration(unittest.TestCase):
             cfg.pop("alarm_name")
             cfg.update(instance_logical_id="Workload", security_group_logical_ids=["PrivateGroup"], alarm_logical_id="Health")
             cfg["backup"].pop("selection_id")
-            cfg["backup"].pop("recovery_point_arn")
             cfg["backup"]["selection_logical_id"] = "Protection"
         config_ref = case.req["local_context"]["provider_config"]
         config = json.loads((case.root / config_ref["path"]).read_bytes())
@@ -470,11 +474,10 @@ class AwsObservationOrchestration(unittest.TestCase):
         self.assertEqual(set(wire.resolved), {"Workload", "PrivateGroup", "Health", "Protection"})
 
     def test_configured_healthy_substitute_is_not_original_resource(self):
-        case, wire = self.setup_execution(selectors=False)
-        writes = list(wire.writes)
+        sys.path.insert(0, str(ROOT / 'plugins/sdd-aws-cloud/scripts'))
+        import aws_observation
         with self.assertRaises(ValueError):
-            case.executor.observe(case.directory + "/substitute.json", "verify")
-        self.assertEqual(wire.writes, writes)
+            aws_observation.configuration(observation_config('aws'))
 
     def test_stack_membership_counterparts(self):
         for field, value in [("StackId", "wrong"), ("LogicalResourceId", "Other"),
@@ -485,6 +488,58 @@ class AwsObservationOrchestration(unittest.TestCase):
                 wire.membership_override = {field: value}
                 with self.assertRaises(ValueError):
                     case.executor.observe(case.directory + "/mismatch.json", "verify")
+
+    def test_original_native_operation_not_copied_receipt(self):
+        case, wire = self.setup_execution()
+        path = case.root / (case.directory + '/execute-submission.json')
+        journal = json.loads(path.read_bytes())
+        journal['stack_id'] = journal['stack_id'].replace('/native-id', '/copied')
+        path.write_bytes(encode(journal))
+        writes = list(wire.writes)
+        with self.assertRaisesRegex(ValueError, 'STACK_ID_MISMATCH'):
+            case.executor.observe(case.directory + '/copied.json', 'verify')
+        self.assertEqual(wire.writes, writes)
+
+    def test_native_healthy_substitute_response_blocks(self):
+        case, wire = self.setup_execution()
+        original = wire.health.request
+        def substituted(method, url, headers, body=None):
+            response = original(method, url, headers, body)
+            response.body = response.body.replace(b'i-0123456789abcdef0', b'i-fedcba98765432100')
+            return response
+        with patch.object(wire.health, 'request', side_effect=substituted):
+            result = case.executor.observe(case.directory + '/substituted.json', 'verify')
+        self.assertEqual(result['result'], 'BLOCKED')
+
+    def test_publication_fresh_checks_never_reuse_saved_success(self):
+        case, wire = self.setup_execution()
+        first = case.executor.observe(case.directory + '/first.json', 'verify')
+        self.assertEqual(first['result'], 'BLOCKED')  # synthetic, never native proof
+        wire.health.variant = 'unhealthy'
+        wire.health.check = 'workload'
+        result = case.executor.observe(case.directory + '/second.json', 'verify')
+        self.assertEqual(result['result'], 'FAIL')
+        with self.assertRaises(ValueError):
+            case.executor.observe(case.directory + '/first.json', 'verify')
+
+    def test_emitted_contracts_are_closed(self):
+        case, wire = self.setup_execution()
+        case.executor.observe(case.directory + '/schema.json', 'verify')
+        spec = importlib.util.spec_from_file_location('observation_schema_oracle', ROOT / 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py')
+        assert spec and spec.loader
+        oracle = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(oracle)
+        for contract, suffix in [('collection-context', '.context.json'), ('check-result', '.resource.result.json'), ('observation-evidence', '.manifest.json')]:
+            schema = json.loads((ROOT / ('contracts/cloud-' + contract + '.schema.json')).read_bytes())
+            value = json.loads((case.root / (case.directory + '/schema.json' + suffix)).read_bytes())
+            self.assertEqual(oracle._schema_validate(schema, value), [])
+            changed = dict(value, unknown='not allowed')
+            self.assertTrue(oracle._schema_validate(schema, changed))
+            for key in value:
+                changed = dict(value)
+                del changed[key]
+                with self.subTest(contract=contract, missing=key):
+                    self.assertTrue(oracle._schema_validate(schema, changed))
 
 
 class ObservationWire:

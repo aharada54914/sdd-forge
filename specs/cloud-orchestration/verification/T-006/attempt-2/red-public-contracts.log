@@ -1,0 +1,21 @@
+test_emitted_contracts_are_closed (__main__.AwsObservationOrchestration.test_emitted_contracts_are_closed) ... ERROR
+
+======================================================================
+ERROR: test_emitted_contracts_are_closed (__main__.AwsObservationOrchestration.test_emitted_contracts_are_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 533, in test_emitted_contracts_are_closed
+    schema = json.loads((ROOT / ('contracts/cloud-' + contract + '.schema.json')).read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-collection-context.schema.json'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.418s
+
+FAILED (errors=1)
