@@ -1,0 +1,15 @@
+test_configured_healthy_substitute_is_not_original_resource (__main__.AwsObservationOrchestration.test_configured_healthy_substitute_is_not_original_resource) ... FAIL
+
+======================================================================
+FAIL: test_configured_healthy_substitute_is_not_original_resource (__main__.AwsObservationOrchestration.test_configured_healthy_substitute_is_not_original_resource)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 446, in test_configured_healthy_substitute_is_not_original_resource
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.410s
+
+FAILED (failures=1)

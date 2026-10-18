@@ -1,7 +1,7 @@
 """T-006 synthetic tests. No credentials, native provider or cloud side effects.
 
-Preflight uses the existing CLI boundary, not a nonexistent module import. The
-baseline fails at OPERATION_UNIMPLEMENTED, not at a claimed collector assertion.
+Historical component Red failed on missing imports; current mismatch tests execute
+the implemented reducer. Wire fixtures are synthetic, never live provenance.
 """
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED = ROOT / 'plugins/sdd-quality-loop/scripts'
@@ -40,9 +41,8 @@ def request(provider: str) -> dict:
 
 
 class EntryPreflight(unittest.TestCase):
-    def test_fake_native_payload_never_confers_collector_provenance(self):
-        # These are concrete persisted field/counterpart mismatches. The public CLI
-        # must reject saved native assertions, not turn them into health evidence.
+    def test_cli_without_trusted_executor_rejects_verify(self):
+        # This tests direct CLI admission only; no saved observation is consumed.
         for provider in ('azure', 'aws'):
             with self.subTest(provider=provider), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
@@ -226,7 +226,7 @@ class NativeCollectorCases(unittest.TestCase):
                         fixture=NativeFixture(provider,check,variant)
                         collector=module.Collector(fixture.scope,fixture.cfg,fixture.credentials,
                             principal=fixture.principal,completed='2026-10-18T06:00:00Z',
-                            age=300,clock=lambda:1792303260,transport=fixture)
+                            age=300,clock=lambda:1792303260,transport=fixture,run_id='synthetic-run',unit_id='synthetic-unit')
                         if variant in ('denied','missing') or (variant=='stale' and check in ('monitoring','workload','backup')):
                             with self.assertRaises((ValueError,KeyError,TypeError)):getattr(collector,check)()
                         else:
@@ -353,7 +353,10 @@ class NativeFixture:
             ns='https://iam.amazonaws.com/doc/2010-05-08/'
             if action=='GetInstanceProfile':values=dict(InstanceProfile=dict(Arn=cfg['instance_profile_arn'],Roles=[dict(Arn=cfg['role_arn'],RoleName='workload')]))
             elif action=='GetRolePolicy':
-                module=__import__('aws_observation');policy=module.guard_policy(cfg['workload_metric']['namespace'])
+                policy = dict(Version='2012-10-17', Statement=[
+                    dict(Effect='Deny', NotAction='cloudwatch:PutMetricData', Resource='*'),
+                    dict(Effect='Deny', Action='cloudwatch:PutMetricData', Resource='*', Condition={'StringNotEquals': {'cloudwatch:namespace': 'Workload'}}),
+                    dict(Effect='Allow', Action='cloudwatch:PutMetricData', Resource='*', Condition={'StringEquals': {'cloudwatch:namespace': 'Workload'}})])
                 if bad:policy['Statement'].pop(0)
                 values=dict(RoleName='workload',PolicyName=cfg['guard_policy_name'],PolicyDocument=quote(json.dumps(policy)))
             else:raise AssertionError(action)
@@ -382,6 +385,120 @@ def native_xml(action,values,namespace,ec2=False):
     for k,v in values.items():add(target,k,v)
     return ET.tostring(root)
 
+
+
+class AwsObservationOrchestration(unittest.TestCase):
+    """Production prepare/apply/observe code over explicitly synthetic transports."""
+
+    def setup_execution(self, *, selectors=True):
+        spec = importlib.util.spec_from_file_location("observation_execution_fixtures", ROOT / "tests/cloud-orchestration-execution.tests.py")
+        assert spec and spec.loader
+        fixtures = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixtures)
+        case = fixtures.AwsExecution("test_exact_async_assets_native_role_failure_settings_and_single_execution")
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        sys.modules.pop("aws_observation", None)
+        cfg = observation_config("aws")
+        cfg = json.loads(json.dumps(cfg).replace("123456789012", case.req["scope"]["account_id"]))
+        cfg["instance_profile_arn"] = "arn:aws:iam::111111111111:instance-profile/synthetic-profile"
+        cfg["backup"]["plan_id"] = "synthetic-plan"
+        if selectors:
+            cfg.pop("instance_id")
+            cfg.pop("security_group_ids")
+            cfg.pop("alarm_name")
+            cfg.update(instance_logical_id="Workload", security_group_logical_ids=["PrivateGroup"], alarm_logical_id="Health")
+            cfg["backup"].pop("selection_id")
+            cfg["backup"].pop("recovery_point_arn")
+            cfg["backup"]["selection_logical_id"] = "Protection"
+        config_ref = case.req["local_context"]["provider_config"]
+        config = json.loads((case.root / config_ref["path"]).read_bytes())
+        config["observation"] = cfg
+        (case.root / config_ref["path"]).write_bytes(encode(config))
+        config_ref["sha256"] = hashlib.sha256(encode(config)).hexdigest()
+        case.request_bytes = encode(case.req)
+        (case.root / case.request_ref["path"]).write_bytes(case.request_bytes)
+        case.request_ref["sha256"] = hashlib.sha256(case.request_bytes).hexdigest()
+        wire = ObservationWire(case.native, cfg)
+        case.native = wire
+        case.executor = case.stage("prepare")
+        case.prepare()
+        self.assertEqual(case.apply()["result"], "PASS")
+        case.executor.clock = lambda: 1792303260
+        return case, wire
+
+    def test_unknown_create_ids_resolved_without_request_edits(self):
+        case, wire = self.setup_execution()
+        before = (case.root / case.request_ref["path"]).read_bytes()
+        writes = list(wire.writes)
+        result = case.executor.observe(case.directory + "/verify.json", "verify")
+        verification = json.loads((case.root / (case.directory + "/verify.json.verification.json")).read_bytes())
+        self.assertEqual(verification["overall_result"], "PASS")
+        self.assertFalse(verification["evidence_complete"])
+        self.assertEqual(result["result"], "BLOCKED")
+        self.assertEqual(wire.writes, writes)
+        self.assertEqual((case.root / case.request_ref["path"]).read_bytes(), before)
+        self.assertEqual(set(wire.resolved), {"Workload", "PrivateGroup", "Health", "Protection"})
+
+    def test_configured_healthy_substitute_is_not_original_resource(self):
+        case, wire = self.setup_execution(selectors=False)
+        writes = list(wire.writes)
+        with self.assertRaises(ValueError):
+            case.executor.observe(case.directory + "/substitute.json", "verify")
+        self.assertEqual(wire.writes, writes)
+
+    def test_stack_membership_counterparts(self):
+        for field, value in [("StackId", "wrong"), ("LogicalResourceId", "Other"),
+                             ("ResourceType", "AWS::EC2::Volume"), ("PhysicalResourceId", "wrong"),
+                             ("ResourceStatus", "CREATE_FAILED")]:
+            with self.subTest(field=field):
+                case, wire = self.setup_execution()
+                wire.membership_override = {field: value}
+                with self.assertRaises(ValueError):
+                    case.executor.observe(case.directory + "/mismatch.json", "verify")
+
+
+class ObservationWire:
+    """Existing CFN executor fixture plus independent service response fixture."""
+    def __init__(self, native, config):
+        self.native = native
+        self.health = NativeFixture("aws", "all", "healthy")
+        self.health.cfg = json.loads(json.dumps(self.health.cfg).replace("123456789012", "111111111111"))
+        self.health.cfg.update({k: config[k] for k in ("instance_profile_arn", "role_arn", "guard_policy_name", "vpc_id", "subnet_id")})
+        self.health.cfg["backup"]["plan_id"] = "synthetic-plan"
+        self.resolved = []
+        self.membership_override = {}
+
+    def __getattr__(self, name):
+        return getattr(self.native, name)
+
+    def request(self, method, url, headers, body=None):
+        from urllib.parse import parse_qs
+        if "cloudformation." not in url:
+            if ".s3." in url:
+                return self.native.request(method, url, headers, body)
+            response = self.health.request(method, url, headers, body)
+            response.body = response.body.replace(b"123456789012", b"111111111111").replace(b'"plan"', b'"synthetic-plan"')
+            return response
+        args = parse_qs(body.decode())
+        if args["Action"] == ["DescribeStackResource"]:
+            logical = args["LogicalResourceId"][0]
+            self.resolved.append(logical)
+            cfg = self.health.cfg
+            targets = {"Workload": ("AWS::EC2::Instance", cfg["instance_id"]),
+                       "PrivateGroup": ("AWS::EC2::SecurityGroup", cfg["security_group_ids"][0]),
+                       "Health": ("AWS::CloudWatch::Alarm", cfg["alarm_name"]),
+                       "Protection": ("AWS::Backup::BackupSelection", cfg["backup"]["selection_id"])}
+            typ, physical = targets[logical]
+            detail = dict(StackId=self.native.stack, LogicalResourceId=logical, ResourceType=typ,
+                          PhysicalResourceId=physical, ResourceStatus="CREATE_COMPLETE")
+            detail.update(self.membership_override)
+            return self.native.xml("DescribeStackResource", dict(StackResourceDetail=detail))
+        response = self.native.request(method, url, headers, body)
+        if args["Action"] == ["DescribeStackEvents"]:
+            from dataclasses import replace
+            response = replace(response, body=response.body.replace(b"</ResourceStatus>", b"</ResourceStatus><Timestamp>2026-10-18T06:00:00Z</Timestamp>"))
+        return response
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
