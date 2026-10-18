@@ -1,0 +1,473 @@
+test_explicit_provider_and_installed_identity_are_required (routing_sensitivity.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required) ... ok
+test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) ... 
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='scripts/cloud.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='scripts/cloud.py', mutation='directory') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_contracts.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_contracts.py', mutation='directory') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_authorization.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_authorization.py', mutation='directory') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_verification.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_verification.py', mutation='directory') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_dependencies.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_dependencies.py', mutation='directory') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='scripts/cloud.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='scripts/cloud.py', mutation='directory') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_contracts.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_contracts.py', mutation='directory') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_authorization.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_authorization.py', mutation='directory') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_verification.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_verification.py', mutation='directory') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_dependencies.py', mutation='missing') ... FAIL
+  test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_dependencies.py', mutation='directory') ... FAIL
+test_installed_cli_and_runtime_ancestor_symlinks_prevent_delegation (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_runtime_ancestor_symlinks_prevent_delegation) ... ok
+test_installed_plugin_roots_reject_complete_requests_before_delegation (routing_sensitivity.BootstrapInstalled.test_installed_plugin_roots_reject_complete_requests_before_delegation) ... ok
+test_installed_provider_guard_sensitivity (routing_sensitivity.BootstrapInstalled.test_installed_provider_guard_sensitivity) ... ok
+test_owner_import_digest_and_output_guards_have_matched_controls (routing_sensitivity.BootstrapInstalled.test_owner_import_digest_and_output_guards_have_matched_controls) ... ok
+test_request_mismatches_and_no_implicit_approval (routing_sensitivity.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... ok
+test_same_canonical_request_route_and_direct_write_denial (routing_sensitivity.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) ... ok
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='scripts/cloud.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='scripts/cloud.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_contracts.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_contracts.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_authorization.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_authorization.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_verification.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_verification.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_dependencies.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='azure', path='runtime/scripts/cloud_dependencies.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='scripts/cloud.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='scripts/cloud.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_contracts.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_contracts.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_authorization.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_authorization.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_verification.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_verification.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_dependencies.py', mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+======================================================================
+FAIL: test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) (provider='aws', path='runtime/scripts/cloud_dependencies.py', mutation='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1293, in test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks
+    self.assert_installed_boundary(case, provider, plugin, blocked=True)
+  File "/tmp/cloud-T011-installed-01a15032/coverage-rollback/tests/cloud-orchestration-routing.tests.py", line 1208, in assert_installed_boundary
+    code = helper.run(arguments)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T011-installed-s64j9q5b/installed/plugins/sdd-bootstrap/scripts/cloud-routing.py", line 49, in run
+    return subprocess.run([sys.executable, "-B", str(cli), args.operation,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: delegated subprocess reached for rejected installed path
+
+----------------------------------------------------------------------
+Ran 8 tests in 9.528s
+
+FAILED (failures=20)

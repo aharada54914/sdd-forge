@@ -1,0 +1,78 @@
+{
+  "base_revision": "b9478c93797f9172d667248e18e780c8c136dd3a",
+  "coverage_only": true,
+  "baseline_sha256": "2ea10b036fcfe019f045b7912b15c11abf2975f61424f055b44822bc59fbf971",
+  "final_sha256": "b96a66910c6af9f648c79635e300b814529c24cd26b78e9c3261ebcd68f7d263",
+  "production_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+  "pending_production_overlays": [
+    {
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "564080c31fdcc4cf2270017867f90ea6e0265de000c07b141a6788479830ef80"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9"
+    }
+  ],
+  "commands": [
+    {
+      "phase": "restored",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-011/installed-boundary-tests/sensitivity.py",
+        "--repo",
+        "/tmp/cloud-T011-installed-01a15032/coverage-rollback",
+        "--output",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-011/installed-boundary-tests/rollback/restored"
+      ],
+      "exit_code": 1,
+      "test_sha256": "2ea10b036fcfe019f045b7912b15c11abf2975f61424f055b44822bc59fbf971",
+      "helper_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b"
+    },
+    {
+      "phase": "reapplied",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-011/installed-boundary-tests/sensitivity.py",
+        "--repo",
+        "/tmp/cloud-T011-installed-01a15032/coverage-rollback",
+        "--output",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-011/installed-boundary-tests/rollback/reapplied"
+      ],
+      "exit_code": 0,
+      "test_sha256": "b96a66910c6af9f648c79635e300b814529c24cd26b78e9c3261ebcd68f7d263",
+      "helper_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b"
+    }
+  ],
+  "checkout_removed": true
+}

@@ -1,0 +1,13 @@
+test_explicit_provider_and_installed_identity_are_required (routing_sensitivity.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required) ... ok
+test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) ... ok
+test_installed_cli_and_runtime_ancestor_symlinks_prevent_delegation (routing_sensitivity.BootstrapInstalled.test_installed_cli_and_runtime_ancestor_symlinks_prevent_delegation) ... ok
+test_installed_plugin_roots_reject_complete_requests_before_delegation (routing_sensitivity.BootstrapInstalled.test_installed_plugin_roots_reject_complete_requests_before_delegation) ... ok
+test_installed_provider_guard_sensitivity (routing_sensitivity.BootstrapInstalled.test_installed_provider_guard_sensitivity) ... ok
+test_owner_import_digest_and_output_guards_have_matched_controls (routing_sensitivity.BootstrapInstalled.test_owner_import_digest_and_output_guards_have_matched_controls) ... ok
+test_request_mismatches_and_no_implicit_approval (routing_sensitivity.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... ok
+test_same_canonical_request_route_and_direct_write_denial (routing_sensitivity.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 9.823s
+
+OK

@@ -1,0 +1,34 @@
+{
+  "initial_tracked_files_checked": 14661,
+  "changed_initial_tracked_files_excluding_selected_test": [],
+  "initial_private_hash_snapshot": "/tmp/cloud-T011-installed-01a15032/frozen.json",
+  "private_snapshot_sha256": "92aed096a32713964de7cb934c5868e8717efdb60b076c6584fdd385d64a3e4e",
+  "critical": [
+    {
+      "path": "plugins/sdd-bootstrap/scripts/cloud-routing.py",
+      "before_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+      "after_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b"
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-011.md",
+      "before_sha256": "2956e2e48c00cfcb8b7e5380362ae9df7f6627bfa086ad9b987f869931c765ea",
+      "after_sha256": "2956e2e48c00cfcb8b7e5380362ae9df7f6627bfa086ad9b987f869931c765ea"
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-011-routing-guard-fix.md",
+      "before_sha256": "2b99d5745ae2bd9ffe22799a6195364bd6ee9b1eed8cdd5eacdab554bdedf998",
+      "after_sha256": "2b99d5745ae2bd9ffe22799a6195364bd6ee9b1eed8cdd5eacdab554bdedf998"
+    },
+    {
+      "path": "specs/cloud-orchestration/tasks.md",
+      "before_sha256": "40080dbcbbe36725aad400e39c2b9e6ec5f6fe77ba7563b0b9a3545e77cfd153",
+      "after_sha256": "40080dbcbbe36725aad400e39c2b9e6ec5f6fe77ba7563b0b9a3545e77cfd153"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml",
+      "before_sha256": "0090f8cc747280c2166fa5c9883fe0e24b6e7f1a15c44c645b6bfe62d0ee4eee",
+      "after_sha256": "0090f8cc747280c2166fa5c9883fe0e24b6e7f1a15c44c645b6bfe62d0ee4eee"
+    }
+  ],
+  "coverage_red_commit": "b9478c93797f9172d667248e18e780c8c136dd3a"
+}

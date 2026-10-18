@@ -1181,6 +1181,139 @@ class BootstrapInstalled(unittest.TestCase):
                 artifact.unlink()
         return result.returncode, value
 
+    def assert_installed_boundary(self, case, provider, plugin, blocked):
+        from contextlib import chdir, redirect_stdout
+        import io
+        from unittest.mock import patch
+
+        seam = self.install / "plugins/sdd-bootstrap/scripts/cloud-routing.py"
+        spec = importlib.util.spec_from_file_location("installed_bootstrap_boundary", seam)
+        assert spec and spec.loader
+        helper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(helper)
+        source = case.root / "request.json"
+        raw = json.dumps(case.req).encode()
+        source.write_bytes(raw)
+        output = case.evidence + "/boundary.json"
+        arguments = ["--provider", provider, "--plugin-root", str(plugin), "route",
+                     "--request", str(source), "--output", output]
+        env = {"PATH": os.defpath, "HOME": str(case.root), "PYTHONDONTWRITEBYTECODE": "1",
+               "CLOUD_WORKSPACE_ROOT": str(case.root)}
+        before = sorted(str(p.relative_to(case.root)) for p in case.root.rglob("*"))
+        stream = io.StringIO()
+        failure = AssertionError("delegated subprocess reached for rejected installed path") if blocked else None
+        with chdir(case.root), patch.dict(os.environ, env, clear=True), redirect_stdout(stream):
+            with patch.object(helper.subprocess, "run", side_effect=failure,
+                              return_value=subprocess.CompletedProcess([], 0)) as delegated:
+                code = helper.run(arguments)
+                if blocked:
+                    delegated.assert_not_called()
+                else:
+                    delegated.assert_called_once_with(
+                        [sys.executable, "-B", str(plugin / "scripts/cloud.py"), "route",
+                         "--request", str(source), "--output", output],
+                        env=dict(env, CLOUD_SHARED_RUNTIME_ROOT=str(plugin / "runtime/scripts")), check=False)
+        if blocked:
+            self.assertEqual(code, 2)
+            value = case.contracts.parse_artifact(stream.getvalue().encode())
+            self.assertEqual((value["schema"], value["error_code"], value["field"]),
+                             ("cloud-input-error/v1", "CLOUD_ROUTE_BLOCKED", "route"))
+            # Also exercise the installed command-line entry, not just imported run().
+            result = subprocess.run([sys.executable, "-B", str(seam), *arguments],
+                                    cwd=case.root, env=env, capture_output=True, timeout=30)
+            self.assertEqual(result.returncode, 2, result.stderr.decode(errors="replace"))
+            self.assertEqual(case.contracts.parse_artifact(result.stdout), value)
+        else:
+            self.assertEqual(code, 0)
+            self.assertEqual(stream.getvalue(), "")
+        self.assertEqual(source.read_bytes(), raw, "Canonical request bytes changed")
+        self.assertFalse((case.root / output).exists())
+        self.assertEqual(list((case.root / case.evidence).iterdir()), [], "Evidence was published")
+        self.assertEqual(sorted(str(p.relative_to(case.root)) for p in case.root.rglob("*")), before)
+
+    def installed_path_control(self, provider):
+        case = self.fixture(provider)
+        code, value = self.call(case, provider, "route", True)
+        if os.name == "nt":
+            self.assertEqual(code, 2)
+            self.assertIn(value["error_code"], ("UNSUPPORTED_FILESYSTEM", "UNSAFE_ROOT"))
+        else:
+            self.assertEqual((code, value["state"]), (0, "ROUTED"))
+        plugin = self.install / "plugins" / ("sdd-" + provider + "-cloud")
+        self.assert_installed_boundary(case, provider, plugin, blocked=False)
+        return case, plugin
+
+    def symlink_or_skip(self, link, target):
+        try:
+            link.symlink_to(target, target_is_directory=target.is_dir())
+        except (OSError, NotImplementedError) as exc:
+            self.skipTest("Installed-boundary symlink creation unavailable on this platform: " + str(exc))
+
+    def test_installed_plugin_roots_reject_complete_requests_before_delegation(self):
+        for provider in ("azure", "aws"):
+            for mutation in ("relative", "missing", "non-directory", "symlink", "ancestor-symlink"):
+                with self.subTest(provider=provider, mutation=mutation):
+                    case, plugin = self.installed_path_control(provider)
+                    alias = self.install / "boundary-root"
+                    try:
+                        if mutation == "relative":
+                            invalid = Path(os.path.relpath(plugin, case.root))
+                        elif mutation == "missing":
+                            invalid = alias
+                        elif mutation == "non-directory":
+                            alias.write_bytes(b"not a plugin directory")
+                            invalid = alias
+                        elif mutation == "symlink":
+                            self.symlink_or_skip(alias, plugin)
+                            invalid = alias
+                        else:
+                            self.symlink_or_skip(alias, plugin.parent)
+                            invalid = alias / plugin.name
+                        self.assert_installed_boundary(case, provider, invalid, blocked=True)
+                    finally:
+                        if alias.is_symlink() or alias.is_file():
+                            alias.unlink()
+
+    def test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks(self):
+        paths = ["scripts/cloud.py", *("runtime/scripts/" + name for name in (
+            "cloud_contracts.py", "cloud_authorization.py", "cloud_verification.py", "cloud_dependencies.py"))]
+        for provider in ("azure", "aws"):
+            for relative in paths:
+                for mutation in ("missing", "directory", "symlink"):
+                    with self.subTest(provider=provider, path=relative, mutation=mutation):
+                        case, plugin = self.installed_path_control(provider)
+                        path = plugin / relative
+                        saved = path.with_name(path.name + ".boundary-backup")
+                        path.rename(saved)
+                        try:
+                            if mutation == "directory":
+                                path.mkdir()
+                            elif mutation == "symlink":
+                                self.symlink_or_skip(path, saved)
+                            self.assert_installed_boundary(case, provider, plugin, blocked=True)
+                        finally:
+                            if path.is_symlink():
+                                path.unlink()
+                            elif path.is_dir():
+                                path.rmdir()
+                            saved.rename(path)
+
+    def test_installed_cli_and_runtime_ancestor_symlinks_prevent_delegation(self):
+        for provider in ("azure", "aws"):
+            for relative in ("scripts", "runtime/scripts"):
+                with self.subTest(provider=provider, ancestor=relative):
+                    case, plugin = self.installed_path_control(provider)
+                    directory = plugin / relative
+                    saved = directory.with_name(directory.name + "-boundary-backup")
+                    directory.rename(saved)
+                    try:
+                        self.symlink_or_skip(directory, saved)
+                        self.assert_installed_boundary(case, provider, plugin, blocked=True)
+                    finally:
+                        if directory.is_symlink():
+                            directory.unlink()
+                        saved.rename(directory)
+
     def test_same_canonical_request_route_and_direct_write_denial(self):
         for provider in ("azure", "aws"):
             case = self.fixture(provider)
