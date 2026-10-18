@@ -166,7 +166,7 @@ class AzureRouting(unittest.TestCase):
                "CLOUD_WORKSPACE_ROOT": str(self.root)}
         env.update(env_extra or {})
         output = output or self.evidence + "/" + phase + ".json"
-        proc = subprocess.run([sys.executable, "-B", str(CLI), phase, "--request", "request.json",
+        proc = subprocess.run([sys.executable, "-B", str(CLI), phase, "--request", str(self.root / "request.json"),
             "--output", output], cwd=self.root, env=env, capture_output=True, timeout=90)
         self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
         self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
@@ -261,6 +261,143 @@ class AzureRouting(unittest.TestCase):
                 result = self.invoke(phase, expected=2)
                 self.assertEqual(result["error_code"], "OPERATION_UNIMPLEMENTED")
                 self.assertIsNone(result["evidence_manifest_path"])
+
+
+
+class AzureNativePreparation(AzureRouting):
+    """Actual compiler when explicitly installed; no compiler or provider mocks."""
+    def setUp(self):
+        super().setUp()
+        self.binary = Path(os.environ.get("CLOUD_BICEP_BIN", "/workspace/.tools/cloud/bicep/0.48.1/bicep"))
+        self.upstream = Path(os.environ.get("CLOUD_AZURE_UPSTREAM_ROOT",
+            "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/upstream/azure-skills-cf79ce8778ad063eeac19dbe8bf982d71b466ce0"))
+        self.env = {"CLOUD_BICEP_BIN": str(self.binary)}
+        prefix = "/subscriptions/" + self.req["scope"]["account_id"] + "/resourceGroups/synthetic-group/providers/"
+        self.params = dict(vmName="synthetic-vm", location="eastus", vmSize="Standard_D2s_v5",
+            imageId=prefix + "Microsoft.Compute/galleries/synthetic/images/linux/versions/1.0.0",
+            adminUsername="syntheticadmin", adminPublicKey="ssh-ed25519 " + "A" * 68,
+            subnetId=prefix + "Microsoft.Network/virtualNetworks/synthetic/subnets/private",
+            identityId=prefix + "Microsoft.ManagedIdentity/userAssignedIdentities/synthetic",
+            dataCollectionRuleId=prefix + "Microsoft.Insights/dataCollectionRules/synthetic",
+            vaultName="synthetic-vault", backupPolicyId=prefix + "Microsoft.RecoveryServices/vaults/synthetic-vault/backupPolicies/synthetic")
+        self.config = dict(schema="azure-local-config/v1", entrypoint="bundle/unit/main.bicep",
+            parameters="bundle/unit/parameters.json", upstream_root="bundle/upstream", output_directory="bundle/generated",
+            import_resources=False,
+            network=dict(subnet_id=self.params["subnetId"], private_management=True, inbound_internet=False),
+            identity=dict(resource_id=self.params["identityId"]),
+            monitoring=dict(data_collection_rule_id=self.params["dataCollectionRuleId"]),
+            backup=dict(policy_id=self.params["backupPolicyId"]),
+            cost=dict(estimated_minor_units=100, currency="USD", duration_hours=1),
+            evidence=copy.deepcopy(self.policy["evidence"]))
+        self.policy["allowed_resource_types"] = ["Microsoft.Network/networkInterfaces",
+            "Microsoft.Compute/virtualMachines", "Microsoft.Compute/virtualMachines/extensions",
+            "Microsoft.Insights/dataCollectionRuleAssociations",
+            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems"]
+        self.owner["existing_resources"] = [
+            dict(resource_id=self.params[key], owner="terraform", attachments=[dict(resource_type=typ, name=name)])
+            for key, typ, name in [
+                ("subnetId", "Microsoft.Network/networkInterfaces", "synthetic-vm-nic"),
+                ("identityId", "Microsoft.Compute/virtualMachines", "synthetic-vm"),
+                ("dataCollectionRuleId", "Microsoft.Insights/dataCollectionRuleAssociations", "synthetic-vm-monitor"),
+                ("backupPolicyId", "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems", "synthetic-vm")]]
+        example = ROOT/"plugins/sdd-azure-cloud/examples/private-vm.bicep"
+        if example.exists():
+            self.source = self.put("bundle/unit/main.bicep", example.read_bytes())
+        self.write_parameters()
+        pins = ROOT/"plugins/sdd-azure-cloud/references/upstream-lock.json"
+        if pins.exists() and self.upstream.is_dir():
+            pin = json.loads(pins.read_bytes())
+            files = []
+            for f in pin["files"]:
+                files.append(dict(**self.put("bundle/upstream/" + f["path"], (self.upstream/f["path"]).read_bytes()),
+                    references=["bundle/upstream/" + p for p in f["references"]]))
+            self.lock.update(upstream=[dict(repository=pin["repository"], commit=pin["commit"], root="bundle/upstream", files=files)],
+                tools=[dict(name="bicep", version="0.48.1", sha256="b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e")])
+        (self.root/"bundle/generated").mkdir()
+        self.refresh()
+
+    def write_parameters(self):
+        parameters = self.put("bundle/unit/parameters.json", {
+            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+            "contentVersion": "1.0.0.0", "parameters": {k: {"value": v} for k, v in self.params.items()}})
+        self.req["input_artifacts"] = [dict(kind="source", **self.source), dict(kind="parameters", **parameters)]
+
+    def invoke(self, phase="route", expected=0, output=None, env_extra=None):
+        return super().invoke(phase, expected, output, {**self.env, **(env_extra or {})})
+
+    def native_prerequisites(self):
+        if not self.binary.is_file() or not self.upstream.is_dir():
+            self.skipTest("Native pinned Bicep/upstream unavailable; native local compile NOT validated")
+
+    def test_real_compile_locked_plan_and_validate_exact_bytes(self):
+        self.native_prerequisites()
+        result = self.invoke("plan")
+        self.assertEqual(result["state"], "PLANNED")
+        evidence = json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
+        self.assertEqual(evidence["compiler"]["version"], "0.48.1")
+        self.assertEqual(evidence["compiler"]["exit_code"], 0)
+        self.assertFalse(evidence["cloud_validated"])
+        locked = evidence["locked_request"]
+        data = self.contracts.read_verified(self.root, locked)
+        self.req = self.contracts.parse_artifact(data)
+        self.assertEqual(self.req["operation"], "apply")
+        compiled = [a for a in self.req["input_artifacts"] if a["kind"] == "compiled"]
+        self.assertEqual(len(compiled), 1)
+        arm = json.loads(self.contracts.read_verified(self.root, {k: compiled[0][k] for k in ("path", "sha256")}))
+        self.assertNotIn("Microsoft.Network/publicIPAddresses", json.dumps(arm))
+        self.assertNotIn("securityRules", json.dumps(arm))
+        self.assertEqual(self.invoke("validate")["state"], "LOCAL_VALIDATED")
+        (self.root/compiled[0]["path"]).write_bytes(b"{}")
+        self.assertEqual(self.invoke("validate", expected=2, output=self.evidence+"/tamper.json")["error_code"], "DIGEST_MISMATCH")
+
+    def test_policy_config_mismatch_matrix_before_compiler(self):
+        mutations = [lambda: self.config["network"].update(inbound_internet=True),
+            lambda: self.config["network"].update(private_management=False),
+            lambda: self.config["identity"].update(resource_id="wrong"),
+            lambda: self.config["monitoring"].update(data_collection_rule_id="wrong"),
+            lambda: self.config.update(backup=None),
+            lambda: self.config["cost"].update(estimated_minor_units=10001),
+            lambda: self.config["cost"].update(currency="EUR"),
+            lambda: self.config["evidence"].update(retention_days=8),
+            lambda: self.config.update(unrecognized=True),
+            lambda: self.owner["existing_resources"][0].update(attachments=[]),
+            lambda: self.policy.update(allowed_resource_types=["Microsoft.Compute/virtualMachines"]),
+            lambda: self.params.update(location="westus"),
+            lambda: self.params.update(imageId="latest"),
+            lambda: self.params.update(backupPolicyId="wrong")]
+        initial = copy.deepcopy((self.config, self.owner, self.policy, self.params))
+        for i, mutate in enumerate(mutations):
+            with self.subTest(case=i):
+                self.config, self.owner, self.policy, self.params = copy.deepcopy(initial)
+                mutate(); self.write_parameters(); self.refresh()
+                result = self.invoke("plan", expected=2)
+                self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+                self.assertFalse(list((self.root/"bundle/generated").iterdir()))
+
+    def test_missing_compiler_and_transitive_source_rejected(self):
+        self.assertEqual(self.invoke("plan", expected=2, env_extra={"CLOUD_BICEP_BIN": "/missing/bicep"})["error_code"], "BICEP_UNAVAILABLE")
+        self.put("bundle/unit/hidden.bicep", b"param hidden string")
+        self.assertEqual(self.invoke("plan", expected=2)["error_code"], "UNLOCKED_SOURCE")
+
+    def test_unlocked_and_mutated_upstream_and_tool_pin(self):
+        self.native_prerequisites()
+        original = copy.deepcopy(self.lock)
+        for mutate in (lambda: self.lock["tools"][0].update(sha256="a"*64),
+                       lambda: self.lock["upstream"][0].update(commit="a"*40),
+                       lambda: self.lock["upstream"][0]["files"].pop()):
+            self.lock = copy.deepcopy(original)
+            mutate(); self.refresh()
+            self.assertEqual(self.invoke("plan", expected=2)["result"], "BLOCKED")
+
+    def test_unsupported_filesystem_subprocess(self):
+        self.put("request.json", self.req)
+        bootstrap = "import os,runpy,sys; os.supports_dir_fd=set(); sys.argv=sys.argv[1:]; runpy.run_path(sys.argv[0],run_name='__main__')"
+        proc = subprocess.run([sys.executable, "-B", "-c", bootstrap, str(CLI), "route", "--request", str(self.root/"request.json"),
+            "--output", str(self.root/self.evidence/"unsupported.json")],
+            env={"PATH": os.defpath, "CLOUD_WORKSPACE_ROOT": str(self.root)}, capture_output=True, timeout=15)
+        self.assertEqual(proc.returncode, 2)
+        self.assertEqual(self.contracts.parse_artifact(proc.stdout)["schema"], "cloud-input-error/v1")
+        self.assertFalse((self.root/self.evidence/"unsupported.json").exists())
 
 
 
