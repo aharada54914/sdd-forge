@@ -6,7 +6,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "yearly"
     open-pull-requests-limit: 5
     commit-message:
       prefix: "ci(deps)"
@@ -17,7 +17,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/mcp/sdd-forge-mcp"
     schedule:
-      interval: "weekly"
+      interval: "yearly"
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
@@ -26,7 +26,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/mcp/local-env-mcp"
     schedule:
-      interval: "weekly"
+      interval: "yearly"
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
@@ -35,7 +35,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/mcp/ci-mcp"
     schedule:
-      interval: "weekly"
+      interval: "yearly"
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
