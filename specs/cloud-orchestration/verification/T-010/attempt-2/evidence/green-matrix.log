@@ -1,0 +1,12 @@
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyReceiptCases.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) ... ok
+test_consumer_request_and_trust_set (__main__.DependencyFieldMatrix.test_consumer_request_and_trust_set) ... ok
+test_order_and_each_invalid_graph_before_callbacks (__main__.DependencyGraphCases.test_order_and_each_invalid_graph_before_callbacks) ... ok
+test_transitive_unknown_preserves_identity_without_retry (__main__.DependencyGraphCases.test_transitive_unknown_preserves_identity_without_retry) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 30.360s
+
+OK

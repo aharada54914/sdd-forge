@@ -1,0 +1,28 @@
+{
+  "scope": "code-only exact before-byte restore in disposable git archive; no provider writes or historical rollback",
+  "checks": [
+    {
+      "phase": "candidate",
+      "exit_code": 0,
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "source_sha256": "de4b62fe9d0dd8a4a540a70b47baaa56b8a7cd223bf548465c60c2fa19b2bbfc",
+      "test_sha256": "4c104600e2e9a33569b2fb37e14505a44dd8683b89558897f60bc4148de303b4"
+    },
+    {
+      "phase": "restored",
+      "exit_code": 0,
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "source_sha256": "0408cc042f46b329ea356e35b6d3c407535f64b5449f9179cc636bd40f88d8a8",
+      "test_sha256": "bcde82e05cbcc84865af664a6620971ce524eb5a2869b256c74ce4ad75089257"
+    }
+  ],
+  "checked_at": "2026-10-18T06:38:36.316504+00:00"
+}

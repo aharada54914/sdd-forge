@@ -1,0 +1,51 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "started_at": "2026-10-18T06:44:13.522137+00:00",
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-003/preview-expiry-fix/green.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "started_at": "2026-10-18T06:44:15.959726+00:00",
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-003/preview-expiry-fix/contracts.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "started_at": "2026-10-18T06:44:16.514018+00:00",
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-003/preview-expiry-fix/ruff.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "started_at": "2026-10-18T06:44:16.534902+00:00",
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-003/preview-expiry-fix/mypy.log"
+  }
+]

@@ -1,0 +1,269 @@
+{
+  "feature": "cloud-orchestration",
+  "scope": "Incremental task-scoped evidence addendum; frozen traceability.md retains the feature map. Local contracts, admission, native local preparation and deterministic provider execution/observation do not establish live cloud acceptance. Final T006 tests prohibit live network I/O; historical harness uncertainty is separately retained.",
+  "links": [
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-004"
+      ],
+      "tests": [
+        "TEST-004: contract mutation and dependency closure cases in tests/cloud-orchestration-contracts.tests.py",
+        "TEST-004: Azure governed local transport, replay and read-only recovery cases in tests/cloud-orchestration-execution.tests.py",
+        "TEST-004: AWS governed exact-asset execution, prepare/apply replay fence and read-only recovery cases in tests/cloud-orchestration-execution.tests.py"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-002/green.log",
+        "specs/cloud-orchestration/verification/T-002/red.log",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/green-contracts.log",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/green-admission.log",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/red-ordering.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/execution.log",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/fence-capture.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/red-ordering.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/root-reconcile-scope-fixed.json",
+        "specs/cloud-orchestration/verification/T-013/evidence/execution-final.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/rollback-handoff.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/probes-final.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/mutations-final/summary.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/implementation-report-snapshot.md"
+      ],
+      "scope": "T-002 contract layer; T-012 deterministic Azure execution/recovery only; actual live authorization/deployment/health remains BLOCKED (OQ-001); T-013 deterministic AWS execution/recovery only; live OQ-001 remains BLOCKED"
+    },
+    {
+      "req": "REQ-010",
+      "acs": [
+        "AC-010"
+      ],
+      "tests": [
+        "TEST-010: strict parsing, paths, publication, secret scanner and result envelopes in tests/cloud-orchestration-contracts.tests.py",
+        "TEST-010: native-protocol collector/reducer, public provenance/publication and field-counterpart cases in tests/cloud-orchestration-verification.tests.py (52 tests / 720 subtests, guarded synthetic transports)"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-002/green.log",
+        "specs/cloud-orchestration/verification/T-002/red.log",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/green-contracts.log",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/green-admission.log",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/red-ordering.json",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/final-verification.log",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/matrix-execution.json",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/coverage-matrix.md",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/rollback.json",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/network-isolation.md"
+      ],
+      "scope": "T-002 artifact layer; T-006 final guarded deterministic observations only; intermediate metric-context negative cases are invalid evidence and possible synthetic-token read attempts remain unknown; live OQ-001 BLOCKED"
+    },
+    {
+      "req": "REQ-005",
+      "acs": [
+        "AC-005"
+      ],
+      "tests": [
+        "TEST-005: admission layer in tests/cloud-orchestration-execution.tests.py",
+        "TEST-005: AWS governed exact-asset execution, prepare/apply replay fence and read-only recovery cases in tests/cloud-orchestration-execution.tests.py"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-003/green.log",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/green-admission.log",
+        "specs/cloud-orchestration/verification/T-003/expiry-fix/green.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/execution-final.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/rollback-handoff.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/probes-final.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/mutations-final/summary.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/implementation-report-snapshot.md"
+      ],
+      "scope": "T-003 protected admission only; actual live IAM remains unverified; later deterministic provider/dependency evidence is tracked under REQ-004/REQ-006; T-013 deterministic AWS execution/recovery only; live OQ-001 remains BLOCKED"
+    },
+    {
+      "req": "REQ-006",
+      "acs": [
+        "AC-006"
+      ],
+      "tests": [
+        "TEST-006: admission layer in tests/cloud-orchestration-execution.tests.py",
+        "TEST-006: Azure governed local transport, replay and read-only recovery cases in tests/cloud-orchestration-execution.tests.py",
+        "TEST-006: AWS governed exact-asset execution, prepare/apply replay fence and read-only recovery cases in tests/cloud-orchestration-execution.tests.py",
+        "TEST-006: T-010 authenticated predecessor matrix, both cross-provider boundaries, actual A/B/C partial failure, graph/order and final freshness/revocation cases in tests/cloud-orchestration-verification.tests.py",
+        "TEST-006: 52 callback-expiry/minimum-receipt scenarios with actual provider guards and native submission counters; synthetic admitted deadline explicitly separate from real predecessor acquisition tests"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-003/green.log",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/green-admission.log",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/execution.log",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/fence-capture.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/red-ordering.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/root-reconcile-scope-fixed.json",
+        "specs/cloud-orchestration/verification/T-013/evidence/execution-final.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/rollback-handoff.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/probes-final.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/mutations-final/summary.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/implementation-report-snapshot.md",
+        "specs/cloud-orchestration/verification/T-010/attempt-2/evidence/red-per-field.log",
+        "specs/cloud-orchestration/verification/T-010/attempt-2/evidence/preflight-field-matrix.json",
+        "specs/cloud-orchestration/verification/T-010/attempt-2/evidence/scoped-final-commands.log",
+        "specs/cloud-orchestration/verification/T-010/attempt-2/evidence/rollback-run2/result.json",
+        "specs/cloud-orchestration/verification/T-010/root-delivery-check.json",
+        "specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/green.log",
+        "specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/rollback.json",
+        "specs/cloud-orchestration/verification/T-010/quality-cycle-2/commands.json",
+        "specs/cloud-orchestration/verification/T-010/quality-cycle-2/review-completion.json",
+        "specs/cloud-orchestration/verification/T-010.evidence.json"
+      ],
+      "scope": "T-003 protected admission and T-012/T-013 provider execution have local deterministic evidence; live authorization/deployment/health remains BLOCKED (OQ-001). T-010 local dependency scope passed independent cycle 2 after callback-expiry repair; original cycle 1 Critical finding remains historical. No live acceptance claim. REQ-006 remains Implementation Complete because mapped live-provider tasks are not Done."
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-002"
+      ],
+      "tests": [
+        "TEST-002: Azure local routing, actual Bicep compile and policy cases in tests/cloud-orchestration-routing.tests.py",
+        "TEST-002: AWS local routing, actual pinned CDK synthesis and policy cases in tests/cloud-orchestration-routing.tests.py"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/green.log",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/final-native/native-execution.json",
+        "specs/cloud-orchestration/verification/T-005/evidence/green-routing.log",
+        "specs/cloud-orchestration/verification/T-005/evidence/native-execution.json",
+        "specs/cloud-orchestration/verification/T-005/evidence/red-git-proof.json"
+      ],
+      "scope": "T-004 Azure and T-005 AWS local preparation only; live cloud operations remain unverified"
+    },
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-003"
+      ],
+      "tests": [
+        "TEST-003: Azure local routing, actual Bicep compile and policy cases in tests/cloud-orchestration-routing.tests.py",
+        "TEST-003: AWS local routing, actual pinned CDK synthesis and policy cases in tests/cloud-orchestration-routing.tests.py",
+        "TEST-003: Azure governed local transport, replay and read-only recovery cases in tests/cloud-orchestration-execution.tests.py",
+        "TEST-003: AWS governed exact-asset execution, prepare/apply replay fence and read-only recovery cases in tests/cloud-orchestration-execution.tests.py"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/green.log",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/final-native/native-execution.json",
+        "specs/cloud-orchestration/verification/T-005/evidence/green-routing.log",
+        "specs/cloud-orchestration/verification/T-005/evidence/native-execution.json",
+        "specs/cloud-orchestration/verification/T-005/evidence/red-git-proof.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/execution.log",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/fence-capture.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/red-ordering.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/root-reconcile-scope-fixed.json",
+        "specs/cloud-orchestration/verification/T-013/evidence/execution-final.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/rollback-handoff.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/probes-final.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/mutations-final/summary.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/implementation-report-snapshot.md"
+      ],
+      "scope": "T-004 Azure and T-005 AWS local preparation only; live cloud operations remain unverified; T-012 deterministic Azure execution/recovery only; actual live authorization/deployment/health remains BLOCKED (OQ-001); T-013 deterministic AWS execution/recovery only; live OQ-001 remains BLOCKED"
+    },
+    {
+      "req": "REQ-007",
+      "acs": [
+        "AC-007"
+      ],
+      "tests": [
+        "TEST-007: Azure local routing, actual Bicep compile and policy cases in tests/cloud-orchestration-routing.tests.py",
+        "TEST-007: AWS local routing, actual pinned CDK synthesis and policy cases in tests/cloud-orchestration-routing.tests.py",
+        "TEST-007: Azure governed local transport, replay and read-only recovery cases in tests/cloud-orchestration-execution.tests.py",
+        "TEST-007: AWS governed exact-asset execution, prepare/apply replay fence and read-only recovery cases in tests/cloud-orchestration-execution.tests.py"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/green.log",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/final-native/native-execution.json",
+        "specs/cloud-orchestration/verification/T-005/evidence/green-routing.log",
+        "specs/cloud-orchestration/verification/T-005/evidence/native-execution.json",
+        "specs/cloud-orchestration/verification/T-005/evidence/red-git-proof.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/execution.log",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/fence-capture.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/red-ordering.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/root-reconcile-scope-fixed.json",
+        "specs/cloud-orchestration/verification/T-013/evidence/execution-final.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/rollback-handoff.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/probes-final.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/mutations-final/summary.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/implementation-report-snapshot.md"
+      ],
+      "scope": "T-004 Azure and T-005 AWS local preparation only; live cloud operations remain unverified; T-012 deterministic Azure execution/recovery only; actual live authorization/deployment/health remains BLOCKED (OQ-001); T-013 deterministic AWS execution/recovery only; live OQ-001 remains BLOCKED"
+    },
+    {
+      "req": "REQ-009",
+      "acs": [
+        "AC-009"
+      ],
+      "tests": [
+        "TEST-009: Azure governed local transport, replay and read-only recovery cases in tests/cloud-orchestration-execution.tests.py",
+        "TEST-009: AWS governed exact-asset execution, prepare/apply replay fence and read-only recovery cases in tests/cloud-orchestration-execution.tests.py",
+        "TEST-009: native-protocol collector/reducer, public provenance/publication and field-counterpart cases in tests/cloud-orchestration-verification.tests.py (52 tests / 720 subtests, guarded synthetic transports)"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/execution.log",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/fence-capture.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/evidence/red-ordering.json",
+        "specs/cloud-orchestration/verification/T-012/attempt-2/root-reconcile-scope-fixed.json",
+        "specs/cloud-orchestration/verification/T-013/evidence/execution-final.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+        "specs/cloud-orchestration/verification/T-013/evidence/rollback-handoff.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/probes-final.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/mutations-final/summary.json",
+        "specs/cloud-orchestration/verification/T-013/preflight-repair/implementation-report-snapshot.md",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/final-verification.log",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/matrix-execution.json",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/coverage-matrix.md",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/rollback.json",
+        "specs/cloud-orchestration/verification/T-006/attempt-3/network-isolation.md"
+      ],
+      "scope": "; T-012 deterministic Azure execution/recovery only; actual live authorization/deployment/health remains BLOCKED (OQ-001); T-013 deterministic AWS execution/recovery only; live OQ-001 remains BLOCKED; T-006 final guarded deterministic observations only; intermediate metric-context negative cases are invalid evidence and possible synthetic-token read attempts remain unknown; live OQ-001 BLOCKED"
+    },
+    {
+      "req": "REQ-008",
+      "acs": [
+        "AC-008"
+      ],
+      "tests": [
+        "TEST-008: protected profile dispatch, legacy compatibility, saved-file denial and authenticated collector protocol controls in tests/cloud-orchestration-verification.tests.py",
+        "TEST-008: protected registry schema inventory and structure in tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-009/attempt-2/final-byte-verification.log",
+        "specs/cloud-orchestration/verification/T-009/attempt-2/verification-summary.json",
+        "specs/cloud-orchestration/verification/T-009/attempt-2/rollback-result.json",
+        "specs/cloud-orchestration/verification/T-009/root-final-delivery-check.json",
+        "specs/cloud-orchestration/verification/T-009/human-preflight-disposition-20261018.md",
+        "reports/quality-gate/20261018-cloud-orchestration-T-009-cycle-2.md",
+        "specs/cloud-orchestration/verification/T-009.evidence.json"
+      ],
+      "scope": "T009 local protected profile selection and synthetic protocol verification only. Actual independent cycle2 PASS and validated evidence bundle; historical pre-implementation deficiency explicitly accepted by user for T009 only, never backdated. No live acceptance."
+    },
+    {
+      "req": "REQ-011",
+      "acs": [
+        "AC-011"
+      ],
+      "tests": [
+        "TEST-011 packaging: tests/install-cloud.tests.py actual Bash/PowerShell Azure-only, AWS-only and combined installs, isolated cache layouts, shared runtime/registry/schema integrity, canonical predecessor route controls and write denial, retained dependencies and uninstall",
+        "TEST-011 existing install, uninstall, idempotency, install-uninstall-matrix and Claude-install regression suites",
+        "TEST-011 sequential differing-selection installs and atomic failure preservation in both Bash and PowerShell; trusted current-source regeneration of prior runtime and staged provider entry checks"
+      ],
+      "evidence": [
+        "specs/cloud-orchestration/verification/T-007/attempt-1/coverage-completion-packaging.log",
+        "specs/cloud-orchestration/verification/T-007/attempt-1/coverage-completion-result.json",
+        "specs/cloud-orchestration/verification/T-007/attempt-1/command-summary.json",
+        "specs/cloud-orchestration/verification/T-007/attempt-1/rollback-commands.json",
+        "specs/cloud-orchestration/verification/T-007/root-delivery-check.json",
+        "specs/cloud-orchestration/verification/T-007/install-selection-fix/final-green-packaging.log",
+        "specs/cloud-orchestration/verification/T-007/install-selection-fix/final-rollback/rollback-result.json",
+        "specs/cloud-orchestration/verification/T-007/quality-cycle-2/commands.json",
+        "specs/cloud-orchestration/verification/T-007/quality-cycle-2/review-completion.json",
+        "specs/cloud-orchestration/verification/T-007.evidence.json"
+      ],
+      "scope": "T007 local packaging passed actual independent cycle2 after the sequential-selection retention repair. Original Critical cycle1 remains historical. Explicit repository installer materializes cloud runtime; bare provider source marketplace installation alone is insufficient. T011 bootstrap/native model-host trial and T008 actual matching-platform/full-release verification remain pending. REQ011 is Implementation Complete, not Done; no live provider acceptance claim."
+    }
+  ]
+}

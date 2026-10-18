@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R9.observed-bindings",
+      "row": 9,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "RECEIPT_PRINCIPAL_MISMATCH",
+      "guards": []
+    }
+  ]
+}

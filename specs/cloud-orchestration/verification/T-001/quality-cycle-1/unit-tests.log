@@ -1,0 +1,9 @@
+test_changed_pin_is_rejected (__main__.IntegrationTests.test_changed_pin_is_rejected) ... ok
+test_current_pin_and_required_source (__main__.IntegrationTests.test_current_pin_and_required_source) ... ok
+test_historical_bytes_match_git_baseline_and_initial_snapshot (__main__.IntegrationTests.test_historical_bytes_match_git_baseline_and_initial_snapshot) ... ok
+test_normal_driver_registration (__main__.IntegrationTests.test_normal_driver_registration) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.024s
+
+OK

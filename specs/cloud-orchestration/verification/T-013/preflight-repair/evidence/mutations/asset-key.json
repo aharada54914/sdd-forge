@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R3.asset-key",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CREATE_REQUEST_MISMATCH",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:CREATE_REQUEST_MISMATCH",
+      "guards": []
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# Scoped security checks and limits
+
+No provider transport/write commands are implemented. Only fixed local CDK version/synth and Node version subprocesses exist. Shared strict validation, canonical POSIX paths and immutable writes are reused. Explicit Node and installed package-tree bytes are pinned and rechecked. Actual source/scope, tool, schema, asset, ownership, literal/composed reference, public-network and existing-resource mutation negatives run in the routing suite.
+
+Trusted examples run with a controlled environment. This is not a filesystem/network sandbox; direct arbitrary CDK needs external credential-free isolation. Common credential sources are checked before app execution. Actual toolchain integrity compares npm cache tarballs to registry SRI and installed bytes (including bundled dependencies); no scripts/install commands ran. A first cache search at /root was permission-denied; actual cache is /home/agent/.npm and all six archives matched.
+
+No cloud calls, Docker use, bootstrap, deployment, publication, IAM validation or messages occurred. Live OQ-001 TEST-003/005/009 and host T-011 remain unvalidated. Linux POSIX execution only; physical macOS temp-root handling is coded but no native macOS trial, and native Windows fails closed. Template-only assets; zip/Docker/executable/non-template assets block. Source/hashes do not confer authority. Full repository suite and independent review/quality gate remain root-owned. No previously SKIPped branch was made newly reachable; added native tests ran with installed tools and zero skips.

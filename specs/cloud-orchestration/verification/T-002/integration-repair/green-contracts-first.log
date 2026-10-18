@@ -1,0 +1,1380 @@
+test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) ... 
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=(), case='extra') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('owners',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('owners', 0), case='extra') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('owners', 0, 'owner'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('owners', 0, 'root'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0), case='extra') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'resource_id'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'owner'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0), case='extra') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0, 'resource_type'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0, 'name'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=(), case='extra') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_resource_types',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('backup_required',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('private_networking',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('budget',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0), case='extra') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'account_id'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'region'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'deployment_scope'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('budget',), case='extra') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('budget', 'ceiling_minor_units'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('budget', 'currency'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence',), case='extra') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence', 'residency'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence', 'retention_days'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence', 'access'), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=(), case='extra') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=('id',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=('version',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=('required_check_ids',), case='missing') ... ERROR
+  test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=('max_age_seconds',), case='missing') ... ERROR
+test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) ... 
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('owners', 0, 'owner')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('owners', 0, 'root')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'resource_id')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'owner')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0, 'resource_type')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0, 'name')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'account_id')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'region')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'deployment_scope')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('allowed_resource_types', 0)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('backup_required',)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('private_networking',)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('budget', 'ceiling_minor_units')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('budget', 'currency')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('evidence', 'residency')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('evidence', 'retention_days')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('evidence', 'access')) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('id',)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('version',)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 0)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 1)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 2)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 3)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 4)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 5)) ... ERROR
+  test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('max_age_seconds',)) ... ERROR
+test_bound_scope_owner_profile_policy_identity_and_preview_drift (__main__.Contracts.test_bound_scope_owner_profile_policy_identity_and_preview_drift) ... ok
+test_concurrent_publication_has_one_complete_winner (__main__.Contracts.test_concurrent_publication_has_one_complete_winner) ... ok
+test_digests_utc_paths_and_scalar_edge_cases (__main__.Contracts.test_digests_utc_paths_and_scalar_edge_cases) ... ok
+test_every_bound_file_mutation_is_rejected (__main__.Contracts.test_every_bound_file_mutation_is_rejected) ... ok
+test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash (__main__.Contracts.test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash) ... ok
+test_input_alias_output_and_expected_type_are_rejected (__main__.Contracts.test_input_alias_output_and_expected_type_are_rejected) ... ok
+test_large_numbers_bounded_payloads_and_unpaired_unicode (__main__.Contracts.test_large_numbers_bounded_payloads_and_unpaired_unicode) ... ok
+test_lock_closure_versions_packages_schemas_and_adapter (__main__.Contracts.test_lock_closure_versions_packages_schemas_and_adapter) ... ok
+test_parser_rejects_ambiguous_json_without_echo (__main__.Contracts.test_parser_rejects_ambiguous_json_without_echo) ... ok
+test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) ... 
+  test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) (schema='cloud-ownership/v1') ... ERROR
+  test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) (schema='cloud-deployment-policy/v1') ... ERROR
+  test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) (schema='cloud-verification-profile/v1') ... ERROR
+test_prepare_binding_does_not_invent_preview (__main__.Contracts.test_prepare_binding_does_not_invent_preview) ... ok
+test_publication_atomic_no_overwrite_containment_and_scan_failure (__main__.Contracts.test_publication_atomic_no_overwrite_containment_and_scan_failure) ... ok
+test_read_artifact_checks_observation_and_verification_references (__main__.Contracts.test_read_artifact_checks_observation_and_verification_references) ... ok
+test_repair_discovery_and_honest_unpublished_errors (__main__.Contracts.test_repair_discovery_and_honest_unpublished_errors) ... FAIL
+test_repair_explicit_phase_preserves_legacy_integrity_api (__main__.Contracts.test_repair_explicit_phase_preserves_legacy_integrity_api) ... ok
+test_repair_local_context_schema_and_each_field (__main__.Contracts.test_repair_local_context_schema_and_each_field) ... FAIL
+test_repair_physical_workspace_and_declared_boundary (__main__.Contracts.test_repair_physical_workspace_and_declared_boundary) ... ok
+test_result_exit_mapping_and_invalid_identity (__main__.Contracts.test_result_exit_mapping_and_invalid_identity) ... ok
+test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles (__main__.Contracts.test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles) ... ok
+test_scanner_receives_exact_bytes_and_no_secret_publication (__main__.Contracts.test_scanner_receives_exact_bytes_and_no_secret_publication) ... ok
+test_schema_inventory_has_no_open_object_or_unexercised_family (__main__.Contracts.test_schema_inventory_has_no_open_object_or_unexercised_family) ... FAIL
+test_schema_published_limits_have_executable_runtime_counterparts (__main__.Contracts.test_schema_published_limits_have_executable_runtime_counterparts) ... ok
+test_schema_scalar_domains_and_optional_field_boundaries (__main__.Contracts.test_schema_scalar_domains_and_optional_field_boundaries) ... ERROR
+test_unavailable_safe_filesystem_primitives_fail_closed (__main__.Contracts.test_unavailable_safe_filesystem_primitives_fail_closed) ... ok
+test_verification_inconsistent_claims_and_duplicate_checks (__main__.Contracts.test_verification_inconsistent_claims_and_duplicate_checks) ... ok
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=(), case='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 302, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('owners',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('owners', 0), case='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 302, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('owners', 0, 'owner'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('owners', 0, 'root'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0), case='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 302, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'resource_id'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'owner'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0), case='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 302, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0, 'resource_type'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0, 'name'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=(), case='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 302, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_resource_types',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('backup_required',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('private_networking',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('budget',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0), case='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 302, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'account_id'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'region'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'deployment_scope'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('budget',), case='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 302, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('budget', 'ceiling_minor_units'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('budget', 'currency'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence',), case='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 302, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence', 'residency'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence', 'retention_days'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-deployment-policy/v1', path=('evidence', 'access'), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=(), case='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 302, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=('id',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=('version',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=('required_check_ids',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) (kind='cloud-verification-profile/v1', path=('max_age_seconds',), case='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 309, in test_all_object_boundaries_unknown_and_missing_fields
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('owners', 0, 'owner'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('owners', 0, 'root'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'resource_id'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'owner'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0, 'resource_type'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-ownership/v1', path=('existing_resources', 0, 'attachments', 0, 'name'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'account_id'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'region'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('allowed_scopes', 0, 'deployment_scope'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('allowed_resource_types', 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('backup_required',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('private_networking',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('budget', 'ceiling_minor_units'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('budget', 'currency'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('evidence', 'residency'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('evidence', 'retention_days'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-deployment-policy/v1', path=('evidence', 'access'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('id',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('version',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 3))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 4))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('required_check_ids', 5))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) (kind='cloud-verification-profile/v1', path=('max_age_seconds',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 319, in test_all_scalar_types_and_schema_versions
+    self.both(bad, False)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) (schema='cloud-ownership/v1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 286, in test_positive_all_families_and_both_providers
+    self.both(value, True)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+ERROR: test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) (schema='cloud-deployment-policy/v1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 286, in test_positive_all_families_and_both_providers
+    self.both(value, True)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-deployment-policy.schema.json'
+
+======================================================================
+ERROR: test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) (schema='cloud-verification-profile/v1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 286, in test_positive_all_families_and_both_providers
+    self.both(value, True)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 276, in both
+    errors = self.oracle._schema_validate(self.schema(value["schema"]), value)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-verification-profile.schema.json'
+
+======================================================================
+ERROR: test_schema_scalar_domains_and_optional_field_boundaries (__main__.Contracts.test_schema_scalar_domains_and_optional_field_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 739, in test_schema_scalar_domains_and_optional_field_boundaries
+    schema = self.schema(kind)
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 268, in schema
+    (ROOT / "contracts" / (kind.split("/")[0] + ".schema.json")).read_bytes()
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/cloud-ownership.schema.json'
+
+======================================================================
+FAIL: test_repair_discovery_and_honest_unpublished_errors (__main__.Contracts.test_repair_discovery_and_honest_unpublished_errors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 922, in test_repair_discovery_and_honest_unpublished_errors
+    self.both(request, True)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 277, in both
+    self.assertEqual(not errors, valid, errors)
+AssertionError: False != True : ["/owner: None not in enum ['bicep', 'cdk']", '/owner: expected string', "/route: None not in enum ['azure-bicep', 'aws-cdk']", '/route: expected string', '/: oneOf matched 0 branches (need exactly 1)']
+
+======================================================================
+FAIL: test_repair_local_context_schema_and_each_field (__main__.Contracts.test_repair_local_context_schema_and_each_field)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 897, in test_repair_local_context_schema_and_each_field
+    self.both(request, True)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 277, in both
+    self.assertEqual(not errors, valid, errors)
+AssertionError: False != True : ["/: additional property 'local_context' not allowed"]
+
+======================================================================
+FAIL: test_schema_inventory_has_no_open_object_or_unexercised_family (__main__.Contracts.test_schema_inventory_has_no_open_object_or_unexercised_family)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 826, in test_schema_inventory_has_no_open_object_or_unexercised_family
+    self.assertEqual(
+AssertionError: Items in the second set but not the first:
+'cloud-ownership.schema.json'
+'cloud-verification-profile.schema.json'
+'cloud-deployment-policy.schema.json'
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.400s
+
+FAILED (failures=3, errors=66)

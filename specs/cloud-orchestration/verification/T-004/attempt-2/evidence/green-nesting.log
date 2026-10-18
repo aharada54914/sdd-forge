@@ -1,0 +1,7 @@
+test_expression_depth_has_an_explicit_bound (__main__.AzureNativePreparation.test_expression_depth_has_an_explicit_bound) ... ok
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AzureNativePreparation.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.171s
+
+OK

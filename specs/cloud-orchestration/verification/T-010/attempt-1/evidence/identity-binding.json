@@ -1,0 +1,13 @@
+{
+  "run_id": "01a14f33-2447-79d0-8195-087bbe42669c",
+  "session_id": "01a14f33-2447-79d0-8195-087bbe42669c",
+  "agent_instance_id": "01a14f33-2447-79d0-8195-087bbe42669c",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "isolation_mode": "fresh-agent",
+  "scratch_root": "/tmp/cloud-T010-01a14f33-2447-79d0-8195-087bbe42669c",
+  "allocation_path": "specs/cloud-orchestration/verification/T-010/attempt-1/native-allocation.json",
+  "allocation_sha256": "b9c68917296f87866f7aa76f18c2b571780b6fd4c0f5e39059d22a08f068bd5c",
+  "source": "caller-supplied identities corroborated by stable native allocation; no inherited environment identity"
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "name": "rollback-create",
+    "command": [
+      "git",
+      "worktree",
+      "add",
+      "--detach",
+      "/tmp/cloud-T010-01a14f33-2447-79d0-8195-087bbe42669c/rollback-checkout",
+      "f2d51e4a2d4b2c2f440222351684f3162ec88fc4"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0
+  },
+  {
+    "name": "rollback-baseline",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py",
+      "EntryPreflight.test_live_network_is_forbidden_before_transport",
+      "ReducerCases",
+      "AzureCompletionCases",
+      "ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary"
+    ],
+    "cwd": "/tmp/cloud-T010-01a14f33-2447-79d0-8195-087bbe42669c/rollback-checkout",
+    "exit_code": 1
+  },
+  {
+    "name": "rollback-remove",
+    "command": [
+      "git",
+      "worktree",
+      "remove",
+      "--force",
+      "/tmp/cloud-T010-01a14f33-2447-79d0-8195-087bbe42669c/rollback-checkout"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0
+  }
+]

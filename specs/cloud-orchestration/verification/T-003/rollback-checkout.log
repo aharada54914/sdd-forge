@@ -1,0 +1,5 @@
+COMMAND: git worktree add --detach /tmp/cloud-T-003-01a14d65/rollback-checkout 0ea1ac14bd691952b922fa92ca161aa2e4dc85db
+Preparing worktree (detached HEAD 0ea1ac14)
+HEAD is now at 0ea1ac14 test(cloud): pin schema domain parity including unsafe URLs
+
+EXIT: 0

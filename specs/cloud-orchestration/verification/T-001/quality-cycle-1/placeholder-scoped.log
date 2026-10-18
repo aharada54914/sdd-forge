@@ -1,0 +1,2 @@
+Scope correction: exclude test fixtures per deterministic-check-policy; earlier scan matched a real caught unsupported-platform exception in a test, not changed production. Scan changed inventory, CI and runner entrypoints.
+Placeholder scan passed.

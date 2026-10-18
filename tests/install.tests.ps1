@@ -56,7 +56,7 @@ if ($Lane -in @('all', 'core')) {
 
 $script:_SddFixtureMatrixBuilderSourced = $false
 . (Join-Path $repositoryRoot 'tests/lib/fixture-matrix-builder.ps1')
-$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
+$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
 $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
 
 function New-TrackedFixture {
@@ -143,6 +143,24 @@ $stagedDiff = & git -C $installerSourceRoot diff --cached --name-only
 if ($stagedDiff) {
     & git -C $installerSourceRoot -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
     if ($LASTEXITCODE -ne 0) { throw "Unable to commit installer source fixture." }
+}
+
+# Overlay current cloud packaging bytes into the isolated tracked fixture.
+foreach ($provider in @("azure", "aws")) {
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot "plugins/sdd-$provider-cloud") -Destination (Join-Path $installerSourceRoot "plugins") -Recurse -Force
+    Get-ChildItem -LiteralPath (Join-Path $installerSourceRoot "plugins/sdd-$provider-cloud") -Directory -Recurse |
+        Where-Object { $_.Name -ceq "__pycache__" } | Remove-Item -Recurse -Force
+}
+foreach ($relativePath in @("plugins/sdd-quality-loop/scripts/cloud_contracts.py", "plugins/sdd-quality-loop/scripts/cloud_authorization.py", "plugins/sdd-quality-loop/scripts/cloud_verification.py", "plugins/sdd-quality-loop/scripts/cloud_dependencies.py", "plugins/sdd-quality-loop/references/cloud-verification-registry.json", "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json", "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json")) {
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot $relativePath) -Destination (Join-Path $installerSourceRoot $relativePath) -Force
+}
+Get-ChildItem -LiteralPath (Join-Path $repositoryRoot "contracts") -File |
+    Where-Object { $_.Name -cmatch '^cloud-.*\.schema\.json$' } |
+    Copy-Item -Destination (Join-Path $installerSourceRoot "contracts") -Force
+& git -C $installerSourceRoot add -- plugins/sdd-azure-cloud plugins/sdd-aws-cloud 'plugins/sdd-quality-loop/scripts/cloud_*.py' plugins/sdd-quality-loop/references/cloud-verification-registry.json plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json 'contracts/cloud-*.schema.json'
+if (& git -C $installerSourceRoot diff --cached --name-only) {
+    & git -C $installerSourceRoot -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Cloud packaging fixture"
+    if ($LASTEXITCODE -ne 0) { throw "Unable to commit cloud fixture." }
 }
 
 # The MCP server payload (mcp/sdd-forge-mcp/dist + package.json) is not yet
@@ -272,6 +290,8 @@ function Resolve-ExpectedPlugins {
         foreach ($plugin in @($resolved)) {
             $dependencies = switch ($plugin) {
                 "sdd-bootstrap" { @("sdd-review-loop"); break }
+                "sdd-azure-cloud" { @("sdd-quality-loop"); break }
+                "sdd-aws-cloud" { @("sdd-quality-loop"); break }
                 "sdd-domain" { @("sdd-bootstrap", "sdd-quality-loop"); break }
                 "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
                 "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }

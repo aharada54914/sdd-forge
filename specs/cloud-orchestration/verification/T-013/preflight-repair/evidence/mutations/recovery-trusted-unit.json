@@ -1,0 +1,22 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R8.trusted-unit_id",
+      "row": 8,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "UNTRUSTED_RECOVERY_READ",
+      "guards": [
+        {
+          "code": "STACK_AUTHORITY_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 210
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "classification": "local diagnostic and Red-only CLI subprocess tests; no native compiler or live cloud",
+  "run_id": "01a14d79-fe10-7172-8962-409b3b347a90",
+  "task_attempt_count": 1,
+  "commands": [
+    {
+      "command": "python3 -B tests/cloud-orchestration-routing.tests.py",
+      "before_exit": 1,
+      "after_exit": 1,
+      "before_log": "specs/cloud-orchestration/verification/T-004/red.log",
+      "after_log": "specs/cloud-orchestration/verification/T-004/after-red.log"
+    },
+    {
+      "command": "python3 -B specs/cloud-orchestration/verification/T-004/probe-contract-gap.py",
+      "exit_code": 0,
+      "meaning": "Gap reproduced, not routing acceptance"
+    },
+    {
+      "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml tests/cloud-orchestration-routing.tests.py specs/cloud-orchestration/verification/T-004/probe-contract-gap.py",
+      "exit_code": 0
+    },
+    {
+      "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml tests/cloud-orchestration-routing.tests.py specs/cloud-orchestration/verification/T-004/probe-contract-gap.py",
+      "exit_code": 0
+    }
+  ],
+  "compiler": "NOT RUN",
+  "upstream_closure": "NOT ADOPTED",
+  "cloud_actions": 0,
+  "task_status_modified": false,
+  "frozen_artifacts_modified": false
+}

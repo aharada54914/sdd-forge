@@ -1,0 +1,6 @@
+test_public_verify_uses_original_operation_and_received_signal (__main__.AzureObservationOrchestration.test_public_verify_uses_original_operation_and_received_signal) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.200s
+
+OK

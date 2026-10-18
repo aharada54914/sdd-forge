@@ -1,0 +1,92 @@
+{
+  "checkout": "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/rollback-checkout",
+  "candidate_revision": "87be395baf286b286817c323d524c10d2b78880e",
+  "restored": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "restored_sha256": "2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "restored_sha256": "1ce796d91352a488d479a335af08b663a430b0c1d9858dc2593382181d54344a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+      "restored_sha256": "b31edeefb2d2549b349ed1052be40c0e2b22d6f7f14a98b9f1535720cb78b1cc"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "restored_sha256": "bb868366c74987319f674fc36f44adbd9b4b5625d46b15e1e9a1a07bf2569dbe"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "restored_sha256": "7cc6d610d63558f7ceb841b09174ffcc767eef161ecaee89e6b5b2a82ab49c87"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "restored_sha256": "35645f911bdc7eb82ed96cf4a8ac59ab165be9d53f2bf5d215d8b1536b0ca224"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+      "restored_sha256": null
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "restored_sha256": "cb718f913e98253038e72f5e2bf278e458c5a8e497210b644fcfc0cd2ad3f990"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "restored_sha256": "6057a5d62afd366f7b9fc589e887fc8dce9c37daf20b69ff8facb1cff395cc13"
+    },
+    {
+      "path": "tests/cloud-orchestration-verification.tests.py",
+      "restored_sha256": "7cdbf61264499cec788e7da535f9c0b1cdb603d555975b93498cc1a2e65f0135"
+    },
+    {
+      "path": "contracts/verification-contract-v3.schema.json",
+      "restored_sha256": null
+    },
+    {
+      "path": "contracts/selected-verification-plan-v2.schema.json",
+      "restored_sha256": null
+    },
+    {
+      "path": "contracts/cloud-verification-registry.schema.json",
+      "restored_sha256": null
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+      "restored_sha256": null
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+      "restored_sha256": null
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+      "restored_sha256": null
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "restored_sha256": "83e24c57111d715a878bba182732c85afda06c1b5e239e5a3d4f2fc7ee8edf9b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "restored_sha256": "dfae04d3e2416ff8f0dddd83adae8d0fb5a0768ae3a602c813d7402c2829f9fd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "restored_sha256": "8a8ada6316786b3e5e249cb65286a275e2bbaf043464485ebd769cfe237deea0"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "restored_sha256": "dbf8977e88dba6efdcfb72f86195451780997676b4c7e25e3c39cf3ec8f53fae"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "restored_sha256": "b8da17031edc5fe4b7bc6d18278a204d899dbd8341df9e5d0e72920535a77137"
+    }
+  ],
+  "result": "PASS",
+  "limits": "First disposable attempt lacked AWS fixture bundle and failed at setup; preserved logs. Exact missing test dependencies admitted and rerun. No live tree or historical evidence restored."
+}

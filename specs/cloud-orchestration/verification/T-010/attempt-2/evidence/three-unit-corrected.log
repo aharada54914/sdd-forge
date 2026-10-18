@@ -1,0 +1,25 @@
+test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a) ... FAIL
+
+======================================================================
+FAIL: test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 5038, in test_three_actual_adapter_units_partial_failure_preserves_a
+    result=d.dispatch([units["unit-c"].req,units["unit-b"].req,a_request],execute,proofs,runtime,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_dependencies.py", line 688, in dispatch
+    result = execute(request)
+             ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 5035, in execute
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1029, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'unit-b', 'provider': 'azure', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AZURE_EXECUTION_BLOCKED', 'message': 'Native execution evidence only; resource health is not verified.', 'input_manifest_sha256': '3a4b4fc63f34a78ffd5dbc8dfa290c75ec7b8747c83ea6befc188d2cf8ef7ce9', 'evidence_manifest_path': None}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.413s
+
+FAILED (failures=1)

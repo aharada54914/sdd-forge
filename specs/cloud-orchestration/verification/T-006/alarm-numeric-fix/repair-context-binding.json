@@ -1,0 +1,9 @@
+{
+  "schema": "repair-context-binding/v1",
+  "original_run_id": "01a14e9b-59d8-7aa1-b988-8c2551229993",
+  "repair_run_id": "01a14ec8-2897-7202-ad68-7b91dde65313",
+  "report": "reports/implementation/cloud-orchestration/T-006-alarm-numeric-fix.md",
+  "sha256": "f18ae3e52e2faefa991e9b6d05255f7b70516d3ad43a7e7619747c0470827ea2",
+  "snapshot": "specs/cloud-orchestration/verification/T-006/alarm-numeric-fix/implementation-report-snapshot.md",
+  "scope": "Bounded Critical numeric alarm fix: source and native XML/public-path regressions, actual Red, scoped checks, rollback and sensitivity. Original report and first reviewer verdict remain frozen."
+}

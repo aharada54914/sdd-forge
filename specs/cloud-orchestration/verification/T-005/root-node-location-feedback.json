@@ -1,0 +1,17 @@
+{
+  "request": {
+    "id": 900006,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14dcb-540f-74f1-ac06-0cb8ccbe95f8",
+      "expectedTurnId": "01a14dcb-545b-7b71-ad36-451a5da58c61",
+      "input": [
+        {
+          "type": "text",
+          "text": "Root reviewed aws_local.py toolchain(): Node is currently selected from pin[\"node_path\"], which is the absolute /opt/codex development runtime path. This makes the shipped adapter unusable on another installation even with identical pinned Node bytes. Use an explicit physical operator-selected Node executable path (e.g. CLOUD_NODE_BIN) and verify its fixed version/hash; keep machine acquisition paths only in verification evidence, not required product configuration. Update actual tests and local contract accordingly, including alternate installed location with the same trusted bytes and wrong-byte denial. Do not add PATH/workspace fallback or change trust/hash requirements. Also ensure report clearly states the actual supported asset subset: publish_assembly currently admits JSON/template files and cdk.out, not arbitrary CDK file/zip assets."
+        }
+      ]
+    }
+  },
+  "scope": "in-turn implementation feedback, not a quality verdict"
+}

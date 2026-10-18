@@ -1,0 +1,16 @@
+plugins/sdd-aws-cloud/scripts/aws_control.py:9: error: Cannot find implementation or library stub for module named "cloud_authorization"  [import-not-found]
+plugins/sdd-aws-cloud/scripts/aws_execution.py:20: error: Cannot find implementation or library stub for module named "cloud_authorization"  [import-not-found]
+plugins/sdd-aws-cloud/scripts/aws_execution.py:20: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+plugins/sdd-aws-cloud/scripts/aws_execution.py:310: error: Argument 2 to "create_params" of "AwsExecutor" has incompatible type "object"; expected "dict[Any, Any]"  [arg-type]
+plugins/sdd-aws-cloud/scripts/aws_execution.py:312: error: Argument 1 to "read_object" of "Native" has incompatible type "object"; expected "dict[Any, Any]"  [arg-type]
+plugins/sdd-aws-cloud/scripts/aws_execution.py:320: error: Value of type "object" is not indexable  [index]
+plugins/sdd-aws-cloud/scripts/aws_execution.py:321: error: Value of type "object" is not indexable  [index]
+plugins/sdd-aws-cloud/scripts/aws_execution.py:322: error: Value of type "object" is not indexable  [index]
+plugins/sdd-aws-cloud/scripts/aws_governed.py:33: error: Cannot find implementation or library stub for module named "cloud_authorization"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:26: error: Cannot find implementation or library stub for module named "cloud_contracts"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:197: error: Cannot find implementation or library stub for module named "cloud_authorization"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:950: error: Cannot find implementation or library stub for module named "azure_execution"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:1378: error: Cannot find implementation or library stub for module named "azure_governed"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:1506: error: Cannot find implementation or library stub for module named "azure_arm"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:1806: error: Cannot find implementation or library stub for module named "azure_graph"  [import-not-found]
+Found 14 errors in 4 files (checked 6 source files)

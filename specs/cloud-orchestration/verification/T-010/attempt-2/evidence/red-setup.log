@@ -1,0 +1,4 @@
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4275
+    'PY
+    ^
+SyntaxError: unterminated string literal (detected at line 4275)

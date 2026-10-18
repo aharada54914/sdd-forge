@@ -1,0 +1,13 @@
+RUN_ID: 01a14d67-ded1-7eb1-a245-7af0e43ebe43
+HOST_SESSION_ID: 01a14d67-ded1-7eb1-a245-7af0e43ebe43
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-002/quality-cycle-1/review/invocation.json SHA-256 776997d91139fa2a264ae1a23482122c8f5f440f4a173627b2dfbfb19b4bde02
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] specs/cloud-orchestration/verification/T-002.contract.json — Required lint and typecheck gates remain failing — Saved Ruff output reports 47 errors; mypy reports four errors at tests/cloud-orchestration-contracts.tests.py:24–25,440. Both commands exited 1, and contract.log explicitly rejects both required checks. Correct these failures and retain successful rerun evidence before Done.
+CHECKED:
+- Verified invocation through digest-checked review_read; recomputed reservation receipt hash successfully and confirmed implementation/evaluator identities differ.
+- Inspected T-002’s approved scope, REQ-004/010, AC-004/010, design, layer specifications, ADR 0036 and all eight schemas.
+- Inspected cloud_contracts.py:286–475 and corresponding tests: strict parsing, contained reads, digest/closure binding, scanner-gated exclusive publication and result/exit mapping have substantive implementations and assertions.
+- Read saved task-suite output: 23 tests passed. Saved compilation output reports exit 0.
+- Compared saved baseline and current regression output: identical, 44 passes and zero failures. Inspected rollback script and recorded before/restored file states.
+- No tests were rerun under this read-only boundary. Live cloud behavior, native Windows execution and future-task integration were not verified or credited toward T-002.

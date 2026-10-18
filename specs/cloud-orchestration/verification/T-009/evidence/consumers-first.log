@@ -1,0 +1,94 @@
+test_all_direct_consumers_explicit_selection_not_saved_authority (__main__.ProfileSavedConsumers.test_all_direct_consumers_explicit_selection_not_saved_authority) ... ok
+test_legacy_import_never_loads_cloud_runtime (__main__.ProfileSavedConsumers.test_legacy_import_never_loads_cloud_runtime) ... ok
+test_plan_fields_match_schema_and_recomputed_counterparts (__main__.ProfileSavedConsumers.test_plan_fields_match_schema_and_recomputed_counterparts) ... ok
+test_registry_protection_and_old_schema_mirrors (__main__.ProfileSavedConsumers.test_registry_protection_and_old_schema_mirrors) ... 
+  test_registry_protection_and_old_schema_mirrors (__main__.ProfileSavedConsumers.test_registry_protection_and_old_schema_mirrors) (field='version') ... FAIL
+test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) ... 
+  test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='preview', field='request') ... FAIL
+  test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='preview', field='dependency_lock') ... FAIL
+  test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='preview', field='policy') ... FAIL
+  test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='preview', field='verification_profile') ... FAIL
+  test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='verification', field='profile') ... FAIL
+
+======================================================================
+FAIL: test_registry_protection_and_old_schema_mirrors (__main__.ProfileSavedConsumers.test_registry_protection_and_old_schema_mirrors) (field='version')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3539, in test_registry_protection_and_old_schema_mirrors
+    with patch.object(Path, "read_bytes", return_value=encode(document)), self.subTest(field=field), self.assertRaisesRegex(ValueError, "PROFILE_REGISTRY_INVALID"):
+                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "PROFILE_REGISTRY_INVALID" does not match "INVALID_ARTIFACT"
+
+======================================================================
+FAIL: test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='preview', field='request')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: DIGEST_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3490, in test_saved_contract_each_field_and_binding_guard
+    with self.subTest(artifact=key, field=field), self.assertRaisesRegex(ValueError, message):
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "PROFILE_PREVIEW_BINDING_MISMATCH" does not match "DIGEST_MISMATCH"
+
+======================================================================
+FAIL: test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='preview', field='dependency_lock')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: DIGEST_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3490, in test_saved_contract_each_field_and_binding_guard
+    with self.subTest(artifact=key, field=field), self.assertRaisesRegex(ValueError, message):
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "PROFILE_PREVIEW_BINDING_MISMATCH" does not match "DIGEST_MISMATCH"
+
+======================================================================
+FAIL: test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='preview', field='policy')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: DIGEST_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3490, in test_saved_contract_each_field_and_binding_guard
+    with self.subTest(artifact=key, field=field), self.assertRaisesRegex(ValueError, message):
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "PROFILE_PREVIEW_BINDING_MISMATCH" does not match "DIGEST_MISMATCH"
+
+======================================================================
+FAIL: test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='preview', field='verification_profile')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: DIGEST_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3490, in test_saved_contract_each_field_and_binding_guard
+    with self.subTest(artifact=key, field=field), self.assertRaisesRegex(ValueError, message):
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "PROFILE_PREVIEW_BINDING_MISMATCH" does not match "DIGEST_MISMATCH"
+
+======================================================================
+FAIL: test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) (artifact='verification', field='profile')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: DIGEST_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3490, in test_saved_contract_each_field_and_binding_guard
+    with self.subTest(artifact=key, field=field), self.assertRaisesRegex(ValueError, message):
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "PROFILE_VERIFICATION_MISMATCH" does not match "DIGEST_MISMATCH"
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.063s
+
+FAILED (failures=6)

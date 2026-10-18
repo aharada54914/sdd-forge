@@ -94,6 +94,32 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Developer Tools"
+    },
+    {
+      "name": "sdd-azure-cloud",
+      "version": "1.18.0",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sdd-azure-cloud"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "sdd-aws-cloud",
+      "version": "1.18.0",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sdd-aws-cloud"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
     }
   ]
 }

@@ -1,0 +1,39 @@
+{
+  "rulesets": [
+    {
+      "id": 21562208,
+      "name": "CI and history integrity (no bypass)",
+      "enforcement": "active",
+      "required_status_checks": [
+        {
+          "strict_required_status_checks_policy": true,
+          "do_not_enforce_on_create": false,
+          "required_status_checks": [
+            {
+              "context": "test (windows-latest)"
+            },
+            {
+              "context": "test (macos-latest)"
+            },
+            {
+              "context": "test (ubuntu-latest)"
+            },
+            {
+              "context": "required-checks"
+            }
+          ]
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/rules/21562208"
+    },
+    {
+      "id": 17651269,
+      "name": "Protect main branch",
+      "enforcement": "active",
+      "required_status_checks": [],
+      "url": "https://github.com/aharada54914/sdd-forge/rules/17651269"
+    }
+  ],
+  "legacy_branch_protection_endpoint": "HTTP403: not accessible by integration; no assertion of complete legacy protection visibility",
+  "mutations_performed": false
+}

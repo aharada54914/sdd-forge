@@ -1,0 +1,3 @@
+COMMAND: git worktree remove --force /tmp/cloud-T-003-01a14d65/rollback-checkout
+
+EXIT: 0

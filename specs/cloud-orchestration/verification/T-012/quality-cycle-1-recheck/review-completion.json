@@ -1,0 +1,11 @@
+{
+  "task_id": "T-012",
+  "review_run_id": "01a14e1a-21ab-7130-8702-d39395a83493",
+  "implementation_run_id": "01a14e03-aadd-7da3-9d54-8d3db30fd7bc",
+  "verdict": "PASS",
+  "manifest_sha256": "c77fa414ccbf1724efbdddc96d2518c8adebe6bf108589611a71e71b12480865",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261018-cloud-orchestration-T-012-cycle-1.md",
+  "completion_scope": "PASS for the reviewed local implementation scope; generate and check the evidence bundle. T-012 remains Implementation Complete, not Done, because live OQ-001 acceptance is unavailable. Complete authenticated dispatch history is bounded to100 runs and requires external retention/visibility/exclusive-control prerequisites; no deleting history to bypass the fence. Larger history requires a reviewed extension. Azure external-writer preview/apply drift remains documented. Native deployment success is OBSERVED, not verified workload health.\n\n[INFO] retrospective deferred: later approved tasks remain incomplete."
+}

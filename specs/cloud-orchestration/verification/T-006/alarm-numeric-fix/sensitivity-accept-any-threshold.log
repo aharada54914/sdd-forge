@@ -1,0 +1,472 @@
+test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) ... ok
+test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) ... 
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='1') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-1') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0.01') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-0.01') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='1e-4000') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-1e-4000') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='1e4000') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='NaN') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='sNaN') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='Inf') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-Inf') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='Infinity') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-Infinity') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='nan') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='garbage') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0x0') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0_0') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0e') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0 0') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='０') ... FAIL
+  test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0.0junk') ... FAIL
+test_other_alarm_field_semantics_remain_exact (__main__.AlarmNumericCases.test_other_alarm_field_semantics_remain_exact) ... ok
+test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) ... 
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='1') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-1') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0.01') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-0.01') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='1e-4000') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-1e-4000') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='1e4000') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='NaN') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='sNaN') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='Inf') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-Inf') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='Infinity') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-Infinity') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='nan') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='garbage') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0x0') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0_0') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0e') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0 0') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='０') ... FAIL
+  test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0.0junk') ... FAIL
+test_live_network_is_forbidden_before_transport (__main__.EntryPreflight.test_live_network_is_forbidden_before_transport) ... ok
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0.01')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-0.01')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='1e-4000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-1e-4000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='1e4000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='NaN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='sNaN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='Inf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-Inf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='Infinity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='-Infinity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='nan')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='garbage')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0x0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0_0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0e')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0 0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='０')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) (threshold='0.0junk')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2946, in test_native_xml_threshold_rejects_nonzero_and_invalid
+    self.assertFalse(collector.monitoring()[0])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0.01')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-0.01')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='1e-4000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-1e-4000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='1e4000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='NaN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='sNaN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='Inf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-Inf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='Infinity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='-Infinity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='nan')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='garbage')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0x0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0_0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0e')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0 0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='０')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+======================================================================
+FAIL: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0.0junk')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2972, in test_public_synthetic_threshold_result_counterparts
+    self.assertEqual(check["result"], expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 13.643s
+
+FAILED (failures=44)

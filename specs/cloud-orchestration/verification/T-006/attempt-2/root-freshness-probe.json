@@ -1,0 +1,15 @@
+{
+  "recorded_at": "2026-10-18T10:26:28.060312+00:00",
+  "classification": "actual deterministic helper probe; no cloud call or independent verdict",
+  "source": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+  "sha256": "6dd4b2816a8928e06756f86a354556c6ccee3a0f7fb0d9ad883cb856becdb91f",
+  "context": {
+    "completed_at": "2026-10-18T09:00:00Z",
+    "collected_at": "2026-10-18T11:00:00Z"
+  },
+  "sample": "2026-10-18T10:59:00Z",
+  "max_age_seconds": 300,
+  "actual_sample_age_seconds": 60,
+  "fresh_result": false,
+  "samples_error": "ContractError:STALE_SIGNAL"
+}

@@ -1,0 +1,8 @@
+T-009 remains incomplete; no status changed.
+
+- Portable PowerShell discovery is implemented but awaits rerun.
+- 70 verification tests passed; schema-inventory and staged-byte guard checks failed.
+- Rollback and complete mismatch/sensitivity verification remain outstanding.
+- Both manifests and the v2 implementation report validate successfully.
+
+Required compaction handoff recorded in `reports/implementation/cloud-orchestration/T-009.md`. No quality-gate PASS claimed.

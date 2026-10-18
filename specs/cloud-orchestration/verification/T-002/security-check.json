@@ -1,0 +1,14 @@
+{
+  "imports": [
+    "contextlib",
+    "datetime",
+    "hashlib",
+    "json",
+    "os",
+    "re",
+    "secrets",
+    "stat"
+  ],
+  "shell_eval_network_apis": false,
+  "classification": "static scoped check; not independent review"
+}

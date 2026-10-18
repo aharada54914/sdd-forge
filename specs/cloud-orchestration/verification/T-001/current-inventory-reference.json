@@ -1,0 +1,23 @@
+{
+  "feature": "cloud-orchestration",
+  "task_id": "T-001",
+  "requirement": "REQ-001",
+  "inventory": {
+    "path": "specs/sdd-domain-multitarget/verification/T-001/current-consumer-inventory.json",
+    "sha256": "a68bc71819ca523c005df8108ab4876a6925fd7632c09d7702c3f11734529459"
+  },
+  "runner": {
+    "path": "tests/sdd-domain-multitarget-foundation.tests.py",
+    "sha256": "42c7cf69f07e3d0e7c8187a48c5b055dbeb169d63810510ef29f6628e49b225f"
+  },
+  "historical_failure": {
+    "path": "specs/sdd-domain-multitarget/verification/T-001/repair-20261018/historical-current-tree-failure.log",
+    "sha256": "9a6a2bbe237190b6c5df32fdb83ba9f10931826642ccfc8de4f1766f0987afc3"
+  },
+  "required_source": {
+    "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+    "keyword": "seven Markdown files",
+    "section": "## Required Outputs"
+  },
+  "note": "Immutable integration pin to the maintained inventory; only the seven-file requirement has a unique section anchor. Other entries retain their explicit bounded line assertions."
+}

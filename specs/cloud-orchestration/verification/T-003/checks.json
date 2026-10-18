@@ -1,0 +1,108 @@
+{
+  "classification": "deterministic local fixtures and local static checks; no live API calls",
+  "checks": [
+    {
+      "name": "lint",
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+        "tests/cloud-orchestration-execution.tests.py",
+        "templates/cloud/iam/trusted-policy.example.py",
+        "specs/cloud-orchestration/verification/T-003/coverage-runner.py",
+        "specs/cloud-orchestration/verification/T-003/rollback-test.py",
+        "specs/cloud-orchestration/verification/T-003/verify-local.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T05:20:53Z",
+      "log": "specs/cloud-orchestration/verification/T-003/lint.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "--cache-dir",
+        "/tmp/cloud-T-003-01a14d65/mypy",
+        "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+        "tests/cloud-orchestration-execution.tests.py",
+        "templates/cloud/iam/trusted-policy.example.py",
+        "specs/cloud-orchestration/verification/T-003/coverage-runner.py",
+        "specs/cloud-orchestration/verification/T-003/rollback-test.py",
+        "specs/cloud-orchestration/verification/T-003/verify-local.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T05:20:53Z",
+      "log": "specs/cloud-orchestration/verification/T-003/typecheck.log"
+    },
+    {
+      "name": "green",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T05:20:53Z",
+      "log": "specs/cloud-orchestration/verification/T-003/green.log"
+    },
+    {
+      "name": "regression",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T05:20:54Z",
+      "log": "specs/cloud-orchestration/verification/T-003/regression.log"
+    },
+    {
+      "name": "manifest-validation-final",
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+        "--manifest",
+        "specs/cloud-orchestration/verification/T-003/task-input-manifest.json",
+        "--snapshot-root",
+        "/tmp/cloud-T-003-01a14d65/inputs",
+        "--expected-task",
+        "T-003"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T05:20:54Z",
+      "log": "specs/cloud-orchestration/verification/T-003/manifest-validation-final.log"
+    },
+    {
+      "name": "supplemental-manifest-validation",
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+        "--manifest",
+        "specs/cloud-orchestration/verification/T-003/supplemental-api-input-manifest.json",
+        "--snapshot-root",
+        "/tmp/cloud-T-003-01a14d65/inputs",
+        "--expected-task",
+        "T-003"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T05:20:54Z",
+      "log": "specs/cloud-orchestration/verification/T-003/supplemental-manifest-validation.log"
+    }
+  ],
+  "sources": {
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "9d7ad425167d0b165a7057dd090f2b9c8c88878e8888a09c12ea134cfccaaeb8",
+    "tests/cloud-orchestration-execution.tests.py": "f6197706c9cd0ae7abc4fb9385fdc58141ac2678454b81147b3cfbc8bfde1692",
+    "templates/cloud/iam/trusted-policy.example.py": "a6e4af089fae1b9594ef1c0ca581541aa3c44958d3ea1c59ec74350b887ccbd0",
+    "specs/cloud-orchestration/verification/T-003/coverage-runner.py": "3e93b4595502ff5cf9ee1354a04450e4eaddea439f4d694f34ca1692421894bf",
+    "specs/cloud-orchestration/verification/T-003/rollback-test.py": "ff5ddb8af5b4411e2b71ce0145034a573a71287a6e0df382ffee01dbdcab5661",
+    "specs/cloud-orchestration/verification/T-003/verify-local.py": "1645501b34598039e76e197083e85de17cea71e3199570669541148cba8bef90"
+  }
+}

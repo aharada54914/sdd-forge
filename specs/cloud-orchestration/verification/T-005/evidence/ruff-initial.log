@@ -1,0 +1,113 @@
+F401 [*] `hashlib` imported but unused
+  --> plugins/sdd-aws-cloud/scripts/aws_local.py:9:8
+   |
+ 8 | import copy
+ 9 | import hashlib
+   |        ^^^^^^^
+10 | import os
+11 | from pathlib import Path
+   |
+help: Remove unused import: `hashlib`
+
+F401 [*] `shutil` imported but unused
+  --> plugins/sdd-aws-cloud/scripts/aws_local.py:13:8
+   |
+11 | from pathlib import Path
+12 | import re
+13 | import shutil
+   |        ^^^^^^
+14 | import subprocess
+15 | import tempfile
+   |
+help: Remove unused import: `shutil`
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-routing.tests.py:772:19
+    |
+770 |                      lambda: self.config.update(import_resources=True),
+771 |                      lambda: self.req.update(provider="azure", owner="bicep", route="azure-bicep")):
+772 |             edit(); self.refresh()
+    |                   ^
+773 |             self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+774 |             self.owner, self.config, self.req = copy.deepcopy(initial)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-routing.tests.py:871:23
+    |
+869 |             with self.subTest(case=i):
+870 |                 self.config,self.params,self.policy,self.owner,self.lock=copy.deepcopy(initial)
+871 |                 edit();self.write_parameters();self.refresh()
+    |                       ^
+872 |                 self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+873 |                 self.assertEqual(list((self.root/"bundle/generated").iterdir()),[])
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-routing.tests.py:871:47
+    |
+869 |             with self.subTest(case=i):
+870 |                 self.config,self.params,self.policy,self.owner,self.lock=copy.deepcopy(initial)
+871 |                 edit();self.write_parameters();self.refresh()
+    |                                               ^
+872 |                 self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+873 |                 self.assertEqual(list((self.root/"bundle/generated").iterdir()),[])
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-routing.tests.py:968:47
+    |
+966 |         for i,(path,mutate,code) in enumerate(cases):
+967 |             with self.subTest(code=code):
+968 |                 for name,data in files.items():(self.root/name).write_bytes(data)
+    |                                               ^
+969 |                 self.req=copy.deepcopy(locked)
+970 |                 body=json.loads(files[path]);mutate(body);ref=self.put(path,body)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-routing.tests.py:970:45
+    |
+968 |                 for name,data in files.items():(self.root/name).write_bytes(data)
+969 |                 self.req=copy.deepcopy(locked)
+970 |                 body=json.loads(files[path]);mutate(body);ref=self.put(path,body)
+    |                                             ^
+971 |                 next(a for a in self.req['input_artifacts'] if a['path']==path).update(ref)
+972 |                 self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/negative-{i}.json')['error_code'],code)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-routing.tests.py:970:58
+    |
+968 |                 for name,data in files.items():(self.root/name).write_bytes(data)
+969 |                 self.req=copy.deepcopy(locked)
+970 |                 body=json.loads(files[path]);mutate(body);ref=self.put(path,body)
+    |                                                          ^
+971 |                 next(a for a in self.req['input_artifacts'] if a['path']==path).update(ref)
+972 |                 self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/negative-{i}.json')['error_code'],code)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-routing.tests.py:979:48
+    |
+977 |         original=copy.deepcopy(self.config)
+978 |         for key in original:
+979 |             self.config=copy.deepcopy(original);del self.config[key]
+    |                                                ^
+980 |             self.assertTrue(self.oracle._schema_validate(schema,self.config))
+981 |             self.refresh()
+    |
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-routing.tests.py:1004:54
+     |
+1002 |         self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_NODE_BIN":""})["error_code"],"NODE_UNAVAILABLE")
+1003 |         alternate=self.root/"trusted-node"
+1004 |         alternate.write_bytes(self.node.read_bytes());alternate.chmod(0o700)
+     |                                                      ^
+1005 |         self.assertEqual(self.invoke("plan",env_extra={"CLOUD_NODE_BIN":str(alternate)})["state"],"PLANNED")
+1006 |         alternate.write_bytes(b"#!/bin/sh\nexit 0\n")
+     |
+
+Found 10 errors.
+[*] 2 fixable with the `--fix` option.

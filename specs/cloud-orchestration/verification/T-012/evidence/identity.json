@@ -1,0 +1,13 @@
+{
+  "task_id": "T-012",
+  "run_id": "01a14de5-5c8e-7223-ad7c-855bb0bde8f9",
+  "session_id": "01a14de5-5c8e-7223-ad7c-855bb0bde8f9",
+  "agent_instance_id": "01a14de5-5c8e-7223-ad7c-855bb0bde8f9",
+  "model": "gpt-6-astra",
+  "provider": "openai",
+  "model_tier": "strong",
+  "isolation_mode": "fresh-agent",
+  "effort": "high",
+  "source": "caller-supplied native host identities; no inherited environment identity",
+  "spec_revision": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-007",
+  "run_id": "01a14fbf-f5c9-7882-9812-3f4c3010db2f",
+  "session_id": "01a14fbf-f5c9-7882-9812-3f4c3010db2f",
+  "agent_instance_id": "01a14fbf-f5c9-7882-9812-3f4c3010db2f",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T16:03:45Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "initial/tests/install-cloud.tests.py",
+      "sha256": "e285afb16f350f12c3b2a2b4cdeaedb19b32be6830231f2d625cf7ea092b5c3c"
+    }
+  ],
+  "allowed_outputs": [
+    "install.sh",
+    "install.ps1",
+    "tests/install-cloud.tests.py",
+    "reports/implementation/cloud-orchestration/T-007-install-selection-fix.md",
+    "specs/cloud-orchestration/verification/T-007/install-selection-fix/"
+  ]
+}

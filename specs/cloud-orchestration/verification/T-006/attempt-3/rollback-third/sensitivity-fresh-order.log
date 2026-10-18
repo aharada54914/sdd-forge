@@ -1,0 +1,27 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py FreshnessCases.test_old_deployment_recent_samples_and_time_order
+test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... 
+  test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) (sample='2026-10-18T06:02:31Z') ... FAIL
+test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... FAIL
+
+======================================================================
+FAIL: test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) (sample='2026-10-18T06:02:31Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 467, in test_old_deployment_recent_samples_and_time_order
+    self.assertFalse(fresh(sample, context, 300, now))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 468, in test_old_deployment_recent_samples_and_time_order
+    self.assertFalse(
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.010s
+
+FAILED (failures=2)
+
+Exit code: 1

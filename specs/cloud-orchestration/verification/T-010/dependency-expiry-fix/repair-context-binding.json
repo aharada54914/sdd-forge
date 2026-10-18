@@ -1,0 +1,9 @@
+{
+  "schema": "repair-context-binding/v1",
+  "original_run_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "repair_run_id": "01a14f7b-2c6f-7fd2-a9d1-dfb5c7efdc0c",
+  "report": "reports/implementation/cloud-orchestration/T-010-dependency-expiry-fix.md",
+  "sha256": "25eb41de5e05cbec2f07c711c2c5c179768ebc62fbe51f992b00e996964c39c2",
+  "snapshot": "specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/implementation-report-snapshot.md",
+  "scope": "Critical dependency freshness callback fix: existing authorization expiry is bounded by admitted predecessor freshness; real provider callback guards and submission counters, authentic predecessor regressions, guarded scoped tests, and rollback. Original implementation report and cycle 1 NEEDS_WORK remain frozen."
+}

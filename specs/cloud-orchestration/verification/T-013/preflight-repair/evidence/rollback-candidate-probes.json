@@ -1,0 +1,2111 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R0.test_create_pending_status_poll_is_bounded",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_create_response_loss_recovers_original_named_change_set_read_only",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_denied_prepare_and_revoked_apply_zero_mutations",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "APPROVAL_REQUIRED",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+          "line": 328
+        },
+        {
+          "code": "APPROVAL_REQUIRED",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+          "line": 328
+        }
+      ]
+    },
+    {
+      "case": "R0.test_destructive_reference_and_automatic_failure_policy_block",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DESTRUCTIVE_CHANGE_DENIED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 469
+        },
+        {
+          "code": "DESTRUCTIVE_CHANGE_DENIED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 469
+        },
+        {
+          "code": "DESTRUCTIVE_CHANGE_DENIED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 469
+        },
+        {
+          "code": "REFERENCED_RESOURCE_MUTATION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 463
+        },
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        }
+      ]
+    },
+    {
+      "case": "R0.test_every_bound_file_mismatch_blocks_before_native_mutation",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        },
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R0.test_exact_async_assets_native_role_failure_settings_and_single_execution",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_existing_stack_requires_exact_protected_owner_role_and_id",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "STACK_OWNER_UNESTABLISHED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 226
+        }
+      ]
+    },
+    {
+      "case": "R0.test_fixture_supports_actual_new_run_and_native_role_session",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_fresh_prepare_dispatch_after_unknown_create_is_fenced",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_fresh_prepare_dispatch_after_unknown_publication_is_fenced",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_generic_failure_is_not_no_change_and_pending_is_bounded",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_UNAVAILABLE",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 430
+        }
+      ]
+    },
+    {
+      "case": "R0.test_inactive_acyclic_workflow_native_iam_and_cli_seam",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_last_send_revocation_create",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "APPROVAL_REQUIRED",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+          "line": 328
+        }
+      ]
+    },
+    {
+      "case": "R0.test_last_send_revocation_execute",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "APPROVAL_REQUIRED",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+          "line": 328
+        }
+      ]
+    },
+    {
+      "case": "R0.test_last_send_revocation_publish",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "APPROVAL_REQUIRED",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+          "line": 328
+        }
+      ]
+    },
+    {
+      "case": "R0.test_lost_asset_version_cannot_be_replaced_with_latest_or_republished",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_native_binding_substitutions_and_pagination_block",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "NATIVE_ID_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 248
+        },
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        },
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        },
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        },
+        {
+          "code": "AWS_PAGINATION_UNSUPPORTED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 324
+        },
+        {
+          "code": "CHANGE_SET_UNAVAILABLE",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 430
+        },
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        },
+        {
+          "code": "TEMPLATE_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 527
+        }
+      ]
+    },
+    {
+      "case": "R0.test_native_bucket_checks_and_version_headers_are_not_invented",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_PREREQUISITE_DENIED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 355
+        },
+        {
+          "code": "S3_REGION_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 358
+        },
+        {
+          "code": "S3_VERSIONING_REQUIRED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 364
+        },
+        {
+          "code": "S3_ACCESS_DENIED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 368
+        },
+        {
+          "code": "S3_PREREQUISITE_DENIED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 355
+        },
+        {
+          "code": "S3_VERSION_REQUIRED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 330
+        }
+      ]
+    },
+    {
+      "case": "R0.test_native_wire_schema_matches_official_model_no_impossible_role_or_token_readback",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "AWS_FAILURE_POLICY",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 160
+        }
+      ]
+    },
+    {
+      "case": "R0.test_no_change_only_unambiguous_native_failed_diagnosis",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_operation_intent_hashes_actual_native_bytes_and_recovery_rejects_tampering",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "INTENT_BYTES_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 1014
+        },
+        {
+          "code": "JOURNAL_SHAPE",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 1008
+        }
+      ]
+    },
+    {
+      "case": "R0.test_readonly_recovery_expired_preview_and_revoked_mutation_approval",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_recovery_scope_mismatch_no_native_reads_even_after_expiry",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "TRUSTED_POLICY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 143
+        }
+      ]
+    },
+    {
+      "case": "R0.test_timeout_original_id_read_only_recovery_and_old_archive_replay",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_unknown_without_native_history_never_reexecutes_local_or_fresh",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R0.test_versioned_asset_substitution_and_bucket_owner_fail_closed",
+      "row": 0,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 419
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-request",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-policy",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-lock",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-profile",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-ownership",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-config",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-source-0",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-source-1",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-source-2",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-source-3",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-parameters-4",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-compiled-5",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-compiled-6",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-compiled-7",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-compiled-8",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-compiled-9",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-compiled-10",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-compiled-11",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.bytes-preview",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "DIGEST_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 409
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-run_id",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-unit_id",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-provider",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-scope.account_id",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-scope.region",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-scope.deployment_scope",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-request",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-dependency_lock",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-policy",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R1.preview-verification_profile",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 610
+        }
+      ]
+    },
+    {
+      "case": "R2.wire-ChangeSetId",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        }
+      ]
+    },
+    {
+      "case": "R2.wire-ChangeSetName",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        }
+      ]
+    },
+    {
+      "case": "R2.wire-StackId",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        }
+      ]
+    },
+    {
+      "case": "R2.wire-StackName",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        }
+      ]
+    },
+    {
+      "case": "R2.wire-Description",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        }
+      ]
+    },
+    {
+      "case": "R2.wire-Parameters",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        }
+      ]
+    },
+    {
+      "case": "R2.wire-Capabilities",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        }
+      ]
+    },
+    {
+      "case": "R2.wire-NextToken",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "AWS_PAGINATION_UNSUPPORTED",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "AWS_PAGINATION_UNSUPPORTED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 324
+        }
+      ]
+    },
+    {
+      "case": "R2.wire-OnStackFailure",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 403
+        }
+      ]
+    },
+    {
+      "case": "R2.arn-account",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "NATIVE_ID_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "NATIVE_ID_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 248
+        }
+      ]
+    },
+    {
+      "case": "R2.arn-region",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "NATIVE_ID_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "NATIVE_ID_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 248
+        }
+      ]
+    },
+    {
+      "case": "R2.arn-direct-account",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "NATIVE_ID_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "NATIVE_ID_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 248
+        }
+      ]
+    },
+    {
+      "case": "R2.template",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "TEMPLATE_SUBSTITUTION",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "TEMPLATE_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 527
+        }
+      ]
+    },
+    {
+      "case": "R2.semantic-change",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "PREVIEW_DRIFT",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 837
+        }
+      ]
+    },
+    {
+      "case": "R3.asset-bucket",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_IDENTITY_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_IDENTITY_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 406
+        }
+      ]
+    },
+    {
+      "case": "R3.asset-expected_owner",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_IDENTITY_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_IDENTITY_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 406
+        }
+      ]
+    },
+    {
+      "case": "R3.asset-region",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_IDENTITY_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_IDENTITY_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 406
+        }
+      ]
+    },
+    {
+      "case": "R3.asset-sha256",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_IDENTITY_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_IDENTITY_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 406
+        }
+      ]
+    },
+    {
+      "case": "R3.asset-version",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_SUBSTITUTION",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 419
+        }
+      ]
+    },
+    {
+      "case": "R3.asset-etag",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_SUBSTITUTION",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 419
+        }
+      ]
+    },
+    {
+      "case": "R3.asset-encryption",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_SUBSTITUTION",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 419
+        }
+      ]
+    },
+    {
+      "case": "R3.asset-key",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CREATE_REQUEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CREATE_REQUEST_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 508
+        }
+      ]
+    },
+    {
+      "case": "R3.header-x-amz-version-id",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_SUBSTITUTION",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 419
+        }
+      ]
+    },
+    {
+      "case": "R3.header-ETag",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_SUBSTITUTION",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 419
+        }
+      ]
+    },
+    {
+      "case": "R3.header-x-amz-server-side-encryption",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_OBJECT_DENIED",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_OBJECT_DENIED",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 384
+        }
+      ]
+    },
+    {
+      "case": "R3.object-bytes",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_SUBSTITUTION",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "S3_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 419
+        }
+      ]
+    },
+    {
+      "case": "R4.create-RoleARN",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CREATE_REQUEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CREATE_REQUEST_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 508
+        }
+      ]
+    },
+    {
+      "case": "R4.create-ClientToken",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CREATE_REQUEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CREATE_REQUEST_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 508
+        }
+      ]
+    },
+    {
+      "case": "R4.create-TemplateURL",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CREATE_REQUEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CREATE_REQUEST_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 508
+        }
+      ]
+    },
+    {
+      "case": "R4.create-StackName",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CREATE_REQUEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CREATE_REQUEST_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 508
+        }
+      ]
+    },
+    {
+      "case": "R4.create-ChangeSetName",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CREATE_REQUEST_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CREATE_REQUEST_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 508
+        }
+      ]
+    },
+    {
+      "case": "R4.DisableRollback",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "AWS_FAILURE_POLICY",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "AWS_FAILURE_POLICY",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 160
+        }
+      ]
+    },
+    {
+      "case": "R4.RetainExceptOnCreate",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "AWS_FAILURE_POLICY",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "AWS_FAILURE_POLICY",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 160
+        }
+      ]
+    },
+    {
+      "case": "R4.stack-role",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "STACK_AUTHORITY_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "STACK_AUTHORITY_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 210
+        }
+      ]
+    },
+    {
+      "case": "R4.event-token",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R5.approval",
+      "row": 5,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "APPROVAL_REQUIRED",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "APPROVAL_REQUIRED",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+          "line": 328
+        }
+      ]
+    },
+    {
+      "case": "R5.lease",
+      "row": 5,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CREDENTIAL_EXPIRED",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CREDENTIAL_EXPIRED",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+          "line": 410
+        }
+      ]
+    },
+    {
+      "case": "R5.principal",
+      "row": 5,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "PROVIDER_PRINCIPAL_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "PROVIDER_PRINCIPAL_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+          "line": 400
+        }
+      ]
+    },
+    {
+      "case": "R5.receipt-operation",
+      "row": 5,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 616
+        }
+      ]
+    },
+    {
+      "case": "R5.receipt-expires_at",
+      "row": 5,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "EXPIRED_RECEIPT",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "EXPIRED_RECEIPT",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 620
+        }
+      ]
+    },
+    {
+      "case": "R5.receipt-run_id",
+      "row": 5,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "BINDING_MISMATCH",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 615
+        }
+      ]
+    },
+    {
+      "case": "R6.no-op-Status",
+      "row": 6,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_UNAVAILABLE",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_UNAVAILABLE",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 430
+        }
+      ]
+    },
+    {
+      "case": "R6.no-op-ExecutionStatus",
+      "row": 6,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_UNAVAILABLE",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_UNAVAILABLE",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 430
+        }
+      ]
+    },
+    {
+      "case": "R6.no-op-StatusReason",
+      "row": 6,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_UNAVAILABLE",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_UNAVAILABLE",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 430
+        }
+      ]
+    },
+    {
+      "case": "R6.no-op-Changes",
+      "row": 6,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_UNAVAILABLE",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "CHANGE_SET_UNAVAILABLE",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 430
+        }
+      ]
+    },
+    {
+      "case": "R6.fabricated-deployment",
+      "row": 6,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "INVALID_ARTIFACT",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "INVALID_ARTIFACT",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 333
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-request",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "RECOVERY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 980
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-scope",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "RECOVERY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 980
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-client_token",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "RECOVERY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 980
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-status",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "RECOVERY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 980
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-created_at",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "INVALID_ARTIFACT",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+          "line": 99
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-body_sha256",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "INTENT_BYTES_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 1014
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-native_operation_id",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "EXECUTE_INTENT_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 1019
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-stack_id",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "EXECUTE_INTENT_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 1019
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-mutation",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "AWS_REQUEST_SHAPE",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 150
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-body.ClientRequestToken",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "EXECUTE_INTENT_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 1019
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-body.ChangeSetName",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "EXECUTE_INTENT_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 1019
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-body.StackName",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "EXECUTE_INTENT_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 1019
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-body.DisableRollback",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "AWS_FAILURE_POLICY",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 160
+        }
+      ]
+    },
+    {
+      "case": "R7.journal-body.RetainExceptOnCreate",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "AWS_FAILURE_POLICY",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 160
+        }
+      ]
+    },
+    {
+      "case": "R8.trusted-provider",
+      "row": 8,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "TRUSTED_POLICY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 143
+        }
+      ]
+    },
+    {
+      "case": "R8.trusted-account_id",
+      "row": 8,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "TRUSTED_POLICY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 143
+        }
+      ]
+    },
+    {
+      "case": "R8.trusted-region",
+      "row": 8,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "TRUSTED_POLICY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 143
+        }
+      ]
+    },
+    {
+      "case": "R8.trusted-deployment_scope",
+      "row": 8,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "TRUSTED_POLICY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 143
+        }
+      ]
+    },
+    {
+      "case": "R8.trusted-policy_sha256",
+      "row": 8,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "TRUSTED_POLICY_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 143
+        }
+      ]
+    },
+    {
+      "case": "R8.trusted-unit_id",
+      "row": 8,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "UNIT_AUTHORITY_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_control.py",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "case": "R9.observed-bindings",
+      "row": 9,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R9.result-mapping",
+      "row": 9,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "observation": "assertions completed",
+      "outcome": "PASS",
+      "guards": []
+    },
+    {
+      "case": "R9.result-state",
+      "row": 9,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "INVALID_ARTIFACT",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "INVALID_ARTIFACT",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 330
+        }
+      ]
+    },
+    {
+      "case": "R9.result-result",
+      "row": 9,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "INVALID_ARTIFACT",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "INVALID_ARTIFACT",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 332
+        }
+      ]
+    },
+    {
+      "case": "R9.result-error_code",
+      "row": 9,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "INVALID_ARTIFACT",
+      "observation": "expected rejection (not a failed unittest)",
+      "outcome": "PASS",
+      "guards": [
+        {
+          "code": "INVALID_ARTIFACT",
+          "file": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+          "line": 328
+        }
+      ]
+    }
+  ]
+}

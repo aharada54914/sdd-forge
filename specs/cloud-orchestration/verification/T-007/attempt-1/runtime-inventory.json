@@ -1,0 +1,112 @@
+[
+  {
+    "installed_relative_path": "runtime/scripts/cloud_contracts.py",
+    "canonical_source": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+    "sha256": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d"
+  },
+  {
+    "installed_relative_path": "runtime/scripts/cloud_authorization.py",
+    "canonical_source": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+    "sha256": "17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658"
+  },
+  {
+    "installed_relative_path": "runtime/scripts/cloud_verification.py",
+    "canonical_source": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "sha256": "b2488aa48d32716b270fd920fbf4b13f43cf19440e975b48721d91e38de62a68"
+  },
+  {
+    "installed_relative_path": "runtime/scripts/cloud_dependencies.py",
+    "canonical_source": "plugins/sdd-quality-loop/scripts/cloud_dependencies.py",
+    "sha256": "7974e7e9a8d7da0c60b219a58db54c4747f0250653fda3af0146091f1f4fb475"
+  },
+  {
+    "installed_relative_path": "runtime/references/cloud-verification-registry.json",
+    "canonical_source": "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+    "sha256": "de0153f09def1b805818f9bef1ddea065a30d3fee95e12f026bdaec40720d06d"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-check-result.schema.json",
+    "canonical_source": "contracts/cloud-check-result.schema.json",
+    "sha256": "992b8f4d530d4aab0fe5bca1a28b459a6c9cd9bec7e6ed68b648f489127617c0"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-operation-result.schema.json",
+    "canonical_source": "contracts/cloud-operation-result.schema.json",
+    "sha256": "a92bdac86499052256112babe5ff559c2e071adba411f4a2e92ec38b6b5b2aa6"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-verification-registry.schema.json",
+    "canonical_source": "contracts/cloud-verification-registry.schema.json",
+    "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-dependency-lock.schema.json",
+    "canonical_source": "contracts/cloud-dependency-lock.schema.json",
+    "sha256": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-collection-context.schema.json",
+    "canonical_source": "contracts/cloud-collection-context.schema.json",
+    "sha256": "7706241bf1a949a64b18212ba09bd8a4aa66896df668084056ee6979fdb84272"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-run-request.schema.json",
+    "canonical_source": "contracts/cloud-run-request.schema.json",
+    "sha256": "781d83fad3d8e883e2c4aa886c5356da12f93d5ef5e35f16a5d83e9c024c9d81"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-input-error.schema.json",
+    "canonical_source": "contracts/cloud-input-error.schema.json",
+    "sha256": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-deployment-policy.schema.json",
+    "canonical_source": "contracts/cloud-deployment-policy.schema.json",
+    "sha256": "a064217e4a68838a3d719749fb751ba63ffabb2094d16cf13090afeaed080eb8"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-verification-profile.schema.json",
+    "canonical_source": "contracts/cloud-verification-profile.schema.json",
+    "sha256": "b25112c7e73583b180941639cb8f137a89fcb7daa82b1afd7ec8eec66c9353bf"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-ownership.schema.json",
+    "canonical_source": "contracts/cloud-ownership.schema.json",
+    "sha256": "71079e7320c968bce57fba67bd105d59ab57c00a51165a3598d522919141f25d"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-preview.schema.json",
+    "canonical_source": "contracts/cloud-preview.schema.json",
+    "sha256": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-observation.schema.json",
+    "canonical_source": "contracts/cloud-observation.schema.json",
+    "sha256": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-authorization-receipt.schema.json",
+    "canonical_source": "contracts/cloud-authorization-receipt.schema.json",
+    "sha256": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-verification.schema.json",
+    "canonical_source": "contracts/cloud-verification.schema.json",
+    "sha256": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/cloud-observation-evidence.schema.json",
+    "canonical_source": "contracts/cloud-observation-evidence.schema.json",
+    "sha256": "0d0dfccf3bd5982a2948a9db75fd459197b6bb683f19a993b5bfdce72df1d99e"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/verification-contract-v3.schema.json",
+    "canonical_source": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+    "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a"
+  },
+  {
+    "installed_relative_path": "runtime/contracts/selected-verification-plan-v2.schema.json",
+    "canonical_source": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+    "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5"
+  }
+]

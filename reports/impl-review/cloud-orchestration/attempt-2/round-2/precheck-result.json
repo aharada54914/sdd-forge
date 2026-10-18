@@ -1,0 +1,16 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "cloud-orchestration",
+  "attempt": 2,
+  "round": 2,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": true,
+  "design_sha256": "d97318d1d033eab8a531210fb94d3a9729b6fde1eded21a6574eb74fbae280ba",
+  "requirements_sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "acceptance_sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+  "layer_sha256": {"ux-spec.md":"d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc","frontend-spec.md":"586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b","infra-spec.md":"9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d","security-spec.md":"fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"},
+  "adr_inputs": [{"path":"docs/adr/0036-thin-cloud-orchestration.md","sha256":"d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"}],
+  "input_sha256": "748a906c790a48c43debb6112e6e23c9181645e967a439076331da7b92928323",
+  "generated_at": "2026-10-18T04:18:26Z"
+}

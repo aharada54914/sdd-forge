@@ -1,0 +1,59 @@
+{
+  "prepare": {
+    "Name": "Governed Azure prepare",
+    "IsCustom": true,
+    "Description": "Supported private VM path only. External reference joins require separately scoped assignments.",
+    "Actions": [
+      "Microsoft.Resources/subscriptions/resourceGroups/read",
+      "Microsoft.Resources/deployments/read",
+      "Microsoft.Resources/deployments/operations/read",
+      "Microsoft.Resources/deployments/operationstatuses/read",
+      "Microsoft.Resources/deployments/whatIf/action",
+      "Microsoft.Resources/deployments/validate/action",
+      "Microsoft.Compute/virtualMachines/read",
+      "Microsoft.Compute/disks/read",
+      "Microsoft.Compute/virtualMachines/extensions/read",
+      "Microsoft.Network/networkInterfaces/read",
+      "Microsoft.Insights/dataCollectionRuleAssociations/read",
+      "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/read"
+    ],
+    "NotActions": [],
+    "DataActions": [],
+    "NotDataActions": [],
+    "AssignableScopes": [
+      "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/synthetic-group"
+    ]
+  },
+  "apply": {
+    "Name": "Governed Azure apply",
+    "IsCustom": true,
+    "Description": "Supported private VM path only. External reference joins require separately scoped assignments.",
+    "Actions": [
+      "Microsoft.Resources/subscriptions/resourceGroups/read",
+      "Microsoft.Resources/deployments/read",
+      "Microsoft.Resources/deployments/operations/read",
+      "Microsoft.Resources/deployments/operationstatuses/read",
+      "Microsoft.Resources/deployments/whatIf/action",
+      "Microsoft.Resources/deployments/validate/action",
+      "Microsoft.Compute/virtualMachines/read",
+      "Microsoft.Compute/disks/read",
+      "Microsoft.Compute/virtualMachines/extensions/read",
+      "Microsoft.Network/networkInterfaces/read",
+      "Microsoft.Insights/dataCollectionRuleAssociations/read",
+      "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/read",
+      "Microsoft.Resources/deployments/write",
+      "Microsoft.Compute/virtualMachines/write",
+      "Microsoft.Compute/disks/write",
+      "Microsoft.Compute/virtualMachines/extensions/write",
+      "Microsoft.Network/networkInterfaces/write",
+      "Microsoft.Insights/dataCollectionRuleAssociations/write",
+      "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/write"
+    ],
+    "NotActions": [],
+    "DataActions": [],
+    "NotDataActions": [],
+    "AssignableScopes": [
+      "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/synthetic-group"
+    ]
+  }
+}

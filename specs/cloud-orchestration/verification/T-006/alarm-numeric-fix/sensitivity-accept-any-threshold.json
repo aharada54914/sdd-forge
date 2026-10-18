@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "-c",
+    "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_SCOPED_CHECK')); guard.start(); runpy.run_path(path,run_name='__main__')",
+    "tests/cloud-orchestration-verification.tests.py",
+    "AlarmNumericCases",
+    "EntryPreflight.test_live_network_is_forbidden_before_transport"
+  ],
+  "cwd": "/tmp/cloud-T006-alarm-01a14ec8/rollback",
+  "started_at": "2026-10-18T11:40:38Z",
+  "exit_code": 1,
+  "expected_exit_code": 1,
+  "source_sha256": "86d4d077e16ced5ebd7cb4c3b52fccdaa6bd09ae2f606a86244201bb27ccc89e",
+  "test_sha256": "7cdbf61264499cec788e7da535f9c0b1cdb603d555975b93498cc1a2e65f0135"
+}

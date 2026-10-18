@@ -1,0 +1,2 @@
+Verification contract FAILED for task T-013:
+ - required check 'typecheck' has passes=false

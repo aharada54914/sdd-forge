@@ -1,0 +1,1096 @@
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsRouting.test_directory_scan_recursion_is_a_typed_cli_denial) ... FAIL
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... 
+  test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.json') ... FAIL
+  test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.yml') ... FAIL
+  test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='quoted.yaml') ... FAIL
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... FAIL
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsRouting.test_explicit_installed_shared_runtime_and_output_link_boundary) ... FAIL
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) ... 
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='prepare') ... FAIL
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='apply') ... FAIL
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='reconcile') ... FAIL
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='observe') ... FAIL
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='verify') ... FAIL
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ERROR
+test_mixed_unsupported_missing_import_and_provider (__main__.AwsRouting.test_mixed_unsupported_missing_import_and_provider) ... FAIL
+test_output_and_source_integrity (__main__.AwsRouting.test_output_and_source_integrity) ... FAIL
+test_route_owner_identity_and_stable_intent (__main__.AwsRouting.test_route_owner_identity_and_stable_intent) ... FAIL
+test_secret_marker_publication_is_denied (__main__.AwsRouting.test_secret_marker_publication_is_denied) ... FAIL
+test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) ... 
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='scope') ... FAIL
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='backup') ... FAIL
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='budget') ... FAIL
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='evidence') ... FAIL
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='owner-root') ... FAIL
+test_symlink_root_input_and_output_fail_closed (__main__.AwsRouting.test_symlink_root_input_and_output_fail_closed) ... FAIL
+test_unsupported_filesystem_subprocess (__main__.AwsRouting.test_unsupported_filesystem_subprocess) ... FAIL
+test_ambient_credentials_are_rejected_before_application (__main__.AwsNativePreparation.test_ambient_credentials_are_rejected_before_application) ... FAIL
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsNativePreparation.test_directory_scan_recursion_is_a_typed_cli_denial) ... FAIL
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... 
+  test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.json') ... FAIL
+  test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.yml') ... FAIL
+  test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='quoted.yaml') ... FAIL
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... FAIL
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsNativePreparation.test_explicit_installed_shared_runtime_and_output_link_boundary) ... FAIL
+test_generated_output_inside_source_and_hidden_owners_block (__main__.AwsNativePreparation.test_generated_output_inside_source_and_hidden_owners_block) ... FAIL
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) ... 
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='prepare') ... FAIL
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='apply') ... FAIL
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='reconcile') ... FAIL
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='observe') ... FAIL
+  test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='verify') ... FAIL
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsNativePreparation.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ERROR
+test_mixed_unsupported_missing_import_and_provider (__main__.AwsNativePreparation.test_mixed_unsupported_missing_import_and_provider) ... FAIL
+test_output_and_source_integrity (__main__.AwsNativePreparation.test_output_and_source_integrity) ... FAIL
+test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) ... 
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=0) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=1) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=2) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=3) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=4) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=5) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=6) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=7) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=8) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=9) ... FAIL
+  test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=10) ... FAIL
+test_real_synth_complete_locked_assembly_validate_without_execution (__main__.AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution) ... FAIL
+test_route_owner_identity_and_stable_intent (__main__.AwsNativePreparation.test_route_owner_identity_and_stable_intent) ... FAIL
+test_secret_marker_publication_is_denied (__main__.AwsNativePreparation.test_secret_marker_publication_is_denied) ... FAIL
+test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) ... 
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='scope') ... FAIL
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='backup') ... FAIL
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='budget') ... FAIL
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='evidence') ... FAIL
+  test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='owner-root') ... FAIL
+test_symlink_root_input_and_output_fail_closed (__main__.AwsNativePreparation.test_symlink_root_input_and_output_fail_closed) ... FAIL
+test_unsupported_executable_config_and_unlocked_sources (__main__.AwsNativePreparation.test_unsupported_executable_config_and_unlocked_sources) ... FAIL
+test_unsupported_filesystem_subprocess (__main__.AwsNativePreparation.test_unsupported_filesystem_subprocess) ... FAIL
+test_governed_operations_are_typed_blocked_not_fake_success (__main__.AwsCliContract.test_governed_operations_are_typed_blocked_not_fake_success) ... FAIL
+test_input_output_alias_is_not_overwritten (__main__.AwsCliContract.test_input_output_alias_is_not_overwritten) ... FAIL
+test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) ... 
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'[]') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{"run_id":"x","run_id":"y"}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{"x":NaN}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'[]') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{"run_id":"x","run_id":"y"}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{"x":NaN}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'[]') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{"run_id":"x","run_id":"y"}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{"x":NaN}') ... FAIL
+test_unknown_operation_and_flag_are_typed_rejections (__main__.AwsCliContract.test_unknown_operation_and_flag_are_typed_rejections) ... 
+  test_unknown_operation_and_flag_are_typed_rejections (__main__.AwsCliContract.test_unknown_operation_and_flag_are_typed_rejections) (operation='deploy') ... FAIL
+  test_unknown_operation_and_flag_are_typed_rejections (__main__.AwsCliContract.test_unknown_operation_and_flag_are_typed_rejections) (operation='route') ... FAIL
+
+======================================================================
+ERROR: test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 313, in test_missing_installed_runtime_and_unknown_config_are_typed_denials
+    self.assertEqual(self.contracts.parse_artifact(proc.stdout)["error_code"], "SHARED_RUNTIME_UNAVAILABLE")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 370, in parse_artifact
+    raise ContractError('INVALID_JSON') from None
+cloud_contracts.ContractError: INVALID_JSON
+
+======================================================================
+ERROR: test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsNativePreparation.test_missing_installed_runtime_and_unknown_config_are_typed_denials)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 313, in test_missing_installed_runtime_and_unknown_config_are_typed_denials
+    self.assertEqual(self.contracts.parse_artifact(proc.stdout)["error_code"], "SHARED_RUNTIME_UNAVAILABLE")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 370, in parse_artifact
+    raise ContractError('INVALID_JSON') from None
+cloud_contracts.ContractError: INVALID_JSON
+
+======================================================================
+FAIL: test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsRouting.test_directory_scan_recursion_is_a_typed_cli_denial)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 676, in test_directory_scan_recursion_is_a_typed_cli_denial
+    self.assertEqual(proc.returncode, 2, proc.stderr.decode())
+AssertionError: 1 != 2 : Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<frozen runpy>", line 286, in run_path
+  File "<frozen runpy>", line 254, in _get_code_from_file
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py'
+
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 216, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    result = self.invoke(expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.yml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 216, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    result = self.invoke(expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='quoted.yaml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 216, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    result = self.invoke(expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 225, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    self.assertEqual(self.invoke()["state"], "ROUTED")
+                     ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsRouting.test_explicit_installed_shared_runtime_and_output_link_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 323, in test_explicit_installed_shared_runtime_and_output_link_boundary
+    self.assertEqual(self.invoke(env_extra={"CLOUD_SHARED_RUNTIME_ROOT": str(runtime)})["state"], "ROUTED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='reconcile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='observe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) (phase='verify')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_mixed_unsupported_missing_import_and_provider (__main__.AwsRouting.test_mixed_unsupported_missing_import_and_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 766, in test_mixed_unsupported_missing_import_and_provider
+    self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_CONFLICT")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_output_and_source_integrity (__main__.AwsRouting.test_output_and_source_integrity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 785, in test_output_and_source_integrity
+    self.assertEqual(self.invoke(expected=2, output=output)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_route_owner_identity_and_stable_intent (__main__.AwsRouting.test_route_owner_identity_and_stable_intent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 753, in test_route_owner_identity_and_stable_intent
+    result = self.invoke()
+             ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_secret_marker_publication_is_denied (__main__.AwsRouting.test_secret_marker_publication_is_denied)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 333, in test_secret_marker_publication_is_denied
+    self.assertEqual(self.invoke(expected=2)["error_code"], "SECRET_SCAN_FAILED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='backup')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='budget')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='evidence')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) (name='owner-root')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_symlink_root_input_and_output_fail_closed (__main__.AwsRouting.test_symlink_root_input_and_output_fail_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 295, in test_symlink_root_input_and_output_fail_closed
+    self.assertEqual(self.invoke(expected=2, env_extra={"CLOUD_WORKSPACE_ROOT": str(link)})["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_unsupported_filesystem_subprocess (__main__.AwsRouting.test_unsupported_filesystem_subprocess)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 687, in test_unsupported_filesystem_subprocess
+    self.assertEqual(proc.returncode, 2)
+AssertionError: 1 != 2
+
+======================================================================
+FAIL: test_ambient_credentials_are_rejected_before_application (__main__.AwsNativePreparation.test_ambient_credentials_are_rejected_before_application)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 877, in test_ambient_credentials_are_rejected_before_application
+    self.assertEqual(self.invoke("plan",expected=2,env_extra=env)["error_code"],"AMBIENT_CREDENTIALS")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsNativePreparation.test_directory_scan_recursion_is_a_typed_cli_denial)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 676, in test_directory_scan_recursion_is_a_typed_cli_denial
+    self.assertEqual(proc.returncode, 2, proc.stderr.decode())
+AssertionError: 1 != 2 : Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<frozen runpy>", line 286, in run_path
+  File "<frozen runpy>", line 254, in _get_code_from_file
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py'
+
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 216, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    result = self.invoke(expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.yml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 216, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    result = self.invoke(expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='quoted.yaml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 216, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    result = self.invoke(expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 225, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    self.assertEqual(self.invoke()["state"], "ROUTED")
+                     ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsNativePreparation.test_explicit_installed_shared_runtime_and_output_link_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 323, in test_explicit_installed_shared_runtime_and_output_link_boundary
+    self.assertEqual(self.invoke(env_extra={"CLOUD_SHARED_RUNTIME_ROOT": str(runtime)})["state"], "ROUTED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_generated_output_inside_source_and_hidden_owners_block (__main__.AwsNativePreparation.test_generated_output_inside_source_and_hidden_owners_block)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 884, in test_generated_output_inside_source_and_hidden_owners_block
+    self.assertEqual(self.invoke("plan",expected=2)["error_code"],"LOCAL_POLICY_DENIED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='reconcile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='observe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) (phase='verify')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 302, in test_governed_phases_use_phase_not_stable_request_intent
+    result = self.invoke(phase, expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_mixed_unsupported_missing_import_and_provider (__main__.AwsNativePreparation.test_mixed_unsupported_missing_import_and_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 766, in test_mixed_unsupported_missing_import_and_provider
+    self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_CONFLICT")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_output_and_source_integrity (__main__.AwsNativePreparation.test_output_and_source_integrity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 785, in test_output_and_source_integrity
+    self.assertEqual(self.invoke(expected=2, output=output)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=9)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) (case=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 871, in test_policy_and_bound_field_mismatch_preflight
+    self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_real_synth_complete_locked_assembly_validate_without_execution (__main__.AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 844, in test_real_synth_complete_locked_assembly_validate_without_execution
+    result=self.invoke("plan")
+           ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_route_owner_identity_and_stable_intent (__main__.AwsNativePreparation.test_route_owner_identity_and_stable_intent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 753, in test_route_owner_identity_and_stable_intent
+    result = self.invoke()
+             ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_secret_marker_publication_is_denied (__main__.AwsNativePreparation.test_secret_marker_publication_is_denied)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 333, in test_secret_marker_publication_is_denied
+    self.assertEqual(self.invoke(expected=2)["error_code"], "SECRET_SCAN_FAILED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='backup')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='budget')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='evidence')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) (name='owner-root')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 277, in test_shared_policy_profile_and_root_mismatches
+    self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_symlink_root_input_and_output_fail_closed (__main__.AwsNativePreparation.test_symlink_root_input_and_output_fail_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 295, in test_symlink_root_input_and_output_fail_closed
+    self.assertEqual(self.invoke(expected=2, env_extra={"CLOUD_WORKSPACE_ROOT": str(link)})["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_unsupported_executable_config_and_unlocked_sources (__main__.AwsNativePreparation.test_unsupported_executable_config_and_unlocked_sources)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 890, in test_unsupported_executable_config_and_unlocked_sources
+    self.assertEqual(self.invoke("plan",expected=2)["error_code"],"UNLOCKED_SOURCE")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 177, in invoke
+    self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+AssertionError: b'' is not true : Missing genuine typed CLI result
+
+======================================================================
+FAIL: test_unsupported_filesystem_subprocess (__main__.AwsNativePreparation.test_unsupported_filesystem_subprocess)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 687, in test_unsupported_filesystem_subprocess
+    self.assertEqual(proc.returncode, 2)
+AssertionError: 1 != 2
+
+======================================================================
+FAIL: test_governed_operations_are_typed_blocked_not_fake_success (__main__.AwsCliContract.test_governed_operations_are_typed_blocked_not_fake_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 713, in test_governed_operations_are_typed_blocked_not_fake_success
+    value = self.invoke(phase, json.dumps(request("apply")).encode())
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_input_output_alias_is_not_overwritten (__main__.AwsCliContract.test_input_output_alias_is_not_overwritten)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 111, in test_input_output_alias_is_not_overwritten
+    value = self.invoke("route", b"{", output=self.root / "request.json")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'[]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{"run_id":"x","run_id":"y"}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{"x":NaN}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'[]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{"run_id":"x","run_id":"y"}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{"x":NaN}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'[]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{"run_id":"x","run_id":"y"}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{"x":NaN}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 86, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_unknown_operation_and_flag_are_typed_rejections (__main__.AwsCliContract.test_unknown_operation_and_flag_are_typed_rejections) (operation='deploy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 106, in test_unknown_operation_and_flag_are_typed_rejections
+    value = self.invoke(operation, b"{}", extra)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_unknown_operation_and_flag_are_typed_rejections (__main__.AwsCliContract.test_unknown_operation_and_flag_are_typed_rejections) (operation='route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 106, in test_unknown_operation_and_flag_are_typed_rejections
+    value = self.invoke(operation, b"{}", extra)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 709, in invoke
+    return super().invoke(operation, data, extra, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 77, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+----------------------------------------------------------------------
+Ran 33 tests in 1.037s
+
+FAILED (failures=75, errors=2)

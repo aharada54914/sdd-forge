@@ -1,0 +1,7 @@
+[
+  {
+    "path": "specs/cloud-orchestration/verification/T-013/inputs/external/9/aws-cloudformation-2010-05-15.json",
+    "snapshot_path": "specs/cloud-orchestration/verification/T-013/inputs/external/9/aws-cloudformation-2010-05-15.json",
+    "sha256": "142ac136f30bf2ba93723536c67e66443b00d86cc2128448916d6d7ab145eec3"
+  }
+]

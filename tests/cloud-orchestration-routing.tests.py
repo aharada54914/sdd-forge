@@ -112,7 +112,7 @@ class AzureCliContract(unittest.TestCase):
         self.assertEqual(value["schema"], "cloud-input-error/v1")
 
 
-class AzureRouting(unittest.TestCase):
+class LocalRoutingFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="cloud-T004-local-")
         self.addCleanup(self.temp.cleanup)
@@ -185,6 +185,8 @@ class AzureRouting(unittest.TestCase):
             self.assertEqual(self.oracle._schema_validate(schema, manifest), [])
         return result
 
+
+class AzureRouting(LocalRoutingFixture):
     def test_one_explicit_bicep_owner_routes_with_stable_apply_intent(self):
         result = self.invoke()
         self.assertEqual((result["result"], result["state"]), ("PASS", "ROUTED"))
@@ -300,7 +302,7 @@ class AzureRouting(unittest.TestCase):
         for phase in ("prepare", "apply", "reconcile", "observe", "verify"):
             with self.subTest(phase=phase):
                 result = self.invoke(phase, expected=2)
-                self.assertEqual(result["error_code"], "OPERATION_UNIMPLEMENTED")
+                self.assertEqual(result["error_code"], "TRUSTED_COLLECTOR_REQUIRED" if phase in ("observe", "verify") else "OPERATION_UNIMPLEMENTED")
                 self.assertIsNone(result["evidence_manifest_path"])
 
 
@@ -712,18 +714,15 @@ class AwsCliContract(AzureCliContract):
         for phase in ("prepare", "apply", "reconcile", "observe", "verify"):
             value = self.invoke(phase, json.dumps(request("apply")).encode())
             self.assertEqual((value["provider"], value["operation"], value["error_code"]),
-                             ("aws", phase, "OPERATION_UNIMPLEMENTED"))
+                             ("aws", phase, "TRUSTED_COLLECTOR_REQUIRED" if phase in ("observe", "verify") else "OPERATION_UNIMPLEMENTED"))
             self.assertNotIn("native_operation_id", value)
 
 
-class AwsRouting(unittest.TestCase):
+class AwsRouting(LocalRoutingFixture):
     cli = AWS_CLI
-    put = AzureRouting.put
-    refresh = AzureRouting.refresh
-    invoke = AzureRouting.invoke
 
     def setUp(self):
-        AzureRouting.setUp(self)
+        super().setUp()
         (self.root/self.source["path"]).unlink()
         self.req.update(provider="aws", owner="cdk", route="aws-cdk")
         self.req["scope"] = dict(account_id="111111111111", region="us-east-1", deployment_scope="SyntheticPrivate")

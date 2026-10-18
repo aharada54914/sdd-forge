@@ -1,0 +1,2479 @@
+--- /dev/null
++++ b/plugins/sdd-quality-loop/scripts/cloud_dependencies.py
+@@ -0,0 +1,723 @@
++"""Per-unit dependency proof and ordering, not a deployment engine.
++
++Only externally protected Policy pins plus fresh authenticated GitHub acquisition
++can authenticate a saved verification. Local labels/digests cannot. No provider
++plugin imports: either provider can be installed with these four shared modules.
++"""
++
++from __future__ import annotations
++
++import base64
++from dataclasses import dataclass
++from datetime import datetime, timedelta
++import io
++import os
++from pathlib import Path
++import re
++import stat
++import tempfile
++import time
++from typing import Callable
++import urllib.parse
++import urllib.request
++import zipfile
++
++import cloud_contracts as c
++import cloud_verification as v
++from cloud_verification import decode, digest
++
++
++@dataclass(frozen=True)
++class Response:
++    status: int
++    headers: dict[str, str]
++    body: bytes
++
++
++ARCHIVE_LIMIT = 32 * 1024 * 1024
++
++
++class ArtifactRedirect(urllib.request.HTTPRedirectHandler):
++    def redirect_request(self, req, fp, code, msg, headers, newurl):
++        return None  # expose 302 headers; never follow automatically
++
++
++class ArtifactHttps:
++    """No automatic redirects, no credential forwarding, bounded archive reads."""
++
++    def request(
++        self, method: str, url: str, headers: dict[str, str], body: bytes | None = None
++    ) -> Response:
++        c._require(method == "GET" and body is None, "ARTIFACT_METHOD_DENIED")
++        req = urllib.request.Request(url, headers=headers, method="GET")
++        try:
++            response = urllib.request.build_opener(ArtifactRedirect()).open(
++                req, timeout=20
++            )
++        except urllib.error.HTTPError as error:
++            response = error
++        with response:
++            c._require(response.geturl() == url, "ARTIFACT_REDIRECT_DENIED")
++            content = response.read(ARCHIVE_LIMIT + 1)
++            c._require(len(content) <= ARCHIVE_LIMIT, "ARCHIVE_TOO_LARGE")
++            return Response(response.status, dict(response.headers.items()), content)
++
++
++def acquire_bundle(
++    root: Path,
++    repository: str,
++    artifact_id: int,
++    run_id: int,
++    token: str,
++    *,
++    transport=None,
++) -> dict:
++    """Authenticate immutable artifact ID/digest then safely extract data in a NEW root."""
++    c._require(not root.exists() and not root.is_symlink(), "ARTIFACT_ROOT_EXISTS")
++    c._require(
++        re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+", repository)
++        and type(artifact_id) is int
++        and artifact_id > 0
++        and type(run_id) is int
++        and run_id > 0,
++        "ARTIFACT_LOCATOR_INVALID",
++    )
++    api = transport or ArtifactHttps()
++    base = f"https://api.github.com/repos/{repository}/actions/artifacts/{artifact_id}"
++    headers = {
++        "Authorization": "Bearer " + token,
++        "Accept": "application/vnd.github+json",
++        "X-GitHub-Api-Version": "2022-11-28",
++    }
++    response = api.request("GET", base, headers)
++    c._require(response.status == 200, "ARTIFACT_METADATA_UNAVAILABLE")
++    metadata = decode(response.body)
++    c._require(
++        metadata["id"] == artifact_id
++        and metadata["expired"] is False
++        and metadata["workflow_run"]["id"] == run_id,
++        "ARTIFACT_IDENTITY_CHANGED",
++    )
++    expected = metadata["digest"]
++    c._require(
++        type(expected) is str and re.fullmatch(r"sha256:[a-f0-9]{64}", expected),
++        "ARTIFACT_DIGEST_REQUIRED",
++    )
++    response = api.request("GET", base + "/zip", headers)
++    c._require(response.status == 302, "ARTIFACT_DOWNLOAD_UNAVAILABLE")
++    location = {k.lower(): v for k, v in response.headers.items()}["location"]
++    url = urllib.parse.urlsplit(location)
++    c._require(
++        url.scheme == "https"
++        and not url.username
++        and not url.password
++        and not url.fragment
++        and url.port is None
++        and re.fullmatch(r"[a-z0-9]+\.blob\.core\.windows\.net", url.netloc),
++        "ARTIFACT_LOCATION_DENIED",
++    )
++    response = api.request("GET", location, {})
++    c._require(
++        response.status == 200
++        and len(response.body) <= ARCHIVE_LIMIT
++        and "sha256:" + digest(response.body) == expected,
++        "ARTIFACT_DIGEST_MISMATCH",
++    )
++    # Validate the entire archive before writing anything. No zipfile.extract or links.
++    with zipfile.ZipFile(io.BytesIO(response.body)) as archive:
++        infos = archive.infolist()
++        c._require(
++            0 < len(infos) <= 4096 and sum(i.file_size for i in infos) <= ARCHIVE_LIMIT,
++            "ARCHIVE_TOO_LARGE",
++        )
++        names = set()
++        for info in infos:
++            c._path(info.filename.rstrip("/") if info.is_dir() else info.filename)
++            mode = info.external_attr >> 16
++            c._require(
++                not mode or stat.S_IFMT(mode) in (0, stat.S_IFREG, stat.S_IFDIR),
++                "ARCHIVE_LINK_DENIED",
++            )
++            c._require(
++                info.filename not in names and not info.flag_bits & 1,
++                "ARCHIVE_ENTRY_INVALID",
++            )
++            names.add(info.filename)
++        root.mkdir(mode=0o700)
++        for info in infos:
++            destination = root / info.filename
++            if info.is_dir():
++                destination.mkdir(parents=True, exist_ok=True, mode=0o700)
++                continue
++            destination.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
++            data = archive.read(info)
++            c._require(len(data) == info.file_size, "ARCHIVE_TRUNCATED")
++            with destination.open("xb") as stream:
++                stream.write(data)
++
++    return metadata
++
++
++def verification_job(provider: str, repository: str, revision: str) -> dict:
++    """Exact fixed verify producer job shared with both inert workflow generators."""
++    c._enum(provider, ("azure", "aws"))
++    env = {
++        provider.upper() + "_CONTROL_POLICY": "${{ vars."
++        + provider.upper()
++        + "_VERIFY_POLICY }}",
++        "GH_TOKEN": "${{ github.token }}",
++        "ARTIFACT_TOKEN": "${{ github.token }}",
++        "ARTIFACT_REPOSITORY": "${{ github.repository }}",
++        "ARTIFACT_ID": "${{ inputs.artifact_id }}",
++        "ARTIFACT_RUN_ID": "${{ inputs.artifact_run_id }}",
++        "REQUEST_SHA256": "${{ inputs.request_sha256 }}",
++        "PREVIEW_SHA256": "${{ inputs.preview_sha256 }}",
++    }
++    if provider == "aws":
++        env["AWS_EXECUTION_CONTROL"] = "${{ vars.AWS_EXECUTION_CONTROL }}"
++    return {
++        "if": "${{ github.run_attempt == 1 && inputs.operation == 'verify' }}",
++        "runs-on": "ubuntu-24.04",
++        "environment": "sandbox-verify",
++        "permissions": {"contents": "read", "actions": "read", "id-token": "write"},
++        "timeout-minutes": 30,
++        "steps": [
++            {
++                "name": "Reviewed executor only",
++                "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
++                "with": {
++                    "repository": repository,
++                    "ref": revision,
++                    "path": "executor",
++                    "persist-credentials": False,
++                },
++            },
++            {
++                "name": "Execute fixed read-only verify",
++                "shell": "bash",
++                "env": env,
++                "run": f'set -euo pipefail\npython3 -I executor/plugins/sdd-{provider}-cloud/scripts/{provider}_governed.py verify --workspace "$RUNNER_TEMP/{provider}-data"',
++            },
++            {
++                "name": "Retain immutable data and original operation identity even on failure",
++                "if": "${{ always() }}",
++                "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
++                "with": {
++                    "name": provider + "-verify-${{ github.run_id }}",
++                    "path": "${{ runner.temp }}/" + provider + "-data/",
++                    "if-no-files-found": "error",
++                    "include-hidden-files": True,
++                    "retention-days": "${{ vars."
++                    + provider.upper()
++                    + "_EVIDENCE_RETENTION_DAYS }}",
++                },
++            },
++        ],
++    }
++
++
++def validate_trust(pin: dict) -> None:
++    """Closed external executor configuration, not an artifact-supplied authority."""
++
++    def repository(x):
++        c._match(x, r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+")
++
++    def positive(x):
++        c._require(type(x) is int and 0 < x < 10**20)
++
++    def identities(x):
++        c._list(
++            x,
++            lambda pair: c._require(
++                type(pair) is list
++                and len(pair) == 2
++                and type(pair[0]) is int
++                and pair[0] > 0
++                and type(pair[1]) is str
++                and re.fullmatch(r"[A-Za-z0-9_-]+", pair[1])
++            ),
++            1,
++        )
++
++    c._record(
++        pin,
++        dict(
++            unit_id=c._id,
++            run_id=c._id,
++            provider=lambda x: c._enum(x, ("azure", "aws")),
++            request=c._ref,
++            verification=c._ref,
++            scope=c._scope,
++            profile=lambda x: c._record(
++                x, dict(id=c._id, version=c._version, path=c._path, sha256=c._sha)
++            ),
++            repository=repository,
++            repository_id=positive,
++            workflow=lambda x: c._match(
++                x, r"\.github/workflows/[A-Za-z0-9_.-]+\.ya?ml"
++            ),
++            workflow_revision=lambda x: c._match(x, r"[a-f0-9]{40}"),
++            ref=lambda x: c._match(x, r"refs/heads/[A-Za-z0-9_/-]+"),
++            workflow_sha256=c._sha,
++            executor_repository=repository,
++            executor_revision=lambda x: c._match(x, r"[a-f0-9]{40}"),
++            producer_run_id=positive,
++            artifact_id=positive,
++            environment_id=positive,
++            actors=identities,
++            reviewers=identities,
++        ),
++    )
++    for key in ("actors", "reviewers"):
++        c._unique([tuple(row) for row in pin[key]])
++
++
++def _producer(
++    pin: dict, runtime, transport, request_ref: dict, preview_ref: dict, now: str
++) -> tuple[str, str]:
++    """Authenticate successful exact verify workflow/job/code and environment history."""
++    base = "https://api.github.com/repos/" + pin["repository"]
++    headers = {
++        "Authorization": "Bearer " + runtime.github_token,
++        "Accept": "application/vnd.github+json",
++        "X-GitHub-Api-Version": "2022-11-28",
++    }
++
++    def get(suffix):
++        return decode(transport.request("GET", base + suffix, headers))
++
++    suffix = "/actions/runs/" + str(pin["producer_run_id"])
++    run = get(suffix)
++    expected = dict(
++        id=pin["producer_run_id"],
++        run_attempt=1,
++        status="completed",
++        conclusion="success",
++        event="workflow_dispatch",
++        head_sha=pin["workflow_revision"],
++        head_branch=pin["ref"].removeprefix("refs/heads/"),
++        path=pin["workflow"],
++        display_title="cloud:" + request_ref["sha256"] + ":" + preview_ref["sha256"],
++    )
++    c._require(
++        all(
++            type(run.get(k)) is type(value) and run[k] == value
++            for k, value in expected.items()
++        )
++        and all(
++            run[k]["id"] == pin["repository_id"]
++            and run[k]["full_name"] == pin["repository"]
++            for k in ("repository", "head_repository")
++        )
++        and all(
++            [run[k]["id"], run[k]["login"]] in pin["actors"]
++            for k in ("actor", "triggering_actor")
++        ),
++        "DEPENDENCY_RUN_MISMATCH",
++    )
++    file = get("/contents/" + pin["workflow"] + "?ref=" + pin["workflow_revision"])
++    c._require(
++        file.get("type") == "file"
++        and file.get("path") == pin["workflow"]
++        and file.get("encoding") == "base64",
++        "DEPENDENCY_WORKFLOW_MISMATCH",
++    )
++    raw = base64.b64decode(file["content"].replace("\n", ""), validate=True)
++    c._require(digest(raw) == pin["workflow_sha256"], "DEPENDENCY_WORKFLOW_MISMATCH")
++    workflow = decode(raw)
++    expected_job = verification_job(
++        pin["provider"], pin["executor_repository"], pin["executor_revision"]
++    )
++    # Full workflow digest is independently owner-pinned. This additionally checks
++    # the supported fixed producer, so an apply/reconcile success cannot impersonate verify.
++    c._require(
++        workflow["jobs"].get("verify") == expected_job, "DEPENDENCY_EXECUTOR_MISMATCH"
++    )
++    c._require(
++        workflow.get("run-name")
++        == "cloud:${{ inputs.request_sha256 }}:${{ inputs.preview_sha256 }}"
++        and workflow.get("permissions") == {},
++        "DEPENDENCY_WORKFLOW_MISMATCH",
++    )
++    listing = get(suffix + "/attempts/1/jobs?per_page=100&page=1")
++    jobs = listing["jobs"]
++    c._require(
++        type(listing["total_count"]) is int
++        and 1 <= listing["total_count"] <= 100
++        and type(jobs) is list
++        and len(jobs) == listing["total_count"],
++        "PAGINATION_INCOMPLETE",
++    )
++    c._unique([j["id"] for j in jobs])
++    matches = [j for j in jobs if j["name"] == "verify"]
++    c._require(len(matches) == 1, "DEPENDENCY_VERIFY_JOB_REQUIRED")
++    job = matches[0]
++    c._require(
++        type(job["id"]) is int
++        and job["id"] > 0
++        and all(
++            job[k] == expected[k]
++            for k in ("run_attempt", "head_sha", "status", "conclusion")
++        )
++        and job["run_id"] == pin["producer_run_id"],
++        "DEPENDENCY_VERIFY_JOB_REQUIRED",
++    )
++    starts, ends = [], []
++    for step in expected_job["steps"]:
++        matches = [s for s in job["steps"] if s["name"] == step["name"]]
++        c._require(
++            len(matches) == 1
++            and matches[0]["status"] == "completed"
++            and matches[0]["conclusion"] == "success",
++            "DEPENDENCY_VERIFY_STEP_REQUIRED",
++        )
++        start, end = (matches[0][k] for k in ("started_at", "completed_at"))
++        c._require(
++            c._utc(job["started_at"])
++            <= c._utc(start)
++            <= c._utc(end)
++            <= c._utc(job["completed_at"])
++            <= c._utc(now),
++            "DEPENDENCY_COMPLETION_WINDOW",
++        )
++        starts.append(start)
++        ends.append(end)
++    environment = get("/environments/sandbox-verify")
++    rules = [
++        r for r in environment["protection_rules"] if r["type"] == "required_reviewers"
++    ]
++    c._require(
++        environment["id"] == pin["environment_id"]
++        and environment["name"] == "sandbox-verify"
++        and environment["can_admins_bypass"] is False
++        and environment["deployment_branch_policy"]
++        == dict(protected_branches=True, custom_branch_policies=False)
++        and len(rules) == 1
++        and rules[0]["prevent_self_review"] is True
++        and len(rules[0]["reviewers"]) == len(pin["reviewers"])
++        and sorted(
++            [
++                [r["reviewer"]["id"], r["reviewer"]["login"]]
++                for r in rules[0]["reviewers"]
++                if r["type"] == "User"
++            ]
++        )
++        == sorted(pin["reviewers"]),
++        "DEPENDENCY_ENVIRONMENT_MISMATCH",
++    )
++    approvals = get(suffix + "/approvals")
++    c._require(
++        type(approvals) is list and len(approvals) == 1, "DEPENDENCY_APPROVAL_MISMATCH"
++    )
++    approval = approvals[0]
++    c._require(
++        approval["state"] == "approved"
++        and [approval["user"]["id"], approval["user"]["login"]] in pin["reviewers"]
++        and all(
++            approval["user"]["id"] != run[k]["id"]
++            for k in ("actor", "triggering_actor")
++        )
++        and approval["environments"]
++        == [dict(id=pin["environment_id"], name="sandbox-verify")],
++        "DEPENDENCY_APPROVAL_MISMATCH",
++    )
++    return starts[1], ends[1]
++
++
++def _verified(
++    pin: dict,
++    runtime,
++    transport,
++    *,
++    clock: Callable[[], float],
++    expected_request: dict | None = None,
++) -> tuple[dict, bytes, datetime]:
++    """Fresh authenticated acquisition is the authority; pure reducer checks its bytes."""
++    validate_trust(pin)
++    with tempfile.TemporaryDirectory(prefix="cloud-predecessor-") as temp:
++        root = Path(temp).resolve() / "artifact"
++        metadata = acquire_bundle(
++            root,
++            pin["repository"],
++            pin["artifact_id"],
++            pin["producer_run_id"],
++            runtime.github_token,
++        )
++        request_raw = c.read_verified(root, pin["request"])
++        request = c.parse_artifact(request_raw, "cloud-run-request/v1")
++        c._require(
++            all(
++                request[k] == pin[k] for k in ("run_id", "unit_id", "provider", "scope")
++            )
++            and request["verification_profile"] == pin["profile"]
++            and (expected_request is None or request == expected_request),
++            "DEPENDENCY_REQUEST_BINDING",
++        )
++        output = request["local_context"]["evidence_directory"] + "/verify-result.json"
++
++        def read(path):
++            # Safe contained read even for producer files without an embedded digest.
++            with c._parent(root, path) as (fd, name):
++                file_fd = os.open(
++                    name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd
++                )
++                with os.fdopen(file_fd, "rb") as stream:
++                    c._require(
++                        stat.S_ISREG(os.fstat(stream.fileno()).st_mode), "UNSAFE_FILE"
++                    )
++                    raw = stream.read(c.MAX_BYTES + 1)
++                    c._require(len(raw) <= c.MAX_BYTES, "ARTIFACT_TOO_LARGE")
++                    return raw
++
++        contract_raw = read(output + ".contract.json")
++        contract = decode(contract_raw)
++        c._require(
++            contract["request"] == pin["request"]
++            and contract["verification"] == pin["verification"],
++            "DEPENDENCY_PRODUCER_OUTPUT_MISMATCH",
++        )
++        started, ended = _producer(
++            pin, runtime, transport, pin["request"], contract["preview"], v.utc(clock())
++        )
++        c._require(
++            metadata["name"]
++            == pin["provider"] + "-verify-" + str(pin["producer_run_id"])
++            and metadata["workflow_run"]["head_sha"] == pin["workflow_revision"]
++            and metadata["workflow_run"]["repository_id"] == pin["repository_id"]
++            and metadata["workflow_run"]["head_repository_id"] == pin["repository_id"],
++            "DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH",
++        )
++        # Keep saved-file selection deliberately BLOCKED. Its checks validate the
++        # closed contract; authentication above, not an override flag, establishes origin.
++        v.saved_profile_plan(contract_raw, root)
++        raw = c.read_verified(root, pin["verification"])
++        verification = c.parse_artifact(raw, "cloud-verification/v1")
++        manifest = decode(read(output + ".manifest.json"))
++        c._require(
++            set(manifest)
++            == {
++                "schema",
++                "request",
++                "context",
++                "observations",
++                "verification",
++                "classification",
++                "provenance",
++                "saved_receipt_authorizes_nothing",
++            }
++            and manifest["schema"] == "cloud-observation-evidence/v1"
++            and manifest["request"] == pin["request"]
++            and manifest["verification"] == pin["verification"]
++            and manifest["classification"] == "native"
++            and manifest["provenance"] == "fresh-authenticated-collection"
++            and manifest["saved_receipt_authorizes_nothing"] is True,
++            "DEPENDENCY_PRODUCER_OUTPUT_MISMATCH",
++        )
++        context = decode(c.read_verified(root, manifest["context"]))
++        c._require(
++            c._utc(started) <= c._utc(context["collected_at"]) <= c._utc(ended),
++            "DEPENDENCY_COMPLETION_WINDOW",
++        )
++        records = []
++        for item in manifest["observations"]:
++            c._require(
++                set(item) == {"check_id", "observation", "result"},
++                "DEPENDENCY_PRODUCER_OUTPUT_MISMATCH",
++            )
++            observation = c.read_verified(root, item["observation"])
++            c._require(
++                c.parse_artifact(observation)["result"] == item["result"],
++                "DEPENDENCY_PRODUCER_OUTPUT_MISMATCH",
++            )
++            records.append(
++                dict(
++                    check_id=item["check_id"],
++                    observation_path=item["observation"]["path"],
++                    observation_bytes=observation,
++                    payload_bytes=c.read_verified(root, item["result"]),
++                )
++            )
++        profile_raw = c.read_verified(root, c._file_ref(pin["profile"]))
++        profile = c.parse_artifact(profile_raw, "cloud-verification-profile/v1")
++        policy = c.read_artifact(root, request["policy"], "cloud-deployment-policy/v1")
++        selection = v.protected_selection(profile, policy)
++        reduced = v.reduce(
++            request,
++            pin["request"],
++            profile,
++            policy,
++            context,
++            records,
++            now=v.utc(clock()),
++            trusted_native=True,
++            request_bytes=request_raw,
++            profile_bytes=profile_raw,
++        )
++        c._require(
++            reduced == verification
++            and reduced["overall_result"] == "PASS"
++            and reduced["evidence_complete"] is True,
++            "DEPENDENCY_NOT_VERIFIED",
++        )
++        plan = v._profile_plan(
++            request,
++            pin["request"],
++            verification,
++            pin["verification"],
++            contract["preview"],
++            selection,
++            fresh=True,
++        )
++        c._require(
++            decode(read(output + ".selected-plan.json")) == plan,
++            "DEPENDENCY_PRODUCER_OUTPUT_MISMATCH",
++        )
++        operation = c.parse_artifact(read(output), "cloud-operation-result/v1")
++        c._require(
++            all(operation[k] == request[k] for k in ("run_id", "unit_id", "provider"))
++            and operation["operation"] == "verify"
++            and operation["state"] == "EVIDENCE_COMPLETE"
++            and operation["result"] == "PASS"
++            and operation["input_manifest_sha256"] == pin["request"]["sha256"]
++            and operation["native_operation_id"] == context["native_operation_id"]
++            and operation["evidence_manifest_path"] == output + ".manifest.json",
++            "DEPENDENCY_PRODUCER_OUTPUT_MISMATCH",
++        )
++        deadline = min(
++            c._utc(decode(r["payload_bytes"])["sampled_at"])
++            + timedelta(seconds=profile["max_age_seconds"])
++            for r in records
++        )
++        c._require(c._utc(v.utc(clock())) <= deadline, "DEPENDENCY_NOT_VERIFIED")
++        return operation, raw, deadline
++
++
++def admit_predecessors(
++    root: Path,
++    request: dict,
++    request_ref: dict,
++    policy,
++    runtime,
++    transport,
++    *,
++    clock: Callable[[], float],
++) -> datetime | None:
++    pins = policy.predecessor_trust
++    refs = request["predecessor_receipts"]
++    if not refs and not pins and not policy.dependency_request_sha256:
++        return None
++    c._require(
++        request_ref["sha256"] == policy.dependency_request_sha256,
++        "DEPENDENCY_CONSUMER_MISMATCH",
++    )
++    expected = [dict(unit_id=pin["unit_id"], **pin["verification"]) for pin in pins]
++    c._require(
++        len({p["unit_id"] for p in pins}) == len(pins)
++        and sorted(refs, key=lambda x: x["unit_id"])
++        == sorted(expected, key=lambda x: x["unit_id"]),
++        "DEPENDENCY_SET_MISMATCH",
++    )
++    deadlines = []
++    for pin in sorted(pins, key=lambda x: x["unit_id"]):
++        _, authenticated, deadline = _verified(pin, runtime, transport, clock=clock)
++        deadlines.append(deadline)
++        c._require(
++            c.read_verified(root, pin["verification"]) == authenticated,
++            "DEPENDENCY_RECEIPT_MISMATCH",
++        )
++    c._require(
++        all(c._utc(v.utc(clock())) <= end for end in deadlines),
++        "DEPENDENCY_NOT_VERIFIED",
++    )
++
++    return min(deadlines) if deadlines else None
++
++
++def ordered_units(requests: list[dict]) -> list[dict]:
++    """Validate the entire finite unit graph before any callback; lexical ready order."""
++    c._require(type(requests) is list and bool(requests), "DEPENDENCY_GRAPH_EMPTY")
++    for request in requests:
++        c._request(request)
++    units = {r["unit_id"]: r for r in requests}
++    c._require(len(units) == len(requests), "DEPENDENCY_DUPLICATE_UNIT")
++    edges = {
++        key: {ref["unit_id"] for ref in row["predecessor_receipts"]}
++        for key, row in units.items()
++    }
++    c._require(
++        all(deps <= units.keys() for deps in edges.values()), "DEPENDENCY_MISSING_UNIT"
++    )
++    ordered = []
++    while edges:
++        ready = sorted(key for key, deps in edges.items() if not deps)
++        c._require(bool(ready), "DEPENDENCY_CYCLE")
++        # One at a time gives stable lexical order among all currently ready units.
++        key = ready[0]
++        ordered.append(units[key])
++        del edges[key]
++        for deps in edges.values():
++            deps.discard(key)
++    return ordered
++
++
++def dispatch(
++    requests: list[dict],
++    execute: Callable[[dict], dict],
++    proofs: dict[str, dict],
++    runtime,
++    *,
++    transport=None,
++    clock: Callable[[], float] = time.time,
++) -> dict:
++    """Per-unit callback ordering only. Provider boundary still owns every write.
++
++    Never retries or rolls back. UNKNOWN is returned with its original native ID;
++    reconciliation belongs to the provider. Only authenticated verify output can
++    release dependents or produce an aggregate VERIFIED result.
++    """
++    from cloud_authorization import HttpsTransport
++
++    ordered = ordered_units(requests)
++    results: dict[str, dict] = {}
++    verified: set[str] = set()
++    for request in ordered:
++        key = request["unit_id"]
++        if any(
++            ref["unit_id"] not in verified for ref in request["predecessor_receipts"]
++        ):
++            results[key] = dict(result="BLOCKED", error_code="DEPENDENCY_NOT_VERIFIED")
++            continue
++        result = execute(request)
++        results[key] = result
++        if result.get("result") != "PASS":
++            continue
++        try:
++            pin = proofs[key]
++            c._require(
++                all(
++                    pin[k] == request[k]
++                    for k in ("run_id", "unit_id", "provider", "scope")
++                ),
++                "DEPENDENCY_REQUEST_BINDING",
++            )
++            c._require(
++                pin["request"]["sha256"] == result["input_manifest_sha256"],
++                "DEPENDENCY_REQUEST_BINDING",
++            )
++            operation, _, _ = _verified(
++                pin,
++                runtime,
++                transport or HttpsTransport(),
++                clock=clock,
++                expected_request=request,
++            )
++            c._require(operation == result, "DEPENDENCY_PRODUCER_OUTPUT_MISMATCH")
++            verified.add(key)
++        except (ValueError, KeyError, TypeError, OSError):
++            # The original result/evidence is immutable; aggregate denial is separate.
++            pass
++    return dict(
++        order=[r["unit_id"] for r in ordered],
++        units=results,
++        aggregate="VERIFIED" if len(verified) == len(ordered) else "BLOCKED",
++    )
+--- a/plugins/sdd-quality-loop/scripts/cloud_authorization.py
++++ b/plugins/sdd-quality-loop/scripts/cloud_authorization.py
+@@ -172,6 +172,8 @@
+     azure_tenant: str = ""
+     azure_client: str = ""
+     azure_principal: str = ""
++    dependency_request_sha256: str = ""
++    predecessor_trust: tuple[dict, ...] = ()
+ 
+ 
+ def concurrency_key(policy: Policy) -> str:
+@@ -189,7 +191,14 @@
+     require(re.fullmatch(r"\.github/workflows/[A-Za-z0-9_.-]+\.ya?ml", p.workflow))
+     require(re.fullmatch(r"[a-f0-9]{40}", p.workflow_revision))
+     require(re.fullmatch(r"refs/heads/[A-Za-z0-9_/-]+", p.ref))
+-    require(p.operation in ("prepare", "apply") and p.environment.endswith("-" + p.operation))
++    require(p.operation in ("prepare", "apply") and (p.environment.endswith("-" + p.operation)
++            or (p.operation == "apply" and p.environment == "sandbox-verify")))
++    if p.predecessor_trust or p.dependency_request_sha256:
++        from cloud_dependencies import validate_trust
++        contracts._sha(p.dependency_request_sha256)
++        require(type(p.predecessor_trust) is tuple)
++        for pin in p.predecessor_trust:
++            validate_trust(pin)
+     require(re.fullmatch(r"[A-Za-z0-9_-]+", p.environment))
+     require(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}", p.target_environment))
+     require(re.fullmatch(r"[a-f0-9]{64}", p.policy_sha256))
+@@ -517,12 +526,13 @@
+ 
+         No imported receipt can grant admission. Stable mutation_id comes from the
+         trusted adapter's deterministic operation plan, never a retry-generated UUID.
+-        T-010 extends predecessor admission at the explicitly fail-closed seam below.
++        Predecessor proofs are reacquired on entry and immediately before submission.
+         """
+         with self._mutex:
+             try:
+                 p = self.policy
+                 _policy_valid(p)
++                require(p.environment.endswith("-" + p.operation), "READ_ONLY_ENVIRONMENT")
+                 require(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", mutation_id))
+                 now = int(self.clock())
+                 contracts.verify_binding(root, request_ref, preview_ref, now=utc(now), operation=p.operation)
+@@ -539,8 +549,8 @@
+                     "SCOPE_MISMATCH",
+                 )
+                 require(request["policy"]["sha256"] == p.policy_sha256, "POLICY_MISMATCH")
+-                # T-010 replaces this with verified predecessor receipt admission.
+-                require(not request["predecessor_receipts"], "DEPENDENCY_ADMISSION_REQUIRED")
++                from cloud_dependencies import admit_predecessors
++                admit_predecessors(root, request, request_ref, p, self.runtime, self.transport, clock=self.clock)
+                 require(self.evidence_root == root / request["local_context"]["evidence_directory"],
+                         "EVIDENCE_BOUNDARY_MISMATCH")
+                 name = f"{request['unit_id']}.{p.operation}.{mutation_id}.authorization.json"
+@@ -593,12 +603,16 @@
+                 self._seen.add(name)
+                 # Publication/scanning can take time; a failed last check keeps the
+                 # consumed marker and never falls through to a native mutation.
++                require(int(self.clock()) < end, "CREDENTIAL_EXPIRED")
++                dependency_deadline = admit_predecessors(root, request, request_ref, p, self.runtime, self.transport,
++                                                        clock=self.clock)
+                 require(
+                     github.metadata(claims, request_ref["sha256"], preview_sha) == approval,
+                     "APPROVAL_CHANGED",
+                 )
+-                require(int(self.clock()) < end, "CREDENTIAL_EXPIRED")
+                 contracts.verify_binding(root, request_ref, preview_ref, now=utc(int(self.clock())), operation=p.operation)
++                require(dependency_deadline is None or contracts._utc(utc(int(self.clock()))) <= dependency_deadline,
++                        "DEPENDENCY_NOT_VERIFIED")
+                 require(int(self.clock()) < end, "CREDENTIAL_EXPIRED")
+             except Exception:
+                 # Never echo native errors, tokens or attacker-controlled artifact bytes.
+--- a/plugins/sdd-azure-cloud/scripts/azure_governed.py
++++ b/plugins/sdd-azure-cloud/scripts/azure_governed.py
+@@ -9,16 +9,11 @@
+ 
+ import argparse
+ from dataclasses import fields as dataclass_fields
+-import io
+ import json
+ import os
+ from pathlib import Path
+ import re
+-import stat
+ import sys
+-import urllib.parse
+-import urllib.request
+-import zipfile
+ 
+ # -I ignores ambient Python paths; only this immutable reviewed checkout is code.
+ HERE = Path(__file__).resolve().parent
+@@ -26,131 +21,21 @@
+ os.environ["CLOUD_SHARED_RUNTIME_ROOT"] = str(
+     HERE.parents[1] / "sdd-quality-loop/scripts"
+ )
+-from cloud import c, decode, digest, encode, run  # noqa: E402
+-from azure_arm import Response  # noqa: E402
++from cloud import c, decode, digest as digest, encode, run  # noqa: E402
++from azure_arm import Response  # noqa: E402,F401
+ from azure_execution import AzureExecutor  # noqa: E402
+ from cloud_authorization import Policy, Runtime, WriteBoundary, _policy_valid  # noqa: E402
+ 
+-ARCHIVE_LIMIT = 32 * 1024 * 1024
+-
+-
+-class ArtifactRedirect(urllib.request.HTTPRedirectHandler):
+-    def redirect_request(self, req, fp, code, msg, headers, newurl):
+-        return None  # expose 302 headers; never follow automatically
+-
+-
+-class ArtifactHttps:
+-    """No automatic redirects, no credential forwarding, bounded archive reads."""
+-
+-    def request(
+-        self, method: str, url: str, headers: dict[str, str], body: bytes | None = None
+-    ) -> Response:
+-        c._require(method == "GET" and body is None, "ARTIFACT_METHOD_DENIED")
+-        req = urllib.request.Request(url, headers=headers, method="GET")
+-        try:
+-            response = urllib.request.build_opener(ArtifactRedirect()).open(
+-                req, timeout=20
+-            )
+-        except urllib.error.HTTPError as error:
+-            response = error
+-        with response:
+-            c._require(response.geturl() == url, "ARTIFACT_REDIRECT_DENIED")
+-            content = response.read(ARCHIVE_LIMIT + 1)
+-            c._require(len(content) <= ARCHIVE_LIMIT, "ARCHIVE_TOO_LARGE")
+-            return Response(response.status, dict(response.headers.items()), content)
+-
+-
+-def acquire_bundle(
+-    root: Path,
+-    repository: str,
+-    artifact_id: int,
+-    run_id: int,
+-    token: str,
+-    *,
+-    transport=None,
+-) -> None:
+-    """Authenticate immutable artifact ID/digest then safely extract data in a NEW root."""
+-    c._require(not root.exists() and not root.is_symlink(), "ARTIFACT_ROOT_EXISTS")
+-    c._require(
+-        re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+", repository)
+-        and type(artifact_id) is int
+-        and artifact_id > 0
+-        and type(run_id) is int
+-        and run_id > 0,
+-        "ARTIFACT_LOCATOR_INVALID",
+-    )
+-    api = transport or ArtifactHttps()
+-    base = f"https://api.github.com/repos/{repository}/actions/artifacts/{artifact_id}"
+-    headers = {
+-        "Authorization": "Bearer " + token,
+-        "Accept": "application/vnd.github+json",
+-        "X-GitHub-Api-Version": "2022-11-28",
+-    }
+-    response = api.request("GET", base, headers)
+-    c._require(response.status == 200, "ARTIFACT_METADATA_UNAVAILABLE")
+-    metadata = decode(response.body)
+-    c._require(
+-        metadata["id"] == artifact_id
+-        and metadata["expired"] is False
+-        and metadata["workflow_run"]["id"] == run_id,
+-        "ARTIFACT_IDENTITY_CHANGED",
+-    )
+-    expected = metadata["digest"]
+-    c._require(
+-        type(expected) is str and re.fullmatch(r"sha256:[a-f0-9]{64}", expected),
+-        "ARTIFACT_DIGEST_REQUIRED",
+-    )
+-    response = api.request("GET", base + "/zip", headers)
+-    c._require(response.status == 302, "ARTIFACT_DOWNLOAD_UNAVAILABLE")
+-    location = {k.lower(): v for k, v in response.headers.items()}["location"]
+-    url = urllib.parse.urlsplit(location)
+-    c._require(
+-        url.scheme == "https"
+-        and not url.username
+-        and not url.password
+-        and not url.fragment
+-        and url.port is None
+-        and re.fullmatch(r"[a-z0-9]+\.blob\.core\.windows\.net", url.netloc),
+-        "ARTIFACT_LOCATION_DENIED",
+-    )
+-    response = api.request("GET", location, {})
+-    c._require(
+-        response.status == 200
+-        and len(response.body) <= ARCHIVE_LIMIT
+-        and "sha256:" + digest(response.body) == expected,
+-        "ARTIFACT_DIGEST_MISMATCH",
+-    )
+-    # Validate the entire archive before writing anything. No zipfile.extract or links.
+-    with zipfile.ZipFile(io.BytesIO(response.body)) as archive:
+-        infos = archive.infolist()
+-        c._require(
+-            0 < len(infos) <= 4096 and sum(i.file_size for i in infos) <= ARCHIVE_LIMIT,
+-            "ARCHIVE_TOO_LARGE",
+-        )
+-        names = set()
+-        for info in infos:
+-            c._path(info.filename.rstrip("/") if info.is_dir() else info.filename)
+-            mode = info.external_attr >> 16
+-            c._require(
+-                not mode or stat.S_IFMT(mode) in (0, stat.S_IFREG, stat.S_IFDIR),
+-                "ARCHIVE_LINK_DENIED",
+-            )
+-            c._require(
+-                info.filename not in names and not info.flag_bits & 1,
+-                "ARCHIVE_ENTRY_INVALID",
+-            )
+-            names.add(info.filename)
+-        root.mkdir(mode=0o700)
+-        for info in infos:
+-            destination = root / info.filename
+-            if info.is_dir():
+-                destination.mkdir(parents=True, exist_ok=True, mode=0o700)
+-                continue
+-            destination.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+-            data = archive.read(info)
+-            c._require(len(data) == info.file_size, "ARCHIVE_TRUNCATED")
+-            with destination.open("xb") as stream:
+-                stream.write(data)
++# Shared bounded acquisition has no dependency on either provider plugin.
++from cloud_dependencies import (  # noqa: E402,F401
++    ARCHIVE_LIMIT, ArtifactRedirect, ArtifactHttps, acquire_bundle as _acquire_bundle, verification_job,
++)
++
++
++def acquire_bundle(root: Path, repository: str, artifact_id: int, run_id: int, token: str, *, transport=None) -> dict:
++    # Preserve the existing provider transport-injection seam for protocol tests.
++    return _acquire_bundle(root, repository, artifact_id, run_id, token,
++                           transport=transport if transport is not None else ArtifactHttps())
+ 
+ 
+ def load_policy(text: str, stage: str) -> Policy:
+@@ -164,10 +49,14 @@
+     for field in ("actors", "reviewers"):
+         c._require(type(value[field]) is list, "CONTROL_POLICY_INVALID")
+         value[field] = tuple(tuple(pair) for pair in value[field])
++    if "predecessor_trust" in value:
++        c._require(type(value["predecessor_trust"]) is list, "CONTROL_POLICY_INVALID")
++        value["predecessor_trust"] = tuple(value["predecessor_trust"])
+     policy = Policy(**value)
+     _policy_valid(policy)
+     c._require(
+-        policy.provider == "azure" and policy.operation == stage,
++        policy.provider == "azure" and policy.operation == ("apply" if stage == "verify" else stage)
++        and (stage != "verify" or policy.environment == "sandbox-verify"),
+         "CONTROL_POLICY_INVALID",
+     )
+     return policy
+@@ -301,6 +190,7 @@
+                 },
+             ],
+         }
++    workflow["jobs"]["verify"] = verification_job("azure", executor_repository, executor_revision)
+     return workflow
+ 
+ 
+@@ -378,7 +268,7 @@
+             not args.require_native_apply or args.operation == "apply", "STAGE_MISMATCH"
+         )
+         stage = "prepare" if args.operation == "prepare" else "apply"
+-        policy = load_policy(os.environ["AZURE_CONTROL_POLICY"], stage)
++        policy = load_policy(os.environ["AZURE_CONTROL_POLICY"], "verify" if args.operation == "verify" else stage)
+         if args.operation in ("reconcile", "observe", "verify"):
+             c._require(
+                 policy.environment == "sandbox-" + args.operation,
+--- a/plugins/sdd-aws-cloud/scripts/aws_governed.py
++++ b/plugins/sdd-aws-cloud/scripts/aws_governed.py
+@@ -10,16 +10,11 @@
+ import argparse
+ import copy
+ from dataclasses import fields as dataclass_fields
+-import io
+ import json
+ import os
+ from pathlib import Path
+ import re
+-import stat
+ import sys
+-import urllib.parse
+-import urllib.request
+-import zipfile
+ 
+ # -I ignores ambient Python paths; only this immutable reviewed checkout is code.
+ HERE = Path(__file__).resolve().parent
+@@ -27,132 +22,22 @@
+ os.environ["CLOUD_SHARED_RUNTIME_ROOT"] = str(
+     HERE.parents[1] / "sdd-quality-loop/scripts"
+ )
+-from cloud import c, decode, digest, encode, run  # noqa: E402
+-from aws_native import Response  # noqa: E402
++from cloud import c, decode, digest as digest, encode, run  # noqa: E402
++from aws_native import Response  # noqa: E402,F401
+ from aws_execution import AwsExecutor  # noqa: E402
+ from aws_control import Control  # noqa: E402
+ from cloud_authorization import Policy, Runtime, WriteBoundary, _policy_valid  # noqa: E402
+ 
+-ARCHIVE_LIMIT = 32 * 1024 * 1024
+-
+-
+-class ArtifactRedirect(urllib.request.HTTPRedirectHandler):
+-    def redirect_request(self, req, fp, code, msg, headers, newurl):
+-        return None  # expose 302 headers; never follow automatically
+-
+-
+-class ArtifactHttps:
+-    """No automatic redirects, no credential forwarding, bounded archive reads."""
+-
+-    def request(
+-        self, method: str, url: str, headers: dict[str, str], body: bytes | None = None
+-    ) -> Response:
+-        c._require(method == "GET" and body is None, "ARTIFACT_METHOD_DENIED")
+-        req = urllib.request.Request(url, headers=headers, method="GET")
+-        try:
+-            response = urllib.request.build_opener(ArtifactRedirect()).open(
+-                req, timeout=20
+-            )
+-        except urllib.error.HTTPError as error:
+-            response = error
+-        with response:
+-            c._require(response.geturl() == url, "ARTIFACT_REDIRECT_DENIED")
+-            content = response.read(ARCHIVE_LIMIT + 1)
+-            c._require(len(content) <= ARCHIVE_LIMIT, "ARCHIVE_TOO_LARGE")
+-            return Response(response.status, dict(response.headers.items()), content)
+-
+-
+-def acquire_bundle(
+-    root: Path,
+-    repository: str,
+-    artifact_id: int,
+-    run_id: int,
+-    token: str,
+-    *,
+-    transport=None,
+-) -> None:
+-    """Authenticate immutable artifact ID/digest then safely extract data in a NEW root."""
+-    c._require(not root.exists() and not root.is_symlink(), "ARTIFACT_ROOT_EXISTS")
+-    c._require(
+-        re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+", repository)
+-        and type(artifact_id) is int
+-        and artifact_id > 0
+-        and type(run_id) is int
+-        and run_id > 0,
+-        "ARTIFACT_LOCATOR_INVALID",
+-    )
+-    api = transport or ArtifactHttps()
+-    base = f"https://api.github.com/repos/{repository}/actions/artifacts/{artifact_id}"
+-    headers = {
+-        "Authorization": "Bearer " + token,
+-        "Accept": "application/vnd.github+json",
+-        "X-GitHub-Api-Version": "2022-11-28",
+-    }
+-    response = api.request("GET", base, headers)
+-    c._require(response.status == 200, "ARTIFACT_METADATA_UNAVAILABLE")
+-    metadata = decode(response.body)
+-    c._require(
+-        metadata["id"] == artifact_id
+-        and metadata["expired"] is False
+-        and metadata["workflow_run"]["id"] == run_id,
+-        "ARTIFACT_IDENTITY_CHANGED",
+-    )
+-    expected = metadata["digest"]
+-    c._require(
+-        type(expected) is str and re.fullmatch(r"sha256:[a-f0-9]{64}", expected),
+-        "ARTIFACT_DIGEST_REQUIRED",
+-    )
+-    response = api.request("GET", base + "/zip", headers)
+-    c._require(response.status == 302, "ARTIFACT_DOWNLOAD_UNAVAILABLE")
+-    location = {k.lower(): v for k, v in response.headers.items()}["location"]
+-    url = urllib.parse.urlsplit(location)
+-    c._require(
+-        url.scheme == "https"
+-        and not url.username
+-        and not url.password
+-        and not url.fragment
+-        and url.port is None
+-        and re.fullmatch(r"[a-z0-9]+\.blob\.core\.windows\.net", url.netloc),
+-        "ARTIFACT_LOCATION_DENIED",
+-    )
+-    response = api.request("GET", location, {})
+-    c._require(
+-        response.status == 200
+-        and len(response.body) <= ARCHIVE_LIMIT
+-        and "sha256:" + digest(response.body) == expected,
+-        "ARTIFACT_DIGEST_MISMATCH",
+-    )
+-    # Validate the entire archive before writing anything. No zipfile.extract or links.
+-    with zipfile.ZipFile(io.BytesIO(response.body)) as archive:
+-        infos = archive.infolist()
+-        c._require(
+-            0 < len(infos) <= 4096 and sum(i.file_size for i in infos) <= ARCHIVE_LIMIT,
+-            "ARCHIVE_TOO_LARGE",
+-        )
+-        names = set()
+-        for info in infos:
+-            c._path(info.filename.rstrip("/") if info.is_dir() else info.filename)
+-            mode = info.external_attr >> 16
+-            c._require(
+-                not mode or stat.S_IFMT(mode) in (0, stat.S_IFREG, stat.S_IFDIR),
+-                "ARCHIVE_LINK_DENIED",
+-            )
+-            c._require(
+-                info.filename not in names and not info.flag_bits & 1,
+-                "ARCHIVE_ENTRY_INVALID",
+-            )
+-            names.add(info.filename)
+-        root.mkdir(mode=0o700)
+-        for info in infos:
+-            destination = root / info.filename
+-            if info.is_dir():
+-                destination.mkdir(parents=True, exist_ok=True, mode=0o700)
+-                continue
+-            destination.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+-            data = archive.read(info)
+-            c._require(len(data) == info.file_size, "ARCHIVE_TRUNCATED")
+-            with destination.open("xb") as stream:
+-                stream.write(data)
++# Shared bounded acquisition has no dependency on either provider plugin.
++from cloud_dependencies import (  # noqa: E402,F401
++    ARCHIVE_LIMIT, ArtifactRedirect, ArtifactHttps, acquire_bundle as _acquire_bundle, verification_job,
++)
++
++
++def acquire_bundle(root: Path, repository: str, artifact_id: int, run_id: int, token: str, *, transport=None) -> dict:
++    # Preserve the existing provider transport-injection seam for protocol tests.
++    return _acquire_bundle(root, repository, artifact_id, run_id, token,
++                           transport=transport if transport is not None else ArtifactHttps())
+ 
+ 
+ def load_policy(text: str, stage: str) -> Policy:
+@@ -166,10 +51,14 @@
+     for field in ("actors", "reviewers"):
+         c._require(type(value[field]) is list, "CONTROL_POLICY_INVALID")
+         value[field] = tuple(tuple(pair) for pair in value[field])
++    if "predecessor_trust" in value:
++        c._require(type(value["predecessor_trust"]) is list, "CONTROL_POLICY_INVALID")
++        value["predecessor_trust"] = tuple(value["predecessor_trust"])
+     policy = Policy(**value)
+     _policy_valid(policy)
+     c._require(
+-        policy.provider == "aws" and policy.operation == stage,
++        policy.provider == "aws" and policy.operation == ("apply" if stage == "verify" else stage)
++        and (stage != "verify" or policy.environment == "sandbox-verify"),
+         "CONTROL_POLICY_INVALID",
+     )
+     return policy
+@@ -309,6 +198,8 @@
+         "${{ github.run_attempt == 1 && inputs.operation == 'apply' }}"
+     )
+     workflow["jobs"]["reconcile"] = recovery
++    workflow["jobs"]["verify"] = verification_job("aws", executor_repository, executor_revision)
++    workflow["on"]["workflow_dispatch"]["inputs"]["operation"]["options"].append("verify")
+     return workflow
+ 
+ 
+@@ -450,7 +341,7 @@
+     args = parser.parse_args(argv)
+     try:
+         stage = "prepare" if args.operation == "prepare" else "apply"
+-        policy = load_policy(os.environ["AWS_CONTROL_POLICY"], stage)
++        policy = load_policy(os.environ["AWS_CONTROL_POLICY"], "verify" if args.operation == "verify" else stage)
+         control_value = decode(os.environ["AWS_EXECUTION_CONTROL"].encode())
+         c._require(
+             set(control_value) == {f.name for f in dataclass_fields(Control)},
+--- a/tests/cloud-orchestration-verification.tests.py
++++ b/tests/cloud-orchestration-verification.tests.py
+@@ -18,7 +18,7 @@
+ import tempfile
+ import unittest
+ from unittest.mock import patch
+-from types import ModuleType
++from types import ModuleType, SimpleNamespace
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ SHARED = ROOT / "plugins/sdd-quality-loop/scripts"
+@@ -4074,6 +4074,1276 @@
+                     preview_path.write_bytes(preview_raw)
+         observation.profile_preview_readback(executor, preview_ref)
+ 
++class DependencyReceiptCases(unittest.TestCase):
++    """T-010: actual collector output + authenticated-protocol doubles, never live."""
++
++    def fixture(self, provider="azure", stage="prepare", consumer_provider=None):
++        import base64
++        from contextlib import ExitStack
++        from types import SimpleNamespace
++        import cloud_authorization as auth
++
++        stack = ExitStack()
++        self.addCleanup(stack.close)
++        harness = PublicObservationCases()
++        self.addCleanup(harness.doCleanups)
++        producer, _, _, module = harness.setup_execution(provider, protected=True)
++        holder = (
++            producer.executor.client
++            if provider == "azure"
++            else producer.executor.native
++        )
++        native_type = sys.modules[
++            provider + ("_arm" if provider == "azure" else "_native")
++        ].HttpsTransport
++        native, admission = native_type(), auth.HttpsTransport()
++        stack.enter_context(
++            patch.object(native, "request", side_effect=holder.transport.request)
++        )
++        stack.enter_context(
++            patch.object(
++                admission,
++                "request",
++                side_effect=producer.executor.boundary.transport.request,
++            )
++        )
++        stack.enter_context(patch.object(holder, "transport", native))
++        stack.enter_context(
++            patch.object(producer.executor.boundary, "transport", admission)
++        )
++        result = harness.run_public(producer, module, "verify-result")
++        self.assertEqual(result["result"], "PASS", result)
++        output = producer.directory + "/verify-result.json"
++        receipt_path = output + ".verification.json"
++        receipt_raw = (producer.root / receipt_path).read_bytes()
++        receipt = json.loads(receipt_raw)
++        contract = json.loads(
++            (producer.root / (output + ".contract.json")).read_bytes()
++        )
++        spec = importlib.util.spec_from_file_location(
++            "dependency_execution",
++            ROOT / "tests/cloud-orchestration-execution.tests.py",
++        )
++        assert spec and spec.loader
++        execution = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(execution)
++        target = execution.Admission()
++        target.setUp()
++        self.addCleanup(target.doCleanups)
++        target.setup_case(consumer_provider or provider, stage)
++        consumer_profile = target.request["verification_profile"]
++        consumer_profile["path"] = target.put(
++            "bundle/consumer-profile.json",
++            (target.root / consumer_profile["path"]).read_bytes(),
++        )["path"]
++        target.put(
++            receipt["profile"]["path"],
++            (producer.root / receipt["profile"]["path"]).read_bytes(),
++        )
++        # Same feature is required by the existing path contract; unit/run remain distinct.
++        for path in (producer.root / producer.directory).rglob("*"):
++            if path.is_file():
++                target.put(str(path.relative_to(producer.root)), path.read_bytes())
++        ref = target.put(receipt_path, receipt_raw)
++        target.request["predecessor_receipts"] = [
++            dict(unit_id=receipt["unit_id"], **ref)
++        ]
++        target.request_ref = target.put("request.json", target.request)
++        if stage == "apply":
++            preview = json.loads(
++                (target.root / target.preview_ref["path"]).read_bytes()
++            )
++            preview["request"] = target.request_ref
++            preview["verification_profile"] = {
++                k: consumer_profile[k] for k in ("path", "sha256")
++            }
++            target.preview_ref = target.put(target.preview_ref["path"], preview)
++        target.transport.run["display_title"] = (
++            "cloud:"
++            + target.request_ref["sha256"]
++            + ":"
++            + (target.preview_ref["sha256"] if target.preview_ref else "none")
++        )
++        # Consumer lease and producer completion are both fresh at this synthetic time.
++        now = int(producer.executor.clock()) + 5
++        target.boundary.clock = lambda: now
++        target.transport.claims.update(iat=now - 10, nbf=now - 10, exp=now + 600)
++        target.transport.lease_end = now + 300
++        target.transport.azure_claims.update(iat=now - 10, nbf=now - 10, exp=now + 300)
++        governed = __import__(provider + "_governed")
++        kwargs = dict(
++            executor_repository="synthetic/executor",
++            executor_revision="d" * 40,
++            input_repository="synthetic/plans",
++            region=producer.executor.request["scope"]["region"],
++        )
++        kwargs["subscription" if provider == "azure" else "account"] = (
++            producer.executor.request["scope"]["account_id"]
++        )
++        workflow = governed.workflow_template(**kwargs)
++        if "verify" not in workflow["jobs"]:
++            # Test-first desired fixed verify job, not an existing shipped workflow claim.
++            job = copy.deepcopy(workflow["jobs"]["apply"])
++            job.update(
++                environment="sandbox-verify",
++                **{
++                    "if": "${{ github.run_attempt == 1 && inputs.operation == 'verify' }}"
++                },
++            )
++            step = job["steps"][1]
++            step["name"] = "Execute fixed read-only verify"
++            step["env"].pop("CLOUD_PHASE")
++            step["env"]["AWS_CONTROL_POLICY"] = "${{ vars.AWS_VERIFY_POLICY }}"
++            step["run"] = (
++                'set -euo pipefail\npython3 -I executor/plugins/sdd-aws-cloud/scripts/aws_governed.py verify --workspace "$RUNNER_TEMP/aws-data"'
++            )
++            job["steps"][2]["with"]["name"] = "aws-verify-${{ github.run_id }}"
++            workflow["jobs"]["verify"] = job
++            workflow["on"]["workflow_dispatch"]["inputs"]["operation"][
++                "options"
++            ].append("verify")
++        pin = dict(
++            unit_id=receipt["unit_id"],
++            run_id=receipt["run_id"],
++            provider=provider,
++            request=producer.request_ref.copy(),
++            verification=ref,
++            scope=copy.deepcopy(producer.executor.request["scope"]),
++            profile=copy.deepcopy(receipt["profile"]),
++            repository="synthetic/producer",
++            repository_id=77,
++            workflow=".github/workflows/cloud.yml",
++            workflow_revision="a" * 40,
++            ref="refs/heads/main",
++            workflow_sha256=hashlib.sha256(encode(workflow)).hexdigest(),
++            executor_repository="synthetic/executor",
++            executor_revision="d" * 40,
++            producer_run_id=789,
++            artifact_id=17,
++            environment_id=88,
++            actors=[[7, "operator"]],
++            reviewers=[[8, "reviewer"]],
++        )
++        object.__setattr__(target.policy, "predecessor_trust", (pin,))
++        object.__setattr__(
++            target.policy, "dependency_request_sha256", target.request_ref["sha256"]
++        )
++        run = dict(
++            id=789,
++            run_attempt=1,
++            status="completed",
++            conclusion="success",
++            event="workflow_dispatch",
++            head_sha=pin["workflow_revision"],
++            head_branch="main",
++            path=pin["workflow"],
++            display_title="cloud:"
++            + pin["request"]["sha256"]
++            + ":"
++            + contract["preview"]["sha256"],
++            repository=dict(id=77, full_name=pin["repository"]),
++            head_repository=dict(id=77, full_name=pin["repository"]),
++            actor=dict(id=7, login="operator"),
++            triggering_actor=dict(id=7, login="operator"),
++        )
++        steps = [
++            dict(
++                name=s["name"],
++                status="completed",
++                conclusion="success",
++                started_at=auth.utc(now - 5),
++                completed_at=auth.utc(now - 3),
++            )
++            for s in workflow["jobs"]["verify"]["steps"]
++        ]
++        job = dict(
++            id=456,
++            run_id=789,
++            run_attempt=1,
++            head_sha=pin["workflow_revision"],
++            name="verify",
++            status="completed",
++            conclusion="success",
++            started_at=auth.utc(now - 6),
++            completed_at=auth.utc(now - 2),
++            steps=steps,
++        )
++        state = SimpleNamespace(
++            target=target,
++            producer=producer,
++            pin=pin,
++            run=run,
++            job=job,
++            workflow=workflow,
++            output=output,
++            receipt=receipt,
++            ref=ref,
++            now=now,
++            contract=contract,
++            artifact_calls=[],
++            api_calls=[],
++            archive_override=None,
++            metadata=dict(
++                id=17,
++                expired=False,
++                name=provider + "-verify-789",
++                workflow_run=dict(
++                    id=789,
++                    head_sha=pin["workflow_revision"],
++                    repository_id=77,
++                    head_repository_id=77,
++                ),
++            ),
++        )
++        state.jobs = dict(total_count=1, jobs=[job])
++        state.file = dict(
++            type="file",
++            path=pin["workflow"],
++            encoding="base64",
++            content=base64.b64encode(encode(workflow)).decode(),
++        )
++        state.environment = dict(
++            target.transport.environment_response, id=88, name="sandbox-verify"
++        )
++        state.approvals = [
++            dict(
++                state="approved",
++                user=dict(id=8, login="reviewer"),
++                environments=[dict(id=88, name="sandbox-verify")],
++            )
++        ]
++        old = target.transport.request
++
++        def metadata(method, url, headers, body=None):
++            if "/repos/synthetic/" not in url or "/repos/synthetic/control/" in url:
++                return old(method, url, headers, body)
++            state.api_calls.append(url)
++            self.assertEqual(headers["Authorization"], "Bearer synthetic-github-bearer")
++            if "/contents/" in url:
++                return encode(
++                    dict(
++                        state.file, content=base64.b64encode(encode(workflow)).decode()
++                    )
++                    if state.file["content"] == "dynamic"
++                    else state.file
++                )
++            if "/jobs?" in url:
++                return encode(state.jobs)
++            if url.endswith("/approvals"):
++                return encode(state.approvals)
++            if "/environments/" in url:
++                return encode(state.environment)
++            return encode(run)
++
++        stack.enter_context(
++            patch.object(target.transport, "request", side_effect=metadata)
++        )
++
++        def artifact(method, url, headers, body=None):
++            from types import SimpleNamespace
++            import io
++            import zipfile
++
++            state.artifact_calls.append((url, headers.copy()))
++            buffer = io.BytesIO()
++            with zipfile.ZipFile(buffer, "w") as archive:
++                for path in sorted(producer.root.rglob("*")):
++                    if path.is_file():
++                        archive.writestr(
++                            str(path.relative_to(producer.root)), path.read_bytes()
++                        )
++            raw = (
++                buffer.getvalue()
++                if state.archive_override is None
++                else state.archive_override
++            )
++            if "/actions/artifacts/" in url and not url.endswith("/zip"):
++                state.download_bytes = raw
++            else:
++                raw = state.download_bytes
++            meta = {
++                "digest": "sha256:" + hashlib.sha256(raw).hexdigest(),
++                **state.metadata,
++            }
++            if "/actions/artifacts/" in url and not url.endswith("/zip"):
++                return SimpleNamespace(status=200, headers={}, body=encode(meta))
++            if url.endswith("/zip"):
++                return SimpleNamespace(
++                    status=302,
++                    headers={
++                        "Location": "https://synthetic.blob.core.windows.net/artifact"
++                    },
++                    body=b"",
++                )
++            self.assertEqual(headers, {})
++            return SimpleNamespace(status=200, headers={}, body=raw)
++
++        # Before implementation the existing callable must execute, not fail at import/setup.
++        if importlib.util.find_spec("cloud_dependencies"):
++            import cloud_dependencies as dependencies
++
++            stack.enter_context(
++                patch.object(
++                    dependencies.ArtifactHttps, "request", side_effect=artifact
++                )
++            )
++        return state
++
++    def failure(self, state, expected):
++        seen = []
++        original = state.target.a.contracts._require
++
++        def require(condition, code="INVALID_ARTIFACT"):
++            if not condition:
++                seen.append(code)
++            original(condition, code)
++
++        original_auth = state.target.a.require
++
++        def auth_require(condition, code="ADMISSION_DENIED"):
++            if not condition:
++                seen.append(code)
++            original_auth(condition, code)
++
++        from contextlib import ExitStack
++
++        with ExitStack() as stack:
++            for module in {c, state.target.a.contracts, sys.modules["cloud_contracts"]}:
++                stack.enter_context(
++                    patch.object(module, "_require", side_effect=require)
++                )
++                original_read = module.read_verified
++
++                def read(*args, _read=original_read, **kwargs):
++                    try:
++                        return _read(*args, **kwargs)
++                    except ValueError as exc:
++                        seen.append(str(exc))
++                        raise
++
++                stack.enter_context(
++                    patch.object(module, "read_verified", side_effect=read)
++                )
++            stack.enter_context(
++                patch.object(state.target.a, "require", side_effect=auth_require)
++            )
++            with self.assertRaises(state.target.a.AdmissionDenied):
++                state.target.write()
++        self.assertEqual(state.target.writes, [])
++        self.assertIn(
++            expected,
++            seen,
++            "Mismatch reached existing boundary; blanket denial is not this field guard",
++        )
++
++    def test_dependency_matched_control_at_both_shared_stages(self):
++        for provider in ("azure", "aws"):
++            for stage in ("prepare", "apply"):
++                with self.subTest(provider=provider, stage=stage):
++                    state = self.fixture(provider, stage)
++                    state.target.write()
++                    self.assertEqual(state.target.writes, ["write"])
++                    self.assertGreaterEqual(len(state.artifact_calls), 6)
++                    self.doCleanups()
++
++    def test_dependency_per_field_red_mismatches(self):
++        variants = {
++            "run_id": ("wrong-run", "DEPENDENCY_REQUEST_BINDING"),
++            "unit_id": ("wrong-unit", "DEPENDENCY_SET_MISMATCH"),
++            "provider": ("aws", "DEPENDENCY_REQUEST_BINDING"),
++            "scope": (
++                dict(account_id="wrong", region="wrong", deployment_scope="wrong"),
++                "DEPENDENCY_REQUEST_BINDING",
++            ),
++            "profile": (
++                dict(
++                    id="cloud-compute",
++                    version="999",
++                    path="bundle/profile.json",
++                    sha256="b" * 64,
++                ),
++                "DEPENDENCY_REQUEST_BINDING",
++            ),
++            "workflow_sha256": ("b" * 64, "DEPENDENCY_WORKFLOW_MISMATCH"),
++            "executor_revision": ("b" * 40, "DEPENDENCY_EXECUTOR_MISMATCH"),
++            "producer_run_id": (790, "ARTIFACT_IDENTITY_CHANGED"),
++            "repository_id": (78, "DEPENDENCY_RUN_MISMATCH"),
++            "environment_id": (89, "DEPENDENCY_ENVIRONMENT_MISMATCH"),
++        }
++        for field, (value, guard) in variants.items():
++            with self.subTest(field=field):
++                state = self.fixture()
++                state.pin[field] = value
++                self.failure(state, guard)
++                self.doCleanups()
++
++    def test_dependency_producer_and_evidence_red_mismatches(self):
++        variants = [
++            "job",
++            "run",
++            "artifact",
++            "classification",
++            "context",
++            "observation",
++            "payload",
++            "verification",
++            "plan",
++            "operation",
++            "stale",
++        ]
++        for variant in variants:
++            with self.subTest(field=variant):
++                state = self.fixture()
++                guard = "DEPENDENCY_PRODUCER_OUTPUT_MISMATCH"
++                if variant == "job":
++                    state.job["conclusion"] = "failure"
++                    guard = "DEPENDENCY_VERIFY_JOB_REQUIRED"
++                elif variant == "run":
++                    state.run["conclusion"] = "failure"
++                    guard = "DEPENDENCY_RUN_MISMATCH"
++                elif variant == "artifact":
++                    state.metadata["expired"] = True
++                    guard = "ARTIFACT_IDENTITY_CHANGED"
++                elif variant == "stale":
++                    state.target.boundary.clock = lambda: state.now + 10000
++                    guard = "DEPENDENCY_NOT_VERIFIED"
++                else:
++                    suffix = {
++                        "classification": ".manifest.json",
++                        "context": ".context.json",
++                        "observation": ".manifest.json",
++                        "payload": ".manifest.json",
++                        "verification": ".verification.json",
++                        "plan": ".selected-plan.json",
++                        "operation": "",
++                    }[variant]
++                    path = state.producer.root / (state.output + suffix)
++                    value = json.loads(path.read_bytes())
++                    if variant == "classification":
++                        value["classification"] = "synthetic"
++                    elif variant == "context":
++                        value["principal"] = "wrong-principal"
++                    elif variant in ("observation", "payload"):
++                        row = value["observations"][0]
++                        ref = row[
++                            "observation" if variant == "observation" else "result"
++                        ]
++                        path = state.producer.root / ref["path"]
++                        value = json.loads(path.read_bytes())
++                        value[
++                            "principal"
++                            if variant == "observation"
++                            else "context_sha256"
++                        ] = "wrong" if variant == "observation" else "b" * 64
++                    elif variant == "verification":
++                        value["evidence_complete"] = False
++                    elif variant == "plan":
++                        value["verdict"] = "BLOCKED"
++                    else:
++                        value.update(
++                            result="BLOCKED",
++                            state="BLOCKED",
++                            error_code="EVIDENCE_INCOMPLETE",
++                        )
++                    path.write_bytes(encode(value))
++                    if variant in ("context", "observation", "payload", "verification"):
++                        guard = "DIGEST_MISMATCH"
++                self.failure(state, guard)
++                self.doCleanups()
++
++
++def dependency_field_matrix():
++    """Every new protected configuration / authenticated producer binding leaf."""
++    rows: list[tuple[str, str, list[str], object, str]] = []
++
++    def add(target, values, guard):
++        rows.extend(
++            (target + "." + path, target, path.split("."), value, guard)
++            for path, value in values.items()
++        )
++
++    add(
++        "pin",
++        {
++            "unit_id": "other",
++            "verification.path": "other.json",
++            "verification.sha256": "b" * 64,
++        },
++        "DEPENDENCY_SET_MISMATCH",
++    )
++    add(
++        "pin",
++        {
++            "run_id": "other",
++            "provider": "aws",
++            "scope.account_id": "other",
++            "scope.region": "westus",
++            "scope.deployment_scope": "other",
++            "profile.id": "other",
++            "profile.version": "9",
++            "profile.path": "other.json",
++            "profile.sha256": "b" * 64,
++        },
++        "DEPENDENCY_REQUEST_BINDING",
++    )
++    add("pin", {"request.path": "other.json"}, "UNSAFE_OR_UNAVAILABLE_FILE")
++    add("pin", {"request.sha256": "b" * 64}, "DIGEST_MISMATCH")
++    add(
++        "pin",
++        {
++            "repository": "synthetic/other",
++            "repository_id": 78,
++            "workflow": ".github/workflows/other.yml",
++            "workflow_revision": "b" * 40,
++            "ref": "refs/heads/other",
++            "producer_run_id": 790,
++            "actors.0.0": 9,
++            "actors.0.1": "other",
++        },
++        "DEPENDENCY_RUN_MISMATCH",
++    )
++    add("pin", {"workflow_sha256": "b" * 64}, "DEPENDENCY_WORKFLOW_MISMATCH")
++    add(
++        "pin",
++        {"executor_repository": "synthetic/other", "executor_revision": "b" * 40},
++        "DEPENDENCY_EXECUTOR_MISMATCH",
++    )
++    add("pin", {"artifact_id": 18}, "ARTIFACT_IDENTITY_CHANGED")
++    add(
++        "pin",
++        {"environment_id": 89, "reviewers.0.0": 9, "reviewers.0.1": "other"},
++        "DEPENDENCY_ENVIRONMENT_MISMATCH",
++    )
++    add(
++        "run",
++        {
++            "id": 790,
++            "run_attempt": 2,
++            "status": "in_progress",
++            "conclusion": "failure",
++            "event": "push",
++            "head_sha": "b" * 40,
++            "head_branch": "other",
++            "path": ".github/workflows/other.yml",
++            "display_title": "cloud:" + "b" * 64 + ":" + "c" * 64,
++            "repository.id": 78,
++            "repository.full_name": "synthetic/other",
++            "head_repository.id": 78,
++            "head_repository.full_name": "synthetic/other",
++            "actor.id": 9,
++            "actor.login": "other",
++            "triggering_actor.id": 9,
++            "triggering_actor.login": "other",
++        },
++        "DEPENDENCY_RUN_MISMATCH",
++    )
++    add(
++        "file",
++        {
++            "type": "dir",
++            "path": ".github/workflows/other.yml",
++            "encoding": "none",
++            "content": "e30K",
++        },
++        "DEPENDENCY_WORKFLOW_MISMATCH",
++    )
++    add(
++        "job",
++        {
++            "id": 0,
++            "name": "apply",
++            "run_id": 790,
++            "run_attempt": 2,
++            "head_sha": "b" * 40,
++            "status": "in_progress",
++            "conclusion": "failure",
++        },
++        "DEPENDENCY_VERIFY_JOB_REQUIRED",
++    )
++    add("jobs", {"total_count": 2}, "PAGINATION_INCOMPLETE")
++    add(
++        "job",
++        {"started_at": "2026-10-18T07:00:00Z", "completed_at": "2026-10-18T05:00:00Z"},
++        "DEPENDENCY_COMPLETION_WINDOW",
++    )
++    for index in range(3):
++        add(
++            "job",
++            {
++                f"steps.{index}.name": "other",
++                f"steps.{index}.status": "in_progress",
++                f"steps.{index}.conclusion": "failure",
++            },
++            "DEPENDENCY_VERIFY_STEP_REQUIRED",
++        )
++        add(
++            "job",
++            {
++                f"steps.{index}.started_at": "2026-10-18T07:00:00Z",
++                f"steps.{index}.completed_at": "2026-10-18T05:00:00Z",
++            },
++            "DEPENDENCY_COMPLETION_WINDOW",
++        )
++    add(
++        "environment",
++        {
++            "id": 89,
++            "name": "other-verify",
++            "can_admins_bypass": True,
++            "deployment_branch_policy.protected_branches": False,
++            "deployment_branch_policy.custom_branch_policies": True,
++            "protection_rules.0.type": "wait_timer",
++            "protection_rules.0.prevent_self_review": False,
++            "protection_rules.0.reviewers.0.type": "Team",
++            "protection_rules.0.reviewers.0.reviewer.id": 9,
++            "protection_rules.0.reviewers.0.reviewer.login": "other",
++        },
++        "DEPENDENCY_ENVIRONMENT_MISMATCH",
++    )
++    add(
++        "approvals",
++        {
++            "0.state": "rejected",
++            "0.user.id": 9,
++            "0.user.login": "other",
++            "0.environments.0.id": 89,
++            "0.environments.0.name": "other-verify",
++        },
++        "DEPENDENCY_APPROVAL_MISMATCH",
++    )
++    add(
++        "metadata",
++        {"id": 18, "expired": True, "workflow_run.id": 790},
++        "ARTIFACT_IDENTITY_CHANGED",
++    )
++    add("metadata", {"digest": None}, "ARTIFACT_DIGEST_REQUIRED")
++    add("metadata", {"digest": "sha256:" + "b" * 64}, "ARTIFACT_DIGEST_MISMATCH")
++    add(
++        "metadata",
++        {
++            "name": "azure-apply-789",
++            "workflow_run.head_sha": "b" * 40,
++            "workflow_run.repository_id": 78,
++            "workflow_run.head_repository_id": 78,
++        },
++        "DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH",
++    )
++    rows = [
++        (
++            label,
++            target,
++            path,
++            value,
++            "ARTIFACT_IDENTITY_CHANGED" if label == "pin.producer_run_id" else guard,
++        )
++        for label, target, path, value, guard in rows
++    ]
++    return rows
++
++
++class DependencyFieldMatrix(DependencyReceiptCases):
++    def test_every_new_trust_and_producer_binding(self):
++        for label, target, path, value, guard in dependency_field_matrix():
++            with self.subTest(field=label):
++                state = self.fixture()
++                obj = getattr(state, target)
++                for part in path[:-1]:
++                    obj = obj[int(part) if isinstance(obj, list) else part]
++                key = int(path[-1]) if isinstance(obj, list) else path[-1]
++                original_value = (
++                    copy.deepcopy(obj[key])
++                    if key in obj or isinstance(obj, list)
++                    else None
++                )
++                existed = isinstance(obj, list) or key in obj
++                obj[key] = value
++                self.failure(state, guard)
++                if existed:
++                    obj[key] = original_value
++                else:
++                    del obj[key]
++                state.target.write()
++                self.assertEqual(state.target.writes, ["write"])
++                self.doCleanups()
++
++    def test_consumer_request_and_trust_set(self):
++        for variant in (
++            "request-sha",
++            "trust-omitted",
++            "trust-added",
++            "receipt-omitted",
++            "receipt-added",
++        ):
++            with self.subTest(field=variant):
++                state = self.fixture()
++                guard = "DEPENDENCY_SET_MISMATCH"
++                if variant == "request-sha":
++                    object.__setattr__(
++                        state.target.policy, "dependency_request_sha256", "b" * 64
++                    )
++                    guard = "DEPENDENCY_CONSUMER_MISMATCH"
++                elif variant == "trust-omitted":
++                    object.__setattr__(state.target.policy, "predecessor_trust", ())
++                elif variant == "trust-added":
++                    other = copy.deepcopy(state.pin)
++                    other["unit_id"] = "other"
++                    object.__setattr__(
++                        state.target.policy, "predecessor_trust", (state.pin, other)
++                    )
++                else:
++                    if variant == "receipt-omitted":
++                        state.target.request["predecessor_receipts"] = []
++                    else:
++                        # New valid-format independent receipt, not a duplicate/schema error.
++                        other = copy.deepcopy(state.receipt)
++                        other["unit_id"] = "other"
++                        path = state.ref["path"].replace(
++                            "/" + state.receipt["unit_id"] + "/", "/other/"
++                        )
++                        ref = state.target.put(path, other)
++                        state.target.request["predecessor_receipts"].append(
++                            dict(unit_id="other", **ref)
++                        )
++                    state.target.request_ref = state.target.put(
++                        "request.json", state.target.request
++                    )
++                    state.target.transport.run["display_title"] = (
++                        "cloud:" + state.target.request_ref["sha256"] + ":none"
++                    )
++                    guard = "DEPENDENCY_CONSUMER_MISMATCH"
++                self.failure(state, guard)
++                self.doCleanups()
++
++
++class DependencyGraphCases(unittest.TestCase):
++    def graph(self):
++        values = []
++        for unit in ("C", "B", "A"):
++            value = request("aws")
++            value["unit_id"] = unit
++            if unit == "C":
++                value["predecessor_receipts"] = [
++                    dict(unit_id="B", path="b.json", sha256="a" * 64)
++                ]
++            values.append(value)
++        return values
++
++    def test_order_and_each_invalid_graph_before_callbacks(self):
++        # Component-absence Red is recorded separately from executed boundary mismatches.
++        self.assertTrue(
++            (SHARED / "cloud_dependencies.py").is_file(), "Ordering component absent"
++        )
++        import cloud_dependencies as d
++
++        values = self.graph()
++        self.assertEqual(
++            [r["unit_id"] for r in d.ordered_units(values)], ["A", "B", "C"]
++        )
++        for variant in ("cycle", "self", "duplicate-unit", "duplicate-edge", "missing"):
++            with self.subTest(variant=variant):
++                changed = copy.deepcopy(values)
++
++                def edge(unit):
++                    return dict(unit_id=unit, path="b.json", sha256="a" * 64)
++
++                if variant == "cycle":
++                    changed[1]["predecessor_receipts"] = [edge("C")]
++                elif variant == "self":
++                    changed[1]["predecessor_receipts"] = [edge("B")]
++                elif variant == "duplicate-unit":
++                    changed.append(copy.deepcopy(changed[1]))
++                elif variant == "duplicate-edge":
++                    changed[0]["predecessor_receipts"] *= 2
++                else:
++                    changed[0]["predecessor_receipts"] = [edge("absent")]
++                with self.assertRaises(ValueError):
++                    d.ordered_units(changed)
++
++    def test_transitive_unknown_preserves_identity_without_retry(self):
++        self.assertTrue(
++            (SHARED / "cloud_dependencies.py").is_file(), "Ordering component absent"
++        )
++        import cloud_dependencies as d
++
++        values = self.graph()
++        values[2]["predecessor_receipts"] = [
++            dict(unit_id="C", path="c.json", sha256="a" * 64)
++        ]
++        calls = []
++        unknown = dict(result="UNKNOWN", native_operation_id="original-operation")
++
++        def execute(req):
++            calls.append(req["unit_id"])
++            return unknown
++
++        result = d.dispatch(values, execute, {}, None)
++        self.assertEqual(calls, ["B"])
++        self.assertEqual(result["units"]["B"], unknown)
++        self.assertEqual(result["order"], ["B", "C", "A"])
++        self.assertNotEqual(result["aggregate"], "VERIFIED")
++
++
++class DependencyBoundaryCases(DependencyReceiptCases):
++    def test_freshness_expires_during_final_acquisition_not_consumer_lease(self):
++        import cloud_dependencies as d
++        from dataclasses import replace
++
++        state = self.fixture(stage="apply")
++        target = state.target
++        target.policy = replace(target.policy, ttl_seconds=3600)
++        target.boundary.policy = target.policy
++        target.transport.claims["exp"] = state.now + 3600
++        target.transport.azure_claims["exp"] = state.now + 3600
++        target.transport.lease_end = state.now + 3600
++        preview = json.loads((target.root / target.preview_ref["path"]).read_bytes())
++        preview["expires_at"] = target.a.utc(state.now + 3600)
++        target.preview_ref = target.put(target.preview_ref["path"], preview)
++        target.transport.run["display_title"] = (
++            "cloud:" + target.request_ref["sha256"] + ":" + target.preview_ref["sha256"]
++        )
++        tick = [state.now]
++        target.boundary.clock = lambda: tick[0]
++        original = d.ArtifactHttps.request
++        metadata_calls = []
++
++        def acquire(method, url, headers, body=None):
++            response = original(method, url, headers, body)
++            if url.endswith("/artifacts/17"):
++                metadata_calls.append(url)
++                if len(metadata_calls) == 2:
++                    tick[0] += 1000
++            return response
++
++        with patch.object(d.ArtifactHttps, "request", side_effect=acquire):
++            self.failure(state, "DEPENDENCY_NOT_VERIFIED")
++        self.assertEqual(len(metadata_calls), 2)
++        self.assertLess(tick[0], state.now + 3600 - 10)
++        self.assertTrue(list(target.evidence.glob("*.authorization.json")))
++
++    def test_approval_self_review_uses_stable_id_despite_extra_metadata(self):
++        state = self.fixture()
++        state.pin["actors"] = [[8, "reviewer"]]
++        state.run["actor"] = dict(
++            id=8, login="reviewer", html_url="https://example.invalid/actor"
++        )
++        state.run["triggering_actor"] = dict(id=8, login="reviewer", type="User")
++        self.failure(state, "DEPENDENCY_APPROVAL_MISMATCH")
++
++    def test_each_write_reacquires_and_final_scan_revocation_blocks(self):
++        for stage in ("prepare", "apply"):
++            state = self.fixture(stage=stage)
++            state.target.write(mutation="first")
++            self.assertEqual(len(state.target.writes), 1)
++            state.run["conclusion"] = "failure"
++            with self.assertRaises(state.target.a.AdmissionDenied):
++                state.target.write(mutation="second")
++            self.assertEqual(len(state.target.writes), 1)
++            self.doCleanups()
++            state = self.fixture(stage=stage)
++
++            def scan(raw):
++                state.run["conclusion"] = "failure"
++                return True
++
++            with self.assertRaises(state.target.a.AdmissionDenied):
++                state.target.boundary.write(
++                    state.target.root,
++                    state.target.request_ref,
++                    state.target.preview_ref,
++                    mutation_id="final",
++                    submit=lambda credentials: state.target.writes.append("write"),
++                    scan=scan,
++                )
++            self.assertEqual(state.target.writes, [])
++            self.doCleanups()
++
++    def test_physically_resolved_temporary_root(self):
++        from contextlib import contextmanager
++        import cloud_dependencies as d
++
++        state = self.fixture()
++        factory = tempfile.TemporaryDirectory
++
++        @contextmanager
++        def alias_root(*args, **kwargs):
++            with factory(*args, **kwargs) as temp:
++                parent = Path(temp)
++                physical = parent / "physical"
++                physical.mkdir()
++                alias = parent / "alias"
++                alias.symlink_to(physical, target_is_directory=True)
++                yield str(alias)
++
++        with patch.object(d.tempfile, "TemporaryDirectory", side_effect=alias_root):
++            state.target.write()
++        self.assertEqual(state.target.writes, ["write"])
++
++    def test_read_only_verify_policy_is_loadable_but_never_a_writer(self):
++        from dataclasses import asdict, replace
++
++        for provider in ("azure", "aws"):
++            state = self.fixture(provider)
++            policy = replace(
++                state.target.policy, operation="apply", environment="sandbox-verify"
++            )
++            governed = __import__(provider + "_governed")
++            loaded = governed.load_policy(json.dumps(asdict(policy)), "verify")
++            self.assertEqual(loaded, policy)
++            state.target.boundary.policy = loaded
++            with self.assertRaises(state.target.a.AdmissionDenied):
++                state.target.write()
++            self.assertEqual(state.target.writes, [])
++            self.doCleanups()
++
++    def test_three_actual_adapter_units_partial_failure_preserves_a(self):
++        import cloud_dependencies as d
++
++        # A prototype only supplies deterministic input bytes; acceptance A runs
++        # its real prepare/apply/verify pipeline inside the dispatcher callback.
++        prototype = self.fixture()
++        a_request = copy.deepcopy(prototype.producer.executor.request)
++        runtime = prototype.target.runtime
++        self.doCleanups()
++        # Other protocol cases may leave AWS's same-basename `cloud` CLI loaded.
++        # Use the established scoped provider module isolation before constructing
++        # the Azure adapters; otherwise their owner detector can bind to AWS code.
++        isolation = AzureTestBase()
++        isolation.setUp()
++        self.addCleanup(isolation.doCleanups)
++        spec = importlib.util.spec_from_file_location(
++            "dependency_adapters", ROOT / "tests/cloud-orchestration-execution.tests.py"
++        )
++        assert spec and spec.loader
++        execution = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(execution)
++        units = {}
++        for label in ("unit-b", "unit-c"):
++            case = execution.AzureExecution()
++            case.setUp()
++            self.addCleanup(case.doCleanups)
++            self.assertEqual(
++                Path(case.e.detect_owner.__code__.co_filename),
++                ROOT / "plugins/sdd-azure-cloud/scripts/cloud.py",
++            )
++            case.req["unit_id"] = label
++            old = case.directory
++            case.directory = old.rsplit("/", 1)[0] + "/" + label
++            case.req["local_context"]["evidence_directory"] = case.directory
++            (case.root / case.directory).mkdir(parents=True)
++            owner = case.req["local_context"]["ownership"]
++            value = json.loads((case.root / owner["path"]).read_bytes())
++            raw = encode(value)
++            (case.root / owner["path"]).write_bytes(raw)
++            owner["sha256"] = hashlib.sha256(raw).hexdigest()
++            if label == "unit-c":
++                path = (
++                    case.directory.replace("/unit-c", "/unit-b")
++                    + "/verify-result.json.verification.json"
++                )
++                receipt = dict(
++                    schema="cloud-verification/v1",
++                    run_id=case.req["run_id"],
++                    unit_id="unit-b",
++                    provider="azure",
++                    profile=case.req["verification_profile"],
++                    required_check_ids=["resource"],
++                    checks=[
++                        dict(
++                            check_id="resource",
++                            observation=case.req["policy"],
++                            result="FAIL",
++                        )
++                    ],
++                    overall_result="FAIL",
++                    evidence_complete=False,
++                )
++                raw = encode(receipt)
++                (case.root / path).parent.mkdir(parents=True)
++                (case.root / path).write_bytes(raw)
++                case.req["predecessor_receipts"] = [
++                    dict(
++                        unit_id="unit-b",
++                        path=path,
++                        sha256=hashlib.sha256(raw).hexdigest(),
++                    )
++                ]
++            case.request_bytes = encode(case.req)
++            (case.root / case.request_ref["path"]).write_bytes(case.request_bytes)
++            case.request_ref["sha256"] = hashlib.sha256(case.request_bytes).hexdigest()
++            case.executor = case.stage("prepare")
++            units[label] = case
++        proofs = {}
++        accepted: list[SimpleNamespace] = []
++        a_bytes = []
++        calls = []
++
++        class Transport:
++            def request(self, *args, **kwargs):
++                return accepted[0].target.transport.request(*args, **kwargs)
++
++        def execute(req):
++            key = req["unit_id"]
++            calls.append(key)
++            if key == a_request["unit_id"]:
++                state = self.fixture()
++                accepted.append(state)
++                a_bytes.append((state.producer.root / state.ref["path"]).read_bytes())
++                proofs[key] = state.pin
++                return json.loads((state.producer.root / state.output).read_bytes())
++            case = units[key]
++            with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(case.root)}):
++                case.prepare()
++                case.arm.state = "Failed"
++                return case.apply()
++
++        result = d.dispatch(
++            [units["unit-c"].req, units["unit-b"].req, a_request],
++            execute,
++            proofs,
++            runtime,
++            transport=Transport(),
++            clock=lambda: 1792303325,
++        )
++        self.assertEqual(calls, [a_request["unit_id"], "unit-b"])
++        self.assertEqual(result["units"][a_request["unit_id"]]["result"], "PASS")
++        self.assertEqual(result["units"]["unit-b"]["result"], "FAIL")
++        self.assertEqual(result["units"]["unit-c"]["result"], "BLOCKED")
++        self.assertNotEqual(result["aggregate"], "VERIFIED")
++        a = accepted[0]
++        original = a_bytes[0]
++        self.assertEqual(a.producer.arm.submissions, 1)
++        self.assertEqual(units["unit-b"].arm.submissions, 1)
++        dependent = units["unit-c"]
++        self.assertEqual(dependent.arm.calls, [])
++        # A direct provider call cannot bypass scheduling/admission of C either.
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(dependent.root)}):
++            blocked = dependent.executor.prepare(dependent.directory + "/direct.json")
++        self.assertEqual(blocked["result"], "BLOCKED")
++        self.assertEqual(dependent.arm.submissions, 0)
++        self.assertFalse(
++            any(call[0] in ("POST", "PUT") for call in dependent.arm.calls)
++        )
++        self.assertEqual((a.producer.root / a.ref["path"]).read_bytes(), original)
++        # Successful independent A remains usable through authenticated acquisition.
++        operation, raw, _ = d._verified(
++            a.pin, runtime, a.target.transport, clock=lambda: a.now
++        )
++        self.assertEqual(raw, original)
++        self.assertEqual(operation["result"], "PASS")
++        single = d.dispatch(
++            [a_request],
++            lambda request: operation,
++            proofs,
++            runtime,
++            transport=a.target.transport,
++            clock=lambda: a.now,
++        )
++        self.assertEqual(single["aggregate"], "VERIFIED")
++
++
++class DependencyFinalBoundaryCases(DependencyReceiptCases):
++    def test_consumer_expiry_during_second_acquisition(self):
++        import cloud_dependencies as d
++
++        for elapsed in (0, 111):
++            with self.subTest(elapsed=elapsed):
++                state = self.fixture(stage="apply")
++                now = [state.now]
++                state.target.boundary.clock = lambda: now[0]
++                original = d.ArtifactHttps.request
++                acquisitions = []
++
++                def acquire(method, url, headers, body=None):
++                    response = original(method, url, headers, body)
++                    if url.endswith("/artifacts/17"):
++                        acquisitions.append(url)
++                        if len(acquisitions) == 2:
++                            now[0] += elapsed
++                    return response
++
++                with patch.object(d.ArtifactHttps, "request", side_effect=acquire):
++                    if elapsed:
++                        self.failure(state, "CREDENTIAL_EXPIRED")
++                    else:
++                        state.target.write()
++                        self.assertEqual(state.target.writes, ["write"])
++                self.assertEqual(len(acquisitions), 2)
++                self.doCleanups()
++
++    def test_final_consumer_metadata_latency_cannot_stale_predecessor(self):
++        from dataclasses import replace
++
++        for elapsed in (0, 301):
++            with self.subTest(elapsed=elapsed):
++                state = self.fixture()
++                target = state.target
++                target.boundary.policy = replace(target.policy, ttl_seconds=1000)
++                target.transport.lease_end = state.now + 1200
++                target.transport.azure_claims["exp"] = state.now + 1200
++                now = [state.now]
++                target.boundary.clock = lambda: now[0]
++                original = target.a.GitHubAdmission.metadata
++                calls = []
++
++                def metadata(admission, *args, **kwargs):
++                    result = original(admission, *args, **kwargs)
++                    calls.append(result)
++                    if len(calls) == 3:
++                        now[0] += elapsed
++                    return result
++
++                with patch.object(target.a.GitHubAdmission, "metadata", metadata):
++                    if elapsed:
++                        self.failure(state, "DEPENDENCY_NOT_VERIFIED")
++                    else:
++                        target.write()
++                        self.assertEqual(target.writes, ["write"])
++                self.assertEqual(len(calls), 3)
++                self.assertLess(now[0], target.transport.claims["exp"])
++                self.assertLess(now[0], target.transport.lease_end)
++                self.doCleanups()
++
++    def test_cross_provider_predecessors_and_foreign_provenance_denial(self):
++        for predecessor, consumer in (("aws", "azure"), ("azure", "aws")):
++            for stage in ("prepare", "apply"):
++                with self.subTest(
++                    predecessor=predecessor, consumer=consumer, stage=stage
++                ):
++                    state = self.fixture(predecessor, stage, consumer_provider=consumer)
++                    original = state.pin["scope"]["account_id"]
++                    state.pin["scope"]["account_id"] = "foreign-scope"
++                    self.failure(state, "DEPENDENCY_REQUEST_BINDING")
++                    state.pin["scope"]["account_id"] = original
++                    original_sha = state.run["head_sha"]
++                    state.run["head_sha"] = "b" * 40
++                    self.failure(state, "DEPENDENCY_RUN_MISMATCH")
++                    state.run["head_sha"] = original_sha
++                    state.target.write()
++                    self.assertEqual(state.target.writes, ["write"])
++                    self.doCleanups()
++
++    def test_consumer_revocation_during_second_predecessor_acquisition(self):
++        import cloud_dependencies as d
++
++        for variant in ("approval", "run"):
++            with self.subTest(variant=variant):
++                state = self.fixture(stage="apply")
++                target = state.target
++                original = d.ArtifactHttps.request
++                acquisitions = []
++
++                def acquire(method, url, headers, body=None):
++                    response = original(method, url, headers, body)
++                    if url.endswith("/artifacts/17"):
++                        acquisitions.append(url)
++                        if len(acquisitions) == 2:
++                            if variant == "approval":
++                                target.transport.approvals[0]["state"] = "rejected"
++                            else:
++                                target.transport.run.update(
++                                    status="completed", conclusion="cancelled"
++                                )
++                    return response
++
++                with patch.object(d.ArtifactHttps, "request", side_effect=acquire):
++                    with self.assertRaises(target.a.AdmissionDenied):
++                        target.write()
++                self.assertEqual(len(acquisitions), 2)
++                self.assertEqual(target.writes, [])
++                self.assertLess(target.boundary.clock(), target.transport.lease_end)
++                self.assertTrue(list(target.evidence.glob("*.authorization.json")))
++                self.doCleanups()
++
++    def test_guards_are_sensitive_not_blanket_denial(self):
++        from contextlib import ExitStack
++        import cloud_dependencies as d
++
++        selected = {
++            "pin.run_id",
++            "run.event",
++            "pin.workflow_sha256",
++            "pin.executor_revision",
++            "job.conclusion",
++            "job.started_at",
++            "environment.can_admins_bypass",
++            "approvals.0.state",
++            "metadata.expired",
++            "metadata.digest",
++            "metadata.name",
++        }
++        for label, target, path, value, guard in dependency_field_matrix():
++            if label not in selected or value is None:
++                continue
++            with self.subTest(field=label):
++                state = self.fixture()
++                obj = getattr(state, target)
++                for part in path[:-1]:
++                    obj = obj[int(part) if isinstance(obj, list) else part]
++                obj[int(path[-1]) if isinstance(obj, list) else path[-1]] = value
++                self.failure(state, guard)
++                original = d.c._require
++                hits = []
++
++                def bypass(condition, code="INVALID_ARTIFACT"):
++                    if code == guard and not condition:
++                        hits.append(code)
++                        return
++                    original(condition, code)
++
++                with ExitStack() as stack:
++                    for module in {d.c, state.target.a.contracts, c}:
++                        stack.enter_context(
++                            patch.object(module, "_require", side_effect=bypass)
++                        )
++                    state.target.write()
++                self.assertTrue(hits)
++                self.assertEqual(state.target.writes, ["write"])
++                self.doCleanups()
++
++    def test_standalone_provider_install_does_not_import_other_provider(self):
++        for provider in ("azure", "aws"):
++            with self.subTest(provider=provider), tempfile.TemporaryDirectory() as temp:
++                root = Path(temp)
++                scripts = root / f"plugins/sdd-{provider}-cloud/scripts"
++                shutil.copytree(
++                    ROOT / f"plugins/sdd-{provider}-cloud/scripts",
++                    scripts,
++                    ignore=shutil.ignore_patterns("__pycache__"),
++                )
++                shared = root / "plugins/sdd-quality-loop/scripts"
++                shared.mkdir(parents=True)
++                for name in (
++                    "cloud_contracts",
++                    "cloud_authorization",
++                    "cloud_verification",
++                    "cloud_dependencies",
++                ):
++                    shutil.copy2(SHARED / (name + ".py"), shared / (name + ".py"))
++                code = (
++                    "import sys;from unittest.mock import patch;"
++                    "guard=patch('urllib.request.OpenerDirector.open',side_effect=AssertionError('OFFLINE'));guard.start();"
++                    "sys.path.insert(0,sys.argv[1]);"
++                    "m=__import__(sys.argv[2]);"
++                    "assert m.workflow_template()['jobs']['verify'];"
++                    "import cloud_dependencies;"
++                    "assert not any(k.startswith(sys.argv[3]) for k in sys.modules)"
++                )
++                result = subprocess.run(
++                    [
++                        sys.executable,
++                        "-I",
++                        "-c",
++                        code,
++                        str(scripts),
++                        provider + "_governed",
++                        ("aws" if provider == "azure" else "azure") + "_",
++                    ],
++                    capture_output=True,
++                    text=True,
++                    timeout=20,
++                )
++                self.assertEqual(result.returncode, 0, result.stderr)
++
+ 
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)

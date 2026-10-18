@@ -1,0 +1,67 @@
+{
+  "checked_on": "2026-10-18",
+  "note": "Official GitHub documentation retrieved as Markdown; full external texts kept outside repository. Current documentation, not a claim about initial feature release dates.",
+  "sources": [
+    {
+      "id": "required-checks",
+      "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks",
+      "content_type": "text/markdown; charset=utf-8",
+      "sha256": "4c6da336d1ab8e50904bb0fa4f2f22e9e5e218c96fbf7c6820d0a20da8acd036",
+      "bytes": 9017
+    },
+    {
+      "id": "workflow-syntax",
+      "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax",
+      "content_type": "text/markdown; charset=utf-8",
+      "sha256": "3494211c59241c00074921a9f292240f1df8166647ef71e48521e1e2bd10cdf3",
+      "bytes": 236065
+    },
+    {
+      "id": "events",
+      "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows",
+      "content_type": "text/markdown; charset=utf-8",
+      "sha256": "71c90640921c2f232d1409a4fa4c05af56a1f29b9bb43af2b7c6c950d00a20a4",
+      "bytes": 92735
+    },
+    {
+      "id": "cache",
+      "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching",
+      "content_type": "text/markdown; charset=utf-8",
+      "sha256": "3f1720640c57a65beeef12f53a48df98cb62f7eadea93abca107c9633dbb68da",
+      "bytes": 27210
+    },
+    {
+      "id": "concurrency",
+      "url": "https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency",
+      "content_type": "text/markdown; charset=utf-8",
+      "sha256": "e92a56f56bd3de8c8d5fb682a6021e41c40e319aad9cd3ca9858369bdf0e6a7e",
+      "bytes": 9850
+    },
+    {
+      "id": "secure-use",
+      "url": "https://docs.github.com/en/actions/reference/security/secure-use",
+      "content_type": "text/markdown; charset=utf-8",
+      "sha256": "1a5a359523c3e75bdc27f49ff24997441eaec1899399149f572da7a81a6e0703",
+      "bytes": 36839
+    },
+    {
+      "id": "matrix",
+      "url": "https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations",
+      "content_type": "text/markdown; charset=utf-8",
+      "sha256": "5e084bdbb3ffc8b6b153db2d689d562db64874a81df67e9a2627e89b75af422d",
+      "bytes": 9043
+    },
+    {
+      "id": "workflow-lockfiles",
+      "url": "https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles",
+      "sha256": "b3568b6f4628726e15e4bee8917385699d5a82e157b8c5c6830aa46228afba68",
+      "bytes": 3528
+    },
+    {
+      "id": "workflow-lockfiles-use",
+      "url": "https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies",
+      "sha256": "219e34959cab48b4d015bc06c986243f4f744f32fbc9577a7e3284f1cba33680",
+      "bytes": 6361
+    }
+  ]
+}

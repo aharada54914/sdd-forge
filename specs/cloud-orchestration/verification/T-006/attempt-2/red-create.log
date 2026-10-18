@@ -1,0 +1,123 @@
+test_configured_healthy_substitute_is_not_original_resource (__main__.AwsObservationOrchestration.test_configured_healthy_substitute_is_not_original_resource) ... ERROR
+test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) ... 
+  test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='StackId') ... FAIL
+  test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='LogicalResourceId') ... FAIL
+  test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='ResourceType') ... FAIL
+  test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='PhysicalResourceId') ... FAIL
+  test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='ResourceStatus') ... FAIL
+test_unknown_create_ids_resolved_without_request_edits (__main__.AwsObservationOrchestration.test_unknown_create_ids_resolved_without_request_edits) ... FAIL
+
+======================================================================
+ERROR: test_configured_healthy_substitute_is_not_original_resource (__main__.AwsObservationOrchestration.test_configured_healthy_substitute_is_not_original_resource)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 447, in test_configured_healthy_substitute_is_not_original_resource
+    case.executor.observe(case.directory + "/substitute.json", "verify")
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_execution.py", line 1096, in observe
+    return observe(self, output, phase)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 241, in observe
+    completed=native_time(matching[0]['Timestamp'])
+                          ~~~~~~~~~~~^^^^^^^^^^^^^
+KeyError: 'Timestamp'
+
+======================================================================
+FAIL: test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='StackId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 455, in test_stack_membership_counterparts
+    case, wire = self.setup_execution()
+                 ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 425, in setup_execution
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2217, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': 'fa798224c2c6d8fb5ec15b374ee0e8530ffa8c20c8cc6dbe8f66aea08c103c20', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/prepare.json.manifest.json'}
+
+======================================================================
+FAIL: test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='LogicalResourceId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 455, in test_stack_membership_counterparts
+    case, wire = self.setup_execution()
+                 ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 425, in setup_execution
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2217, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': 'fa798224c2c6d8fb5ec15b374ee0e8530ffa8c20c8cc6dbe8f66aea08c103c20', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/prepare.json.manifest.json'}
+
+======================================================================
+FAIL: test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='ResourceType')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 455, in test_stack_membership_counterparts
+    case, wire = self.setup_execution()
+                 ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 425, in setup_execution
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2217, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': 'fa798224c2c6d8fb5ec15b374ee0e8530ffa8c20c8cc6dbe8f66aea08c103c20', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/prepare.json.manifest.json'}
+
+======================================================================
+FAIL: test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='PhysicalResourceId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 455, in test_stack_membership_counterparts
+    case, wire = self.setup_execution()
+                 ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 425, in setup_execution
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2217, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': 'fa798224c2c6d8fb5ec15b374ee0e8530ffa8c20c8cc6dbe8f66aea08c103c20', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/prepare.json.manifest.json'}
+
+======================================================================
+FAIL: test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='ResourceStatus')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 455, in test_stack_membership_counterparts
+    case, wire = self.setup_execution()
+                 ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 425, in setup_execution
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2217, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': 'fa798224c2c6d8fb5ec15b374ee0e8530ffa8c20c8cc6dbe8f66aea08c103c20', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/prepare.json.manifest.json'}
+
+======================================================================
+FAIL: test_unknown_create_ids_resolved_without_request_edits (__main__.AwsObservationOrchestration.test_unknown_create_ids_resolved_without_request_edits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 431, in test_unknown_create_ids_resolved_without_request_edits
+    case, wire = self.setup_execution()
+                 ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 425, in setup_execution
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2217, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': 'fa798224c2c6d8fb5ec15b374ee0e8530ffa8c20c8cc6dbe8f66aea08c103c20', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/prepare.json.manifest.json'}
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.810s
+
+FAILED (failures=6, errors=1)

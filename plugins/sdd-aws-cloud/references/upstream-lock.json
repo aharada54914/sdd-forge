@@ -1,0 +1,77 @@
+{
+  "repository": "https://github.com/aws/agent-toolkit-for-aws",
+  "commit": "44ba1a5451913998815111cc2d518f5c45f95ef7",
+  "files": [
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/SKILL.md",
+      "sha256": "af178f8e909efd66496b09c7301c5e11ef96681fd62bf91406dcb340a18aacf6",
+      "references": [
+        "plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md",
+        "plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md",
+        "plugins/aws-core/skills/aws-cdk/references/construct-patterns.md",
+        "plugins/aws-core/skills/aws-cdk/references/fast-deployments.md",
+        "plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md",
+        "plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md",
+        "plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md",
+        "plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md",
+        "plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md",
+        "plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md"
+      ]
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md",
+      "sha256": "80b97fe332046fb025cf6635b3add76046bf9b2933bd45394255585f1694a967",
+      "references": [
+        "plugins/aws-core/skills/aws-cdk/references/fast-deployments.md"
+      ]
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md",
+      "sha256": "bdc1dacfaaaef810923699fc19803b492815b404190f055f90bd3558587b335c",
+      "references": []
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/fast-deployments.md",
+      "sha256": "b6ddc7a418ed0d2f6e450c1835e3dc83c0648cbcdf4b582ebd66234918b22171",
+      "references": []
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md",
+      "sha256": "ce48bf13921481aa6d2df131f0bd32faa8cc07bb50b63b1805ddbfe6ca18a5f0",
+      "references": []
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md",
+      "sha256": "4d576be561b16fd140c7f44de3b905ca81718752003a5072fec7062f2a2e782c",
+      "references": []
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md",
+      "sha256": "375e247190c3ebe29b2b8b211f665d4f463c7d959d3a6a067f8816d1a5df3a26",
+      "references": []
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md",
+      "sha256": "87b36861e1cf656fdb576536c20c61dfff5316e1b7465954f9b1b01cce0f0ee0",
+      "references": []
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md",
+      "sha256": "1397f0c8034ccafd1353c3053d119e721c4904b9dc2ba33a1f285f69bfb909ea",
+      "references": [
+        "plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md",
+        "plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md"
+      ]
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md",
+      "sha256": "f88efb1a4b7451fe194e5c617ea2c467be93ecaa7221264b80361cca035dc181",
+      "references": []
+    },
+    {
+      "path": "plugins/aws-core/skills/aws-cdk/references/construct-patterns.md",
+      "sha256": "029a6450cc738c220051c1e2df94cb08e82b9fd80b20ab6b1b31696015222d6c",
+      "references": []
+    }
+  ]
+}

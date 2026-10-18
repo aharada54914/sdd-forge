@@ -1,0 +1,11 @@
+plugins/sdd-aws-cloud/scripts/aws_control.py:10: error: Cannot find implementation or library stub for module named "cloud_authorization"  [import-not-found]
+plugins/sdd-aws-cloud/scripts/aws_execution.py:31: error: Cannot find implementation or library stub for module named "cloud_authorization"  [import-not-found]
+plugins/sdd-aws-cloud/scripts/aws_execution.py:31: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+plugins/sdd-aws-cloud/scripts/aws_governed.py:34: error: Cannot find implementation or library stub for module named "cloud_authorization"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:26: error: Cannot find implementation or library stub for module named "cloud_contracts"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:197: error: Cannot find implementation or library stub for module named "cloud_authorization"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:950: error: Cannot find implementation or library stub for module named "azure_execution"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:1378: error: Cannot find implementation or library stub for module named "azure_governed"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:1506: error: Cannot find implementation or library stub for module named "azure_arm"  [import-not-found]
+tests/cloud-orchestration-execution.tests.py:1806: error: Cannot find implementation or library stub for module named "azure_graph"  [import-not-found]
+Found 9 errors in 4 files (checked 6 source files)

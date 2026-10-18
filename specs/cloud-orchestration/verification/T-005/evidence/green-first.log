@@ -1,0 +1,20 @@
+test_real_synth_complete_locked_assembly_validate_without_execution (__main__.AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution) ... FAIL
+
+======================================================================
+FAIL: test_real_synth_complete_locked_assembly_validate_without_execution (__main__.AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 844, in test_real_synth_complete_locked_assembly_validate_without_execution
+    result=self.invoke("plan")
+           ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : 
+
+----------------------------------------------------------------------
+Ran 1 test in 0.072s
+
+FAILED (failures=1)

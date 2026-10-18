@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-18T09:34:55.943455+00:00",
+  "classification": "implementation clarification, not independent review",
+  "request": {
+    "id": 900061,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14e57-c9ef-7892-a76f-bdaa02a2fde5",
+      "expectedTurnId": "01a14e57-ca33-7151-b4dd-28bf4e32cac5",
+      "input": [
+        {
+          "type": "text",
+          "text": "Root clarification on your effective-permission note (not a defect finding): fail-closed uncertainty is correct, but preserve an implemented supported native positive path for the documented VM/EC2 scope. A mandatory collector hardcoded to BLOCKED for every real deployment would leave T-006 incomplete even if synthetic fixtures pass. Use authoritative native evidence and a narrowly supported explicit policy/configuration shape; unsupported conditions or incomplete scope can block. If no native evidence can satisfy a required criterion for the supported examples, report the concrete architectural gap distinctly from the absent sandbox; do not disguise an implementation limitation as merely missing owner setup. Avoid a generic IAM engine or weak simulation assumptions. All-check success must run the same collector logic as production, with synthetic transport classification clearly retained."
+        }
+      ]
+    }
+  }
+}

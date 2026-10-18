@@ -1,0 +1,19 @@
+[
+  {
+    "command": [
+      "bash",
+      "tests/capability-registry-parity.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:02:34Z",
+    "finished_at": "2026-10-18T12:02:40Z",
+    "exit_code": 1,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/baseline-node-retry-registry-parity.log"
+  }
+]

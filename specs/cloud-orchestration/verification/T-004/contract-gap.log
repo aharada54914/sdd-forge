@@ -1,0 +1,13 @@
+Existing Azure request accepted by shared strict validator.
+Complete request property inventory: binding_id, dependency_lock, environment, input_artifacts, operation, owner, policy, predecessor_receipts, provider, route, run_id, schema, scope, source_revision, unit_id, verification_profile
+workspace_root: rejected (INVALID_ARTIFACT)
+artifact_root: rejected (INVALID_ARTIFACT)
+declared_roots: rejected (INVALID_ARTIFACT)
+evidence_directory: rejected (INVALID_ARTIFACT)
+ownership_manifest: rejected (INVALID_ARTIFACT)
+policy properties: path, sha256
+verification_profile properties: id, path, sha256, version
+No policy-body or deployment-owner metadata schema is registered:
+cloud-authorization-receipt/v1, cloud-dependency-lock/v1, cloud-input-error/v1, cloud-observation/v1, cloud-operation-result/v1, cloud-preview/v1, cloud-run-request/v1, cloud-verification/v1
+Conclusion: explicit adapter root/owner/policy format needs a contract decision; no inferred authority.
+exit_code=0

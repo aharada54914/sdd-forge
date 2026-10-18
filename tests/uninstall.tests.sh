@@ -8,7 +8,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 UNINSTALLER="${REPO_ROOT}/uninstall.sh"
 # shellcheck source=tests/lib/fixture-matrix-builder.sh
 source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
-ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
+ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
 PASS=0
 FAIL=0
 

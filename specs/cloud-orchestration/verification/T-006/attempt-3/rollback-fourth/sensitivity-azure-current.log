@@ -1,0 +1,29 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py AzureResourceBindingCases.test_compiled_and_original_operation_membership
+test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) ... 
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='newer-deployment') ... FAIL
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='same-time-deployment') ... FAIL
+
+======================================================================
+FAIL: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='newer-deployment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 2268, in test_compiled_and_original_operation_membership
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='same-time-deployment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 2268, in test_compiled_and_original_operation_membership
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.046s
+
+FAILED (failures=2)
+
+Exit code: 1

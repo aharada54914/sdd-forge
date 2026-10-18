@@ -1,0 +1,14 @@
+{
+  "id": 900103,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+    "expectedTurnId": "01a14f3e-b57c-7a41-966b-885034bf442b",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root follow-up on the new I/O ordering in WriteBoundary.write: its previous final github.metadata check now occurs BEFORE the second admit_predecessors call, which performs multiple remote downloads/metadata requests. Test revoking the CONSUMER approval/run during that second predecessor acquisition while its credential/preview remains unexpired. The new expensive dependency work must not bypass the existing final consumer revocation check. Keep a final consumer metadata recheck after the new remote work and final local freshness/expiry/binding checks immediately before submit (avoid introducing infinite revalidation). Add actual regression evidence and retain previous authorization invariants. This is about preserving T003 behavior when adding I/O, not asserting impossible atomic cloud/GitHub revocation semantics."
+      }
+    ]
+  }
+}

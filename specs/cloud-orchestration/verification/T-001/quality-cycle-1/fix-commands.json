@@ -1,0 +1,34 @@
+[
+  {
+    "id": "fix-typecheck",
+    "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml tests/sdd-domain-multitarget-foundation.tests.py specs/cloud-orchestration/verification/T-001/verify-integration.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T05:04:13Z",
+    "finished_at": "2026-10-18T05:04:13Z",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/fix-typecheck.log"
+  },
+  {
+    "id": "fix-lint",
+    "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml tests/sdd-domain-multitarget-foundation.tests.py specs/cloud-orchestration/verification/T-001/verify-integration.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T05:04:13Z",
+    "finished_at": "2026-10-18T05:04:13Z",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/fix-lint.log"
+  },
+  {
+    "id": "fix-foundation",
+    "command": "python3 -B tests/sdd-domain-multitarget-foundation.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T05:04:13Z",
+    "finished_at": "2026-10-18T05:04:13Z",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/fix-foundation.log"
+  },
+  {
+    "id": "fix-integration",
+    "command": "python3 -B specs/cloud-orchestration/verification/T-001/verify-integration.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T05:04:13Z",
+    "finished_at": "2026-10-18T05:04:13Z",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/fix-integration.log"
+  }
+]

@@ -1,0 +1,179 @@
+{
+  "thread_id": "01a14d47-0a87-7d31-9f41-12467af8966a",
+  "session_id": "01a14d47-0a87-7d31-9f41-12467af8966a",
+  "turn": {
+    "id": "01a14d47-1baa-7452-b9d6-2ef5b7cc28a7",
+    "items": [
+      {
+        "type": "agentMessage",
+        "id": "msg_07d93426b1b6c169016ad44b99b8c8819182aa93ea51eb8654",
+        "text": "{\n  \"schema\": \"task-reviewer-b/v1\",\n  \"stage\": \"task\",\n  \"role\": \"task-reviewer-b\",\n  \"feature\": \"cloud-orchestration\",\n  \"attempt\": 1,\n  \"round\": 2,\n  \"run_id\": \"01a14d47-0a87-7d31-9f41-12467af8966a\",\n  \"host_session_id\": \"01a14d47-0a87-7d31-9f41-12467af8966a\",\n  \"manifest\": {\n    \"allowed_inputs\": [\n      {\"path\":\"specs/cloud-orchestration/requirements.md\",\"sha256\":\"31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922\"},\n      {\"path\":\"specs/cloud-orchestration/acceptance-tests.md\",\"sha256\":\"4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0\"},\n      {\"path\":\"reports/task-review/cloud-orchestration/attempt-1/round-2/precheck-result.json\",\"sha256\":\"999cbf61f73d390dd42ef4eb164164b2ae0d19188ad42c47710b460af3811a4b\"},\n      {\"path\":\"plugins/sdd-review-loop/references/reviewer-calibration.md\",\"sha256\":\"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9\"},\n      {\"path\":\"specs/cloud-orchestration/design.md\",\"sha256\":\"f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89\"},\n      {\"path\":\"specs/cloud-orchestration/tasks.md\",\"sha256\":\"a77e2a3dafa7993e8fcc28eb02e1bf62ca4f84b38dfd32b9e4ece881deb4fd4a\"},\n      {\"path\":\"specs/cloud-orchestration/traceability.md\",\"sha256\":\"9bd638b07d79ad03974a1cf2264eb84ac3a5dbf5882376f14a1e4a831f3ea7ad\"},\n      {\"path\":\"specs/cloud-orchestration/ux-spec.md\",\"sha256\":\"d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc\"},\n      {\"path\":\"specs/cloud-orchestration/frontend-spec.md\",\"sha256\":\"586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b\"},\n      {\"path\":\"specs/cloud-orchestration/infra-spec.md\",\"sha256\":\"9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d\"},\n      {\"path\":\"specs/cloud-orchestration/security-spec.md\",\"sha256\":\"fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db\"},\n      {\"path\":\"plugins/sdd-quality-loop/references/risk-gate-matrix.md\",\"sha256\":\"57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725\"},\n      {\"path\":\"plugins/sdd-quality-loop/references/risk-classification-policy.md\",\"sha256\":\"7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305\"},\n      {\"path\":\"reports/task-review/cloud-orchestration/attempt-1/round-2/integrated-summary.json\",\"sha256\":\"d1c1c8d541e4dee197e4c47f688eebab84a4e6f457a4395e31c3590d13f296c5\"}\n    ]\n  },\n  \"verdict\": \"NEEDS_WORK\",\n  \"checks\": [\n    {\n      \"id\": \"RISK-APPROPRIATE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"tasks.md assigns high risk to T-002\u2013T-007, T-009 and T-010 for contract, authorization, execution or protected verification changes. T-001 maintenance integration and T-008 documentation/release delivery are medium; neither introduces cloud write authority.\"\n    },\n    {\n      \"id\": \"HIGH-CRITICAL-EVIDENCE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Critical\",\n      \"finding\": \"Every high-risk task's Done When explicitly requires failing tests committed before implementation, Red\u2192Green evidence and a named independent reviewer verdict. No critical task is declared.\"\n    },\n    {\n      \"id\": \"TASK-SIZE\",\n      \"result\": \"FAIL\",\n      \"severity\": \"Major\",\n      \"finding\": \"tasks.md T-007 Goal, Planned Files and Done When combine more than three implementation areas: provider skill/manifests packaging, bootstrap routing, cross-platform install/uninstall dependency management, and CI/repository suite registration, plus native host evaluation. This exceeds a focused implementation session and bundles independently verifiable distribution and routing changes behind one completion gate. Split packaging/install lifecycle from bootstrap routing and suite/host integration, retaining explicit ordering.\"\n    },\n    {\n      \"id\": \"EDGE-CASE-COVERAGE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Functional tasks bind denial/error scenarios: T-002 AC-004/010 malformed or mutated artifacts; T-003 AC-005/006 invalid approval/replay; T-004/005 AC-002/003/007 unsupported ownership, missing backup and destructive changes; T-006 AC-009/010 stale or incomplete observations; T-009 AC-008 unsupported versions; T-010 AC-006 failed predecessors; T-007 AC-011/012 unauthorized direct invocation and absent host authentication.\"\n    },\n    {\n      \"id\": \"TEST-TYPE-MATCH\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"T-001 integration verification spans inventory checking and CI drivers, matching TEST-001. Other tasks embed AC-linked contract, adapter, authorization, installation and dependency integration tests; no standalone task mislabels a multi-component workflow as a unit test.\"\n    },\n    {\n      \"id\": \"ROLLBACK-PLAN\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"All high-risk tasks explicitly require documented and tested rollback with before/after hashes and baseline output. The shared rollback section limits restoration to task-owned code/config, disables cloud entry/workflows on defects and requires separate authorization for resource cleanup.\"\n    },\n    {\n      \"id\": \"SCOPE-DISJOINT\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Shared execution/routing tests are ordered T-003 \u2192 T-004 \u2192 T-005; provider collector edits follow both adapters in T-006. Shared verification tests follow T-006 \u2192 T-009 \u2192 T-010. T-007 follows T-001 and T-010 before final driver/packaging edits; T-008 follows T-007 for documentation/version updates.\"\n    },\n    {\n      \"id\": \"DEPENDENCY-OVERLAP\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Blockers have stated artifact dependencies: contracts feed admission/adapters; T-005 consumes T-004's shared CLI/harness; collectors consume both adapters; protected dispatch consumes reducer contracts; dependency orchestration consumes verified profile receipts; packaging consumes completed integration and foundation work; release consumes installed delivery.\"\n    },\n    {\n      \"id\": \"BUGFIX-DIAGNOSTIC-PATH\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"T-001 Goal and Done When require retaining the historical stale-line failure log, diagnosing the section reference before further changes, and running tests/sdd-domain-multitarget-foundation.tests.py with removal, relocation, duplicate-heading and path-escape regressions. Existing candidate evidence is explicitly not treated as a new PASS.\"\n    }\n  ],\n  \"findings\": [\n    {\n      \"check_id\": \"TASK-SIZE\",\n      \"severity\": \"Major\",\n      \"task_id\": \"T-007\",\n      \"finding\": \"specs/cloud-orchestration/tasks.md T-007 combines provider skill/manifests packaging, bootstrap routing, cross-platform install/uninstall dependency management, CI/repository suite registration and native host evaluation. Its Goal, Planned Files and Done When therefore exceed three distinct implementation areas and do not form a realistic single focused session. Split packaging/install lifecycle from bootstrap routing and suite/host integration, with explicit dependencies and separate completion evidence.\"\n    }\n  ]\n}",
+        "phase": "final_answer",
+        "memoryCitation": null,
+        "delivery": null,
+        "questions": null
+      }
+    ],
+    "itemsView": "summary",
+    "status": "completed",
+    "error": null,
+    "startedAt": 1792297868,
+    "completedAt": 1792297906,
+    "durationMs": 38753
+  },
+  "reads": [
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/tasks.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/tasks.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/requirements.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/design.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/traceability.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "reports/task-review/cloud-orchestration/attempt-1/round-2/precheck-result.json",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "reports/task-review/cloud-orchestration/attempt-1/round-2/integrated-summary.json",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/design.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/traceability.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "allowed": true
+    }
+  ],
+  "input_hashes_after": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "reports/task-review/cloud-orchestration/attempt-1/round-2/precheck-result.json",
+      "sha256": "999cbf61f73d390dd42ef4eb164164b2ae0d19188ad42c47710b460af3811a4b"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "specs/cloud-orchestration/tasks.md",
+      "sha256": "a77e2a3dafa7993e8fcc28eb02e1bf62ca4f84b38dfd32b9e4ece881deb4fd4a"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "sha256": "9bd638b07d79ad03974a1cf2264eb84ac3a5dbf5882376f14a1e4a831f3ea7ad"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+    },
+    {
+      "path": "reports/task-review/cloud-orchestration/attempt-1/round-2/integrated-summary.json",
+      "sha256": "d1c1c8d541e4dee197e4c47f688eebab84a4e6f457a4395e31c3590d13f296c5"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeChangeSet",
+        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackEvents"
+      ],
+      "Resource": [
+        "arn:aws:cloudformation:REPLACE_AWS_REGION:REPLACE_AWS_ACCOUNT_ID:stack/REPLACE_STACK/*",
+        "arn:aws:cloudformation:REPLACE_AWS_REGION:REPLACE_AWS_ACCOUNT_ID:changeSet/REPLACE_CHANGESET_PREFIX-*/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:ExecuteChangeSet"
+      ],
+      "Resource": [
+        "arn:aws:cloudformation:REPLACE_AWS_REGION:REPLACE_AWS_ACCOUNT_ID:stack/REPLACE_STACK/*",
+        "arn:aws:cloudformation:REPLACE_AWS_REGION:REPLACE_AWS_ACCOUNT_ID:changeSet/REPLACE_CHANGESET_PREFIX-*/*"
+      ]
+    }
+  ]
+}

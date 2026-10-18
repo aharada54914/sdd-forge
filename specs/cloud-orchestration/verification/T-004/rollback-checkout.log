@@ -1,0 +1,5 @@
+$ git worktree add --detach /tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback a604a0f0836f90eae493db82b8b35749177d3412
+HEAD is now at a604a0f0 test(cloud): capture T-003 failing admission cases and preflight
+Preparing worktree (detached HEAD a604a0f0)
+
+exit_code=0

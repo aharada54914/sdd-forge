@@ -1,0 +1,7 @@
+NETWORK_SENTINEL_PARENT_CHILD_PASS
+test_cross_provider_predecessors_and_foreign_provenance_denial (__main__.DependencyFinalBoundaryCases.test_cross_provider_predecessors_and_foreign_provenance_denial) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.854s
+
+OK

@@ -1,0 +1,32 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-006",
+  "run_id": "01a14ec8-2897-7202-ad68-7b91dde65313",
+  "session_id": "01a14ec8-2897-7202-ad68-7b91dde65313",
+  "agent_instance_id": "01a14ec8-2897-7202-ad68-7b91dde65313",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T11:38:50Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "supplemental/plugins/sdd-aws-cloud/examples/private-ec2/package.json",
+      "sha256": "beddc07bfbf3d198ca58b3d500e746b7bd4ebc14a25b469033fb1c41ba50a00b"
+    },
+    {
+      "path": "supplemental/plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json",
+      "sha256": "b106084fff5e18ca94260509133337891b58d5269d77166ff9320a36419cccec"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+    "tests/cloud-orchestration-verification.tests.py",
+    "reports/implementation/cloud-orchestration/T-006-alarm-numeric-fix.md",
+    "specs/cloud-orchestration/verification/T-006/alarm-numeric-fix/"
+  ]
+}

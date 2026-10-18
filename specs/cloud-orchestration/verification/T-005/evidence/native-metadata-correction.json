@@ -1,0 +1,18 @@
+{
+  "schema": "task-evidence-metadata-correction/v1",
+  "timestamp": "2026-10-18T07:15:31Z",
+  "run_id": "01a14dcb-540f-74f1-ac06-0cb8ccbe95f8",
+  "task_id": "T-005",
+  "initial_path": "specs/cloud-orchestration/verification/T-005/evidence/native-execution.initial-metadata.json",
+  "initial_sha256": "89339911d00328a204d71617f9fe2bfc58dc94c3e8f463992b41090aaf47fc59",
+  "corrected_path": "specs/cloud-orchestration/verification/T-005/evidence/native-execution.json",
+  "corrected_sha256": "ee7cdcbdf90f3d4ff451f85651b9cb39ac98ad83a10091dcfa909004017ece73",
+  "actual_command": "python3 -B specs/cloud-orchestration/verification/T-005/evidence/verify-local.py > specs/cloud-orchestration/verification/T-005/evidence/native-execution.log 2>&1",
+  "actual_tool_event": {
+    "initial_chunk_id": "429975",
+    "session_id": 98798,
+    "completion_chunk_id": "b55249",
+    "reported_native_exit": 0
+  },
+  "change": "The original command array contained a descriptive fixture label that was never executed as an argv element. Corrected to the actual verify-local.py invocation; harness description is a separate field. No tests/synthesis rerun, no change to assembly or captured native results."
+}

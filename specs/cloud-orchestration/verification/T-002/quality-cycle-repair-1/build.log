@@ -1,0 +1,1 @@
+{"command": ["python3", "-m", "py_compile", "plugins/sdd-quality-loop/scripts/cloud_contracts.py", "plugins/sdd-quality-loop/scripts/cloud_authorization.py", "tests/cloud-orchestration-contracts.tests.py", "tests/cloud-orchestration-execution.tests.py", "templates/cloud/iam/trusted-policy.example.py"], "exit_code": 0, "stdout": "", "stderr": ""}

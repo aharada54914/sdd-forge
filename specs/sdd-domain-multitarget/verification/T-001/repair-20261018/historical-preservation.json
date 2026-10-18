@@ -1,0 +1,7 @@
+{
+  "baseline_commit": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+  "path": "specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json",
+  "baseline_sha256": "9f3b3e3c330d14d00546223cb371084f5bf98a0cebb3900b23f2fc38fcc3edc2",
+  "current_sha256": "9f3b3e3c330d14d00546223cb371084f5bf98a0cebb3900b23f2fc38fcc3edc2",
+  "unchanged": true
+}

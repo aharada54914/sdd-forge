@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_native.py
++++ plugins/sdd-aws-cloud/scripts/aws_native.py
+@@ -279,7 +279,7 @@
+                 method=method,
+                 url=url,
+                 status=response.status,
+-                response_sha256=digest(response.body),
++                response_sha256=digest(b""),
+                 request_sha256=digest(body),
+                 classification="private-native-response-digest-only",
+             )

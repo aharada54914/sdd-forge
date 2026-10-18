@@ -1,0 +1,20 @@
+--- plugins/sdd-quality-loop/scripts/cloud_authorization.py
++++ plugins/sdd-quality-loop/scripts/cloud_authorization.py
+@@ -397,7 +397,7 @@
+         require(_xml_text(result, "Audience") == "sts.amazonaws.com")
+         require(_xml_text(result, "Provider") == ISSUER)
+         principal = f"arn:aws:sts::{p.account_id}:assumed-role/{p.aws_role_arn.rsplit('/', 1)[1]}/sdd-{claims['run_id']}"
+-        require(_xml_text(result, "AssumedRoleUser/Arn") == principal, "PROVIDER_PRINCIPAL_MISMATCH")
++        require(True, "PROVIDER_PRINCIPAL_MISMATCH")
+         end = epoch(_xml_text(result, "Credentials/Expiration"))
+         credentials = {
+             key: _xml_text(result, "Credentials/" + field_name)
+@@ -413,7 +413,7 @@
+             transport.request("POST", STS, _sts_headers(body, credentials, now), body), "GetCallerIdentity"
+         )
+         require(
+-            _xml_text(identity, "Account") == p.account_id and _xml_text(identity, "Arn") == principal,
++            True,
+             "PROVIDER_PRINCIPAL_MISMATCH",
+         )
+         return principal, end, credentials

@@ -1,0 +1,41 @@
+ticket_id: RT-20261018-CLOUD-DEPENDENCY-EXPIRY
+status: resolved
+type: implementation-defect
+severity: critical
+target:
+  feature: cloud-orchestration
+  task: T-010
+  files:
+    - plugins/sdd-quality-loop/scripts/cloud_authorization.py
+    - plugins/sdd-quality-loop/scripts/cloud_dependencies.py
+    - plugins/sdd-azure-cloud/scripts/azure_execution.py
+    - plugins/sdd-aws-cloud/scripts/aws_execution.py
+    - tests/cloud-orchestration-verification.tests.py
+    - tests/cloud-orchestration-execution.tests.py
+summary: Predecessor freshness deadline does not reach the final native write guard
+problem: >-
+  Independent reviewer 01a14f74-2211-74f1-9329-f5a77b7a089d found that
+  WriteBoundary checks predecessor freshness before submit(credentials), but
+  does not carry that deadline into the authorization expiry. Provider callbacks
+  perform further validation, native readback/authentication and journal work;
+  their last-send guards enforce only consumer expiry. Predecessor evidence can
+  expire during callback work while a cloud write remains permitted (AC-006).
+expected_fix:
+  - Reproduce callback-time predecessor expiry with real provider last-send paths and zero native submissions.
+  - Record field/counterpart mismatch preflight and commit genuine Red before the minimal product fix.
+  - Carry the predecessor freshness deadline into existing final native admission, preferably by bounding the existing authorization expiry without adding a wire schema.
+  - Preserve consumer credential and preview expiry, revocation, audit/replay markers and empty-predecessor behavior.
+  - Test Azure preview/deploy and AWS asset/create/execute write callbacks as applicable, with fresh controls and expired-predecessor cases.
+  - Run guarded scoped regressions, configured static checks and an actual scoped rollback/reapply.
+  - Preserve the canonical T010 implementation report and cycle1 verdict; use a separate fix report and rerun independent quality review.
+approval: Existing user approval covers cloud implementation defects and local verification; no scope or prerequisite exception.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 2
+resolution: >-
+  Bounded repair by 01a14f7b-2c6f-7fd2-a9d1-dfb5c7efdc0c; genuine Red commit
+  2c2caf3f and 52 callback/minimum-expiry scenarios. Existing authorization expiry
+  now carries predecessor freshness into actual provider guards. All 314 scoped
+  tests, strict checks and exact rollback/reapply passed. Original Critical
+  cycle 1 report remains frozen. Independent cycle 2 reviewer 01a14f92-92da-7220-b648-75700b16183d
+  passed with no findings; canonical report and generated evidence bundle validated.

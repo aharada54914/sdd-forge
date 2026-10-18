@@ -1,0 +1,36 @@
+{
+  "classification": "root deterministic no-cloud implementation probe; not independent review",
+  "source_sha256": "98247a991015616f20a6f21924b5544b1ff422955c235f8de61be8b823d3a545",
+  "first_result": {
+    "schema": "cloud-operation-result/v1",
+    "run_id": "synthetic-run",
+    "unit_id": "synthetic-unit",
+    "provider": "aws",
+    "operation": "prepare",
+    "result": "UNKNOWN",
+    "state": "UNKNOWN",
+    "error_code": "AWS_OUTCOME_UNKNOWN",
+    "message": "Native execution only; workload health is not verified.",
+    "input_manifest_sha256": "6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e",
+    "evidence_manifest_path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/lost-publish.json.manifest.json",
+    "native_operation_id": "https://cdk-hnb659fds-assets-111111111111-us-east-1.s3.us-east-1.amazonaws.com/5a38413c71992f0b05399d948f11b7853dfc2a34a4b59dee90ee7ea69e429113.json"
+  },
+  "reconcile_result": {
+    "schema": "cloud-operation-result/v1",
+    "run_id": "synthetic-run",
+    "unit_id": "synthetic-unit",
+    "provider": "aws",
+    "operation": "reconcile",
+    "result": "BLOCKED",
+    "state": "BLOCKED",
+    "error_code": "AWS_EXECUTION_BLOCKED",
+    "message": "Native execution only; workload health is not verified.",
+    "input_manifest_sha256": "6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e",
+    "evidence_manifest_path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/publish-reconcile.json.manifest.json"
+  },
+  "fresh_prepare_result": "BLOCKED",
+  "native_mutations": [
+    "PutObject"
+  ],
+  "put_count": 1
+}

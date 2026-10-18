@@ -1,0 +1,68 @@
+[
+  {
+    "name": "green-verification",
+    "exit_code": 0,
+    "tests": 56,
+    "failures": 0
+  },
+  {
+    "name": "green-contracts",
+    "exit_code": 0,
+    "tests": 32,
+    "failures": 0
+  },
+  {
+    "name": "rollback-entry-baseline",
+    "exit_code": 0,
+    "tests": 52,
+    "failures": 0
+  },
+  {
+    "name": "rollback-candidate",
+    "exit_code": 0,
+    "tests": 5,
+    "failures": 0
+  },
+  {
+    "name": "rollback-restored-regression",
+    "exit_code": 1,
+    "tests": 5,
+    "failures": 18
+  },
+  {
+    "name": "rollback-restored-baseline",
+    "exit_code": 0,
+    "tests": 52,
+    "failures": 0
+  },
+  {
+    "name": "rollback-reapplied",
+    "exit_code": 0,
+    "tests": 5,
+    "failures": 0
+  },
+  {
+    "name": "sensitivity-accept-any-threshold",
+    "exit_code": 1,
+    "tests": 5,
+    "failures": 44
+  },
+  {
+    "name": "sensitivity-binary-underflow",
+    "exit_code": 1,
+    "tests": 5,
+    "failures": 4
+  },
+  {
+    "name": "sensitivity-permissive-decimal-lexemes",
+    "exit_code": 1,
+    "tests": 5,
+    "failures": 4
+  },
+  {
+    "name": "sensitivity-final-control",
+    "exit_code": 0,
+    "tests": 5,
+    "failures": 0
+  }
+]

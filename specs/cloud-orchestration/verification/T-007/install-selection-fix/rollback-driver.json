@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "specs/cloud-orchestration/verification/T-007/install-selection-fix/rollback.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:07:29Z",
+  "exit_code": 1
+}

@@ -1,0 +1,14 @@
+{
+  "id": 900073,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14e73-9069-76d0-a748-f448ad86b023",
+    "expectedTurnId": "01a14e73-923d-7593-8ab7-0f3b6d51b21f",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root read attempt-2/checks.json and routing.log: routing invocation accidentally appends contracts.tests.py and rollback.py as unittest selectors, so it ran 2 loader errors, not routing tests. Fix checks.py command construction to run each separate command; preserve this original failed log and record corrected new run rather than claiming product failure. Please complete all original T006 scope plus freshness correction, exact final checks and report if context permits. If context genuinely exhausted, use explicit incomplete handoff with precise remaining gaps; do not launch quality or imply completion."
+      }
+    ]
+  }
+}

@@ -1,0 +1,129 @@
+[
+  {
+    "name": "verification",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "execution",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "contracts",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "routing",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "ruff",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "tests/cloud-orchestration-verification.tests.py",
+      "tests/cloud-orchestration-routing.tests.py",
+      "tests/cloud-orchestration-contracts.tests.py",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/rollback.py",
+      "plugins/sdd-aws-cloud/scripts/aws_control.py",
+      "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+      "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "plugins/sdd-aws-cloud/scripts/aws_graph.py",
+      "plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "plugins/sdd-aws-cloud/scripts/aws_native.py",
+      "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "plugins/sdd-aws-cloud/scripts/cloud.py",
+      "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "plugins/sdd-azure-cloud/scripts/azure_graph.py",
+      "plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "plugins/sdd-azure-cloud/scripts/cloud.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mypy-shared",
+    "command": [
+      "env",
+      "MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "tests/cloud-orchestration-verification.tests.py",
+      "tests/cloud-orchestration-routing.tests.py",
+      "tests/cloud-orchestration-contracts.tests.py",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/rollback.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mypy-aws",
+    "command": [
+      "env",
+      "MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-aws-cloud/scripts/aws_control.py",
+      "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+      "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "plugins/sdd-aws-cloud/scripts/aws_graph.py",
+      "plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "plugins/sdd-aws-cloud/scripts/aws_native.py",
+      "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "plugins/sdd-aws-cloud/scripts/cloud.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mypy-azure",
+    "command": [
+      "env",
+      "MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "plugins/sdd-azure-cloud/scripts/azure_graph.py",
+      "plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "plugins/sdd-azure-cloud/scripts/cloud.py"
+    ],
+    "exit_code": 0
+  }
+]

@@ -1,0 +1,426 @@
+NETWORK_SENTINEL_PARENT_CHILD_SHELL_PASS
+NETWORK_SENTINEL_POWERSHELL_CHILD_PASS
+test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) ... SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=11) ... FAIL
+test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) ... SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [] target_native_submissions 1 result PASS
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=11) ... FAIL
+test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) ... 
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='predecessor') ... FAIL
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='predecessor') ... FAIL
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='predecessor') ... FAIL
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='predecessor') ... FAIL
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5512, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5499, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertTrue(guards, "real final expiry guard must execute")
+AssertionError: [] is not true : real final expiry guard must execute
+
+======================================================================
+FAIL: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5554, in test_receipt_expiry_minimum_and_empty_predecessors
+    self.assertEqual(receipt["expires_at"], case.a.utc(end))
+AssertionError: '2026-10-18T06:01:50Z' != '2026-10-18T06:00:10Z'
+- 2026-10-18T06:01:50Z
+?                 --
++ 2026-10-18T06:00:10Z
+?                ++
+
+
+======================================================================
+FAIL: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5554, in test_receipt_expiry_minimum_and_empty_predecessors
+    self.assertEqual(receipt["expires_at"], case.a.utc(end))
+AssertionError: '2026-10-18T06:01:50Z' != '2026-10-18T06:00:10Z'
+- 2026-10-18T06:01:50Z
+?                 --
++ 2026-10-18T06:00:10Z
+?                ++
+
+
+======================================================================
+FAIL: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5554, in test_receipt_expiry_minimum_and_empty_predecessors
+    self.assertEqual(receipt["expires_at"], case.a.utc(end))
+AssertionError: '2026-10-18T06:01:50Z' != '2026-10-18T06:00:10Z'
+- 2026-10-18T06:01:50Z
+?                 --
++ 2026-10-18T06:00:10Z
+?                ++
+
+
+======================================================================
+FAIL: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5554, in test_receipt_expiry_minimum_and_empty_predecessors
+    self.assertEqual(receipt["expires_at"], case.a.utc(end))
+AssertionError: '2026-10-18T06:01:50Z' != '2026-10-18T06:00:10Z'
+- 2026-10-18T06:01:50Z
+?                 --
++ 2026-10-18T06:00:10Z
+?                ++
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 8.419s
+
+FAILED (failures=34)

@@ -1,0 +1,11 @@
+$ python3 -B tests/cloud-orchestration-contracts.tests.py Contracts.test_positive_all_families_and_both_providers Contracts.test_unavailable_safe_filesystem_primitives_fail_closed Contracts.test_result_exit_mapping_and_invalid_identity
+test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) ... ok
+test_unavailable_safe_filesystem_primitives_fail_closed (__main__.Contracts.test_unavailable_safe_filesystem_primitives_fail_closed) ... ok
+test_result_exit_mapping_and_invalid_identity (__main__.Contracts.test_result_exit_mapping_and_invalid_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.057s
+
+OK
+
+exit_code=0

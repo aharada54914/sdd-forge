@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "specs/cloud-orchestration/verification/T-007/install-selection-fix/validate-output-hashes.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:17:58Z",
+  "exit_code": 0
+}

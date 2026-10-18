@@ -1,0 +1,14 @@
+RUN_ID: 01a14e1a-21ab-7130-8702-d39395a83493
+HOST_SESSION_ID: 01a14e1a-21ab-7130-8702-d39395a83493
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/review/invocation.json SHA-256 c77fa414ccbf1724efbdddc96d2518c8adebe6bf108589611a71e71b12480865
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Verified invocation digest, reservation record hash, chain sequence, and same-task implementation/supplemental bindings.
+- Compared approved T-012 criteria, requirements, design, ADR and contracts against implementation and tests.
+- Inspected azure_execution.py:48–377 and 450–708: immutable artifacts, incremental deployment, semantic comparison, NO_CHANGE, authenticated replay fencing and original-ID read-only recovery.
+- Inspected azure_arm.py:87–225 and cloud.py:232–253: constrained polling endpoints, bounded polling and guarded reconciliation dispatch.
+- Reviewed saved command output: execution 60/60, routing 86/86, contracts 31/31; lint, typecheck and compilation succeeded. Tests were not rerun under this read-only boundary.
+- Compared before-source, continuation diff, failing replay/recovery logs and rollback evidence against current regression assertions; corrected behavior retains original identity without a second deployment.
+- PASS covers T-012’s approved implementation scope only. Live TEST-003/005/009 remain BLOCKED by OQ-001. Component-coverage gate reports disabled-legacy, not measured coverage; no live IAM, health-verification or release-readiness claim is made.

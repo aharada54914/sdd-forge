@@ -1,0 +1,7 @@
+MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts
+RUFF COMMAND /tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_dependencies.py plugins/sdd-quality-loop/scripts/cloud_authorization.py plugins/sdd-azure-cloud/scripts/azure_governed.py plugins/sdd-aws-cloud/scripts/aws_governed.py tests/cloud-orchestration-verification.tests.py specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py specs/cloud-orchestration/verification/T-010/attempt-2/evidence/rollback-experiment.py
+RUFF EXIT 0
+All checks passed!
+MYPY COMMAND /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_dependencies.py plugins/sdd-quality-loop/scripts/cloud_authorization.py plugins/sdd-azure-cloud/scripts/azure_governed.py plugins/sdd-aws-cloud/scripts/aws_governed.py tests/cloud-orchestration-verification.tests.py specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py specs/cloud-orchestration/verification/T-010/attempt-2/evidence/rollback-experiment.py
+MYPY EXIT 0
+Success: no issues found in 7 source files

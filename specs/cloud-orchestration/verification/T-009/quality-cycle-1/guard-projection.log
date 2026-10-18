@@ -1,0 +1,1 @@
+{"command": ["python3", "-B", "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py", "--check"], "exit_code": 0, "stdout": "", "stderr": ""}

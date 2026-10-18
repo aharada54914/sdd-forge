@@ -1,0 +1,9 @@
+{
+  "command": [
+    "bash",
+    "tests/uninstall.tests.sh"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:09:53Z",
+  "exit_code": 0
+}

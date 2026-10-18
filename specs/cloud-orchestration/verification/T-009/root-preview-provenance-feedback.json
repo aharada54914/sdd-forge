@@ -1,0 +1,14 @@
+{
+  "id": 900094,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+    "expectedTurnId": "01a14ed8-ab82-7e80-ab82-8a651f31ebec",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root static review concern (not yet an executed counterexample): current _bound_preview only validates saved preview bindings/digest, while _profile_plan marks iac-preview PASS when fresh native collection succeeds. Fresh health collection does not by itself authenticate the saved preview semantics. Azure original_apply_completion appears to bind original protected apply inputs including preview digest; AWS current_operation only proves the original request-derived token/stack completion and does not visibly bind preview digest/native ChangeSet semantics. Please trace both real paths and add an actual post-apply self-consistent preview/changes/journal substitution negative case (including recomputed digests) before claiming iac-preview PASS. Reuse authenticated original operation/job/native readback, or block where provenance cannot be established; do not treat local hashes as proof. Preserve chronological Red evidence for any new defect found. No new generic issuer/signature or cloud writes."
+      }
+    ]
+  }
+}

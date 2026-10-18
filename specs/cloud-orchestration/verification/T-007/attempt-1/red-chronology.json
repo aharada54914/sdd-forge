@@ -1,0 +1,26 @@
+{
+  "initial_field_red": {
+    "command": "python3 -B tests/install-cloud.tests.py",
+    "exit_code": 1,
+    "methods": 5,
+    "assertion_failures": 77,
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/red-manifest.log",
+    "failure_point": "Existing manifest validator accepted populated unregistered cloud records/divergent runtime bytes; matched control passed. Existing case-variant domain name also wrongly accepted. Not missing imports/setup."
+  },
+  "commits": [
+    {
+      "commit": "60062576b38c6a9a6f949c870f43379633bfc7a0",
+      "record": "2026-10-18T15:21:59Z test(cloud): capture T-007 packaging field mismatch Red before implementation"
+    },
+    {
+      "commit": "2959fac4d5f12d188c15161a83983aa3d7341fa4",
+      "record": "2026-10-18T15:31:19Z test(cloud): expose upstream reference skill visibility leak"
+    },
+    {
+      "commit": "fc7e58beaab89a7863be41cbe44b260d1786276a",
+      "record": "2026-10-18T15:32:34Z test(cloud): exercise WFI-054 public entry consumer before registration"
+    }
+  ],
+  "implementation_order": "First commit precedes task product edits; each later visibility Red commit precedes its corresponding export/reachability repair.",
+  "prior_candidate": "Existing provider/shared implementations were consumed unchanged. No historical Red or tests were invented."
+}

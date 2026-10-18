@@ -1,0 +1,37 @@
+test_resolver_output_reaches_selected_plan_for_all_targets (__main__.ResolverCliIntegrationTests.test_resolver_output_reaches_selected_plan_for_all_targets) ... ok
+test_003a_cli_contract_package_security_without_ui_or_deployment (__main__.SelectedPlanTests.test_003a_cli_contract_package_security_without_ui_or_deployment) ... ok
+test_003b_ui_flows_states_api_data_security_without_remote_service (__main__.SelectedPlanTests.test_003b_ui_flows_states_api_data_security_without_remote_service) ... ok
+test_003c_design_selection_retains_medium_spec_required_checks (__main__.SelectedPlanTests.test_003c_design_selection_retains_medium_spec_required_checks) ... ok
+test_003c_only_explicit_compile_waiver_with_reason_is_allowed (__main__.SelectedPlanTests.test_003c_only_explicit_compile_waiver_with_reason_is_allowed) ... ok
+test_003d_iac_validate_plan_policy_never_claim_apply (__main__.SelectedPlanTests.test_003d_iac_validate_plan_policy_never_claim_apply) ... ok
+test_003e_low_code_data_permissions_process_package_without_universal_build (__main__.SelectedPlanTests.test_003e_low_code_data_permissions_process_package_without_universal_build) ... ok
+test_c3_lite_full_promotion_uses_summary_runner (__main__.SelectedPlanTests.test_c3_lite_full_promotion_uses_summary_runner) ... ok
+test_design_selection_is_not_gate_success (__main__.SelectedPlanTests.test_design_selection_is_not_gate_success) ... ok
+test_duplicate_gate (__main__.SelectedPlanTests.test_duplicate_gate) ... ok
+test_evidence_escape (__main__.SelectedPlanTests.test_evidence_escape) ... ok
+test_implementation_only_keeps_foundation_stages (__main__.SelectedPlanTests.test_implementation_only_keeps_foundation_stages) ... ok
+test_legacy_fixture_control (__main__.SelectedPlanTests.test_legacy_fixture_control) ... ok
+test_legacy_required_not_removed (__main__.SelectedPlanTests.test_legacy_required_not_removed) ... ok
+test_manifest_cannot_drop_selected_registry_gate (__main__.SelectedPlanTests.test_manifest_cannot_drop_selected_registry_gate) ... ok
+test_nonimplementation_observation_cannot_be_relabelled (__main__.SelectedPlanTests.test_nonimplementation_observation_cannot_be_relabelled) ... ok
+test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) ... ok
+test_output_identity_and_bindings (__main__.SelectedPlanTests.test_output_identity_and_bindings) ... ok
+test_output_paths_cannot_modify_other_files (__main__.SelectedPlanTests.test_output_paths_cannot_modify_other_files) ... ok
+test_packaged_schema_identity_is_required (__main__.SelectedPlanTests.test_packaged_schema_identity_is_required) ... ok
+test_persisted_field_mismatches_rejected (__main__.SelectedPlanTests.test_persisted_field_mismatches_rejected) ... ok
+test_quality_gate_and_both_runners_invoke_evaluator (__main__.SelectedPlanTests.test_quality_gate_and_both_runners_invoke_evaluator) ... ok
+test_registry_digest_mismatch (__main__.SelectedPlanTests.test_registry_digest_mismatch) ... ok
+test_registry_projection_mismatch (__main__.SelectedPlanTests.test_registry_projection_mismatch) ... ok
+test_required_cannot_be_downgraded_or_disappear (__main__.SelectedPlanTests.test_required_cannot_be_downgraded_or_disappear) ... ok
+test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) ... ok
+test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) ... ok
+test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) ... ok
+test_single_gate_candidate_boundary_controls (__main__.SelectedPlanTests.test_single_gate_candidate_boundary_controls) ... ok
+test_standalone_package_schema_and_evaluation (__main__.SelectedPlanTests.test_standalone_package_schema_and_evaluation) ... ok
+test_verifier_unavailable (__main__.SelectedPlanTests.test_verifier_unavailable) ... ok
+test_windows_output_parent_junction_is_rejected (__main__.SelectedPlanTests.test_windows_output_parent_junction_is_rejected) ... skipped 'real Windows junction requires Windows'
+
+----------------------------------------------------------------------
+Ran 32 tests in 27.284s
+
+OK (skipped=1)

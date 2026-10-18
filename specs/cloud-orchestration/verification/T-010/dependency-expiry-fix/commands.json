@@ -1,0 +1,23 @@
+{
+  "task_id": "T-010",
+  "attempt": 3,
+  "red": {
+    "argv": ["python3", "-B", "specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py", "tests/cloud-orchestration-verification.tests.py", "DependencyCallbackExpiryCases"],
+    "exit_code": 1,
+    "log": "red.log",
+    "tests": 3,
+    "failing_subtests": 24,
+    "errors": 0
+  },
+  "green": {
+    "argv": ["python3", "-B", "specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py", "tests/cloud-orchestration-verification.tests.py", "DependencyCallbackExpiryCases"],
+    "exit_code": 0,
+    "log": "green.log",
+    "tests": 3,
+    "matrix_scenarios": 52
+  },
+  "scoped_regressions": "before-commands.log, after-commands.log, final-verification-command.log",
+  "static_commands": "static-commands.log",
+  "rollback_commands": "rollback.json",
+  "network": "All test commands use run-scoped.py with exercised parent/direct Python/shell/PowerShell child urllib sentinels; no live cloud calls."
+}

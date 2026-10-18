@@ -1,0 +1,41 @@
+{
+  "run_id": "01a14f96-e637-7773-aa3b-74e44216f500",
+  "task_attempt_count": 1,
+  "changed_prior_output_paths": [
+    "tests/install-cloud.tests.py"
+  ],
+  "historical_evidence_checked": 113,
+  "historical_evidence_unchanged": true,
+  "first_handoff_sha256": "8117099214b529f34df48542962d3bedd960e01fdbb0b8dcf046d98e420fb281",
+  "original_manifest_sha256": "bdc89658513bacae128425df7b0646bb82e9859e706c94d076dd529083632ce6",
+  "runtime_probe_unchanged": true,
+  "runtime_probe_sha256": "2de7b32350e19dcf79cf327f365fcb15ccc3fba697e7fb088b049f309871c59b",
+  "rollback_candidate_differences": [
+    "tests/install-cloud.tests.py"
+  ],
+  "rollback_qualification": "Prior isolated rollback exercised the final production bytes and prior test bytes; this follow-up only strengthens installed-CLI test coverage. Rollback was not rerun for the test-only delta.",
+  "current_task_file_hashes": {
+    "install.sh": "04436898b4d8d260f0743882f70ddcb6e01687b0d8b0373f41dfafb76ee5d221",
+    "install.ps1": "8928011600e821d882e80914445f3d9b2ac12a948019f1858ccc9f4bc7c4bc0a",
+    "uninstall.sh": "6d038c1208abd9c66da3d4a9188286bf76d0eb601b9ace5f5db25081472c373f",
+    "uninstall.ps1": "b6deb1791e5509aeb538215f944c19d03913baa4e3f771cc93fdc1f45763baa7",
+    ".agents/plugins/marketplace.json": "dd4a8d5efb2d2f8eb5918897d9a499b4e532ec5654bab2fdd539500c5eaee36a",
+    ".claude-plugin/marketplace.json": "dd935489bca5a357c90eec68081717e451c1d0b0b5f807f33b6ca8dd3b216155",
+    "tests/validate-repository.ps1": "15d9932d0d6cbcc9f3244ffca09c74360c511c3aec81679cc61bf35d9c339d6f",
+    "tests/install-cloud.tests.py": "e285afb16f350f12c3b2a2b4cdeaedb19b32be6830231f2d625cf7ea092b5c3c",
+    "tests/install.tests.sh": "f3a2474e331f5eadf8e5154dd5d1cfcb419cac61fa50c0b7030e75ff5025987d",
+    "tests/install.tests.ps1": "fcde90bfac57db35b61dfa68ae5b00f3d738c257d6593cba207374823419d630",
+    "tests/install-uninstall-matrix.tests.sh": "d9422cee978d09cff326b2b439ea80f8c3799f2737acad041c26fba88cfdd238",
+    "tests/install-uninstall-matrix.tests.ps1": "cf3b345331d73a0a64d0c91372bd17ade1b2ccc73a9681fc1b2db8a6f8f7fda0",
+    "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md": "5a906f317b352c84f1b38f39464f585ce66f2261651079a6c79df528a6c774e2",
+    "plugins/sdd-azure-cloud/.claude-plugin/plugin.json": "53b2dc69739b8035499407c40318599557e6773bc0d64c2e627521f602e2bec3",
+    "plugins/sdd-azure-cloud/.codex-plugin/plugin.json": "72994a2916deec39493318312a22b21a7e81a643577fdc9f70e595d41c0c3b07",
+    "plugins/sdd-azure-cloud/.plugin/plugin.json": "b8a3c04ec499f65f81494958067cf946c719f506e71464e56e4c92d015fe4c14",
+    "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md": "27af791f755d21eefbf817dfa7e9b11b88fac34b075dbc3f413c1f20a163845a",
+    "plugins/sdd-aws-cloud/.claude-plugin/plugin.json": "901affde1f22fd7f03420455ad247b89e6104a090940113e0d49b9024229642c",
+    "plugins/sdd-aws-cloud/.codex-plugin/plugin.json": "fbaee91e13ec9a1fb202d9505c27e519f09655cce0fcb1ab266c85a1057aebec",
+    "plugins/sdd-aws-cloud/.plugin/plugin.json": "2cef9f5155320fb1164da6264f47b50c71800dd95663cfbc7bc53cda6e6e2773",
+    "tests/uninstall.tests.sh": "3df66ff95b91ff496c1d26f628859706591bed40253a2e80ec9d1d1abb99d996",
+    "tests/uninstall.tests.ps1": "026a92c2c45371f5afbebfc0c928bcf8f26b88376842213f1dcf7acb00b4e4ad"
+  }
+}

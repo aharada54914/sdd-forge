@@ -1,0 +1,32 @@
+2026-10-18T14:15:41Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py tests/cloud-orchestration-verification.tests.py
+2026-10-18T14:17:55Z EXIT verification 0
+test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) ... ok
+
+----------------------------------------------------------------------
+Ran 104 tests in 133.541s
+
+OK (skipped=1)
+2026-10-18T14:17:55Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py tests/cloud-orchestration-execution.tests.py
+2026-10-18T14:18:06Z EXIT execution 1
+AssertionError: 4 != 3
+
+----------------------------------------------------------------------
+Ran 86 tests in 10.878s
+
+FAILED (failures=14)
+2026-10-18T14:18:06Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py tests/cloud-orchestration-routing.tests.py
+2026-10-18T14:18:36Z EXIT routing 1
+
+
+----------------------------------------------------------------------
+Ran 86 tests in 29.768s
+
+FAILED (failures=97)
+2026-10-18T14:18:36Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py tests/cloud-orchestration-contracts.tests.py
+2026-10-18T14:18:37Z EXIT contracts 0
+test_verification_inconsistent_claims_and_duplicate_checks (__main__.Contracts.test_verification_inconsistent_claims_and_duplicate_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.393s
+
+OK

@@ -1,0 +1,85 @@
+{
+  "classification": "deterministic synthetic transports",
+  "exit_code": 0,
+  "sources": [
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "sha256": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86",
+      "executable_lines": 175,
+      "hit_lines": 170,
+      "missing": [
+        0,
+        34,
+        50,
+        51,
+        201
+      ],
+      "percent": 97.14
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "sha256": "00244ee6ca99fc0e9130446635f5f0f165952bd37b84f00f33f8d8e5040388b9",
+      "executable_lines": 456,
+      "hit_lines": 432,
+      "missing": [
+        0,
+        89,
+        90,
+        91,
+        94,
+        95,
+        99,
+        103,
+        152,
+        153,
+        154,
+        155,
+        156,
+        159,
+        160,
+        161,
+        167,
+        405,
+        408,
+        409,
+        410,
+        418,
+        419,
+        420
+      ],
+      "percent": 94.74
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "sha256": "a0669240ae1acdfb62adfedb36e131d1421349c5a0b65f7411106c660aea458c",
+      "executable_lines": 312,
+      "hit_lines": 289,
+      "missing": [
+        0,
+        39,
+        48,
+        49,
+        50,
+        51,
+        52,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        147,
+        148,
+        400,
+        401,
+        405,
+        406,
+        408,
+        409,
+        410
+      ],
+      "percent": 92.63
+    }
+  ]
+}

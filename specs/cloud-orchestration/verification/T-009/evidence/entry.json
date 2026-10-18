@@ -1,0 +1,14 @@
+{
+  "base_revision": "0ec52d9853ac56c9022196834f0286cebe69bf53",
+  "scratch_root": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+  "inputs": 659,
+  "product_changes": false,
+  "implementation_permitted": false,
+  "reason": "Provenance handoff decision unresolved; manifest permits evidence/report only.",
+  "run_id": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+  "session_id": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+  "agent_instance_id": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "identity_source": "Caller-supplied native host identity; not inherited environment"
+}

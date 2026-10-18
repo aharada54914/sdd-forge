@@ -1,0 +1,92 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a14d40-39f7-7a40-8bc3-fd650dd601bb",
+  "host_session_id": "01a14d40-39f7-7a40-8bc3-fd650dd601bb",
+  "allowed_input_manifest": [
+    {"path":"specs/cloud-orchestration/requirements.md","sha256":"31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"},
+    {"path":"specs/cloud-orchestration/acceptance-tests.md","sha256":"4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"},
+    {"path":"specs/cloud-orchestration/investigation.md","sha256":"38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"},
+    {"path":"reports/impl-review/cloud-orchestration/attempt-2/round-3/precheck-result.json","sha256":"bda012eb08eb3b26cbcb653b1e89ab7879f7a638e88306417c4a07a77141a40d"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"},
+    {"path":"specs/cloud-orchestration/design.md","sha256":"d96c3b646c1abe920028a3d7c185989a89c0e9915156f3e754460872914afddd"},
+    {"path":"specs/cloud-orchestration/ux-spec.md","sha256":"d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"},
+    {"path":"specs/cloud-orchestration/frontend-spec.md","sha256":"586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"},
+    {"path":"specs/cloud-orchestration/infra-spec.md","sha256":"9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"},
+    {"path":"specs/cloud-orchestration/security-spec.md","sha256":"fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"},
+    {"path":"docs/adr/0036-thin-cloud-orchestration.md","sha256":"d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"},
+    {"path":"reports/impl-review/cloud-orchestration/attempt-2/round-2/integrated-summary.json","sha256":"3af5a457b5f340f648c6ca3afb7d8cf6749b018253020f31a2664f05cae82c57"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "developer-tooling / cloud orchestration",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md Architecture and Components define bootstrap routing, provider adapters, shared validation, protected CI and verification interactions. Technology choices include Python stdlib, provider CLIs, GitHub Actions and provider-owned state; Layer Specifications explicitly excludes a graphical frontend."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Architecture's directed flow proceeds from bootstrap through routing, provider skills, validation, prepare, approval, apply, collectors and verification. No component dependency cycle is declared; Cross-Layer Dependencies describes document relationships rather than runtime dependencies."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Data Plan supplies Data Entities, Existing Data Affected and Migration Strategy. It defines versioned cloud artifacts, unchanged legacy dispatch, contained no-overwrite storage, secret exclusion and retention prerequisites."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "API / Contract Plan defines versioned request, lock, preview, authorization, observation and verification artifacts. Public Invocation Contract specifies skill names, script command, operations, request/output paths, result and input-error envelopes, exit codes and additive compatibility. External Integration Inventory names supported provider API contracts."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Security Boundaries identifies local-to-CI, CI-to-provider and provider-to-evidence boundaries with authorization, classification and OWASP concerns. security-spec.md refines these with protected environments, scoped OIDC, fixed argument arrays, trusted provenance, redaction and adversarial tests."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is developer-tooling / cloud orchestration, explicitly a CLI/skill surface rather than fullstack. frontend-spec.md confirms no browser frontend, routes, client state or API client."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Test Strategy and Unit and Integration Boundaries define unit subjects and doubles, subprocess/CI/provider integration boundaries, real compile/synthesis checks, isolated host verification and separately authorized live trials. Four named tests/cloud-orchestration-*.tests.py entry points and task-specific verification addenda provide planned evidence; Documentation and Release Delivery covers TEST-013/014."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Components defines bootstrap routing, both provider skills, shared validation, cloud profiles, governed CI templates and audit inventory. Named detailed-design subsections define routing, execution, collectors and verification; investigation.md establishes the existing evaluator, registry and bootstrap context."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ADR Change Log declares docs/adr/0036-thin-cloud-orchestration.md. The exact precheck-admitted document was read and covers thin adapters, protected CI authorization, separate operation lifecycle and provider-specific execution."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Applicability skipped: design.md Design System Compliance records exactly 'N/A — ds_profile: none'; frontend-spec.md and ux-spec.md confirm no graphical component or token dependency."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Applicability skipped: the host states no domain/ directory exists, consistent with investigation.md's domain-sync statement."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "schema": "task-output-check/v1",
+  "all_declared_hashes_match": true,
+  "canonical_two_column_outputs": true,
+  "raw_host_logs_excluded": true,
+  "exact_caller_identity": true,
+  "input_manifest_binding_matches": true
+}

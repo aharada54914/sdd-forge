@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R2.semantic-change",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "SEMANTIC_DRIFT_ACCEPTED",
+      "guards": []
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py AwsObservationOrchestration.test_stack_membership_counterparts
+test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) ... 
+  test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='ResourceType') ... FAIL
+
+======================================================================
+FAIL: test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='ResourceType')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 1121, in test_stack_membership_counterparts
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 1.976s
+
+FAILED (failures=1)
+
+Exit code: 1

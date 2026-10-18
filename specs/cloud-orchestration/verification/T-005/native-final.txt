@@ -1,0 +1,7 @@
+T-005 implementation ready for root review.
+
+- 86 routing tests and 31 contract tests pass.
+- Real pinned CDK synthesis, Ruff/mypy, rollback, and manifest/report validation pass.
+- Report: `reports/implementation/cloud-orchestration/T-005.md`
+
+No status changes, cloud actions, push/tag, or full-suite run. Live acceptance remains blocked; CDK requires external isolation for untrusted code.

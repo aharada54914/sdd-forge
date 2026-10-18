@@ -1,0 +1,9 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py AzureMetricContextCases.test_metric_context_counterparts
+test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.442s
+
+OK
+
+Exit code: 0

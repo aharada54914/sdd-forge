@@ -1,0 +1,74 @@
+test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) ... 
+  test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='aws', elapsed=0) ... FAIL
+  test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='aws', elapsed=1) ... FAIL
+  test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='aws', elapsed=2) ... FAIL
+  test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='azure', elapsed=0) ... FAIL
+  test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='azure', elapsed=1) ... FAIL
+  test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='azure', elapsed=2) ... FAIL
+
+======================================================================
+FAIL: test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='aws', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 717, in test_preview_expiry_after_final_binding_denies_and_retains_receipt
+    self.assertEqual(json.loads(receipts[0].read_bytes())["expires_at"], utc(NOW + 1))
+AssertionError: '2026-10-18T06:01:50Z' != '2026-10-18T06:00:01Z'
+- 2026-10-18T06:01:50Z
+?                 ---
++ 2026-10-18T06:00:01Z
+?                +++
+
+
+======================================================================
+FAIL: test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='aws', elapsed=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 711, in test_preview_expiry_after_final_binding_denies_and_retains_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='aws', elapsed=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 711, in test_preview_expiry_after_final_binding_denies_and_retains_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='azure', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 717, in test_preview_expiry_after_final_binding_denies_and_retains_receipt
+    self.assertEqual(json.loads(receipts[0].read_bytes())["expires_at"], utc(NOW + 1))
+AssertionError: '2026-10-18T06:01:50Z' != '2026-10-18T06:00:01Z'
+- 2026-10-18T06:01:50Z
+?                 ---
++ 2026-10-18T06:00:01Z
+?                +++
+
+
+======================================================================
+FAIL: test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='azure', elapsed=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 711, in test_preview_expiry_after_final_binding_denies_and_retains_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_preview_expiry_after_final_binding_denies_and_retains_receipt (__main__.Admission.test_preview_expiry_after_final_binding_denies_and_retains_receipt) (provider='azure', elapsed=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 711, in test_preview_expiry_after_final_binding_denies_and_retains_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.132s
+
+FAILED (failures=6)

@@ -1,0 +1,4 @@
+[work c9283184] test(cloud): T-013 failing AWS governed native execution cases
+ 3 files changed, 469 insertions(+), 5 deletions(-)
+ create mode 100644 reports/implementation/cloud-orchestration/T-013.md
+ create mode 100644 specs/cloud-orchestration/verification/T-013/evidence/red.log

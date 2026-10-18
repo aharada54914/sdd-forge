@@ -1,0 +1,720 @@
+test_every_plan_leaf_and_closed_object (__main__.ProfileCompletionCases.test_every_plan_leaf_and_closed_object) ... ok
+test_original_profile_version_and_conditional_backup (__main__.ProfileCompletionCases.test_original_profile_version_and_conditional_backup) ... ok
+test_preview_guard_matrix (__main__.ProfileCompletionCases.test_preview_guard_matrix) ... ok
+test_saved_observation_mismatch_sensitivity (__main__.ProfileCompletionCases.test_saved_observation_mismatch_sensitivity) ... ok
+test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) ... 
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.request') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.scope') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.template_sha256') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.change_set_arn') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.stack_id') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.no_change') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.create') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ChangeSetId') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.StackId') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ChangeSetName') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.StackName') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Description') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Capabilities') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Parameters') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Status') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ExecutionStatus') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Tags') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='template') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.IncludeNestedStacks') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ImportExistingResources') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ParentChangeSetId') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.RootChangeSetId') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.OnStackFailure') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.NotificationARNs') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.DeploymentConfig') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.RollbackConfiguration') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.DeploymentMode') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.Action') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.Replacement') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.LogicalResourceId') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.ResourceType') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.ChangeSetId') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.ModuleInfo') ... ERROR
+  test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.PolicyAction') ... ERROR
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.request')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 747, in profile_preview_readback
+    c._require(semantic["request"] == executor.request_ref
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and semantic["scope"] == request["scope"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+               and create == executor.create_params(data, asset, "UPDATE" if executor.control.existing_stack_id else "CREATE"),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 747, in profile_preview_readback
+    c._require(semantic["request"] == executor.request_ref
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and semantic["scope"] == request["scope"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+               and create == executor.create_params(data, asset, "UPDATE" if executor.control.existing_stack_id else "CREATE"),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.template_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 747, in profile_preview_readback
+    c._require(semantic["request"] == executor.request_ref
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and semantic["scope"] == request["scope"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+               and create == executor.create_params(data, asset, "UPDATE" if executor.control.existing_stack_id else "CREATE"),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.change_set_arn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 747, in profile_preview_readback
+    c._require(semantic["request"] == executor.request_ref
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and semantic["scope"] == request["scope"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+               and create == executor.create_params(data, asset, "UPDATE" if executor.control.existing_stack_id else "CREATE"),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.stack_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 747, in profile_preview_readback
+    c._require(semantic["request"] == executor.request_ref
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and semantic["scope"] == request["scope"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+               and create == executor.create_params(data, asset, "UPDATE" if executor.control.existing_stack_id else "CREATE"),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.no_change')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 747, in profile_preview_readback
+    c._require(semantic["request"] == executor.request_ref
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and semantic["scope"] == request["scope"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+               and create == executor.create_params(data, asset, "UPDATE" if executor.control.existing_stack_id else "CREATE"),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='semantic.create')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 747, in profile_preview_readback
+    c._require(semantic["request"] == executor.request_ref
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and semantic["scope"] == request["scope"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+               and create == executor.create_params(data, asset, "UPDATE" if executor.control.existing_stack_id else "CREATE"),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ChangeSetId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.StackId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ChangeSetName')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.StackName')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Description')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Capabilities')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Parameters')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ExecutionStatus')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.Tags')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='template')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 765, in profile_preview_readback
+    c._require(all(value.get(k) == v for k, v in expected.items())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and sorted(value.get("Tags", []), key=lambda v: v["Key"]) == sorted(create["Tags"], key=lambda v: v["Key"])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and type(template["TemplateBody"]) is str and template["TemplateBody"].encode() == data[1],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.IncludeNestedStacks')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 769, in profile_preview_readback
+    c._require(not any(value.get(k) for k in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig"))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT", "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ImportExistingResources')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 769, in profile_preview_readback
+    c._require(not any(value.get(k) for k in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig"))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT", "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.ParentChangeSetId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 769, in profile_preview_readback
+    c._require(not any(value.get(k) for k in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig"))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT", "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.RootChangeSetId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 769, in profile_preview_readback
+    c._require(not any(value.get(k) for k in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig"))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT", "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.OnStackFailure')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 769, in profile_preview_readback
+    c._require(not any(value.get(k) for k in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig"))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT", "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.NotificationARNs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 769, in profile_preview_readback
+    c._require(not any(value.get(k) for k in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig"))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT", "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.DeploymentConfig')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 769, in profile_preview_readback
+    c._require(not any(value.get(k) for k in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig"))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT", "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.RollbackConfiguration')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 769, in profile_preview_readback
+    c._require(not any(value.get(k) for k in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig"))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT", "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='native.DeploymentMode')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 769, in profile_preview_readback
+    c._require(not any(value.get(k) for k in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig"))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT", "PROFILE_PREVIEW_NATIVE_BINDING")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_NATIVE_BINDING
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.Action')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 780, in profile_preview_readback
+    c._require(set(item) == {"Type", "ResourceChange"} and item["Type"] == "Resource"
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change["LogicalResourceId"] in resources
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+               and not change.get("ChangeSetId") and not change.get("ModuleInfo")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change.get("PolicyAction") in (None, "Retain"), "PROFILE_PREVIEW_POLICY_DENIED")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_POLICY_DENIED
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.Replacement')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 780, in profile_preview_readback
+    c._require(set(item) == {"Type", "ResourceChange"} and item["Type"] == "Resource"
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change["LogicalResourceId"] in resources
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+               and not change.get("ChangeSetId") and not change.get("ModuleInfo")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change.get("PolicyAction") in (None, "Retain"), "PROFILE_PREVIEW_POLICY_DENIED")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_POLICY_DENIED
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.LogicalResourceId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 780, in profile_preview_readback
+    c._require(set(item) == {"Type", "ResourceChange"} and item["Type"] == "Resource"
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change["LogicalResourceId"] in resources
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+               and not change.get("ChangeSetId") and not change.get("ModuleInfo")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change.get("PolicyAction") in (None, "Retain"), "PROFILE_PREVIEW_POLICY_DENIED")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_POLICY_DENIED
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.ResourceType')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 780, in profile_preview_readback
+    c._require(set(item) == {"Type", "ResourceChange"} and item["Type"] == "Resource"
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change["LogicalResourceId"] in resources
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+               and not change.get("ChangeSetId") and not change.get("ModuleInfo")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change.get("PolicyAction") in (None, "Retain"), "PROFILE_PREVIEW_POLICY_DENIED")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_POLICY_DENIED
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.ChangeSetId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 780, in profile_preview_readback
+    c._require(set(item) == {"Type", "ResourceChange"} and item["Type"] == "Resource"
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change["LogicalResourceId"] in resources
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+               and not change.get("ChangeSetId") and not change.get("ModuleInfo")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change.get("PolicyAction") in (None, "Retain"), "PROFILE_PREVIEW_POLICY_DENIED")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_POLICY_DENIED
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.ModuleInfo')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 780, in profile_preview_readback
+    c._require(set(item) == {"Type", "ResourceChange"} and item["Type"] == "Resource"
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change["LogicalResourceId"] in resources
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+               and not change.get("ChangeSetId") and not change.get("ModuleInfo")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change.get("PolicyAction") in (None, "Retain"), "PROFILE_PREVIEW_POLICY_DENIED")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_POLICY_DENIED
+
+======================================================================
+ERROR: test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) (field='policy.PolicyAction')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3943, in test_semantic_native_and_policy_guards
+    observation.profile_preview_readback(executor, changed_ref)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 780, in profile_preview_readback
+    c._require(set(item) == {"Type", "ResourceChange"} and item["Type"] == "Resource"
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change["LogicalResourceId"] in resources
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+               and not change.get("ChangeSetId") and not change.get("ModuleInfo")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               and change.get("PolicyAction") in (None, "Retain"), "PROFILE_PREVIEW_POLICY_DENIED")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PROFILE_PREVIEW_POLICY_DENIED
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.348s
+
+FAILED (errors=34)

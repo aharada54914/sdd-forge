@@ -1,0 +1,261 @@
+ok: full uninstall: unregisters all plugins+marketplace, removes files and only shipped agents
+ok: --keep-files preserves installed files while unregistering
+ok: --skip-agent-uninstall preserves shipped agent role files
+ok: subset --plugins unregisters only chosen plugins and keeps the marketplace
+ok: missing optional CLI tolerated under target All
+ok: target Codex with codex absent fails as required
+ok: --skip-plugin-uninstall proceeds when CLI is absent
+ok: idempotency: second uninstall exits 0
+ok: invalid plugin name rejected
+ok: invalid --target rejected
+ok: empty --install-root rejected
+ok: filesystem root rejected as --install-root
+ok: home directory rejected as --install-root
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: --mcp <list> selects MCP payload/registration removal
+ok: invalid --mcp name rejected
+ok: --mcp "" is rejected cleanly without an unbound variable crash
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys
+ok: uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks
+ok: corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned
+ok: absent Cursor/VS Code dirs are skipped without error and without directory creation
+ok: FilesOnly skips CLI calls but removes files
+ok: T-003 uninstall output is unaffected by project-context presence
+
+Results: 25 passed, 0 failed.
+ok: full uninstall unregisters all plugins+marketplace, removes files and only shipped agents
+ok: -KeepFiles preserves installed files while unregistering
+ok: -SkipAgentUninstall preserves shipped agent role files
+ok: subset -Plugins unregisters only chosen plugins and keeps the marketplace
+ok: domain-only uninstall keeps dependencies and shared files
+ok: missing optional CLI tolerated under target All
+ok: target Codex with codex absent fails as required
+ok: -SkipPluginUninstall proceeds when CLI is absent
+ok: idempotency: second uninstall succeeds
+ok: invalid plugin name rejected
+ok: invalid -Target rejected
+ok: empty -InstallRoot rejected
+ok: filesystem root rejected as -InstallRoot
+ok: home directory rejected as -InstallRoot
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: -Mcp <list> selects MCP payload/registration removal
+ok: invalid -Mcp name rejected
+ok: -Mcp "" (empty) is rejected
+ok: -Plugins "" (empty) is rejected
+ok: uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys
+ok: uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks
+Kept installed files at: /tmp/sdd-uninstall-mcp-q-ab006cf8-0185-41a4-aab4-7c4a8bd4af48/installed (-KeepFiles).
+
+SDD plugins uninstalled.
+ok: corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned
+ok: absent Cursor/VS Code dirs are skipped without error and without directory creation
+ok: FilesOnly skips CLI calls but removes files
+ok: T-003 uninstall output is unaffected by project-context presence
+
+uninstall.tests.ps1: all scenarios passed.
+ok: All install_1 present
+ok: All verify_1 drift_check
+ok: All install_2 idempotent
+ok: All verify_residue empty
+ok: All result schema install-uninstall-matrix-result/v1
+ok: Codex install_1 present
+ok: Codex verify_1 drift_check
+ok: Codex install_2 idempotent
+ok: Codex verify_residue empty
+ok: Codex result schema install-uninstall-matrix-result/v1
+ok: Claude install_1 present
+ok: Claude verify_1 drift_check
+ok: Claude install_2 idempotent
+ok: Claude verify_residue empty
+ok: Claude result schema install-uninstall-matrix-result/v1
+ok: Copilot install_1 present
+ok: Copilot verify_1 drift_check
+ok: Copilot install_2 idempotent
+ok: Copilot verify_residue empty
+ok: Copilot result schema install-uninstall-matrix-result/v1
+ok: FilesOnly is explicitly out-of-matrix (AC-011)
+install-uninstall-matrix: 20 passed, 0 failed
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-4d26d702e94d49eabe83d2f0eeff0bb6/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: All install_1 present
+ok: All verify_1 drift_check
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-4d26d702e94d49eabe83d2f0eeff0bb6/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: All install_2 idempotent
+Removed installed files at: /tmp/sdd-matrix-4d26d702e94d49eabe83d2f0eeff0bb6/install.
+
+SDD plugins uninstalled.
+ok: All verify_residue empty
+ok: All result schema install-uninstall-matrix-result/v1
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-7c3f75bcd45a4bd8835255c2fd0e6509/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+ok: Codex install_1 present
+ok: Codex verify_1 drift_check
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-7c3f75bcd45a4bd8835255c2fd0e6509/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+ok: Codex install_2 idempotent
+Removed installed files at: /tmp/sdd-matrix-7c3f75bcd45a4bd8835255c2fd0e6509/install.
+
+SDD plugins uninstalled.
+ok: Codex verify_residue empty
+ok: Codex result schema install-uninstall-matrix-result/v1
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-37ff722a3e31492e95b297dee05e457d/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Claude: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Claude install_1 present
+ok: Claude verify_1 drift_check
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-37ff722a3e31492e95b297dee05e457d/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Claude: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Claude install_2 idempotent
+Removed installed files at: /tmp/sdd-matrix-37ff722a3e31492e95b297dee05e457d/install.
+
+SDD plugins uninstalled.
+ok: Claude verify_residue empty
+ok: Claude result schema install-uninstall-matrix-result/v1
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-f224e2a2bba74f50b5a596cf41dee107/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Copilot: registered
+ok: Copilot install_1 present
+ok: Copilot verify_1 drift_check
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-f224e2a2bba74f50b5a596cf41dee107/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Copilot: registered
+ok: Copilot install_2 idempotent
+Removed installed files at: /tmp/sdd-matrix-f224e2a2bba74f50b5a596cf41dee107/install.
+
+SDD plugins uninstalled.
+ok: Copilot verify_residue empty
+ok: Copilot result schema install-uninstall-matrix-result/v1
+ok: FilesOnly is explicitly out-of-matrix (AC-011)
+install-uninstall-matrix: 21 passed, 0 failed
+ok: already-registered marketplaces and MCP servers are tolerated
+ok: a non-idempotency registration failure is still fatal
+ok: an already-installed Claude plugin is upgraded and the transition reported
+ok: a machine already at the new version reports no upgrade
+ok: a clean install does not enter the upgrade path
+ok: a placement-phase failure still reverts the install root
+ok: a registration-phase failure keeps the new version and names what failed
+
+Results: 7 passed, 0 failed.
+ok: already-registered marketplaces and MCP servers are tolerated
+ok: a non-idempotency registration failure is still fatal
+ok: an already-installed Claude plugin is upgraded and the transition reported
+ok: a machine already at the new version reports no upgrade
+ok: a clean install does not enter the upgrade path
+ok: a placement-phase failure still reverts the install root
+ok: a registration-phase failure keeps the new version and names what failed
+
+installer-idempotency.tests.ps1: all scenarios passed.
+ok: lane 0: install=0, startup=0
+ok: lane 0: install=17, startup=0
+ok: lane 0: install=0, startup=19
+ok: lane 1: install=0, startup=0
+ok: lane 1: install=17, startup=0
+ok: lane 1: install=0, startup=19
+Claude installation workflow: 6 passed
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+MCP server sdd-forge-mcp already exists in user config
+Error: could not write to disk
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+MCP server sdd-forge-mcp already exists in user config
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+MCP server sdd-forge-mcp already exists in user config
+Error: could not write to disk

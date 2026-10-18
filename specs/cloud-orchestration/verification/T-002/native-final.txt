@@ -1,0 +1,9 @@
+Implemented T-002 only: eight strict schemas, shared validation library, and adversarial tests.
+
+- 23 task tests and 44 regression checks pass.
+- Disposable rollback verified.
+- Red commits, manifest, and evidence retained.
+
+Report: `reports/implementation/cloud-orchestration/T-002.md`
+
+No cloud actions or status changes. Independent review/gate and native Windows validation remain pending.

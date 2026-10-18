@@ -1,0 +1,11 @@
+{
+  "task_id": "T-010",
+  "review_run_id": "01a14f92-92da-7220-b648-75700b16183d",
+  "implementation_run_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "verdict": "PASS",
+  "manifest_sha256": "6e282cda7dca35709747f0ff37c3f2a0dce72e933b9d3373960d51f9012035c6",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261018-cloud-orchestration-T-010-cycle-2.md",
+  "completion_scope": "On actual independent PASS and all caller checks: accept local T010 dependency scope and generate/validate evidence bundle. T010 may be Done. Other tasks remain subject to their own preflight, live prerequisites and final release verification. No cloud live acceptance, native macOS/Windows run, installer completion, whole-repository CI or release is claimed by this gate. [INFO] retrospective deferred while later approved tasks remain incomplete."
+}

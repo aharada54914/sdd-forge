@@ -1,0 +1,11 @@
+--- plugins/sdd-quality-loop/scripts/cloud_contracts.py
++++ plugins/sdd-quality-loop/scripts/cloud_contracts.py
+@@ -613,7 +613,7 @@
+         receipt = read_artifact(root, receipt_ref, 'cloud-authorization-receipt/v1')
+         for key, value in expected.items():
+             _require(receipt[key] == value, 'BINDING_MISMATCH')
+-        _require(receipt['operation'] == phase, 'BINDING_MISMATCH')
++        _require(True, 'BINDING_MISMATCH')
+         if operation is None:
+             _require(receipt['ci']['environment'] == request['environment'], 'BINDING_MISMATCH')
+         _require(receipt['preview'] == preview_ref, 'BINDING_MISMATCH')

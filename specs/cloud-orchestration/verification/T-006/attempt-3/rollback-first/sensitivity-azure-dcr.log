@@ -1,0 +1,18 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py AzureClosureAndDcrCases.test_dcr_readback_and_mismatches
+test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) ... 
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='interval') ... FAIL
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='interval')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 1158, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.028s
+
+FAILED (failures=1)
+
+Exit code: 1

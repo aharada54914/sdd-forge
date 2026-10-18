@@ -1,0 +1,14 @@
+{
+  "schema": "implementation-identity-binding/v1",
+  "run_id": "01a14ef5-f7d9-79e3-8b89-23b4811edc3b",
+  "session_id": "01a14ef5-f7d9-79e3-8b89-23b4811edc3b",
+  "agent_instance_id": "01a14ef5-f7d9-79e3-8b89-23b4811edc3b",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "model_tier": "strong",
+  "source": "Caller native identity corroborated by stable native allocation thread.id; no process-environment identity",
+  "allocation_sha256": "1c5e5ccf6e38531cfd17e3c609d220ac53c52cea4cb188255ea09eaacc7e8917",
+  "model_selection_sha256": "6af7166342adc5e97ce273dee2bbc8559bf9ae0a4be9fd8f5e1d5939152cff4b",
+  "raw_transport_logs_excluded": true
+}

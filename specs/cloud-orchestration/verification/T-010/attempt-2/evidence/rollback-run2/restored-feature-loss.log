@@ -1,0 +1,64 @@
+NETWORK_SENTINEL_PARENT_CHILD_SHELL_PASS
+NETWORK_SENTINEL_POWERSHELL_CHILD_PASS
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) ... 
+  test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='azure', stage='prepare') ... ERROR
+  test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='azure', stage='apply') ... ERROR
+  test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='aws', stage='prepare') ... ERROR
+  test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='aws', stage='apply') ... ERROR
+
+======================================================================
+ERROR: test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='azure', stage='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 4444, in test_dependency_matched_control_at_both_shared_stages
+    state.target.write()
+  File "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 605, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='azure', stage='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 4444, in test_dependency_matched_control_at_both_shared_stages
+    state.target.write()
+  File "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 605, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='aws', stage='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 4444, in test_dependency_matched_control_at_both_shared_stages
+    state.target.write()
+  File "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 605, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='aws', stage='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 4444, in test_dependency_matched_control_at_both_shared_stages
+    state.target.write()
+  File "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 605, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+----------------------------------------------------------------------
+Ran 1 test in 1.457s
+
+FAILED (errors=4)

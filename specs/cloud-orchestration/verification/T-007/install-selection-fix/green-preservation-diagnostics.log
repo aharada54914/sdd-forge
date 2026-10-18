@@ -1,0 +1,57 @@
+test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) ... prior rebuild bash: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-7b0_a41m/tmprnuslnh5/sdd-plugins-staging-CSYqQ9/plugins/sdd-quality-loop/scripts/cloud_dependencies.py': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-7b0_a41m/tmpewyimtgj/sdd-plugins-staging-pRntkw/plugins/sdd-quality-loop/references/cloud-verification-registry.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-7b0_a41m/tmpnjwi1nr5/sdd-plugins-staging-FuocC3/plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-7b0_a41m/tmpjs0dwq7u/sdd-plugins-staging-IWtBSv/contracts/cloud-*.schema.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/workspace/sdd-forge/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m             [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/s[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-7b0_a41m/tmpm1wj9uof/sdd-plugins-staging-bb25b94e-5fbe-4e5b-93bc-138131f75fa1/plugins/sdd-quality-loop/scripts/cloud_dependencies.py' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/workspace/sdd-forge/install.ps1:813[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 813 | [0m         [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/sdd-q[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-7b0_a41m/tmpnyqi39y5/sdd-plugins-staging-49520d1b-2751-40ba-b189-5895e4f70012/plugins/sdd-quality-loop/references/cloud-verification-registry.json' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/workspace/sdd-forge/install.ps1:821[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 821 | [0m             [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/s[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-7b0_a41m/tmp9o35gw6l/sdd-plugins-staging-bcf91151-6b30-487d-b1f2-cc4bd6076789/plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'), exit=1, preserved=True
+[31;1mException: [0m/workspace/sdd-forge/install.ps1:816[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 816 | [0m … unt -eq 0) { [36;1mthrow "Cloud schemas are missing from staged payload."[0m }[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCloud schemas are missing from staged payload.[0m
+
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 12.048s
+
+OK
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH

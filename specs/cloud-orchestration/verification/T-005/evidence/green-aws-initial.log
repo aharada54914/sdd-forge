@@ -1,0 +1,67 @@
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsRouting.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsRouting.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_mixed_unsupported_missing_import_and_provider (__main__.AwsRouting.test_mixed_unsupported_missing_import_and_provider) ... ERROR
+test_output_and_source_integrity (__main__.AwsRouting.test_output_and_source_integrity) ... ok
+test_route_owner_identity_and_stable_intent (__main__.AwsRouting.test_route_owner_identity_and_stable_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AwsRouting.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AwsRouting.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_filesystem_subprocess (__main__.AwsRouting.test_unsupported_filesystem_subprocess) ... ok
+test_governed_operations_are_typed_blocked_not_fake_success (__main__.AwsCliContract.test_governed_operations_are_typed_blocked_not_fake_success) ... ok
+test_input_output_alias_is_not_overwritten (__main__.AwsCliContract.test_input_output_alias_is_not_overwritten) ... ok
+test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) ... ok
+test_unknown_operation_and_flag_are_typed_rejections (__main__.AwsCliContract.test_unknown_operation_and_flag_are_typed_rejections) ... ok
+test_ambient_credentials_are_rejected_before_application (__main__.AwsNativePreparation.test_ambient_credentials_are_rejected_before_application) ... ok
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsNativePreparation.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsNativePreparation.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_explicit_node_location_and_bytes (__main__.AwsNativePreparation.test_explicit_node_location_and_bytes) ... ok
+test_generated_output_inside_source_and_hidden_owners_block (__main__.AwsNativePreparation.test_generated_output_inside_source_and_hidden_owners_block) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_installed_runtime_mutation_denied (__main__.AwsNativePreparation.test_installed_runtime_mutation_denied) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsNativePreparation.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_mixed_unsupported_missing_import_and_provider (__main__.AwsNativePreparation.test_mixed_unsupported_missing_import_and_provider) ... ERROR
+test_output_and_source_integrity (__main__.AwsNativePreparation.test_output_and_source_integrity) ... ok
+test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) ... ok
+test_real_synth_complete_locked_assembly_validate_without_execution (__main__.AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution) ... ok
+test_route_owner_identity_and_stable_intent (__main__.AwsNativePreparation.test_route_owner_identity_and_stable_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AwsNativePreparation.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AwsNativePreparation.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_executable_config_and_unlocked_sources (__main__.AwsNativePreparation.test_unsupported_executable_config_and_unlocked_sources) ... ok
+test_unsupported_filesystem_subprocess (__main__.AwsNativePreparation.test_unsupported_filesystem_subprocess) ... ok
+
+======================================================================
+ERROR: test_mixed_unsupported_missing_import_and_provider (__main__.AwsRouting.test_mixed_unsupported_missing_import_and_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 781, in test_mixed_unsupported_missing_import_and_provider
+    self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_UNSUPPORTED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 179, in invoke
+    self.assertEqual(result["operation"], phase)
+                     ~~~~~~^^^^^^^^^^^^^
+KeyError: 'operation'
+
+======================================================================
+ERROR: test_mixed_unsupported_missing_import_and_provider (__main__.AwsNativePreparation.test_mixed_unsupported_missing_import_and_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 781, in test_mixed_unsupported_missing_import_and_provider
+    self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_UNSUPPORTED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 836, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 179, in invoke
+    self.assertEqual(result["operation"], phase)
+                     ~~~~~~^^^^^^^^^^^^^
+KeyError: 'operation'
+
+----------------------------------------------------------------------
+Ran 35 tests in 15.873s
+
+FAILED (errors=2)

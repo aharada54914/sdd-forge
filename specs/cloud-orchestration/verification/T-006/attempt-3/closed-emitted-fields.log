@@ -1,0 +1,6 @@
+test_all_emitted_required_fields_have_closed_schema_counterparts (__main__.PublicObservationCases.test_all_emitted_required_fields_have_closed_schema_counterparts) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.212s
+
+OK

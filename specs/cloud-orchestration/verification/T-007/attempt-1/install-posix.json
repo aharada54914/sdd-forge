@@ -1,0 +1,11 @@
+{
+  "command": [
+    "bash",
+    "tests/install.tests.sh"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:29:23Z",
+  "exit_code": 0,
+  "elapsed_seconds": 20.309,
+  "classification": "offline local command; no live cloud"
+}

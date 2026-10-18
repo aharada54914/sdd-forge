@@ -1,0 +1,15 @@
+RUN_ID: 01a14dbe-2a3a-7221-819e-f459ecb038a2
+HOST_SESSION_ID: 01a14dbe-2a3a-7221-819e-f459ecb038a2
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-004/quality-cycle-1/review/invocation.json SHA-256 144da457b2790b023da45d9581714185363a82cd5d4e3dc580bfba66880a7007
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Critical] plugins/sdd-azure-cloud/scripts/cloud.py:155-161 — Raw CloudFormation detection can miss valid templates, violating AC-002’s mixed-owner blocking requirement. For example, `{"\u0052esources":{"Bucket":{"Type":"AWS::S3::Bucket"}}}` contains a valid Resources key but matches none of the byte-level detection predicates. Alongside Bicep, the detected owner remains Bicep and routing succeeds. Tests at tests/cloud-orchestration-routing.tests.py:198-207 cover only unescaped spellings.
+- [Major] reports/implementation/cloud-orchestration/T-004.md:377 — The separately required named independent review remains unevidenced. T-004’s approved Done When requires that verdict; the report explicitly says it remains pending and line 413 states no independent review occurred. The supplied supplemental declaration provides no completion attestation for this obligation.
+CHECKED:
+- Verified invocation digest and recomputed the reservation record hash; both match the supplied pins and receipt. Implementation and evaluator identities differ.
+- Inspected T-004 scope, acceptance criteria, design, ADR, contracts, and implementation lines. Credentialed execution and live verification remain outside this task.
+- Inspected owner detection, compiler pinning, source closure, graph policy, immutable publication, and typed denial paths. Identified the owner-detection bypass above by predicate inspection.
+- Read saved quality-cycle command outputs: 40 routing tests and 31 contract tests passed without reported skips; lint and typecheck passed.
+- Read final native evidence: six route/plan/validate invocations exited zero, explicitly classified as local compilation with synthetic targets.
+- Compared preserved original CLI tests with current source; the original test class remains intact. Read Red and rollback evidence showing restoration of the original 20-failure baseline and passing contract regressions.
+- No tests were rerun in this read-only evaluation. Saved outputs and source inspection do not establish live cloud behavior or native Windows/macOS support.

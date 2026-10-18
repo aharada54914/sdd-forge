@@ -1,0 +1,204 @@
+{
+  "base_revision": "65ee658c1b3e522eced2413aeb55bb897783bf1b",
+  "entry": {
+    "contracts/cloud-check-result.schema.json": null,
+    "contracts/cloud-collection-context.schema.json": null,
+    "contracts/cloud-observation-evidence.schema.json": null,
+    "plugins/sdd-aws-cloud/references/aws-local-config.schema.json": "6d4c34982e844d29171b5d0d24b555df70bdb8ae57039854d91824a8af577778",
+    "plugins/sdd-aws-cloud/references/aws-local-evidence.schema.json": "d64402c81095bd9a0657d34f4723a02996d91bb93cb0d0906c4ca288aeaa3187",
+    "plugins/sdd-aws-cloud/references/local-preparation.md": "2a890269fabb6128f125f5533d3eb4c6411589ca0d0843b642b47cc959f7a257",
+    "plugins/sdd-aws-cloud/references/observations.md": null,
+    "plugins/sdd-aws-cloud/references/toolchain-lock.json": "c46bafb8869840c879739f424746eda64ca6c62aafab906d9e98012dee7c3f5d",
+    "plugins/sdd-aws-cloud/references/upstream-lock.json": "1898ede044cc25e0fba804077559544f5f58e9e323d8d0701721b8545cc97766",
+    "plugins/sdd-aws-cloud/scripts/aws_control.py": "92842d7174dbb0bc8ba3ad796fd8a3bd7f46ed91178dfa80bbc6558762523d67",
+    "plugins/sdd-aws-cloud/scripts/aws_execution.py": "69ba7b8b9fe43c1ddcb0a7af0b38f2c5f60affc7e86d02c3710e8a168b5974f7",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py": "33dd06c2b3130d1357938f4b9f077aa6d855149a690d69fdd06d55f94e0cddff",
+    "plugins/sdd-aws-cloud/scripts/aws_graph.py": "21896c758e64f5db7571c2c5209a4ab122cac8347dc18096c29e79f7396a42fd",
+    "plugins/sdd-aws-cloud/scripts/aws_local.py": "82bbf762e80d62abdc77b56f850729c72d4ae83c3e59f4de09751867f16e4b31",
+    "plugins/sdd-aws-cloud/scripts/aws_native.py": "c49dc00931cda5a913e896278da3ba1f48c5c97dbc365c4618edc5ff377fcf8e",
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py": "921876a68457547629c654f6ab5a3e9cb6cde85622357063718447a6df35bb2c",
+    "plugins/sdd-aws-cloud/scripts/cloud.py": "167b3e37e88a5ab1c32344e226823ae0e9d1518d7927a7ab4221422a011cc933",
+    "plugins/sdd-azure-cloud/references/azure-local-config.schema.json": "3343f9215bdf915764e4f68b89b5262746aa3b5509c122de192ff85bbdd6258d",
+    "plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json": "e4584e317609585b3effc865412757ef730448d814b2ce7f78eebf485728b68a",
+    "plugins/sdd-azure-cloud/references/azure-parameters.schema.json": "5922b55565b1a506db4cc424560cbfaa0b07766f1e26bf50dd4247ade18fc3ae",
+    "plugins/sdd-azure-cloud/references/local-contract.md": "68850cae945e1e5357fedb284079cce67fec809a07cd1a35f6f923a39b89fdfc",
+    "plugins/sdd-azure-cloud/references/observations.md": null,
+    "plugins/sdd-azure-cloud/references/upstream-lock.json": "f7e22249f21c062e6207579460b1ad1042af52e4eb619d8566fd4d99db675644",
+    "plugins/sdd-azure-cloud/scripts/azure_arm.py": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86",
+    "plugins/sdd-azure-cloud/scripts/azure_execution.py": "cb8b14a85e305431aaf80eb568620aeb42b724aa13f485251338f9bde70c360a",
+    "plugins/sdd-azure-cloud/scripts/azure_governed.py": "bcb77efc17062191fc803a536d38ec870565b74af8176358b6aae595e8885bd0",
+    "plugins/sdd-azure-cloud/scripts/azure_graph.py": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f",
+    "plugins/sdd-azure-cloud/scripts/azure_local.py": "43d37a2ec9ae8e5bfc60690480c7ec607237b03b4c3d6fbb7f1e8d2ee7792f10",
+    "plugins/sdd-azure-cloud/scripts/azure_observation.py": "9e39eacfb0a64763198bb4ece1f3b2383dd0d72e9d1e572b25047a2d37844e02",
+    "plugins/sdd-azure-cloud/scripts/cloud.py": "4ae02ced280a8267a99fbd18b92d5fbd7a61b3d3e64c369b02e02c63c15b5636",
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py": "c00013163c46a0c2b2c8e85b1f8fc00f46a7210af0bf8f076401e9efbe626d33",
+    "tests/cloud-orchestration-contracts.tests.py": "71b89cf257b302fe695f7bdb5b42e648eaec0edb7ef14ce2c7f927bb5cd1a90b",
+    "tests/cloud-orchestration-routing.tests.py": "ed91ffb6d77b2c033574ad8db08abd81dc1b823f759399240f01ef910d80e21e",
+    "tests/cloud-orchestration-verification.tests.py": "84459ff2eefb4b207515fcaaab760e6c7b1764444a160552c09ea1466065e2f7"
+  },
+  "candidate": {
+    "contracts/cloud-check-result.schema.json": "992b8f4d530d4aab0fe5bca1a28b459a6c9cd9bec7e6ed68b648f489127617c0",
+    "contracts/cloud-collection-context.schema.json": "7706241bf1a949a64b18212ba09bd8a4aa66896df668084056ee6979fdb84272",
+    "contracts/cloud-observation-evidence.schema.json": "0d0dfccf3bd5982a2948a9db75fd459197b6bb683f19a993b5bfdce72df1d99e",
+    "plugins/sdd-aws-cloud/references/aws-local-config.schema.json": "1d8d1f63b8f2ff4836058d928752c5322b744727e03b14d2e34e1ec6b9d25f22",
+    "plugins/sdd-aws-cloud/references/aws-local-evidence.schema.json": "d64402c81095bd9a0657d34f4723a02996d91bb93cb0d0906c4ca288aeaa3187",
+    "plugins/sdd-aws-cloud/references/local-preparation.md": "2a890269fabb6128f125f5533d3eb4c6411589ca0d0843b642b47cc959f7a257",
+    "plugins/sdd-aws-cloud/references/observations.md": "af12bec28709582e6fcd899bdc6041b9de0d0a5c8ef00c4a9948abdfbea835be",
+    "plugins/sdd-aws-cloud/references/toolchain-lock.json": "c46bafb8869840c879739f424746eda64ca6c62aafab906d9e98012dee7c3f5d",
+    "plugins/sdd-aws-cloud/references/upstream-lock.json": "1898ede044cc25e0fba804077559544f5f58e9e323d8d0701721b8545cc97766",
+    "plugins/sdd-aws-cloud/scripts/aws_control.py": "92842d7174dbb0bc8ba3ad796fd8a3bd7f46ed91178dfa80bbc6558762523d67",
+    "plugins/sdd-aws-cloud/scripts/aws_execution.py": "69ba7b8b9fe43c1ddcb0a7af0b38f2c5f60affc7e86d02c3710e8a168b5974f7",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py": "33dd06c2b3130d1357938f4b9f077aa6d855149a690d69fdd06d55f94e0cddff",
+    "plugins/sdd-aws-cloud/scripts/aws_graph.py": "21896c758e64f5db7571c2c5209a4ab122cac8347dc18096c29e79f7396a42fd",
+    "plugins/sdd-aws-cloud/scripts/aws_local.py": "82bbf762e80d62abdc77b56f850729c72d4ae83c3e59f4de09751867f16e4b31",
+    "plugins/sdd-aws-cloud/scripts/aws_native.py": "1e2ea86be1852796c55c3858d40bef1afbcdc0594a95b0b160d88d1e5c817855",
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py": "54b76c7d0244a43a14dd5ee7b4016967c7055766d3375306ce03b47d7ddfa782",
+    "plugins/sdd-aws-cloud/scripts/cloud.py": "167b3e37e88a5ab1c32344e226823ae0e9d1518d7927a7ab4221422a011cc933",
+    "plugins/sdd-azure-cloud/references/azure-local-config.schema.json": "3950a56bc88e50c7ed498ff66d45545b302864fd972abbaa625d897a1ddc40cd",
+    "plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json": "e4584e317609585b3effc865412757ef730448d814b2ce7f78eebf485728b68a",
+    "plugins/sdd-azure-cloud/references/azure-parameters.schema.json": "5922b55565b1a506db4cc424560cbfaa0b07766f1e26bf50dd4247ade18fc3ae",
+    "plugins/sdd-azure-cloud/references/local-contract.md": "68850cae945e1e5357fedb284079cce67fec809a07cd1a35f6f923a39b89fdfc",
+    "plugins/sdd-azure-cloud/references/observations.md": "acb768d51f71aa4c3636fc2bf41df8fed25283ba895e3a95211c3dc6f77936c4",
+    "plugins/sdd-azure-cloud/references/upstream-lock.json": "f7e22249f21c062e6207579460b1ad1042af52e4eb619d8566fd4d99db675644",
+    "plugins/sdd-azure-cloud/scripts/azure_arm.py": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86",
+    "plugins/sdd-azure-cloud/scripts/azure_execution.py": "cb8b14a85e305431aaf80eb568620aeb42b724aa13f485251338f9bde70c360a",
+    "plugins/sdd-azure-cloud/scripts/azure_governed.py": "a4a759aca319fe34382d0dc0af3a409a3b54522e9e84baa88e584dfa95694a0e",
+    "plugins/sdd-azure-cloud/scripts/azure_graph.py": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f",
+    "plugins/sdd-azure-cloud/scripts/azure_local.py": "43d37a2ec9ae8e5bfc60690480c7ec607237b03b4c3d6fbb7f1e8d2ee7792f10",
+    "plugins/sdd-azure-cloud/scripts/azure_observation.py": "fb80d1ffd1e74c4b01ef403b0085b5d6e0c92bc21c1f7fb36805b705032313a8",
+    "plugins/sdd-azure-cloud/scripts/cloud.py": "4ae02ced280a8267a99fbd18b92d5fbd7a61b3d3e64c369b02e02c63c15b5636",
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py": "6dd4b2816a8928e06756f86a354556c6ccee3a0f7fb0d9ad883cb856becdb91f",
+    "tests/cloud-orchestration-contracts.tests.py": "c93c19356d8b26e2be5da3633359be5d69ec214c2e910fac77b97213ff4a548c",
+    "tests/cloud-orchestration-routing.tests.py": "d038f799960a234e433dcc4a845ddb7b19394f4a5880c7ed9dd0f7f7037b243a",
+    "tests/cloud-orchestration-verification.tests.py": "957d2db7958a9d79d3c0a4ffa9c555ba5af9a98ba13622326a0b2631f65b43c8"
+  },
+  "commands": [
+    {
+      "name": "rollback-create",
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-T006-01a14e73/rollback",
+        "65ee658c1b3e522eced2413aeb55bb897783bf1b"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "rollback-entry-verification",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "rollback-entry-routing-known-red",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "rollback-candidate-verification",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "rollback-restored-verification",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "rollback-reapplied-verification",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "sensitivity-membership-stack",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AwsObservationOrchestration.test_stack_membership_counterparts"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-membership-logical",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AwsObservationOrchestration.test_stack_membership_counterparts"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-membership-type",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AwsObservationOrchestration.test_stack_membership_counterparts"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-membership-state",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AwsObservationOrchestration.test_stack_membership_counterparts"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-lease",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py",
+        "NativeCollectorCases.test_expired_collector_lease_has_zero_reads"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-context-binding",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py",
+        "ReducerCases.test_each_context_counterpart_mismatch"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "rollback-sensitivity-restored",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "shared_tree_unchanged": true
+}

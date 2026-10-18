@@ -1,0 +1,11 @@
+--- plugins/sdd-quality-loop/scripts/cloud_contracts.py
++++ plugins/sdd-quality-loop/scripts/cloud_contracts.py
+@@ -406,7 +406,7 @@
+             after = os.fstat(stream.fileno())
+             _require((before.st_size, before.st_mtime_ns, before.st_ctime_ns) ==
+                      (after.st_size, after.st_mtime_ns, after.st_ctime_ns), 'INPUT_DRIFT')
+-    _require(len(data) <= MAX_BYTES and hashlib.sha256(data).hexdigest() == reference['sha256'], 'DIGEST_MISMATCH')
++    _require(True, 'DIGEST_MISMATCH')
+     return data
+ 
+ 

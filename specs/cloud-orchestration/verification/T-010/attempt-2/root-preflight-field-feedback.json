@@ -1,0 +1,14 @@
+{
+  "id": 900101,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+    "expectedTurnId": "01a14f3e-b57c-7a41-966b-885034bf442b",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root pre-production feedback: actual Red f1e8bf62 is recorded, but preflight.md groups many NEW external trust/producer fields under one mutation (e.g. environment_id does not test actor/reviewer; conclusion does not test attempt/event/head/title; repository_id does not test repository/workflow/ref/revision). Before production edits, expand the actual mismatch matrix to every introduced persisted trust/config/producer binding field, with per-field variants and exact expected counterpart. Reuse the genuinely executed baseline matrices for unchanged reducer fields by naming exact cases/fields, not a blanket citation. Include consumer dependency_request_sha256 and predecessor trust-set omission/addition. The current four matched-control errors are allowed behavioral Red ONLY if fixture reaches the intended blanket boundary; report exact errors, and repair setup failures first. Add graph tests before its implementation as your checklist says. Do not count one changed field as exhaustive coverage of siblings. This is completion of existing WFI001 checklist, not a request for passing positive controls before product. Once this actual per-field Red matrix/checklist is recorded and committed, proceed; no need for another root approval. Preserve existing logs and no retroactive claims."
+      }
+    ]
+  }
+}

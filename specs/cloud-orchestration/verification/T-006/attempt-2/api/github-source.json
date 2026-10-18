@@ -1,0 +1,6 @@
+{
+  "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/github-openapi.json",
+  "url": "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.json",
+  "sha256": "3177ad6a86ca04c57a9bef3fc24e28a339efb8eb040c6f950af3d3ed2fee7fa3",
+  "acquired_at": "2026-10-18T10:16:19Z"
+}

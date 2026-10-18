@@ -1,0 +1,64 @@
+{
+  "thread": {
+    "id": "01a14dbd-6bba-75a0-9d8e-7f0e49d237dd",
+    "environments": [
+      {
+        "environmentId": "local",
+        "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace",
+        "runtimeWorkspaceRoots": [
+          "/workspace/.tools/sdd-forge-dev/verification-workspace"
+        ]
+      }
+    ],
+    "extra": null,
+    "sessionId": "01a14dbd-6bba-75a0-9d8e-7f0e49d237dd",
+    "forkedFromId": null,
+    "parentThreadId": null,
+    "preview": "",
+    "ephemeral": false,
+    "section": null,
+    "sectionEnteredAt": null,
+    "projectId": null,
+    "historyMode": "paginated",
+    "modelProvider": "openai",
+    "model": "gpt-6-astra",
+    "reasoningEffort": "high",
+    "createdAt": 1792305622,
+    "updatedAt": 1792305622,
+    "recencyAt": 1792305622,
+    "status": {
+      "type": "idle"
+    },
+    "path": "/workspace/.tools/sdd-forge-dev/codex-dev/sessions/2026/10/18/rollout-2026-10-18T06-40-21-01a14dbd-6bba-75a0-9d8e-7f0e49d237dd.jsonl",
+    "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace",
+    "cliVersion": "0.159.2",
+    "originator": "cloud-independent-quality",
+    "source": "vscode",
+    "canAcceptDirectInput": true,
+    "threadSource": null,
+    "agentNickname": null,
+    "agentRole": null,
+    "gitInfo": null,
+    "name": null,
+    "daybreakEnabled": null,
+    "turns": []
+  },
+  "model": "gpt-6-astra",
+  "modelProvider": "openai",
+  "serviceTier": null,
+  "disabledPluginIds": [],
+  "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace",
+  "runtimeWorkspaceRoots": [
+    "/workspace/.tools/sdd-forge-dev/verification-workspace"
+  ],
+  "instructionSources": [],
+  "approvalPolicy": "never",
+  "approvalsReviewer": "user",
+  "sandbox": {
+    "type": "readOnly",
+    "networkAccess": false
+  },
+  "activePermissionProfile": null,
+  "reasoningEffort": "high",
+  "multiAgentMode": "explicitRequestOnly"
+}

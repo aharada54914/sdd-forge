@@ -1,0 +1,35 @@
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+MCP server sdd-forge-mcp already exists in user config
+ok: already-registered marketplaces and MCP servers are tolerated
+Error: could not write to disk
+ok: a non-idempotency registration failure is still fatal
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+MCP server sdd-forge-mcp already exists in user config
+ok: an already-installed Claude plugin is upgraded and the transition reported
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+MCP server sdd-forge-mcp already exists in user config
+ok: a machine already at the new version reports no upgrade
+ok: a clean install does not enter the upgrade path
+ok: a placement-phase failure still reverts the install root
+Error: could not write to disk
+ok: a registration-phase failure keeps the new version and names what failed
+
+installer-idempotency.tests.ps1: all scenarios passed.

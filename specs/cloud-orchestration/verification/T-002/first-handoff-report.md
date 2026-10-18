@@ -1,0 +1,239 @@
+# Implementation Report: T-002
+
+- Task ID: T-002
+Run ID: 01a14d58-5499-7ca2-8163-29f057e91e9c
+Task Attempt Count: 1
+- **Run ID**: 01a14d58-5499-7ca2-8163-29f057e91e9c
+- **Session ID**: 01a14d58-5499-7ca2-8163-29f057e91e9c
+- **Scratch Root**: /tmp/cloud-T-002-01a14d58
+- Agent Instance ID: 01a14d58-5499-7ca2-8163-29f057e91e9c
+- Provider / actual model / effort / tier: openai / gpt-6-astra / high / strong
+- Isolation: fresh-agent; no identity derived from process environment
+spec_revision: 31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922
+Input manifest: `specs/cloud-orchestration/verification/T-002/task-input-manifest.json`, SHA-256 `8fc18b0756b277d093ed11e7c8124e83e74ff4587bae00aa5f6276df718d0dca`
+
+## Scope and delivery
+
+Implemented only T-002: eight separate strict v1 cloud schemas, the stdlib-only
+shared integrity library, and its adversarial suite. REQ-004 / TEST-004 and
+REQ-010 / TEST-010 are covered at the contract/artifact layer, not at a cloud
+executor or authenticated collector. Existing code/shell/docs/spec contracts,
+shell scripts, frozen specs, task statuses, approvals and historical evidence
+were not changed. The raw requirements hash above is spec_revision; it is not
+the Git commit. Full reviewed input hashes are in the validated manifest.
+
+No existing T-002 candidate files existed at entry (before.json). The existing
+#423 candidate work was preserved and is not claimed as this task's Red evidence.
+
+## Library boundary and conservative refinements
+
+- `parse_artifact(bytes, expected_schema=None)` validates exact UTF-8 JSON, closed
+  fields/types/enums/versions, duplicate keys, numeric hazards, paths/digests,
+  UTC calendar values, time-window ordering and internal result consistency.
+- `read_verified(root, ref)` checks a canonical contained single-link regular file
+  and its raw-byte SHA-256. `read_artifact(root, ref, expected_schema=None)` also
+  parses its contract and hashes all directly referenced files. It does not
+  recursively authenticate observations or turn a receipt into authority.
+- `verify_lock(root, lock, *, consumed_paths, tools, adapter_version, tool_schemas)`
+  requires a separately observed complete input inventory and tool/package/schema
+  identities. It rejects unlocked declared transitive edges and mismatches.
+  Trusted adapters must enumerate actual transitive reads; supplying the lock's
+  own declarations as observations does not establish completeness/provenance.
+- `verify_binding(root, request_ref, preview_ref, receipt_ref=None, *, now)` checks
+  request/lock/input/preview/receipt exact bytes and identity/scope/policy/profile
+  bindings and validity windows. Prepare can bind a null preview; apply cannot.
+  Semantic digest is over the adapter's exact normalized changes file; native
+  Azure what-if or AWS Change Set interpretation belongs to later provider tasks.
+- `publish_artifact(root, relative, bytes, *, scan)` requires a trusted secret
+  scanner returning literal True on the exact bytes. Missing/error/negative
+  scanners fail closed before any file creation. A temporary 0600 file is fsynced
+  and exclusively hard-linked into place, preventing partial publication and
+  overwrite. Callers supply the run evidence directory and own its permissions.
+- `input_error(code, field)` never invents a run identity or echoes raw input.
+  `exit_code(envelope)` enforces 0 PASS/NO_CHANGE, 2 BLOCKED/input-error,
+  1 FAIL, 3 UNKNOWN. Cloud operation states remain separate from task/gate states.
+
+Schemas refine the design's named mandatory fields: refs are `{path, sha256}`;
+scope is account_id/region/deployment_scope; profile is id/version/ref; dependency
+records contain explicit file edges and observed managed endpoint schemas. No
+provider resource DSL, issuer, cloud runtime, registry dispatch or public CLI was
+added. Runtime schemas are hardcoded validation functions, not a new schema engine.
+The existing sidecar schema validator is reused only as the independent structural
+oracle in the stdlib test suite; it is not a production dependency.
+
+Explicit fail-closed limits: 4 MiB per parsed/read local artifact; bounded strings,
+arrays and integers; HTTPS metadata locators with no embedded credentials/query;
+portable ASCII relative paths (no device names/traversal/trailing dot). Filesystem
+operations require POSIX dir-fd/no-follow/link primitives, reject symlink components
+including root components, hardlinks and special files. No unsafe Windows fallback
+is provided. These are conservative contract refinements, not cloud authority.
+
+## Genuine test evidence
+
+All tests are local/synthetic, with real filesystem operations; no provider API,
+CI approval, OIDC credential or deployed resource was used.
+
+| Phase / command | Actual outcome | Retained evidence |
+|---|---|---|
+| Structure: `bash plugins/sdd-bootstrap/scripts/check-sdd-structure.sh .` | exit 0, OK; CLAUDE.md advisory (interactive output) | Native session; no fabricated retained log |
+| Initial manifest validator, `--snapshot-root /tmp/cloud-T-002-01a14d58/inputs --expected-task T-002` | exit 0, TASK_INPUT_OK | manifest-validation.log |
+| Before: `bash tests/project-context-schema.tests.sh` | exit 0, 44 checks, zero failures | baseline.log |
+| Initial Red: `python3 -B tests/cloud-orchestration-contracts.tests.py` | exit 1, 12 failures: implementation absent | red.log |
+| First Green, same command | exit 0, 12 tests | green-initial.log |
+| Expanded Red, same command | exit 1, 18 tests, 3 errors: unhandled huge integer; missing prepare-null-preview path; missing public referenced-artifact reader | red-boundaries.log |
+| Expanded Green | exit 0, 18 tests | green-boundaries.log |
+| Conformance expansion first run | exit 1: test harness did not descend nullable schema branch; test defect, not product Red | red-conformance.log |
+| Corrected conformance Red | exit 1, 21 tests, one actual mismatch: published URL pattern accepted dot traversal | red-conformance-corrected.log |
+| Final suite, same command | exit 0, 23 test methods plus field-by-field adversarial subtests | green.log |
+| Related legacy schema regression | exit 0, 44 checks, zero failures | regression.log |
+| `python3 -B .../coverage-runner.py /tmp/cloud-T-002-01a14d58/coverage-real` | exit 0, actual 23-test run; stdlib trace reports 333 executable library lines, 100% line coverage (not branch coverage) | coverage-real.log, cloud_contracts.cover |
+| Final reproduction: `python3 -B specs/cloud-orchestration/verification/T-002/verify-local.py` | exit 0; suite, regression, manifest snapshot validation, Python compile and initial-input hash checks | execution.json, manifest-validation-final.log |
+| Disposable rollback: `python3 -B specs/cloud-orchestration/verification/T-002/rollback-test.py` | exit 0; exact absent-before restoration; baseline 44 checks still pass | rollback.json and rollback-*.log |
+
+The initial direct `python -m trace` experiment ran **zero tests**, despite exit 0;
+coverage.log retains that unsuccessful measurement. It is not test/coverage proof.
+The corrected runner explicitly loads and counts all 23 tests. No dedicated Python
+lint/type tool was installed; compile checks and scoped static inspection are not
+claimed as those tools. `git diff --check` for the task's tracked edits exited 0.
+The static import/API check (security-check.json) found only stdlib imports and no
+shell/eval/network entry points; this is not independent security review.
+
+The suite checks every fixture object boundary for missing/unknown fields and
+scalar types, schema/domain alignment, strict enums and versions, UTC/digest/path
+negatives, all bound file mutations (including compiled/assets/policy/profile and
+transitive/tool-schema bytes), changed request/preview/receipt scope/identities,
+expiration and future issuance, independent tool/closure drift, observation and
+verification reference tampering, result states/exit mapping, invalid identity,
+FIFO/directory/symlink/hardlink rejection, input/output alias, failed secret scans,
+canary rejection, and eight concurrent publishers with exactly one complete winner.
+Published schema limits are checked against executable runtime boundary cases.
+Calendar/freshness, key uniqueness, exact file bytes and cross-artifact equality are
+explicit runtime constraints beyond structural JSON Schema, not silent schema relaxations.
+
+## Red commits and rollback
+
+Base revision: ebf77988270b848b4c58c65721a10c135fc6db0d.
+Necessary local commits (explicit task files only; no broad staging):
+
+- a087fb5d0c3512fab898eace4e9dd6aaf2f7a5af: initial failing tests, red log,
+  preflight, initial report, before any production implementation.
+- 1635d1f7: additional failing evidence-read/prepare/malformed-number boundary tests.
+- 0ea1ac14: failing schema URL conformance test before its correction.
+
+The production module/schemas remain working-tree deliverables for the root's
+scoped review/release commit. No push, tag or merge occurred.
+
+Rollback used a separate detached worktree at the base revision under this task's
+scratch root. It ran the baseline, installed only the ten task code/schema/test
+files, ran the final suite, removed exactly those new files (their before state was
+absent), compared before/restored hashes, and reran the baseline. The worktree was
+removed afterward. This changed no active-checkout fixtures, historical evidence,
+identity ledger or approval. Code rollback does not clean up cloud resources.
+
+## Review and limits
+
+Independent named reviewer verdict: **not obtained here; root-owned and pending**.
+Formal quality gate: **not run here**. No Done or quality verdict is claimed, and
+no task status or approval field was edited. The reviewer/gate Done When condition
+must still be satisfied by the root's independent lane.
+
+Live TEST-003/005/009 remain BLOCKED by OQ-001 (owner scope/IAM/OIDC/budget/health/
+retention prerequisites). No cloud operations or host behavior trial was attempted.
+Native Windows filesystem execution is untested; missing safe primitives are
+explicitly tested to fail closed. Existing environment-SKIP conditions were not
+changed. The whole repository suite was intentionally not run (root owns baseline).
+No raw other-reviewer reports were loaded or copied. Root-owned native allocation,
+model selection, event stream and launch artifacts were not edited or hashed as
+worker outputs; native-events.jsonl may still be changing while this report is written.
+
+Consumers must separately authenticate issuer/CI/provider identity, enforce policy,
+replay and operation admission, collect real observations, and scan secrets using a
+trusted configured scanner. A self-consistent digest chain is inspectable integrity
+evidence only. Trusted root ownership is required against malicious directory
+renames/concurrent writers; no local file library establishes cloud serialization.
+
+## High-risk preflight, persisted before implementation
+
+The following checklist was committed before implementation (also retained verbatim
+in preflight.md). Initial failures were due to the absent module; subsequent Red
+logs isolate concrete implementation/schema gaps rather than inventing prior tests.
+
+## Field / counterpart / mismatch checklist
+
+| Persisted evidence field | Sibling contract / traceability counterpart | Executed failing mismatch test |
+|---|---|---|
+| cloud-run-request/v1: `schema`, `run_id`, `unit_id`, `provider`, `binding_id`, `environment`, `scope`, `scope.account_id`, `scope.region`, `scope.deployment_scope`, `owner`, `route`, `operation`, `predecessor_receipts`, `source_revision`, `input_artifacts`, `input_artifacts.0`, `input_artifacts.0.kind`, `input_artifacts.0.path`, `input_artifacts.0.sha256`, `input_artifacts.1`, `input_artifacts.1.kind`, `input_artifacts.1.path`, `input_artifacts.1.sha256`, `input_artifacts.2`, `input_artifacts.2.kind`, `input_artifacts.2.path`, `input_artifacts.2.sha256`, `input_artifacts.3`, `input_artifacts.3.kind`, `input_artifacts.3.path`, `input_artifacts.3.sha256`, `input_artifacts.4`, `input_artifacts.4.kind`, `input_artifacts.4.path`, `input_artifacts.4.sha256`, `dependency_lock`, `dependency_lock.path`, `dependency_lock.sha256`, `policy`, `policy.path`, `policy.sha256`, `verification_profile`, `verification_profile.id`, `verification_profile.version`, `verification_profile.path`, `verification_profile.sha256` | `contracts/cloud-run-request.schema.json` exact property/required/type/enum boundaries; design API / public invocation contract | `test_all_object_boundaries_unknown_and_missing_fields`, `test_all_scalar_types_and_schema_versions` |
+| cloud-dependency-lock/v1: `schema`, `adapter_version`, `upstream`, `upstream.0`, `upstream.0.repository`, `upstream.0.commit`, `upstream.0.root`, `upstream.0.files`, `upstream.0.files.0`, `upstream.0.files.0.path`, `upstream.0.files.0.sha256`, `upstream.0.files.0.references`, `upstream.0.files.0.references.0`, `upstream.0.files.1`, `upstream.0.files.1.path`, `upstream.0.files.1.sha256`, `upstream.0.files.1.references`, `tools`, `tools.0`, `tools.0.name`, `tools.0.version`, `tools.0.sha256`, `managed_endpoints`, `managed_endpoints.0`, `managed_endpoints.0.endpoint`, `managed_endpoints.0.tool_schema`, `managed_endpoints.0.tool_schema.path`, `managed_endpoints.0.tool_schema.sha256` | `contracts/cloud-dependency-lock.schema.json` exact property/required/type/enum boundaries; design API / public invocation contract | `test_all_object_boundaries_unknown_and_missing_fields`, `test_all_scalar_types_and_schema_versions` |
+| cloud-preview/v1: `schema`, `run_id`, `unit_id`, `provider`, `scope`, `scope.account_id`, `scope.region`, `scope.deployment_scope`, `request`, `request.path`, `request.sha256`, `dependency_lock`, `dependency_lock.path`, `dependency_lock.sha256`, `policy`, `policy.path`, `policy.sha256`, `verification_profile`, `verification_profile.path`, `verification_profile.sha256`, `preview_identity`, `semantic_sha256`, `changes`, `changes.path`, `changes.sha256`, `replacements`, `deletes`, `created_at`, `expires_at` | `contracts/cloud-preview.schema.json` exact property/required/type/enum boundaries; design API / public invocation contract | `test_all_object_boundaries_unknown_and_missing_fields`, `test_all_scalar_types_and_schema_versions` |
+| cloud-authorization-receipt/v1: `schema`, `run_id`, `unit_id`, `provider`, `scope`, `scope.account_id`, `scope.region`, `scope.deployment_scope`, `operation`, `issuer`, `principal`, `subject`, `ci`, `ci.repository`, `ci.workflow`, `ci.workflow_revision`, `ci.ref`, `ci.environment`, `ci.run_id`, `ci.run_attempt`, `request`, `request.path`, `request.sha256`, `preview`, `preview.path`, `preview.sha256`, `dependency_lock`, `dependency_lock.path`, `dependency_lock.sha256`, `policy`, `policy.path`, `policy.sha256`, `verification_profile`, `verification_profile.path`, `verification_profile.sha256`, `issued_at`, `expires_at`, `approval_evidence`, `approval_evidence.locator`, `approval_evidence.sha256` | `contracts/cloud-authorization-receipt.schema.json` exact property/required/type/enum boundaries; design API / public invocation contract | `test_all_object_boundaries_unknown_and_missing_fields`, `test_all_scalar_types_and_schema_versions` |
+| cloud-observation/v1: `schema`, `run_id`, `unit_id`, `provider`, `native_operation_id`, `resource_ids`, `resource_ids.0`, `principal`, `query`, `timestamp`, `exit_code`, `status`, `result`, `result.path`, `result.sha256`, `classification` | `contracts/cloud-observation.schema.json` exact property/required/type/enum boundaries; design API / public invocation contract | `test_all_object_boundaries_unknown_and_missing_fields`, `test_all_scalar_types_and_schema_versions` |
+| cloud-verification/v1: `schema`, `run_id`, `unit_id`, `provider`, `profile`, `profile.id`, `profile.version`, `profile.path`, `profile.sha256`, `required_check_ids`, `required_check_ids.0`, `checks`, `checks.0`, `checks.0.check_id`, `checks.0.observation`, `checks.0.observation.path`, `checks.0.observation.sha256`, `checks.0.result`, `overall_result`, `evidence_complete` | `contracts/cloud-verification.schema.json` exact property/required/type/enum boundaries; design API / public invocation contract | `test_all_object_boundaries_unknown_and_missing_fields`, `test_all_scalar_types_and_schema_versions` |
+| cloud-operation-result/v1: `schema`, `run_id`, `unit_id`, `provider`, `operation`, `state`, `result`, `error_code`, `message`, `input_manifest_sha256`, `evidence_manifest_path` | `contracts/cloud-operation-result.schema.json` exact property/required/type/enum boundaries; design API / public invocation contract | `test_all_object_boundaries_unknown_and_missing_fields`, `test_all_scalar_types_and_schema_versions` |
+| cloud-input-error/v1: `schema`, `error_code`, `message`, `field` | `contracts/cloud-input-error.schema.json` exact property/required/type/enum boundaries; design API / public invocation contract | `test_all_object_boundaries_unknown_and_missing_fields`, `test_all_scalar_types_and_schema_versions` |
+| request scope, owner, identity, source, binding, environment; all input/compiled/asset/module/parameter/policy/profile/lock refs | preview/receipt request exact-byte digest; preview/receipt matching scope and refs (REQ-004) | `test_every_bound_file_mutation_is_rejected`, `test_bound_scope_owner_profile_policy_identity_and_preview_drift` |
+| lock upstream files/references, tool versions/package sha, adapter version, endpoint schemas | actual consumed closure and observed tool versions/package/schema digests | `test_lock_closure_versions_packages_schemas_and_adapter` |
+| preview/receipt timestamps and semantic digest | strict UTC order/current time and exact changes bytes | `test_digests_utc_paths_and_scalar_edge_cases`, `test_bound_scope_owner_profile_policy_identity_and_preview_drift` |
+| verification check IDs/results/overall/completeness | required check set and conservative result consistency, not authenticated reducer | `test_verification_inconsistent_claims_and_duplicate_checks` |
+| operation result/state/error, input-error absence of identity | design exit codes and separate identity-free error envelope | `test_result_exit_mapping_and_invalid_identity` |
+| evidence path, byte hash, no overwrite, no secrets | contained regular file bytes and required scanner verdict (REQ-010) | `test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles`, `test_publication_atomic_no_overwrite_containment_and_scan_failure` |
+
+## Outputs
+
+The report itself is deliberately excluded. Initial reviewed input snapshots are
+retained under Scratch Root/inputs; external policy paths use the manifest
+`external/workspace/...` mapping. These rows bind all worker code, tests, direct
+non-stdlib test dependencies and retained evidence required for evaluation.
+
+| Canonical path | SHA-256 | Role |
+|---|---|---|
+| `contracts/cloud-authorization-receipt.schema.json` | `5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8` | new schema |
+| `contracts/cloud-dependency-lock.schema.json` | `e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec` | new schema |
+| `contracts/cloud-input-error.schema.json` | `d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77` | new schema |
+| `contracts/cloud-observation.schema.json` | `5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826` | new schema |
+| `contracts/cloud-operation-result.schema.json` | `78c63243cfe6abea7bb4cc2bb190fd617879248311bde065bf35a69c567368ac` | new schema |
+| `contracts/cloud-preview.schema.json` | `12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99` | new schema |
+| `contracts/cloud-run-request.schema.json` | `c7492ec7c790db1f5449070817f7e52b19707aa72bd04cba2089410c0e6ca125` | new schema |
+| `contracts/cloud-verification.schema.json` | `dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e` | new schema |
+| `plugins/sdd-quality-loop/scripts/cloud_contracts.py` | `284d6189da9279327973a757104c15a650827968d9849f76639dfa0b20a0fd5a` | production |
+| `tests/cloud-orchestration-contracts.tests.py` | `5bce4bd58638266eac92bdea3a8e394324ce74fdb3c8676158b2285a47256c72` | test |
+| `specs/cloud-orchestration/verification/T-002/baseline.log` | `c049f86e64027e337e38c57ac9c5a74b84fc6f0d4dd879062fb4f032401b0587` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/before.json` | `b131597529578e6e48f4275c31828d2830cc32e5ddafc830dd419dc1d4994cb5` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/cloud_contracts.cover` | `d451d7b9c397726651fc9d087cbe31d3d00e9dd60a994f605f8895a28253dde3` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/coverage-real.log` | `da4d72b4a2afd53836f1b2e033d7246acb99866488c6c30b1addfef47b24beaf` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/coverage-runner.py` | `0b6d57788eb55241833b93810cdeb94b8e99135f37c8d6097b58bde1c18904bc` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/coverage.log` | `99b38355258cee18ab112577c56041920d8bf87b9cb8d093036a1418f3dcae0d` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/execution.json` | `cfc229c1fe71edabcc29e363b454a83493c1ee13a5dd236d4c15680e2f902865` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/green-boundaries.log` | `7cb44e7566c1525b40f40c42819a9e3aa83b39ad1c3c9521c78ed98c2102504e` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/green-initial.log` | `05022cea730ead7035f8f90c5d7f840ed39d151c6498ee4582c22758fd1ef2fd` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/green.log` | `fe95443cf7a95206a0ed03f168ed992dcddf6fe368ea47cd461e9d993f443e06` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/manifest-validation-final.log` | `5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/manifest-validation.log` | `5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/preflight.md` | `aa8f1790e20cee92bdccda1955cdaadc460e174b48f39e127d955db7d998bd7d` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/red-boundaries.log` | `116f6c45e5648e9d41bf7c0ad5c43c50f088d1e2c57df4e5ec7d97ff0f020016` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/red-conformance-corrected.log` | `3968aef783c16fae507743fa9259e2c86fc444f9fe1c32893705c9f9514621f5` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/red-conformance.log` | `e3573f2501e40193ac0f6c8fe4fec875aad64f3326af5c4662baf3183fb75de8` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/red.log` | `ad515e4f45a38fdf5888e422fddddf3540a125f0976ce5c74fb6308eb6623755` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/regression.log` | `c049f86e64027e337e38c57ac9c5a74b84fc6f0d4dd879062fb4f032401b0587` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/rollback-baseline-after.log` | `c049f86e64027e337e38c57ac9c5a74b84fc6f0d4dd879062fb4f032401b0587` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/rollback-baseline-before.log` | `c049f86e64027e337e38c57ac9c5a74b84fc6f0d4dd879062fb4f032401b0587` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/rollback-candidate-green.log` | `c9680826967e479443190bd44b885f960d2566e2409119efbc1d864c9c28c2cf` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/rollback-checkout.log` | `ee7b0da337fbf94d042269a00dfe4de108f11147dd98ac030fd3393f38b02672` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/rollback-cleanup.log` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/rollback-test.py` | `05a5efb9f295fb88e6c8359defc7580e1d042d4b0763a10fcc78f03c7b467c16` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/rollback.json` | `1c4f80eff85dda62c5be8ab5d6568d15f4d0203705dba54d667684cea2add9b6` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/security-check.json` | `11fbf2060ece1599426ebdd0d5fcb5b5c3e2287a739a986fa888befb6a81956c` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/task-input-manifest.json` | `8fc18b0756b277d093ed11e7c8124e83e74ff4587bae00aa5f6276df718d0dca` | evidence / reproduction |
+| `specs/cloud-orchestration/verification/T-002/verify-local.py` | `9cc552489c55521591a50d5a2818a2c35a9c7d17142e1ced75d1ea7bb60ae7c5` | evidence / reproduction |
+| `plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py` | `d19f258b904dd168410f184f7854d47a3790319832b5bda919b3f7049ab41a06` | unchanged test / validation dependency |
+| `tests/project-context-schema.tests.sh` | `24f2a43393e39b2870a87aefcc213d3b096366000bfaafff60d31f5263027311` | unchanged test / validation dependency |
+| `contracts/project-context.schema.json` | `a6a86903e8126ecc0d587499f75c7222aee0eb0f442a51b39fa8ff852829592e` | unchanged test / validation dependency |
+| `contracts/provider-bindings.schema.json` | `7adfa236d2bb00055bd38f3fc6b7664f6d41e88989e9aedba1c0a9c5d55f8cd7` | unchanged test / validation dependency |
+| `contracts/project-context.template.yaml` | `afb8ae3ae563887e4f6383effe2873e4dbf164601f8b218fe6105810b1c57fd3` | unchanged test / validation dependency |
+| `plugins/sdd-implementation/scripts/validate-task-input-manifest.sh` | `5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73` | unchanged test / validation dependency |
+
+## Session handoff
+
+Task scope implementation is ready for the root's scoped and independent reviews;
+no lifecycle decision is delegated to this report. Reproduce with verify-local.py
+while the initial input snapshot remains available, and run the task suite directly
+for artifact checks. Root owns status transitions, independent verdicts and release.

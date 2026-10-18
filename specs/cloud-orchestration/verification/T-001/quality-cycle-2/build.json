@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "py_compile",
+    "tests/sdd-domain-multitarget-foundation.tests.py",
+    "specs/cloud-orchestration/verification/T-001/verify-integration.py"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": ""
+}

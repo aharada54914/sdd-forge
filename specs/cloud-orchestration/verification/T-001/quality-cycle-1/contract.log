@@ -1,0 +1,24 @@
+Verification contract FAILED for task T-001:
+ - check 'lint' has invalid command: expected a non-empty string
+ - check 'lint' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'lint' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'typecheck' has invalid command: expected a non-empty string
+ - check 'typecheck' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'typecheck' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - required check 'typecheck' has passes=false
+ - check 'unit-tests' has invalid command: expected a non-empty string
+ - check 'unit-tests' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'unit-tests' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'build' has invalid command: expected a non-empty string
+ - check 'build' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'build' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'build' evidence file is empty: specs/cloud-orchestration/verification/T-001/quality-cycle-1/build-recorded.log
+ - check 'placeholder-scan' has invalid command: expected a non-empty string
+ - check 'placeholder-scan' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'placeholder-scan' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'task-state-check' has invalid command: expected a non-empty string
+ - check 'task-state-check' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'task-state-check' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'acceptance-tests' has invalid command: expected a non-empty string
+ - check 'acceptance-tests' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'acceptance-tests' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)

@@ -1,0 +1,4 @@
+$ /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml specs/cloud-orchestration/verification/T-006/attempt-3/finalize-evidence.py
+Success: no issues found in 1 source file
+
+Exit code: 0

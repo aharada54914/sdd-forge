@@ -1,0 +1,14 @@
+test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks (__main__.ProfileDispatchIntegration.test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks) ... ok
+test_native_transport_protocol_double_reaches_positive_existing_boundary (__main__.ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary) ... ok
+test_preview_and_iac_mismatches_at_public_boundary (__main__.ProfileDispatchIntegration.test_preview_and_iac_mismatches_at_public_boundary) ... ok
+test_all_direct_consumers_explicit_selection_not_saved_authority (__main__.ProfileSavedConsumers.test_all_direct_consumers_explicit_selection_not_saved_authority) ... ok
+test_legacy_import_never_loads_cloud_runtime (__main__.ProfileSavedConsumers.test_legacy_import_never_loads_cloud_runtime) ... ok
+test_plan_fields_match_schema_and_recomputed_counterparts (__main__.ProfileSavedConsumers.test_plan_fields_match_schema_and_recomputed_counterparts) ... ok
+test_registry_protection_and_old_schema_mirrors (__main__.ProfileSavedConsumers.test_registry_protection_and_old_schema_mirrors) ... ok
+test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) ... ok
+test_self_consistent_postapply_preview_substitution_is_not_authenticated (__main__.ProfilePreviewProvenance.test_self_consistent_postapply_preview_substitution_is_not_authenticated) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 5.640s
+
+OK

@@ -1,0 +1,10 @@
+Implemented the bounded T-002 repair.
+
+- Passed: 31 contract tests, 24 admission tests, 44 schema regressions, 222 parity assertions, Ruff, mypy, rollback, and both validators.
+- Added `workspace_root()` and `verify_local_context(...)`; `verify_binding(..., operation=...)` supports immutable prepare→apply intent.
+- Added strict ownership, deployment-policy, and verification-profile schemas.
+- Red commits and pre-repair Git/blob evidence preserved.
+
+Report: [T-002-integration-repair.md](reports/implementation/cloud-orchestration/T-002-integration-repair.md). Public interfaces and remaining provider obligations are documented there and in the IAM README.
+
+No cloud actions, status changes, pushes, tags, or independent gate claims. Full-suite and quality review remain root-owned.

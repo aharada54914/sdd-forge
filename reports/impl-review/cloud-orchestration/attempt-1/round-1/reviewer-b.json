@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "01a14d2e-346b-77b1-9e0c-549909317375",
+  "host_session_id": "01a14d2e-346b-77b1-9e0c-549909317375",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "a6961460c29e6612aff917f7aaf2ba5a58fbed1636c0745312a0045e04933a13"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "94dc8ef93766bce1cabcf08913f1830398e531f825166adc852dacfba2f98ec0"
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+    },
+    {
+      "path": "reports/impl-review/cloud-orchestration/attempt-1/round-1/precheck-result.json",
+      "sha256": "77f1e30387cfc98a7bbbf5a3861f68f7aed5d72e44cadb416d845f0a5fbba79a"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "b45b4d44ac1bb610998a0827179cfe8da7fbc4dc699ebc6a09430d559101f32f"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "reports/impl-review/cloud-orchestration/attempt-1/round-1/integrated-summary.json",
+      "sha256": "c448f627e487262e47094e372c86f034d10459c46e3ace38e7c1c17d591ef411"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Architecture and normative execution sections explain thin adapters, provider-owned state, conservative serialization, exact AWS Change Set execution and Azure preview refresh in terms of ownership, authorization and drift risks."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md OQ-001 and OQ-002 identify role owners, implementation blocking status and concrete resolution actions. Advisory: label those actions explicitly as Resolution Path: for template conformity."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Assumptions adopts the GitHub Actions boundary already specified in requirements.md Assumptions and treats protected environments and exclusive write ownership as external prerequisites, not established facts."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md Security Boundaries requires region/account allowlists and configured evidence residency/retention. design.md Constraint Compliance contains only six rows and no compliance statement for these constraints. infra-spec.md Data Residency and Retention provides relevant controls, but the required compliance section does not map them. Complete that mapping so target-policy constraints cannot disappear from implementation compliance review; this omission is Critical under this check's explicit rule."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Deployment / CI Plan specifies packaged plugins, reviewable workflow/IAM templates, credential-free deterministic CI and opt-in protected sandbox jobs. infra-spec.md CI/CD Sequence defines execution order and environments. No database schema migration or incremental production rollout is proposed."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Data Plan introduces file-based contracts rather than database table/column changes. Its explicit version/profile dispatch preserves existing verification consumers and historical evidence; database migration requirements do not apply."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md Components identifies Azure CLI, AWS CLI/CDK and GitHub Actions, while authorization requires a trusted CI API to obtain approval metadata. No dedicated integration inventory specifies the supported provider CLI/API contracts or the CI approval API contract. The dependency-lock schema says tool versions will be recorded but does not select supported contracts. Implementers could choose incompatible approval metadata or preview formats at the write boundary. Add each integration's purpose, supported contract/version and unavailable/incompatible behavior; this ambiguity is blocking."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md covers REQ-001\u2013012 through audit repair, routing, two thin adapters, immutable authorization, operation reconciliation, verification and bootstrap compatibility. infra-spec.md supplies both minimal examples and brownfield controls. No GUI, universal deployment engine or production rollout is introduced."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Test Strategy binds TEST-001\u2013012, including authorization denial, artifact mutation, replay, timeout, unhealthy resources, dependent-unit failure and no-change behavior. security-spec.md Security Tests maps security surfaces to concrete test IDs and evidence. Round 1: no prior summary used for remediation assessment."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory, as supplied by the host and corroborated by investigation.md."
+    }
+  ]
+}

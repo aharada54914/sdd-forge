@@ -1,0 +1,44 @@
+{
+  "schema": "cloud-task-red-order-evidence/v1",
+  "task_id": "T-003",
+  "classification": "actual caller Git inspection, native command event ordering and isolated committed-test execution",
+  "commits": [
+    {
+      "commit": "a604a0f0836f90eae493db82b8b35749177d3412",
+      "metadata_and_changed_paths": "commit a604a0f0836f90eae493db82b8b35749177d3412\nAuthor:     Harada <jrmagneticlevitation@gmail.com>\nAuthorDate: Sun Oct 18 05:09:02 2026 +0000\nCommit:     Harada <jrmagneticlevitation@gmail.com>\nCommitDate: Sun Oct 18 05:09:02 2026 +0000\n\n    test(cloud): capture T-003 failing admission cases and preflight\n\n .../implementation/cloud-orchestration/T-003.md    |  65 ++++\n tests/cloud-orchestration-execution.tests.py       | 399 +++++++++++++++++++++\n 2 files changed, 464 insertions(+)\n",
+      "test_blob_sha256": "1b193e7bf4f79a878313e7bf0b8f2cc0b2750949d982b8f6642bd1de18c04120",
+      "production_path_absent": true
+    }
+  ],
+  "isolated_red_execution": {
+    "commit": "a604a0f0836f90eae493db82b8b35749177d3412",
+    "test_sha256": "1b193e7bf4f79a878313e7bf0b8f2cc0b2750949d982b8f6642bd1de18c04120",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "exit_code": 1,
+    "preimplementation_dependency_sha256": "284d6189da9279327973a757104c15a650827968d9849f76639dfa0b20a0fd5a",
+    "dependency_source": "Original T-003 input snapshot; production auth module absent in committed tree",
+    "result": "15 committed tests fail with their implementation absent; no live cloud calls"
+  },
+  "native_transcript_sha256": "3e7fe10f7a378c23dd94d2b642ca6d77bc5da68e33c0fbb4683a2da16050a0a5",
+  "native_order": [
+    {
+      "kind": "red_commit",
+      "event_index": 141,
+      "command_sha256": "b9c77268dec5b02458a568fa35c31e768627eef1a42b138787aa4d7a77711f5c",
+      "exit_code": 0,
+      "command_prefix": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\nimport hashlib,json\np=Path('specs/cloud-orchestration/verification/T-003/task-input-manifest."
+    },
+    {
+      "kind": "first_production_creation",
+      "event_index": 150,
+      "command_sha256": "0712c38db40d211ec7b85883c1883937a6bf3c79b09cc3e34de75c7a7b45b341",
+      "exit_code": 0,
+      "command_prefix": "/bin/bash -lc \"cat > plugins/sdd-quality-loop/scripts/cloud_authorization.py <<'PY'\n\\\"\\\"\\\"Protected GitHub admission, not a cloud engine or local appr"
+    }
+  ],
+  "limit": "Git alone proves committed tree contents/ancestry; the separate native event ordering supplies working-session sequence. Raw native sessions are not evaluator inputs."
+}

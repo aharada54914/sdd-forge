@@ -1,0 +1,16 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "install.sh",
+    "install.ps1",
+    "tests/install-cloud.tests.py",
+    "reports/implementation/cloud-orchestration/T-007-install-selection-fix.md",
+    "specs/cloud-orchestration/verification/T-007/install-selection-fix"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:18:22Z",
+  "exit_code": 0
+}

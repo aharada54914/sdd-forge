@@ -1,0 +1,11 @@
+{
+  "task_id": "T-010",
+  "review_run_id": "01a14f74-2211-74f1-9329-f5a77b7a089d",
+  "implementation_run_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "verdict": "NEEDS_WORK",
+  "manifest_sha256": "116fc36807023dc20740d835e5ec7746f29c5cd296b5798baa1fad2db9d73991",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261018-cloud-orchestration-T-010-cycle-1.md",
+  "completion_scope": "NEEDS_WORK: one actual Critical finding. Predecessor freshness is checked before the shared submit callback but its deadline is not propagated to the provider last-send guards. Carry the deadline into final native admission, reproduce callback-time expiry with zero sends, and run a fresh independent review. Existing passing tests do not cover this gap. No evidence bundle or Done from this cycle. [INFO] retrospective deferred while later approved tasks remain incomplete."
+}

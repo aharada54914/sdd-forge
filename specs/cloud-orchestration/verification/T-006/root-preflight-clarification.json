@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-18T09:37:23.266423+00:00",
+  "classification": "clarification of exact checklist/TDD sequence; no historical execution or exception invented",
+  "request": {
+    "id": 900062,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14e57-c9ef-7892-a76f-bdaa02a2fde5",
+      "expectedTurnId": "01a14e57-ca33-7151-b4dd-28bf4e32cac5",
+      "input": [
+        {
+          "type": "text",
+          "text": "Root preflight clarification: apply the exact AGENTS.md WFI-001 checklist (persisted field, counterpart, failing mismatch test) before product implementation; do not turn it into a requirement to have a finished collector before TDD can start. Replace the unused saved-payload cases with genuine tests that feed mismatched records into the intended reducer/collector callable boundary and assert its required rejection. Commit their actual Red before implementation and record the real failure point honestly. Missing behavior/component Red alone is not evidence a mismatch guard executed; execute every mismatch body/guard as implementation becomes available, retain matched controls and sensitivity evidence, and make no historical claim beyond what actually ran. The nine-field map must be complete before product changes. No requirement is waived, and unrelated CLI errors or an unread file cannot stand in for those tests. The prior T013 finding was closed by accurate chronology plus actual corrective evidence, not by an invented historical execution."
+        }
+      ]
+    }
+  }
+}

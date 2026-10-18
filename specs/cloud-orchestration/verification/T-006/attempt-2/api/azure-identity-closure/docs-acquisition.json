@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/MicrosoftDocs/azure-docs/main/articles/role-based-access-control/role-assignments-list-rest.md",
+    "path": "/tmp/cloud-api-reference/azure-identity-closure/list-rest.md",
+    "sha256": "5a9f1d20ba042b5ab8a105faf19c996a72e42be250e485a655ec5493b8ad63c3",
+    "acquired_at": "2026-10-18T10:34:14.628823+00:00"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/MicrosoftDocs/entra-docs/main/docs/identity/managed-identities-azure-resources/managed-identity-best-practice-recommendations.md",
+    "path": "/tmp/cloud-api-reference/azure-identity-closure/managed-identities-best-practice.md",
+    "sha256": "a4deef7ffa3b1da0bc5f6ac6cf6700927ce6c58faec05267fe6b90c155fd4a29",
+    "acquired_at": "2026-10-18T10:34:15.554125+00:00"
+  }
+]

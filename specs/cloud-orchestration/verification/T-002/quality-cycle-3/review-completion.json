@@ -1,0 +1,14 @@
+{
+  "schema": "cloud-task-review-completion/v1",
+  "task_id": "T-002",
+  "implementation_run_id": "01a14d58-5499-7ca2-8163-29f057e91e9c",
+  "review_run_id": "01a14d80-dca3-7431-9dce-f0476c2e2b7a",
+  "review_host_session_id": "01a14d80-dca3-7431-9dce-f0476c2e2b7a",
+  "invocation_path": "specs/cloud-orchestration/verification/T-002/quality-cycle-3/review/invocation.json",
+  "invocation_sha256": "ffbec2d9269e18b8e3d2ac4c7ebfd2cd1b2c3d8e2bdf7cd880c452ae4cde0152",
+  "result_path": "specs/cloud-orchestration/verification/T-002/quality-cycle-3/review/evaluator.txt",
+  "result_sha256": "2aa61049e9e209e07f4c6d7235a34f36f0023f3a07ed53b898ee5c5fa889e015",
+  "verdict": "PASS",
+  "findings": [],
+  "completion": "Prior artifact scope passed; later T-004 integration defect keeps task open under RT-20261018-CLOUD-CONTRACT."
+}

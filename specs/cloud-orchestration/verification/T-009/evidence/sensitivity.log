@@ -1,0 +1,9 @@
+test_aws_native_preview_guard_is_necessary_not_a_saved_hash_check (__main__.ProfileGuardSensitivity.test_aws_native_preview_guard_is_necessary_not_a_saved_hash_check) ... ok
+test_bound_preview_guard_sensitivity_with_valid_rehashed_counterpart (__main__.ProfileGuardSensitivity.test_bound_preview_guard_sensitivity_with_valid_rehashed_counterpart) ... ok
+test_profile_allowlist_and_required_check_guard_sensitivity (__main__.ProfileGuardSensitivity.test_profile_allowlist_and_required_check_guard_sensitivity) ... ok
+test_self_consistent_postapply_preview_substitution_is_not_authenticated (__main__.ProfilePreviewProvenance.test_self_consistent_postapply_preview_substitution_is_not_authenticated) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.750s
+
+OK

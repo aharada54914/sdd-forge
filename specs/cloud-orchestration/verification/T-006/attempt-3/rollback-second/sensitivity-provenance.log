@@ -1,0 +1,18 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels
+test_nested_context_fields_and_untrusted_native_labels (__main__.ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels) ... FAIL
+
+======================================================================
+FAIL: test_nested_context_fields_and_untrusted_native_labels (__main__.ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 3078, in test_nested_context_fields_and_untrusted_native_labels
+    with self.assertRaisesRegex(ValueError, "COLLECTOR_PROVENANCE_REQUIRED"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.016s
+
+FAILED (failures=1)
+
+Exit code: 1

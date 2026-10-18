@@ -1,0 +1,38 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-013",
+  "run_id": "01a14e1f-3f71-7810-83c1-d84c9c9ae7f6",
+  "session_id": "01a14e1f-3f71-7810-83c1-d84c9c9ae7f6",
+  "agent_instance_id": "01a14e1f-3f71-7810-83c1-d84c9c9ae7f6",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T08:36:51Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/iam/aws-cloudformation-authorization-acquisition.json",
+      "sha256": "106b0ed368e8d6f10b25c7bc5ddf72268ddd694581170e5f376ff83857124f81"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/iam/aws-cloudformation-authorization.json",
+      "sha256": "5f5214d42df63c5d04964ae9086788bc060bd09d52c92a75ba51f6914385e83c"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-aws-cloud/scripts/cloud.py",
+    "plugins/sdd-aws-cloud/scripts/aws_native.py",
+    "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+    "plugins/sdd-aws-cloud/scripts/aws_control.py",
+    "plugins/sdd-aws-cloud/scripts/governed-setup.md",
+    "tests/cloud-orchestration-execution.tests.py",
+    "reports/implementation/cloud-orchestration/T-013.md",
+    "specs/cloud-orchestration/verification/T-013/evidence",
+    "specs/cloud-orchestration/verification/T-013/task-input-manifest.json"
+  ]
+}

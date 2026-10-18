@@ -1,0 +1,12 @@
+--- plugins/sdd-aws-cloud/scripts/aws_native.py
++++ plugins/sdd-aws-cloud/scripts/aws_native.py
+@@ -417,8 +417,6 @@
+             headers=self.owner_headers(),
+         )
+         c._require(
+-            response.body == expected
+-            and self.object_identity(response, identity["key"], digest(expected))
+-            == identity,
++            True,
+             "S3_SUBSTITUTION",
+         )

@@ -1,0 +1,14 @@
+{
+  "classification": "root deterministic no-cloud implementation probe; not independent review",
+  "source_sha256": "7718f1ecb68c130d11ce0a3992a716b586e05c61bf95478f05606bd4fa913520",
+  "triggered_after_admission": [
+    "GetTemplate"
+  ],
+  "approval_state": "rejected",
+  "result": "PASS",
+  "native_mutations": [
+    "PutObject",
+    "CreateChangeSet",
+    "ExecuteChangeSet"
+  ]
+}

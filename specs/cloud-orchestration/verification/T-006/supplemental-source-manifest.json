@@ -1,0 +1,88 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-006",
+  "run_id": "01a14e57-c9ef-7892-a76f-bdaa02a2fde5",
+  "session_id": "01a14e57-c9ef-7892-a76f-bdaa02a2fde5",
+  "agent_instance_id": "01a14e57-c9ef-7892-a76f-bdaa02a2fde5",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T09:32:51Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/azure-permissions.json",
+      "sha256": "30d7eaad3b1c09e686affeefbd119bf2080a5ddb7bcba78e2955c20f343ffd59"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/azure-monitor-types.json",
+      "sha256": "ed9427b7ca942059dc06814a09d7cfb7938b6c96af6460d01e02e14b4c544544"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/aws-policy-evaluation.html",
+      "sha256": "c89f839064a26a0832b99613f691ef312edd02778f951ff24e577766cb822b2f"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/aws-deny-notaction.html",
+      "sha256": "b16ee412e900a3877c6d4c065c2a2871baace949c9c102ac62410db077e72ae1"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/azure-identity.json",
+      "sha256": "e5d776b4b7c62740fa4793bccbde62ab5a5fda40be27de2a2c815b711aa429c9"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/azure-backup.json",
+      "sha256": "b970baf29949091c3d7ab7c73e4854e9870479f7e738c619150f949844053a97"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/azure-dcr.json",
+      "sha256": "faee1ef80a7cb33f15969e375a65fd3ae945a49c28c631f2b7e757a3fbe7e6db"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/azure-metrics.json",
+      "sha256": "d7252e38426128a151a601d167b81da7cfc556070a87ec1809969af33517c6ba"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/azure-vm.json",
+      "sha256": "3f43b1a2e392756852cb57002678fd0dc32db2fea6c75602827afda6b0142da4"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/azure-network.json",
+      "sha256": "f7570ba60ca00c7508c892eab12ffc3ff48de2d3fd771702f33c508e7a9fcb24"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/cloudwatch.json",
+      "sha256": "56b0a8bf43250cc80f9d74208da12665445d7b3ceba5a30111e2bc29e427272a"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/sources.json",
+      "sha256": "698f30b1934d924804d370a16d2251c3665c499a80a959b439e2596d8963ea88"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/backup.json",
+      "sha256": "da49a9f7562e493e913fd387379ad7d29a443cd0f977321cca9885bc6dc8e73b"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/iam.json",
+      "sha256": "15c70eaeb15bda321fbf0e9a0db35036d67c6ccd34d38acbcad3a086b89251c5"
+    },
+    {
+      "path": "supplemental/specs/cloud-orchestration/verification/T-006/api/ec2.json",
+      "sha256": "5e5ef99b67df883ace51f0fecee5e79a7006ef66ad7f4d3c8ce607312a495394"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "plugins/sdd-azure-cloud/scripts/",
+    "plugins/sdd-aws-cloud/scripts/",
+    "plugins/sdd-azure-cloud/references/azure-local-config.schema.json",
+    "plugins/sdd-aws-cloud/references/aws-local-config.schema.json",
+    "tests/cloud-orchestration-verification.tests.py",
+    "reports/implementation/cloud-orchestration/T-006.md",
+    "specs/cloud-orchestration/verification/T-006/"
+  ]
+}

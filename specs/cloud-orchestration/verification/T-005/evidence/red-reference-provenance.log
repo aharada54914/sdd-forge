@@ -1,0 +1,126 @@
+test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) ... 
+  test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='alarm', form=0) ... FAIL
+  test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='alarm', form=1) ... FAIL
+  test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='alarm', form=2) ... FAIL
+  test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='alarm', form=3) ... FAIL
+  test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='backup', form=0) ... FAIL
+  test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='backup', form=1) ... FAIL
+  test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='backup', form=2) ... FAIL
+  test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='backup', form=3) ... FAIL
+
+======================================================================
+FAIL: test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='alarm', form=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 914, in test_literal_and_composed_markers_are_not_resource_references
+    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='alarm', form=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 914, in test_literal_and_composed_markers_are_not_resource_references
+    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='alarm', form=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 914, in test_literal_and_composed_markers_are_not_resource_references
+    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='alarm', form=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 914, in test_literal_and_composed_markers_are_not_resource_references
+    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='backup', form=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 914, in test_literal_and_composed_markers_are_not_resource_references
+    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='backup', form=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 914, in test_literal_and_composed_markers_are_not_resource_references
+    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='backup', form=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 914, in test_literal_and_composed_markers_are_not_resource_references
+    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) (kind='backup', form=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 914, in test_literal_and_composed_markers_are_not_resource_references
+    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+----------------------------------------------------------------------
+Ran 1 test in 4.666s
+
+FAILED (failures=8)

@@ -1,0 +1,569 @@
+{
+  "classification": "offline guard decision only",
+  "cases": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "README.md",
+      "expected": 0,
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "contracts/cloud-verification-registry.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "contracts/selected-verification-plan-v2.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "contracts/verification-contract-v3.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "README.md",
+      "expected": 0,
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "contracts/cloud-verification-registry.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "contracts/selected-verification-plan-v2.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "contracts/verification-contract-v3.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "README.md",
+      "expected": 0,
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "contracts/cloud-verification-registry.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "contracts/selected-verification-plan-v2.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "contracts/verification-contract-v3.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+        "--emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "README.md",
+      "expected": 0,
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "contracts/cloud-verification-registry.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "contracts/selected-verification-plan-v2.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "contracts/verification-contract-v3.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "expected": 2,
+      "exit_code": 2
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+        "-Emit",
+        "exit"
+      ],
+      "path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "expected": 2,
+      "exit_code": 2
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "classification": "local deterministic tests and static checks; no cloud actions",
+  "commands": [
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/ruff",
+        "check",
+        "--no-cache",
+        "plugins/sdd-azure-cloud/scripts/cloud.py",
+        "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+        "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+        "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T07:45:14Z",
+      "log": "specs/cloud-orchestration/verification/T-012/evidence/ruff.log"
+    },
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/mypy",
+        "--cache-dir",
+        "/tmp/cloud-T012-01a14de5/mypy",
+        "--follow-imports",
+        "silent",
+        "--ignore-missing-imports",
+        "plugins/sdd-azure-cloud/scripts/cloud.py",
+        "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+        "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+        "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T07:45:14Z",
+      "log": "specs/cloud-orchestration/verification/T-012/evidence/mypy.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T07:45:16Z",
+      "log": "specs/cloud-orchestration/verification/T-012/evidence/green-execution.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T07:45:20Z",
+      "log": "specs/cloud-orchestration/verification/T-012/evidence/green-contracts.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-012/evidence/verify-local.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T07:45:20Z",
+      "log": "specs/cloud-orchestration/verification/T-012/evidence/coverage.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-012/evidence/capture-fixture.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T07:45:47Z",
+      "log": "specs/cloud-orchestration/verification/T-012/evidence/native-shape-parity.log"
+    },
+    {
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+        "--manifest",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-012/task-input-manifest.json",
+        "--snapshot-root",
+        "/tmp/cloud-T012-01a14de5/inputs",
+        "--expected-task",
+        "T-012"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T07:45:48Z",
+      "log": "specs/cloud-orchestration/verification/T-012/evidence/manifest-validation-final.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "tests/cloud-orchestration-execution.tests.py",
+        "reports/implementation/cloud-orchestration/T-012.md"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-18T07:45:48Z",
+      "log": "specs/cloud-orchestration/verification/T-012/evidence/diff-check.log"
+    }
+  ],
+  "live_tests": {
+    "TEST-003": "BLOCKED",
+    "TEST-005": "BLOCKED",
+    "TEST-009": "BLOCKED"
+  }
+}

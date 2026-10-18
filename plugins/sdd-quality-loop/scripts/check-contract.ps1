@@ -25,6 +25,18 @@ if (-not (Test-Path -LiteralPath $ContractPath)) {
 $contractRaw = Get-Content -Raw -Encoding Utf8 $ContractPath
 $contract = $contractRaw | ConvertFrom-Json
 
+# Only the explicit new cloud branch requires the newer Python shared runtime.
+# Never load it for the standalone legacy PowerShell path.
+if ($contract.schema -ceq 'verification-contract/v3') {
+    . (Join-Path $PSScriptRoot 'lib/py-dispatch.ps1')
+    Invoke-SddPyDispatch -Master (Join-Path $PSScriptRoot 'check-contract.py') -DiagnosticPrefix 'cloud-profile' -Arguments @($ContractPath, $RepoRoot)
+}
+if (@($contract.PSObject.Properties.Name) -ccontains 'profile') {
+    Write-Output "Verification contract FAILED for task $($contract.task_id):"
+    Write-Output ' - cloud profile requires verification-contract/v3'
+    exit 1
+}
+
 # gate seq 854: DateTimeKind is not a sound proxy for the python master's
 # pattern. ConvertFrom-Json maps a LOWERCASE `z` to Kind=Utc, so
 # `2026-08-24T10:00:00z` was accepted on this runtime and rejected by

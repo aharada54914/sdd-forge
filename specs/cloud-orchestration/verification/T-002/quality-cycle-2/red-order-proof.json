@@ -1,0 +1,54 @@
+{
+  "schema": "cloud-task-red-order-evidence/v1",
+  "task_id": "T-002",
+  "classification": "actual caller Git inspection, native command event ordering and isolated committed-test execution",
+  "commits": [
+    {
+      "commit": "a087fb5d0c3512fab898eace4e9dd6aaf2f7a5af",
+      "metadata_and_changed_paths": "commit a087fb5d0c3512fab898eace4e9dd6aaf2f7a5af\nAuthor:     Harada <jrmagneticlevitation@gmail.com>\nAuthorDate: Sun Oct 18 04:53:42 2026 +0000\nCommit:     Harada <jrmagneticlevitation@gmail.com>\nCommitDate: Sun Oct 18 04:53:42 2026 +0000\n\n    test(cloud): record T-002 contract red tests and preflight\n\n .../implementation/cloud-orchestration/T-002.md    |  75 +++++\n .../verification/T-002/preflight.md                |  53 ++++\n .../cloud-orchestration/verification/T-002/red.log | 113 +++++++\n tests/cloud-orchestration-contracts.tests.py       | 324 +++++++++++++++++++++\n 4 files changed, 565 insertions(+)\n",
+      "test_blob_sha256": "245eb7efc130bf44bce29d642316749ff3774c9f569fedf1f12578e4a71ab5e1",
+      "production_path_absent": true
+    },
+    {
+      "commit": "1635d1f734ba032aebea3bba8d897a330362ee78",
+      "metadata_and_changed_paths": "commit 1635d1f734ba032aebea3bba8d897a330362ee78\nAuthor:     Harada <jrmagneticlevitation@gmail.com>\nAuthorDate: Sun Oct 18 04:56:45 2026 +0000\nCommit:     Harada <jrmagneticlevitation@gmail.com>\nCommitDate: Sun Oct 18 04:56:45 2026 +0000\n\n    test(cloud): exercise prepare and referenced evidence boundaries\n\n .../verification/T-002/red-boundaries.log          | 74 +++++++++++++++++++\n tests/cloud-orchestration-contracts.tests.py       | 82 ++++++++++++++++++++++\n 2 files changed, 156 insertions(+)\n",
+      "test_blob_sha256": "e558f0b726f6a0c1c1664557734143c281980a73f95f62fe606d5706d26ebb2b",
+      "production_path_absent": true
+    },
+    {
+      "commit": "0ea1ac14bd691952b922fa92ca161aa2e4dc85db",
+      "metadata_and_changed_paths": "commit 0ea1ac14bd691952b922fa92ca161aa2e4dc85db\nAuthor:     Harada <jrmagneticlevitation@gmail.com>\nAuthorDate: Sun Oct 18 04:58:25 2026 +0000\nCommit:     Harada <jrmagneticlevitation@gmail.com>\nCommitDate: Sun Oct 18 04:58:25 2026 +0000\n\n    test(cloud): pin schema domain parity including unsafe URLs\n\n .../T-002/red-conformance-corrected.log            | 36 ++++++++++++\n tests/cloud-orchestration-contracts.tests.py       | 68 ++++++++++++++++++++++\n 2 files changed, 104 insertions(+)\n",
+      "test_blob_sha256": "0765557d83ea90b18f242f26e67e701b03bae2038bdf6b16524f1f8ae058990e",
+      "production_path_absent": true
+    }
+  ],
+  "isolated_red_execution": {
+    "commit": "a087fb5d0c3512fab898eace4e9dd6aaf2f7a5af",
+    "test_sha256": "245eb7efc130bf44bce29d642316749ff3774c9f569fedf1f12578e4a71ab5e1",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "exit_code": 1,
+    "result": "12 committed tests fail with their implementation absent; no live cloud calls"
+  },
+  "native_transcript_sha256": "56788aa32ae4068c717d4dfe9f20f3fc2a1683d487a7fce00211152b0908a51e",
+  "native_order": [
+    {
+      "kind": "red_commit",
+      "event_index": 165,
+      "command_sha256": "cecd9478706ff49e2956faef506329f8cec08e598b5a44ef1c23804a48357e16",
+      "exit_code": 0,
+      "command_prefix": "/bin/bash -lc \"cat > /tmp/cloud-T-002-01a14d58/preflight.py <<'PY'\nimport importlib.util,pathlib,hashlib,json\nr=pathlib.Path('/workspace/sdd-forge'); "
+    },
+    {
+      "kind": "first_production_creation",
+      "event_index": 229,
+      "command_sha256": "0c6a998f64885942e7fd2c6b7ea0fb008ad1d6289870c580cc8f13952e215abc",
+      "exit_code": 0,
+      "command_prefix": "/bin/bash -lc \"cat > plugins/sdd-quality-loop/scripts/cloud_contracts.py <<'PY'\n\\\"\\\"\\\"Strict cloud v1 artifact integrity, NOT authorization or provide"
+    }
+  ],
+  "limit": "Git alone proves committed tree contents/ancestry; the separate native event ordering supplies working-session sequence. Raw native sessions are not evaluator inputs."
+}

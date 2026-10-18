@@ -1,0 +1,6 @@
+{
+  "request_id": 900005,
+  "thread_id": "01a14d9e-7a63-71c2-a07c-aa71d275b9de",
+  "turn_id": "01a14d9e-7aac-76c2-bb0d-0e5a5e60a4ab",
+  "message": "Follow-up scoped review: azure_graph.flatten currently accepts outputs but never validates their expressions. An otherwise safe resource graph could contain an output using listKeys/reference/another unsupported ARM function, while the module docstring promises unknown functions block. Validate every executable expression-bearing surface, including outputs and any evaluated variables, or explicitly reject outputs unsupported by this first version. Add a real compiled negative (e.g. otherwise safe VM with a listKeys output) and a benign output variant if outputs are supported. Metadata is inert and can remain data. Keep the bounded provider validator; no generic engine or new privilege. This is root implementation feedback, not a gate verdict."
+}

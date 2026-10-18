@@ -1,0 +1,9 @@
+rollback-entry-baseline 0
+rollback-candidate 0
+rollback-restored-regression 1
+rollback-restored-baseline 0
+rollback-reapplied 0
+sensitivity-accept-any-threshold 1
+sensitivity-binary-underflow 1
+sensitivity-permissive-decimal-lexemes 1
+sensitivity-final-control 0

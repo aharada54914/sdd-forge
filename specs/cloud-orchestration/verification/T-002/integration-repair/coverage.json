@@ -1,0 +1,27 @@
+{
+  "tests_run": 55,
+  "failures": 0,
+  "errors": 0,
+  "coverage": {
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": {
+      "sha256": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d",
+      "executable_lines": 486,
+      "executed_lines": 485,
+      "percent": 99.79,
+      "unexecuted_lines": [
+        0
+      ]
+    },
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": {
+      "sha256": "0408cc042f46b329ea356e35b6d3c407535f64b5449f9179cc636bd40f88d8a8",
+      "executable_lines": 440,
+      "executed_lines": 438,
+      "percent": 99.55,
+      "unexecuted_lines": [
+        0,
+        71
+      ]
+    }
+  },
+  "limit": "stdlib trace line coverage only; definitions imported before trace are unexecuted; no branch or live-cloud coverage claim"
+}

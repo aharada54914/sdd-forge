@@ -1,0 +1,57 @@
+[
+  {
+    "commit": "c49b2e3d03a22ac493e843d6e151bc0158b1c040",
+    "parent": "74e5b177151739cab6a5b5f487fc9eec7d51ab36",
+    "commit_time": "2026-10-18T06:58:26Z",
+    "subject": "test(cloud): red AWS local routing and synthesis contracts (T-005)",
+    "paths": [
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "red_log": "specs/cloud-orchestration/verification/T-005/evidence/red.log",
+    "red_log_sha256": "9124e5a3dfaab066acf73ee78513b58557efde6e82393e1a3ae05ef5ae1e6130"
+  },
+  {
+    "commit": "4bdbd223632ec65d2192d078e4b0c8269b31f2ff",
+    "parent": "c49b2e3d03a22ac493e843d6e151bc0158b1c040",
+    "commit_time": "2026-10-18T06:59:58Z",
+    "subject": "test(cloud): red installed CDK runtime mutation denial",
+    "paths": [
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "red_log": "specs/cloud-orchestration/verification/T-005/evidence/red-runtime.log",
+    "red_log_sha256": "d74c0635610c46278cadae58db09b83c8d904d54a1fe40d1e0f31de8128ee42b"
+  },
+  {
+    "commit": "96e2d0c5d61b0a8d7cf0a4b5f7ca1e22d76630fc",
+    "parent": "4bdbd223632ec65d2192d078e4b0c8269b31f2ff",
+    "commit_time": "2026-10-18T07:03:29Z",
+    "subject": "test(cloud): red explicit portable pinned Node location",
+    "paths": [
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "red_log": "specs/cloud-orchestration/verification/T-005/evidence/red-node.log",
+    "red_log_sha256": "f7200b1aee098dbf931da7e0d50f4ca8d73874e2e71a8af077c593e32d4b7d66"
+  },
+  {
+    "commit": "8f78e0359065b440cd9531bb147a671060bfda8f",
+    "parent": "96e2d0c5d61b0a8d7cf0a4b5f7ca1e22d76630fc",
+    "commit_time": "2026-10-18T07:07:34Z",
+    "subject": "test(cloud): structural AWS graphs and red malformed assembly boundaries",
+    "paths": [
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "red_log": "specs/cloud-orchestration/verification/T-005/evidence/red-malformed-assets.log",
+    "red_log_sha256": "d37951427a8556f06bade7b7ad74a37ca6610a4b6cdc6be6c8ea1019741dedee"
+  },
+  {
+    "commit": "c5b5d7e6e5b746008f7d874c8d55c058f8549203",
+    "parent": "8f78e0359065b440cd9531bb147a671060bfda8f",
+    "commit_time": "2026-10-18T07:08:04Z",
+    "subject": "test(cloud): red CFN reference provenance and composition spoofing",
+    "paths": [
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "red_log": "specs/cloud-orchestration/verification/T-005/evidence/red-reference-provenance.log",
+    "red_log_sha256": "6fbea9cb207ecc65e4c2ba96e66cbf73c79f9200d94b3888c249db4e7178225c"
+  }
+]

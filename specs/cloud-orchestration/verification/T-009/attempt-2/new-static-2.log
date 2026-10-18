@@ -1,0 +1,2 @@
+tests/cloud-orchestration-verification.tests.py:3970: error: Argument 1 to "append" of "list" has incompatible type "tuple[str, Any, Any, Any, None]"; expected "tuple[str, Any, Any, Any, str]"  [arg-type]
+Found 1 error in 1 file (checked 2 source files)

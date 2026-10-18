@@ -1,0 +1,56 @@
+[
+  {
+    "path": "specs/cloud-orchestration/acceptance-tests.md",
+    "initial_sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+    "current_sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/design.md",
+    "initial_sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+    "current_sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/frontend-spec.md",
+    "initial_sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+    "current_sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/infra-spec.md",
+    "initial_sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+    "current_sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/requirements.md",
+    "initial_sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+    "current_sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/security-spec.md",
+    "initial_sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+    "current_sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/tasks.md",
+    "initial_sha256": "fdc53546c2d271648f65c89e46cf6fe54ca70b04d52e1e0b8eb86ee34e2dc5c2",
+    "current_sha256": "fdc53546c2d271648f65c89e46cf6fe54ca70b04d52e1e0b8eb86ee34e2dc5c2",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/traceability.md",
+    "initial_sha256": "6c7c7ff4fd36cb0468a5d91f6228b1d27f55f408e7098a660285290df277a0e0",
+    "current_sha256": "6c7c7ff4fd36cb0468a5d91f6228b1d27f55f408e7098a660285290df277a0e0",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/ux-spec.md",
+    "initial_sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+    "current_sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+    "unchanged": true
+  }
+]

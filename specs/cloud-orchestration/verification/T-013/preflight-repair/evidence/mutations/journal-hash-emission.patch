@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -331,7 +331,7 @@
+                     stack_id=self.stack_id,
+                     client_token=self.token,
+                     body=body,
+-                    body_sha256=self.wire_hash(mutation, body),
++                    body_sha256="0" * 64,
+                     created_at=utc(int(self.clock())),
+                     status="UNKNOWN",
+                     mutation=mutation,

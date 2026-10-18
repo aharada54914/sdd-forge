@@ -1,0 +1,15 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+    "--manifest",
+    "specs/cloud-orchestration/verification/T-007/install-selection-fix/test-input-supplement.json",
+    "--snapshot-root",
+    "/tmp/cloud-t007-01a14fbf/snapshot",
+    "--expected-task",
+    "T-007"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:16:01Z",
+  "exit_code": 0
+}

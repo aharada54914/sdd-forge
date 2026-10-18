@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R6.no-op-Changes",
+      "row": 6,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_UNAVAILABLE",
+      "outcome": "FAIL",
+      "error_type": "KeyError",
+      "error": "'LogicalResourceId'",
+      "guards": []
+    }
+  ]
+}

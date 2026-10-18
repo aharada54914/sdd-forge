@@ -1,0 +1,140 @@
+test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history) ... FAIL
+test_concurrency_key_conservative_canonical_and_scope_prerequisite (__main__.Admission.test_concurrency_key_conservative_canonical_and_scope_prerequisite) ... FAIL
+test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies) ... FAIL
+test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies) ... FAIL
+test_environment_policy_and_missing_api_data_fail_closed (__main__.Admission.test_environment_policy_and_missing_api_data_fail_closed) ... FAIL
+test_fresh_checks_on_every_mutation_and_dependency_default_denial (__main__.Admission.test_fresh_checks_on_every_mutation_and_dependency_default_denial) ... FAIL
+test_https_transport_disallows_redirects_and_sanitizes_failures (__main__.Admission.test_https_transport_disallows_redirects_and_sanitizes_failures) ... FAIL
+test_local_flags_receipts_and_missing_runtime_never_authorize (__main__.Admission.test_local_flags_receipts_and_missing_runtime_never_authorize) ... FAIL
+test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch (__main__.Admission.test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch) ... FAIL
+test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract) ... FAIL
+test_provider_identity_and_lease_mismatch_before_each_stage (__main__.Admission.test_provider_identity_and_lease_mismatch_before_each_stage) ... FAIL
+test_replay_different_instance_tamper_and_unknown_submission_no_retry (__main__.Admission.test_replay_different_instance_tamper_and_unknown_submission_no_retry) ... FAIL
+test_templates_have_distinct_environments_roles_and_no_cancellation (__main__.Admission.test_templates_have_distinct_environments_roles_and_no_cancellation) ... FAIL
+test_timeout_is_not_retried_and_receipt_is_retained (__main__.Admission.test_timeout_is_not_retried_and_receipt_is_retained) ... FAIL
+test_untrusted_endpoint_and_publication_failure_have_zero_writes (__main__.Admission.test_untrusted_endpoint_and_publication_failure_have_zero_writes) ... FAIL
+
+======================================================================
+FAIL: test_absent_revoked_denied_unknown_duplicate_approval_history (__main__.Admission.test_absent_revoked_denied_unknown_duplicate_approval_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_concurrency_key_conservative_canonical_and_scope_prerequisite (__main__.Admission.test_concurrency_key_conservative_canonical_and_scope_prerequisite)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_each_authenticated_oidc_binding_mismatch_denies (__main__.Admission.test_each_authenticated_oidc_binding_mismatch_denies)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_each_authenticated_run_binding_mismatch_denies (__main__.Admission.test_each_authenticated_run_binding_mismatch_denies)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_environment_policy_and_missing_api_data_fail_closed (__main__.Admission.test_environment_policy_and_missing_api_data_fail_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_fresh_checks_on_every_mutation_and_dependency_default_denial (__main__.Admission.test_fresh_checks_on_every_mutation_and_dependency_default_denial)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_https_transport_disallows_redirects_and_sanitizes_failures (__main__.Admission.test_https_transport_disallows_redirects_and_sanitizes_failures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_local_flags_receipts_and_missing_runtime_never_authorize (__main__.Admission.test_local_flags_receipts_and_missing_runtime_never_authorize)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch (__main__.Admission.test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_native_positive_both_stages_providers_and_receipt_contract (__main__.Admission.test_native_positive_both_stages_providers_and_receipt_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_provider_identity_and_lease_mismatch_before_each_stage (__main__.Admission.test_provider_identity_and_lease_mismatch_before_each_stage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_replay_different_instance_tamper_and_unknown_submission_no_retry (__main__.Admission.test_replay_different_instance_tamper_and_unknown_submission_no_retry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_templates_have_distinct_environments_roles_and_no_cancellation (__main__.Admission.test_templates_have_distinct_environments_roles_and_no_cancellation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_timeout_is_not_retried_and_receipt_is_retained (__main__.Admission.test_timeout_is_not_retried_and_receipt_is_retained)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+======================================================================
+FAIL: test_untrusted_endpoint_and_publication_failure_have_zero_writes (__main__.Admission.test_untrusted_endpoint_and_publication_failure_have_zero_writes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 138, in setUp
+    self.assertTrue((SCRIPTS/'cloud_authorization.py').is_file(), 'T-003 admission boundary is absent')
+AssertionError: False is not true : T-003 admission boundary is absent
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.001s
+
+FAILED (failures=15)

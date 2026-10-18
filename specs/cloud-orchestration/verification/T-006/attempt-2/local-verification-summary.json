@@ -1,0 +1,32 @@
+{
+  "schema": "task-local-verification-summary/v1",
+  "task_id": "T-006",
+  "run_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "classification": "local deterministic evidence; synthetic provider/auth transports; no independent review or live acceptance",
+  "task_completion_claim": false,
+  "tests": {
+    "verification": 36,
+    "execution": 86,
+    "contracts": 32,
+    "routing": 86
+  },
+  "all_scoped_final_commands_exit_zero": true,
+  "static_configuration": "tests/shared-launch-python/pyproject.toml",
+  "checks": {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/checks.json",
+    "sha256": "292d93f175049860420ae76bf34cbd39bfd9d81bc656a779cea7cc3c1185c4da"
+  },
+  "rollback": {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/rollback.json",
+    "sha256": "1e8431119e4172eb5685dda4aceac8984f811491e52a1f7584e2e07cefb9afe1"
+  },
+  "known_entry_routing_failures": 9,
+  "sensitivity_mutations": 11,
+  "live_acceptance": {
+    "TEST-003": "BLOCKED",
+    "TEST-005": "BLOCKED",
+    "TEST-009": "BLOCKED"
+  },
+  "native_azure_positive_verification": "quarantined; effective permission proof incomplete",
+  "whole_repository_suite_run": false
+}

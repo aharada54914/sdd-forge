@@ -151,6 +151,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/a9-interrupted-review-recovery/`
 - `specs/sdd-domain-concept-test/`
 - `specs/shared-review-launch-repair/`
+- `specs/cloud-orchestration/`
 
 ## Source Artifact Locations
 

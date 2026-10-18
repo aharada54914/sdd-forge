@@ -1,0 +1,8 @@
+T-012 remains incomplete.
+
+- Committed replay regressions: `1082e961`; both fail.
+- Cross-job authenticated intent fence is still required.
+- Report corrected; manifest and v2 report validators pass.
+- Live TEST-003/005/009 remain BLOCKED.
+
+Handoff saved in `reports/implementation/cloud-orchestration/T-012.md`. Per required compaction policy, implementation must resume in a fresh session. No task status changed.

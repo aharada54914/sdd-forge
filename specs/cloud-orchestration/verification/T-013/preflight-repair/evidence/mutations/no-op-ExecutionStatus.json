@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R6.no-op-ExecutionStatus",
+      "row": 6,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "CHANGE_SET_UNAVAILABLE",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:CHANGE_SET_UNAVAILABLE",
+      "guards": []
+    }
+  ]
+}

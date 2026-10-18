@@ -1,0 +1,60 @@
+{
+  "schema": "task-input-integrity/v1",
+  "task_id": "T-010",
+  "run_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "checked_at": "2026-10-18T14:28:00Z",
+  "manifest_sha256": "421a219cddcd9ca58840e1558fda573385a28b1b62e6808b480f57ccd5fd38f7",
+  "initial_snapshot_inputs_verified": 153,
+  "supplemental_inputs": [
+    {
+      "path": "specs/cloud-orchestration/verification/T-010/attempt-2/evidence/continuation-inputs.json",
+      "sha256": "629d9b59d0170c82da8438270b499056f946b4e9c4c6ae8b4b7e8d5169cdab9d",
+      "verified_input_count": 8
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-010/attempt-2/evidence/supplemental-regression-inputs.json",
+      "sha256": "2c34a9b8ce7edeaa65c915a57ec94b7444620b513a5b29aad79748e4cd340e22",
+      "verified_input_count": 37
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-010/attempt-2/evidence/supplemental-guard-input.json",
+      "sha256": "d6a83a0448d4efa997d63b3bc8f5949bc885abd436c78389349d0514284c8618",
+      "verified_input_count": 1
+    }
+  ],
+  "frozen_spec_inputs_unchanged": [
+    [
+      "specs/cloud-orchestration/requirements.md",
+      "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    ],
+    [
+      "specs/cloud-orchestration/design.md",
+      "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    ],
+    [
+      "specs/cloud-orchestration/acceptance-tests.md",
+      "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    ],
+    [
+      "specs/cloud-orchestration/traceability.md",
+      "c4bff8916b0f7f49b982ef20e04d2e02862ba20dd048a83bfd9451cb342e0774"
+    ],
+    [
+      "specs/cloud-orchestration/ux-spec.md",
+      "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    ],
+    [
+      "specs/cloud-orchestration/frontend-spec.md",
+      "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    ],
+    [
+      "specs/cloud-orchestration/infra-spec.md",
+      "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    ],
+    [
+      "specs/cloud-orchestration/security-spec.md",
+      "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    ]
+  ],
+  "task_plan_sha256_unchanged": "54f6656997252564c6ab7aaa14004bd7022de52e7f7fbaa1374b2afd4325f847"
+}

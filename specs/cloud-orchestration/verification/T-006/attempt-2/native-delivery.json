@@ -1,0 +1,24 @@
+{
+  "thread_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "session_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "turn": {
+    "id": "01a14e73-923d-7593-8ab7-0f3b6d51b21f",
+    "items": [
+      {
+        "type": "agentMessage",
+        "id": "msg_0e5264431f8d6c55016ad4a25d06e0819183704686f268ec98",
+        "text": "T-006 remains **incomplete**. Handoff: [implementation report](reports/implementation/cloud-orchestration/T-006.md).\n\n- Freshness and routing-runner defects corrected.\n- Scoped tests: 36/86/32/86 passed; Ruff, mypy, manifest and report validators passed.\n- Rollback and 11 sensitivity mutations recorded.\n- Remaining: Azure permission closure (native verification quarantined), full DCR readback, exhaustive adversarial coverage.\n- Live TEST-003/005/009 remain BLOCKED.\n\nNo quality gate, status updates, cloud actions or release actions.",
+        "phase": "final_answer",
+        "memoryCitation": null,
+        "delivery": null,
+        "questions": null
+      }
+    ],
+    "itemsView": "summary",
+    "status": "completed",
+    "error": null,
+    "startedAt": 1792317559,
+    "completedAt": 1792320095,
+    "durationMs": 2535987
+  }
+}

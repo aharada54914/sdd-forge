@@ -1,0 +1,1 @@
+{"command": ["bash", "-c", "bash -n install.sh && bash -n uninstall.sh"], "exit_code": 0, "stdout": "", "stderr": ""}

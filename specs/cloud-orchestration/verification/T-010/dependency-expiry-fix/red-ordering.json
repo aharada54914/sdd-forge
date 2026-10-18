@@ -1,0 +1,10 @@
+{
+  "production_path": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+  "unchanged_before_fix_sha256": "035bbb6e2d011e2f64ec7bd93674b5b547ff83907337a3b35ff5b16f8adaf688",
+  "red_commit": "2c2caf3f804b946a8fc6094bac0e76aced0b479c",
+  "red_result": "3 tests; 24 failing subtests; zero errors",
+  "note": "Commit also captures existing dirty bytes of the explicitly task-owned verification suite; only added DependencyCallbackExpiryCases is new Red.",
+  "committed_test_sha256": "51dbb37e7cad4c32cc73aed55010a4371645230ae916bf5ebe4d04939a180ff2",
+  "final_test_sha256": "a3bfad88d8bff274ac3acc925cfb885b570aa931606e1a8a9a8580f26153de60",
+  "commit_timestamp": "2026-10-18T14:52:57Z"
+}

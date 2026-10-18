@@ -1,0 +1,1 @@
+{"command": ["python3", "-m", "py_compile", "plugins/sdd-aws-cloud/scripts/aws_observation.py", "tests/cloud-orchestration-verification.tests.py", "specs/cloud-orchestration/verification/T-006/alarm-numeric-fix/verify-scoped.py"], "exit_code": 0, "stdout": "", "stderr": ""}

@@ -1,0 +1,251 @@
+$ python3 -B tests/cloud-orchestration-routing.tests.py
+test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) ... 
+  test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='prepare') ... FAIL
+  test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='apply') ... FAIL
+  test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='reconcile') ... FAIL
+  test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='observe') ... FAIL
+  test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='verify') ... FAIL
+test_input_output_alias_is_not_overwritten (__main__.AzureCliContract.test_input_output_alias_is_not_overwritten) ... FAIL
+test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) ... 
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'[]') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{"run_id":"x","run_id":"y"}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{"x":NaN}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'[]') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{"run_id":"x","run_id":"y"}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{"x":NaN}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'[]') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{"run_id":"x","run_id":"y"}') ... FAIL
+  test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{"x":NaN}') ... FAIL
+test_unknown_operation_and_flag_are_typed_rejections (__main__.AzureCliContract.test_unknown_operation_and_flag_are_typed_rejections) ... 
+  test_unknown_operation_and_flag_are_typed_rejections (__main__.AzureCliContract.test_unknown_operation_and_flag_are_typed_rejections) (operation='deploy') ... FAIL
+  test_unknown_operation_and_flag_are_typed_rejections (__main__.AzureCliContract.test_unknown_operation_and_flag_are_typed_rejections) (operation='route') ... FAIL
+
+======================================================================
+FAIL: test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 99, in test_governed_operations_are_typed_blocked_not_fake_success
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 99, in test_governed_operations_are_typed_blocked_not_fake_success
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='reconcile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 99, in test_governed_operations_are_typed_blocked_not_fake_success
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='observe')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 99, in test_governed_operations_are_typed_blocked_not_fake_success
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) (operation='verify')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 99, in test_governed_operations_are_typed_blocked_not_fake_success
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_input_output_alias_is_not_overwritten (__main__.AzureCliContract.test_input_output_alias_is_not_overwritten)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 114, in test_input_output_alias_is_not_overwritten
+    value = self.invoke("route", b"{", output=self.root / "request.json")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'[]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{"run_id":"x","run_id":"y"}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='route', data=b'{"x":NaN}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'[]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{"run_id":"x","run_id":"y"}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='plan', data=b'{"x":NaN}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'[]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{"run_id":"x","run_id":"y"}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) (operation='validate', data=b'{"x":NaN}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 89, in test_local_operations_reject_malformed_json_with_identity_free_envelope
+    value = self.invoke(operation, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_unknown_operation_and_flag_are_typed_rejections (__main__.AzureCliContract.test_unknown_operation_and_flag_are_typed_rejections) (operation='deploy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 109, in test_unknown_operation_and_flag_are_typed_rejections
+    value = self.invoke(operation, b"{}", extra)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+======================================================================
+FAIL: test_unknown_operation_and_flag_are_typed_rejections (__main__.AzureCliContract.test_unknown_operation_and_flag_are_typed_rejections) (operation='route')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 109, in test_unknown_operation_and_flag_are_typed_rejections
+    value = self.invoke(operation, b"{}", extra)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback/tests/cloud-orchestration-routing.tests.py", line 80, in invoke
+    self.assertTrue(result.stdout.strip(), "CLI must emit a typed JSON envelope, not merely exit 2")
+AssertionError: b'' is not true : CLI must emit a typed JSON envelope, not merely exit 2
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.203s
+
+FAILED (failures=20)
+
+exit_code=1

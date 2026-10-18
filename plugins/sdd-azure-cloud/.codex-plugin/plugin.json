@@ -1,0 +1,22 @@
+{
+  "name": "sdd-azure-cloud",
+  "description": "Explicit opt-in Azure orchestration: local planning and validation, protected CI execution, and read-only verification.",
+  "version": "1.18.0",
+  "author": {
+    "name": "Harada"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "SDD Azure Cloud",
+    "shortDescription": "Opt-in governed Azure orchestration",
+    "longDescription": "Explicit opt-in Azure orchestration: local planning and validation, protected CI execution, and read-only verification.",
+    "developerName": "Harada",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Local owner-aware routing",
+      "Governed CI admission",
+      "Read-only observation and verification"
+    ],
+    "defaultPrompt": "Use the orchestrate skill only for an explicitly selected cloud request."
+  }
+}

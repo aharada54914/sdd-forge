@@ -1,0 +1,20 @@
+test_compiled_outputs_and_variables_have_no_hidden_runtime_reads (__main__.AzureNativePreparation.test_compiled_outputs_and_variables_have_no_hidden_runtime_reads) ... FAIL
+
+======================================================================
+FAIL: test_compiled_outputs_and_variables_have_no_hidden_runtime_reads (__main__.AzureNativePreparation.test_compiled_outputs_and_variables_have_no_hidden_runtime_reads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 600, in test_compiled_outputs_and_variables_have_no_hidden_runtime_reads
+    self.assertEqual(self.invoke("plan", expected=2)["error_code"], "ARM_EXPRESSION_UNSUPPORTED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 366, in invoke
+    return super().invoke(phase, expected, output, {**self.env, **(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+----------------------------------------------------------------------
+Ran 1 test in 1.746s
+
+FAILED (failures=1)

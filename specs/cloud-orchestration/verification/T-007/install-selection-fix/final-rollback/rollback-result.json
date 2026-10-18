@@ -1,0 +1,24 @@
+{
+  "classification": "offline disposable committed checkout; no cloud or host registration",
+  "entry": {
+    "install.sh": "04436898b4d8d260f0743882f70ddcb6e01687b0d8b0373f41dfafb76ee5d221",
+    "install.ps1": "8928011600e821d882e80914445f3d9b2ac12a948019f1858ccc9f4bc7c4bc0a",
+    "tests/install-cloud.tests.py": "e285afb16f350f12c3b2a2b4cdeaedb19b32be6830231f2d625cf7ea092b5c3c"
+  },
+  "candidate": {
+    "install.sh": "7827514addc02f00cb671d7963b8d70c80327113ea1bae5fa694bb69306e6f3d",
+    "install.ps1": "2014193f4e31a234b0336087d434ed12d0f8d7f73ff87bd8bb9744c158ac42a7",
+    "tests/install-cloud.tests.py": "bd6996663bc1dc10a3ef14390b4c6dd3c1aa327acd10594d86c27cfa73359ee9"
+  },
+  "restored": {
+    "install.sh": "04436898b4d8d260f0743882f70ddcb6e01687b0d8b0373f41dfafb76ee5d221",
+    "install.ps1": "8928011600e821d882e80914445f3d9b2ac12a948019f1858ccc9f4bc7c4bc0a",
+    "tests/install-cloud.tests.py": "e285afb16f350f12c3b2a2b4cdeaedb19b32be6830231f2d625cf7ea092b5c3c"
+  },
+  "reapplied": {
+    "install.sh": "7827514addc02f00cb671d7963b8d70c80327113ea1bae5fa694bb69306e6f3d",
+    "install.ps1": "2014193f4e31a234b0336087d434ed12d0f8d7f73ff87bd8bb9744c158ac42a7",
+    "tests/install-cloud.tests.py": "bd6996663bc1dc10a3ef14390b4c6dd3c1aa327acd10594d86c27cfa73359ee9"
+  },
+  "result": "PASS"
+}

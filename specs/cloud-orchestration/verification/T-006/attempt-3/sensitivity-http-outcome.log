@@ -1,0 +1,46 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label
+OFFLINE_GUARD_INSTALLED
+test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) ... 
+  test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) (http_status=202) ... FAIL
+  test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) (http_status=403) ... FAIL
+  test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) (http_status=500) ... FAIL
+
+======================================================================
+FAIL: test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) (http_status=202)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 383, in test_native_denial_cannot_be_overridden_by_healthy_label
+    self.assertEqual(self.reduce(case)["overall_result"], "BLOCKED")
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+
+
+======================================================================
+FAIL: test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) (http_status=403)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 383, in test_native_denial_cannot_be_overridden_by_healthy_label
+    self.assertEqual(self.reduce(case)["overall_result"], "BLOCKED")
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+
+
+======================================================================
+FAIL: test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) (http_status=500)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 383, in test_native_denial_cannot_be_overridden_by_healthy_label
+    self.assertEqual(self.reduce(case)["overall_result"], "BLOCKED")
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.008s
+
+FAILED (failures=3)
+
+Exit code: 1

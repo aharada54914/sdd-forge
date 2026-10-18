@@ -1,0 +1,1 @@
+Preflight rejected report output table grammar (three columns; validator accepts two). No reviewer reserved/turn started. Preserved pre-review report exactly, normalized output rows to canonical two columns without changing paths or hashes, and rebound supplemental report hash. Original annotations retained in original report.

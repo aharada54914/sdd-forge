@@ -1,0 +1,8 @@
+test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks (__main__.ProfileDispatchIntegration.test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks) ... ok
+test_native_transport_protocol_double_reaches_positive_existing_boundary (__main__.ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary) ... ok
+test_preview_and_iac_mismatches_at_public_boundary (__main__.ProfileDispatchIntegration.test_preview_and_iac_mismatches_at_public_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.748s
+
+OK

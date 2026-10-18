@@ -1,0 +1,4 @@
+$ /tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml specs/cloud-orchestration/verification/T-006/attempt-3/finalize-evidence.py
+All checks passed!
+
+Exit code: 0

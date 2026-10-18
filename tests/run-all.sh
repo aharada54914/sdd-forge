@@ -67,6 +67,10 @@ else
   echo "SKIP: issue311-scratch-isolation.tests.py requires python3 and pwsh"
 fi
 
+printf '==> %s\n' 'tests/sdd-domain-multitarget-foundation.tests.py'
+if ! python3 -B tests/sdd-domain-multitarget-foundation.tests.py; then
+  failed+=('tests/sdd-domain-multitarget-foundation.tests.py')
+fi
 printf '==> %s\n' 'tests/sdd-domain-multitarget-T-003.tests.py'
 if ! python3 -B tests/sdd-domain-multitarget-T-003.tests.py; then
   failed+=('tests/sdd-domain-multitarget-T-003.tests.py')

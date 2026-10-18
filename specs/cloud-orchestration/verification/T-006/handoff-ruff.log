@@ -1,0 +1,1220 @@
+MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts
+$ /tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_verification.py tests/cloud-orchestration-verification.tests.py plugins/sdd-aws-cloud/scripts/aws_observation.py plugins/sdd-aws-cloud/scripts/aws_execution.py plugins/sdd-aws-cloud/scripts/aws_governed.py plugins/sdd-aws-cloud/scripts/aws_local.py plugins/sdd-aws-cloud/scripts/cloud.py plugins/sdd-azure-cloud/scripts/azure_observation.py plugins/sdd-azure-cloud/scripts/azure_execution.py plugins/sdd-azure-cloud/scripts/azure_governed.py plugins/sdd-azure-cloud/scripts/azure_local.py plugins/sdd-azure-cloud/scripts/cloud.py
+F401 [*] `json` imported but unused
+  --> plugins/sdd-aws-cloud/scripts/aws_observation.py:10:8
+   |
+ 9 | import ipaddress
+10 | import json
+   |        ^^^^
+11 | import re
+12 | from typing import Callable
+   |
+help: Remove unused import: `json`
+
+E731 Do not assign a `lambda` expression, use a `def`
+  --> plugins/sdd-aws-cloud/scripts/aws_observation.py:30:5
+   |
+29 | def configuration(cfg: dict) -> None:
+30 |     identifier=lambda v:c._match(v,r'[A-Za-z0-9_-]{1,128}')
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+31 |     arn=lambda v:c._match(v,r'arn:aws:[a-z0-9-]+:(?:[a-z0-9-]+)?:[0-9]{12}:[A-Za-z0-9_./:-]+')
+32 |     c._record(cfg,dict(instance_id=lambda v:c._match(v,r'i-[a-f0-9]{17}'),
+   |
+help: Rewrite `identifier` as a `def`
+
+E731 Do not assign a `lambda` expression, use a `def`
+  --> plugins/sdd-aws-cloud/scripts/aws_observation.py:31:5
+   |
+29 | def configuration(cfg: dict) -> None:
+30 |     identifier=lambda v:c._match(v,r'[A-Za-z0-9_-]{1,128}')
+31 |     arn=lambda v:c._match(v,r'arn:aws:[a-z0-9-]+:(?:[a-z0-9-]+)?:[0-9]{12}:[A-Za-z0-9_./:-]+')
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+32 |     c._record(cfg,dict(instance_id=lambda v:c._match(v,r'i-[a-f0-9]{17}'),
+33 |         vpc_id=lambda v:c._match(v,r'vpc-[a-f0-9]{8,17}'),subnet_id=lambda v:c._match(v,r'subnet-[a-f0-9]{8,17}'),
+   |
+help: Rewrite `arn` as a `def`
+
+E702 Multiple statements on one line (semicolon)
+  --> plugins/sdd-aws-cloud/scripts/aws_observation.py:64:51
+   |
+62 |         return [element(n) for n in node]
+63 |     if len(node):
+64 |         names=[n.tag.split('}')[-1] for n in node];c._unique(names)
+   |                                                   ^
+65 |         return {k:element(n) for k,n in zip(names,node)}
+66 |     return node.text or ''
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> plugins/sdd-aws-cloud/scripts/aws_observation.py:82:22
+   |
+80 | …         c._match(cfg['backup']['recovery_point_arn'],r'arn:aws:backup:'+re.escape(scope['region'])+':'+account+r':recovery-point:[A-…
+81 | …         c._match(cfg['backup']['role_arn'],r'arn:aws:iam::'+account+r':role/[A-Za-z0-9_/-]+')
+82 | …     c._id(run_id);c._id(unit_id);c._text(principal);c._utc(completed)
+   |                    ^
+83 | …     self.scope,self.cfg,self.credentials,self.principal=scope,cfg,credentials,principal
+84 | …     self.completed,self.age,self.clock,self.transport=completed,age,clock,transport
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> plugins/sdd-aws-cloud/scripts/aws_observation.py:82:37
+   |
+80 | …         c._match(cfg['backup']['recovery_point_arn'],r'arn:aws:backup:'+re.escape(scope['region'])+':'+account+r':recovery-point:[A-…
+81 | …         c._match(cfg['backup']['role_arn'],r'arn:aws:iam::'+account+r':role/[A-Za-z0-9_/-]+')
+82 | …     c._id(run_id);c._id(unit_id);c._text(principal);c._utc(completed)
+   |                                   ^
+83 | …     self.scope,self.cfg,self.credentials,self.principal=scope,cfg,credentials,principal
+84 | …     self.completed,self.age,self.clock,self.transport=completed,age,clock,transport
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> plugins/sdd-aws-cloud/scripts/aws_observation.py:82:56
+   |
+80 | …         c._match(cfg['backup']['recovery_point_arn'],r'arn:aws:backup:'+re.escape(scope['region'])+':'+account+r':recovery-point:[A-…
+81 | …         c._match(cfg['backup']['role_arn'],r'arn:aws:iam::'+account+r':role/[A-Za-z0-9_/-]+')
+82 | …     c._id(run_id);c._id(unit_id);c._text(principal);c._utc(completed)
+   |                                                      ^
+83 | …     self.scope,self.cfg,self.credentials,self.principal=scope,cfg,credentials,principal
+84 | …     self.completed,self.age,self.clock,self.transport=completed,age,clock,transport
+   |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:110:26
+    |
+108 |             raise c.ContractError('NATIVE_RESPONSE_INVALID') from None
+109 |         c._require(root.tag=='{'+NAMESPACES[service]+'}'+action+'Response','NATIVE_RESPONSE_MISMATCH')
+110 |         if service=='ec2':value=element(root)
+    |                          ^
+111 |         else:
+112 |             found=root.findall('{'+NAMESPACES[service]+'}'+action+'Result')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:113:65
+    |
+111 |         else:
+112 |             found=root.findall('{'+NAMESPACES[service]+'}'+action+'Result')
+113 |             c._require(len(found)==1,'NATIVE_RESPONSE_MISMATCH');value=element(found[0])
+    |                                                                 ^
+114 |         c._require(type(value)is dict and not any(value.get(k) for k in ('NextToken','nextToken','Marker')) and
+115 |                    value.get('IsTruncated','false')=='false','PAGINATION_INCOMPLETE')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:128:45
+    |
+126 |     def instance(self) -> dict:
+127 |         value=self.call('ec2','DescribeInstances',{'InstanceId.1':self.cfg['instance_id']})
+128 |         reservations=value['reservationSet'];c._require(len(reservations)==1,'RESOURCE_ID_MISMATCH')
+    |                                             ^
+129 |         reservation=reservations[0];c._require(reservation['ownerId']==self.scope['account_id'],'RESOURCE_ID_MISMATCH')
+130 |         machines=reservation['instancesSet'];c._require(len(machines)==1,'RESOURCE_ID_MISMATCH')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:129:36
+    |
+127 |         value=self.call('ec2','DescribeInstances',{'InstanceId.1':self.cfg['instance_id']})
+128 |         reservations=value['reservationSet'];c._require(len(reservations)==1,'RESOURCE_ID_MISMATCH')
+129 |         reservation=reservations[0];c._require(reservation['ownerId']==self.scope['account_id'],'RESOURCE_ID_MISMATCH')
+    |                                    ^
+130 |         machines=reservation['instancesSet'];c._require(len(machines)==1,'RESOURCE_ID_MISMATCH')
+131 |         instance=machines[0];c._require(instance['instanceId']==self.cfg['instance_id'],'RESOURCE_ID_MISMATCH')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:130:45
+    |
+128 |         reservations=value['reservationSet'];c._require(len(reservations)==1,'RESOURCE_ID_MISMATCH')
+129 |         reservation=reservations[0];c._require(reservation['ownerId']==self.scope['account_id'],'RESOURCE_ID_MISMATCH')
+130 |         machines=reservation['instancesSet'];c._require(len(machines)==1,'RESOURCE_ID_MISMATCH')
+    |                                             ^
+131 |         instance=machines[0];c._require(instance['instanceId']==self.cfg['instance_id'],'RESOURCE_ID_MISMATCH')
+132 |         return instance
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:131:29
+    |
+129 |         reservation=reservations[0];c._require(reservation['ownerId']==self.scope['account_id'],'RESOURCE_ID_MISMATCH')
+130 |         machines=reservation['instancesSet'];c._require(len(machines)==1,'RESOURCE_ID_MISMATCH')
+131 |         instance=machines[0];c._require(instance['instanceId']==self.cfg['instance_id'],'RESOURCE_ID_MISMATCH')
+    |                             ^
+132 |         return instance
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:139:32
+    |
+138 |     def network(self) -> tuple[bool,str]:
+139 |         machine=self.instance();cfg=self.cfg
+    |                                ^
+140 |         c._require(machine['vpcId']==cfg['vpc_id'] and machine['subnetId']==cfg['subnet_id'],'NETWORK_ID_MISMATCH')
+141 |         groups={g['groupId'] for g in machine['groupSet']}
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:143:66
+    |
+141 |         groups={g['groupId'] for g in machine['groupSet']}
+142 |         c._require(groups==set(cfg['security_group_ids']),'NETWORK_ID_MISMATCH')
+143 |         if machine.get('ipAddress') or machine.get('ipv6Address'):return False,utc(self.clock())
+    |                                                                  ^
+144 |         interfaces=machine['networkInterfaceSet'];c._require(len(interfaces)==1,'NETWORK_CONTEXT_UNSUPPORTED')
+145 |         for nic in interfaces:
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:144:50
+    |
+142 |         c._require(groups==set(cfg['security_group_ids']),'NETWORK_ID_MISMATCH')
+143 |         if machine.get('ipAddress') or machine.get('ipv6Address'):return False,utc(self.clock())
+144 |         interfaces=machine['networkInterfaceSet'];c._require(len(interfaces)==1,'NETWORK_CONTEXT_UNSUPPORTED')
+    |                                                  ^
+145 |         for nic in interfaces:
+146 |             c._require(nic['subnetId']==cfg['subnet_id'] and {g['groupId'] for g in nic['groupSet']}==groups,'NETWORK_ID_MISMATCH')
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:153:38
+    |
+151 |         for group in security:
+152 |             c._require(group['ownerId']==self.scope['account_id'] and group['vpcId']==cfg['vpc_id'],'NETWORK_ID_MISMATCH')
+153 |             if group['ipPermissions']:return False,utc(self.clock())
+    |                                      ^
+154 |             for rule in group['ipPermissionsEgress']:
+155 |                 if rule['ipProtocol']!='tcp' or rule['fromPort']!='443' or rule['toPort']!='443':return False,utc(self.clock())
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:155:97
+    |
+153 |             if group['ipPermissions']:return False,utc(self.clock())
+154 |             for rule in group['ipPermissionsEgress']:
+155 |                 if rule['ipProtocol']!='tcp' or rule['fromPort']!='443' or rule['toPort']!='443':return False,utc(self.clock())
+    |                                                                                                 ^
+156 |                 c._require(not any(rule.get(k) for k in ('groups','ipv6Ranges','prefixListIds')),'NETWORK_CONTEXT_UNSUPPORTED')
+157 |                 for cidr in rule['ipRanges']:
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:159:104
+    |
+157 |                 for cidr in rule['ipRanges']:
+158 |                     network=ipaddress.ip_network(cidr['cidrIp'])
+159 |                     if network.version!=4 or not network.subnet_of(ipaddress.ip_network('10.0.0.0/16')):return False,utc(self.clock())
+    |                                                                                                        ^
+160 |         return True,utc(self.clock())
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:163:32
+    |
+162 |     def identity(self) -> tuple[bool,str]:
+163 |         machine=self.instance();cfg=self.cfg
+    |                                ^
+164 |         c._require(machine['iamInstanceProfile']['arn']==cfg['instance_profile_arn'],'IDENTITY_MISMATCH')
+165 |         value=self.call('iam','GetInstanceProfile',dict(InstanceProfileName=cfg['instance_profile_arn'].rsplit('/',1)[1]))['InstanceP…
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:187:53
+    |
+185 |     def monitoring(self) -> tuple[bool,str]:
+186 |         machine=self.instance()
+187 |         if machine['monitoring']['state']!='enabled':return False,utc(self.clock())
+    |                                                     ^
+188 |         alarms=self.call('monitoring','DescribeAlarms',{'AlarmNames.member.1':self.cfg['alarm_name']})['MetricAlarms']
+189 |         c._require(len(alarms)==1,'MONITORING_ID_MISMATCH');alarm=alarms[0]
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:189:60
+    |
+187 | …     if machine['monitoring']['state']!='enabled':return False,utc(self.clock())
+188 | …     alarms=self.call('monitoring','DescribeAlarms',{'AlarmNames.member.1':self.cfg['alarm_name']})['MetricAlarms']
+189 | …     c._require(len(alarms)==1,'MONITORING_ID_MISMATCH');alarm=alarms[0]
+    |                                                          ^
+190 | …     c._require(alarm['AlarmName']==self.cfg['alarm_name'],'MONITORING_ID_MISMATCH')
+191 | …     expected=dict(Namespace='AWS/EC2',MetricName='StatusCheckFailed',Statistic='Maximum',Period='60',EvaluationPeriods='2',Threshol…
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:193:92
+    |
+191 | …     expected=dict(Namespace='AWS/EC2',MetricName='StatusCheckFailed',Statistic='Maximum',Period='60',EvaluationPeriods='2',Threshol…
+192 | …         ComparisonOperator='GreaterThanThreshold',TreatMissingData='breaching',Dimensions=[dict(Name='InstanceId',Value=self.cfg['i…
+193 | …     if any(alarm.get(k)!=v for k,v in expected.items()) or alarm['StateValue']=='ALARM':return False,utc(self.clock())
+    |                                                                                          ^
+194 | …     c._require(alarm['StateValue']=='OK','MONITORING_UNKNOWN')
+195 | …     return self.metric(dict(namespace='AWS/EC2',name='StatusCheckFailed',minimum=0,maximum=0),workload=False)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:201:31
+    |
+200 |     def backup(self) -> tuple[bool,str]:
+201 |         cfg=self.cfg['backup'];base=f"https://backup.{self.scope['region']}.amazonaws.com"
+    |                               ^
+202 |         def get(path):return decode(self.request('backup',self.scope['region'],'GET',base+path))
+203 |         value=get('/backup/plans/'+cfg['plan_id']+'/selections/'+cfg['selection_id'])
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:207:99
+    |
+205 |         selection=value['BackupSelection']
+206 |         c._require(not any(selection.get(k) for k in ('ListOfTags','NotResources','Conditions')),'BACKUP_CONTEXT_UNSUPPORTED')
+207 |         if selection['Resources']!=[self.resource_arn] or selection['IamRoleArn']!=cfg['role_arn']:return False,utc(self.clock())
+    |                                                                                                   ^
+208 |         recovery=get('/backup-vaults/'+cfg['vault_name']+'/recovery-points/'+urllib.parse.quote(cfg['recovery_point_arn'],safe=''))
+209 |         c._require(recovery['RecoveryPointArn']==cfg['recovery_point_arn'] and recovery['ResourceArn']==self.resource_arn and
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:220:37
+    |
+218 |     executor.trusted_binding()
+219 |     root,request=executor.root,executor.request
+220 |     output_path(root,request,output);output_path(root,request,output+'.manifest.json')
+    |                                     ^
+221 |     c.verify_local_context(root,request,execution=True)
+222 |     cfg=local_decode(c.read_verified(root,request['local_context']['provider_config']))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:224:35
+    |
+222 |     cfg=local_decode(c.read_verified(root,request['local_context']['provider_config']))
+223 |     c._require('observation' in cfg,'OBSERVATION_CONFIGURATION_REQUIRED')
+224 |     observation=cfg['observation'];configuration(observation)
+    |                                   ^
+225 |     path=executor.directory+'/execute-submission.json'
+226 |     journal=local_decode(read_bytes(root,path))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:232:31
+    |
+230 |     executor.arn(journal['stack_id'],'stack',request['scope']['deployment_scope'])
+231 |     executor.native_id,executor.stack_id=journal['native_operation_id'],journal['stack_id']
+232 |     p=executor.boundary.policy;github=GitHubAdmission(p,executor.boundary.runtime,executor.boundary.transport)
+    |                               ^
+233 |     now=int(executor.clock());token,claims=github.oidc(now)
+234 |     principal,end,credentials=AwsIdentity.exchange(p,token,claims,executor.boundary.transport,now)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:233:30
+    |
+231 |     executor.native_id,executor.stack_id=journal['native_operation_id'],journal['stack_id']
+232 |     p=executor.boundary.policy;github=GitHubAdmission(p,executor.boundary.runtime,executor.boundary.transport)
+233 |     now=int(executor.clock());token,claims=github.oidc(now)
+    |                              ^
+234 |     principal,end,credentials=AwsIdentity.exchange(p,token,claims,executor.boundary.transport,now)
+235 |     executor.credentials,executor.lease=credentials,min(end,claims['exp'])
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-aws-cloud/scripts/aws_observation.py:236:27
+    |
+234 |     principal,end,credentials=AwsIdentity.exchange(p,token,claims,executor.boundary.transport,now)
+235 |     executor.credentials,executor.lease=credentials,min(end,claims['exp'])
+236 |     stack=executor.stack();c._require(stack is not None and stack['StackStatus'] in ('CREATE_COMPLETE','UPDATE_COMPLETE'),'NATIVE_OPE…
+    |                           ^
+237 |     events=executor.read('DescribeStackEvents',dict(StackName=executor.stack_id))['StackEvents']
+238 |     matching=[e for e in events if e.get('StackId')==executor.stack_id and e.get('ClientRequestToken')==executor.token and
+    |
+
+F401 [*] `re` imported but unused
+  --> plugins/sdd-azure-cloud/scripts/azure_observation.py:12:8
+   |
+11 | import ipaddress
+12 | import re
+   |        ^^
+13 | from typing import Callable
+14 | import urllib.parse
+   |
+help: Remove unused import: `re`
+
+E701 Multiple statements on one line (colon)
+  --> plugins/sdd-azure-cloud/scripts/azure_observation.py:32:33
+   |
+30 |     types=dict(vm_id='/providers/Microsoft.Compute/virtualMachines/',nic_id='/providers/Microsoft.Network/networkInterfaces/',
+31 |         identity_id='/providers/Microsoft.ManagedIdentity/userAssignedIdentities/',data_collection_rule_id='/providers/Microsoft.Insig…
+32 |     for key,typ in types.items():c._require(typ in cfg[key] and '/' not in cfg[key].split(typ)[1],'RESOURCE_TYPE_INVALID')
+   |                                 ^
+33 |     c._require(cfg['association_id'].startswith(cfg['vm_id']+'/providers/Microsoft.Insights/dataCollectionRuleAssociations/'),'ASSOCIA…
+34 |     if 'backup' in cfg:
+   |
+
+E701 Multiple statements on one line (colon)
+  --> plugins/sdd-azure-cloud/scripts/azure_observation.py:48:38
+   |
+46 |     elif resource==cfg['nic_id']:
+47 |         actions|={'Microsoft.Network/networkInterfaces/read','Microsoft.Network/networkInterfaces/effectiveNetworkSecurityGroups/actio…
+48 |     elif resource==cfg['identity_id']:actions.add('Microsoft.ManagedIdentity/userAssignedIdentities/read')
+   |                                      ^
+49 |     elif resource==cfg['association_id']:actions.add('Microsoft.Insights/dataCollectionRuleAssociations/read')
+50 |     elif resource==cfg['data_collection_rule_id']:actions.add('Microsoft.Insights/dataCollectionRules/read')
+   |
+
+E701 Multiple statements on one line (colon)
+  --> plugins/sdd-azure-cloud/scripts/azure_observation.py:49:41
+   |
+47 |         actions|={'Microsoft.Network/networkInterfaces/read','Microsoft.Network/networkInterfaces/effectiveNetworkSecurityGroups/actio…
+48 |     elif resource==cfg['identity_id']:actions.add('Microsoft.ManagedIdentity/userAssignedIdentities/read')
+49 |     elif resource==cfg['association_id']:actions.add('Microsoft.Insights/dataCollectionRuleAssociations/read')
+   |                                         ^
+50 |     elif resource==cfg['data_collection_rule_id']:actions.add('Microsoft.Insights/dataCollectionRules/read')
+51 |     elif resource==cfg.get('backup',{}).get('protected_item_id'):
+   |
+
+E701 Multiple statements on one line (colon)
+  --> plugins/sdd-azure-cloud/scripts/azure_observation.py:50:50
+   |
+48 |     elif resource==cfg['identity_id']:actions.add('Microsoft.ManagedIdentity/userAssignedIdentities/read')
+49 |     elif resource==cfg['association_id']:actions.add('Microsoft.Insights/dataCollectionRuleAssociations/read')
+50 |     elif resource==cfg['data_collection_rule_id']:actions.add('Microsoft.Insights/dataCollectionRules/read')
+   |                                                  ^
+51 |     elif resource==cfg.get('backup',{}).get('protected_item_id'):
+52 |         actions.add('Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/read')
+   |
+
+E701 Multiple statements on one line (colon)
+  --> plugins/sdd-azure-cloud/scripts/azure_observation.py:55:9
+   |
+53 |     elif resource==cfg.get('backup',{}).get('recovery_point_id'):
+54 |         actions.add('Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/recoveryPoints/read')
+55 |     else:raise c.ContractError('PERMISSION_SCOPE_UNSUPPORTED')
+   |         ^
+56 |     return actions
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> plugins/sdd-azure-cloud/scripts/azure_observation.py:69:22
+   |
+67 |         c._require(all(v.startswith(prefix) for v in resources),'RESOURCE_SCOPE_MISMATCH')
+68 |         c._require(cfg['vm_id'].startswith(prefix+scope['deployment_scope']+'/'),'RESOURCE_SCOPE_MISMATCH')
+69 |         c._id(run_id);c._id(unit_id);c._text(principal);c._utc(completed)
+   |                      ^
+70 |         self.scope,self.cfg,self.credentials,self.principal=scope,cfg,credentials,principal
+71 |         self.completed,self.age,self.clock,self.transport=completed,age,clock,transport
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> plugins/sdd-azure-cloud/scripts/azure_observation.py:69:37
+   |
+67 |         c._require(all(v.startswith(prefix) for v in resources),'RESOURCE_SCOPE_MISMATCH')
+68 |         c._require(cfg['vm_id'].startswith(prefix+scope['deployment_scope']+'/'),'RESOURCE_SCOPE_MISMATCH')
+69 |         c._id(run_id);c._id(unit_id);c._text(principal);c._utc(completed)
+   |                                     ^
+70 |         self.scope,self.cfg,self.credentials,self.principal=scope,cfg,credentials,principal
+71 |         self.completed,self.age,self.clock,self.transport=completed,age,clock,transport
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> plugins/sdd-azure-cloud/scripts/azure_observation.py:69:56
+   |
+67 |         c._require(all(v.startswith(prefix) for v in resources),'RESOURCE_SCOPE_MISMATCH')
+68 |         c._require(cfg['vm_id'].startswith(prefix+scope['deployment_scope']+'/'),'RESOURCE_SCOPE_MISMATCH')
+69 |         c._id(run_id);c._id(unit_id);c._text(principal);c._utc(completed)
+   |                                                        ^
+70 |         self.scope,self.cfg,self.credentials,self.principal=scope,cfg,credentials,principal
+71 |         self.completed,self.age,self.clock,self.transport=completed,age,clock,transport
+   |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:108:21
+    |
+107 |     def network(self) -> tuple[bool,str]:
+108 |         cfg=self.cfg;vm=self.vm()
+    |                     ^
+109 |         c._require(vm['properties']['networkProfile']['networkInterfaces']==[dict(id=cfg['nic_id'])],'NETWORK_CONTEXT_UNSUPPORTED')
+110 |         nic=self.get(cfg['nic_id'],'2024-05-01')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:112:50
+    |
+110 |         nic=self.get(cfg['nic_id'],'2024-05-01')
+111 |         c._require(nic['id']==cfg['nic_id'] and nic['properties']['virtualMachine']['id']==cfg['vm_id'],'NETWORK_ID_MISMATCH')
+112 |         ips=nic['properties']['ipConfigurations'];c._require(bool(ips),'NETWORK_STATE_MISSING')
+    |                                                  ^
+113 |         for ip in ips:
+114 |             p=ip['properties'];c._require(p['subnet']['id']==cfg['subnet_id'],'NETWORK_ID_MISMATCH')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:114:31
+    |
+112 |         ips=nic['properties']['ipConfigurations'];c._require(bool(ips),'NETWORK_STATE_MISSING')
+113 |         for ip in ips:
+114 |             p=ip['properties'];c._require(p['subnet']['id']==cfg['subnet_id'],'NETWORK_ID_MISMATCH')
+    |                               ^
+115 |             if p.get('publicIPAddress') or ipaddress.ip_address(p['privateIPAddress']).version!=4:return False,utc(self.clock())
+116 |         effective=self.get(cfg['nic_id']+'/effectiveNetworkSecurityGroups','2024-05-01',network=True)['value']
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:115:98
+    |
+113 |         for ip in ips:
+114 |             p=ip['properties'];c._require(p['subnet']['id']==cfg['subnet_id'],'NETWORK_ID_MISMATCH')
+115 |             if p.get('publicIPAddress') or ipaddress.ip_address(p['privateIPAddress']).version!=4:return False,utc(self.clock())
+    |                                                                                                  ^
+116 |         effective=self.get(cfg['nic_id']+'/effectiveNetworkSecurityGroups','2024-05-01',network=True)['value']
+117 |         c._require(bool(effective),'EFFECTIVE_NETWORK_MISSING')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:123:50
+    |
+121 |             c._require(association.get('networkInterface',{}).get('id')==cfg['nic_id'] or
+122 |                 association.get('subnet',{}).get('id')==cfg['subnet_id'],'NETWORK_ID_MISMATCH')
+123 |             rules=group['effectiveSecurityRules'];c._require(bool(rules),'EFFECTIVE_NETWORK_MISSING')
+    |                                                  ^
+124 |             for rule in rules:
+125 |                 c._enum(rule['direction'],('Inbound','Outbound'));c._enum(rule['access'],('Allow','Deny'))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:125:66
+    |
+123 |             rules=group['effectiveSecurityRules'];c._require(bool(rules),'EFFECTIVE_NETWORK_MISSING')
+124 |             for rule in rules:
+125 |                 c._enum(rule['direction'],('Inbound','Outbound'));c._enum(rule['access'],('Allow','Deny'))
+    |                                                                  ^
+126 |                 if rule['access']=='Deny':continue
+127 |                 key='expandedSourceAddressPrefix' if rule['direction']=='Inbound' else 'expandedDestinationAddressPrefix'
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:126:42
+    |
+124 |             for rule in rules:
+125 |                 c._enum(rule['direction'],('Inbound','Outbound'));c._enum(rule['access'],('Allow','Deny'))
+126 |                 if rule['access']=='Deny':continue
+    |                                          ^
+127 |                 key='expandedSourceAddressPrefix' if rule['direction']=='Inbound' else 'expandedDestinationAddressPrefix'
+128 |                 expanded=rule[key];c._require(type(expanded)is list and bool(expanded),'NETWORK_CONTEXT_UNSUPPORTED')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:128:35
+    |
+126 |                 if rule['access']=='Deny':continue
+127 |                 key='expandedSourceAddressPrefix' if rule['direction']=='Inbound' else 'expandedDestinationAddressPrefix'
+128 |                 expanded=rule[key];c._require(type(expanded)is list and bool(expanded),'NETWORK_CONTEXT_UNSUPPORTED')
+    |                                   ^
+129 |                 for prefix in expanded:
+130 |                     network=ipaddress.ip_network(prefix)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:131:92
+    |
+129 |                 for prefix in expanded:
+130 |                     network=ipaddress.ip_network(prefix)
+131 |                     if network.version!=4 or not any(network.subnet_of(n) for n in private):return False,utc(self.clock())
+    |                                                                                            ^
+132 |         return True,utc(self.clock())
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:135:21
+    |
+134 |     def identity(self) -> tuple[bool,str]:
+135 |         cfg=self.cfg;vm=self.vm();identity=vm['identity']
+    |                     ^
+136 |         c._require(identity['type']=='UserAssigned' and set(identity['userAssignedIdentities'])=={cfg['identity_id']},'IDENTITY_CONTE…
+137 |         native=self.get(cfg['identity_id'],'2023-01-31')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:135:34
+    |
+134 |     def identity(self) -> tuple[bool,str]:
+135 |         cfg=self.cfg;vm=self.vm();identity=vm['identity']
+    |                                  ^
+136 |         c._require(identity['type']=='UserAssigned' and set(identity['userAssignedIdentities'])=={cfg['identity_id']},'IDENTITY_CONTE…
+137 |         native=self.get(cfg['identity_id'],'2023-01-31')
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:141:26
+    |
+139 | …         identity['userAssignedIdentities'][cfg['identity_id']]['principalId']==self.principal,'WORKLOAD_OBSERVER_PRINCIPAL_REQUIRED…
+140 | …     targets=[cfg[k] for k in ('vm_id','nic_id','identity_id','association_id','data_collection_rule_id')]
+141 | …     if 'backup'in cfg:targets += [cfg['backup']['protected_item_id'],cfg['backup']['recovery_point_id']]
+    |                        ^
+142 | …     for target in targets:
+143 | …         permissions=self.get(target+'/providers/Microsoft.Authorization/permissions','2022-04-01')['value']
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:148:45
+    |
+146 |                 c._record(permission,{k:lambda v:c._list(v,c._text) for k in ('actions','notActions','dataActions','notDataActions')})
+147 |                 c._require(not permission['notActions'] and not permission['notDataActions'],'PERMISSION_CONTEXT_UNSUPPORTED')
+148 |                 if permission['dataActions']:return False,utc(self.clock())
+    |                                             ^
+149 |                 if not set(permission['actions'])<=permission_ceiling(target,cfg):return False,utc(self.clock())
+150 |         return True,utc(self.clock())
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:149:82
+    |
+147 |                 c._require(not permission['notActions'] and not permission['notDataActions'],'PERMISSION_CONTEXT_UNSUPPORTED')
+148 |                 if permission['dataActions']:return False,utc(self.clock())
+149 |                 if not set(permission['actions'])<=permission_ceiling(target,cfg):return False,utc(self.clock())
+    |                                                                                  ^
+150 |         return True,utc(self.clock())
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:155:20
+    |
+153 | …     params=dict(metricnamespace=cfg['namespace'],metricnames=cfg['name'],aggregation='Maximum',
+154 | …                 timespan=self.completed+'/'+utc(self.clock()),interval='PT1M',AutoAdjustTimegrain='false',ValidateDimensions='true')
+155 | …     if workload:params['$filter']=f"RunId eq '{self.run_id}' and UnitId eq '{self.unit_id}'"
+    |                  ^
+156 | …     response=self.get(self.cfg['vm_id']+'/providers/Microsoft.Insights/metrics','2023-10-01',params=params)
+157 | …     values=response['value'];c._require(len(values)==1 and values[0]['name']['value']==cfg['name'],'METRIC_ID_MISMATCH')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:157:33
+    |
+155 |         if workload:params['$filter']=f"RunId eq '{self.run_id}' and UnitId eq '{self.unit_id}'"
+156 |         response=self.get(self.cfg['vm_id']+'/providers/Microsoft.Insights/metrics','2023-10-01',params=params)
+157 |         values=response['value'];c._require(len(values)==1 and values[0]['name']['value']==cfg['name'],'METRIC_ID_MISMATCH')
+    |                                 ^
+158 |         metric=values[0];c._require(not metric.get('errorCode') or metric['errorCode']=='Success','METRIC_UNAVAILABLE')
+159 |         series=metric['timeseries'];c._require(len(series)==1,'METRIC_CONTEXT_UNSUPPORTED')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:158:25
+    |
+156 |         response=self.get(self.cfg['vm_id']+'/providers/Microsoft.Insights/metrics','2023-10-01',params=params)
+157 |         values=response['value'];c._require(len(values)==1 and values[0]['name']['value']==cfg['name'],'METRIC_ID_MISMATCH')
+158 |         metric=values[0];c._require(not metric.get('errorCode') or metric['errorCode']=='Success','METRIC_UNAVAILABLE')
+    |                         ^
+159 |         series=metric['timeseries'];c._require(len(series)==1,'METRIC_CONTEXT_UNSUPPORTED')
+160 |         metadata={v['name']['value']:v['value'] for v in series[0].get('metadatavalues',[])}
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:159:36
+    |
+157 |         values=response['value'];c._require(len(values)==1 and values[0]['name']['value']==cfg['name'],'METRIC_ID_MISMATCH')
+158 |         metric=values[0];c._require(not metric.get('errorCode') or metric['errorCode']=='Success','METRIC_UNAVAILABLE')
+159 |         series=metric['timeseries'];c._require(len(series)==1,'METRIC_CONTEXT_UNSUPPORTED')
+    |                                    ^
+160 |         metadata={v['name']['value']:v['value'] for v in series[0].get('metadatavalues',[])}
+161 |         c._require(metadata==({'RunId':self.run_id,'UnitId':self.unit_id} if workload else {}),'METRIC_ID_MISMATCH')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:166:21
+    |
+165 |     def monitoring(self) -> tuple[bool,str]:
+166 |         cfg=self.cfg;association=self.get(cfg['association_id'],'2023-03-11')
+    |                     ^
+167 |         c._require(association['id']==cfg['association_id'],'MONITORING_ID_MISMATCH')
+168 |         if association['properties']['dataCollectionRuleId']!=cfg['data_collection_rule_id']:return False,utc(self.clock())
+    |
+
+E701 Multiple statements on one line (colon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:168:93
+    |
+166 | …     cfg=self.cfg;association=self.get(cfg['association_id'],'2023-03-11')
+167 | …     c._require(association['id']==cfg['association_id'],'MONITORING_ID_MISMATCH')
+168 | …     if association['properties']['dataCollectionRuleId']!=cfg['data_collection_rule_id']:return False,utc(self.clock())
+    |                                                                                           ^
+169 | …     # Platform CPU is a real received signal, not a desired agent configuration.
+170 | …     return self.metric(dict(namespace='Microsoft.Compute/virtualMachines',name='Percentage CPU',minimum=0,maximum=100),workload=Fal…
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:176:31
+    |
+175 |     def backup(self) -> tuple[bool,str]:
+176 |         cfg=self.cfg['backup'];item=self.get(cfg['protected_item_id'],'2024-04-01')
+    |                               ^
+177 |         c._require(item['id']==cfg['protected_item_id'],'BACKUP_ID_MISMATCH');p=item['properties']
+178 |         c._require(p['virtualMachineId']==self.cfg['vm_id'] and p['policyId']==cfg['policy_id'],'BACKUP_ID_MISMATCH')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:177:78
+    |
+175 |     def backup(self) -> tuple[bool,str]:
+176 |         cfg=self.cfg['backup'];item=self.get(cfg['protected_item_id'],'2024-04-01')
+177 |         c._require(item['id']==cfg['protected_item_id'],'BACKUP_ID_MISMATCH');p=item['properties']
+    |                                                                              ^
+178 |         c._require(p['virtualMachineId']==self.cfg['vm_id'] and p['policyId']==cfg['policy_id'],'BACKUP_ID_MISMATCH')
+179 |         recovery=self.get(cfg['recovery_point_id'],'2024-04-01')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:188:31
+    |
+186 | def observe(executor,output: str,phase: str) -> dict:
+187 |     from cloud_authorization import AzureIdentity,GitHubAdmission,HttpsTransport as AuthHttps
+188 |     executor.trusted_binding();root,request=executor.root,executor.request
+    |                               ^
+189 |     output_path(root,request,output);output_path(root,request,output+'.manifest.json')
+190 |     c.verify_local_context(root,request,execution=True)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:189:37
+    |
+187 |     from cloud_authorization import AzureIdentity,GitHubAdmission,HttpsTransport as AuthHttps
+188 |     executor.trusted_binding();root,request=executor.root,executor.request
+189 |     output_path(root,request,output);output_path(root,request,output+'.manifest.json')
+    |                                     ^
+190 |     c.verify_local_context(root,request,execution=True)
+191 |     cfg=local_decode(c.read_verified(root,request['local_context']['provider_config']))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:192:73
+    |
+190 |     c.verify_local_context(root,request,execution=True)
+191 |     cfg=local_decode(c.read_verified(root,request['local_context']['provider_config']))
+192 |     c._require('observation'in cfg,'OBSERVATION_CONFIGURATION_REQUIRED');observation=cfg['observation'];configuration(observation)
+    |                                                                         ^
+193 |     operation=local_decode(read_bytes(root,executor.directory+'/deployment-submission.json'))
+194 |     c._require(operation['schema']=='azure-submission/v1' and operation['request']==executor.request_ref and
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:192:104
+    |
+190 |     c.verify_local_context(root,request,execution=True)
+191 |     cfg=local_decode(c.read_verified(root,request['local_context']['provider_config']))
+192 |     c._require('observation'in cfg,'OBSERVATION_CONFIGURATION_REQUIRED');observation=cfg['observation'];configuration(observation)
+    |                                                                                                        ^
+193 |     operation=local_decode(read_bytes(root,executor.directory+'/deployment-submission.json'))
+194 |     c._require(operation['schema']=='azure-submission/v1' and operation['request']==executor.request_ref and
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:197:31
+    |
+195 |         operation['scope']==request['scope'] and operation['native_operation_id']==executor.client.native_id and
+196 |         operation['request_id']==executor.request_id,'ORIGINAL_OPERATION_REQUIRED')
+197 |     p=executor.boundary.policy;github=GitHubAdmission(p,executor.boundary.runtime,executor.boundary.transport)
+    |                               ^
+198 |     now=int(executor.clock());token,claims=github.oidc(now)
+199 |     principal,_,credentials=AzureIdentity.exchange(p,token,claims,executor.boundary.transport,now)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:198:30
+    |
+196 |         operation['request_id']==executor.request_id,'ORIGINAL_OPERATION_REQUIRED')
+197 |     p=executor.boundary.policy;github=GitHubAdmission(p,executor.boundary.runtime,executor.boundary.transport)
+198 |     now=int(executor.clock());token,claims=github.oidc(now)
+    |                              ^
+199 |     principal,_,credentials=AzureIdentity.exchange(p,token,claims,executor.boundary.transport,now)
+200 |     response=executor.client.call('GET',executor.client.url,credentials,executor.request_id)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-azure-cloud/scripts/azure_observation.py:201:68
+    |
+199 |     principal,_,credentials=AzureIdentity.exchange(p,token,claims,executor.boundary.transport,now)
+200 |     response=executor.client.call('GET',executor.client.url,credentials,executor.request_id)
+201 |     c._require(response.status==200,'NATIVE_OPERATION_UNAVAILABLE');value=decode(response.body)
+    |                                                                    ^
+202 |     c._require(value['id']==executor.client.native_id and value['properties']['provisioningState']=='Succeeded' and
+203 |         observation['vm_id']in [r['id'] for r in value['properties']['outputResources']],'NATIVE_OPERATION_NOT_SUCCEEDED')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-quality-loop/scripts/cloud_verification.py:111:34
+    |
+109 |         profile['version']==request['verification_profile']['version'] and
+110 |         c.parse_artifact(profile_bytes)==profile and digest(profile_bytes)==request['verification_profile']['sha256'], 'PROFILE_BINDI…
+111 |     c._text(context['principal']);c._text(context['native_operation_id'])
+    |                                  ^
+112 |     c._list(context['resource_ids'],c._text,1);c._unique(context['resource_ids'])
+113 |     c._enum(context['classification'],('native','synthetic'))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> plugins/sdd-quality-loop/scripts/cloud_verification.py:112:47
+    |
+110 |         c.parse_artifact(profile_bytes)==profile and digest(profile_bytes)==request['verification_profile']['sha256'], 'PROFILE_BINDI…
+111 |     c._text(context['principal']);c._text(context['native_operation_id'])
+112 |     c._list(context['resource_ids'],c._text,1);c._unique(context['resource_ids'])
+    |                                               ^
+113 |     c._enum(context['classification'],('native','synthetic'))
+114 |     c._require(context['classification']!='native' or trusted_native, 'COLLECTOR_PROVENANCE_REQUIRED')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:157:68
+    |
+155 |                 case = reducer_case()
+156 |                 record = case[5][check]
+157 |                 observation=json.loads(record['observation_bytes']); payload=json.loads(record['payload_bytes'])
+    |                                                                    ^
+158 |                 if variant == 'missing':
+159 |                     case[5].pop(check)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:163:42
+    |
+161 |                     record['payload_bytes'] += b' '
+162 |                 else:
+163 |                     if variant == 'stale': payload['sampled_at']='2026-10-18T05:59:59Z'
+    |                                          ^
+164 |                     else:
+165 |                         payload['status']=observation['status']=variant
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:173:59
+    |
+171 |                 with self.subTest(check=check, variant=variant):
+172 |                     if variant in ('missing','tampered'):
+173 |                         with self.assertRaises(ValueError): self.reduce(case)
+    |                                                           ^
+174 |                     else:
+175 |                         result=self.reduce(case)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:182:32
+    |
+180 |         for field, value in [('schema','unknown/v1'),('extra',True),('completed_at','2026-10-18T06:02:00Z'),
+181 |                              ('collected_at','2026-10-18T06:02:00Z'),('classification','native')]:
+182 |             case=reducer_case();case[4][field]=value
+    |                                ^
+183 |             with self.subTest(field=field), self.assertRaises(ValueError): self.reduce(case)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:183:74
+    |
+181 |                              ('collected_at','2026-10-18T06:02:00Z'),('classification','native')]:
+182 |             case=reducer_case();case[4][field]=value
+183 |             with self.subTest(field=field), self.assertRaises(ValueError): self.reduce(case)
+    |                                                                          ^
+184 |
+185 |     def test_profile_policy_and_check_set(self):
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:188:41
+    |
+186 |         for variant in ('missing-backup','profile-version','profile-digest','extra-check','duplicate-check'):
+187 |             case=reducer_case()
+188 |             if variant=='missing-backup': case[2]['required_check_ids'].remove('backup')
+    |                                         ^
+189 |             elif variant=='profile-version': case[2]['version']='9'
+190 |             elif variant=='profile-digest': case[2]['max_age_seconds']=900
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:189:44
+    |
+187 |             case=reducer_case()
+188 |             if variant=='missing-backup': case[2]['required_check_ids'].remove('backup')
+189 |             elif variant=='profile-version': case[2]['version']='9'
+    |                                            ^
+190 |             elif variant=='profile-digest': case[2]['max_age_seconds']=900
+191 |             elif variant=='extra-check': case[2]['required_check_ids'].append('unknown')
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:190:43
+    |
+188 |             if variant=='missing-backup': case[2]['required_check_ids'].remove('backup')
+189 |             elif variant=='profile-version': case[2]['version']='9'
+190 |             elif variant=='profile-digest': case[2]['max_age_seconds']=900
+    |                                           ^
+191 |             elif variant=='extra-check': case[2]['required_check_ids'].append('unknown')
+192 |             else: case[5].append(copy.deepcopy(case[5][0]))
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:191:40
+    |
+189 |             elif variant=='profile-version': case[2]['version']='9'
+190 |             elif variant=='profile-digest': case[2]['max_age_seconds']=900
+191 |             elif variant=='extra-check': case[2]['required_check_ids'].append('unknown')
+    |                                        ^
+192 |             else: case[5].append(copy.deepcopy(case[5][0]))
+193 |             with self.subTest(variant=variant), self.assertRaises(ValueError): self.reduce(case)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:192:17
+    |
+190 |             elif variant=='profile-digest': case[2]['max_age_seconds']=900
+191 |             elif variant=='extra-check': case[2]['required_check_ids'].append('unknown')
+192 |             else: case[5].append(copy.deepcopy(case[5][0]))
+    |                 ^
+193 |             with self.subTest(variant=variant), self.assertRaises(ValueError): self.reduce(case)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:193:78
+    |
+191 |             elif variant=='extra-check': case[2]['required_check_ids'].append('unknown')
+192 |             else: case[5].append(copy.deepcopy(case[5][0]))
+193 |             with self.subTest(variant=variant), self.assertRaises(ValueError): self.reduce(case)
+    |                                                                              ^
+194 |
+195 |     def test_query_trace_shape(self):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:198:32
+    |
+196 |         for field,value in [('locator','http://untrusted.example'),('request_sha256','wrong'),
+197 |                             ('response_sha256','wrong'),('http_status',-1),('extra','unknown')]:
+198 |             case=reducer_case();record=case[5][0];payload=json.loads(record['payload_bytes'])
+    |                                ^
+199 |             payload['queries'][0][field]=value;record['payload_bytes']=encode(payload)
+200 |             observation=json.loads(record['observation_bytes'])
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:198:50
+    |
+196 |         for field,value in [('locator','http://untrusted.example'),('request_sha256','wrong'),
+197 |                             ('response_sha256','wrong'),('http_status',-1),('extra','unknown')]:
+198 |             case=reducer_case();record=case[5][0];payload=json.loads(record['payload_bytes'])
+    |                                                  ^
+199 |             payload['queries'][0][field]=value;record['payload_bytes']=encode(payload)
+200 |             observation=json.loads(record['observation_bytes'])
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:199:47
+    |
+197 |                             ('response_sha256','wrong'),('http_status',-1),('extra','unknown')]:
+198 |             case=reducer_case();record=case[5][0];payload=json.loads(record['payload_bytes'])
+199 |             payload['queries'][0][field]=value;record['payload_bytes']=encode(payload)
+    |                                               ^
+200 |             observation=json.loads(record['observation_bytes'])
+201 |             observation['result']['sha256']=hashlib.sha256(record['payload_bytes']).hexdigest()
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:203:74
+    |
+201 |             observation['result']['sha256']=hashlib.sha256(record['payload_bytes']).hexdigest()
+202 |             record['observation_bytes']=encode(observation)
+203 |             with self.subTest(field=field), self.assertRaises(ValueError):self.reduce(case)
+    |                                                                          ^
+204 |
+205 | class NativeCollectorCases(unittest.TestCase):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:214:47
+    |
+212 |                 module.configuration(cfg)
+213 |                 for field in cfg:
+214 |                     changed=copy.deepcopy(cfg);changed[field]='; arbitrary command'
+    |                                               ^
+215 |                     with self.subTest(field=field),self.assertRaises(ValueError):module.configuration(changed)
+216 |                 changed=copy.deepcopy(cfg);changed['command']='arbitrary'
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:215:81
+    |
+213 |                 for field in cfg:
+214 |                     changed=copy.deepcopy(cfg);changed[field]='; arbitrary command'
+215 |                     with self.subTest(field=field),self.assertRaises(ValueError):module.configuration(changed)
+    |                                                                                 ^
+216 |                 changed=copy.deepcopy(cfg);changed['command']='arbitrary'
+217 |                 with self.assertRaises(ValueError):module.configuration(changed)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:216:43
+    |
+214 |                     changed=copy.deepcopy(cfg);changed[field]='; arbitrary command'
+215 |                     with self.subTest(field=field),self.assertRaises(ValueError):module.configuration(changed)
+216 |                 changed=copy.deepcopy(cfg);changed['command']='arbitrary'
+    |                                           ^
+217 |                 with self.assertRaises(ValueError):module.configuration(changed)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:217:51
+    |
+215 |                     with self.subTest(field=field),self.assertRaises(ValueError):module.configuration(changed)
+216 |                 changed=copy.deepcopy(cfg);changed['command']='arbitrary'
+217 |                 with self.assertRaises(ValueError):module.configuration(changed)
+    |                                                   ^
+218 |
+219 |     def test_native_healthy_and_each_unhealthy_denied_missing_stale(self):
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:231:84
+    |
+229 |                             age=300,clock=lambda:1792303260,transport=fixture,run_id='synthetic-run',unit_id='synthetic-unit')
+230 |                         if variant in ('denied','missing') or (variant=='stale' and check in ('monitoring','workload','backup')):
+231 |                             with self.assertRaises((ValueError,KeyError,TypeError)):getattr(collector,check)()
+    |                                                                                    ^
+232 |                         else:
+233 |                             healthy,_=getattr(collector,check)()
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:277:34
+    |
+275 |         # observation: tests exercise real parsing, native target and health logic.
+276 |         from types import SimpleNamespace
+277 |         if self.variant=='denied':return SimpleNamespace(status=403,headers={},body=b'{}')
+    |                                  ^
+278 |         if self.variant=='missing':return SimpleNamespace(status=200,headers={},body=b'{}')
+279 |         value=self.azure(url,method) if self.provider=='azure' else self.aws(url,method,body)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:278:35
+    |
+276 |         from types import SimpleNamespace
+277 |         if self.variant=='denied':return SimpleNamespace(status=403,headers={},body=b'{}')
+278 |         if self.variant=='missing':return SimpleNamespace(status=200,headers={},body=b'{}')
+    |                                   ^
+279 |         value=self.azure(url,method) if self.provider=='azure' else self.aws(url,method,body)
+280 |         return SimpleNamespace(status=200,headers={},body=value if isinstance(value,bytes) else encode(value))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:287:32
+    |
+285 |     def azure(self,url,method):
+286 |         from urllib.parse import urlsplit,parse_qs
+287 |         path=urlsplit(url).path;query=parse_qs(urlsplit(url).query);cfg=self.cfg
+    |                                ^
+288 |         bad=self.variant=='unhealthy'
+289 |         self.assert_read(method,path)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:287:68
+    |
+285 |     def azure(self,url,method):
+286 |         from urllib.parse import urlsplit,parse_qs
+287 |         path=urlsplit(url).path;query=parse_qs(urlsplit(url).query);cfg=self.cfg
+    |                                                                    ^
+288 |         bad=self.variant=='unhealthy'
+289 |         self.assert_read(method,path)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:294:46
+    |
+292 |             module=__import__('azure_observation')
+293 |             actions=sorted(module.permission_ceiling(resource,cfg))
+294 |             if bad and self.check=='identity':actions.append('Microsoft.Authorization/roleAssignments/write')
+    |                                              ^
+295 |             return dict(value=[dict(actions=actions,notActions=[],dataActions=[],notDataActions=[])])
+296 |         if path==cfg['identity_id']:
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:302:46
+    |
+300 |                 properties=dict(provisioningState='Failed' if bad and self.check=='resource' else 'Succeeded',
+301 |                     networkProfile=dict(networkInterfaces=[dict(id=cfg['nic_id'])])))
+302 |         if path==cfg['vm_id']+'/instanceView':return dict(statuses=[dict(code='PowerState/running')])
+    |                                              ^
+303 |         if path==cfg['nic_id']:
+304 |             return dict(id=path,properties=dict(virtualMachine=dict(id=cfg['vm_id']),
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:322:40
+    |
+320 | …         return dict(id=path,properties=dict(virtualMachineId=cfg['vm_id'],policyId=b['policy_id'],
+321 | …             protectionState='ProtectionError' if bad else 'Protected',lastBackupStatus='Completed',lastBackupTime=self.stamp()))
+322 | …     if path==b['recovery_point_id']:return dict(id=path,properties=dict(recoveryPointTime=self.stamp(),recoveryPointType='AppConsis…
+    |                                      ^
+323 | …     raise AssertionError('unrecognized fixed Azure read '+path)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:331:21
+    |
+329 |     def aws(self,url,method,body):
+330 |         from urllib.parse import parse_qs,urlsplit,quote
+331 |         cfg=self.cfg;bad=self.variant=='unhealthy';host=urlsplit(url).netloc
+    |                     ^
+332 |         if host.startswith('backup.'):
+333 |             assert method=='GET'
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:331:51
+    |
+329 |     def aws(self,url,method,body):
+330 |         from urllib.parse import parse_qs,urlsplit,quote
+331 |         cfg=self.cfg;bad=self.variant=='unhealthy';host=urlsplit(url).netloc
+    |                                                   ^
+332 |         if host.startswith('backup.'):
+333 |             assert method=='GET'
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:334:37
+    |
+332 | …     if host.startswith('backup.'):
+333 | …         assert method=='GET'
+334 | …         if '/selections/' in url:return dict(BackupPlanId='plan',SelectionId='selection',BackupSelection=dict(Resources=['arn:aws:e…
+    |                                   ^
+335 | …         return dict(RecoveryPointArn=cfg['backup']['recovery_point_arn'],BackupVaultName='vault',ResourceArn='arn:aws:ec2:us-east-1…
+336 | …             CreatedBy=dict(BackupPlanId='plan'),Status='PARTIAL' if bad else 'COMPLETED',IsEncrypted=True,
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:339:37
+    |
+337 |                 CompletionDate=1792299600 if self.variant=='stale' else 1792303260)
+338 |         assert method=='POST'
+339 |         args=parse_qs(body.decode());action=args['Action'][0]
+    |                                     ^
+340 |         if host.startswith('ec2.'):
+341 |             ns='http://ec2.amazonaws.com/doc/2016-11-15/'
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:350:17
+    |
+348 | …             values=dict(securityGroupInfo=[dict(ownerId='123456789012',groupId=cfg['security_group_ids'][0],vpcId=cfg['vpc_id'],ipP…
+349 | …                 ipPermissionsEgress=[dict(ipProtocol='tcp',fromPort='443',toPort='443',ipRanges=[dict(cidrIp='10.0.0.0/16')],ipv6Ra…
+350 | …         else:raise AssertionError(action)
+    |               ^
+351 | …         return native_xml(action,values,ns,ec2=True)
+352 | …     if host=='iam.amazonaws.com':
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:354:44
+    |
+352 | …     if host=='iam.amazonaws.com':
+353 | …         ns='https://iam.amazonaws.com/doc/2010-05-08/'
+354 | …         if action=='GetInstanceProfile':values=dict(InstanceProfile=dict(Arn=cfg['instance_profile_arn'],Roles=[dict(Arn=cfg['role_…
+    |                                          ^
+355 | …         elif action=='GetRolePolicy':
+356 | …             module=__import__('aws_observation');policy=module.guard_policy(cfg['workload_metric']['namespace'])
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-verification.tests.py:356:53
+    |
+354 | …     if action=='GetInstanceProfile':values=dict(InstanceProfile=dict(Arn=cfg['instance_profile_arn'],Roles=[dict(Arn=cfg['role_arn'…
+355 | …     elif action=='GetRolePolicy':
+356 | …         module=__import__('aws_observation');policy=module.guard_policy(cfg['workload_metric']['namespace'])
+    |                                               ^
+357 | …         if bad:policy['Statement'].pop(0)
+358 | …         values=dict(RoleName='workload',PolicyName=cfg['guard_policy_name'],PolicyDocument=quote(json.dumps(policy)))
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:357:23
+    |
+355 |             elif action=='GetRolePolicy':
+356 |                 module=__import__('aws_observation');policy=module.guard_policy(cfg['workload_metric']['namespace'])
+357 |                 if bad:policy['Statement'].pop(0)
+    |                       ^
+358 |                 values=dict(RoleName='workload',PolicyName=cfg['guard_policy_name'],PolicyDocument=quote(json.dumps(policy)))
+359 |             else:raise AssertionError(action)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:359:17
+    |
+357 |                 if bad:policy['Statement'].pop(0)
+358 |                 values=dict(RoleName='workload',PolicyName=cfg['guard_policy_name'],PolicyDocument=quote(json.dumps(policy)))
+359 |             else:raise AssertionError(action)
+    |                 ^
+360 |             return native_xml(action,values,ns)
+361 |         assert host=='monitoring.us-east-1.amazonaws.com'
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:363:36
+    |
+361 | …     assert host=='monitoring.us-east-1.amazonaws.com'
+362 | …     ns='http://monitoring.amazonaws.com/doc/2010-08-01/'
+363 | …     if action=='DescribeAlarms':values=dict(MetricAlarms=[dict(AlarmName=cfg['alarm_name'],Namespace='AWS/EC2',MetricName='StatusCh…
+    |                                  ^
+364 | …     elif action=='GetMetricStatistics':
+365 | …         name=args['MetricName'][0]
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:367:13
+    |
+365 | …         name=args['MetricName'][0]
+366 | …         values=dict(Label=name,Datapoints=[dict(Timestamp=self.stamp(),Maximum='999' if bad else ('1' if name=='Healthy' else '0'))…
+367 | …     else:raise AssertionError(action)
+    |           ^
+368 | …     return native_xml(action,values,ns)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:378:37
+    |
+376 |         node=ET.SubElement(parent,key)
+377 |         if isinstance(value,dict):
+378 |             for k,v in value.items():add(node,k,v)
+    |                                     ^
+379 |         elif isinstance(value,list):
+380 |             for v in value:add(node,'item' if ec2 else 'member',v)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:380:27
+    |
+378 |             for k,v in value.items():add(node,k,v)
+379 |         elif isinstance(value,list):
+380 |             for v in value:add(node,'item' if ec2 else 'member',v)
+    |                           ^
+381 |         else:node.text=str(value)
+382 |     for k,v in values.items():add(target,k,v)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:381:13
+    |
+379 |         elif isinstance(value,list):
+380 |             for v in value:add(node,'item' if ec2 else 'member',v)
+381 |         else:node.text=str(value)
+    |             ^
+382 |     for k,v in values.items():add(target,k,v)
+383 |     return ET.tostring(root)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-verification.tests.py:382:30
+    |
+380 |             for v in value:add(node,'item' if ec2 else 'member',v)
+381 |         else:node.text=str(value)
+382 |     for k,v in values.items():add(target,k,v)
+    |                              ^
+383 |     return ET.tostring(root)
+    |
+
+Found 112 errors.
+[*] 2 fixable with the `--fix` option (2 hidden fixes can be enabled with the `--unsafe-fixes` option).
+
+Exit code: 1

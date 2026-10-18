@@ -1,0 +1,93 @@
+{
+  "base_revision": "d3c1ce886a60165a79c6bf33cadebff8e3f91435",
+  "task_owned_initial_provider_tree": "absent",
+  "routing_before_sha256": "5e4eb42aeda61f474d84fe543bcd081e6568beec7088382690fc39fe3c3e41e8",
+  "routing_restored_sha256": "5e4eb42aeda61f474d84fe543bcd081e6568beec7088382690fc39fe3c3e41e8",
+  "exact_restoration": true,
+  "cloud_resources_created": false,
+  "limits": "Restores local task files only; initial routing Red remains Red. No state/review/identity ledger restored.",
+  "commands": [
+    {
+      "label": "rollback-create",
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+        "d3c1ce886a60165a79c6bf33cadebff8e3f91435"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "start_utc": "2026-10-18T06:27:56Z",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-before-contracts",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:27:56Z",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-before-routing",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:27:57Z",
+      "exit_code": 1
+    },
+    {
+      "label": "rollback-candidate-routing",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:27:57Z",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-restored-contracts",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:28:23Z",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-restored-routing",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:28:23Z",
+      "exit_code": 1
+    },
+    {
+      "label": "rollback-remove",
+      "command": [
+        "git",
+        "worktree",
+        "remove",
+        "--force",
+        "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "start_utc": "2026-10-18T06:28:24Z",
+      "exit_code": 0
+    }
+  ]
+}

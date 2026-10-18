@@ -1,0 +1,146 @@
+test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) ... ok
+test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract) ... FAIL
+test_shared_reducer_available (__main__.EntryPreflight.test_shared_reducer_available) ... ok
+test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) ... ok
+test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) ... 
+  test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='resource', variant='missing') ... ERROR
+  test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='network', variant='missing') ... ERROR
+  test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='identity', variant='missing') ... ERROR
+  test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='monitoring', variant='missing') ... ERROR
+  test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='workload', variant='missing') ... ERROR
+test_all_checks_synthetic_never_complete (__main__.ReducerCases.test_all_checks_synthetic_never_complete) ... ok
+test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) ... ok
+test_context_shape_and_window (__main__.ReducerCases.test_context_shape_and_window) ... ok
+test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) ... ok
+test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) ... ok
+test_each_payload_counterpart_mismatch (__main__.ReducerCases.test_each_payload_counterpart_mismatch) ... ok
+test_profile_policy_and_check_set (__main__.ReducerCases.test_profile_policy_and_check_set) ... ok
+test_query_trace_shape (__main__.ReducerCases.test_query_trace_shape) ... ok
+
+======================================================================
+ERROR: test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='resource', variant='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 231, in test_native_healthy_and_each_unhealthy_denied_missing_stale
+    with self.assertRaises((ValueError,KeyError,TypeError)):getattr(collector,check)()
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 132, in resource
+    instance=self.instance()
+             ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 124, in instance
+    value=self.call('ec2','DescribeInstances',{'InstanceId.1':self.cfg['instance_id']})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 105, in call
+    root=xml(raw,NAMESPACES[service])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_native.py", line 122, in xml
+    root = ET.fromstring(raw)
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/xml/etree/ElementTree.py", line 1335, in XML
+    parser.feed(text)
+xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+
+======================================================================
+ERROR: test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='network', variant='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 231, in test_native_healthy_and_each_unhealthy_denied_missing_stale
+    with self.assertRaises((ValueError,KeyError,TypeError)):getattr(collector,check)()
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 136, in network
+    machine=self.instance();cfg=self.cfg
+            ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 124, in instance
+    value=self.call('ec2','DescribeInstances',{'InstanceId.1':self.cfg['instance_id']})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 105, in call
+    root=xml(raw,NAMESPACES[service])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_native.py", line 122, in xml
+    root = ET.fromstring(raw)
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/xml/etree/ElementTree.py", line 1335, in XML
+    parser.feed(text)
+xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+
+======================================================================
+ERROR: test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='identity', variant='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 231, in test_native_healthy_and_each_unhealthy_denied_missing_stale
+    with self.assertRaises((ValueError,KeyError,TypeError)):getattr(collector,check)()
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 160, in identity
+    machine=self.instance();cfg=self.cfg
+            ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 124, in instance
+    value=self.call('ec2','DescribeInstances',{'InstanceId.1':self.cfg['instance_id']})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 105, in call
+    root=xml(raw,NAMESPACES[service])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_native.py", line 122, in xml
+    root = ET.fromstring(raw)
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/xml/etree/ElementTree.py", line 1335, in XML
+    parser.feed(text)
+xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+
+======================================================================
+ERROR: test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='monitoring', variant='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 231, in test_native_healthy_and_each_unhealthy_denied_missing_stale
+    with self.assertRaises((ValueError,KeyError,TypeError)):getattr(collector,check)()
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 183, in monitoring
+    machine=self.instance()
+            ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 124, in instance
+    value=self.call('ec2','DescribeInstances',{'InstanceId.1':self.cfg['instance_id']})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 105, in call
+    root=xml(raw,NAMESPACES[service])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_native.py", line 122, in xml
+    root = ET.fromstring(raw)
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/xml/etree/ElementTree.py", line 1335, in XML
+    parser.feed(text)
+xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+
+======================================================================
+ERROR: test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) (provider='aws', check='workload', variant='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 231, in test_native_healthy_and_each_unhealthy_denied_missing_stale
+    with self.assertRaises((ValueError,KeyError,TypeError)):getattr(collector,check)()
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 195, in workload
+    return self.metric(self.cfg['workload_metric'],workload=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 177, in metric
+    value=self.call('monitoring','GetMetricStatistics',params)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 105, in call
+    root=xml(raw,NAMESPACES[service])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_native.py", line 122, in xml
+    root = ET.fromstring(raw)
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/xml/etree/ElementTree.py", line 1335, in XML
+    parser.feed(text)
+xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+
+======================================================================
+FAIL: test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 64, in test_observation_settings_have_closed_executable_contract
+    self.assertIn('observation', schema['oneOf'][1]['properties'])
+AssertionError: 'observation' not found in {'schema': {'const': 'azure-local-config/v1', 'type': 'string'}, 'import_resources': {'const': False, 'type': 'boolean'}, 'entrypoint': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'parameters': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'upstream_root': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'output_directory': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'network': {'type': 'object', 'additionalProperties': False, 'required': ['subnet_id', 'private_management', 'inbound_internet'], 'properties': {'subnet_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}, 'private_management': {'const': True, 'type': 'boolean'}, 'inbound_internet': {'const': False, 'type': 'boolean'}}}, 'identity': {'type': 'object', 'additionalProperties': False, 'required': ['resource_id'], 'properties': {'resource_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}}}, 'monitoring': {'type': 'object', 'additionalProperties': False, 'required': ['data_collection_rule_id'], 'properties': {'data_collection_rule_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}}}, 'backup': {'type': 'object', 'additionalProperties': False, 'required': ['policy_id'], 'properties': {'policy_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}}}, 'cost': {'type': 'object', 'additionalProperties': False, 'required': ['estimated_minor_units', 'currency', 'duration_hours'], 'properties': {'estimated_minor_units': {'type': 'integer', 'minimum': 1, 'maximum': 2147483647}, 'currency': {'type': 'string', 'pattern': '^[A-Z]{3}$(?![\\s\\S])'}, 'duration_hours': {'type': 'integer', 'minimum': 1, 'maximum': 2147483647}}}, 'evidence': {'type': 'object', 'additionalProperties': False, 'required': ['residency', 'retention_days', 'access'], 'properties': {'residency': {'type': 'string', 'pattern': '^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$(?![\\s\\S])'}, 'retention_days': {'type': 'integer', 'minimum': 1, 'maximum': 2147483647}, 'access': {'const': 'restricted', 'type': 'string'}}}}
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.159s
+
+FAILED (failures=1, errors=5)

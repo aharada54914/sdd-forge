@@ -1,0 +1,139 @@
+[
+  {
+    "name": "rollback-create",
+    "command": [
+      "git",
+      "worktree",
+      "add",
+      "--detach",
+      "/tmp/cloud-T006-01a14e73/rollback",
+      "65ee658c1b3e522eced2413aeb55bb897783bf1b"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "rollback-entry-verification",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "rollback-entry-routing-known-red",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "rollback-candidate-verification",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "rollback-restored-verification",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "rollback-reapplied-verification",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "sensitivity-membership-stack",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py",
+      "AwsObservationOrchestration.test_stack_membership_counterparts"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "sensitivity-membership-logical",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py",
+      "AwsObservationOrchestration.test_stack_membership_counterparts"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "sensitivity-membership-type",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py",
+      "AwsObservationOrchestration.test_stack_membership_counterparts"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "sensitivity-membership-state",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py",
+      "AwsObservationOrchestration.test_stack_membership_counterparts"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "sensitivity-lease",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py",
+      "NativeCollectorCases.test_expired_collector_lease_has_zero_reads"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "sensitivity-context-binding",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py",
+      "ReducerCases.test_each_context_counterpart_mismatch"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "rollback-sensitivity-restored",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "rollback-remove",
+    "command": [
+      "git",
+      "worktree",
+      "remove",
+      "--force",
+      "/tmp/cloud-T006-01a14e73/rollback"
+    ],
+    "exit_code": 0
+  }
+]

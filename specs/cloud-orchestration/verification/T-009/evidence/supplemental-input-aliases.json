@@ -1,0 +1,72 @@
+[
+  {
+    "path": "initial-inputs/plugins/sdd-aws-cloud/scripts/aws_observation.py",
+    "original_path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+    "sha256": "6057a5d62afd366f7b9fc589e887fc8dce9c37daf20b69ff8facb1cff395cc13"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-azure-cloud/scripts/azure_observation.py",
+    "original_path": "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+    "sha256": "cb718f913e98253038e72f5e2bf278e458c5a8e497210b644fcfc0cd2ad3f990"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/references/guard-invariants.json",
+    "original_path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+    "sha256": "35645f911bdc7eb82ed96cf4a8ac59ab165be9d53f2bf5d215d8b1536b0ca224"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+    "original_path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+    "sha256": "1ce796d91352a488d479a335af08b663a430b0c1d9858dc2593382181d54344a"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/check-contract.py",
+    "original_path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+    "sha256": "2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "original_path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "sha256": "bb868366c74987319f674fc36f44adbd9b4b5625d46b15e1e9a1a07bf2569dbe"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+    "original_path": "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+    "sha256": "b31edeefb2d2549b349ed1052be40c0e2b22d6f7f14a98b9f1535720cb78b1cc"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "original_path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "sha256": "b8da17031edc5fe4b7bc6d18278a204d899dbd8341df9e5d0e72920535a77137"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "original_path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "sha256": "dbf8977e88dba6efdcfb72f86195451780997676b4c7e25e3c39cf3ec8f53fae"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "original_path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "sha256": "8a8ada6316786b3e5e249cb65286a275e2bbaf043464485ebd769cfe237deea0"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "original_path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "sha256": "dfae04d3e2416ff8f0dddd83adae8d0fb5a0768ae3a602c813d7402c2829f9fd"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "original_path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "sha256": "83e24c57111d715a878bba182732c85afda06c1b5e239e5a3d4f2fc7ee8edf9b"
+  },
+  {
+    "path": "initial-inputs/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+    "original_path": "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+    "sha256": "7cc6d610d63558f7ceb841b09174ffcc767eef161ecaee89e6b5b2a82ab49c87"
+  },
+  {
+    "path": "initial-inputs/tests/cloud-orchestration-verification.tests.py",
+    "original_path": "tests/cloud-orchestration-verification.tests.py",
+    "sha256": "7cdbf61264499cec788e7da535f9c0b1cdb603d555975b93498cc1a2e65f0135"
+  }
+]

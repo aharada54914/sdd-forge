@@ -1,0 +1,463 @@
+ok: full install registers all plugins
+ok: subset --plugins only registers chosen plugins
+ok: lite selection resolves the full dependency closure
+ok: domain selection registers its dependency closure
+ok: failure on registration keeps the freshly placed install
+ok: failure on registration keeps the new version over the pre-existing install
+ok: invalid source directory rejected before touching existing install
+ok: invalid plugin name rejected
+
+SDD plugins installed at: /tmp/tmp.yW9Bry4BZ6/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+SDD plugins installed at: /tmp/tmp.yW9Bry4BZ6/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: idempotency: second install exits 0, state consistent
+
+SDD plugins installed at: /tmp/tmp.XdB8Apm0Xj/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+ok: malformed source agent TOML rejected before deployment
+ok: authenticated remote install uses GitHub CLI token flow
+
+SDD plugins installed at: /tmp/tmp.Yi0glKrRAA/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: local source installs Git-tracked files only
+ok: untracked required release file is rejected before deployment
+
+SDD plugins installed at: /tmp/tmp.vXrJE3esim/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: concurrent install blocked, succeeds after lock released
+ok: lock: released on success — lock dir absent after install
+
+SDD plugins installed at: /tmp/tmp.RV7X5EhCjz/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: stale lock with dead pid reclaimed — install succeeds
+
+SDD plugins installed at: /tmp/tmp.nGgAQ9VBC0/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: smoke (D): installed native review identity producer matches bundled bytes
+ok: smoke (D): installed operator nonce issuer matches bundled bytes
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/scripts/finalize-domain-review.py
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/scripts/finalize-domain-review.sh
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/scripts/finalize-domain-review.ps1
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/templates/domain-review-integrated-verdict.template.json
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/templates/domain-review-contract.template.json
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/templates/domain-review-report.template.md
+Risk check passed for 1 task(s).
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+Risk check FAILED:
+ - T-001 (risk high) must declare Required Workflow: tdd (none found)
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: sdd-ship expansion: auto-includes all companion plugins
+ok: marketplace: sdd-ship entry present in both marketplace files
+ok: sdd-ship required paths: all plugin files present
+ok: sdd-review-loop required paths: manifests and skills present
+ok: Claude manifest validation fails before marketplace registration
+ok: default install places and registers ALL THREE MCP servers, with ci-mcp token guidance
+
+SDD plugins installed at: /tmp/tmp.aB0OhvzsS4/installed
+ok: --skip-mcp skips both MCP placement and registration
+
+SDD plugins installed at: /tmp/tmp.BmBZIemCAr/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+SDD plugins installed at: /tmp/tmp.ZolSrLjeY1/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: --mcp <list> installs valid names and rejects invalid/empty ones
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: unsupported Node warns and skips MCP only, plugin install continues
+ok: Node boundary v22.18.0 is rejected
+ok: Node boundary v22.19.0 is accepted
+ok: Node boundary v24.0.0 is accepted
+ok: Node boundary v22.19.0-rc.1 is rejected
+ok: Node boundary v999999999999999999999.0.0 is rejected
+ok: Node boundary not-a-version is rejected
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice
+ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice
+ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues
+ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues
+ok: T-003 install output is unaffected by project-context presence
+
+Results: 51 passed, 0 failed.
+ok: archive extraction exit 0 handled
+ok: archive extraction exit 2 handled
+WARNING: /tmp/sdd-installer-test-f610b1f7-54c7-479c-a0a4-c4fd8bbca25c/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-test-f610b1f7-54c7-479c-a0a4-c4fd8bbca25c/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Dependency resolution auto-included: sdd-review-loop.
+WARNING: /tmp/sdd-installer-test-38bc1569-2675-4749-94f9-77862efbbea4/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-test-38bc1569-2675-4749-94f9-77862efbbea4/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Dependency resolution auto-included: sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-review-loop.
+WARNING: /tmp/sdd-installer-test-9e236172-3556-428d-b824-7064b8ab290a/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-test-9e236172-3556-428d-b824-7064b8ab290a/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Dependency resolution auto-included: sdd-bootstrap, sdd-quality-loop, sdd-review-loop.
+WARNING: /tmp/sdd-installer-test-a7778ef8-d9b8-4d31-b4ae-77c7d2720f1e/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-test-a7778ef8-d9b8-4d31-b4ae-77c7d2720f1e/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Registration failed, but the install root at '/tmp/sdd-installer-test-39953fba-c42a-4710-97f3-c5d7f01e5b94/installed' was left at the newly installed version. Re-run the installer to retry registration.
+WARNING: Registration failed, but the install root at '/tmp/sdd-installer-test-5902e0d8-2bf6-4212-8728-c70c6380dc44/installed' was left at the newly installed version. Re-run the installer to retry registration.
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-filesonly-e8e8875b-d3dc-40d0-b5c3-c845b3babed4/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-tracked-only-c77888d9-1a0b-480a-904e-a68561593b2f/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: local source installs Git-tracked files only
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+ok: untracked required release file is rejected before deployment
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: /tmp/sdd-installer-idempotency-ab8ef0da-8e6d-498c-80c6-5656d151204c/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-idempotency-ab8ef0da-8e6d-498c-80c6-5656d151204c/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: /tmp/sdd-installer-idempotency-ab8ef0da-8e6d-498c-80c6-5656d151204c/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-idempotency-ab8ef0da-8e6d-498c-80c6-5656d151204c/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: idempotency: second install exits 0, state consistent
+WARNING: /tmp/sdd-installer-nonest-485f414c-fa67-4416-9d5f-d9e9ebe88946/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-nonest-485f414c-fa67-4416-9d5f-d9e9ebe88946/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+ok: malformed source agent TOML rejected before deployment
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+WARNING: /tmp/sdd-installer-remote-28c6d439-bf5e-4a37-aab8-4348bbba0413/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-67eb17f7-4b79-492a-98e1-8bf75cbec098/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-remote-28c6d439-bf5e-4a37-aab8-4348bbba0413/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: authenticated remote install uses GitHub token flow
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-lock-1604bc7d-2b24-407f-9c62-c7cf15083064/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: concurrent install blocked, succeeds after mutex released
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-locksucc-b6a70b6d-c99f-41b0-9b30-c080aebdcd14/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: released on success — mutex acquirable after install
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-smoke-209420df-2c45-4f3f-9392-88fcaa81f2dd/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: default install places and registers ALL THREE MCP servers, with ci-mcp token guidance
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-skip-3097ae8b-a23e-47c2-977a-6af5186fc5af/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: -SkipMcp skips both MCP placement and registration
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-valid-d373e411-1aaf-44a8-b027-44dffd3e88e5/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: -Mcp sdd-forge-mcp installs only the selected MCP
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-le-c1da3fe8-c039-4cc3-917b-f0c14a7bb5cf/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: -Mcp local-env-mcp installs only the selected MCP
+ok: -Mcp ci-mcp installs only the selected MCP, with token guidance
+ok: -Mcp bogus-mcp is rejected
+ok: -Mcp "" (empty) is rejected
+ok: -Plugins "" (empty) is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-oldnode-6784680e-daa3-4b02-bbbc-d279c72437f2/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: unsupported Node warns and skips MCP only, plugin install continues
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-b7e019c5-491e-491a-b6b6-833aee55b585/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v22.18.0 is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-abf3d8fa-3e1d-4834-9ee1-b8ad00aceb88/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v22.19.0 is accepted
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-201bd956-63c7-4373-88f2-3583bb14936d/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v24.0.0 is accepted
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-00741c70-30ca-429d-b582-6b22d0601fb8/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v22.19.0-rc.1 is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-530bf83c-8a4d-460d-b8c9-5427ae30c906/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v999999999999999999999.0.0 is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-a03c851e-0ce3-40b2-9b65-6a57a76b5282/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary not-a-version is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-v18-7baa07ee-5b54-4680-8ace-e9b96db662a3/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-noconfig-af899cd1-4b00-42be-8015-db84ecd2fb1c/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+
+SDD plugins installed at: /tmp/sdd-installer-cursor-915bb606-97a5-4b9e-b1e4-7002879a9f2e/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+
+SDD plugins installed at: /tmp/sdd-installer-cursor-915bb606-97a5-4b9e-b1e4-7002879a9f2e/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice
+
+SDD plugins installed at: /tmp/sdd-installer-vscode-6f3d8934-fbc0-4aa0-a6d3-a1498d6942b9/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+
+SDD plugins installed at: /tmp/sdd-installer-vscode-6f3d8934-fbc0-4aa0-a6d3-a1498d6942b9/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice
+ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues
+ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues
+ok: T-003 install output is unaffected by project-context presence
+Installer integration tests passed.

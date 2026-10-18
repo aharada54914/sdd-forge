@@ -1,0 +1,14 @@
+{
+  "id": 900081,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14e9b-59d8-7aa1-b988-8c2551229993",
+    "expectedTurnId": "01a14e9b-5a16-7780-8aa7-c503b0850f2b",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root ACTUAL deterministic probe found an additional original-operation binding defect: attempt-3/root-newer-stack-probe.json (+ reproducible .py). It executes actual prepare/apply as UPDATE, then observe with native stack events containing a newer other-token UPDATE_COMPLETE ahead of original success, and DescribeStackResource/current native health for a different valid EC2 ID. Current reducer overall_result=PASS for the new instance under old operation; public remains BLOCKED/evidence_complete=false solely because transports are synthetic. No cloud writes; fixture write count unchanged; source hashes stable during probe. observe filters events by original token before considering newer operations, so original stack membership alone is insufficient after a subsequent update. Add genuine committed Red then fix the current/original-operation join using actual native event ordering/identity semantics (and current exact-template/resource readback if needed); reject newer/ambiguous original-operation state rather than adopt current unrelated physical IDs. Do not claim public native exploit or live result from this synthetic probe. Preserve read-only/exclusive-writer assumptions and original-ID recovery; inspect analogous original/current resource binding for Azure within existing task. This is T006 correctness, not a new orchestration feature."
+      }
+    ]
+  }
+}

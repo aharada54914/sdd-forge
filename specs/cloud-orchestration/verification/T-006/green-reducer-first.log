@@ -1,0 +1,368 @@
+test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) ... 
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws') ... FAIL
+test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract) ... FAIL
+test_shared_reducer_available (__main__.EntryPreflight.test_shared_reducer_available) ... ok
+test_all_checks_synthetic_never_complete (__main__.ReducerCases.test_all_checks_synthetic_never_complete) ... ok
+test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) ... 
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=0, variant='FAIL') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=0, variant='BLOCKED') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=0, variant='UNKNOWN') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=1, variant='FAIL') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=1, variant='BLOCKED') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=1, variant='UNKNOWN') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=2, variant='FAIL') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=2, variant='BLOCKED') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=2, variant='UNKNOWN') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=3, variant='FAIL') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=3, variant='BLOCKED') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=3, variant='UNKNOWN') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=4, variant='FAIL') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=4, variant='BLOCKED') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=4, variant='UNKNOWN') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=5, variant='FAIL') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=5, variant='BLOCKED') ... ERROR
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=5, variant='UNKNOWN') ... ERROR
+test_context_shape_and_window (__main__.ReducerCases.test_context_shape_and_window) ... ok
+test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) ... ok
+test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) ... 
+  test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) (field='exit_code') ... FAIL
+test_each_payload_counterpart_mismatch (__main__.ReducerCases.test_each_payload_counterpart_mismatch) ... ok
+test_profile_policy_and_check_set (__main__.ReducerCases.test_profile_policy_and_check_set) ... ok
+test_query_trace_shape (__main__.ReducerCases.test_query_trace_shape) ... ok
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=0, variant='FAIL')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=0, variant='BLOCKED')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=0, variant='UNKNOWN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=1, variant='FAIL')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=1, variant='BLOCKED')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=1, variant='UNKNOWN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=2, variant='FAIL')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=2, variant='BLOCKED')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=2, variant='UNKNOWN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=3, variant='FAIL')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=3, variant='BLOCKED')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=3, variant='UNKNOWN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=4, variant='FAIL')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=4, variant='BLOCKED')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=4, variant='UNKNOWN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=5, variant='FAIL')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=5, variant='BLOCKED')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+ERROR: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=5, variant='UNKNOWN')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 174, in test_check_fail_block_unknown_stale_missing_tampered
+    result=self.reduce(case)
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 112, in reduce
+    return cloud_verification.reduce(*case, now='2026-10-18T06:01:01Z')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 133, in reduce
+    c._require((payload['reason']=='HEALTHY')==(payload['status']=='PASS'),'OUTCOME_MISMATCH')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: OUTCOME_MISMATCH
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 57, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 57, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 64, in test_observation_settings_have_closed_executable_contract
+    self.assertIn('observation', schema['oneOf'][1]['properties'])
+AssertionError: 'observation' not found in {'schema': {'const': 'azure-local-config/v1', 'type': 'string'}, 'import_resources': {'const': False, 'type': 'boolean'}, 'entrypoint': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'parameters': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'upstream_root': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'output_directory': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'network': {'type': 'object', 'additionalProperties': False, 'required': ['subnet_id', 'private_management', 'inbound_internet'], 'properties': {'subnet_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}, 'private_management': {'const': True, 'type': 'boolean'}, 'inbound_internet': {'const': False, 'type': 'boolean'}}}, 'identity': {'type': 'object', 'additionalProperties': False, 'required': ['resource_id'], 'properties': {'resource_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}}}, 'monitoring': {'type': 'object', 'additionalProperties': False, 'required': ['data_collection_rule_id'], 'properties': {'data_collection_rule_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}}}, 'backup': {'type': 'object', 'additionalProperties': False, 'required': ['policy_id'], 'properties': {'policy_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}}}, 'cost': {'type': 'object', 'additionalProperties': False, 'required': ['estimated_minor_units', 'currency', 'duration_hours'], 'properties': {'estimated_minor_units': {'type': 'integer', 'minimum': 1, 'maximum': 2147483647}, 'currency': {'type': 'string', 'pattern': '^[A-Z]{3}$(?![\\s\\S])'}, 'duration_hours': {'type': 'integer', 'minimum': 1, 'maximum': 2147483647}}}, 'evidence': {'type': 'object', 'additionalProperties': False, 'required': ['residency', 'retention_days', 'access'], 'properties': {'residency': {'type': 'string', 'pattern': '^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$(?![\\s\\S])'}, 'retention_days': {'type': 'integer', 'minimum': 1, 'maximum': 2147483647}, 'access': {'const': 'restricted', 'type': 'string'}}}}
+
+======================================================================
+FAIL: test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) (field='exit_code')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 136, in test_each_observation_counterpart_mismatch
+    with self.subTest(field=field), self.assertRaisesRegex(ValueError,'OBSERVATION_BINDING_MISMATCH'):
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "OBSERVATION_BINDING_MISMATCH" does not match "INVALID_ARTIFACT"
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.133s
+
+FAILED (failures=4, errors=18)

@@ -1,0 +1,22 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R3.asset-expected_owner",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_IDENTITY_MISMATCH",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "WRONG_GUARD:S3_IDENTITY_MISMATCH:S3_SUBSTITUTION",
+      "guards": [
+        {
+          "code": "S3_SUBSTITUTION",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+          "line": 416
+        }
+      ]
+    }
+  ]
+}

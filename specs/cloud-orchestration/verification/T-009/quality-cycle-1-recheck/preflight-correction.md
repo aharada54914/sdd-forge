@@ -1,0 +1,3 @@
+# Caller declaration correction
+
+The first delivery preflight rejected the supplemental declaration because it redundantly listed cross-feature human-copy source files. No model turn or identity reservation occurred. All 33 such path/hash pairs are already independently declared in the frozen implementation report Outputs table, which is the validator-supported authorization channel for them. This retry retains every allowed input and removes only the redundant supplemental entries; no validation rule or report was changed. Original preflight artifacts remain preserved. All actual caller checks remain valid against the unchanged reviewed bytes.

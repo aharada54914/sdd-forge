@@ -1,0 +1,326 @@
+{
+  "task_id": "T-013",
+  "feature": "cloud-orchestration",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "created": "2026-10-18T08:57:46Z",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/lint.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-aws-cloud/scripts/cloud.py plugins/sdd-aws-cloud/scripts/aws_native.py plugins/sdd-aws-cloud/scripts/aws_execution.py plugins/sdd-aws-cloud/scripts/aws_control.py plugins/sdd-aws-cloud/scripts/aws_governed.py tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:57:46Z",
+      "finished_at": "2026-10-18T08:57:46Z"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-aws-cloud/scripts/cloud.py plugins/sdd-aws-cloud/scripts/aws_native.py plugins/sdd-aws-cloud/scripts/aws_execution.py plugins/sdd-aws-cloud/scripts/aws_control.py plugins/sdd-aws-cloud/scripts/aws_governed.py tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 1,
+      "started_at": "2026-10-18T08:57:46Z",
+      "finished_at": "2026-10-18T08:57:46Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/commands.json",
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:57:46Z",
+      "finished_at": "2026-10-18T08:57:56Z"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/integration-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/commands.json",
+      "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:59:20Z",
+      "finished_at": "2026-10-18T08:59:20Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/build.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "python3 -m py_compile plugins/sdd-aws-cloud/scripts/cloud.py plugins/sdd-aws-cloud/scripts/aws_native.py plugins/sdd-aws-cloud/scripts/aws_execution.py plugins/sdd-aws-cloud/scripts/aws_control.py plugins/sdd-aws-cloud/scripts/aws_governed.py tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:57:46Z",
+      "finished_at": "2026-10-18T08:57:46Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-aws-cloud/scripts/cloud.py plugins/sdd-aws-cloud/scripts/aws_native.py plugins/sdd-aws-cloud/scripts/aws_execution.py plugins/sdd-aws-cloud/scripts/aws_control.py plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:59:20Z",
+      "finished_at": "2026-10-18T08:59:20Z"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/task-state-check.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/cloud-orchestration/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:59:20Z",
+      "finished_at": "2026-10-18T08:59:21Z"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI or differential baseline in this task. Live sandbox acceptance remains separately BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI or differential baseline in this task. Live sandbox acceptance remains separately BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI or differential baseline in this task. Live sandbox acceptance remains separately BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI or differential baseline in this task. Live sandbox acceptance remains separately BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/commands.json",
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:57:46Z",
+      "finished_at": "2026-10-18T08:57:56Z"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-013/evidence/red.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/commands.json",
+      "command": "python3 -B tests/cloud-orchestration-routing.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:57:56Z",
+      "finished_at": "2026-10-18T08:59:20Z"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/requirement-traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/cloud-orchestration/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:59:58Z",
+      "finished_at": "2026-10-18T08:59:58Z"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-013/quality-cycle-1/check-component-coverage.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-18T08:59:58Z",
+      "finished_at": "2026-10-18T08:59:58Z"
+    }
+  ]
+}

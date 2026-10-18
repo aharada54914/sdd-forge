@@ -1,0 +1,15 @@
+{
+  "classification": "offline disposable committed checkout; no cloud or host registration",
+  "entry": {
+    "install.sh": "04436898b4d8d260f0743882f70ddcb6e01687b0d8b0373f41dfafb76ee5d221",
+    "install.ps1": "8928011600e821d882e80914445f3d9b2ac12a948019f1858ccc9f4bc7c4bc0a",
+    "tests/install-cloud.tests.py": "9de00ab0e013567cf0fbea8136344b4008528cb83795ff4a384ad0b544c353e8"
+  },
+  "candidate": {
+    "install.sh": "76d7a314210b665b23da99ae72d74ea69e43de5e93dbc2aaee1e08714197f536",
+    "install.ps1": "2123a6b8b7fec491ee1d9e8fbda1a5e6e9bbb579d83452fbf94747c6cbbd85a4",
+    "tests/install-cloud.tests.py": "9de00ab0e013567cf0fbea8136344b4008528cb83795ff4a384ad0b544c353e8"
+  },
+  "result": "FAIL",
+  "error": "[Errno 2] No such file or directory: '/tmp/cloud-t007-01a14fbf/snapshot/initial/tests/install-cloud.tests.py'"
+}

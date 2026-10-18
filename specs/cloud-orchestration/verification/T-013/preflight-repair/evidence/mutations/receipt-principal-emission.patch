@@ -1,0 +1,11 @@
+--- plugins/sdd-quality-loop/scripts/cloud_authorization.py
++++ plugins/sdd-quality-loop/scripts/cloud_authorization.py
+@@ -574,7 +574,7 @@
+                     preview=preview_ref,
+                     operation=p.operation,
+                     issuer=ISSUER,
+-                    principal=principal,
++                    principal="other-principal",
+                     subject=claims["sub"],
+                     ci=dict(
+                         repository=p.repository,

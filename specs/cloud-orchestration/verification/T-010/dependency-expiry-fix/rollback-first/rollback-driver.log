@@ -1,0 +1,11 @@
+rollback-entry-verification 0
+rollback-entry-execution 1
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/rollback.py", line 106, in <module>
+    main()
+  File "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/rollback.py", line 82, in main
+    run('rollback-entry-' + suite, suite)
+  File "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/rollback.py", line 73, in run
+    assert proc.returncode == expected_exit, label
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: rollback-entry-execution

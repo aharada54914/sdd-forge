@@ -1,0 +1,18 @@
+{
+  "scope": "root read-only in-memory graph probe; no cloud/compiler invocation",
+  "source_sha256": "4fe07bf60756fbab69703ac7854dc9a732eee149b5e461c737d5087916b9a047",
+  "results": [
+    {
+      "case": "baseline",
+      "result": "accepted"
+    },
+    {
+      "case": "literal-alarm-target",
+      "result": "accepted"
+    },
+    {
+      "case": "literal-backup-target",
+      "result": "accepted"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+test_case_variants_at_operator_and_file_discovery_layers (__main__.InstalledLifecycle.test_case_variants_at_operator_and_file_discovery_layers) ... ok
+test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) ... ok
+test_missing_shared_dependency_aborts_before_placement (__main__.InstalledLifecycle.test_missing_shared_dependency_aborts_before_placement) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 28.051s
+
+OK

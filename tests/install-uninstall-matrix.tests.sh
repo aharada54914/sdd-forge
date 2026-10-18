@@ -117,7 +117,7 @@ cell() {
         [[ "$install1_manifest" == "$install2_manifest" ]] && ok "$target install_2 idempotent" || fail "$target install_2 diff_from_install_1"
     fi
 
-    if bash "$UNINSTALLER" --install-root "$install_root" --target "$target" --plugins sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain >/dev/null 2>&1; then
+    if bash "$UNINSTALLER" --install-root "$install_root" --target "$target" --plugins sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain,sdd-azure-cloud,sdd-aws-cloud >/dev/null 2>&1; then
         residuals=""
         [[ -e "$install_root" ]] && residuals="$install_root"
         [[ -z "$residuals" ]] && ok "$target verify_residue empty" || fail "$target verify_residue residual_paths=$residuals"

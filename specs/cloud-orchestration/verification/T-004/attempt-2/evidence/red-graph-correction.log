@@ -1,0 +1,57 @@
+test_independent_module_resource_order_names_and_settings_compile (__main__.AzureNativePreparation.test_independent_module_resource_order_names_and_settings_compile) ... FAIL
+test_compiled_public_ip_ingress_and_existing_resource_mutation (__main__.AzureNativePreparation.test_compiled_public_ip_ingress_and_existing_resource_mutation) ... 
+  test_compiled_public_ip_ingress_and_existing_resource_mutation (__main__.AzureNativePreparation.test_compiled_public_ip_ingress_and_existing_resource_mutation) (resource_type='Microsoft.Network/publicIPAddresses') ... FAIL
+  test_compiled_public_ip_ingress_and_existing_resource_mutation (__main__.AzureNativePreparation.test_compiled_public_ip_ingress_and_existing_resource_mutation) (resource_type='Microsoft.Network/networkSecurityGroups') ... FAIL
+  test_compiled_public_ip_ingress_and_existing_resource_mutation (__main__.AzureNativePreparation.test_compiled_public_ip_ingress_and_existing_resource_mutation) (resource_type='Microsoft.Network/virtualNetworks/subnets') ... FAIL
+
+======================================================================
+FAIL: test_independent_module_resource_order_names_and_settings_compile (__main__.AzureNativePreparation.test_independent_module_resource_order_names_and_settings_compile)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 479, in test_independent_module_resource_order_names_and_settings_compile
+    result = self.invoke("plan")
+             ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 327, in invoke
+    return super().invoke(phase, expected, output, {**self.env, **(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 171, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : 
+
+======================================================================
+FAIL: test_compiled_public_ip_ingress_and_existing_resource_mutation (__main__.AzureNativePreparation.test_compiled_public_ip_ingress_and_existing_resource_mutation) (resource_type='Microsoft.Network/publicIPAddresses')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 528, in test_compiled_public_ip_ingress_and_existing_resource_mutation
+    self.assertEqual(result["error_code"], expected)
+AssertionError: 'UNSUPPORTED_ARM_GRAPH' != 'PUBLIC_NETWORK_DENIED'
+- UNSUPPORTED_ARM_GRAPH
++ PUBLIC_NETWORK_DENIED
+
+
+======================================================================
+FAIL: test_compiled_public_ip_ingress_and_existing_resource_mutation (__main__.AzureNativePreparation.test_compiled_public_ip_ingress_and_existing_resource_mutation) (resource_type='Microsoft.Network/networkSecurityGroups')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 528, in test_compiled_public_ip_ingress_and_existing_resource_mutation
+    self.assertEqual(result["error_code"], expected)
+AssertionError: 'UNSUPPORTED_ARM_GRAPH' != 'PUBLIC_NETWORK_DENIED'
+- UNSUPPORTED_ARM_GRAPH
++ PUBLIC_NETWORK_DENIED
+
+
+======================================================================
+FAIL: test_compiled_public_ip_ingress_and_existing_resource_mutation (__main__.AzureNativePreparation.test_compiled_public_ip_ingress_and_existing_resource_mutation) (resource_type='Microsoft.Network/virtualNetworks/subnets')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 528, in test_compiled_public_ip_ingress_and_existing_resource_mutation
+    self.assertEqual(result["error_code"], expected)
+AssertionError: 'UNSUPPORTED_ARM_GRAPH' != 'EXISTING_RESOURCE_MUTATION'
+- UNSUPPORTED_ARM_GRAPH
++ EXISTING_RESOURCE_MUTATION
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 5.179s
+
+FAILED (failures=4)

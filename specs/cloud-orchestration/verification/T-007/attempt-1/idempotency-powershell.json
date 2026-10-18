@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "-NoProfile",
+    "-File",
+    "tests/installer-idempotency.tests.ps1"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:30:01Z",
+  "exit_code": 0,
+  "elapsed_seconds": 4.257,
+  "classification": "offline local command; no live cloud"
+}

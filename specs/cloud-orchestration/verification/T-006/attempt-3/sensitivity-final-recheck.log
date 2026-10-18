@@ -1,0 +1,18 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication
+OFFLINE_GUARD_INSTALLED
+test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... FAIL
+
+======================================================================
+FAIL: test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 3065, in test_postcollection_lease_expiry_prevents_publication
+    self.assertFalse((case.root / (case.directory + "/expired.json")).exists())
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.414s
+
+FAILED (failures=1)
+
+Exit code: 1

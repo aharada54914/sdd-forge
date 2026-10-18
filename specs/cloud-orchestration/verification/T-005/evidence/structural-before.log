@@ -1,0 +1,10 @@
+test_independently_authored_private_graph (__main__.AwsNativePreparation.test_independently_authored_private_graph) ... ok
+test_actual_synth_public_mutation_and_missing_backup_negatives (__main__.AwsNativePreparation.test_actual_synth_public_mutation_and_missing_backup_negatives) ... ok
+test_native_assembly_schema_assets_and_executable_surface_denials (__main__.AwsNativePreparation.test_native_assembly_schema_assets_and_executable_surface_denials) ... ok
+test_config_schema_required_and_unknown_fields (__main__.AwsNativePreparation.test_config_schema_required_and_unknown_fields) ... ok
+test_expression_depth_and_noncanonical_native_windows_root (__main__.AwsNativePreparation.test_expression_depth_and_noncanonical_native_windows_root) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 23.376s
+
+OK

@@ -1,0 +1,4 @@
+$ MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_verification.py tests/cloud-orchestration-verification.tests.py specs/cloud-orchestration/verification/T-006/attempt-3/verify-local.py specs/cloud-orchestration/verification/T-006/attempt-3/rollback.py specs/cloud-orchestration/verification/T-006/attempt-3/matrix-runner.py
+Success: no issues found in 5 source files
+
+Exit code: 0

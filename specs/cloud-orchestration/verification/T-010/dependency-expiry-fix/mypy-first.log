@@ -1,0 +1,2 @@
+tests/cloud-orchestration-verification.tests.py:5383: error: Need type annotation for "delays" (hint: "delays: list[<type>] = ...")  [var-annotated]
+Found 1 error in 1 file (checked 6 source files)

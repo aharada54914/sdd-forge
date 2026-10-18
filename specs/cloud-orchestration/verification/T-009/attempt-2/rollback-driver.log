@@ -1,0 +1,38 @@
+TASK_INPUT_OK
+isolated-candidate-parity 0  of this feature's suite pairs in task order (human apply already landed)
+ok: human-copy: staged workflow sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: Done When #3: the live .github/workflows/test.yml is byte-unchanged relative to its committed state
+ok: Done When #3: no semver-looking version string was hand-mutated in this task's own files (grep self-check)
+---- summary: pass=22 fail=0 designed-red=0 ----
+capability-registry-parity suite passed (22 checks)
+ 
+rollback-t006 1  8b89-23b4811edc3b/rollback-checkout/tests/cloud-orchestration-verification.tests.py", line 1729, in setup_execution
+    case.setUp()
+    ~~~~~~~~~~^^
+  File "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/rollback-checkout/tests/cloud-orchestration-execution.tests.py", line 2145, in setUp
+    shutil.copytree(
+    ~~~~~~~~~~~~~~~^
+        ROOT / "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.root / "bundle",
+        ^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/lib/python3.13/shutil.py", line 591, in copytree
+    with os.scandir(src) as itr:
+         ~~~~~~~~~~^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/rollback-checkout/specs/cloud-orchestration/verification/T-013/inputs/aws/bundle'
+
+----------------------------------------------------------------------
+Ran 56 tests in 12.515s
+
+FAILED (errors=89)
+
+Traceback (most recent call last):
+  File "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/rollback.py", line 56, in <module>
+    run('rollback-t006',['python3','-B','tests/cloud-orchestration-verification.tests.py'])
+  File "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/rollback.py", line 39, in run
+    subprocess.run([sys.executable,str(runner),label,'--cwd',str(target),*args],check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3', '/workspace/sdd-forge/specs/cloud-orchestration/verification/T-009/attempt-2/run-command.py', 'rollback-t006', '--cwd', '/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/rollback-checkout', 'python3', '-B', 'tests/cloud-orchestration-verification.tests.py']' returned non-zero exit status 1.

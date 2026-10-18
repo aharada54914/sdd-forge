@@ -1,0 +1,22 @@
+test_public_all_checks_matrix_native_protocol_fixtures (__main__.PublicObservationCases.test_public_all_checks_matrix_native_protocol_fixtures) ... 
+  test_public_all_checks_matrix_native_protocol_fixtures (__main__.PublicObservationCases.test_public_all_checks_matrix_native_protocol_fixtures) (provider='azure', check='resource', variant='unhealthy') ... FAIL
+test_public_request_and_trusted_policy_counterparts (__main__.PublicObservationCases.test_public_request_and_trusted_policy_counterparts) ... ok
+test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction (__main__.PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction) ... ok
+test_every_check_lease_expiry_during_native_response (__main__.ExpandedBindingCases.test_every_check_lease_expiry_during_native_response) ... ok
+test_nested_context_fields_and_untrusted_native_labels (__main__.ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels) ... ok
+
+======================================================================
+FAIL: test_public_all_checks_matrix_native_protocol_fixtures (__main__.PublicObservationCases.test_public_all_checks_matrix_native_protocol_fixtures) (provider='azure', check='resource', variant='unhealthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2227, in test_public_all_checks_matrix_native_protocol_fixtures
+    self.assertEqual(next(c["result"] for c in v["checks"] if c["check_id"] == check), expected)
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 25.239s
+
+FAILED (failures=1)

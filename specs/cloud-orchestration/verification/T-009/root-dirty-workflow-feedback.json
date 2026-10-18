@@ -1,0 +1,14 @@
+{
+  "id": 900093,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+    "expectedTurnId": "01a14ed8-ab82-7e80-ab82-8a651f31ebec",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root confirms retry parity now hits the known dirty-tree assertion: .github/workflows/test.yml has intentional pre-existing T001 #423 integration changes. Do not revert/edit that live file or weaken its assertion in T009. Preserve original failed baseline and test parity in your disposable committed candidate/snapshot (same current workflow bytes), or clearly defer that dirty-tree-only check to root final exact-commit suite. This issue was one of the known root baseline dirty/concurrent failures; it is not introduced by your profile code. Required coverage stays intact."
+      }
+    ]
+  }
+}

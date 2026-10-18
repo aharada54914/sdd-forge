@@ -1,0 +1,51 @@
+{
+  "base_revision": "37f7ad46147b12b87a3680a5a1e3a3a8f6e879b3",
+  "red_commit": "0ec52d9853ac56c9022196834f0286cebe69bf53",
+  "red_commit_time": "2026-10-18T11:35:21Z",
+  "entries": [
+    {
+      "command": "python3 -B tests/cloud-orchestration-verification.tests.py",
+      "log": "baseline-verification.log",
+      "exit_code": 0,
+      "tests": 52
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-verification.tests.py AlarmNumericCases EntryPreflight.test_live_network_is_forbidden_before_transport",
+      "log": "red-initial-test-expectation.log",
+      "exit_code": 1,
+      "tests": 5,
+      "failures": 19,
+      "qualification": "18 numeric mismatches plus one test-authoring expectation mistake; not 19 product failures"
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-verification.tests.py AlarmNumericCases EntryPreflight.test_live_network_is_forbidden_before_transport",
+      "log": "red-numeric.log",
+      "exit_code": 1,
+      "tests": 5,
+      "failures": 18
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-verification.tests.py AlarmNumericCases EntryPreflight.test_live_network_is_forbidden_before_transport",
+      "log": "green-numeric.log",
+      "exit_code": 0,
+      "tests": 5
+    }
+  ],
+  "commit_scope": "Only new regression hunk and explicit new report/evidence staged. Inherited unstaged candidate edits are not adopted; replay needs preserved initial snapshot plus patch.",
+  "source_hashes": [
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "initial_sha256": "938285ef9063924f750ad74ec9d24e9cc94cee992aca0c8eeeccf5f48efb06e5",
+      "current_sha256": "6057a5d62afd366f7b9fc589e887fc8dce9c37daf20b69ff8facb1cff395cc13",
+      "unchanged": false,
+      "allowed_change": true
+    },
+    {
+      "path": "tests/cloud-orchestration-verification.tests.py",
+      "initial_sha256": "4dda9f27d1aacd2561e6d02eff52cd530cb7e8178d1617ea154a5e88715a09bc",
+      "current_sha256": "7cdbf61264499cec788e7da535f9c0b1cdb603d555975b93498cc1a2e65f0135",
+      "unchanged": false,
+      "allowed_change": true
+    }
+  ]
+}

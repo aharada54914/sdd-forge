@@ -1,0 +1,15 @@
+{
+  "review_run_id": "01a14da0-97a6-7751-b4e2-9eeef48b2077",
+  "manifest_sha256": "d33a641950b34b003c5d6ad036c8a0da45703c81033d9373fe9973884cfa04c1",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Critical",
+      "classification": "Accepted",
+      "ticket": "docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml",
+      "repair": "Pending next implementation boundary; T-004 currently runs local-only with no cloud writes."
+    }
+  ],
+  "hashes_unchanged_at_delivery": true,
+  "task_done": false
+}

@@ -1,0 +1,9 @@
+{
+  "name": "sdd-aws-cloud",
+  "description": "Explicit opt-in AWS orchestration: local planning and validation, protected CI execution, and read-only verification.",
+  "version": "1.18.0",
+  "author": {
+    "name": "Harada"
+  },
+  "skills": "skills/"
+}

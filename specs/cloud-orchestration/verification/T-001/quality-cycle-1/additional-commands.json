@@ -1,0 +1,61 @@
+[
+  {
+    "id": "lint",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/sdd-domain-multitarget-foundation.tests.py",
+      "specs/cloud-orchestration/verification/T-001/verify-integration.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-18T04:57:55.411765+00:00",
+    "finished_at": "2026-10-18T04:57:55.461274+00:00",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/lint-recorded.log"
+  },
+  {
+    "id": "typecheck",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/sdd-domain-multitarget-foundation.tests.py",
+      "specs/cloud-orchestration/verification/T-001/verify-integration.py"
+    ],
+    "exit_code": 1,
+    "started_at": "2026-10-18T04:57:55.461467+00:00",
+    "finished_at": "2026-10-18T04:57:55.971892+00:00",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/typecheck-recorded.log"
+  },
+  {
+    "id": "build",
+    "command": [
+      "python3",
+      "-m",
+      "py_compile",
+      "tests/sdd-domain-multitarget-foundation.tests.py",
+      "specs/cloud-orchestration/verification/T-001/verify-integration.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-18T04:57:55.972088+00:00",
+    "finished_at": "2026-10-18T04:57:55.999554+00:00",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/build-recorded.log"
+  },
+  {
+    "id": "placeholder-scan",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "tests/sdd-domain-multitarget-foundation.tests.py"
+    ],
+    "exit_code": 1,
+    "started_at": "2026-10-18T04:57:55.999699+00:00",
+    "finished_at": "2026-10-18T04:57:56.009516+00:00",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/placeholder-scan-recorded.log"
+  }
+]

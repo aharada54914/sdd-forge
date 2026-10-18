@@ -1,0 +1,138 @@
+{
+  "run_id": "01a14d9e-7a63-71c2-a07c-aa71d275b9de",
+  "session_id": "01a14d9e-7a63-71c2-a07c-aa71d275b9de",
+  "agent_instance_id": "01a14d9e-7a63-71c2-a07c-aa71d275b9de",
+  "classification": "Local processes only. Synthetic IDs/policies are not approved live scope.",
+  "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "commands": [
+    {
+      "label": "native",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/cloud.py",
+        "route",
+        "--request",
+        "draft-request.json",
+        "--output",
+        "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/route.json"
+      ],
+      "cwd": "/tmp/cloud-T004-local-7kh197eu",
+      "start_utc": "2026-10-18T06:26:51Z",
+      "end_utc": "2026-10-18T06:26:51Z",
+      "exit_code": 0,
+      "classification": "native-local-compiler-with-synthetic-target",
+      "stdout_sha256": "2360e8d3191a984423b634020157892b34d50ae1bdf09301888d4cbfe1f53036",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "native",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/cloud.py",
+        "plan",
+        "--request",
+        "draft-request.json",
+        "--output",
+        "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/plan.json"
+      ],
+      "cwd": "/tmp/cloud-T004-local-7kh197eu",
+      "start_utc": "2026-10-18T06:26:51Z",
+      "end_utc": "2026-10-18T06:26:53Z",
+      "exit_code": 0,
+      "classification": "native-local-compiler-with-synthetic-target",
+      "stdout_sha256": "2439c195baa8ec74f8bd589619de57b98d8b931a6d00682e7d4e77a3058b11f1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "native",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/cloud.py",
+        "validate",
+        "--request",
+        "bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.request.json",
+        "--output",
+        "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/validate.json"
+      ],
+      "cwd": "/tmp/cloud-T004-local-7kh197eu",
+      "start_utc": "2026-10-18T06:26:53Z",
+      "end_utc": "2026-10-18T06:26:55Z",
+      "exit_code": 0,
+      "classification": "native-local-compiler-with-synthetic-target",
+      "stdout_sha256": "a3cd46fa56c7442293468e2dd7b78cef4c8643a7840d14a89e7cd9bc0ebdad05",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "modular",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/cloud.py",
+        "route",
+        "--request",
+        "draft-request.json",
+        "--output",
+        "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/route.json"
+      ],
+      "cwd": "/tmp/cloud-T004-local-42h_cxln",
+      "start_utc": "2026-10-18T06:26:55Z",
+      "end_utc": "2026-10-18T06:26:55Z",
+      "exit_code": 0,
+      "classification": "native-local-compiler-with-synthetic-target",
+      "stdout_sha256": "24b66daad5d1ea6095344b0a59db6a45c3c348aee7442b2a6999d666e7f2855a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "modular",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/cloud.py",
+        "plan",
+        "--request",
+        "draft-request.json",
+        "--output",
+        "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/plan.json"
+      ],
+      "cwd": "/tmp/cloud-T004-local-42h_cxln",
+      "start_utc": "2026-10-18T06:26:55Z",
+      "end_utc": "2026-10-18T06:26:57Z",
+      "exit_code": 0,
+      "classification": "native-local-compiler-with-synthetic-target",
+      "stdout_sha256": "b12bf9357b2816802ed6259389f2bcaa9af24833efad9d12de8a78371431d5fa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "modular",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/cloud.py",
+        "validate",
+        "--request",
+        "bundle/generated/012bec110383cc638c30370bf05243bd8699021b72ed2d0e1462a420cfcf658e.request.json",
+        "--output",
+        "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/validate.json"
+      ],
+      "cwd": "/tmp/cloud-T004-local-42h_cxln",
+      "start_utc": "2026-10-18T06:26:57Z",
+      "end_utc": "2026-10-18T06:26:59Z",
+      "exit_code": 0,
+      "classification": "native-local-compiler-with-synthetic-target",
+      "stdout_sha256": "dbe1938a8a52dcdb29296fc6f14793cfea80063aec17338694ee10e548ccfe97",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "compiler": {
+    "path": "/workspace/.tools/cloud/bicep/0.48.1/bicep",
+    "version_stdout": "Bicep CLI version 0.48.1 (cec7951cf6)",
+    "version_exit": 0,
+    "sha256": "b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e",
+    "asset_id": 603718396,
+    "package": "bicep-linux-x64",
+    "release_url": "https://github.com/Azure/bicep/releases/tag/v0.48.1"
+  }
+}

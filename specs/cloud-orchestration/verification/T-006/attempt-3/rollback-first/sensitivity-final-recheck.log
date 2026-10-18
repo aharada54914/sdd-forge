@@ -1,0 +1,17 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication
+test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... FAIL
+
+======================================================================
+FAIL: test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 3032, in test_postcollection_lease_expiry_prevents_publication
+    self.assertFalse((case.root / (case.directory + "/expired.json")).exists())
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.420s
+
+FAILED (failures=1)
+
+Exit code: 1

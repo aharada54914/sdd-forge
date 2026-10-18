@@ -1,0 +1,63 @@
+{
+  "run_id": "01a14d65-83d0-76c1-b3a1-d40ee5e2079c",
+  "task_attempt_count": 1,
+  "classification": "deterministic synthetic API transports; real local filesystem/static tests",
+  "runs": [
+    {
+      "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+      "log": "baseline.log",
+      "exit_code": 0,
+      "tests": 23
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+      "log": "red.log",
+      "exit_code": 1,
+      "tests": 15,
+      "failures": 15,
+      "reason": "Admission implementation absent; committed before implementation"
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+      "log": "green-initial.log",
+      "exit_code": 1,
+      "tests": 15,
+      "reason": "Admission cases working; templates not yet present"
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+      "log": "green-expanded.log",
+      "exit_code": 0,
+      "tests": 21
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit",
+      "log": "red-final-window.log",
+      "exit_code": 1,
+      "tests": 1,
+      "failures": 2
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit",
+      "log": "red-final-revocation.log",
+      "exit_code": 1,
+      "tests": 1,
+      "failures": 1
+    },
+    {
+      "command": "python3 -B specs/cloud-orchestration/verification/T-003/coverage-runner.py /tmp/cloud-T-003-01a14d65/coverage",
+      "log": "coverage.log",
+      "exit_code": 0,
+      "tests": 22
+    },
+    {
+      "command": "python3 -B specs/cloud-orchestration/verification/T-003/rollback-test.py",
+      "log": "rollback.json",
+      "exit_code": 0
+    }
+  ],
+  "final_checks": "checks.json",
+  "no_cloud_writes": true,
+  "no_whole_repository_suite": true,
+  "no_independent_verdict": true
+}

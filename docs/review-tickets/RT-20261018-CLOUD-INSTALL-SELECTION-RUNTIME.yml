@@ -1,0 +1,38 @@
+ticket_id: RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME
+status: resolved
+type: implementation-defect
+severity: critical
+target:
+  feature: cloud-orchestration
+  task: T-007
+  files:
+    - install.sh
+    - install.ps1
+    - tests/install-cloud.tests.py
+summary: A later differing plugin selection removes an already installed cloud runtime
+problem: >-
+  Independent reviewer 01a14fb8-dc09-7670-8869-47edb320bb3c found that both
+  installers materialize runtime only for the current selection, then replace
+  the entire installation directory. Azure followed by AWS-only or the default
+  selection leaves the previous Azure plugin without runtime, while prior host
+  registrations remain. Its documented explicit runtime path fails with
+  SHARED_RUNTIME_UNAVAILABLE. Fresh-destination tests do not cover this case.
+expected_fix:
+  - Commit actual failing sequential-selection tests and field/counterpart preflight before product edits.
+  - Preserve or regenerate prior installed provider runtime payloads during later selection updates.
+  - Cover both orders and default/non-cloud subsequent selections in real Bash and PowerShell installers.
+  - Verify both prior and newly selected installed CLIs, protected registry/schema/module integrity and denied unauthorized writes after each update.
+  - Keep default registration opt-in semantics, source/runtime consistency, safe staging and retained-dependency uninstall behavior.
+  - Preserve canonical implementation and cycle1 report; use a separate repair report and fresh independent review.
+approval: Existing user approval covers cloud implementation defects and local verification; no scope or prerequisite exception.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 2
+resolution: >-
+  Fresh repair 01a14fbf-f5c9-7882-9812-3f4c3010db2f delivered current-source
+  regeneration of selected and prior materialized runtimes, staged entry checks,
+  sequential-update and atomic failure-preservation tests. Genuine Red commits
+  56f10ea5 and 3c18526b precede their corresponding fixes. All 13 packaging
+  tests, existing installer regressions, strict checks and final rollback/reapply
+  passed. Original cycle1 Critical report remains frozen. Independent cycle2
+  reviewer 01a14fd4-08b4-78b1-9c4b-d659b934478a passed without findings; report and bundle validated.

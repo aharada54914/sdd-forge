@@ -1,0 +1,44 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-010",
+  "run_id": "01a14f33-2447-79d0-8195-087bbe42669c",
+  "session_id": "01a14f33-2447-79d0-8195-087bbe42669c",
+  "agent_instance_id": "01a14f33-2447-79d0-8195-087bbe42669c",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T13:32:07Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "reports/implementation/cloud-orchestration/T-006.md",
+      "sha256": "124f92779c5fd47dafdab3130a7f962170ea873c3f94012744c4045a3ad3ef77"
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-009.md",
+      "sha256": "8a771e42e4b0e03e8ee10cb21d404cb6115597d1ef21a7378c2899015e155f0e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-009/evidence/spec-revision.json",
+      "sha256": "7e61fd3a768832a054bf73722174e99b583282e8578237a2b9cf24207c973b81"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-009/attempt-2/task-input-manifest.json",
+      "sha256": "d2d15459f3ef732be2420e486f1929d7d6027495fe5f4df068a97f79bff4b0ea"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/cloud_dependencies.py",
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+    "tests/cloud-orchestration-verification.tests.py",
+    "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+    "reports/implementation/cloud-orchestration/T-010.md",
+    "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/",
+    "specs/cloud-orchestration/verification/T-010/attempt-1/task-input-manifest.json"
+  ]
+}

@@ -1,0 +1,11 @@
+--- plugins/sdd-quality-loop/scripts/cloud_contracts.py
++++ plugins/sdd-quality-loop/scripts/cloud_contracts.py
+@@ -617,7 +617,7 @@
+         if operation is None:
+             _require(receipt['ci']['environment'] == request['environment'], 'BINDING_MISMATCH')
+         _require(receipt['preview'] == preview_ref, 'BINDING_MISMATCH')
+-        _require(_utc(receipt['issued_at']) <= _utc(now) < _utc(receipt['expires_at']), 'EXPIRED_RECEIPT')
++        _require(True, 'EXPIRED_RECEIPT')
+ 
+ 
+ def publish_artifact(root, relative, data, *, scan):

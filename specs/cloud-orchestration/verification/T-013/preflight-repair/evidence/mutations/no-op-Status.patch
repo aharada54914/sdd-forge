@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -422,7 +422,7 @@
+             "CHANGE_SET_BINDING_MISMATCH",
+         )
+         no_change = (
+-            value["Status"] == "FAILED"
++            True
+             and value["ExecutionStatus"] == "UNAVAILABLE"
+             and value.get("StatusReason") == NO_CHANGES
+             and value.get("Changes", []) == []

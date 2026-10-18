@@ -1,0 +1,26 @@
+{
+  "recorded_at": "2026-10-18T14:15:26Z",
+  "tools": [
+    {
+      "path": "/workspace/.tools/cloud/bicep/0.48.1/bicep",
+      "sha256": "b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e"
+    },
+    {
+      "path": "/workspace/.tools/cloud/cdk/2.1145.0/package-lock.json",
+      "sha256": "b106084fff5e18ca94260509133337891b58d5269d77166ff9320a36419cccec"
+    },
+    {
+      "path": "/workspace/.tools/cloud/cdk/2.1145.0/node_modules/aws-cdk/package.json",
+      "sha256": "e11fc2819979c9d7ca647d0d4773aca927310f1b89dc921bc76736e62617d423"
+    },
+    {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    },
+    {
+      "path": "/tmp/cloud-quality-python/bin/python",
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+    }
+  ],
+  "classification": "real local compiler/synthesis tools; no live cloud execution"
+}

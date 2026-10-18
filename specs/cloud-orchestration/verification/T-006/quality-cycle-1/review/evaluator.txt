@@ -1,0 +1,13 @@
+RUN_ID: 01a14ec0-a8ca-7823-b05b-6eba018a41b1
+HOST_SESSION_ID: 01a14ec0-a8ca-7823-b05b-6eba018a41b1
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-006/quality-cycle-1/review/invocation.json SHA-256 9e69e17493b915584119590251d9e8c466e745cd14ab238f4985ced9c6d4e3ae
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Critical] plugins/sdd-aws-cloud/scripts/aws_observation.py:500-515 — Healthy alarms can incorrectly fail monitoring because Threshold is compared as literal text `"0"`. The admitted CloudWatch API model defines Threshold as a double; valid XML `"0.0"` remains unchanged by `element()` at line 149 and therefore returns unhealthy. This violates AC-009’s positive verification behavior. The fixture at tests/cloud-orchestration-verification.tests.py:1668 hardcodes `"0"`, masking the defect. Parse and validate the numeric value and add equivalent-number regression cases.
+CHECKED:
+- Recomputed invocation digest and scratch-bound reservation receipt; both match the supplied pins. Implementation and evaluator identities differ.
+- Inspected T-006 scope, REQ-009/010, AC-009/010, design, security requirements, ADR and observation contracts.
+- Inspected collector/reducer source and adversarial tests for identity, operation binding, freshness, workload bounds, publication and synthetic provenance.
+- Read saved gate outputs: verification 52 tests, execution 86, routing 86 and contracts 32 passed; Ruff and configured mypy passed. Matrix records 720 passing subtests.
+- Compared the entry-to-final patch and saved rollback outputs: entry/restored suites passed 36 tests; candidate/reapplied suites passed 52.
+- No tests were rerun under this read-only boundary. Live TEST-003/005/009 remain BLOCKED by OQ-001; saved fixture results do not establish live readiness.

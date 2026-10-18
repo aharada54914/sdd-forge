@@ -56,10 +56,10 @@ def schema(name: str) -> dict[str, Any]:
 
 def validate_plan(plan: Any, expected: Any) -> list[str]:
     """Validate persisted bytes against the schema and recomputed input result."""
-    contract = schema('selected-verification-plan.schema.json')
+    contract = schema('selected-verification-plan-v2.schema.json' if isinstance(plan, dict) and plan.get('schema') == 'selected-verification-plan/v2' else 'selected-verification-plan.schema.json')
     errors = list(facets.validate_against_schema(plan, contract))
     # The Foundation validator supports if/then, but not the allOf keyword.
-    if isinstance(plan, dict) and isinstance(plan.get('checks'), list):
+    if isinstance(plan, dict) and plan.get('schema') != 'selected-verification-plan/v2' and isinstance(plan.get('checks'), list):
         for check in plan['checks']:
             for rule in contract['definitions']['check']['allOf']:
                 errors.extend(facets.validate_against_schema(check, rule))
@@ -97,6 +97,16 @@ def evaluate(registry_path: Path, manifest_path: Path, contract_path: Path,
                       for gid in sorted(selected_ids)]
     if manifest['resolved_gates'] != expected_gates:
         raise ValueError('registry-projection-mismatch')
+    if isinstance(contract, dict) and contract.get('schema') == 'verification-contract/v3':
+        from cloud_verification import saved_profile_plan
+        plan = saved_profile_plan(raw['verification_contract_sha256'], root)
+        if plan['feature'] != manifest['feature']:
+            raise ValueError('cloud-feature-mismatch')
+        if any(path.read_bytes() != raw[key] for key, path in paths.items()):
+            raise ValueError('input-changed-during-evaluation')
+        if validate_plan(plan, plan):
+            raise ValueError('invalid selected verification plan')
+        return plan, ['cloud profile requires fresh authenticated collection; saved evidence is not provenance']
     if not isinstance(contract, dict) or not isinstance(contract.get('checks'), list):
         raise ValueError('invalid verification contract')
     observations = contract['checks']

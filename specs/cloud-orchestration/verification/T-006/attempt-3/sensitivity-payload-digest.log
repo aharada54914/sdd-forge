@@ -1,0 +1,70 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py ReducerCases.test_check_fail_block_unknown_stale_missing_tampered
+OFFLINE_GUARD_INSTALLED
+test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) ... 
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=0, variant='tampered') ... FAIL
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=1, variant='tampered') ... FAIL
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=2, variant='tampered') ... FAIL
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=3, variant='tampered') ... FAIL
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=4, variant='tampered') ... FAIL
+  test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=5, variant='tampered') ... FAIL
+
+======================================================================
+FAIL: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=0, variant='tampered')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 360, in test_check_fail_block_unknown_stale_missing_tampered
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=1, variant='tampered')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 360, in test_check_fail_block_unknown_stale_missing_tampered
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=2, variant='tampered')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 360, in test_check_fail_block_unknown_stale_missing_tampered
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=3, variant='tampered')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 360, in test_check_fail_block_unknown_stale_missing_tampered
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=4, variant='tampered')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 360, in test_check_fail_block_unknown_stale_missing_tampered
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) (check=5, variant='tampered')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 360, in test_check_fail_block_unknown_stale_missing_tampered
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.037s
+
+FAILED (failures=6)
+
+Exit code: 1

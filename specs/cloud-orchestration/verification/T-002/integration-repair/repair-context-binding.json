@@ -1,0 +1,26 @@
+{
+  "original_run_id": "01a14d58-5499-7ca2-8163-29f057e91e9c",
+  "repair_run_id": "01a14d8e-ed12-76c2-b8f2-86311e279b8e",
+  "repair_report": {
+    "path": "reports/implementation/cloud-orchestration/T-002-integration-repair.md",
+    "sha256": "81c86846ee68c7ec27ad9405dc68d4800f76495f2f6deaa82d9bd3aae5b7a7f1"
+  },
+  "admitted_copy": {
+    "path": "specs/cloud-orchestration/verification/T-002/integration-repair/implementation-report-snapshot.md",
+    "sha256": "81c86846ee68c7ec27ad9405dc68d4800f76495f2f6deaa82d9bd3aae5b7a7f1"
+  },
+  "byte_identical": true,
+  "repair_manifest": {
+    "path": "specs/cloud-orchestration/verification/T-002/integration-repair/task-input-manifest.json",
+    "sha256": "12c285053bb6e9f2e652d3df4cfbeb941a356cec4443da089762975c90464e7b"
+  },
+  "independent_reviewer": "pending; never preclaimed",
+  "native_delivery_receipt": {
+    "path": "specs/cloud-orchestration/verification/T-002/integration-repair/native-delivery.json",
+    "sha256": "d25bd7cdf4e28199a6698aab832475fa5034458bcbdc1f8dfc43a5f45434ef99",
+    "thread_id": "01a14d8e-ed12-76c2-b8f2-86311e279b8e",
+    "session_id": "01a14d8e-ed12-76c2-b8f2-86311e279b8e",
+    "turn_id": "01a14d8e-eeb4-7672-9abd-e641cb8b3c32",
+    "status": "completed"
+  }
+}

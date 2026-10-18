@@ -1,0 +1,122 @@
+[
+  {
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/dependency-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T006-01a14e73",
+      "--expected-task",
+      "T-006"
+    ],
+    "exit_code": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/freshness-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T006-01a14e73",
+      "--expected-task",
+      "T-006"
+    ],
+    "exit_code": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/github-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T006-01a14e73",
+      "--expected-task",
+      "T-006"
+    ],
+    "exit_code": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/identity-closure-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T006-01a14e73",
+      "--expected-task",
+      "T-006"
+    ],
+    "exit_code": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/regression-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T006-01a14e73",
+      "--expected-task",
+      "T-006"
+    ],
+    "exit_code": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/routing-fixture-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T006-01a14e73",
+      "--expected-task",
+      "T-006"
+    ],
+    "exit_code": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/source-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T006-01a14e73",
+      "--expected-task",
+      "T-006"
+    ],
+    "exit_code": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-006/attempt-2/task-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T006-01a14e73",
+      "--expected-task",
+      "T-006"
+    ],
+    "exit_code": 0,
+    "stdout": "TASK_INPUT_OK\n",
+    "stderr": ""
+  }
+]

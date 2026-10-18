@@ -1,0 +1,2 @@
+specs/cloud-orchestration/verification/T-010/attempt-2/evidence/rollback-experiment.py:58: error: Need type annotation for "commands" (hint: "commands: list[<type>] = ...")  [var-annotated]
+Found 1 error in 1 file (checked 7 source files)

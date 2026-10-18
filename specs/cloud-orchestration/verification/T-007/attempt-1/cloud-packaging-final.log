@@ -1,0 +1,16 @@
+test_case_variants_at_operator_and_file_discovery_layers (__main__.InstalledLifecycle.test_case_variants_at_operator_and_file_discovery_layers) ... ok
+test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) ... ok
+test_missing_shared_dependency_aborts_before_placement (__main__.InstalledLifecycle.test_missing_shared_dependency_aborts_before_placement) ... ok
+test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) ... ok
+test_existing_name_and_version_guards (__main__.ManifestBoundary.test_existing_name_and_version_guards) ... ok
+test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) ... ok
+test_matched_control (__main__.ManifestBoundary.test_matched_control) ... ok
+test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) ... ok
+test_each_entry_frontmatter_and_relative_links (__main__.SkillVisibility.test_each_entry_frontmatter_and_relative_links) ... ok
+test_real_export_consumer_ignores_upstream_reference_skills (__main__.SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills) ... ok
+test_visibility_guards_with_matched_controls (__main__.SkillVisibility.test_visibility_guards_with_matched_controls) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 69.326s
+
+OK

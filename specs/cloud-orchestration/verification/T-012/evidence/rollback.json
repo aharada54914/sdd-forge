@@ -1,0 +1,68 @@
+{
+  "base_revision": "c5b5d7e6e5b746008f7d874c8d55c058f8549203",
+  "restored": {
+    "plugins/sdd-azure-cloud/scripts/cloud.py": "74d83e53df2776de9b92a6fbdd6a1fa81e189a46173278d67bc11b1de8cae674",
+    "tests/cloud-orchestration-execution.tests.py": "627399f865775a29d6a253779a12eb5a1bf51ed401f5f7034fca48fbe14a2fad",
+    "plugins/sdd-azure-cloud/scripts/azure_arm.py": null,
+    "plugins/sdd-azure-cloud/scripts/azure_execution.py": null,
+    "plugins/sdd-azure-cloud/scripts/azure_governed.py": null,
+    "plugins/sdd-azure-cloud/scripts/governed-setup.md": null
+  },
+  "unrelated_candidate_bytes_unchanged": true,
+  "commands": [
+    {
+      "label": "rollback-create",
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-T012-01a14de5/rollback",
+        "c5b5d7e6e5b746008f7d874c8d55c058f8549203"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-candidate",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14de5/rollback",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-restored-execution",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14de5/rollback",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-restored-routing",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14de5/rollback",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-reapplied",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14de5/rollback",
+      "exit_code": 0
+    }
+  ],
+  "cloud_resources": "No cloud actions; code rollback never deletes resources"
+}

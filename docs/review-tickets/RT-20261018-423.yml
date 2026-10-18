@@ -1,0 +1,34 @@
+ticket_id: RT-20261018-423
+status: resolved
+type: test-gap
+severity: major
+target:
+  feature: sdd-domain-multitarget
+  task: T-001
+  files:
+    - tests/sdd-domain-multitarget-foundation.tests.py
+    - specs/sdd-domain-multitarget/verification/T-001/current-consumer-inventory.json
+    - tests/run-all.sh
+    - tests/run-all.ps1
+    - tests/run-all-python.tests.ps1
+    - .github/workflows/test.yml
+summary: Current source inventory has stale line evidence and foundational checks lack normal CI coverage
+problem: >-
+  The historical T-001 suite returns 15/17 because its seven-layer source
+  reference points to lines 159-176, while the requirement is now in Required
+  Outputs at line 201. T-001/T-002 foundational tests are not registered in the
+  normal runners. Historical evidence must not be rewritten to fabricate a pass.
+expected_fix:
+  - Preserve the historical inventory and test artifacts; add a current inventory with bounded section anchors.
+  - Resolve current anchors to line evidence and reuse all original classification and boundary assertions.
+  - Reject missing, duplicated, fenced or wrong-section anchors; test line insertion and requirement removal.
+  - Register the current foundation suite in POSIX, PowerShell and native-platform CI paths.
+approval: User requested fixing issue 423 implementation problems in this session on 2026-10-18.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1
+resolution: >-
+  Current foundation suite passes 53 tests while preserving the historical
+  inventory bytes. Both local runners and native-platform CI register it.
+  Python runner fallback/failure tests pass all 4 cases. Quality-gate Done and
+  remote native-platform CI are not claimed by this ticket resolution.

@@ -1,0 +1,7 @@
+Implemented T-007’s retention repair in both installers.
+
+- Sequential-selection, failure-preservation, packaging, relevant regressions and rollback/reapply passed.
+- Report and output hashes validated; canonical report unchanged.
+- Evidence: `reports/implementation/cloud-orchestration/T-007-install-selection-fix.md`
+
+Full-suite verification and quality cycle2 remain root-owned. No cloud actions or status changes. Snapshot reconstruction caveat is documented.

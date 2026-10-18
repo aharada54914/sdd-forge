@@ -1,0 +1,74 @@
+test_malformed_compiled_outputs_always_typed_and_no_receipt (__main__.AwsNativePreparation.test_malformed_compiled_outputs_always_typed_and_no_receipt) ... 
+  test_malformed_compiled_outputs_always_typed_and_no_receipt (__main__.AwsNativePreparation.test_malformed_compiled_outputs_always_typed_and_no_receipt) (case=0) ... FAIL
+  test_malformed_compiled_outputs_always_typed_and_no_receipt (__main__.AwsNativePreparation.test_malformed_compiled_outputs_always_typed_and_no_receipt) (case=1) ... FAIL
+test_fixed_tool_and_upstream_schema_lock_mismatch (__main__.AwsNativePreparation.test_fixed_tool_and_upstream_schema_lock_mismatch) ... ok
+test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported (__main__.AwsNativePreparation.test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported) ... FAIL
+
+======================================================================
+FAIL: test_malformed_compiled_outputs_always_typed_and_no_receipt (__main__.AwsNativePreparation.test_malformed_compiled_outputs_always_typed_and_no_receipt) (case=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 912, in test_malformed_compiled_outputs_always_typed_and_no_receipt
+    result=self.invoke('validate',expected=2,output=self.evidence+f'/malformed-{i}.json')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 1 != 2 : Traceback (most recent call last):
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py", line 269, in <module>
+    result = run(sys.argv[1:])
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py", line 246, in run
+    extra = prepare_local(root, request, files, args.operation,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_local.py", line 271, in prepare_local
+    details = assembly_policy(blobs, parameters, policy, owner)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_local.py", line 161, in assembly_policy
+    stacks = [a for a in artifacts.values() if a.get('type') == 'aws:cloudformation:stack']
+                                               ^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+
+
+======================================================================
+FAIL: test_malformed_compiled_outputs_always_typed_and_no_receipt (__main__.AwsNativePreparation.test_malformed_compiled_outputs_always_typed_and_no_receipt) (case=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 912, in test_malformed_compiled_outputs_always_typed_and_no_receipt
+    result=self.invoke('validate',expected=2,output=self.evidence+f'/malformed-{i}.json')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 837, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 1 != 2 : Traceback (most recent call last):
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py", line 269, in <module>
+    result = run(sys.argv[1:])
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py", line 246, in run
+    extra = prepare_local(root, request, files, args.operation,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_local.py", line 271, in prepare_local
+    details = assembly_policy(blobs, parameters, policy, owner)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_local.py", line 157, in assembly_policy
+    c._require(manifest.get('version') == '54.0.0', 'ASSEMBLY_SCHEMA_DRIFT')
+               ^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+
+
+======================================================================
+FAIL: test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported (__main__.AwsNativePreparation.test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 946, in test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported
+    self.assertEqual(len(list((self.root/'bundle/generated').iterdir())),2)
+AssertionError: 3 != 2
+
+----------------------------------------------------------------------
+Ran 3 tests in 16.650s
+
+FAILED (failures=3)

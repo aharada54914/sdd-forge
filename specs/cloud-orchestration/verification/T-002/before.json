@@ -1,0 +1,17 @@
+{
+  "base_revision": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+  "task_owned_before_sha256": {
+    "contracts/cloud-run-request.schema.json": null,
+    "contracts/cloud-dependency-lock.schema.json": null,
+    "contracts/cloud-preview.schema.json": null,
+    "contracts/cloud-authorization-receipt.schema.json": null,
+    "contracts/cloud-observation.schema.json": null,
+    "contracts/cloud-verification.schema.json": null,
+    "contracts/cloud-operation-result.schema.json": null,
+    "contracts/cloud-input-error.schema.json": null,
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": null,
+    "tests/cloud-orchestration-contracts.tests.py": null,
+    "reports/implementation/cloud-orchestration/T-002.md": null
+  },
+  "classification": "local repository; no prior T-002 candidate files"
+}

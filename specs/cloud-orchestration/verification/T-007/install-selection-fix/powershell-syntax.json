@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "-NoProfile",
+    "-Command",
+    "$t=$null; $e=$null; [Management.Automation.Language.Parser]::ParseFile((Join-Path (Get-Location) \"install.ps1\"),[ref]$t,[ref]$e) | Out-Null; if ($e.Count) { $e; exit 1 }; \"PowerShell syntax OK\""
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:10:21Z",
+  "exit_code": 0
+}

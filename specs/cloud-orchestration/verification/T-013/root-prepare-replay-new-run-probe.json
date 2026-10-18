@@ -1,0 +1,36 @@
+{
+  "classification": "root deterministic no-cloud probe with explicit new authenticated run456/session adapter; not independent review",
+  "source_sha256": "98247a991015616f20a6f21924b5544b1ff422955c235f8de61be8b823d3a545",
+  "prior_probe_limitation": "Original fixture only accepts hardcoded run123 URLs and RoleSessionName; prior BLOCKED result did not establish production replay protection. This adapter asserts actual run456/session456 then maps only the old fixture endpoint assertion; response claims/run/principal remain456.",
+  "first_result": "UNKNOWN",
+  "fresh_prepare_result": "PASS",
+  "new_run_transport_evidence": [
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "native federation sdd-456",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "native federation sdd-456",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "native federation sdd-456",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query",
+    "authenticated run456 query"
+  ],
+  "native_mutations": [
+    "PutObject",
+    "PutObject",
+    "CreateChangeSet"
+  ],
+  "put_count": 2
+}

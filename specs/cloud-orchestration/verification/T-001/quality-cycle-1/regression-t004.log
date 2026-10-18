@@ -1,0 +1,17 @@
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) ... ok
+test_005_full_profile_output_contract_and_no_context_compatibility (__main__.CompatibilityTests.test_005_full_profile_output_contract_and_no_context_compatibility) ... ok
+test_005_stale_snapshot_blocks_without_partial_publication (__main__.CompatibilityTests.test_005_stale_snapshot_blocks_without_partial_publication) ... ok
+test_006_shipped_structural_consumer_rejects_missing_or_rewritten_layer (__main__.CompatibilityTests.test_006_shipped_structural_consumer_rejects_missing_or_rewritten_layer) ... ok
+test_006_valid_hybrid_all_targets_retains_seven_bytes_and_separate_manifest (__main__.CompatibilityTests.test_006_valid_hybrid_all_targets_retains_seven_bytes_and_separate_manifest) ... ok
+test_additive_override_contract_preserves_existing_context_boundaries (__main__.CompatibilityTests.test_additive_override_contract_preserves_existing_context_boundaries) ... ok
+test_reviewed_pending_status_requires_exact_change_and_original_baseline (__main__.CompatibilityTests.test_reviewed_pending_status_requires_exact_change_and_original_baseline) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 18.118s
+
+OK

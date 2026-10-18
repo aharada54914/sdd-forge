@@ -1,0 +1,9 @@
+test_real_synth_complete_locked_assembly_validate_without_execution (__main__.AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution) ... ok
+test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) ... ok
+test_installed_runtime_mutation_denied (__main__.AwsNativePreparation.test_installed_runtime_mutation_denied) ... ok
+test_real_compile_locked_plan_and_validate_exact_bytes (__main__.AzureNativePreparation.test_real_compile_locked_plan_and_validate_exact_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 13.380s
+
+OK

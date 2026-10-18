@@ -1,0 +1,90 @@
+[
+  {
+    "id": "risk",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/cloud-orchestration/tasks.md T-004",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:40Z",
+    "finished_at": "2026-10-18T06:39:40Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/risk.log"
+  },
+  {
+    "id": "lint",
+    "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-azure-cloud/scripts/azure_graph.py plugins/sdd-azure-cloud/scripts/azure_local.py plugins/sdd-azure-cloud/scripts/cloud.py tests/cloud-orchestration-routing.tests.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native-initial.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-first-script.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-test.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/verify-local.py plugins/sdd-quality-loop/scripts/cloud_contracts.py tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:40Z",
+    "finished_at": "2026-10-18T06:39:40Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/lint.log"
+  },
+  {
+    "id": "typecheck",
+    "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-azure-cloud/scripts/azure_graph.py plugins/sdd-azure-cloud/scripts/azure_local.py plugins/sdd-azure-cloud/scripts/cloud.py tests/cloud-orchestration-routing.tests.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native-initial.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-first-script.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-test.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/verify-local.py plugins/sdd-quality-loop/scripts/cloud_contracts.py tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:40Z",
+    "finished_at": "2026-10-18T06:39:41Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/typecheck.log"
+  },
+  {
+    "id": "build",
+    "command": "python3 -m py_compile plugins/sdd-azure-cloud/scripts/azure_graph.py plugins/sdd-azure-cloud/scripts/azure_local.py plugins/sdd-azure-cloud/scripts/cloud.py tests/cloud-orchestration-routing.tests.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native-initial.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-first-script.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-test.py specs/cloud-orchestration/verification/T-004/attempt-2/evidence/verify-local.py plugins/sdd-quality-loop/scripts/cloud_contracts.py tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:41Z",
+    "finished_at": "2026-10-18T06:39:41Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/build.log"
+  },
+  {
+    "id": "unit-tests",
+    "command": "python3 -B tests/cloud-orchestration-routing.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:41Z",
+    "finished_at": "2026-10-18T06:40:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/unit-tests.log"
+  },
+  {
+    "id": "regression",
+    "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:40:07Z",
+    "finished_at": "2026-10-18T06:40:08Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/regression.log"
+  },
+  {
+    "id": "placeholder-scan",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-azure-cloud/scripts/azure_graph.py plugins/sdd-azure-cloud/scripts/azure_local.py plugins/sdd-azure-cloud/scripts/cloud.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:40:08Z",
+    "finished_at": "2026-10-18T06:40:08Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/placeholder-scan.log"
+  },
+  {
+    "id": "task-state-check",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/cloud-orchestration/tasks.md",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:40:08Z",
+    "finished_at": "2026-10-18T06:40:08Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/task-state-check.log"
+  },
+  {
+    "id": "workflow-state",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:40:08Z",
+    "finished_at": "2026-10-18T06:40:46Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/workflow-state.log"
+  },
+  {
+    "id": "requirement-traceability",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/cloud-orchestration/traceability.json /workspace/sdd-forge require-evidence",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:40:46Z",
+    "finished_at": "2026-10-18T06:40:46Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/requirement-traceability.log"
+  },
+  {
+    "id": "check-component-coverage",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:40:46Z",
+    "finished_at": "2026-10-18T06:40:46Z",
+    "evidence": "specs/cloud-orchestration/verification/T-004/quality-cycle-1/check-component-coverage.log"
+  }
+]

@@ -1,0 +1,30 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py AzureResourceBindingCases.test_compiled_and_original_operation_membership
+OFFLINE_GUARD_INSTALLED
+test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) ... 
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='newer-deployment') ... FAIL
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='same-time-deployment') ... FAIL
+
+======================================================================
+FAIL: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='newer-deployment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2268, in test_compiled_and_original_operation_membership
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='same-time-deployment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2268, in test_compiled_and_original_operation_membership
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.036s
+
+FAILED (failures=2)
+
+Exit code: 1

@@ -1,0 +1,17 @@
+test_explicit_node_location_and_bytes (__main__.AwsNativePreparation.test_explicit_node_location_and_bytes) ... FAIL
+
+======================================================================
+FAIL: test_explicit_node_location_and_bytes (__main__.AwsNativePreparation.test_explicit_node_location_and_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 891, in test_explicit_node_location_and_bytes
+    self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_NODE_BIN":""})["error_code"],"NODE_UNAVAILABLE")
+AssertionError: 'CDK_SYNTH_FAILED' != 'NODE_UNAVAILABLE'
+- CDK_SYNTH_FAILED
++ NODE_UNAVAILABLE
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.817s
+
+FAILED (failures=1)

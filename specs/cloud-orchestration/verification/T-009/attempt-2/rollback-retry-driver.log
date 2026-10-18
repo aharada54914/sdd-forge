@@ -1,0 +1,68 @@
+dependency-manifest-validation 0 TASK_INPUT_OK
+ 
+rollback2-t006 0  nknown_stale_missing_tampered) ... ok
+test_context_shape_and_window (__main__.ReducerCases.test_context_shape_and_window) ... ok
+test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) ... ok
+test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) ... ok
+test_each_payload_counterpart_mismatch (__main__.ReducerCases.test_each_payload_counterpart_mismatch) ... ok
+test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) ... ok
+test_profile_policy_and_check_set (__main__.ReducerCases.test_profile_policy_and_check_set) ... ok
+test_query_trace_shape (__main__.ReducerCases.test_query_trace_shape) ... ok
+test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) ... ok
+
+----------------------------------------------------------------------
+Ran 56 tests in 47.132s
+
+OK
+
+rollback2-contracts 0  es) ... ok
+test_scanner_receives_exact_bytes_and_no_secret_publication (__main__.Contracts.test_scanner_receives_exact_bytes_and_no_secret_publication) ... ok
+test_schema_inventory_has_no_open_object_or_unexercised_family (__main__.Contracts.test_schema_inventory_has_no_open_object_or_unexercised_family) ... ok
+test_schema_published_limits_have_executable_runtime_counterparts (__main__.Contracts.test_schema_published_limits_have_executable_runtime_counterparts) ... ok
+test_schema_scalar_domains_and_optional_field_boundaries (__main__.Contracts.test_schema_scalar_domains_and_optional_field_boundaries) ... ok
+test_unavailable_safe_filesystem_primitives_fail_closed (__main__.Contracts.test_unavailable_safe_filesystem_primitives_fail_closed) ... ok
+test_verification_inconsistent_claims_and_duplicate_checks (__main__.Contracts.test_verification_inconsistent_claims_and_duplicate_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 0.663s
+
+OK
+
+rollback2-selected 0  ctedPlanTests.test_required_cannot_be_downgraded_or_disappear) ... ok
+test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) ... ok
+test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) ... ok
+test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) ... ok
+test_single_gate_candidate_boundary_controls (__main__.SelectedPlanTests.test_single_gate_candidate_boundary_controls) ... ok
+test_standalone_package_schema_and_evaluation (__main__.SelectedPlanTests.test_standalone_package_schema_and_evaluation) ... ok
+test_verifier_unavailable (__main__.SelectedPlanTests.test_verifier_unavailable) ... ok
+test_windows_output_parent_junction_is_rejected (__main__.SelectedPlanTests.test_windows_output_parent_junction_is_rejected) ... skipped 'real Windows junction requires Windows'
+
+----------------------------------------------------------------------
+Ran 32 tests in 26.545s
+
+OK (skipped=1)
+
+rollback2-gates 0 ntract without check-component-coverage passes
+ok: CSG.2: config present (advisory): the same contract fails, naming check-component-coverage
+ok: CSG.3: config present (required): the same contract fails, naming check-component-coverage
+ok: CSG.4: config present (advisory): contract declaring the check with a genuine producer record passes
+ok: CSG.5: critical, config present: contract without check-component-coverage fails
+
+====== Test Summary ======
+PASS: 163
+FAIL: 0
+==========================
+ 
+reapplied-profile 0  st_every_plan_leaf_and_closed_object (__main__.ProfileCompletionCases.test_every_plan_leaf_and_closed_object) ... ok
+test_iac_required_and_preview_window_at_publication (__main__.ProfileCompletionCases.test_iac_required_and_preview_window_at_publication) ... ok
+test_original_profile_version_and_conditional_backup (__main__.ProfileCompletionCases.test_original_profile_version_and_conditional_backup) ... ok
+test_preview_guard_matrix (__main__.ProfileCompletionCases.test_preview_guard_matrix) ... ok
+test_protected_mandatory_checks_never_become_optional (__main__.ProfileCompletionCases.test_protected_mandatory_checks_never_become_optional) ... ok
+test_saved_observation_mismatch_sensitivity (__main__.ProfileCompletionCases.test_saved_observation_mismatch_sensitivity) ... ok
+test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 23.274s
+
+OK
+

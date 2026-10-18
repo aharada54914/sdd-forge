@@ -1,0 +1,66 @@
+{
+  "run_id": "01a14d52-0b38-7b40-a5b3-71203a33a030",
+  "recorded_at": "2026-10-18T04:47:54Z",
+  "classification": "local native Linux process execution; deterministic synthetic fixtures; no cloud/host reviewer trial",
+  "python": "3.12.14",
+  "powershell": "7.6.7",
+  "spec_revision": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "spec_revision_definition": "SHA-256 of raw specs/cloud-orchestration/requirements.md; exact other frozen inputs are bound individually in task-input-manifest.json",
+  "base_revision": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+  "commands": [
+    {
+      "log": "foundation-before.log",
+      "command": "python3 -B tests/sdd-domain-multitarget-foundation.tests.py",
+      "exit_code": 0,
+      "result": "53 passed"
+    },
+    {
+      "log": "foundation-after.log",
+      "command": "python3 -B tests/sdd-domain-multitarget-foundation.tests.py",
+      "exit_code": 0,
+      "result": "53 passed"
+    },
+    {
+      "log": "T-003.log",
+      "command": "TMPDIR=/tmp/cloud-t001-01a14d52/tmp python3 -B tests/sdd-domain-multitarget-T-003.tests.py",
+      "exit_code": 1,
+      "result": "30 passed; 1 failed due to /tmp/.git ancestor; 1 genuine Windows junction skip"
+    },
+    {
+      "log": "T-004.log",
+      "command": "TMPDIR=/tmp/cloud-t001-01a14d52/tmp python3 -B tests/sdd-domain-multitarget-T-004.tests.py",
+      "exit_code": 0,
+      "result": "7 passed; 5 stale-publication assertions passed"
+    },
+    {
+      "log": "powershell-runner.log",
+      "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/run-all-python.tests.ps1",
+      "exit_code": 0,
+      "result": "4 runner behavior cases passed"
+    },
+    {
+      "log": "integration.log",
+      "command": "python3 -B specs/cloud-orchestration/verification/T-001/verify-integration.py",
+      "exit_code": 0,
+      "result": "4 passed"
+    },
+    {
+      "log": "bash-syntax.log",
+      "command": "bash -n tests/run-all.sh",
+      "exit_code": 0,
+      "result": "syntax valid"
+    },
+    {
+      "log": "manifest-validation.log",
+      "command": "bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --manifest specs/cloud-orchestration/verification/T-001/task-input-manifest.json --snapshot-root /tmp/cloud-t001-01a14d52/inputs --expected-task T-001",
+      "exit_code": 0,
+      "result": "TASK_INPUT_OK"
+    },
+    {
+      "log": "rollback-experiment.log",
+      "command": "TMPDIR=/tmp/cloud-t001-01a14d52/tmp python3 -B specs/cloud-orchestration/verification/T-001/rollback-experiment.py /tmp/cloud-t001-01a14d52/rollback /tmp/cloud-t001-01a14d52/inputs specs/cloud-orchestration/verification/T-001",
+      "exit_code": 0,
+      "result": "53 baseline, intentional mutation rejected, 53 restored, 4 PowerShell cases passed"
+    }
+  ]
+}

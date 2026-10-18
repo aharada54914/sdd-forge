@@ -1,0 +1,13 @@
+F841 Local variable `refs` is assigned to but never used
+   --> tests/cloud-orchestration-contracts.tests.py:598:9
+    |
+597 |     def test_prepare_binding_does_not_invent_preview(self):
+598 |         refs = self.make_bundle()
+    |         ^^^^
+599 |         request = json.loads((self.root / "request.json").read_bytes())
+600 |         request["operation"] = "prepare"
+    |
+help: Remove assignment to unused variable `refs`
+
+Found 1 error.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

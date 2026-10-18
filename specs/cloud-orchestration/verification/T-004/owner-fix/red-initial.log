@@ -1,0 +1,48 @@
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... 
+  test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.json') ... FAIL
+  test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.yml') ... FAIL
+  test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='quoted.yaml') ... FAIL
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... FAIL
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 215, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    result = self.invoke(expected=2)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='escaped.yml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 217, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    self.assertIn(result["error_code"], ("OWNER_CONFLICT", "OWNER_UNRESOLVED"))
+AssertionError: 'OUTPUT_EXISTS' not found in ('OWNER_CONFLICT', 'OWNER_UNRESOLVED')
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) (name='quoted.yaml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 217, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    self.assertIn(result["error_code"], ("OWNER_CONFLICT", "OWNER_UNRESOLVED"))
+AssertionError: 'OUTPUT_EXISTS' not found in ('OWNER_CONFLICT', 'OWNER_UNRESOLVED')
+
+======================================================================
+FAIL: test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 220, in test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
+    self.assertEqual(self.invoke()["state"], "ROUTED")
+                     ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : 
+
+----------------------------------------------------------------------
+Ran 1 test in 0.193s
+
+FAILED (failures=4)

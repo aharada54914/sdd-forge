@@ -1,0 +1,321 @@
+{
+  "base_revision": "9301c049fd323fdef6f41fb79fa522e88cf99c60",
+  "scratch": "/tmp/cloud-T006-01a14e9b/rollback",
+  "entry_sha256": {
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py": "76388e9f22feee45ed34a72e6b65cd45869fef38cc8bcb493b4abf0a525caf55",
+    "plugins/sdd-azure-cloud/scripts/azure_observation.py": "75b58c3f6a1e100d82feb31f77b2ef406ff03d176d577afe91ad8cae5506d021",
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py": "56759940ccd05651c66e8458e7987d61f3eef845bce52bbf8db4e4bd39516d36",
+    "tests/cloud-orchestration-verification.tests.py": "03b8011dcd36b3a1171f5ade95c70b6ca0574bf83eacb0d142a5efa72a40fa9d",
+    "plugins/sdd-azure-cloud/references/azure-local-config.schema.json": "3950a56bc88e50c7ed498ff66d45545b302864fd972abbaa625d897a1ddc40cd",
+    "plugins/sdd-azure-cloud/references/observations.md": "7918d116b540160188b31cb5e8879fa8e9391824224ad3303aab80735553fe24",
+    "plugins/sdd-aws-cloud/references/observations.md": "d1a030599615d1fc6cfe43f45868944bf06f8057e39950dcdb499ffa8e41e707"
+  },
+  "candidate_sha256": {
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py": "bb868366c74987319f674fc36f44adbd9b4b5625d46b15e1e9a1a07bf2569dbe",
+    "plugins/sdd-azure-cloud/scripts/azure_observation.py": "cb718f913e98253038e72f5e2bf278e458c5a8e497210b644fcfc0cd2ad3f990",
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py": "938285ef9063924f750ad74ec9d24e9cc94cee992aca0c8eeeccf5f48efb06e5",
+    "tests/cloud-orchestration-verification.tests.py": "4dda9f27d1aacd2561e6d02eff52cd530cb7e8178d1617ea154a5e88715a09bc",
+    "plugins/sdd-azure-cloud/references/azure-local-config.schema.json": "c8390b8b18bf5f4c5cd961892b78f0d3d7f08641d14ae5052f62fe17f795fc3f",
+    "plugins/sdd-azure-cloud/references/observations.md": "e356a56677f3f26ada8f507c8fd2f90d06e28b9204e3ced96c13df0fe789c9f7",
+    "plugins/sdd-aws-cloud/references/observations.md": "b474f3965405b3b5883d8550300aab4ac830261b14dc9cef615d47543794a748"
+  },
+  "results": [
+    {
+      "name": "rollback-create",
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-T006-01a14e9b/rollback",
+        "9301c049fd323fdef6f41fb79fa522e88cf99c60"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "rollback-entry-verification",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "rollback-candidate-verification",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "rollback-restored-verification",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "sensitivity-context",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "ReducerCases.test_each_context_counterpart_mismatch"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-observations",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "ReducerCases.test_each_observation_counterpart_mismatch"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-payload-digest",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "ReducerCases.test_check_fail_block_unknown_stale_missing_tampered"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-provenance",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-http-outcome",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-fresh-age",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "FreshnessCases.test_old_deployment_recent_samples_and_time_order"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-fresh-order",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "FreshnessCases.test_old_deployment_recent_samples_and_time_order"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-final-recheck",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-azure-principal",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AzureClosureAndDcrCases.test_permission_closure_mismatches"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-azure-caller",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AzureClosureAndDcrCases.test_permission_closure_mismatches"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-azure-stability",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AzureClosureAndDcrCases.test_permission_closure_mismatches"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-azure-pagination",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AzureClosureAndDcrCases.test_permission_closure_mismatches"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-azure-dcr",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AzureClosureAndDcrCases.test_dcr_readback_and_mismatches"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-azure-metric-context",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AzureMetricContextCases.test_metric_context_counterparts"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-azure-current",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AzureResourceBindingCases.test_compiled_and_original_operation_membership"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-aws-current",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-aws-membership",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AwsObservationOrchestration.test_stack_membership_counterparts"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-aws-minimum",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "WorkloadRangeCases"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-azure-minimum",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "WorkloadRangeCases"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "sensitivity-azure-publication-scan",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py",
+        "PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "rollback-reapplied-verification",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK')); guard.start(); print('OFFLINE_GUARD_INSTALLED',flush=True); runpy.run_path(path,run_name='__main__')",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "shared_tree_unchanged": true
+}

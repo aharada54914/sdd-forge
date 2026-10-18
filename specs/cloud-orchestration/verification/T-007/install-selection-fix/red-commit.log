@@ -1,0 +1,12 @@
+[work 56f10ea5] test(install): reproduce retained cloud runtime loss across selections
+ 11 files changed, 4380 insertions(+), 16 deletions(-)
+ create mode 100644 reports/implementation/cloud-orchestration/T-007-install-selection-fix.md
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/entry.json
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/manifest-validation.log
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/preflight.md
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/red-direct.json
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/red-direct.log
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/red-sequential.json
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/red-sequential.log
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/run-command.py
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/task-input-manifest.json

@@ -1,0 +1,5 @@
+Cross-provider tests passed in both directions, including foreign-provenance denial.
+
+T-010 remains incomplete: scoped verification found one A/B/C regression (104 tests, one failure, one skip). Remaining regressions and rollback validation are documented in the updated handoff report.
+
+Manifest and v2 report validation passed. No task status or gate changed.

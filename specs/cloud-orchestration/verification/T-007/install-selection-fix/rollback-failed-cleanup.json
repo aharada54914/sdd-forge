@@ -1,0 +1,12 @@
+{
+  "command": [
+    "git",
+    "worktree",
+    "remove",
+    "--force",
+    "/tmp/cloud-t007-01a14fbf/rollback"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:16:01Z",
+  "exit_code": 0
+}

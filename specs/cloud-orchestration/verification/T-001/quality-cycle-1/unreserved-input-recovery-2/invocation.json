@@ -1,0 +1,311 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "cloud-orchestration",
+  "task_id": "T-001",
+  "run_id": "01a14d61-1f68-7480-8895-4126d617ce04",
+  "host_session_id": "01a14d61-1f68-7480-8895-4126d617ce04",
+  "sequence": 1222,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "42d16d5a29866031b3021455bbdc50f3c7376e3e6406051d63ec8f8d5f6dfe8a",
+  "previous_record_sha256": "13db052c2af62c456a68d5a295013fbc7e42580d06e2c65404f695f72580542d",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/cloud-orchestration/T-001.md",
+      "sha256": "857f96a2b1e6c3d1823d115fc874a014ff2d2321bda32f0aecd2a67a7bb977a4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/task-input-manifest.json",
+      "sha256": "e4ed5e5fe55c4b3f57d2af3535f0fd16834a4f615e8308741ce82a19da4cfb88"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/tasks.md",
+      "sha256": "efd0cf2beec6f339c36af93b728d7b13804db446e1277453e0c7b836f39c734c"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "sha256": "6c7c7ff4fd36cb0468a5d91f6228b1d27f55f408e7098a660285290df277a0e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-foundation.tests.py",
+      "sha256": "42c7cf69f07e3d0e7c8187a48c5b055dbeb169d63810510ef29f6628e49b225f"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "6b5982e518343880576848ff1a9ee8356bfa1ad316319209bd2368639161c904"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "e5d6afc5a8b0f711529d6ba8c39dd88d95a4e48d40309bab67ea9f512c124ef8"
+    },
+    {
+      "path": "tests/run-all-python.tests.ps1",
+      "sha256": "4e11b5e802d8c47d0c03b198348cdbe04bc705291095c10b1f35e2e93f725bab"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "e53202328828e113ab37d9e56b17706b9f22c78d8a905647a8f44bfad24a3182"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/current-consumer-inventory.json",
+      "sha256": "a68bc71819ca523c005df8108ab4876a6925fd7632c09d7702c3f11734529459"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json",
+      "sha256": "9f3b3e3c330d14d00546223cb371084f5bf98a0cebb3900b23f2fc38fcc3edc2"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py",
+      "sha256": "73dd92b14acadb21d2f8129f9d098f20a2de1dc69c1d0160c1d56c5aa0ba1b44"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py",
+      "sha256": "cb053e841ca41379ee7a0313e0132e9baca4efc05b66051a5f1fe143ff4793ca"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "sha256": "91489f9fffc419f706e44cacfc6f93d7b6254e54c91e146a6b52e0a2d946fe5a"
+    },
+    {
+      "path": "docs/adr/0036-thin-cloud-orchestration.md",
+      "sha256": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/verify-integration.py",
+      "sha256": "b19ee72f05975a0e768f2526a91a710fe27b714ce6762e7b7988b53eb5c6c2a8"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/historical-preservation.json",
+      "sha256": "2b175c967c22b0911dc90bca4a18893af1e9c586bd36cc67dcdc8f8f2cbc84cc"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/T-003.log",
+      "sha256": "a3bc182bd68df244846233ae9157b2a001a51dfce6e03b571e09137b1047c8d6"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/rollback-mutated.log",
+      "sha256": "d2c28a922267213113db039904b2f91c334c750a97c7190e835738265c2b9bec"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/historical-current-tree-failure.log",
+      "sha256": "9a6a2bbe237190b6c5df32fdb83ba9f10931826642ccfc8de4f1766f0987afc3"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/integration.log",
+      "sha256": "81cf27bab866283e3c0f5bf9e60795f6076b764f7c4f64dc49595bd19671e1d4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/rollback-restored.log",
+      "sha256": "4c29b506d043a0f86f205a617b9ce8c11724dcd316cbec237f461e462cf34b78"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/T-003-environment.log",
+      "sha256": "5c85a77dac7caa9c5a684ffde3607f82a6affffee0b643ef8465860dc475be06"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/rollback.json",
+      "sha256": "3b72efbd1c076b6ddf8b7139af317f9cc1c0f8c4ce41bafd575014585d44bfd4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/foundation-after.log",
+      "sha256": "93ba9e869b444041bef41f7f189ee416798e0665e6c456dc0c03b524d9555cd3"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/outer-host-rerun.json",
+      "sha256": "28d1b2c49dfc239ca135de181f40e3d6dfb41f6d65edf06ee1472049ebb6558d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/rollback-experiment.log",
+      "sha256": "6e7d71945e4ea735e22278532874574364032d332b822d838a5bd3674419cbeb"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/T-004.log",
+      "sha256": "3ff15dde9b0ce083b630b5be2e9be2c8cae3dd46d2c63719aa48a52e58a9044f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/manifest-validation.log",
+      "sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/execution-record.json",
+      "sha256": "8866da95b347bce76c04617f6fe1fa49db2b888bf1824969378e523ff5641c88"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/T-003-outer-host.log",
+      "sha256": "c6e45184d7d5dc7d77e60109e6338dfa3b4e7e163285fdf5d934137b9a2e953e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/current-inventory-reference.json",
+      "sha256": "1a7c362f143812c8c13ec874fca8c7f06fc492f83ef51b893e3dc0eab9c5e4c9"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/foundation-before.log",
+      "sha256": "93bfa3a4b9d1e106923876da581ddd8d01c8333a7d67a98d6fc677896f61089f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/rollback-baseline.log",
+      "sha256": "b49912cc8d5aa839d181d627a220b9ce333e68df8c53f289eb1748a711e0139a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/rollback-experiment.py",
+      "sha256": "84f433ccb4fe3f398a99743aab438c075160036967d2e2af60d4026e03cc2eb7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/rollback-powershell.log",
+      "sha256": "dfdeb24dd2a252621a98dcc50779fc6e5a8d394048299576c4263291356b2672"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/external-guidance.json",
+      "sha256": "a1020b7a660986be61a07ec64264376e3e3a632c8fa0f406f786374a2e8a02d7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/bash-syntax.log",
+      "sha256": "bde294368bfed77c2cddf8cec271d398aee9cdbab3b26e1059281bd33adb0120"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/powershell-runner.log",
+      "sha256": "941a6e51acb81f57b81035281e5e7877e1048fffbb0c816e706c9826cab26778"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/build-recorded.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/placeholder-scoped.log",
+      "sha256": "ccc274af5e4da4708e126a59614f7bedc6089811f5ec921bbb2914119f862a43"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/workflow-state.log",
+      "sha256": "7f2eb89fc40f4220e7fe288cf2b0b5abb9fd27c2e6da30a08e85d5cd3bb44035"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/lint-recorded.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/risk.log",
+      "sha256": "0eda7d79ba20116673a4644a5b3ddd237d0fbc1595209612ab56f431c86be834"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/regression-t004.log",
+      "sha256": "8c8424414028f71396a58263e75534015340028d8d5d1037bae16ae08c1c482d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/typecheck.log",
+      "sha256": "cabe96076c7f84b7ef450074a6d88a4ee8fd8a4cc8d91abcce5bd7c63c360a3d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/commands.json",
+      "sha256": "2c2edf37e685f9280b2628a99022b427b0a167503e821106bf3670295342f755"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/default-fail-contract.json",
+      "sha256": "1a0e4270ee8f6fe5576c8c592754a6e4ada1f70c02e8c4b9b3f3595999910a1b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/contract.log",
+      "sha256": "81904a70189efd51b2057166c8062b848893246610bfb0cb0ad32e1817df06ac"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/typecheck-recorded.log",
+      "sha256": "cabe96076c7f84b7ef450074a6d88a4ee8fd8a4cc8d91abcce5bd7c63c360a3d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/workflow-state-corrected-invocation.log",
+      "sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/regression-summary.json",
+      "sha256": "90ef28d773c422ed398dd4f16b6d10bab0ca03bef1364058fe1f4155476c485f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/unit-tests.log",
+      "sha256": "c0c5ba0293abeeb6b0b43874ceef11d8feaf2927778f09a71919c8fd04db4eac"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/task-state-check.log",
+      "sha256": "19794f343649a36c0ba7b6422e77a6dbf18d8a5d6ab1efd5c0e6fe04635ed4d5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/acceptance-tests.log",
+      "sha256": "a660e9a79bdb4e45248c544e4a8fdffe2ab50c212ad1b171ba45e94838b9badd"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/additional-commands.json",
+      "sha256": "bc6024a179e9c8011c033327b72460dd6947cc48efc46597191c1ccf177b1e06"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/contract-canonical.log",
+      "sha256": "70d084d72a5cd44e6d153ec9cf08daf581464beeeb11791876b96188f18fa68a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/regression-pwsh.log",
+      "sha256": "b1f84c978d93a8dc3cfe8ffa08675f67f2a4a0291d7276e7250a3a028d4a3470"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/placeholder-scan-recorded.log",
+      "sha256": "97949897c19733bdd231e4dc8a6a79d5104a70318d651e10520dda0dbc7b1524"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/regression-t003.log",
+      "sha256": "f318d023f6020c1108f22930714ec8076851dd9e2e9e7e62d73e1a4f62ef638e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001.contract.json",
+      "sha256": "54a1fbb8ca702382f1cdba696508717c6e592a3f7b7d78d766f41839296544a5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/supplemental-delivery.json",
+      "sha256": "7311e1cd706e39c91a766bbcd5d1e2b5b25e9a720d0c624f7dbb777fde20b7e5"
+    }
+  ],
+  "implementation_manifest": {
+    "path": "specs/cloud-orchestration/verification/T-001/task-input-manifest.json",
+    "sha256": "e4ed5e5fe55c4b3f57d2af3535f0fd16834a4f615e8308741ce82a19da4cfb88"
+  },
+  "scratch_root": "/tmp/cloud-evaluator-01a14d61-1f68-7480-8895-4126d617ce04",
+  "supplemental_delivery_declaration": {
+    "path": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/supplemental-delivery.json",
+    "sha256": "7311e1cd706e39c91a766bbcd5d1e2b5b25e9a720d0c624f7dbb777fde20b7e5"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "feature": "cloud-orchestration",
+  "run_id": "01a14d39-dfe9-7c40-96b2-8a3c6716a340",
+  "host_session_id": "01a14d39-dfe9-7c40-96b2-8a3c6716a340",
+  "sequence": 1206,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "14da9b376f484d98ee1556728283bebc6fca731fc3f9c0f8d0c2ff098ddc1bad",
+  "previous_record_sha256": "b3147d685d4dff0509c8d9d6614fc46073a191506dc5f5b17c65f89a67e1c8ed",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "4fc5f49fb5e5dba420c5e1c2588a37be74a1fb12d78d3d54a48642f1d50698c3"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+    },
+    {
+      "path": "reports/spec-review/cloud-orchestration/attempt-2/round-1/precheck-result.json",
+      "sha256": "3f4d9d07652c38aaa6a83921b0a3dba048d5f6b7db491c218b2b94435eb78116"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/cloud-orchestration/attempt-2/round-1/integrated-summary.json",
+      "sha256": "175a0d9e5725919cda38036464c448d627f5bbf9fe5b653fb565a2d8e7ed2db5"
+    }
+  ]
+}

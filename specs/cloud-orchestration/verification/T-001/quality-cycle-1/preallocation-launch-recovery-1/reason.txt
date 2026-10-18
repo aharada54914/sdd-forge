@@ -1,0 +1,1 @@
+thread/start rejected before allocation: verify profile has no chrome-devtools entry; an enabled=false override created an invalid transport. No reviewer identity allocated or reserved, no turn begun. Removed only unnecessary override in caller; retained selector/stderr records.

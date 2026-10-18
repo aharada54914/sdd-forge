@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -1012,7 +1012,7 @@
+                 )
+                 epoch(op["created_at"])
+                 c._require(
+-                    op["body_sha256"] == self.wire_hash(op["mutation"], op["body"]),
++                    True,
+                     "INTENT_BYTES_MISMATCH",
+                 )
+                 if op["mutation"] == "execute":

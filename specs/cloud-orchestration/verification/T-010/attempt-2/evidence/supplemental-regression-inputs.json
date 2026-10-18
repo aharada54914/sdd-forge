@@ -1,0 +1,196 @@
+{
+  "schema": "task-supplemental-inputs/v1",
+  "task_id": "T-010",
+  "task_attempt_count": 2,
+  "run_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "recorded_at": "2026-10-18T14:21:36Z",
+  "snapshot_root": "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/continuation-inputs",
+  "initial_inputs_unchanged": true,
+  "inputs": [
+    {
+      "path": "plugins/sdd-quality-loop/contracts/capability-registry.json",
+      "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
+      "sha256": "ef70a27785d325cc32d2c4a2faeed099e9df3058fd7a918e2efbd4013ed8f319",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/capability-summary.schema.json",
+      "sha256": "09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+      "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/context-projection.schema.json",
+      "sha256": "3c8e39c6a8dedf948cbd7e6a8f36369f2a68a3fc3dd92192f90bbce917d32643",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/facet-manifest.schema.json",
+      "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/lite-check-catalog.json",
+      "sha256": "c251b3e02a2c93c45a7ea590bc5a7e36eef8e5915c485b0c6a6e83519afe086a",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/lite-check-catalog.schema.json",
+      "sha256": "a4e458242d68237cf16e66aa28b362c30dae4a6d20109cb4af51711f6fc1cd19",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/lite-upgrade-reason-catalog.json",
+      "sha256": "e73a730f9edacd7d2dad2da3e13b9e3df01f7002c25f7e947316ca249118eb76",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+      "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json",
+      "sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+      "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "sha256": "66505c65b073bc083d32b734a4e073bc85a216dd98a3b81a5bf581ae4956d9b3",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.sh",
+      "sha256": "fc3a081d4e584ac13e4e09821815b8a14ca637e214fc70b8d470aff1bfecb416",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/evaluate-predicate.py",
+      "sha256": "4daa549e9bb06b71759580a0ed1389033745dee21c5a1ae7ef694c725a2b9156",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.py",
+      "sha256": "dd3a0642deeceac3d8def2c476c97fe6cf69fbfcebb2e1682bcd7939862b0aaf",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1",
+      "sha256": "b15ef1ee7b8b89fb7717ed09b4d7c0e6150bbbd87478594f61a146b6596b30fb",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh",
+      "sha256": "abde8035c825c318a56a3d9e1b24b2fd618553f10f9784ceae8ab2173eeadf0c",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "sha256": "4aa0e97622b47687508e305b1832e182926d0595b7626180e5736b23e0ef174e",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py",
+      "sha256": "11bbff0409344168c57095631c333c714cd9dbffb22da664989494e50dc5757e",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "sha256": "edbcad8326293e6c83cf96d9e457c819ebef64c19a9a4090ccb0cdcbc7a62b56",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/github-aws.yml",
+      "sha256": "72ddd25758096b0844ed9e3b14d3563f90e3f80d67acc4090fe3294222b2c7b4",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/github-azure.yml",
+      "sha256": "5c9c208f3cc0eb4ea0fe11617a159acdcde9cb3bb61a8a92bc0ebf178299b4ab",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/README.md",
+      "sha256": "5b0b6827c7c9eaaa794aea10d8474dcd0156d26f5f0673fe5364f61c596128c6",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/aws-apply-permissions.json",
+      "sha256": "9b6ab4f6f70b6d138b8f5b143e25b51abf82f2a00d5606484bb17578bb6342cb",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/aws-apply-trust.json",
+      "sha256": "b6a668ac1c6d6bfecf347823a7bf7f4211eab6eedeb8b70e80d5b1095c88546a",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/aws-prepare-permissions.json",
+      "sha256": "97b33e38eb4b5c62c45006b1fa82d101b3c745d89053b7aef1975ae63aaf5135",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/aws-prepare-trust.json",
+      "sha256": "fb816c23c404a2c6dc664885da932bd208fdda8c4675c991ff694e03ab17406c",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/azure-apply-federation.json",
+      "sha256": "edbece3a3e08ad661a37bb5bbad33e5738aee8ea96e66148fd8b948f3fb01a24",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/azure-apply-role.json",
+      "sha256": "305f5622da98f47d3b81df756eb5ef1959069e47b59f7ec012c3d0fd4812d889",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/azure-prepare-federation.json",
+      "sha256": "50d8cbc667ee96d6667bbbb5313562a426ab826966483b20c4187fa5b9934370",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/azure-prepare-role.json",
+      "sha256": "18558291d8f2bd725926e1a99c532ebd4952a0a192aa7740c3be18e6c76cf61d",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/github-environment.json",
+      "sha256": "5bf72c589d439d0dc23b02b92c62fb6b4d897f1b95a2653b2aaa4d0069ddd291",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/github-oidc-subject.json",
+      "sha256": "69a4c0a488e543cb5bb6587ffd6ab9ccd66706ad0423db76b2d4fcc2dbbb1d60",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "templates/cloud/iam/trusted-policy.example.py",
+      "sha256": "7e70f84eec5094a6b4a2aee3fe16dcaec968f2ec330fb7f51226969a01bd64e9",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-T-003.tests.py",
+      "sha256": "ca48739d79ee0e54bf002db7946ee5f2aefe1ffbec65bb72a11f4e051a6e57ae",
+      "purpose": "unchanged scoped regression fixture/validator dependency"
+    }
+  ]
+}

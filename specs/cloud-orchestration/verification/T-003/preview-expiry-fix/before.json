@@ -1,0 +1,9 @@
+{
+  "source": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+  "sha256": "de4b62fe9d0dd8a4a540a70b47baaa56b8a7cd223bf548465c60c2fa19b2bbfc",
+  "test_sha256": "4c104600e2e9a33569b2fb37e14505a44dd8683b89558897f60bc4148de303b4",
+  "git_commit": "eb852edba3f9fcd7176358f5f75a8d8bc6172258",
+  "ticket": "RT-20261018-CLOUD-PREVIEW-EXPIRY",
+  "implementer": "root host correction under fix-by-review-ticket; not a new independent context",
+  "recorded_at": "2026-10-18T06:43:52.236370+00:00"
+}

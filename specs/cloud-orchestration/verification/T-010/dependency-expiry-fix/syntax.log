@@ -1,0 +1,8 @@
+COMPILE_OK plugins/sdd-quality-loop/scripts/cloud_authorization.py
+COMPILE_OK plugins/sdd-quality-loop/scripts/cloud_dependencies.py
+COMPILE_OK plugins/sdd-azure-cloud/scripts/azure_execution.py
+COMPILE_OK plugins/sdd-aws-cloud/scripts/aws_execution.py
+COMPILE_OK tests/cloud-orchestration-verification.tests.py
+COMPILE_OK specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py
+COMPILE_OK specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/rollback.py
+BASH_SYNTAX_OK

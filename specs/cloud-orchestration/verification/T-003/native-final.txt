@@ -1,0 +1,8 @@
+Implemented T-003 only.
+
+- 22 admission tests and 23 contract regressions pass.
+- Ruff, mypy, manifest validation and rollback checks pass.
+- Failing tests/preflight committed as `a604a0f0`.
+- Report: `reports/implementation/cloud-orchestration/T-003.md`
+
+No task statuses changed. Templates remain inactive; live IAM validation and independent quality review remain outstanding and root-owned.

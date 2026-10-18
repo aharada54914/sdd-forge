@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-18T10:15:34.334968+00:00",
+  "classification": "approved integration scope clarification; no deployed workflow mutation or approval waiver",
+  "request": {
+    "id": 900071,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14e73-9069-76d0-a748-f448ad86b023",
+      "expectedTurnId": "01a14e73-923d-7593-8ab7-0f3b6d51b21f",
+      "input": [
+        {
+          "type": "text",
+          "text": "Your Azure completion finding is correct. Fixing the inert azure_governed.workflow_template and its local caller/tests is within approved T006 provider-script integration scope; there is no need to preserve the current ambiguous apply/reconcile job layout. Prefer distinct fixed phase jobs/steps, with literal apply execution, read-only reconcile/observe/verify policy/env boundaries, while retaining pinned E/W setup, exact request/title binding, no automatic write retry and existing replay fences. Then authenticated native GitHub metadata for the original completed successful APPLY job can serve as a conservative post-native-completion bound, only with exact request/run/attempt/repo/workflow/code/native-operation correlation; reject skipped/no-op/reconcile/ambiguous old workflows. Validate actual GitHub API fields/pagination before use. A step/job called apply is not sufficient without the pinned fixed execution semantics. Document that old ambiguous generated workflows require regeneration/new protected W for this new verification path. This changes only shipped inactive templates/local code, not any deployed workflow or permissions. Do not invent ARM end-time semantics or rely on a fresh observe clock alone. Keep the native API approach if a simpler authoritative provider terminal timestamp is found."
+        }
+      ]
+    }
+  }
+}

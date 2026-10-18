@@ -1,0 +1,485 @@
+--- a/plugins/sdd-azure-cloud/scripts/azure_execution.py
++++ b/plugins/sdd-azure-cloud/scripts/azure_execution.py
+@@ -9,6 +9,7 @@
+ from __future__ import annotations
+ 
+ import sys
++import re
+ from pathlib import Path
+ import time
+ from typing import Callable
+@@ -39,6 +40,8 @@
+     utc,
+     AdmissionDenied,
+     epoch,
++    _policy_valid,
++    decode as auth_decode,
+ )
+ 
+ 
+@@ -203,10 +206,23 @@
+         self.output_ready = False
+         self.pending_native_id = self.client.native_id
+ 
++    def trusted_binding(self) -> None:
++        """Pure expected-authority binding, also usable for recovery after preview expiry."""
++        p = self.boundary.policy
++        _policy_valid(p)
++        request = c.read_artifact(self.root, self.request_ref, "cloud-run-request/v1")
++        c._require(request == self.request and request["provider"] == p.provider == "azure"
++                   and request["operation"] == "apply"
++                   and request["environment"] == p.target_environment
++                   and request["scope"] == dict(account_id=p.account_id, region=p.region,
++                                                 deployment_scope=p.deployment_scope)
++                   and request["policy"]["sha256"] == p.policy_sha256,
++                   "TRUSTED_POLICY_BINDING_MISMATCH")
++
+     def check(self) -> tuple[dict, bytes, dict, list[dict], dict]:
+         data = exact_artifacts(self.root, self.request_ref)
+         c._require(data[0] == self.request, "REQUEST_CHANGED")
+-        c._require(self.boundary.policy.provider == "azure", "PROVIDER_MISMATCH")
++        self.trusted_binding()
+         return data
+ 
+     def body(self, data: tuple, *, preview: bool) -> bytes:
+@@ -487,6 +503,76 @@
+     def no_change(semantic: dict) -> bool:
+         return all(change["changeType"] == "NoChange" for change in semantic["changes"])
+ 
++    def intent_history(self, preview_ref: dict, *, read_only: bool = False) -> dict:
++        """Bounded authenticated repository history, never an artifact absence claim.
++
++        shortcut: require the entire dispatch history in one 100-run page; larger
++        control repositories fail closed until a reviewed durable-history upgrade.
++        Retention/deletion/visibility and exclusive writer prerequisites are external.
++        """
++        p = self.boundary.policy
++        _policy_valid(p)
++        c._require(p.operation == "apply", "STAGE_MISMATCH")
++        github = GitHubAdmission(p, self.boundary.runtime, self.boundary.transport)
++        _, claims = github.oidc(int(self.boundary.clock()))
++        if not read_only:
++            github.metadata(claims, self.request_ref["sha256"], preview_ref["sha256"])
++        url = (f"https://api.github.com/repos/{p.repository}/actions/runs"
++               "?event=workflow_dispatch&per_page=100&page=1")
++        raw = self.boundary.transport.request("GET", url, {
++            "Authorization": "Bearer " + self.boundary.runtime.github_token,
++            "Accept": "application/vnd.github+json",
++            "X-GitHub-Api-Version": "2022-11-28",
++        })
++        history = auth_decode(raw)
++        total, runs = history["total_count"], history["workflow_runs"]
++        c._require(type(total) is int and 1 <= total <= 100
++                   and type(runs) is list and len(runs) == total, "INTENT_HISTORY_INCOMPLETE")
++        ids, records, prior = set(), [], []
++        current_id = int(claims["run_id"])
++        for run in runs:
++            c._require(type(run["id"]) is int and run["id"] > 0
++                       and run["id"] not in ids and run["event"] == "workflow_dispatch",
++                       "INTENT_HISTORY_INVALID")
++            ids.add(run["id"])
++            for key in ("repository", "head_repository"):
++                c._require(type(run[key]["id"]) is int and run[key]["id"] == p.repository_id
++                           and run[key]["full_name"] == p.repository, "INTENT_HISTORY_REPOSITORY")
++            path, title = run["path"], run["display_title"]
++            c._require(type(path) is str and type(title) is str
++                       and type(run["head_sha"]) is str
++                       and re.fullmatch(r"[a-f0-9]{40}", run["head_sha"])
++                       and type(run["run_attempt"]) is int and run["run_attempt"] >= 1,
++                       "INTENT_HISTORY_INVALID")
++            match = re.fullmatch(r"cloud:([a-f0-9]{64}):(none|[a-f0-9]{64})", title)
++            # Renamed/older workflows cannot erase a matching intent. Ambiguous
++            # titles from the governed workflow cannot prove absence either.
++            c._require(match or (path != p.workflow and not title.startswith("cloud:")),
++                       "INTENT_HISTORY_TITLE")
++            if run["id"] == current_id:
++                c._require(path == p.workflow and run["head_sha"] == p.workflow_revision
++                           and run["run_attempt"] == 1 and run["status"] == "in_progress"
++                           and run["conclusion"] is None
++                           and title == f"cloud:{self.request_ref['sha256']}:{preview_ref['sha256']}",
++                           "INTENT_HISTORY_CURRENT")
++            elif match and match[1] == self.request_ref["sha256"] and match[2] != "none":
++                # Even canceled/unapproved/reconcile dispatches conservatively fence;
++                # no outcome or new preview/approval can establish safe resubmission.
++                prior.append(run["id"])
++            records.append({k: run[k] for k in
++                            ("id", "path", "head_sha", "display_title", "run_attempt")})
++        c._require(current_id in ids, "INTENT_HISTORY_CURRENT_MISSING")
++        return dict(repository=p.repository, repository_id=p.repository_id,
++                    current_run_id=current_id, prior_run_ids=sorted(prior),
++                    history=dict(url=url, total_count=total, response_sha256=digest(raw), runs=records))
++
++    def fence(self, history: dict, preview_ref: dict) -> dict:
++        return self.audit(self.directory + "/intent-fence.json", dict(
++            schema="azure-intent-fence/v1", request=self.request_ref, preview=preview_ref,
++            native_operation_id=self.client.native_id, request_id=self.request_id,
++            scope=self.request["scope"], status="UNKNOWN", created_at=utc(int(self.clock())),
++            **history))
++
+     def apply(self, preview_ref: dict, output: str) -> dict:
+         self.may_have_submitted = False
+         try:
+@@ -511,11 +597,20 @@
+                     pass
+                 else:
+                     raise AdmissionDenied("RECONCILE_REQUIRED")
++            self.preview_ref = dict(preview_ref)
++            history = self.intent_history(preview_ref)
++            if history["prior_run_ids"]:
++                self.submission = self.fence(history, preview_ref)
++                self.pending_native_id = self.client.native_id
++                self.may_have_submitted = True
++                return self.result("apply", output, "UNKNOWN", preview=preview_ref,
++                                   error="RECONCILE_REQUIRED", native=True)
+             _, current = self.what_if(preview_ref)
+             self.check_preview(preview_ref, current, self.check())
+             if self.no_change(current):
+                 return self.result("apply", output, "NO_CHANGE", preview=preview_ref)
+-            # Native history is a second replay fence under the same CI scope lock.
++            # Native existence supplements authenticated intent history; 404 alone
++            # can never establish that a prior dispatch did not submit.
+             existing = self.client.call(
+                 "GET", self.client.url, self.credentials, self.request_id
+             )
+@@ -551,36 +646,42 @@
+             output_path(self.root, self.request, output)
+             output_path(self.root, self.request, output + ".manifest.json")
+             self.output_ready = True
++            c._require(operation_ref["path"] in (
++                self.directory + "/deployment-submission.json",
++                self.directory + "/intent-fence.json"), "SUBMISSION_REQUIRED")
++            operation = decode(c.read_verified(self.root, operation_ref))
++            is_fence = operation_ref["path"].endswith("/intent-fence.json")
++            common = {"schema", "request", "preview", "native_operation_id", "request_id",
++                      "created_at", "scope", "status"}
++            fields(operation, common | ({"repository", "repository_id", "current_run_id",
++                                         "prior_run_ids", "history"} if is_fence else {"body_sha256"}))
+             c._require(
+-                operation_ref["path"] == self.directory + "/deployment-submission.json",
+-                "SUBMISSION_REQUIRED",
+-            )
+-            operation = decode(c.read_verified(self.root, operation_ref))
+-            fields(
+-                operation,
+-                {
+-                    "schema",
+-                    "request",
+-                    "preview",
+-                    "native_operation_id",
+-                    "request_id",
+-                    "body_sha256",
+-                    "created_at",
+-                    "scope",
+-                    "status",
+-                },
+-            )
+-            c._require(
+-                operation["schema"] == "azure-submission/v1"
++                operation["schema"] == ("azure-intent-fence/v1" if is_fence else "azure-submission/v1")
+                 and operation["request"] == self.request_ref
+                 and operation["native_operation_id"] == self.client.native_id
+                 and operation["request_id"] == self.request_id
+-                and operation["scope"] == self.request["scope"],
+-                "SUBMISSION_MISMATCH",
+-            )
++                and operation["scope"] == self.request["scope"]
++                and operation["status"] == "UNKNOWN", "SUBMISSION_MISMATCH")
++            if is_fence:
++                c._require(operation["repository"] == self.boundary.policy.repository
++                           and operation["repository_id"] == self.boundary.policy.repository_id
++                           and type(operation["prior_run_ids"]) is list
++                           and bool(operation["prior_run_ids"])
++                           and all(type(n) is int for n in operation["prior_run_ids"]),
++                           "INTENT_FENCE_MISMATCH")
+             self.submission = operation_ref
+             self.pending_native_id = self.client.native_id
+             self.may_have_submitted = True
++            self.trusted_binding()
++            c._require(self.boundary.policy.operation == "apply", "STAGE_MISMATCH")
++            if is_fence:
++                # A copied/unsigned fence never proves provenance: authenticate and
++                # re-fetch complete history before read-only reconciliation as well.
++                history = self.intent_history(self.preview_ref or operation["preview"], read_only=True)
++                if not set(operation["prior_run_ids"]) <= set(history["prior_run_ids"]):
++                    self.may_have_submitted = False
++                    raise AdmissionDenied("INTENT_FENCE_MISMATCH")
++                self.audit(output + ".history.json", history)
+             # Authenticated fresh federation; no imported receipt confers credentials.
+             p = self.boundary.policy
+             github = GitHubAdmission(p, self.boundary.runtime, self.boundary.transport)
+--- a/plugins/sdd-azure-cloud/scripts/cloud.py
++++ b/plugins/sdd-azure-cloud/scripts/cloud.py
+@@ -242,7 +242,13 @@
+                 c._require(executor.preview_ref is not None, "PREVIEW_REQUIRED")
+                 return executor.apply(executor.preview_ref, output)
+             path = directory + "/deployment-submission.json"
+-            return executor.reconcile(dict(path=path, sha256=digest(read_bytes(root, path))), output)
++            with c._parent(root, path) as (fd, name):
++                try:
++                    os.stat(name, dir_fd=fd, follow_symlinks=False)
++                except FileNotFoundError:
++                    path = directory + "/intent-fence.json"
++            journal = read_bytes(root, path)
++            return executor.reconcile(dict(path=path, sha256=digest(journal)), output)
+         if args.operation not in ("route", "plan", "validate"):
+             raise c.ContractError("OPERATION_UNIMPLEMENTED")
+         root = c.workspace_root()
+--- a/plugins/sdd-azure-cloud/scripts/governed-setup.md
++++ b/plugins/sdd-azure-cloud/scripts/governed-setup.md
+@@ -138,8 +138,10 @@
+ - Under the scope concurrency key, preallocate `sdd-` plus the first 60 request
+   digest characters as the stable unique deployment name (the request includes
+   unique run/unit identity), with a deterministic UUIDv5 client request ID.
+-  Durable consumed journals plus read-only native existence checking prevent
+-  resubmission. Do not reuse run IDs for different operations. A completed empty
++  Authenticated complete control-repository dispatch history fences the intent
++  independently of acquired archives; local journals and native existence checks
++  supplement it. Native 404 is never proof that an earlier uncertain PUT did not
++  occur. Do not reuse run IDs for different operations. A completed empty
+   or all-NoChange preview yields NO_CHANGE, zero PUTs and no apply ID.
+ - Any ambiguous POST/PUT delivery or polling failure is UNKNOWN with its original
+   operation identity and fsynced submission record, never a no-write assertion.
+@@ -147,7 +149,15 @@
+   region ARM operation endpoints, bounded response size, 20-second HTTPS timeouts,
+   at most 12 polls, bounded Retry-After and a 300-second polling deadline.
+ - For a submitted deployment, dispatch **reconcile**, using the prior immutable
+-  apply artifact and same request/preview digests. It federates anew and makes
++  apply artifact (or the UNKNOWN intent-fence artifact) and same request/preview
++  digests. Public trusted dispatch selects the deployment journal if present,
++  otherwise the intent fence; an unsafe existing journal does not fall back.
++  A fence is rechecked against fresh authenticated history, not trusted as an
++  unsigned local receipt. Both recovery paths first bind provider, account,
++  region, resource group, logical target and deployment-policy digest to external
++  trusted Policy. A mismatch prevents native reads and retains original-ID UNKNOWN.
++  Fresh read identity is required, but expired apply previews or absence of a new
++  mutation approval do not bar read-only recovery. It federates anew and makes
+   **GETs only** against the original ID. It never calls apply or what-if. A
+   missing, unknown, unhealthy, inaccessible or unrecognized state stays UNKNOWN
+   or FAIL. Deployment Succeeded yields OBSERVED, not VERIFIED or health PASS.
+@@ -155,6 +165,59 @@
+   still has a deterministically recoverable native deployment ID from its request;
+   retain runner/control evidence and use an owner-approved recovery procedure,
+   not a fresh apply. No automatic resource cleanup exists.
++
++## Durable intent history prerequisites and fail-closed bound
++
++The fence reads GitHub REST `2022-11-28` through the existing authenticated,
++no-redirect, bounded HTTPS transport:
++`GET /repos/OWNER/CONTROL/actions/runs?event=workflow_dispatch&per_page=100&page=1`.
++The native response is an object with `total_count` and `workflow_runs` (not an
++array of receipts). Each native run carries `id`, `run_attempt`, `event`, `path`,
++`head_sha`, `display_title`, `repository`, and `head_repository`; the current run
++must also match fresh OIDC/metadata, workflow pin, in-progress state and exact
++request/preview title. Unknown JSON keys in native responses remain compatible;
++required fields, duplicate run IDs, repository identity and count are checked.
++See GitHub's official [list repository workflow runs API](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository).
++
++This deliberately small implementation accepts only **complete 1–100 dispatches
++in the entire control repository**, including the authenticated current run.
++It does not paginate or infer absence from the first page: `total_count` must
++match the list length and be at most 100. Missing permission, unavailable API,
++missing current run, duplicates, mismatched repository, malformed governed titles,
++truncated responses and over-bound histories deny before any ARM mutation. The
++GitHub filtered-list maximum cannot be used as proof of completeness. An owner
++must retain every relevant dispatch and permit visibility of the complete list
++for as long as any of its deployment intents can be replayed. Enforce no deletion
++of run metadata, no hidden/filtered subsets, and no migration/reset of the control
++repository to clear a fence. Artifact retention alone is **not** run-history
++retention. These are external platform prerequisites, not facts proven by a
++local JSON policy or these deterministic tests. If retention/deletion/visibility
++cannot be guaranteed, do not activate write execution. At 101 dispatches this
++implementation stops admitting applies: do not delete runs to evade the bound;
++a reviewed durable-history upgrade is required.
++
++Within the same repository-wide native concurrency lock, any other dispatch
++whose `display_title` is `cloud:REQUEST_SHA:PREVIEW_SHA` fences that request,
++regardless of a new preview, new approval, changed workflow revision/path,
++run outcome, or a native deployment 404. Prepare uses literal `none` instead of
++a preview SHA and is not an apply fence. Reconcile and canceled/unapproved apply
++dispatches conservatively fence too: history cannot prove whether they reached
++the write site. Unrelated intents are not a fence. No dispatch can reset the
++original deterministic deployment/client-request identity. All write-capable
++workflows must preserve this title convention and the fixed scope lock, and
++must use this reviewed executor. Deny alternate native writers and unauthorized
++control workflow/configuration changes. An older already-issued intent is not
++made safe by deploying this fix after its history was lost.
++
++On a match, return UNKNOWN with the original native ID and publish
++`intent-fence.json` binding exact request/scope/ID, repository identity, current
++and prior run IDs, full bounded parsed history, authenticated response SHA-256,
++fixed API locator and timestamp. No what-if or deployment mutation is attempted.
++Read-only reconcile refetches authenticated complete history and requires the
++recorded prior intent IDs still present, then GETs that same deployment. Missing
++history blocks; local/imported markers never authorize a write. Final
++credential/policy/preview deadline checks remain after all history, source scans,
++hashing and journal publication at the actual native send boundary.
+ 
+ ## Least privilege for the supported VM/NIC/monitoring/backup graph
+ 
+--- a/tests/cloud-orchestration-execution.tests.py
++++ b/tests/cloud-orchestration-execution.tests.py
+@@ -1601,6 +1601,164 @@
+         self.assertEqual(self.apply("history-unavailable.json")["result"], "BLOCKED")
+         self.assertEqual(self.arm.submissions, 0)
+ 
++    def test_history_wrong_repository_duplicate_title_and_bound_are_denied(self):
++        self.prepare()
++        auth = self.auths[-1]
++        current = copy.deepcopy(auth.run)
++        prior = {**current, "id": 122, "status": "completed", "conclusion": "failure"}
++        variants = [
++            dict(total_count=True, workflow_runs=[current]),
++            dict(total_count=101, workflow_runs=[current]),
++            dict(total_count=2, workflow_runs=[current, current]),
++            dict(total_count=1, workflow_runs=[{**current, "display_title": "truncated"}]),
++        ]
++        for key in ("repository", "head_repository"):
++            variants.append(dict(total_count=2, workflow_runs=[current, {
++                **prior, key: dict(id=77, full_name="elsewhere/control")}]))
++        for key, value in (("event", "push"), ("id", "122"),
++                           ("display_title", "cloud:truncated")):
++            variants.append(dict(total_count=2, workflow_runs=[current, {**prior, key: value}]))
++        for n, value in enumerate(variants):
++            with self.subTest(n=n):
++                auth.history_response = value
++                result = self.apply("malformed-history-" + str(n) + ".json")
++                self.assertEqual(result["result"], "BLOCKED")
++                self.assertEqual(self.arm.submissions, 0)
++
++    def test_history_changed_preview_and_revision_still_fences_same_intent(self):
++        self.prepare()
++        auth = self.auths[-1]
++        prior = {**copy.deepcopy(auth.run), "id": 122, "head_sha": "b" * 40,
++                 "status": "completed", "conclusion": "failure",
++                 "display_title": "cloud:" + self.request_ref["sha256"] + ":" + "f" * 64}
++        auth.history = [prior, auth.run]
++        result = self.apply()
++        self.assertEqual(result["result"], "UNKNOWN")
++        self.assertEqual(result["native_operation_id"], self.executor.client.native_id)
++        self.assertEqual(self.arm.submissions, 0)
++        self.assertFalse(any(x[0] == "POST" for x in self.arm.calls[1:]))
++
++    def test_complete_history_prepare_none_and_other_intents_allow_single_put(self):
++        self.prepare()
++        auth = self.auths[-1]
++        prior = copy.deepcopy(auth.run)
++        auth.history = [auth.run, {**prior, "id": 122,
++            "display_title": "cloud:" + self.request_ref["sha256"] + ":none"}]
++        auth.history.extend({**prior, "id": n,
++            "display_title": "cloud:" + "f" * 64 + ":" + "e" * 64} for n in range(1, 99))
++        result = self.apply()
++        self.assertEqual(result["result"], "PASS")
++        self.assertEqual(self.arm.submissions, 1)
++        calls = [x for x in auth.calls if "/actions/runs?" in x[1]]
++        self.assertTrue(calls, "No authenticated complete history was checked")
++        self.assertTrue(all(x[0] == "GET" and "per_page=100&page=1" in x[1] for x in calls))
++
++    def test_public_reconcile_fence_reauthenticates_and_rejects_forged_identity(self):
++        import cloud
++        self.prepare()
++        auth = self.auths[-1]
++        auth.history = [{**copy.deepcopy(auth.run), "id": 122}, auth.run]
++        result = self.apply()
++        self.assertEqual(result["result"], "UNKNOWN")
++        manifest = json.loads((self.root / result["evidence_manifest_path"]).read_bytes())
++        fence = manifest["submission"]
++        path = self.root / fence["path"]
++        original = path.read_bytes()
++        self.executor.preview_ref = self.preview_ref
++        self.arm.existing = True
++        before = len(self.arm.calls)
++        reconciled = cloud.run(["reconcile", "--request", self.request_ref["path"],
++            "--output", self.directory + "/cli-reconcile.json"], executor=self.executor)
++        self.assertEqual(reconciled["result"], "PASS")
++        self.assertEqual(reconciled["native_operation_id"], self.executor.client.native_id)
++        self.assertTrue(all(x[0] == "GET" for x in self.arm.calls[before:]))
++        for key, value in (("request", {**self.request_ref, "sha256": "f" * 64}),
++                           ("scope", {**self.req["scope"], "region": "elsewhere"}),
++                           ("native_operation_id", self.executor.client.native_id + "other"),
++                           ("repository", "elsewhere/control"), ("prior_run_ids", [777])):
++            with self.subTest(field=key):
++                forged = json.loads(original)
++                forged[key] = value
++                path.write_bytes(encode(forged))
++                before = len(self.arm.calls)
++                answer = cloud.run(["reconcile", "--request", self.request_ref["path"],
++                    "--output", self.directory + "/forged-" + key + ".json"], executor=self.executor)
++                self.assertEqual(answer["result"], "BLOCKED")
++                self.assertEqual(len(self.arm.calls), before)
++        path.write_bytes(original)
++        auth.history_error = True
++        answer = cloud.run(["reconcile", "--request", self.request_ref["path"],
++            "--output", self.directory + "/unavailable-reconcile.json"], executor=self.executor)
++        self.assertNotEqual(answer["result"], "PASS")
++        self.assertEqual(self.arm.submissions, 0)
++
++    def test_reconcile_trusted_scope_and_policy_mismatch_zero_native_reads(self):
++        from dataclasses import replace
++        for kind in ("journal", "fence"):
++            case = AzureExecution()
++            case.setUp()
++            try:
++                case.prepare()
++                if kind == "fence":
++                    auth = case.auths[-1]
++                    auth.history = [{**copy.deepcopy(auth.run), "id": 122}, auth.run]
++                else:
++                    case.arm.timeout = True
++                first = case.apply()
++                self.assertEqual(first["result"], "UNKNOWN")
++                manifest = json.loads((case.root / first["evidence_manifest_path"]).read_bytes())
++                operation = manifest["submission"]
++                case.arm.timeout = False
++                case.arm.existing = True
++                original = case.executor.boundary.policy
++                fields = dict(provider="aws", account_id="99999999-9999-9999-9999-999999999999",
++                              region="westus", deployment_scope="different-approved-group",
++                              target_environment="other-target", policy_sha256="f" * 64,
++                              operation="prepare", exclusive_repository="elsewhere/control")
++                for field, value in fields.items():
++                    with self.subTest(kind=kind, field=field):
++                        case.executor.boundary.policy = replace(original, **{field: value})
++                        before = len(case.arm.calls)
++                        auth_before = len(case.auths[-1].calls)
++                        result = case.executor.reconcile(operation, case.directory + "/policy-" + field + ".json")
++                        self.assertEqual(result["result"], "UNKNOWN")
++                        self.assertEqual(result["native_operation_id"], first["native_operation_id"])
++                        self.assertEqual(len(case.arm.calls), before)
++                        self.assertEqual(len(case.auths[-1].calls), auth_before)
++            finally:
++                case.doCleanups()
++
++    def test_readonly_recovery_needs_no_new_mutation_approval_or_fresh_preview(self):
++        for kind in ("journal", "fence"):
++            case = AzureExecution()
++            case.setUp()
++            try:
++                case.prepare()
++                auth = case.auths[-1]
++                if kind == "fence":
++                    auth.history = [{**copy.deepcopy(auth.run), "id": 122}, auth.run]
++                else:
++                    case.arm.timeout = True
++                first = case.apply()
++                self.assertEqual(first["result"], "UNKNOWN")
++                manifest = json.loads((case.root / first["evidence_manifest_path"]).read_bytes())
++                operation = manifest["submission"]
++                # Fresh read identity after both old apply lease and preview expiry;
++                # no mutation approval history is present for read-only recovery.
++                auth.approvals = []
++                auth.claims.update(iat=NOW + 390, nbf=NOW + 390, exp=NOW + 900)
++                auth.azure_claims.update(iat=NOW + 390, nbf=NOW + 390, exp=NOW + 900)
++                case.executor.clock = case.executor.boundary.clock = lambda: NOW + 400
++                case.arm.timeout = False
++                case.arm.existing = True
++                before = len(case.arm.calls)
++                result = case.executor.reconcile(operation, case.directory + "/expired-preview-read.json")
++                self.assertEqual(result["result"], "PASS", kind)
++                self.assertEqual(result["native_operation_id"], first["native_operation_id"])
++                self.assertTrue(all(row[0] == "GET" for row in case.arm.calls[before:]))
++            finally:
++                case.doCleanups()
++
+     def test_prepare_admission_missing_is_zero_native_posts(self):
+         self.auths[-1].approvals = []
+         result = self.executor.prepare(self.directory + "/blocked.json")

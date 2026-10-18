@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R1.bytes-config",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "DIGEST_MISMATCH",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:DIGEST_MISMATCH",
+      "guards": []
+    }
+  ]
+}

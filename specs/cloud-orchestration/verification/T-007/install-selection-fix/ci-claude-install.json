@@ -1,0 +1,9 @@
+{
+  "command": [
+    "bash",
+    "tests/ci-claude-install.tests.sh"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:09:56Z",
+  "exit_code": 0
+}

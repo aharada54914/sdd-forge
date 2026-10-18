@@ -1,0 +1,12 @@
+[
+  {
+    "path": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+    "before_sha256": "035bbb6e2d011e2f64ec7bd93674b5b547ff83907337a3b35ff5b16f8adaf688",
+    "after_sha256": "17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658"
+  },
+  {
+    "path": "tests/cloud-orchestration-verification.tests.py",
+    "before_sha256": "3c7579045e94f627d88cd75cbb1ddda008934c869626ef0fd8ea91de60e82dc8",
+    "after_sha256": "a3bfad88d8bff274ac3acc925cfb885b570aa931606e1a8a9a8580f26153de60"
+  }
+]

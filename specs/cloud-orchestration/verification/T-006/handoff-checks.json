@@ -1,0 +1,130 @@
+[
+  {
+    "name": "handoff-verification",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-006/handoff-verification.log"
+  },
+  {
+    "name": "handoff-contracts",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-006/handoff-contracts.log"
+  },
+  {
+    "name": "handoff-execution",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-006/handoff-execution.log"
+  },
+  {
+    "name": "handoff-routing",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "exit_code": 1,
+    "evidence": "specs/cloud-orchestration/verification/T-006/handoff-routing.log"
+  },
+  {
+    "name": "handoff-ruff",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "tests/cloud-orchestration-verification.tests.py",
+      "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+      "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "plugins/sdd-aws-cloud/scripts/cloud.py",
+      "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "plugins/sdd-azure-cloud/scripts/cloud.py"
+    ],
+    "exit_code": 1,
+    "evidence": "specs/cloud-orchestration/verification/T-006/handoff-ruff.log"
+  },
+  {
+    "name": "handoff-mypy-shared",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "exit_code": 1,
+    "evidence": "specs/cloud-orchestration/verification/T-006/handoff-mypy-shared.log"
+  },
+  {
+    "name": "handoff-mypy-aws",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+      "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "plugins/sdd-aws-cloud/scripts/cloud.py"
+    ],
+    "exit_code": 1,
+    "evidence": "specs/cloud-orchestration/verification/T-006/handoff-mypy-aws.log"
+  },
+  {
+    "name": "handoff-mypy-azure",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "plugins/sdd-azure-cloud/scripts/cloud.py"
+    ],
+    "exit_code": 1,
+    "evidence": "specs/cloud-orchestration/verification/T-006/handoff-mypy-azure.log"
+  },
+  {
+    "name": "handoff-manifest",
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-006/task-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T006-01a14e57",
+      "--expected-task",
+      "T-006"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-006/handoff-manifest.log"
+  }
+]

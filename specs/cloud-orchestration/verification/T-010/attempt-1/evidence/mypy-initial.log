@@ -1,0 +1,13 @@
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:51: error: Value of type "bool | list[dict[str, Any]] | list[str] | dict[Any, Any] | str" is not indexable  [index]
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:51: error: Unsupported target for indexed assignment ("Any | dict[str, Any] | str")  [index]
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:58: error: Unsupported target for indexed assignment ("bool | list[dict[str, Any]] | list[str] | dict[Any, Any] | str")  [index]
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:58: error: No overload variant of "__setitem__" of "list" matches argument types "str", "str"  [call-overload]
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:58: note: Possible overload variants:
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:58: note:     def __setitem__(self, SupportsIndex, dict[str, Any], /) -> None
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:58: note:     def __setitem__(self, slice[Any, Any, Any], Iterable[dict[str, Any]], /) -> None
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:58: note:     def __setitem__(self, SupportsIndex, str, /) -> None
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:58: note:     def __setitem__(self, slice[Any, Any, Any], Iterable[str], /) -> None
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:102: error: Dict entry 4 has incompatible type "str": "list[str]"; expected "str": "str"  [dict-item]
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:102: error: Dict entry 5 has incompatible type "str": "int"; expected "str": "str"  [dict-item]
+specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py:103: error: Dict entry 6 has incompatible type "str": "int"; expected "str": "str"  [dict-item]
+Found 7 errors in 1 file (checked 1 source file)

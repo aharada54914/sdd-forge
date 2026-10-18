@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "cloud-orchestration",
+  "run_id": "01a14cdd-d51f-75c3-bc6c-96ac92f6e0a6",
+  "verdict": "BLOCKED",
+  "round": 3,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "prior_round_contract_sha256": "61c0a531eb6ff1ca3bf25701fe0cb377d6ba25ce81c8272be1d5a79706595813",
+  "workflow_match_precheck": "PASS",
+  "requirements_sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "acceptance_sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+  "design_sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+  "tasks_sha256": "061f47e6beef4205ed6dc88ceab7eb69f1447b3978b1b6856b717918a54942ea",
+  "traceability_sha256": "b2aef6dd8a09b68c67e6a39855a3c1e79fa497b336f53cf1eb5ee0cc17d0f43a",
+  "layer_sha256": {
+    "ux-spec.md": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+    "frontend-spec.md": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+    "infra-spec.md": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+    "security-spec.md": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "01a14d49-39d6-7e41-9ab3-11b096325fc7",
+      "host_session_id": "01a14d49-39d6-7e41-9ab3-11b096325fc7",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/cloud-orchestration/requirements.md",
+          "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+        },
+        {
+          "path": "specs/cloud-orchestration/acceptance-tests.md",
+          "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+        },
+        {
+          "path": "reports/task-review/cloud-orchestration/attempt-1/round-3/precheck-result.json",
+          "sha256": "07f06934060c40462254926bb007b19d5325f78fb03efef936750446660b9099"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "specs/cloud-orchestration/design.md",
+          "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+        },
+        {
+          "path": "specs/cloud-orchestration/tasks.md",
+          "sha256": "061f47e6beef4205ed6dc88ceab7eb69f1447b3978b1b6856b717918a54942ea"
+        },
+        {
+          "path": "specs/cloud-orchestration/traceability.md",
+          "sha256": "b2aef6dd8a09b68c67e6a39855a3c1e79fa497b336f53cf1eb5ee0cc17d0f43a"
+        },
+        {
+          "path": "specs/cloud-orchestration/ux-spec.md",
+          "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+        },
+        {
+          "path": "specs/cloud-orchestration/frontend-spec.md",
+          "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+        },
+        {
+          "path": "specs/cloud-orchestration/infra-spec.md",
+          "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+        },
+        {
+          "path": "specs/cloud-orchestration/security-spec.md",
+          "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+        },
+        {
+          "path": "reports/task-review/cloud-orchestration/attempt-1/round-3/dependency-graph.json",
+          "sha256": "7c05b54df75a7849da2f008043cd959aa146c15495305e19ced69244b112117e"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "01a14d4a-2cd5-7ca2-aa20-883c61daaefe",
+      "host_session_id": "01a14d4a-2cd5-7ca2-aa20-883c61daaefe",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/cloud-orchestration/requirements.md",
+          "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+        },
+        {
+          "path": "specs/cloud-orchestration/acceptance-tests.md",
+          "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+        },
+        {
+          "path": "reports/task-review/cloud-orchestration/attempt-1/round-3/precheck-result.json",
+          "sha256": "07f06934060c40462254926bb007b19d5325f78fb03efef936750446660b9099"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "specs/cloud-orchestration/design.md",
+          "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+        },
+        {
+          "path": "specs/cloud-orchestration/tasks.md",
+          "sha256": "061f47e6beef4205ed6dc88ceab7eb69f1447b3978b1b6856b717918a54942ea"
+        },
+        {
+          "path": "specs/cloud-orchestration/traceability.md",
+          "sha256": "b2aef6dd8a09b68c67e6a39855a3c1e79fa497b336f53cf1eb5ee0cc17d0f43a"
+        },
+        {
+          "path": "specs/cloud-orchestration/ux-spec.md",
+          "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+        },
+        {
+          "path": "specs/cloud-orchestration/frontend-spec.md",
+          "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+        },
+        {
+          "path": "specs/cloud-orchestration/infra-spec.md",
+          "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+        },
+        {
+          "path": "specs/cloud-orchestration/security-spec.md",
+          "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+        },
+        {
+          "path": "reports/task-review/cloud-orchestration/attempt-1/round-3/integrated-summary.json",
+          "sha256": "050ea02f6f62ae04f6b704d93b5775af1bdf9f2b96660f781b158e65299450fb"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Split plugin install lifecycle from bootstrap/suite/host integration within the authorized scope.",
+  "timestamp": "2026-10-18T04:36:24.710780Z"
+}

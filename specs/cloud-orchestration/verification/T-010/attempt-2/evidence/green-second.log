@@ -1,0 +1,6 @@
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.600s
+
+OK

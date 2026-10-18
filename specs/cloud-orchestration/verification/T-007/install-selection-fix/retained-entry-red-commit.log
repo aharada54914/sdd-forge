@@ -1,0 +1,7 @@
+[work 3c18526b] test(install): reject omitted retained provider entry before replacement
+ 7 files changed, 402 insertions(+)
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/red-retained-entry-complete.json
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/red-retained-entry-complete.log
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/red-retained-entry.json
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/red-retained-entry.log
+ create mode 100644 specs/cloud-orchestration/verification/T-007/install-selection-fix/retained-entry-preflight.md

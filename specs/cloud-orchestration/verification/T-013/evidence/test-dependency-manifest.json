@@ -1,0 +1,206 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-013",
+  "run_id": "01a14e1f-3f71-7810-83c1-d84c9c9ae7f6",
+  "session_id": "01a14e1f-3f71-7810-83c1-d84c9c9ae7f6",
+  "agent_instance_id": "01a14e1f-3f71-7810-83c1-d84c9c9ae7f6",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T08:53:01Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/config.json",
+      "sha256": "44f0deeb6b510736a1e2fd4b8449f20aefc738762e145ad0219b93888ce9c799"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799.request.json",
+      "sha256": "6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.assets.json",
+      "sha256": "61dc41017079b19bf33c9456734c5ac6a6b40321a36736618f5e9a1309a2404b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.metadata.json",
+      "sha256": "eca3c5a792ec796bccd3933f8016a843cbe404c87adc30672d9b73d6e0c620ae"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/Private.template.json",
+      "sha256": "5a38413c71992f0b05399d948f11b7853dfc2a34a4b59dee90ee7ea69e429113"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/cdk.out",
+      "sha256": "2801c31b9ddf660f597e3c9d9ba2a9505ac144717ede055f34dc916602a35b25"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/manifest.json",
+      "sha256": "5f9fef0f3c6a140e5899e8865438fa914b1c3ec5bb2790b01fbfdd8ea97d5139"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/tree.json",
+      "sha256": "3761ef1db74a85d2947a3d83e28066d5ec59e9167d13b0ff87a84115c8bd8a1f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated/b8e335ba271768fe7164a151ff326c7b8d41f6e3409d49f5eaacd72e7d656799/validation-report.json",
+      "sha256": "37b01cf5f0a5b20784c30c5c70bddb00b633d76449ea5abec1fe334272da287a"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/lock.json",
+      "sha256": "742c2c404cc22a8b93fef2e6958f431708643ae514eaf1ebbdda6cd70f990799"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/ownership.json",
+      "sha256": "13714b3f1d710d9fe65c99901041d0fa2add43360017fd979e5b8e9243e66293"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/policy.json",
+      "sha256": "9062f2dd81437a4c4b4072c84c6bedd63a5b58701b8becb2bfd43a3afcd3607d"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/profile.json",
+      "sha256": "4ec5f27f718f26f6086dad4216fc8e1a909aba5fed9ba971575c7d57c69747d4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/app.js",
+      "sha256": "710c6889188eac80e9f5e6b505c3796ded52747c9a56c305c58a53d05f3c2b25"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/cdk.json",
+      "sha256": "9727d1b2d1513b0863b75f81d75d95db66a53d79dafdd78ab00a1338f4239112"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/package-lock.json",
+      "sha256": "b106084fff5e18ca94260509133337891b58d5269d77166ff9320a36419cccec"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/package.json",
+      "sha256": "beddc07bfbf3d198ca58b3d500e746b7bd4ebc14a25b469033fb1c41ba50a00b"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/unit/parameters.json",
+      "sha256": "1f5b55cda74fe4c5b95515db9b12c5e30df3feead79deb0ad19200c2aa7a8e02"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/SKILL.md",
+      "sha256": "af178f8e909efd66496b09c7301c5e11ef96681fd62bf91406dcb340a18aacf6"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md",
+      "sha256": "ce48bf13921481aa6d2df131f0bd32faa8cc07bb50b63b1805ddbfe6ca18a5f0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md",
+      "sha256": "4d576be561b16fd140c7f44de3b905ca81718752003a5072fec7062f2a2e782c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/construct-patterns.md",
+      "sha256": "029a6450cc738c220051c1e2df94cb08e82b9fd80b20ab6b1b31696015222d6c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/fast-deployments.md",
+      "sha256": "b6ddc7a418ed0d2f6e450c1835e3dc83c0648cbcdf4b582ebd66234918b22171"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md",
+      "sha256": "375e247190c3ebe29b2b8b211f665d4f463c7d959d3a6a067f8816d1a5df3a26"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md",
+      "sha256": "bdc1dacfaaaef810923699fc19803b492815b404190f055f90bd3558587b335c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md",
+      "sha256": "87b36861e1cf656fdb576536c20c61dfff5316e1b7465954f9b1b01cce0f0ee0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md",
+      "sha256": "80b97fe332046fb025cf6635b3add76046bf9b2933bd45394255585f1694a967"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md",
+      "sha256": "1397f0c8034ccafd1353c3053d119e721c4904b9dc2ba33a1f285f69bfb909ea"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md",
+      "sha256": "f88efb1a4b7451fe194e5c617ea2c467be93ecaa7221264b80361cca035dc181"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/upstream/reference.md",
+      "sha256": "a4976e733b7793b0014b3be1d5a1c5282002ba16dd7be9a7fffd509c800b5505"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/config.json",
+      "sha256": "ccc52fa5eb81253dec9a1edcbb6376c4f363cbcbe5cc6cd25e16bf51bdf1e6ea"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.arm.json",
+      "sha256": "5d433080a667406b0e7372252cd1e3cace0fee1b505a295dbdc65561c6e96c7c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.request.json",
+      "sha256": "aa2abc4ddb432984ac48c57fdfe46778ea2fbe8356b6edc58307453324ed96a0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/lock.json",
+      "sha256": "5d2f63bf39f892ae40d578f257af645bf1eccbdf468f4fb047a4187157a797c7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/ownership.json",
+      "sha256": "5405208196f15113bc06f82ee538997a19415517561e79a07f0077259ed2022c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/policy.json",
+      "sha256": "ca75f6b9e1a6362ba36fa496974bff564a957003f73da3f32443f412469531e4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/profile.json",
+      "sha256": "4ec5f27f718f26f6086dad4216fc8e1a909aba5fed9ba971575c7d57c69747d4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/unit/main.bicep",
+      "sha256": "81ba478fb3744e96496243358f3aef3477646027a58e1220f3c16b7b428c9422"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/unit/parameters.json",
+      "sha256": "361d0679465fa218a24786f54017a8b4441e8baf9691a4efdea02bd600fd0935"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/upstream/LICENSE",
+      "sha256": "8a5d8efb70942e65032f930c761d097feeb41a7517ebd04c9d2e4ec3764071c5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/upstream/reference.md",
+      "sha256": "a4976e733b7793b0014b3be1d5a1c5282002ba16dd7be9a7fffd509c800b5505"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/README.md",
+      "sha256": "61a52989ee67dfe4ee30aeb88a06bd15460d3d61d9f1101f3d0d58c19d1e4852"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/main.bicep",
+      "sha256": "6fa0bd982a36436cc4a6929ce5a8bb2fff748248d2865000110de0a18ef51b5f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-013/inputs/azure/bundle/upstream/skills/azure-compute/workflows/vm-creator/references/output-adapters/bicep.md",
+      "sha256": "ab54837a3cde78093ebb59875c0cb1f471c57ee786d8b7d417f808cf94b56439"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-aws-cloud/scripts/cloud.py",
+    "plugins/sdd-aws-cloud/scripts/aws_native.py",
+    "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+    "plugins/sdd-aws-cloud/scripts/aws_control.py",
+    "plugins/sdd-aws-cloud/scripts/governed-setup.md",
+    "tests/cloud-orchestration-execution.tests.py",
+    "reports/implementation/cloud-orchestration/T-013.md",
+    "specs/cloud-orchestration/verification/T-013/evidence",
+    "specs/cloud-orchestration/verification/T-013/task-input-manifest.json"
+  ]
+}

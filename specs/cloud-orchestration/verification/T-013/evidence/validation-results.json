@@ -1,0 +1,52 @@
+{
+  "recorded_at": "2026-10-18T08:55:52Z",
+  "run_id": "01a14e1f-3f71-7810-83c1-d84c9c9ae7f6",
+  "task_attempt_count": 1,
+  "spec_revision": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "commands": [
+    {
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 0,
+      "tests": 86,
+      "evidence": "specs/cloud-orchestration/verification/T-013/evidence/execution-final.log",
+      "classification": "deterministic; both providers; 26 AWS executor tests"
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-routing.tests.py",
+      "exit_code": 0,
+      "tests": 86,
+      "evidence": "specs/cloud-orchestration/verification/T-013/evidence/routing-final.log",
+      "classification": "local routing and actual credential-free authoring tools; not cloud"
+    },
+    {
+      "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+      "exit_code": 0,
+      "tests": 31,
+      "evidence": "specs/cloud-orchestration/verification/T-013/evidence/contracts-final.log",
+      "classification": "deterministic contracts"
+    },
+    {
+      "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-aws-cloud/scripts/cloud.py plugins/sdd-aws-cloud/scripts/aws_native.py plugins/sdd-aws-cloud/scripts/aws_execution.py plugins/sdd-aws-cloud/scripts/aws_control.py plugins/sdd-aws-cloud/scripts/aws_governed.py tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 0,
+      "evidence": "specs/cloud-orchestration/verification/T-013/evidence/ruff-final.log"
+    },
+    {
+      "command": "MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-aws-cloud/scripts/cloud.py plugins/sdd-aws-cloud/scripts/aws_native.py plugins/sdd-aws-cloud/scripts/aws_execution.py plugins/sdd-aws-cloud/scripts/aws_control.py plugins/sdd-aws-cloud/scripts/aws_governed.py tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 0,
+      "evidence": "specs/cloud-orchestration/verification/T-013/evidence/mypy-final.log",
+      "check_untyped_defs": true
+    }
+  ],
+  "source_hashes": {
+    "plugins/sdd-aws-cloud/scripts/cloud.py": "a276aa085ce7cd46af359e0c67aee05f9a969dc49989668f312ce1eb88dd4689",
+    "plugins/sdd-aws-cloud/scripts/aws_native.py": "c49dc00931cda5a913e896278da3ba1f48c5c97dbc365c4618edc5ff377fcf8e",
+    "plugins/sdd-aws-cloud/scripts/aws_execution.py": "5e1a90030b96ac2ae44c976d60c0e905ce03f7f467b035e7721b5835c97be20e",
+    "plugins/sdd-aws-cloud/scripts/aws_control.py": "92842d7174dbb0bc8ba3ad796fd8a3bd7f46ed91178dfa80bbc6558762523d67",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py": "135b2995f61f939a418e63176cca3c9c6199d66e62412816023e263119902235",
+    "plugins/sdd-aws-cloud/scripts/governed-setup.md": "2bd8c9b4ddcd7d9879a5b58d1e7c30d4d9c8c0286501b6b4d066eaf967712578",
+    "tests/cloud-orchestration-execution.tests.py": "3ded22c4377536bfa7925555935d4e14a614263674c1d3acf2a973570cb14703"
+  },
+  "whole_repository_suite_run": false,
+  "cloud_calls": false,
+  "independent_review_run": false
+}

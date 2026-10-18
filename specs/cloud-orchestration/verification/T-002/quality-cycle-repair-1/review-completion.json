@@ -1,0 +1,25 @@
+{
+  "task_id": "T-002",
+  "scope": "RT-20261018-CLOUD-CONTRACT integration repair plus current contract regression",
+  "implementation_run_ids": [
+    "01a14d58-5499-7ca2-8163-29f057e91e9c",
+    "01a14d8e-ed12-76c2-b8f2-86311e279b8e"
+  ],
+  "review_run_id": "01a14da0-1030-7712-8af1-6c4a276a6cac",
+  "review_host_session_id": "01a14da0-1030-7712-8af1-6c4a276a6cac",
+  "manifest": {
+    "path": "specs/cloud-orchestration/verification/T-002/quality-cycle-repair-1/review/invocation.json",
+    "sha256": "6119aa1eb7288a0e69ef02dd74de44dc803832a112bd6ba7c06eef21f0996f73"
+  },
+  "result": {
+    "path": "specs/cloud-orchestration/verification/T-002/quality-cycle-repair-1/review/evaluator.txt",
+    "sha256": "cd27ef4dc979cafc591dc1f2382d6947c6ec341cf7dddade9377442532e5fd57"
+  },
+  "verdict": "PASS",
+  "findings": [],
+  "cumulative_task_evaluator_count": 4,
+  "repair_evaluator_count": 1,
+  "separate_contexts_and_scratch": true,
+  "hashes_unchanged_at_delivery": true,
+  "task_transition": "deferred to next implementation boundary; do not mutate another active implementation/review input"
+}

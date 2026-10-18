@@ -1,0 +1,59 @@
+$ /workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/run-all-python.tests.ps1
+==> tests/current-byte-capture.tests.py
+==> tests/domain-review-finalize.tests.py
+==> tests/upstream-concept-issue.tests.py
+==> tests/sdd-domain-multitarget-foundation.tests.py
+==> tests/sdd-domain-multitarget-T-003.tests.py
+==> tests/sdd-domain-multitarget-T-004.tests.py
+==> tests/design-sync-policy.tests.py
+==> tests/workflow-conditional-inputs.tests.py
+==> tests/quality-nontty-transport.tests.py
+==> tests/supplemental-delivery-declaration.tests.py
+==> tests/t001-evaluation-preparation.tests.py
+==> tests/current-byte-capture.tests.py
+==> tests/domain-review-finalize.tests.py
+==> tests/upstream-concept-issue.tests.py
+==> tests/sdd-domain-multitarget-foundation.tests.py
+==> tests/sdd-domain-multitarget-T-003.tests.py
+==> tests/sdd-domain-multitarget-T-004.tests.py
+==> tests/design-sync-policy.tests.py
+==> tests/workflow-conditional-inputs.tests.py
+==> tests/quality-nontty-transport.tests.py
+==> tests/supplemental-delivery-declaration.tests.py
+==> tests/t001-evaluation-preparation.tests.py
+==> tests/current-byte-capture.tests.py
+FAILED: tests/current-byte-capture.tests.py (no python3/python interpreter available)
+==> tests/domain-review-finalize.tests.py
+FAILED: tests/domain-review-finalize.tests.py (no python3/python interpreter available)
+==> tests/upstream-concept-issue.tests.py
+FAILED: tests/upstream-concept-issue.tests.py (no python3/python interpreter available)
+==> tests/sdd-domain-multitarget-foundation.tests.py
+FAILED: tests/sdd-domain-multitarget-foundation.tests.py (no python3/python interpreter available)
+==> tests/sdd-domain-multitarget-T-003.tests.py
+FAILED: tests/sdd-domain-multitarget-T-003.tests.py (no python3/python interpreter available)
+==> tests/sdd-domain-multitarget-T-004.tests.py
+FAILED: tests/sdd-domain-multitarget-T-004.tests.py (no python3/python interpreter available)
+==> tests/design-sync-policy.tests.py
+FAILED: tests/design-sync-policy.tests.py (no python3/python interpreter available)
+==> tests/workflow-conditional-inputs.tests.py
+FAILED: tests/workflow-conditional-inputs.tests.py (no python3/python interpreter available)
+==> tests/quality-nontty-transport.tests.py
+FAILED: tests/quality-nontty-transport.tests.py (no python3/python interpreter available)
+==> tests/supplemental-delivery-declaration.tests.py
+FAILED: tests/supplemental-delivery-declaration.tests.py (no python3/python interpreter available)
+==> tests/t001-evaluation-preparation.tests.py
+FAILED: tests/t001-evaluation-preparation.tests.py (no python3/python interpreter available)
+==> tests/current-byte-capture.tests.py
+==> tests/domain-review-finalize.tests.py
+==> tests/upstream-concept-issue.tests.py
+==> tests/sdd-domain-multitarget-foundation.tests.py
+==> tests/sdd-domain-multitarget-T-003.tests.py
+==> tests/sdd-domain-multitarget-T-004.tests.py
+==> tests/design-sync-policy.tests.py
+==> tests/workflow-conditional-inputs.tests.py
+==> tests/quality-nontty-transport.tests.py
+==> tests/supplemental-delivery-declaration.tests.py
+==> tests/t001-evaluation-preparation.tests.py
+PASS: Python runner preference, fallback, missing runtime, and failing suites (4 cases)
+
+exit_code=0

@@ -1,0 +1,8 @@
+{
+  "status": "incomplete",
+  "report": "specs/cloud-orchestration/verification/T-009/first-handoff-report.md",
+  "sha256": "adee3b7a491d736069df1fdee6d3ab90af8e53269b6719a1269035c1d360378e",
+  "outputs_checked": 770,
+  "mismatches": [],
+  "canonical_can_be_replaced_by_next_attempt": true
+}

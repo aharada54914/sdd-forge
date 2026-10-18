@@ -1,0 +1,17 @@
+{
+  "request": {
+    "id": 900005,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14dcb-540f-74f1-ac06-0cb8ccbe95f8",
+      "expectedTurnId": "01a14dcb-545b-7b71-ad36-451a5da58c61",
+      "input": [
+        {
+          "type": "text",
+          "text": "Root implementation feedback: current task-input-manifest already remaps the original routing test under initial-inputs, but manifest-validation.log still records the earlier overlap failure. Before production changes, run the manifest validator against the exact snapshot again and preserve the original failure log separately, so there is genuine successful preflight ordering. If already done, keep that actual receipt. For CDK tooling, bind and verify the actual consumed installed runtime/package bytes as well as exact versions and package-lock integrity; a package-lock alone does not prove installed code is unchanged. Include a real tool-runtime mutation denial if this boundary is implemented. Keep scope at T-005 and do not expand into a generic sandbox."
+        }
+      ]
+    }
+  },
+  "scope": "in-turn root implementation feedback, not independent review"
+}

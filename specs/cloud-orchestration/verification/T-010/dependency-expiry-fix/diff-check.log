@@ -1,0 +1,4 @@
+CANDIDATE_HASH_OK plugins/sdd-quality-loop/scripts/cloud_authorization.py
+CANDIDATE_HASH_OK tests/cloud-orchestration-verification.tests.py
+NEW_LINES_WHITESPACE_OK
+Production change adds only dependency deadline capture and minimum expiry cap; no new credential/logging/schema/transport fields.

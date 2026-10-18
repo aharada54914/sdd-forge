@@ -1,0 +1,11 @@
+DependencyReceiptCases (unittest.loader._FailedTest.DependencyReceiptCases) ... ERROR
+
+======================================================================
+ERROR: DependencyReceiptCases (unittest.loader._FailedTest.DependencyReceiptCases)
+----------------------------------------------------------------------
+AttributeError: module '__main__' has no attribute 'DependencyReceiptCases'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (errors=1)

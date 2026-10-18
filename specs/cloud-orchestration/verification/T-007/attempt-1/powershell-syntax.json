@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "-NoProfile",
+    "-Command",
+    "$bad = $false; foreach ($file in @(\"install.ps1\", \"uninstall.ps1\", \"tests/validate-repository.ps1\", \"tests/install.tests.ps1\", \"tests/uninstall.tests.ps1\", \"tests/install-uninstall-matrix.tests.ps1\")) { $tokens = $null; $errors = $null; [System.Management.Automation.Language.Parser]::ParseFile((Join-Path (Get-Location) $file), [ref]$tokens, [ref]$errors) | Out-Null; if ($errors.Count -gt 0) { $errors; $bad = $true }; Write-Output \"$file : $($errors.Count) parser errors\" }; if ($bad) { exit 1 }"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:36:09Z",
+  "exit_code": 0,
+  "elapsed_seconds": 0.285,
+  "classification": "offline local command; no live cloud"
+}

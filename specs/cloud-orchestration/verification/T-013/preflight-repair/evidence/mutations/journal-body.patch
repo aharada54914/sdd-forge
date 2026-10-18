@@ -1,0 +1,20 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -1017,16 +1017,7 @@
+                 )
+                 if op["mutation"] == "execute":
+                     c._require(
+-                        operation_ref["path"]
+-                        == self.directory + "/execute-submission.json"
+-                        and op["body"]
+-                        == dict(
+-                            ChangeSetName=op["native_operation_id"],
+-                            StackName=op["stack_id"],
+-                            ClientRequestToken=self.token,
+-                            DisableRollback=True,
+-                            RetainExceptOnCreate=False,
+-                        ),
++                        True,
+                         "EXECUTE_INTENT_MISMATCH",
+                     )
+             else:

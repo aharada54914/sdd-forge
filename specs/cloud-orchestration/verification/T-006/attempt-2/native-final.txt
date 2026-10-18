@@ -1,0 +1,9 @@
+T-006 remains **incomplete**. Handoff: [implementation report](reports/implementation/cloud-orchestration/T-006.md).
+
+- Freshness and routing-runner defects corrected.
+- Scoped tests: 36/86/32/86 passed; Ruff, mypy, manifest and report validators passed.
+- Rollback and 11 sensitivity mutations recorded.
+- Remaining: Azure permission closure (native verification quarantined), full DCR readback, exhaustive adversarial coverage.
+- Live TEST-003/005/009 remain BLOCKED.
+
+No quality gate, status updates, cloud actions or release actions.

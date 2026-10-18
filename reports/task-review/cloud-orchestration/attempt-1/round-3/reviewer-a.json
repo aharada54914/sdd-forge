@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "cloud-orchestration",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "01a14d49-39d6-7e41-9ab3-11b096325fc7",
+  "host_session_id": "01a14d49-39d6-7e41-9ab3-11b096325fc7",
+  "manifest": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "reports/task-review/cloud-orchestration/attempt-1/round-3/precheck-result.json",
+      "sha256": "07f06934060c40462254926bb007b19d5325f78fb03efef936750446660b9099"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "specs/cloud-orchestration/tasks.md",
+      "sha256": "061f47e6beef4205ed6dc88ceab7eb69f1447b3978b1b6856b717918a54942ea"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "sha256": "b2aef6dd8a09b68c67e6a39855a3c1e79fa497b336f53cf1eb5ee0cc17d0f43a"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "reports/task-review/cloud-orchestration/attempt-1/round-3/dependency-graph.json",
+      "sha256": "7c05b54df75a7849da2f008043cd959aa146c15495305e19ced69244b112117e"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All task acceptance references resolve to AC-001\u2013AC-014 in acceptance-tests.md; no dangling AC identifiers."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid=true. Every task's Blockers section contains None or comma-separated T-NNN identifiers; no ranges or prose dependencies."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Requirements fields cover REQ-001\u2013REQ-014: T-001 foundation; T-002 contracts; T-003 admission; T-004/T-005 providers; T-006 observations; T-009 profiles; T-010 dependencies; T-007/T-011 entry integration; T-008 documentation/release."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Done When criteria explicitly bind all AC-001\u2013AC-014 to TEST-001\u2013TEST-014, including dependency failure in T-010 and provider no-change cases in T-004/T-005."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All eleven tasks have Requirements fields containing at least one existing REQ-NNN."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No exclusively test-file task is present. Verification and integration work explicitly references acceptance criteria, including T-006 AC-009/010, T-009 AC-008, T-010 AC-006 and T-011 AC-011/012."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All eleven tasks declare Approval: Draft and Status: Planned, valid for attempt 1 round 3."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001/T-008 pair medium with acceptance-first; all remaining tasks pair high with tdd. No missing fields; precheck workflow_match_precheck is PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Shared acceptance references have differentiated scopes: contract/admission/Azure/AWS/observation/dependency layers and distribution versus routing. Provider task titles explicitly distinguish Azure from AWS."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every blocker resolves to one of the eleven task IDs in dependency-graph.json nodes; graph edges agree with task Blockers sections."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "The graph is acyclic. A valid prerequisite-first order is T-001, T-002, T-003, T-004, T-005, T-006, T-009, T-010, T-007, T-011, T-008."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Task goals separate contracts, admission, individual provider paths, observation reduction, profile dispatch, dependency receipts, packaging and routing. T-008 groups release documentation and tagging as one release-delivery concern."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task names inspectable acceptance outcomes plus verification commands or evidence artifacts. Shared lifecycle provisions require task reports and verification addenda with commands, exits and hashes. T-008 names the exact release report, tag/commit equality and CI results. No Done When item requires frozen-spec edits; precheck frozen_artifact_done_when is empty, so there are no flagged items requiring individual disposition."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md includes all eleven task IDs and only existing REQ-001\u2013REQ-014 rows. Every requirement row cites a resolving anchor in the bound UX, infrastructure or security specification; frontend-spec.md#testing is also identified in layer coverage."
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,473 @@
+   23: """Strict cloud v1 artifact integrity, NOT authorization or provider execution.
+       
+       parse_artifact validates bytes and internal consistency; read_verified hashes
+       exact bytes under a caller-selected artifact root. verify_binding links request,
+       lock, preview and optional receipt; verify_lock additionally requires independently
+       observed dependency/tool inventories from a trusted adapter. Neither authenticates
+       an issuer, grants writes, verifies provider health, or proves an inventory complete.
+       
+       publish_artifact requires a trusted secret scanner returning literal True on the
+       exact bytes. Supply the run evidence directory as root, never the workspace root.
+       Parents must already exist. Publication is atomic and exclusive (no overwrite).
+       Filesystem operations require POSIX no-follow/dir-fd primitives; unsupported hosts
+       fail closed. Callers own root permissions, exclusive directory ownership and cloud
+       admission. Do not treat integrity success as approval or log untrusted payloads.
+       """
+   23: from contextlib import contextmanager
+   23: from datetime import datetime
+   23: import hashlib
+   23: import json
+   23: import os
+   23: import re
+   23: import secrets
+   23: import stat
+       
+   23: MAX_BYTES = 4 * 1024 * 1024
+   23: OPERATIONS = ('route', 'plan', 'validate', 'prepare', 'apply', 'reconcile', 'observe', 'verify')
+   23: SUCCESS_STATES = ('ROUTED', 'PLANNED', 'LOCAL_VALIDATED', 'PREPARE_AUTHORIZED',
+                         'PREVIEW_READY', 'APPLY_AUTHORIZED', 'EXECUTING', 'OBSERVED',
+                         'VERIFIED', 'EVIDENCE_COMPLETE')
+   23: EXIT_CODES = {'PASS': 0, 'NO_CHANGE': 0, 'BLOCKED': 2, 'FAIL': 1, 'UNKNOWN': 3}
+       
+       
+   46: class ContractError(ValueError):
+   23:     """Safe fixed diagnostic; never includes input bytes, secrets or native errors."""
+       
+       
+   23: def _require(condition, code='INVALID_ARTIFACT'):
+98027:     if not condition:
+ 1164:         raise ContractError(code)
+       
+       
+   23: def _match(value, pattern):
+15235:     _require(type(value) is str and re.fullmatch(pattern, value) is not None)
+       
+       
+   23: def _text(value):
+ 4859:     _match(value, r'[\x20-\x7e]{1,2048}')
+       
+       
+   23: def _id(value):
+ 4885:     _match(value, r'[A-Za-z0-9][A-Za-z0-9._:-]{0,127}')
+       
+       
+   23: def _sha(value):
+ 3895:     _match(value, r'[a-f0-9]{64}')
+       
+       
+   23: def _revision(value):
+  453:     _match(value, r'(?:[a-f0-9]{40}|[a-f0-9]{64})')
+       
+       
+   23: def _version(value):
+  308:     _match(value, r'[0-9]+(?:\.[0-9]+){0,3}(?:-[A-Za-z0-9.-]+)?')
+       
+       
+   23: def _url(value):
+           # No credentials, query secrets, fragments, port tricks or encoded traversal.
+  362:     _match(value, r'https://[a-z0-9]+(?:[.-][a-z0-9]+)*(?:/(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+)*')
+  917:     _require(all(p not in ('.', '..') for p in value.split('/')[3:]))
+       
+       
+   23: def _enum(value, choices):
+ 3982:     _require(type(value) is str and value in choices)
+       
+       
+   23: def _integer(value, minimum=0):
+   94:     _require(type(value) is int and minimum <= value <= 2147483647)
+       
+       
+   23: def _boolean(value):
+    9:     _require(type(value) is bool)
+       
+       
+   23: def _utc(value):
+  473:     _match(value, r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z')
+  437:     try:
+  437:         return datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
+    4:     except ValueError:
+    4:         raise ContractError('INVALID_UTC') from None
+       
+       
+   23: def _path(value):
+ 5132:     _require(type(value) is str and 1 <= len(value) <= 1024, 'UNSAFE_PATH')
+10723:     for part in value.split('/'):
+17236:         _require(re.fullmatch(r'[A-Za-z0-9_.][A-Za-z0-9._-]*', part) is not None
+11460:                  and not part.endswith('.') and len(part) <= 255, 'UNSAFE_PATH')
+17034:         _require(part.split('.')[0].upper() not in
+73814:                  {'CON', 'PRN', 'AUX', 'NUL', *(f'COM{i}' for i in range(10)),
+73814:                   *(f'LPT{i}' for i in range(10))}, 'UNSAFE_PATH')
+       
+       
+   23: def _record(value, fields, optional=None):
+ 6347:     optional = optional or {}
+ 6347:     _require(type(value) is dict)
+ 6347:     _require(set(fields) <= set(value) <= set(fields) | set(optional))
+27641:     for name, validator in {**fields, **optional}.items():
+23037:         if name in value:
+23020:             validator(value[name])
+       
+       
+   23: def _list(value, validator, minimum=0):
+ 1414:     _require(type(value) is list and minimum <= len(value) <= 4096)
+ 6968:     for item in value:
+ 5857:         validator(item)
+       
+       
+   23: def _unique(values):
+  613:     _require(len(values) == len(set(values)), 'DUPLICATE_ENTRY')
+       
+       
+   23: def _ids(value, minimum=0):
+   51:     _list(value, _id, minimum)
+   45:     _unique(value)
+       
+       
+   23: def _ref(value):
+ 2626:     _record(value, {'path': _path, 'sha256': _sha})
+       
+       
+   23: def _profile(value):
+  168:     _record(value, {'id': _id, 'version': _version, 'path': _path, 'sha256': _sha})
+       
+       
+   23: def _scope(value):
+  656:     _record(value, {'account_id': _id, 'region': _id, 'deployment_scope': _id})
+       
+       
+   23: def _nullable_ref(value):
+   58:     if value is not None:
+   56:         _ref(value)
+       
+       
+   23: def _nullable_text(value):
+   56:     if value is not None:
+   56:         _text(value)
+       
+       
+   23: def _identity_fields():
+ 1940:     return {'run_id': _id, 'unit_id': _id, 'provider': lambda v: _enum(v, ('azure', 'aws'))}
+       
+       
+   23: def _binding_fields():
+  924:     return {**_identity_fields(), 'scope': _scope, 'request': _ref,
+  462:             'dependency_lock': _ref, 'policy': _ref, 'verification_profile': _ref}
+       
+       
+   23: def _schema(value, name, fields, optional=None):
+ 2412:     _record(value, {'schema': lambda v: _enum(v, (name,)), **fields}, optional)
+       
+       
+   23: def _request(value):
+  307:     def artifact(v):
+ 2650:         _record(v, {'kind': lambda k: _enum(k, ('source', 'compiled', 'asset', 'parameters', 'module')),
+  890:                     'path': _path, 'sha256': _sha})
+  307:     def predecessor(v):
+    4:         _record(v, {'unit_id': _id, 'path': _path, 'sha256': _sha})
+  921:     _schema(value, 'cloud-run-request/v1', {
+  614:         **_identity_fields(), 'binding_id': _id, 'environment': _id, 'scope': _scope,
+  547:         'owner': lambda v: _enum(v, ('bicep', 'cdk')),
+  542:         'route': lambda v: _enum(v, ('azure-bicep', 'aws-cdk')),
+  538:         'operation': lambda v: _enum(v, OPERATIONS),
+  534:         'predecessor_receipts': lambda v: _list(v, predecessor), 'source_revision': _revision,
+  525:         'input_artifacts': lambda v: _list(v, artifact, 1), 'dependency_lock': _ref,
+  307:         'policy': _ref, 'verification_profile': _profile})
+  118:     _require((value['provider'], value['owner'], value['route']) in
+   59:              (('azure', 'bicep', 'azure-bicep'), ('aws', 'cdk', 'aws-cdk')))
+  348:     _unique([v['path'] for v in value['input_artifacts']])
+   59:     _unique([v['unit_id'] for v in value['predecessor_receipts']])
+   59:     _require(value['unit_id'] not in [v['unit_id'] for v in value['predecessor_receipts']])
+       
+       
+   23: def _lock(value):
+  164:     def file(v):
+  468:         _record(v, {'path': _path, 'sha256': _sha, 'references': lambda r: _list(r, _path)})
+  211:         _unique(v['references'])
+  164:     def upstream(v):
+  318:         _record(v, {'repository': _url, 'commit': _revision, 'root': _path,
+  295:                     'files': lambda f: _list(f, file, 1)})
+  292:         paths = [f['path'] for f in v['files']]
+   97:         _unique(paths)
+  384:         _require(all(p.startswith(v['root'] + '/') for p in paths), 'UNLOCKED_DEPENDENCY')
+  474:         _require(all(p in paths for f in v['files'] for p in f['references']), 'UNLOCKED_DEPENDENCY')
+  164:     def tool(v):
+   94:         _record(v, {'name': _id, 'version': _version, 'sha256': _sha})
+  164:     def endpoint(v):
+   66:         _record(v, {'endpoint': _url, 'tool_schema': _ref})
+  328:     _schema(value, 'cloud-dependency-lock/v1', {
+  417:         'upstream': lambda v: _list(v, upstream, 1), 'tools': lambda v: _list(v, tool, 1),
+  230:         'adapter_version': _version, 'managed_endpoints': lambda v: _list(v, endpoint)})
+  168:     _unique([f['path'] for u in value['upstream'] for f in u['files']])
+   84:     _unique([t['name'] for t in value['tools']])
+   84:     _unique([e['endpoint'] for e in value['managed_endpoints']])
+       
+       
+   23: def _window(value, start):
+   58:     _require(_utc(value[start]) < _utc(value['expires_at']), 'INVALID_TIME_WINDOW')
+       
+       
+   23: def _preview(value):
+  672:     _schema(value, 'cloud-preview/v1', {
+  448:         **_binding_fields(), 'preview_identity': _text, 'semantic_sha256': _sha,
+  288:         'changes': _ref, 'replacements': lambda v: _list(v, _text),
+  288:         'deletes': lambda v: _list(v, _text), 'created_at': _utc, 'expires_at': _utc})
+   42:     _window(value, 'created_at')
+       
+       
+   23: def _receipt(value):
+  238:     def ci(v):
+  198:         _record(v, {'repository': _text, 'workflow': _path, 'workflow_revision': _revision,
+   99:                     'ref': _text, 'environment': _id, 'run_id': _id,
+  158:                     'run_attempt': lambda n: _integer(n, 1)})
+  238:     def approval(v):
+   31:         _record(v, {'locator': _url, 'sha256': _sha})
+  714:     _schema(value, 'cloud-authorization-receipt/v1', {
+  597:         **_binding_fields(), 'operation': lambda v: _enum(v, ('prepare', 'apply')),
+  238:         'issuer': _url, 'principal': _text, 'subject': _text, 'ci': ci,
+  238:         'preview': _nullable_ref, 'issued_at': _utc, 'expires_at': _utc,
+  238:         'approval_evidence': approval})
+   16:     _require(value['operation'] != 'apply' or value['preview'] is not None)
+   16:     _window(value, 'issued_at')
+       
+       
+   23: def _observation(value):
+  258:     _schema(value, 'cloud-observation/v1', {
+  172:         **_identity_fields(), 'native_operation_id': _nullable_text,
+  141:         'resource_ids': lambda v: _list(v, _text, 1), 'principal': _text,
+   86:         'query': _text, 'timestamp': _utc, 'exit_code': _integer,
+  117:         'status': lambda v: _enum(v, ('PASS', 'FAIL', 'BLOCKED', 'UNKNOWN')),
+   97:         'result': _ref, 'classification': lambda v: _enum(v, ('synthetic', 'native'))})
+    7:     _require(value['status'] != 'PASS' or value['exit_code'] == 0)
+       
+       
+   23: def _verification(value):
+  105:     def check(v):
+   90:         _record(v, {'check_id': _id, 'observation': _ref,
+   65:                     'result': lambda r: _enum(r, ('PASS', 'FAIL', 'BLOCKED'))})
+  315:     _schema(value, 'cloud-verification/v1', {
+  261:         **_identity_fields(), 'profile': _profile, 'required_check_ids': lambda v: _ids(v, 1),
+  149:         'checks': lambda v: _list(v, check, 1),
+  119:         'overall_result': lambda v: _enum(v, ('PASS', 'FAIL', 'BLOCKED')),
+  105:         'evidence_complete': _boolean})
+   17:     ids = [c['check_id'] for c in value['checks']]
+    8:     _unique(ids)
+    7:     _require(set(ids) == set(value['required_check_ids']), 'CHECK_SET_MISMATCH')
+    6:     if value['overall_result'] == 'PASS':
+   13:         _require(all(c['result'] == 'PASS' for c in value['checks']), 'RESULT_MISMATCH')
+    4:     _require(not value['evidence_complete'] or value['overall_result'] == 'PASS', 'RESULT_MISMATCH')
+       
+       
+   23: def _result(value):
+  360:     _schema(value, 'cloud-operation-result/v1', {
+  239:         **_identity_fields(), 'operation': lambda v: _enum(v, OPERATIONS),
+  145:         'state': lambda v: _enum(v, SUCCESS_STATES + ('NO_CHANGE', 'BLOCKED', 'FAILED', 'UNKNOWN')),
+  175:         'result': lambda v: _enum(v, EXIT_CODES), 'error_code': lambda v: None if v is None else _id(v),
+   90:         'message': _text, 'input_manifest_sha256': _sha, 'evidence_manifest_path': _path},
+   90:         {'native_operation_id': _text})
+   19:     result = value['result']
+   19:     _require((value['error_code'] is None) == (result in ('PASS', 'NO_CHANGE')))
+   14:     if result == 'PASS':
+    3:         _require(value['state'] in SUCCESS_STATES)
+           else:
+   11:         _require(value['state'] == {'FAIL': 'FAILED'}.get(result, result))
+   13:     _require(result != 'NO_CHANGE' or 'native_operation_id' not in value)
+       
+       
+   23: def _input_error(value):
+   38:     _schema(value, 'cloud-input-error/v1', {'error_code': _id, 'message': _text, 'field': _id})
+       
+       
+   46: VALIDATORS = {'cloud-run-request/v1': _request, 'cloud-dependency-lock/v1': _lock,
+   23:               'cloud-preview/v1': _preview, 'cloud-authorization-receipt/v1': _receipt,
+   23:               'cloud-observation/v1': _observation, 'cloud-verification/v1': _verification,
+   23:               'cloud-operation-result/v1': _result, 'cloud-input-error/v1': _input_error}
+       
+       
+   23: def parse_artifact(data, expected_schema=None):
+           """Parse bounded UTF-8 JSON; no duplicate keys, non-finite numbers or coercion."""
+ 1280:     _require(type(data) is bytes and len(data) <= MAX_BYTES, 'INVALID_JSON')
+ 1279:     def pairs(items):
+ 8821:         result = {}
+45806:         for key, value in items:
+36988:             _require(key not in result, 'DUPLICATE_KEY')
+36985:             result[key] = value
+ 8818:         return result
+ 1279:     def no_number(_):
+    4:         raise ContractError('INVALID_NUMBER')
+ 1279:     try:
+ 2557:         value = json.loads(data.decode('utf-8'), object_pairs_hook=pairs,
+ 1278:                            parse_constant=no_number, parse_float=no_number)
+ 1266:         _require(type(value) is dict and type(value.get('schema')) is str)
+ 1264:         schema = value['schema']
+ 1264:         _require(schema in VALIDATORS and (expected_schema is None or schema == expected_schema), 'UNKNOWN_SCHEMA')
+ 1231:         VALIDATORS[schema](value)
+  179:         return value
+ 1100:     except ContractError:
+ 1094:         raise
+    6:     except (UnicodeError, ValueError, RecursionError, OverflowError):
+    6:         raise ContractError('INVALID_JSON') from None
+       
+       
+   46: @contextmanager
+   46: def _parent(root, relative):
+  925:     _path(relative)
+ 2772:     _require(hasattr(os, 'O_NOFOLLOW') and hasattr(os, 'O_DIRECTORY')
+ 1846:              and os.open in os.supports_dir_fd and os.link in os.supports_dir_fd,
+  924:              'UNSUPPORTED_FILESYSTEM')
+  922:     root = os.fspath(root)
+ 4611:     _require(os.path.isabs(root) and all(p not in ('.', '..') for p in root.split('/')), 'UNSAFE_ROOT')
+  922:     fd = None
+  922:     try:
+  922:         fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY)
+ 5594:         for part in [p for p in root.split('/') if p] + relative.split('/')[:-1]:
+ 1908:             next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+ 1905:             os.close(fd)
+ 1905:             fd = next_fd
+  919:         yield fd, relative.split('/')[-1]
+   11:     except OSError:
+    9:         raise ContractError('UNSAFE_OR_UNAVAILABLE_FILE') from None
+           finally:
+  922:         if fd is not None:
+  922:             os.close(fd)
+       
+       
+   23: def read_verified(root, reference):
+           """Read one canonical regular single-link file and check its exact-byte digest."""
+  917:     _ref(reference)
+ 1831:     with _parent(root, reference['path']) as (parent, name):
+  914:         fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+ 1823:         with os.fdopen(fd, 'rb') as stream:
+  911:             before = os.fstat(stream.fileno())
+  911:             _require(stat.S_ISREG(before.st_mode) and before.st_nlink == 1, 'UNSAFE_FILE')
+  909:             _require(before.st_size <= MAX_BYTES, 'ARTIFACT_TOO_LARGE')
+  909:             data = stream.read(MAX_BYTES + 1)
+  909:             after = os.fstat(stream.fileno())
+ 2727:             _require((before.st_size, before.st_mtime_ns, before.st_ctime_ns) ==
+ 1818:                      (after.st_size, after.st_mtime_ns, after.st_ctime_ns), 'INPUT_DRIFT')
+  909:     _require(len(data) <= MAX_BYTES and hashlib.sha256(data).hexdigest() == reference['sha256'], 'DIGEST_MISMATCH')
+  873:     return data
+       
+       
+   23: def _file_ref(value):
+ 2343:     return {k: value[k] for k in ('path', 'sha256')}
+       
+       
+   23: def read_artifact(root, reference, expected_schema=None):
+           """Read a contract and verify every directly referenced file's exact bytes.
+       
+       References to contracts are hashed but not recursively authenticated or reduced.
+       Consumers must parse referenced observations/receipts and check their identities.
+       """
+  153:     value = parse_artifact(read_verified(root, reference), expected_schema)
+  145:     def references(node):
+ 4853:         if type(node) is dict:
+ 1106:             if 'path' in node and 'sha256' in node:
+  751:                 read_verified(root, _file_ref(node))
+ 5302:             for child in node.values():
+ 4264:                 references(child)
+ 3747:         elif type(node) is list:
+  793:             for child in node:
+  444:                 references(child)
+  145:     references(value)
+  113:     return value
+       
+       
+   23: def _verify_lock_files(root, lock):
+    2:     for upstream in lock['upstream']:
+    3:         for file in upstream['files']:
+    2:             read_verified(root, _file_ref(file))
+    2:     for endpoint in lock['managed_endpoints']:
+    1:         read_verified(root, endpoint['tool_schema'])
+       
+       
+   23: def verify_lock(root, lock, *, consumed_paths, tools, adapter_version, tool_schemas):
+           """Compare declared closure to independently observed adapter inputs (mandatory).
+       
+       The caller must enumerate actual transitive reads, not copy these from the lock.
+       Managed schema digests are fresh read-only probes, not asserted server identity.
+       """
+   14:     _lock(lock)
+   10:     _list(consumed_paths, _path, 1)
+   10:     _unique(consumed_paths)
+   40:     paths = [f['path'] for u in lock['upstream'] for f in u['files']]
+   10:     _require(set(paths) == set(consumed_paths), 'UNLOCKED_DEPENDENCY')
+   15:     _list(tools, lambda v: _record(v, {'name': _id, 'version': _version, 'sha256': _sha}), 1)
+   24:     _require(sorted(tools, key=lambda t: t['name']) ==
+   18:              sorted(lock['tools'], key=lambda t: t['name']), 'TOOL_DRIFT')
+    4:     _require(adapter_version == lock['adapter_version'], 'ADAPTER_DRIFT')
+   15:     _require(tool_schemas == {e['endpoint']: e['tool_schema']['sha256']
+   12:                               for e in lock['managed_endpoints']}, 'TOOL_SCHEMA_DRIFT')
+    1:     _verify_lock_files(root, lock)
+       
+       
+   23: def verify_binding(root, request_ref, preview_ref, receipt_ref=None, *, now):
+           """Check exact bytes and cross-artifact bindings. Returns None, NEVER authority.
+       
+       Caller must separately authenticate admission, check live tool closure via
+       verify_lock and recheck immediately at the write site. Preview semantics are
+       provider-owned: semantic_sha256 binds the adapter's normalized changes file.
+       """
+   58:     _utc(now)
+   58:     request = read_artifact(root, request_ref, 'cloud-run-request/v1')
+   74:     preview = None if preview_ref is None else read_artifact(root, preview_ref, 'cloud-preview/v1')
+   32:     _require(request['operation'] != 'apply' or preview is not None, 'PREVIEW_REQUIRED')
+   31:     read_artifact(root, request['dependency_lock'], 'cloud-dependency-lock/v1')
+  196:     expected = {key: request[key] for key in ('run_id', 'unit_id', 'provider', 'scope', 'dependency_lock', 'policy')}
+   28:     expected.update(request=request_ref, verification_profile=_file_ref(request['verification_profile']))
+   28:     if preview is not None:
+   26:         _require(preview['semantic_sha256'] == preview['changes']['sha256'], 'PREVIEW_DRIFT')
+  170:         for key, value in expected.items():
+  153:             _require(preview[key] == value, 'BINDING_MISMATCH')
+   17:         _require(_utc(preview['created_at']) <= _utc(now) < _utc(preview['expires_at']), 'STALE_PREVIEW')
+   17:     if receipt_ref is not None:
+   17:         receipt = read_artifact(root, receipt_ref, 'cloud-authorization-receipt/v1')
+   61:         for key, value in expected.items():
+   55:             _require(receipt[key] == value, 'BINDING_MISMATCH')
+   12:         _require(receipt['operation'] == request['operation'] and
+    6:                  receipt['ci']['environment'] == request['environment'], 'BINDING_MISMATCH')
+    4:         _require(receipt['preview'] == preview_ref, 'BINDING_MISMATCH')
+    4:         _require(_utc(receipt['issued_at']) <= _utc(now) < _utc(receipt['expires_at']), 'EXPIRED_RECEIPT')
+       
+       
+   23: def publish_artifact(root, relative, data, *, scan):
+           """Publish exact validated bytes atomically, after a mandatory secret scan.
+       
+       Scanner exceptions/falsy/non-boolean verdicts are rejected without echoing them.
+       No temporary/final file is written until validation and scanning succeed.
+       """
+   13:     parse_artifact(data)
+   13:     try:
+   13:         safe = scan(data)
+    1:     except Exception:
+    1:         raise ContractError('SECRET_SCAN_FAILED') from None
+   12:     _require(safe is True, 'SECRET_SCAN_FAILED')
+   13:     with _parent(root, relative) as (parent, name):
+    5:         temporary = '.cloud-' + secrets.token_hex(16)
+    5:         fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
+    5:         try:
+   10:             with os.fdopen(fd, 'wb') as stream:
+    5:                 stream.write(data)
+    5:                 stream.flush()
+    5:                 os.fsync(stream.fileno())
+    5:             os.link(temporary, name, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
+    2:             os.fsync(parent)
+               finally:
+    5:             os.unlink(temporary, dir_fd=parent)
+    2:     return {'path': relative, 'sha256': hashlib.sha256(data).hexdigest()}
+       
+       
+   23: def input_error(error_code, field):
+           """Identity-free deterministic envelope: never echoes an invalid request."""
+    2:     value = {'schema': 'cloud-input-error/v1', 'error_code': error_code,
+    1:              'message': 'Invalid request. Correct the named field before retrying.', 'field': field}
+    1:     _input_error(value)
+    1:     return value
+       
+       
+   23: def exit_code(value):
+           """Design's CLI exit mapping; wrappers serialize separately in later tasks."""
+    6:     if value.get('schema') == 'cloud-input-error/v1':
+    1:         _input_error(value)
+    1:         return 2
+    5:     _result(value)
+    5:     return EXIT_CODES[value['result']]

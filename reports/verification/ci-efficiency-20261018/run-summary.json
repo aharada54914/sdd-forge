@@ -1,0 +1,2788 @@
+[
+  {
+    "run_id": 39103722974,
+    "jobs_total": 42,
+    "jobs_observed": 42,
+    "job_seconds_sum": 14838.0,
+    "top_jobs": [
+      {
+        "name": "version-gates (macos-latest)",
+        "seconds": 1503.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 1.0
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test bump-version.sh loop-gate prerequisite (bash)",
+            "seconds": 14.0
+          },
+          {
+            "name": "Test bump-version.sh loop-gate prerequisite (pwsh)",
+            "seconds": 27.0
+          },
+          {
+            "name": "Test release.yml required loop-gate job (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test release.yml required loop-gate job (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test model-freshness-check suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test model-freshness-check suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test project-context-schema suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test project-context-schema suite (pwsh)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test A9 unpublished candidate and Pack (pwsh)",
+            "seconds": 563.0
+          },
+          {
+            "name": "Test approver-registry-schema suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test approver-registry-schema suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test canonicalize-sdd-yaml suite (bash)",
+            "seconds": 8.0
+          },
+          {
+            "name": "Test canonicalize-sdd-yaml suite (pwsh)",
+            "seconds": 30.0
+          },
+          {
+            "name": "Test generate-approval-sidecar suite (bash)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test generate-approval-sidecar suite (pwsh)",
+            "seconds": 15.0
+          },
+          {
+            "name": "Test detect-policy-weakening suite (bash)",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test detect-policy-weakening suite (pwsh)",
+            "seconds": 15.0
+          },
+          {
+            "name": "Test validate-approval-sidecar suite (bash)",
+            "seconds": 12.0
+          },
+          {
+            "name": "Test validate-approval-sidecar suite (pwsh)",
+            "seconds": 25.0
+          },
+          {
+            "name": "Test apply-human-copy publisher (Bash)",
+            "seconds": 108.0
+          },
+          {
+            "name": "Test apply-human-copy publisher (PowerShell)",
+            "seconds": 57.0
+          },
+          {
+            "name": "Test hook-activation handshake suite (bash)",
+            "seconds": 45.0
+          },
+          {
+            "name": "Test hook-activation handshake suite (pwsh)",
+            "seconds": 125.0
+          },
+          {
+            "name": "Test epic-a1 guard-invariants registration (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test epic-a1 guard-invariants registration (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test R-10 guard staging exemption and prose pre-filter (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test hook-guard epic-a1 write-boundary matrix (bash)",
+            "seconds": 12.0
+          },
+          {
+            "name": "Test hook-guard epic-a1 write-boundary matrix (pwsh)",
+            "seconds": 81.0
+          },
+          {
+            "name": "Test plugin-contracts track-selection contract (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test plugin-contracts track-selection contract (pwsh)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test ship track-selection migration (bash)",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test ship track-selection migration (pwsh)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test capability-registry-schema suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test capability-registry-schema suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test evaluate-predicate suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test evaluate-predicate suite (pwsh)",
+            "seconds": 17.0
+          },
+          {
+            "name": "Test registry-discovery suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test registry-discovery suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test validate-capability-registry suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test validate-capability-registry suite (pwsh)",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test generate-registry-digest suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test generate-registry-digest suite (pwsh)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test generate-gate-capabilities suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test generate-gate-capabilities suite (pwsh)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test capability-registry-parity suite (bash)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test capability-registry-parity suite (pwsh)",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test component-path-resolver suite (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test component-path-resolver suite (pwsh)",
+            "seconds": 42.0
+          },
+          {
+            "name": "Test component-path-diff-basis suite (bash)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test component-path-diff-basis suite (pwsh)",
+            "seconds": 20.0
+          },
+          {
+            "name": "Test ownership-digest suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test ownership-digest suite (pwsh)",
+            "seconds": 27.0
+          },
+          {
+            "name": "Test check-component-coverage suite (bash)",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test check-component-coverage suite (pwsh)",
+            "seconds": 45.0
+          },
+          {
+            "name": "Test component-path-ownership parity suite (bash)",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test component-path-ownership parity suite (pwsh)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test human-copy-runner-contract suite (bash)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test human-copy-runner-contract suite (pwsh)",
+            "seconds": 12.0
+          },
+          {
+            "name": "Test check-risk-upgrade-byte-identical suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test check-risk-upgrade-byte-identical suite (pwsh)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test check-risk-upgrade-capability-merge suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-capability-merge suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-fragment-fail-closed suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-fragment-fail-closed suite (pwsh)",
+            "seconds": 13.0
+          },
+          {
+            "name": "Test check-risk-upgrade-ineligible-no-reasons suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-spec-capability-block suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-spec-capability-block suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-summary-consumption suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test lite-gate-summary-consumption suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-invalid suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-summary-invalid suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-full-upgrade-backstop suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-full-upgrade-backstop suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent-active-enforcement suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent-active-enforcement suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 1.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 1.0
+          }
+        ]
+      },
+      {
+        "name": "test (windows-latest)",
+        "seconds": 1488.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Setup step 1",
+            "seconds": 12.0
+          },
+          {
+            "name": "[deterministic] Install structural YAML parser",
+            "seconds": 21.0
+          },
+          {
+            "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+            "seconds": 107.0
+          },
+          {
+            "name": "[deterministic] Test Concept Test gate on native Windows",
+            "seconds": 63.0
+          },
+          {
+            "name": "[deterministic] Test domain review finalization on native platforms",
+            "seconds": 212.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (PowerShell)",
+            "seconds": 94.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Validate repository",
+            "seconds": 99.0
+          },
+          {
+            "name": "[deterministic] Validate repository (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test repository release validation parity",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gate scripts",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test run-record feature scope and CRLF identity",
+            "seconds": 15.0
+          },
+          {
+            "name": "[deterministic] Test selected-feature structure validation",
+            "seconds": 15.0
+          },
+          {
+            "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+            "seconds": 30.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+            "seconds": 20.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test hook guards",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+            "seconds": 30.0
+          },
+          {
+            "name": "[deterministic] Test review hash normalization (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+            "seconds": 764.0
+          },
+          {
+            "name": "[deterministic] Test guards (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test approval boundary (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gates (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test panelist-input consent gate (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test outcome-based eval suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test CRLF line-ending parity (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test branch-protection script (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Upload test logs",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post [deterministic] Setup step 1",
+            "seconds": 2.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      },
+      {
+        "name": "test (macos-latest)",
+        "seconds": 1426.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Setup step 1",
+            "seconds": 5.0
+          },
+          {
+            "name": "[deterministic] Install structural YAML parser",
+            "seconds": 3.0
+          },
+          {
+            "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+            "seconds": 43.0
+          },
+          {
+            "name": "[deterministic] Test Concept Test gate on native Windows",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test domain review finalization on native platforms",
+            "seconds": 82.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (PowerShell)",
+            "seconds": 94.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (POSIX)",
+            "seconds": 80.0
+          },
+          {
+            "name": "[deterministic] Validate repository",
+            "seconds": 107.0
+          },
+          {
+            "name": "[deterministic] Validate repository (POSIX)",
+            "seconds": 68.0
+          },
+          {
+            "name": "[deterministic] Test repository release validation parity",
+            "seconds": 163.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gate scripts",
+            "seconds": 108.0
+          },
+          {
+            "name": "[deterministic] Test run-record feature scope and CRLF identity",
+            "seconds": 8.0
+          },
+          {
+            "name": "[deterministic] Test selected-feature structure validation",
+            "seconds": 7.0
+          },
+          {
+            "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+            "seconds": 8.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+            "seconds": 25.0
+          },
+          {
+            "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (pwsh)",
+            "seconds": 118.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "[deterministic] Test hook guards",
+            "seconds": 50.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+            "seconds": 21.0
+          },
+          {
+            "name": "[deterministic] Test review hash normalization (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test guards (bash)",
+            "seconds": 8.0
+          },
+          {
+            "name": "[deterministic] Test approval boundary (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gates (bash)",
+            "seconds": 16.0
+          },
+          {
+            "name": "[deterministic] Test panelist-input consent gate (bash)",
+            "seconds": 8.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (bash)",
+            "seconds": 224.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (bash)",
+            "seconds": 162.0
+          },
+          {
+            "name": "[deterministic] Test outcome-based eval suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "[deterministic] Test CRLF line-ending parity (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "[deterministic] Test branch-protection script (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Upload test logs",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post [deterministic] Setup step 1",
+            "seconds": 1.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 2.0
+          }
+        ]
+      },
+      {
+        "name": "version-gates (ubuntu-latest)",
+        "seconds": 1265.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 1.0
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test bump-version.sh loop-gate prerequisite (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test bump-version.sh loop-gate prerequisite (pwsh)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test release.yml required loop-gate job (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test release.yml required loop-gate job (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test model-freshness-check suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test model-freshness-check suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test project-context-schema suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test project-context-schema suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test A9 unpublished candidate and Pack (pwsh)",
+            "seconds": 345.0
+          },
+          {
+            "name": "Test approver-registry-schema suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test approver-registry-schema suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test canonicalize-sdd-yaml suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test canonicalize-sdd-yaml suite (pwsh)",
+            "seconds": 31.0
+          },
+          {
+            "name": "Test generate-approval-sidecar suite (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test generate-approval-sidecar suite (pwsh)",
+            "seconds": 13.0
+          },
+          {
+            "name": "Test detect-policy-weakening suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test detect-policy-weakening suite (pwsh)",
+            "seconds": 15.0
+          },
+          {
+            "name": "Test validate-approval-sidecar suite (bash)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test validate-approval-sidecar suite (pwsh)",
+            "seconds": 23.0
+          },
+          {
+            "name": "Test apply-human-copy publisher (Bash)",
+            "seconds": 61.0
+          },
+          {
+            "name": "Test apply-human-copy publisher (PowerShell)",
+            "seconds": 65.0
+          },
+          {
+            "name": "Test hook-activation handshake suite (bash)",
+            "seconds": 34.0
+          },
+          {
+            "name": "Test hook-activation handshake suite (pwsh)",
+            "seconds": 124.0
+          },
+          {
+            "name": "Test epic-a1 guard-invariants registration (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test epic-a1 guard-invariants registration (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test R-10 guard staging exemption and prose pre-filter (bash)",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test hook-guard epic-a1 write-boundary matrix (bash)",
+            "seconds": 12.0
+          },
+          {
+            "name": "Test hook-guard epic-a1 write-boundary matrix (pwsh)",
+            "seconds": 129.0
+          },
+          {
+            "name": "Test plugin-contracts track-selection contract (bash)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test plugin-contracts track-selection contract (pwsh)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test ship track-selection migration (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test ship track-selection migration (pwsh)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test capability-registry-schema suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test capability-registry-schema suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test evaluate-predicate suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test evaluate-predicate suite (pwsh)",
+            "seconds": 23.0
+          },
+          {
+            "name": "Test registry-discovery suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test registry-discovery suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test validate-capability-registry suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test validate-capability-registry suite (pwsh)",
+            "seconds": 13.0
+          },
+          {
+            "name": "Test generate-registry-digest suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test generate-registry-digest suite (pwsh)",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test generate-gate-capabilities suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test generate-gate-capabilities suite (pwsh)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test capability-registry-parity suite (bash)",
+            "seconds": 8.0
+          },
+          {
+            "name": "Test capability-registry-parity suite (pwsh)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test component-path-resolver suite (bash)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test component-path-resolver suite (pwsh)",
+            "seconds": 46.0
+          },
+          {
+            "name": "Test component-path-diff-basis suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test component-path-diff-basis suite (pwsh)",
+            "seconds": 18.0
+          },
+          {
+            "name": "Test ownership-digest suite (bash)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test ownership-digest suite (pwsh)",
+            "seconds": 30.0
+          },
+          {
+            "name": "Test check-component-coverage suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test check-component-coverage suite (pwsh)",
+            "seconds": 47.0
+          },
+          {
+            "name": "Test component-path-ownership parity suite (bash)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test component-path-ownership parity suite (pwsh)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test human-copy-runner-contract suite (bash)",
+            "seconds": 17.0
+          },
+          {
+            "name": "Test human-copy-runner-contract suite (pwsh)",
+            "seconds": 15.0
+          },
+          {
+            "name": "Test check-risk-upgrade-byte-identical suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-byte-identical suite (pwsh)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test check-risk-upgrade-capability-merge suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test check-risk-upgrade-capability-merge suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test check-risk-upgrade-fragment-fail-closed suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-fragment-fail-closed suite (pwsh)",
+            "seconds": 15.0
+          },
+          {
+            "name": "Test check-risk-upgrade-ineligible-no-reasons suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test lite-spec-capability-block suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-spec-capability-block suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test lite-gate-summary-consumption suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test lite-gate-summary-consumption suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-summary-invalid suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-invalid suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-full-upgrade-backstop suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-full-upgrade-backstop suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent-active-enforcement suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent-active-enforcement suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 0.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      },
+      {
+        "name": "test (ubuntu-latest)",
+        "seconds": 1077.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 2.0
+          },
+          {
+            "name": "[deterministic] Setup step 1",
+            "seconds": 4.0
+          },
+          {
+            "name": "[deterministic] Install structural YAML parser",
+            "seconds": 4.0
+          },
+          {
+            "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+            "seconds": 33.0
+          },
+          {
+            "name": "[deterministic] Test Concept Test gate on native Windows",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test domain review finalization on native platforms",
+            "seconds": 81.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (PowerShell)",
+            "seconds": 35.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (POSIX)",
+            "seconds": 33.0
+          },
+          {
+            "name": "[deterministic] Validate repository",
+            "seconds": 36.0
+          },
+          {
+            "name": "[deterministic] Validate repository (POSIX)",
+            "seconds": 35.0
+          },
+          {
+            "name": "[deterministic] Test repository release validation parity",
+            "seconds": 112.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gate scripts",
+            "seconds": 113.0
+          },
+          {
+            "name": "[deterministic] Test run-record feature scope and CRLF identity",
+            "seconds": 9.0
+          },
+          {
+            "name": "[deterministic] Test selected-feature structure validation",
+            "seconds": 8.0
+          },
+          {
+            "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+            "seconds": 9.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+            "seconds": 32.0
+          },
+          {
+            "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (pwsh)",
+            "seconds": 112.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test hook guards",
+            "seconds": 60.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+            "seconds": 21.0
+          },
+          {
+            "name": "[deterministic] Test review hash normalization (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test guards (bash)",
+            "seconds": 7.0
+          },
+          {
+            "name": "[deterministic] Test approval boundary (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gates (bash)",
+            "seconds": 14.0
+          },
+          {
+            "name": "[deterministic] Test panelist-input consent gate (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (bash)",
+            "seconds": 153.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (bash)",
+            "seconds": 149.0
+          },
+          {
+            "name": "[deterministic] Test outcome-based eval suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test CRLF line-ending parity (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "[deterministic] Test branch-protection script (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Upload test logs",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post [deterministic] Setup step 1",
+            "seconds": 1.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      },
+      {
+        "name": "test-windows-heavy (a9)",
+        "seconds": 997.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Setup step 1",
+            "seconds": 12.0
+          },
+          {
+            "name": "[deterministic] Test A7 byte-identical compatibility (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test A7 current-product reachability",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gate scripts",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test task prior-pass receipt",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test A9 unpublished candidate and Pack",
+            "seconds": 978.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test hook guards",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test panelist-input consent gate",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime handoff fixture (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test installed-plugin drift check (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post [deterministic] Setup step 1",
+            "seconds": 3.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      },
+      {
+        "name": "complete POSIX regression inventory",
+        "seconds": 846.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 0.0
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 4.0
+          },
+          {
+            "name": "Install structural YAML parser",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test required-checks POSIX failure propagation",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test verification catalog and shadow selection",
+            "seconds": 3.0
+          },
+          {
+            "name": "Observe impact selection without skipping required checks",
+            "seconds": 1.0
+          },
+          {
+            "name": "Install pinned RTK",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test evaluator scratch isolation (Bash and PowerShell)",
+            "seconds": 46.0
+          },
+          {
+            "name": "Test shared quality non-TTY transport contracts",
+            "seconds": 2.0
+          },
+          {
+            "name": "Check shared launch Python and FilesOnly distribution",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test shared launch FilesOnly distribution",
+            "seconds": 14.0
+          },
+          {
+            "name": "Test traceability freeze normalization",
+            "seconds": 44.0
+          },
+          {
+            "name": "Install contract validator",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test shared review launch and conditional input contracts",
+            "seconds": 509.0
+          },
+          {
+            "name": "Install pinned domain regression test runner",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test domain concept modeling and review contracts",
+            "seconds": 163.0
+          },
+          {
+            "name": "Test guard dispatch fallback",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test guard negative corpus",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test deterministic lane coverage",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test workflow scenarios",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test design system contract (Bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test design system contract (PowerShell)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test design sync standing consent (Bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test design sync standing consent (PowerShell)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 1.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "run_id": 39122240433,
+    "jobs_total": 42,
+    "jobs_observed": 42,
+    "job_seconds_sum": 15310.0,
+    "top_jobs": [
+      {
+        "name": "test (macos-latest)",
+        "seconds": 1552.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 2.0
+          },
+          {
+            "name": "[deterministic] Setup step 1",
+            "seconds": 4.0
+          },
+          {
+            "name": "[deterministic] Install structural YAML parser",
+            "seconds": 3.0
+          },
+          {
+            "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+            "seconds": 39.0
+          },
+          {
+            "name": "[deterministic] Test Concept Test gate on native Windows",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test domain review finalization on native platforms",
+            "seconds": 91.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (PowerShell)",
+            "seconds": 141.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (POSIX)",
+            "seconds": 62.0
+          },
+          {
+            "name": "[deterministic] Validate repository",
+            "seconds": 68.0
+          },
+          {
+            "name": "[deterministic] Validate repository (POSIX)",
+            "seconds": 76.0
+          },
+          {
+            "name": "[deterministic] Test repository release validation parity",
+            "seconds": 184.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gate scripts",
+            "seconds": 131.0
+          },
+          {
+            "name": "[deterministic] Test run-record feature scope and CRLF identity",
+            "seconds": 11.0
+          },
+          {
+            "name": "[deterministic] Test selected-feature structure validation",
+            "seconds": 9.0
+          },
+          {
+            "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+            "seconds": 12.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+            "seconds": 36.0
+          },
+          {
+            "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (pwsh)",
+            "seconds": 125.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "[deterministic] Test hook guards",
+            "seconds": 70.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+            "seconds": 26.0
+          },
+          {
+            "name": "[deterministic] Test review hash normalization (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test guards (bash)",
+            "seconds": 11.0
+          },
+          {
+            "name": "[deterministic] Test approval boundary (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gates (bash)",
+            "seconds": 23.0
+          },
+          {
+            "name": "[deterministic] Test panelist-input consent gate (bash)",
+            "seconds": 11.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (bash)",
+            "seconds": 239.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (bash)",
+            "seconds": 159.0
+          },
+          {
+            "name": "[deterministic] Test outcome-based eval suite (bash)",
+            "seconds": 4.0
+          },
+          {
+            "name": "[deterministic] Test CRLF line-ending parity (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "[deterministic] Test branch-protection script (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Upload test logs",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post [deterministic] Setup step 1",
+            "seconds": 1.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 2.0
+          }
+        ]
+      },
+      {
+        "name": "test (windows-latest)",
+        "seconds": 1486.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Setup step 1",
+            "seconds": 13.0
+          },
+          {
+            "name": "[deterministic] Install structural YAML parser",
+            "seconds": 21.0
+          },
+          {
+            "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+            "seconds": 76.0
+          },
+          {
+            "name": "[deterministic] Test Concept Test gate on native Windows",
+            "seconds": 57.0
+          },
+          {
+            "name": "[deterministic] Test domain review finalization on native platforms",
+            "seconds": 181.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (Windows)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (Windows)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (PowerShell)",
+            "seconds": 90.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Validate repository",
+            "seconds": 90.0
+          },
+          {
+            "name": "[deterministic] Validate repository (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test repository release validation parity",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gate scripts",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test run-record feature scope and CRLF identity",
+            "seconds": 15.0
+          },
+          {
+            "name": "[deterministic] Test selected-feature structure validation",
+            "seconds": 15.0
+          },
+          {
+            "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+            "seconds": 34.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+            "seconds": 10.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test hook guards",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+            "seconds": 27.0
+          },
+          {
+            "name": "[deterministic] Test review hash normalization (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+            "seconds": 848.0
+          },
+          {
+            "name": "[deterministic] Test guards (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test approval boundary (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gates (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test panelist-input consent gate (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test outcome-based eval suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test CRLF line-ending parity (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test branch-protection script (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Upload test logs",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post [deterministic] Setup step 1",
+            "seconds": 3.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      },
+      {
+        "name": "version-gates (ubuntu-latest)",
+        "seconds": 1291.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 1.0
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test bump-version.sh loop-gate prerequisite (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test bump-version.sh loop-gate prerequisite (pwsh)",
+            "seconds": 14.0
+          },
+          {
+            "name": "Test release.yml required loop-gate job (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test release.yml required loop-gate job (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test model-freshness-check suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test model-freshness-check suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test project-context-schema suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test project-context-schema suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test A9 unpublished candidate and Pack (pwsh)",
+            "seconds": 343.0
+          },
+          {
+            "name": "Test approver-registry-schema suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test approver-registry-schema suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test canonicalize-sdd-yaml suite (bash)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test canonicalize-sdd-yaml suite (pwsh)",
+            "seconds": 29.0
+          },
+          {
+            "name": "Test generate-approval-sidecar suite (bash)",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test generate-approval-sidecar suite (pwsh)",
+            "seconds": 12.0
+          },
+          {
+            "name": "Test detect-policy-weakening suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test detect-policy-weakening suite (pwsh)",
+            "seconds": 14.0
+          },
+          {
+            "name": "Test validate-approval-sidecar suite (bash)",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test validate-approval-sidecar suite (pwsh)",
+            "seconds": 21.0
+          },
+          {
+            "name": "Test apply-human-copy publisher (Bash)",
+            "seconds": 62.0
+          },
+          {
+            "name": "Test apply-human-copy publisher (PowerShell)",
+            "seconds": 67.0
+          },
+          {
+            "name": "Test hook-activation handshake suite (bash)",
+            "seconds": 38.0
+          },
+          {
+            "name": "Test hook-activation handshake suite (pwsh)",
+            "seconds": 130.0
+          },
+          {
+            "name": "Test epic-a1 guard-invariants registration (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test epic-a1 guard-invariants registration (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test R-10 guard staging exemption and prose pre-filter (bash)",
+            "seconds": 8.0
+          },
+          {
+            "name": "Test hook-guard epic-a1 write-boundary matrix (bash)",
+            "seconds": 12.0
+          },
+          {
+            "name": "Test hook-guard epic-a1 write-boundary matrix (pwsh)",
+            "seconds": 132.0
+          },
+          {
+            "name": "Test plugin-contracts track-selection contract (bash)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test plugin-contracts track-selection contract (pwsh)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test ship track-selection migration (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test ship track-selection migration (pwsh)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test capability-registry-schema suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test capability-registry-schema suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test evaluate-predicate suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test evaluate-predicate suite (pwsh)",
+            "seconds": 23.0
+          },
+          {
+            "name": "Test registry-discovery suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test registry-discovery suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test validate-capability-registry suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test validate-capability-registry suite (pwsh)",
+            "seconds": 13.0
+          },
+          {
+            "name": "Test generate-registry-digest suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test generate-registry-digest suite (pwsh)",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test generate-gate-capabilities suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test generate-gate-capabilities suite (pwsh)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test capability-registry-parity suite (bash)",
+            "seconds": 8.0
+          },
+          {
+            "name": "Test capability-registry-parity suite (pwsh)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test component-path-resolver suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test component-path-resolver suite (pwsh)",
+            "seconds": 48.0
+          },
+          {
+            "name": "Test component-path-diff-basis suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test component-path-diff-basis suite (pwsh)",
+            "seconds": 19.0
+          },
+          {
+            "name": "Test ownership-digest suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test ownership-digest suite (pwsh)",
+            "seconds": 32.0
+          },
+          {
+            "name": "Test check-component-coverage suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test check-component-coverage suite (pwsh)",
+            "seconds": 50.0
+          },
+          {
+            "name": "Test component-path-ownership parity suite (bash)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test component-path-ownership parity suite (pwsh)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test human-copy-runner-contract suite (bash)",
+            "seconds": 20.0
+          },
+          {
+            "name": "Test human-copy-runner-contract suite (pwsh)",
+            "seconds": 15.0
+          },
+          {
+            "name": "Test check-risk-upgrade-byte-identical suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-byte-identical suite (pwsh)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test check-risk-upgrade-capability-merge suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-capability-merge suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-fragment-fail-closed suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test check-risk-upgrade-fragment-fail-closed suite (pwsh)",
+            "seconds": 15.0
+          },
+          {
+            "name": "Test check-risk-upgrade-ineligible-no-reasons suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-spec-capability-block suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-spec-capability-block suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test lite-gate-summary-consumption suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test lite-gate-summary-consumption suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-summary-invalid suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-invalid suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-full-upgrade-backstop suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-full-upgrade-backstop suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent-active-enforcement suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent-active-enforcement suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 0.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      },
+      {
+        "name": "test (ubuntu-latest)",
+        "seconds": 1244.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Setup step 1",
+            "seconds": 4.0
+          },
+          {
+            "name": "[deterministic] Install structural YAML parser",
+            "seconds": 6.0
+          },
+          {
+            "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+            "seconds": 38.0
+          },
+          {
+            "name": "[deterministic] Test Concept Test gate on native Windows",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test domain review finalization on native platforms",
+            "seconds": 97.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated guard invariants (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (Windows)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (PowerShell)",
+            "seconds": 41.0
+          },
+          {
+            "name": "[deterministic] Validate workflow state (POSIX)",
+            "seconds": 39.0
+          },
+          {
+            "name": "[deterministic] Validate repository",
+            "seconds": 41.0
+          },
+          {
+            "name": "[deterministic] Validate repository (POSIX)",
+            "seconds": 42.0
+          },
+          {
+            "name": "[deterministic] Test repository release validation parity",
+            "seconds": 138.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gate scripts",
+            "seconds": 131.0
+          },
+          {
+            "name": "[deterministic] Test run-record feature scope and CRLF identity",
+            "seconds": 10.0
+          },
+          {
+            "name": "[deterministic] Test selected-feature structure validation",
+            "seconds": 11.0
+          },
+          {
+            "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+            "seconds": 11.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+            "seconds": 41.0
+          },
+          {
+            "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (pwsh)",
+            "seconds": 117.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test hook guards",
+            "seconds": 75.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+            "seconds": 24.0
+          },
+          {
+            "name": "[deterministic] Test review hash normalization (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test guards (bash)",
+            "seconds": 8.0
+          },
+          {
+            "name": "[deterministic] Test approval boundary (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gates (bash)",
+            "seconds": 17.0
+          },
+          {
+            "name": "[deterministic] Test panelist-input consent gate (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks (bash)",
+            "seconds": 185.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate (bash)",
+            "seconds": 149.0
+          },
+          {
+            "name": "[deterministic] Test outcome-based eval suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "[deterministic] Test CRLF line-ending parity (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "[deterministic] Test branch-protection script (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "[deterministic] Upload test logs",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post [deterministic] Setup step 1",
+            "seconds": 0.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      },
+      {
+        "name": "version-gates (macos-latest)",
+        "seconds": 1186.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 1.0
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test bump-version.sh loop-gate prerequisite (bash)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test bump-version.sh loop-gate prerequisite (pwsh)",
+            "seconds": 14.0
+          },
+          {
+            "name": "Test release.yml required loop-gate job (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test release.yml required loop-gate job (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test model-freshness-check suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test model-freshness-check suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test project-context-schema suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test project-context-schema suite (pwsh)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test A9 unpublished candidate and Pack (pwsh)",
+            "seconds": 383.0
+          },
+          {
+            "name": "Test approver-registry-schema suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test approver-registry-schema suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test canonicalize-sdd-yaml suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test canonicalize-sdd-yaml suite (pwsh)",
+            "seconds": 22.0
+          },
+          {
+            "name": "Test generate-approval-sidecar suite (bash)",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test generate-approval-sidecar suite (pwsh)",
+            "seconds": 12.0
+          },
+          {
+            "name": "Test detect-policy-weakening suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test detect-policy-weakening suite (pwsh)",
+            "seconds": 12.0
+          },
+          {
+            "name": "Test validate-approval-sidecar suite (bash)",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test validate-approval-sidecar suite (pwsh)",
+            "seconds": 20.0
+          },
+          {
+            "name": "Test apply-human-copy publisher (Bash)",
+            "seconds": 95.0
+          },
+          {
+            "name": "Test apply-human-copy publisher (PowerShell)",
+            "seconds": 47.0
+          },
+          {
+            "name": "Test hook-activation handshake suite (bash)",
+            "seconds": 38.0
+          },
+          {
+            "name": "Test hook-activation handshake suite (pwsh)",
+            "seconds": 101.0
+          },
+          {
+            "name": "Test epic-a1 guard-invariants registration (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test epic-a1 guard-invariants registration (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test R-10 guard staging exemption and prose pre-filter (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test hook-guard epic-a1 write-boundary matrix (bash)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test hook-guard epic-a1 write-boundary matrix (pwsh)",
+            "seconds": 85.0
+          },
+          {
+            "name": "Test plugin-contracts track-selection contract (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test plugin-contracts track-selection contract (pwsh)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test ship track-selection migration (bash)",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test ship track-selection migration (pwsh)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test capability-registry-schema suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test capability-registry-schema suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test evaluate-predicate suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test evaluate-predicate suite (pwsh)",
+            "seconds": 19.0
+          },
+          {
+            "name": "Test registry-discovery suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test registry-discovery suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test validate-capability-registry suite (bash)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test validate-capability-registry suite (pwsh)",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test generate-registry-digest suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test generate-registry-digest suite (pwsh)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test generate-gate-capabilities suite (bash)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test generate-gate-capabilities suite (pwsh)",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test capability-registry-parity suite (bash)",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test capability-registry-parity suite (pwsh)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test component-path-resolver suite (bash)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test component-path-resolver suite (pwsh)",
+            "seconds": 31.0
+          },
+          {
+            "name": "Test component-path-diff-basis suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test component-path-diff-basis suite (pwsh)",
+            "seconds": 17.0
+          },
+          {
+            "name": "Test ownership-digest suite (bash)",
+            "seconds": 3.0
+          },
+          {
+            "name": "Test ownership-digest suite (pwsh)",
+            "seconds": 22.0
+          },
+          {
+            "name": "Test check-component-coverage suite (bash)",
+            "seconds": 6.0
+          },
+          {
+            "name": "Test check-component-coverage suite (pwsh)",
+            "seconds": 33.0
+          },
+          {
+            "name": "Test component-path-ownership parity suite (bash)",
+            "seconds": 8.0
+          },
+          {
+            "name": "Test component-path-ownership parity suite (pwsh)",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test human-copy-runner-contract suite (bash)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test human-copy-runner-contract suite (pwsh)",
+            "seconds": 10.0
+          },
+          {
+            "name": "Test check-risk-upgrade-byte-identical suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test check-risk-upgrade-byte-identical suite (pwsh)",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test check-risk-upgrade-capability-merge suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test check-risk-upgrade-capability-merge suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-fragment-fail-closed suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test check-risk-upgrade-fragment-fail-closed suite (pwsh)",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test check-risk-upgrade-ineligible-no-reasons suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-spec-capability-block suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-spec-capability-block suite (pwsh)",
+            "seconds": 2.0
+          },
+          {
+            "name": "Test lite-gate-summary-consumption suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-summary-consumption suite (pwsh)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-invalid suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-invalid suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-full-upgrade-backstop suite (bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test lite-gate-full-upgrade-backstop suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent-active-enforcement suite (bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test lite-gate-summary-absent-active-enforcement suite (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 0.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      },
+      {
+        "name": "test-windows-heavy (a9)",
+        "seconds": 907.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Setup step 1",
+            "seconds": 11.0
+          },
+          {
+            "name": "[deterministic] Test A7 byte-identical compatibility (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test A7 current-product reachability",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test deterministic gate scripts",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test portable review-loop prechecks",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test task prior-pass receipt",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test A9 unpublished candidate and Pack",
+            "seconds": 889.0
+          },
+          {
+            "name": "[deterministic] Test cross-model gate",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test hook guards",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test panelist-input consent gate",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test cross-runtime handoff fixture (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "[deterministic] Test installed-plugin drift check (pwsh)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Post [deterministic] Setup step 1",
+            "seconds": 3.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      },
+      {
+        "name": "complete POSIX regression inventory",
+        "seconds": 838.0,
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "seconds": 0.0
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 4.0
+          },
+          {
+            "name": "Install structural YAML parser",
+            "seconds": 5.0
+          },
+          {
+            "name": "Test required-checks POSIX failure propagation",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test verification catalog and shadow selection",
+            "seconds": 3.0
+          },
+          {
+            "name": "Observe impact selection without skipping required checks",
+            "seconds": 0.0
+          },
+          {
+            "name": "Install pinned RTK",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test evaluator scratch isolation (Bash and PowerShell)",
+            "seconds": 47.0
+          },
+          {
+            "name": "Test shared quality non-TTY transport contracts",
+            "seconds": 2.0
+          },
+          {
+            "name": "Check shared launch Python and FilesOnly distribution",
+            "seconds": 7.0
+          },
+          {
+            "name": "Test shared launch FilesOnly distribution",
+            "seconds": 14.0
+          },
+          {
+            "name": "Test traceability freeze normalization",
+            "seconds": 45.0
+          },
+          {
+            "name": "Install contract validator",
+            "seconds": 4.0
+          },
+          {
+            "name": "Test shared review launch and conditional input contracts",
+            "seconds": 499.0
+          },
+          {
+            "name": "Install pinned domain regression test runner",
+            "seconds": 9.0
+          },
+          {
+            "name": "Test domain concept modeling and review contracts",
+            "seconds": 162.0
+          },
+          {
+            "name": "Test guard dispatch fallback",
+            "seconds": 11.0
+          },
+          {
+            "name": "Test guard negative corpus",
+            "seconds": 8.0
+          },
+          {
+            "name": "Test deterministic lane coverage",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test workflow scenarios",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test design system contract (Bash)",
+            "seconds": 0.0
+          },
+          {
+            "name": "Test design system contract (PowerShell)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test design sync standing consent (Bash)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Test design sync standing consent (PowerShell)",
+            "seconds": 1.0
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "seconds": 1.0
+          },
+          {
+            "name": "Complete job",
+            "seconds": 0.0
+          }
+        ]
+      }
+    ]
+  }
+]

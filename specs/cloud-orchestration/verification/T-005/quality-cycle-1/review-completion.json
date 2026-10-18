@@ -1,0 +1,11 @@
+{
+  "task_id": "T-005",
+  "review_run_id": "01a14de1-35b7-7760-b4ee-0b632572f054",
+  "implementation_run_id": "01a14dcb-540f-74f1-ac06-0cb8ccbe95f8",
+  "verdict": "PASS",
+  "manifest_sha256": "a74e830d9ebc0b572af620cc5739172d7f4d5a60155070b01de4dacb0f14cec1",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261018-cloud-orchestration-T-005-cycle-1.md",
+  "completion_scope": "PASS for T-005 local scope. Generate and check its evidence bundle before Done. Template-file assets are the supported v1 subset; other file/zip/container assets are explicitly blocked. Direct CDK execution is for trusted applications; untrusted applications require external credential-free isolation.\n\n[INFO] retrospective deferred: later approved tasks remain incomplete."
+}

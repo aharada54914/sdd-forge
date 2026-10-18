@@ -1,0 +1,24 @@
+{
+  "thread_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "session_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "turn": {
+    "id": "01a14f3e-b57c-7a41-966b-885034bf442b",
+    "items": [
+      {
+        "type": "agentMessage",
+        "id": "msg_0e2ade52af8a2f3c016ad4d32cbdd88191a33ceaf00fd45bb8",
+        "text": "Cross-provider tests passed in both directions, including foreign-provenance denial.\n\nT-010 remains incomplete: scoped verification found one A/B/C regression (104 tests, one failure, one skip). Remaining regressions and rollback validation are documented in the updated handoff report.\n\nManifest and v2 report validation passed. No task status or gate changed.",
+        "phase": "final_answer",
+        "memoryCitation": null,
+        "delivery": null,
+        "questions": null
+      }
+    ],
+    "itemsView": "summary",
+    "status": "completed",
+    "error": null,
+    "startedAt": 1792330872,
+    "completedAt": 1792332591,
+    "durationMs": 1719052
+  }
+}

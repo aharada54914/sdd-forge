@@ -1,0 +1,114 @@
+{
+  "run_id": "01a14d9e-7a63-71c2-a07c-aa71d275b9de",
+  "task_id": "T-004",
+  "task_attempt_count": 2,
+  "spec_revision": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "input_drift": [],
+  "commands": [
+    {
+      "label": "green",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "start_utc": "2026-10-18T06:32:46Z",
+      "elapsed_seconds": 25.366,
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/green.log"
+    },
+    {
+      "label": "contracts-regression",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "start_utc": "2026-10-18T06:33:12Z",
+      "elapsed_seconds": 0.546,
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/contracts-regression.log"
+    },
+    {
+      "label": "ruff",
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "plugins/sdd-azure-cloud/scripts/azure_graph.py",
+        "plugins/sdd-azure-cloud/scripts/azure_local.py",
+        "plugins/sdd-azure-cloud/scripts/cloud.py",
+        "tests/cloud-orchestration-routing.tests.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native-initial.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-first-script.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-test.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/verify-local.py"
+      ],
+      "start_utc": "2026-10-18T06:33:12Z",
+      "elapsed_seconds": 0.023,
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/ruff.log"
+    },
+    {
+      "label": "mypy",
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "plugins/sdd-azure-cloud/scripts/azure_graph.py",
+        "plugins/sdd-azure-cloud/scripts/azure_local.py",
+        "plugins/sdd-azure-cloud/scripts/cloud.py",
+        "tests/cloud-orchestration-routing.tests.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native-initial.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-first-script.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-test.py",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/verify-local.py"
+      ],
+      "start_utc": "2026-10-18T06:33:12Z",
+      "elapsed_seconds": 0.421,
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/mypy.log"
+    },
+    {
+      "label": "manifest-validation-final",
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+        "--manifest",
+        "specs/cloud-orchestration/verification/T-004/attempt-2/task-input-manifest.json",
+        "--snapshot-root",
+        "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/inputs",
+        "--expected-task",
+        "T-004"
+      ],
+      "start_utc": "2026-10-18T06:33:13Z",
+      "elapsed_seconds": 0.026,
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/manifest-validation-final.log"
+    }
+  ],
+  "source_hashes": {
+    "plugins/sdd-azure-cloud/scripts/azure_graph.py": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f",
+    "plugins/sdd-azure-cloud/scripts/azure_local.py": "13c1b71923501fdd861e583ce14f7026d538e6c8e89505a87f5211fc4b82bbbd",
+    "plugins/sdd-azure-cloud/scripts/cloud.py": "f4789a61a5c95c235fb3108277678aca8058d35dd1b6a24153bffb6cc6261dda",
+    "tests/cloud-orchestration-routing.tests.py": "ced34d267e8a200e54013483f4f2ea7ce8a741321b45f1cbb2890046b966b330",
+    "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native-initial.py": "8c1a43aa3721a022dd01190a1cf633cff935ddcd856d60a2f8f64f86f84bd6ea",
+    "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/capture-native.py": "cbb992fb001699606dc94a5e28fcdd6708fd91d3a1395a2934a91d94e292e012",
+    "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-first-script.py": "6c9241ea0be8c9a954996f90d7b1ef815c63f689844fbcf9deb1a48938ef1f9a",
+    "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/rollback-test.py": "d8613fc8bd6651bc847ea86ccdbe6108058de0bd467971ca6c0c42da7f688b24",
+    "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/verify-local.py": "d31b8ba67fed1a3a98a6f2991a489008bbb3359b1099a074e921a74c67ff3b9a",
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d",
+    "tests/cloud-orchestration-contracts.tests.py": "71b89cf257b302fe695f7bdb5b42e648eaec0edb7ef14ce2c7f927bb5cd1a90b",
+    "tests/shared-launch-python/pyproject.toml": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12"
+  },
+  "full_repository_suite": "Not run; root-owned",
+  "cloud_calls": 0,
+  "coverage": "Not measured; actual task subprocess/native compiler checks, not a coverage claim"
+}

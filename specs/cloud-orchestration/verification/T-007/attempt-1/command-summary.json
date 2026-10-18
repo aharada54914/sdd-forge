@@ -1,0 +1,478 @@
+[
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/ci-claude-install.json",
+    "command": [
+      "bash",
+      "tests/ci-claude-install.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:32:14Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.042,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/cloud-packaging-final.json",
+    "command": [
+      "python3",
+      "-B",
+      "tests/install-cloud.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:34:27Z",
+    "exit_code": 0,
+    "elapsed_seconds": 69.402,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/cloud-packaging.json",
+    "command": [
+      "python3",
+      "-B",
+      "tests/install-cloud.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:30:18Z",
+    "exit_code": 0,
+    "elapsed_seconds": 61.301,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/diff-check.json",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "install.sh",
+      "install.ps1",
+      "uninstall.sh",
+      "uninstall.ps1",
+      ".agents/plugins/marketplace.json",
+      ".claude-plugin/marketplace.json",
+      "tests/validate-repository.ps1",
+      "tests/install-cloud.tests.py",
+      "tests/install.tests.sh",
+      "tests/install.tests.ps1",
+      "tests/uninstall.tests.sh",
+      "tests/uninstall.tests.ps1",
+      "tests/install-uninstall-matrix.tests.sh",
+      "tests/install-uninstall-matrix.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:39:09Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.01,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/green-reachability.json",
+    "command": [
+      "python3",
+      "-B",
+      "tests/install-cloud.tests.py",
+      "SkillVisibility"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:32:34Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.601,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/green-visibility.json",
+    "command": [
+      "python3",
+      "-B",
+      "tests/install-cloud.tests.py",
+      "SkillVisibility"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:31:19Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.638,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/idempotency-posix.json",
+    "command": [
+      "bash",
+      "tests/installer-idempotency.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:29:45Z",
+    "exit_code": 0,
+    "elapsed_seconds": 1.685,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/idempotency-powershell.json",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/installer-idempotency.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:30:01Z",
+    "exit_code": 0,
+    "elapsed_seconds": 4.257,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/install-posix.json",
+    "command": [
+      "bash",
+      "tests/install.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:29:23Z",
+    "exit_code": 0,
+    "elapsed_seconds": 20.309,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/install-powershell.json",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/install.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:29:30Z",
+    "exit_code": 0,
+    "elapsed_seconds": 29.949,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/manifest-delivery.json",
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/task-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-t007-01a14f96/snapshot",
+      "--expected-task",
+      "T-007"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:37:14Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.035,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/matrix-posix.json",
+    "command": [
+      "bash",
+      "tests/install-uninstall-matrix.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:31:53Z",
+    "exit_code": 0,
+    "elapsed_seconds": 5.287,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/matrix-powershell.json",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/install-uninstall-matrix.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:31:58Z",
+    "exit_code": 0,
+    "elapsed_seconds": 16.234,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/mirror-check.json",
+    "command": [
+      "python3",
+      "scripts/sync-human-copy-mirrors.py",
+      "--check"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:39:09Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.072,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/mypy-delivery.json",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/install-cloud.tests.py",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/run-command.py",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/rollback.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:37:14Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.263,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/mypy-final.json",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/install-cloud.tests.py",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/run-command.py",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/rollback.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:35:37Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.323,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/mypy.json",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/install-cloud.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:31:20Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.368,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/powershell-syntax.json",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-Command",
+      "$bad = $false; foreach ($file in @(\"install.ps1\", \"uninstall.ps1\", \"tests/validate-repository.ps1\", \"tests/install.tests.ps1\", \"tests/uninstall.tests.ps1\", \"tests/install-uninstall-matrix.tests.ps1\")) { $tokens = $null; $errors = $null; [System.Management.Automation.Language.Parser]::ParseFile((Join-Path (Get-Location) $file), [ref]$tokens, [ref]$errors) | Out-Null; if ($errors.Count -gt 0) { $errors; $bad = $true }; Write-Output \"$file : $($errors.Count) parser errors\" }; if ($bad) { exit 1 }"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:36:09Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.285,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/red-reachability.json",
+    "command": [
+      "python3",
+      "-B",
+      "tests/install-cloud.tests.py",
+      "SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:32:20Z",
+    "exit_code": 1,
+    "elapsed_seconds": 0.764,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/red-visibility.json",
+    "command": [
+      "python3",
+      "-B",
+      "tests/install-cloud.tests.py",
+      "SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:31:05Z",
+    "exit_code": 1,
+    "elapsed_seconds": 0.679,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/repository-validation-delivery.json",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/validate-repository.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:36:50Z",
+    "exit_code": 0,
+    "elapsed_seconds": 23.891,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/repository-validation-final.json",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/validate-repository.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:32:34Z",
+    "exit_code": 0,
+    "elapsed_seconds": 22.661,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/repository-validation-second.json",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/validate-repository.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:31:20Z",
+    "exit_code": 1,
+    "elapsed_seconds": 23.339,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/repository-validation.json",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/validate-repository.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:29:56Z",
+    "exit_code": 1,
+    "elapsed_seconds": 22.417,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/rollback-driver.json",
+    "command": [
+      "python3",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/rollback.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:33:17Z",
+    "exit_code": 0,
+    "elapsed_seconds": 106.615,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/rollback-final-driver.json",
+    "command": [
+      "python3",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/rollback.py",
+      "final-"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:36:41Z",
+    "exit_code": 0,
+    "elapsed_seconds": 110.048,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/ruff-delivery.json",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/install-cloud.tests.py",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/run-command.py",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/rollback.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:37:14Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.02,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/ruff-final.json",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/install-cloud.tests.py",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/run-command.py",
+      "specs/cloud-orchestration/verification/T-007/attempt-1/rollback.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:35:37Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.021,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/ruff.json",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/install-cloud.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:31:20Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.022,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/shell-syntax.json",
+    "command": [
+      "bash",
+      "-n",
+      "install.sh",
+      "uninstall.sh",
+      "tests/install.tests.sh",
+      "tests/uninstall.tests.sh",
+      "tests/install-uninstall-matrix.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:36:09Z",
+    "exit_code": 0,
+    "elapsed_seconds": 0.002,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/uninstall-posix.json",
+    "command": [
+      "bash",
+      "tests/uninstall.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:29:44Z",
+    "exit_code": 0,
+    "elapsed_seconds": 1.617,
+    "classification": "offline local command; no live cloud"
+  },
+  {
+    "evidence": "specs/cloud-orchestration/verification/T-007/attempt-1/uninstall-powershell.json",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/uninstall.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T15:30:00Z",
+    "exit_code": 0,
+    "elapsed_seconds": 1.79,
+    "classification": "offline local command; no live cloud"
+  }
+]

@@ -1,0 +1,109 @@
+[
+  {
+    "name": "create",
+    "command": [
+      "git",
+      "worktree",
+      "add",
+      "--detach",
+      "/tmp/cloud-t013-preflight-01a14e44/rollback-checkout",
+      "b31b4076e911f4fe548d42ff1b9fe8b0cc230a9c"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T09:17:58Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-create.log"
+  },
+  {
+    "name": "entry-execution",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "cwd": "/tmp/cloud-t013-preflight-01a14e44/rollback-checkout",
+    "started_at": "2026-10-18T09:17:59Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-entry-execution.log"
+  },
+  {
+    "name": "entry-contracts",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "cwd": "/tmp/cloud-t013-preflight-01a14e44/rollback-checkout",
+    "started_at": "2026-10-18T09:18:10Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-entry-contracts.log"
+  },
+  {
+    "name": "candidate-probes",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "specs/cloud-orchestration/verification/T-013/preflight-repair/probes.py",
+      "--output",
+      "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-candidate-probes.json"
+    ],
+    "cwd": "/tmp/cloud-t013-preflight-01a14e44/rollback-checkout",
+    "started_at": "2026-10-18T09:18:11Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-candidate-probes.log"
+  },
+  {
+    "name": "restored-execution",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "cwd": "/tmp/cloud-t013-preflight-01a14e44/rollback-checkout",
+    "started_at": "2026-10-18T09:18:48Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-restored-execution.log"
+  },
+  {
+    "name": "restored-contracts",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "cwd": "/tmp/cloud-t013-preflight-01a14e44/rollback-checkout",
+    "started_at": "2026-10-18T09:18:59Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-restored-contracts.log"
+  },
+  {
+    "name": "reapplied-observation",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "specs/cloud-orchestration/verification/T-013/preflight-repair/probes.py",
+      "--case",
+      "R9.observed-bindings",
+      "--output",
+      "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-reapplied.json"
+    ],
+    "cwd": "/tmp/cloud-t013-preflight-01a14e44/rollback-checkout",
+    "started_at": "2026-10-18T09:19:00Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-reapplied-observation.log"
+  },
+  {
+    "name": "remove",
+    "command": [
+      "git",
+      "worktree",
+      "remove",
+      "--force",
+      "/tmp/cloud-t013-preflight-01a14e44/rollback-checkout"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T09:19:00Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback-remove.log"
+  }
+]

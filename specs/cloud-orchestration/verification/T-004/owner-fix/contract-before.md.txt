@@ -1,0 +1,180 @@
+# Azure local route / plan / validate (v1)
+
+This adapter is local-only. It has **no provider HTTP client, credentials, ARM
+validation, deployment, what-if, observation or approval implementation**. All
+five other public phases return typed `OPERATION_UNIMPLEMENTED` / BLOCKED / exit
+2, with no invented native operation ID. T-012 owns governed execution.
+
+## Invocation and installation seam
+
+```text
+python3 <installed-azure-plugin>/scripts/cloud.py <operation> --request <path> --output <path>
+```
+
+The eight phase names are route, plan, validate, prepare, apply, reconcile,
+observe and verify. No extra flags or implicit approval exist. JSON goes to
+stdout; exit mapping is the shared contract's 0 / 2 / 1 / 3. Before an identity
+can be validated, failure uses `cloud-input-error/v1`, never an invented run.
+Once the request identity is valid, unavailable local prerequisites use a typed
+BLOCKED result; unsafe outputs are not published.
+
+Requirements: Python 3.11+, POSIX no-follow/dir-fd/link primitives, a physical
+absolute `CLOUD_WORKSPACE_ROOT`, and precreated private evidence/generated
+folders. Use the real physical root on macOS, not a `/tmp` or `/var` symlink.
+Windows filesystems lacking these primitives fail closed; native Windows cloud
+execution is **not supported or claimed**. No sandbox is needed for compilation.
+
+The sibling `sdd-quality-loop/scripts/cloud_contracts.py` is the default shared
+runtime. An installer may explicitly set `CLOUD_SHARED_RUNTIME_ROOT` to the
+physical absolute trusted directory containing that exact shared module. There
+is no cwd/workspace/PYTHONPATH fallback to a different validator. This is trusted
+installed code, not an artifact-provided runtime. Missing runtime returns a
+structured input error. Packaging and bootstrap integration belong to T-007/011.
+
+`CLOUD_BICEP_BIN` selects an explicitly installed, physical executable. The only
+currently tested binary is Linux x64 Bicep 0.48.1 (cec7951cf6), SHA-256
+`b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e`, upstream
+GitHub asset 603718396. Other binary hashes/platform packages require an explicit
+reviewed pin update. There is no download, restore, Azure CLI or cloud login.
+The binary hash and native `--version` must both match before compilation.
+
+## Shared immutable inputs
+
+Use repaired `cloud-run-request/v1` with explicit `local_context`, ownership,
+deployment policy, verification profile and dependency lock. Every reference is
+workspace-relative and must be inside `artifact_root`; `unit_roots` declare the
+complete recursively scanned deployment unit. The request itself must also be
+inside the explicit workspace. Owners are detected from actual metadata/files
+as well as the inventory. Exactly one explicit Bicep owner is required; request
+owner/route must agree. Terraform, SAM, raw CloudFormation, azd and CDK remain
+recognized but cannot execute here. Files and existing IDs are never migrated,
+imported or rewritten.
+
+The evidence directory is exactly
+`specs/<feature>/verification/<task>/cloud/<run>/<unit>`, disjoint from inputs.
+`--output` is a new canonical filename inside it; alias, traversal, links,
+reparse-like unsupported primitives and overwrite fail closed. Folder creation
+and exclusive directory ownership are the caller's responsibility. Run only on
+trusted local directories, with the installed runtime/compiler protected from
+concurrent replacement. The adapter rehashes inputs after compiling private
+snapshots; hashes are integrity, not cloud authority.
+
+## Provider-specific bodies
+
+Schemas (all closed shapes):
+
+- [azure-local-config.schema.json](azure-local-config.schema.json)
+- [azure-parameters.schema.json](azure-parameters.schema.json)
+- [azure-local-evidence.schema.json](azure-local-evidence.schema.json)
+
+For **route only**, the provider config can be
+`{"schema":"azure-local-config/v1","import_resources":false}`. This declares
+only discovery intent; it cannot pass plan/validate. Full configs are also
+accepted structurally at route. A ROUTED result is not a deployment-policy PASS.
+
+For **plan/validate**, every full-config value is required:
+
+| Field | Meaning |
+|---|---|
+| `entrypoint`, `parameters` | Exact declared source and ARM JSON parameter artifact paths |
+| `upstream_root` | Workspace-contained tree containing the four pinned consumed upstream files |
+| `output_directory` | Existing private directory within artifact_root, disjoint from every unit root |
+| `import_resources` | Must be false; there is no import path |
+| `network` | Explicit subnet ID, private_management true, inbound_internet false |
+| `identity.resource_id` | Existing user-assigned identity ID; never creates role assignments |
+| `monitoring.data_collection_rule_id` | Existing DCR ID; no assertion of a received signal |
+| `backup.policy_id` | Existing Recovery Services backup policy; must match explicit vault and target resource group |
+| `cost` | Owner's estimate in minor units, currency and duration_hours; currency/ceiling checked against policy |
+| `evidence` | Exact policy residency, retention_days and restricted access; not proof of remote enforcement |
+
+The parameters file is an ARM deploymentParameters document with exactly the
+11 explicit string values enumerated in its schema. It supplies VM name, region,
+size, versioned gallery image ID, Linux admin username and **public** SSH key,
+subnet, identity, DCR, vault name and backup policy ID. Secret values, passwords,
+Key Vault parameter indirection and unspecified values are not supported here.
+Image/identity/network references are same-subscription; the backup vault is in
+the target resource group. These restrictions are checked locally; existence,
+quota, SKU/image availability, permissions and effective network access are not.
+
+Existing resource metadata must enumerate the four mutable attachment
+relationships (subnet → NIC, identity → VM, DCR → association, backup policy →
+protected VM). Preserve each resource's actual owner (including unsupported
+owners). Attachment `resource_type` and `name` must match the **compiled** graph;
+no fixed example NIC/association name is required. These are additive uses of
+references, not permission to edit the referenced objects. Writing a referenced
+resource or its containing parent is denied. Unknown existing-resource plans
+block rather than importing an existing VM or hiding its ID. The image is a
+versioned read-only reference, never a resource declared for mutation.
+
+## Actual compiler and graph checks
+
+Plan snapshots every declared source/module/parameter/asset under the scanned
+unit roots and rejects extra/unlocked files. Local Bicep modules/imports and
+literal file reads must resolve inside that exact snapshot; registry modules,
+absolute/escaping/nonliteral reads, extensions and custom bicepconfig are blocked.
+The isolated compiler receives a minimal credential-free environment and
+`build --no-restore --stdout`, bounded by a 60-second timeout.
+
+The policy checker interprets a **bounded Azure ARM subset**, not a neutral
+resource engine or general ARM interpreter. Supported expressions include
+parameters, variables, property/index access, format, concat, resourceId,
+resourceGroup, subscription, toLower/toUpper, if, equals, true/false. Inline
+incremental modules with inner scope are traversed, preserving the same target;
+`Microsoft.Resources/deployments` must be explicitly allowlisted. Linked or
+cross-scope templates, loops, unknown functions/structures and unsupported API
+versions block. All variables, outputs and module envelope expressions are checked, even when
+not needed by the resource-policy comparison. Benign literal/resourceId outputs
+are supported; outputs or module-output lookups requiring ARM `reference`,
+`listKeys` or another unrecognized runtime function are blocked. Metadata is inert.
+
+Actual graph checks require one private NIC, one Linux VM with the declared
+user-assigned identity, AMA extension, DCR association and backup protected item.
+Resource order, Bicep symbols/comments, variable use, local module structure,
+permitted names/tags, disk size/storage tier and accelerated-networking choice
+are not compared to an example hash. Each actual type must be policy-allowlisted.
+Supported resource API versions are explicit in `azure_graph.py`; unknown
+versions block. The tested modular example uses a different NIC/association name,
+resource order, storage tier and disk size from the shipped example.
+
+No public IP resource or NIC public-IP attachment is permitted. Optional new NSGs
+must be allowlisted and can only add deny rules; this v1 config has no approved
+inbound allow-rule surface. No custom script extension, password auth, new role
+assignment, attached existing disk, deletion, referenced-resource rewrite or
+complete-mode deployment is accepted. The VM's new OS disk is detached rather
+than deleted on VM deletion; its tier/size are visible source inputs to the cost
+review. This local policy is not a cost quote or a live network/backup guarantee.
+
+## Exact artifacts and later executor handoff
+
+Plan publishes the **exact native compiler stdout bytes**, without JSON
+normalization, to `<output_directory>/<draft-request-sha256>.arm.json`. It then
+publishes a new strict request at the adjacent `.request.json`, adding the
+compiled path/hash. Both retain `operation: apply` as final intent. It does not
+change the original request, source or parameters. The output manifest points
+to the new locked request. All files are exclusive/no-overwrite; partial local
+publication after an I/O failure does not become PASS or authorize retry writes.
+Use a fresh declared output/request after inspecting such a local failure.
+
+Validate consumes the locked request, rechecks original source/transitive inputs,
+compiles locally again and compares the **exact** compiled bytes. T-012 must use
+the locked request and exact referenced ARM/parameter bytes at prepare/apply;
+it must not regenerate inputs in credentialed phases. CLI phase remains distinct
+from `request.operation`. Local PASS cannot substitute for authenticated CI
+admission, what-if policy, observation, backup recovery evidence or health checks.
+
+## Upstream closure, not execution authority
+
+[upstream-lock.json](upstream-lock.json) pins the consumed Bicep adapter reference,
+its explicitly referenced Bicep example and adjacent README, plus the MIT license
+at Azure skills commit `cf79ce8778ad063eeac19dbe8bf982d71b466ce0`. The reference
+closure includes all local files those consumed authoring references request;
+external documentation/CLI examples are text, never fetched or executed by the
+adapter. The runtime reads and hashes those exact workspace-provided bytes and
+compares their references/commit/repository against this trusted pin inventory.
+Whole skills and other execution adapters are not vendored into this plugin.
+
+The upstream sample's public IP, SSH rule and mutable image default are **not**
+adopted. Its CLI write/cleanup suggestions grant no authority. The shipped private
+example and local policy are independently constrained by this project's scope.
+The top-level Azure skill router was research context, not an invoked runtime
+skill. No upstream prompt, MCP tool or deployment command is executed.

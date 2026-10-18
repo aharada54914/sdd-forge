@@ -1,0 +1,60 @@
+{
+  "recorded_at": "2026-10-18T11:15:49Z",
+  "fields": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "entry_sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+      "current_sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "entry_sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+      "current_sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "entry_sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+      "current_sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "entry_sha256": "6c7c7ff4fd36cb0468a5d91f6228b1d27f55f408e7098a660285290df277a0e0",
+      "current_sha256": "6c7c7ff4fd36cb0468a5d91f6228b1d27f55f408e7098a660285290df277a0e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "entry_sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+      "current_sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "entry_sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+      "current_sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "entry_sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+      "current_sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "entry_sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+      "current_sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "entry_sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c",
+      "current_sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+    },
+    {
+      "path": "specs/cloud-orchestration/tasks.md",
+      "entry_sha256": "fdc53546c2d271648f65c89e46cf6fe54ca70b04d52e1e0b8eb86ee34e2dc5c2",
+      "current_sha256": "fdc53546c2d271648f65c89e46cf6fe54ca70b04d52e1e0b8eb86ee34e2dc5c2"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-006/second-handoff-report.md",
+      "entry_sha256": "764fd017ceec3191755013410be84789f8bf9465f3a8a38686e01fcbc78cfcd1",
+      "current_sha256": "764fd017ceec3191755013410be84789f8bf9465f3a8a38686e01fcbc78cfcd1"
+    }
+  ]
+}

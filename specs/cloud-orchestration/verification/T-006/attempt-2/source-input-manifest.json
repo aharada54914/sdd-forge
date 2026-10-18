@@ -1,0 +1,57 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-006",
+  "run_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "session_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "agent_instance_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T10:01:50Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "additional/ec2-instance.html",
+      "sha256": "f9d0241ad8d0369adac8d77267242168d851601e1c81a0be0754428d738bc4b9"
+    },
+    {
+      "path": "additional/backup-backupselection.html",
+      "sha256": "f0f99a5a152a8db197542b3c77ea5546e0cc61a4d7c8086e6ebb4f56c1df9951"
+    },
+    {
+      "path": "additional/azure-dcr-rule.json",
+      "sha256": "fd6dfe97584e643746b44bcb2d170f6764e1c74e79dd26b848dcea9dd6630b2b"
+    },
+    {
+      "path": "additional/cloudwatch-alarm.html",
+      "sha256": "f823f042822008f620d3bf9524413f07b84a84ebdbfbb272581454dfe2c0aad3"
+    },
+    {
+      "path": "additional/sources.json",
+      "sha256": "a69b3354e6367b5817d2668368596e5bc4c3fbf9f22ca3ab0ccddf0e56184d48"
+    },
+    {
+      "path": "additional/ec2-securitygroup.html",
+      "sha256": "0c8eb960911a6dd9710829bdd023efcd6bf1bc4e2732bb596bc6e1b15e9324b6"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "plugins/sdd-azure-cloud/scripts/",
+    "plugins/sdd-aws-cloud/scripts/",
+    "plugins/sdd-azure-cloud/references/",
+    "plugins/sdd-aws-cloud/references/",
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/cloud-orchestration-contracts.tests.py",
+    "contracts/cloud-collection-context.schema.json",
+    "contracts/cloud-check-result.schema.json",
+    "contracts/cloud-observation-evidence.schema.json",
+    "reports/implementation/cloud-orchestration/T-006.md",
+    "specs/cloud-orchestration/verification/T-006/attempt-2/"
+  ]
+}

@@ -1,0 +1,86 @@
+test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) ... 
+  test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='aws', stage='prepare', elapsed=110) ... FAIL
+  test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='aws', stage='prepare', elapsed=111) ... FAIL
+  test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='aws', stage='apply', elapsed=110) ... FAIL
+  test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='aws', stage='apply', elapsed=111) ... FAIL
+  test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='azure', stage='prepare', elapsed=110) ... FAIL
+  test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='azure', stage='prepare', elapsed=111) ... FAIL
+  test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='azure', stage='apply', elapsed=110) ... FAIL
+  test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='azure', stage='apply', elapsed=111) ... FAIL
+
+======================================================================
+FAIL: test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='aws', stage='prepare', elapsed=110)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 676, in test_expiry_after_final_binding_denies_and_retains_consumed_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='aws', stage='prepare', elapsed=111)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 676, in test_expiry_after_final_binding_denies_and_retains_consumed_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='aws', stage='apply', elapsed=110)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 676, in test_expiry_after_final_binding_denies_and_retains_consumed_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='aws', stage='apply', elapsed=111)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 676, in test_expiry_after_final_binding_denies_and_retains_consumed_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='azure', stage='prepare', elapsed=110)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 676, in test_expiry_after_final_binding_denies_and_retains_consumed_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='azure', stage='prepare', elapsed=111)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 676, in test_expiry_after_final_binding_denies_and_retains_consumed_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='azure', stage='apply', elapsed=110)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 676, in test_expiry_after_final_binding_denies_and_retains_consumed_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_expiry_after_final_binding_denies_and_retains_consumed_receipt (__main__.Admission.test_expiry_after_final_binding_denies_and_retains_consumed_receipt) (provider='azure', stage='apply', elapsed=111)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 676, in test_expiry_after_final_binding_denies_and_retains_consumed_receipt
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.251s
+
+FAILED (failures=8)

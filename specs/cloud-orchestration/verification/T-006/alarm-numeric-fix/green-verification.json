@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "-c",
+    "import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_SCOPED_CHECK')); guard.start(); runpy.run_path(path,run_name='__main__')",
+    "tests/cloud-orchestration-verification.tests.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T11:36:42Z",
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "source_sha256": "6057a5d62afd366f7b9fc589e887fc8dce9c37daf20b69ff8facb1cff395cc13",
+  "test_sha256": "7cdbf61264499cec788e7da535f9c0b1cdb603d555975b93498cc1a2e65f0135"
+}

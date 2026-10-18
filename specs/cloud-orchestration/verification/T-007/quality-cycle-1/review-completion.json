@@ -1,0 +1,11 @@
+{
+  "task_id": "T-007",
+  "review_run_id": "01a14fb8-dc09-7670-8869-47edb320bb3c",
+  "implementation_run_id": "01a14f96-e637-7773-aa3b-74e44216f500",
+  "verdict": "NEEDS_WORK",
+  "manifest_sha256": "2ceb1c0fff8ad3d97d3eb00510f634ebc9bacf75fda88a5a8a8b9d083fd79a47",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261018-cloud-orchestration-T-007-cycle-1.md",
+  "completion_scope": "Do not set T007 Done or proceed to T011. Preserve this NEEDS_WORK finding and the canonical implementation report. Repair sequential differing-selection installs, add real Bash/PowerShell regression and rollback evidence, then run a fresh independent gate."
+}

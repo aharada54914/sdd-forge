@@ -1,0 +1,11 @@
+{
+  "base_revision": "74e5b177151739cab6a5b5f487fc9eec7d51ab36",
+  "task_owned_before": [
+    {
+      "path": "tests/cloud-orchestration-routing.tests.py",
+      "sha256": "8c7425a05465a229f380e4c19eaf68e7455b31737a1a465a36ef2c9b46acc34e"
+    }
+  ],
+  "aws_plugin_existed": false,
+  "report_existed": false
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "repair-context-binding/v1",
+  "original_run_id": "01a14e1f-3f71-7810-83c1-d84c9c9ae7f6",
+  "repair_run_id": "01a14e44-7b84-7691-afa4-e0a84f80d4a7",
+  "report": "reports/implementation/cloud-orchestration/T-013-preflight-repair.md",
+  "sha256": "2a950759ced39653ca0ead3086d8e2f96edd5e337ba7a83e219590245223efec",
+  "snapshot": "specs/cloud-orchestration/verification/T-013/preflight-repair/implementation-report-snapshot.md",
+  "scope": "Current-code mismatch evidence and correction only; no product code or original report changed; historical pre-implementation mismatch execution unproven."
+}

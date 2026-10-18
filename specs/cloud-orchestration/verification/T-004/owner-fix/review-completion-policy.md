@@ -1,0 +1,7 @@
+# Independent reviewer and formal quality completion
+
+The task requires a named independent reviewer verdict and formal quality evaluation. The fresh reserved evaluator is the named independent reviewer; root separately runs deterministic gates, validates delivery and generates/checks the evidence bundle. The evaluator is independent of the native implementer and root corrective implementer. No second extra reviewer identity is required by the task wording.
+
+The frozen implementation report accurately records these obligations as pending at its pre-review handoff. Root AGENTS.md requires later completion evidence in non-frozen addenda, not rewriting the report. After the current evaluator delivers, the canonical gate report and verification completion record will bind its real name/run/session, exact input manifest and verdict. They supersede the handoff pending statement only if the actual result is PASS and required gates succeed. No future PASS or missing reviewer result is asserted here.
+
+Cycle 1 found a Critical owner-detection bug and a Major missing completion attestation. The product bug is corrected with committed Red, Green and scoped rollback evidence. This addendum resolves the completion-record procedure; the next actual independent verdict remains required. Historical cycle-1 NEEDS_WORK and original handoff bytes are preserved. The same addendum boundary governed the earlier T-002 review, and preserves the frozen task/spec obligations without adding an invented extra reviewer role.

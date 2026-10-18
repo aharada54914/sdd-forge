@@ -1,0 +1,32 @@
+ticket_id: RT-20261018-CLOUD-ALARM-NUMERIC
+status: resolved
+type: implementation-defect
+severity: critical
+target:
+  feature: cloud-orchestration
+  task: T-006
+  files:
+    - plugins/sdd-aws-cloud/scripts/aws_observation.py
+    - tests/cloud-orchestration-verification.tests.py
+summary: CloudWatch Threshold double is compared as literal text
+problem: >-
+  Independent reviewer 01a14ec0-a8ca-7823-b05b-6eba018a41b1 found that
+  valid Threshold XML 0.0 fails monitoring because the collector compares it
+  with literal 0. The native model defines a double, and the fixture masks
+  the defect by returning only literal 0. Original Critical verdict is preserved.
+expected_fix:
+  - Parse and validate the finite numeric Threshold without changing other native field semantics.
+  - Commit genuine failing native XML collector regressions before the product fix.
+  - Accept equivalent numeric zero representations and reject nonzero, malformed and nonfinite thresholds.
+  - Retain network isolation and synthetic provenance; verify scoped checks and rollback.
+  - Preserve canonical report and cycle1 verdict; write a separate fix report and rerun independent quality review.
+approval: Existing user approval covers implementation defects and local verification; no requirement exception.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1
+resolution: >-
+  Bounded fix delivered by 01a14ec8-2897-7202-ad68-7b91dde65313; genuine Red
+  commit 0ec52d98, 56 verification and 32 contract tests, strict Ruff/mypy,
+  52 baseline / 5 focused candidate / 18 restored failures / 52 baseline /
+  5 reapplied tests and three sensitive mutations passed. Critical cycle1
+  verdict remains frozen. Independent cycle2 reviewer 01a14ed4-6080-72c3-97e6-4c3f69eff3ef passed with no findings; canonical cycle2 report and generated evidence bundle validated.

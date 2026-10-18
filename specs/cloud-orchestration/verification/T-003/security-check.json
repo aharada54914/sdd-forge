@@ -1,0 +1,10 @@
+{
+  "classification": "local author checks, not independent review or live IAM verification",
+  "no_eval_exec_or_print_calls": true,
+  "credential_pattern_findings": [],
+  "synthetic_fixtures": true,
+  "native_credentials_read": false,
+  "redirect_size_timeout_behavior_tests": true,
+  "mandatory_scan_failure_test": true,
+  "limitation": "Focused known-pattern scan and AST check, not an exhaustive secret scanner or dependency audit."
+}

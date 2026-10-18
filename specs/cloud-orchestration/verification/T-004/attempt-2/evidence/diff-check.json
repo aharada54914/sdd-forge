@@ -1,0 +1,60 @@
+{
+  "interpretation": "git --no-index returns 1 for differences from /dev/null; no whitespace diagnostics were emitted",
+  "files": [
+    {
+      "path": "plugins/sdd-azure-cloud/examples/README.md",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/private-vm.bicep",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-local-config.schema.json",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-parameters.schema.json",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/local-contract.md",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/upstream-lock.json",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_graph.py",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "exit_code": 1,
+      "diagnostics": ""
+    },
+    {
+      "path": "tests/cloud-orchestration-routing.tests.py",
+      "exit_code": 1,
+      "diagnostics": ""
+    }
+  ]
+}

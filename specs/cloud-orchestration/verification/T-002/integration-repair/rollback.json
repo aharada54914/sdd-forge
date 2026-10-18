@@ -1,0 +1,156 @@
+{
+  "base_revision": "a6337067ce6a868cf59cac943a519643ecde2851",
+  "baseline": {
+    "contracts/cloud-operation-result.schema.json": "78c63243cfe6abea7bb4cc2bb190fd617879248311bde065bf35a69c567368ac",
+    "contracts/cloud-dependency-lock.schema.json": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec",
+    "contracts/cloud-run-request.schema.json": "c7492ec7c790db1f5449070817f7e52b19707aa72bd04cba2089410c0e6ca125",
+    "contracts/cloud-input-error.schema.json": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77",
+    "contracts/cloud-preview.schema.json": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99",
+    "contracts/cloud-observation.schema.json": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826",
+    "contracts/cloud-authorization-receipt.schema.json": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8",
+    "contracts/cloud-verification.schema.json": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e",
+    "contracts/cloud-ownership.schema.json": null,
+    "contracts/cloud-deployment-policy.schema.json": null,
+    "contracts/cloud-verification-profile.schema.json": null,
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": "284d6189da9279327973a757104c15a650827968d9849f76639dfa0b20a0fd5a",
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "9d7ad425167d0b165a7057dd090f2b9c8c88878e8888a09c12ea134cfccaaeb8",
+    "tests/cloud-orchestration-contracts.tests.py": "2eff0d1e9889e3724456fefdb958051392985614311a7c9b992b1e107b5c1915",
+    "tests/cloud-orchestration-execution.tests.py": "f6197706c9cd0ae7abc4fb9385fdc58141ac2678454b81147b3cfbc8bfde1692",
+    "templates/cloud/iam/trusted-policy.example.py": "a6e4af089fae1b9594ef1c0ca581541aa3c44958d3ea1c59ec74350b887ccbd0",
+    "templates/cloud/iam/README.md": "040132962152c701ffc7ebf3ccb3b93f801805d2bf9d116e990124144fda7da3"
+  },
+  "restored": {
+    "contracts/cloud-operation-result.schema.json": "78c63243cfe6abea7bb4cc2bb190fd617879248311bde065bf35a69c567368ac",
+    "contracts/cloud-dependency-lock.schema.json": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec",
+    "contracts/cloud-run-request.schema.json": "c7492ec7c790db1f5449070817f7e52b19707aa72bd04cba2089410c0e6ca125",
+    "contracts/cloud-input-error.schema.json": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77",
+    "contracts/cloud-preview.schema.json": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99",
+    "contracts/cloud-observation.schema.json": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826",
+    "contracts/cloud-authorization-receipt.schema.json": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8",
+    "contracts/cloud-verification.schema.json": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e",
+    "contracts/cloud-ownership.schema.json": null,
+    "contracts/cloud-deployment-policy.schema.json": null,
+    "contracts/cloud-verification-profile.schema.json": null,
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": "284d6189da9279327973a757104c15a650827968d9849f76639dfa0b20a0fd5a",
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "9d7ad425167d0b165a7057dd090f2b9c8c88878e8888a09c12ea134cfccaaeb8",
+    "tests/cloud-orchestration-contracts.tests.py": "2eff0d1e9889e3724456fefdb958051392985614311a7c9b992b1e107b5c1915",
+    "tests/cloud-orchestration-execution.tests.py": "f6197706c9cd0ae7abc4fb9385fdc58141ac2678454b81147b3cfbc8bfde1692",
+    "templates/cloud/iam/trusted-policy.example.py": "a6e4af089fae1b9594ef1c0ca581541aa3c44958d3ea1c59ec74350b887ccbd0",
+    "templates/cloud/iam/README.md": "040132962152c701ffc7ebf3ccb3b93f801805d2bf9d116e990124144fda7da3"
+  },
+  "commands": [
+    {
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+        "a6337067ce6a868cf59cac943a519643ecde2851"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "exit_code": 0,
+      "evidence": "rollback-create.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+      "exit_code": 0,
+      "evidence": "rollback-before-contracts.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+      "exit_code": 0,
+      "evidence": "rollback-before-execution.log"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/project-context-schema.tests.sh"
+      ],
+      "cwd": "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+      "exit_code": 0,
+      "evidence": "rollback-before-schema.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+      "exit_code": 0,
+      "evidence": "rollback-candidate-contracts.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+      "exit_code": 0,
+      "evidence": "rollback-candidate-execution.log"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/project-context-schema.tests.sh"
+      ],
+      "cwd": "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+      "exit_code": 0,
+      "evidence": "rollback-candidate-schema.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+      "exit_code": 0,
+      "evidence": "rollback-restored-contracts.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+      "exit_code": 0,
+      "evidence": "rollback-restored-execution.log"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/project-context-schema.tests.sh"
+      ],
+      "cwd": "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout",
+      "exit_code": 0,
+      "evidence": "rollback-restored-schema.log"
+    },
+    {
+      "command": [
+        "git",
+        "worktree",
+        "remove",
+        "--force",
+        "/tmp/cloud-T-002-repair-01a14d8e/rollback-checkout"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "exit_code": 0,
+      "evidence": "rollback-remove.log"
+    }
+  ],
+  "meaning": "Local code rollback only; no cloud cleanup, no active checkout edits."
+}

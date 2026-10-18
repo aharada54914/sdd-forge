@@ -1,0 +1,148 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "cloud-orchestration",
+  "run_id": "01a14cdd-d51f-75c3-bc6c-96ac92f6e0a6",
+  "verdict": "NEEDS_WORK",
+  "round": 2,
+  "attempt": 2,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "legacy_design": false,
+  "feature_type": "developer-tooling / cloud orchestration",
+  "prior_round_contract_sha256": "5c37e46cf03013c5a6f785cd819f671f15a4c7d266b93b3f5c76319f124a7d83",
+  "requirements_sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "acceptance_sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+  "design_sha256": "d97318d1d033eab8a531210fb94d3a9729b6fde1eded21a6574eb74fbae280ba",
+  "adr_inputs": [
+    {
+      "path": "docs/adr/0036-thin-cloud-orchestration.md",
+      "sha256": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"
+    }
+  ],
+  "layer_sha256": {
+    "ux-spec.md": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+    "frontend-spec.md": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+    "infra-spec.md": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+    "security-spec.md": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+  },
+  "design_req_drift": true,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "01a14d3b-e421-7cb3-bc23-9a8113ec088c",
+      "host_session_id": "01a14d3b-e421-7cb3-bc23-9a8113ec088c",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/cloud-orchestration/requirements.md",
+          "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+        },
+        {
+          "path": "specs/cloud-orchestration/acceptance-tests.md",
+          "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+        },
+        {
+          "path": "specs/cloud-orchestration/investigation.md",
+          "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+        },
+        {
+          "path": "reports/impl-review/cloud-orchestration/attempt-2/round-2/precheck-result.json",
+          "sha256": "9ef8a27d8d13e337b891f9de342126e6863e158b32522d6ef660428ebbd265fe"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "specs/cloud-orchestration/design.md",
+          "sha256": "d97318d1d033eab8a531210fb94d3a9729b6fde1eded21a6574eb74fbae280ba"
+        },
+        {
+          "path": "specs/cloud-orchestration/ux-spec.md",
+          "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+        },
+        {
+          "path": "specs/cloud-orchestration/frontend-spec.md",
+          "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+        },
+        {
+          "path": "specs/cloud-orchestration/infra-spec.md",
+          "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+        },
+        {
+          "path": "specs/cloud-orchestration/security-spec.md",
+          "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+        },
+        {
+          "path": "docs/adr/0036-thin-cloud-orchestration.md",
+          "sha256": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"
+        },
+        {
+          "path": "reports/impl-review/cloud-orchestration/attempt-2/round-1/integrated-summary.json",
+          "sha256": "0ee95f8c43fc3604864079311f6a6eb9b8a51c01d50f31faf243e2c285275e1a"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "01a14d3d-0435-7ad0-9a82-dca917034ef9",
+      "host_session_id": "01a14d3d-0435-7ad0-9a82-dca917034ef9",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/cloud-orchestration/requirements.md",
+          "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+        },
+        {
+          "path": "specs/cloud-orchestration/acceptance-tests.md",
+          "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+        },
+        {
+          "path": "specs/cloud-orchestration/investigation.md",
+          "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+        },
+        {
+          "path": "reports/impl-review/cloud-orchestration/attempt-2/round-2/precheck-result.json",
+          "sha256": "9ef8a27d8d13e337b891f9de342126e6863e158b32522d6ef660428ebbd265fe"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "specs/cloud-orchestration/design.md",
+          "sha256": "d97318d1d033eab8a531210fb94d3a9729b6fde1eded21a6574eb74fbae280ba"
+        },
+        {
+          "path": "specs/cloud-orchestration/ux-spec.md",
+          "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+        },
+        {
+          "path": "specs/cloud-orchestration/frontend-spec.md",
+          "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+        },
+        {
+          "path": "specs/cloud-orchestration/infra-spec.md",
+          "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+        },
+        {
+          "path": "specs/cloud-orchestration/security-spec.md",
+          "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+        },
+        {
+          "path": "docs/adr/0036-thin-cloud-orchestration.md",
+          "sha256": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"
+        },
+        {
+          "path": "reports/impl-review/cloud-orchestration/attempt-2/round-2/integrated-summary.json",
+          "sha256": "3af5a457b5f340f648c6ca3afb7d8cf6749b018253020f31a2664f05cae82c57"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Requirements and acceptance amended and independently reviewed for documentation and release scope; provider approval API assumptions corrected.",
+  "timestamp": "2026-10-18T04:23:26.190264Z"
+}

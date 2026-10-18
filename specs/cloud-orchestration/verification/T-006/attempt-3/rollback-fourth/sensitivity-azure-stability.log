@@ -1,0 +1,29 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py AzureClosureAndDcrCases.test_permission_closure_mismatches
+test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) ... 
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='drift') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='drift') ... FAIL
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='drift')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 1108, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='drift')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 1108, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.049s
+
+FAILED (failures=2)
+
+Exit code: 1

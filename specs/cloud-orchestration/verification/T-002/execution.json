@@ -1,0 +1,82 @@
+{
+  "classification": "local synthetic tests; no cloud calls",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-002/green.log"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/project-context-schema.tests.sh"
+      ],
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-002/regression.log"
+    },
+    {
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+        "--manifest",
+        "specs/cloud-orchestration/verification/T-002/task-input-manifest.json",
+        "--snapshot-root",
+        "/tmp/cloud-T-002-01a14d58/inputs",
+        "--expected-task",
+        "T-002"
+      ],
+      "exit_code": 0,
+      "log": "specs/cloud-orchestration/verification/T-002/manifest-validation-final.log"
+    }
+  ],
+  "compile_checked": [
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+    "tests/cloud-orchestration-contracts.tests.py"
+  ],
+  "unchanged_initial_inputs": [
+    "contracts/project-context.schema.json",
+    "contracts/project-context.template.yaml",
+    "contracts/provider-bindings.schema.json",
+    "contracts/task-input-manifest.schema.json",
+    "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
+    "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+    "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+    "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+    "plugins/sdd-quality-loop/references/provider-terms.json",
+    "plugins/sdd-quality-loop/scripts/check-contract.py",
+    "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+    "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+    "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+    "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+    "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+    "plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+    "plugins/sdd-quality-loop/scripts/validate_path.py",
+    "specs/cloud-orchestration/acceptance-tests.md",
+    "specs/cloud-orchestration/design.md",
+    "specs/cloud-orchestration/frontend-spec.md",
+    "specs/cloud-orchestration/infra-spec.md",
+    "specs/cloud-orchestration/investigation.md",
+    "specs/cloud-orchestration/requirements.md",
+    "specs/cloud-orchestration/security-spec.md",
+    "specs/cloud-orchestration/tasks.md",
+    "specs/cloud-orchestration/traceability.md",
+    "specs/cloud-orchestration/ux-spec.md",
+    "specs/cloud-orchestration/verification/T-001/task-input-manifest.json",
+    "tests/path-lineending-regression.tests.sh",
+    "tests/project-context-schema.tests.sh"
+  ],
+  "limits": [
+    "stdlib trace reports line, not branch, coverage",
+    "no dedicated Python lint/type tool installed",
+    "no cloud/CI/OIDC/native Windows test",
+    "no full repository test run"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "T-006",
+  "review_run_id": "01a14ed4-6080-72c3-97e6-4c3f69eff3ef",
+  "implementation_run_id": "01a14e9b-59d8-7aa1-b988-8c2551229993",
+  "verdict": "PASS",
+  "manifest_sha256": "261b67e6b457745849399b6d76ff1346e12db0c1c408032423fa657d5dc5db99",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261018-cloud-orchestration-T-006-cycle-2.md",
+  "completion_scope": "PASS for the reviewed local implementation scope only; generate and validate the evidence bundle. T-006 remains Implementation Complete because owner sandbox/OIDC/IAM/workload/backup prerequisites and live OQ-001 acceptance are unavailable. The native Azure supported path is bounded direct RBAC in the declared subscription with fixed permissions and DCR shape; unsupported contexts block, and documented provider caching/exclusive-writer/history prerequisites are not proven by synthetic tests. Saved JSON/digests never authenticate later receipt consumers; later tasks must authenticate acquisition or re-collect.\n\nHistorical network qualification: an intermediate Azure metric-context test alias could enter real read-only HTTPS with a literal synthetic token and fictional subscription. Delivery/count was not logged and remains unknown; no authenticated success or write is claimed. Affected aggregate PASS logs are invalid guard evidence and retained separately. The final corrected guarded runs are the acceptance evidence.\n\n[INFO] retrospective deferred: later approved tasks remain incomplete."
+}

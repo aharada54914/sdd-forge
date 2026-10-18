@@ -1,0 +1,26 @@
+ticket_id: RT-20261018-CLOUD-PREVIEW-EXPIRY
+status: resolved
+type: security-boundary-defect
+severity: critical
+target:
+  feature: cloud-orchestration
+  task: T-003
+  files:
+    - plugins/sdd-quality-loop/scripts/cloud_authorization.py
+    - tests/cloud-orchestration-execution.tests.py
+summary: Preview freshness must remain valid until native submission
+problem: >-
+  Independent cycle-2 evaluator 01a14dbd-6bba-75a0-9d8e-7f0e49d237dd confirmed
+  the credential-expiry correction but found that preview expiry is excluded
+  from the final deadline. Final verify_binding uses time captured before its
+  filesystem work, which may cross preview expiry while credentials remain valid.
+expected_fix:
+  - Add committed Red cases for both providers with a preview expiring during final binding and still-valid credentials.
+  - Bound the existing final authorization deadline and receipt by the verified preview expiry; keep prepare without a preview valid.
+  - Assert zero submissions at and after expiry, preserve consumed evidence, and prove a positive immediately before expiry.
+  - Run scoped checks, rollback and fresh independent quality review.
+approval: Existing authorization covers enforcement of the approved fresh-preview and final-admission requirements, with no new authority or privilege.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 2
+resolution: Final deadline and persisted receipt now use the minimum credential/policy/preview expiry; genuine six-subcase Red followed by 26 admission and 31 contract tests, static checks and rollback. Independent cycle 3 remains required.

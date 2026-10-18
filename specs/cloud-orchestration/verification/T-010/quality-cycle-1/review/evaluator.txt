@@ -1,0 +1,13 @@
+RUN_ID: 01a14f74-2211-74f1-9329-f5a77b7a089d
+HOST_SESSION_ID: 01a14f74-2211-74f1-9329-f5a77b7a089d
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-010/quality-cycle-1/review/invocation.json SHA-256 116fc36807023dc20740d835e5ec7746f29c5cd296b5798baa1fad2db9d73991
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Critical] plugins/sdd-quality-loop/scripts/cloud_authorization.py:607-623 — Predecessor freshness is not enforced through the actual native submission. The dependency deadline is checked before `submit(credentials)` but neither propagated nor included in the authorization expiry. AWS subsequently performs history/readback/authentication calls before ExecuteChangeSet (`aws_execution.py:848-867`); Azure performs validation and journal publication before its write (`azure_execution.py:266-318`). Their final guards check consumer expiry, not predecessor freshness. A predecessor can therefore expire during callback work while the cloud write remains permitted, violating AC-006. Carry its deadline into the final native-write guard and test expiry during callback work with zero submissions.
+CHECKED:
+- Verified manifest identity fields, receipt hash, sequence linkage, distinct implementation context, and authorization bindings for all 306 manifest entries. Reads used hash-checking review_read.
+- Inspected T-010 scope, REQ-006, AC-006, design, ADR, contracts, scoped diff, dependency validator, scheduler, and both providers’ write paths.
+- Inspected substantive dependency tests, including field mutations, cross-provider admission, cycles, and A-success/B-failure/C-blocked receipt preservation.
+- Read saved gate outputs: 106 verification, 86 execution, 86 routing, and 33 contract tests passed; Ruff and mypy passed. These were not rerun here.
+- Compared saved rollback/baseline evidence: 78 verification and 26 admission tests passed before and after restoration; restored dependency controls failed as expected; 28 dependency tests passed after reapplication.
+- Limitations: read-only evaluation; no live cloud verification. Component-coverage gate reported “not-applicable (disabled-legacy),” not measured coverage.

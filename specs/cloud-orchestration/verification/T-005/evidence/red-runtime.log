@@ -1,0 +1,30 @@
+test_installed_runtime_mutation_denied (__main__.AwsNativePreparation.test_installed_runtime_mutation_denied) ... FAIL
+
+======================================================================
+FAIL: test_installed_runtime_mutation_denied (__main__.AwsNativePreparation.test_installed_runtime_mutation_denied)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 895, in test_installed_runtime_mutation_denied
+    self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_CDK_ROOT":str(clone)})["error_code"],"CDK_RUNTIME_DRIFT")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 835, in invoke
+    return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 1 != 2 : Traceback (most recent call last):
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py", line 268, in <module>
+    result = run(sys.argv[1:])
+             ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py", line 239, in run
+    ownership = detect_owner(root, request, files)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py", line 184, in detect_owner
+    from aws_local import configuration
+ModuleNotFoundError: No module named 'aws_local'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.420s
+
+FAILED (failures=1)

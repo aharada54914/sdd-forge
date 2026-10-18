@@ -1,0 +1,98 @@
+[
+  {
+    "id": "risk",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/cloud-orchestration/tasks.md T-012",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:19:25Z",
+    "finished_at": "2026-10-18T08:19:25Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/risk.log"
+  },
+  {
+    "id": "lint",
+    "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-azure-cloud/scripts/cloud.py plugins/sdd-azure-cloud/scripts/azure_execution.py plugins/sdd-azure-cloud/scripts/azure_arm.py plugins/sdd-azure-cloud/scripts/azure_governed.py plugins/sdd-quality-loop/scripts/cloud_authorization.py tests/cloud-orchestration-execution.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:19:25Z",
+    "finished_at": "2026-10-18T08:19:25Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/lint.log"
+  },
+  {
+    "id": "typecheck",
+    "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-azure-cloud/scripts/cloud.py plugins/sdd-azure-cloud/scripts/azure_execution.py plugins/sdd-azure-cloud/scripts/azure_arm.py plugins/sdd-azure-cloud/scripts/azure_governed.py plugins/sdd-quality-loop/scripts/cloud_authorization.py tests/cloud-orchestration-execution.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:19:25Z",
+    "finished_at": "2026-10-18T08:19:25Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/typecheck.log"
+  },
+  {
+    "id": "build",
+    "command": "python3 -m py_compile plugins/sdd-azure-cloud/scripts/cloud.py plugins/sdd-azure-cloud/scripts/azure_execution.py plugins/sdd-azure-cloud/scripts/azure_arm.py plugins/sdd-azure-cloud/scripts/azure_governed.py plugins/sdd-quality-loop/scripts/cloud_authorization.py tests/cloud-orchestration-execution.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:19:25Z",
+    "finished_at": "2026-10-18T08:19:26Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/build.log"
+  },
+  {
+    "id": "unit-tests",
+    "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:19:26Z",
+    "finished_at": "2026-10-18T08:19:29Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/unit-tests.log"
+  },
+  {
+    "id": "regression",
+    "command": "python3 -B tests/cloud-orchestration-routing.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:19:29Z",
+    "finished_at": "2026-10-18T08:20:54Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/regression.log"
+  },
+  {
+    "id": "integration-tests",
+    "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:20:54Z",
+    "finished_at": "2026-10-18T08:20:54Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/integration-tests.log"
+  },
+  {
+    "id": "placeholder-scan",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-azure-cloud/scripts/cloud.py plugins/sdd-azure-cloud/scripts/azure_execution.py plugins/sdd-azure-cloud/scripts/azure_arm.py plugins/sdd-azure-cloud/scripts/azure_governed.py plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:20:54Z",
+    "finished_at": "2026-10-18T08:20:54Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/placeholder-scan.log"
+  },
+  {
+    "id": "task-state-check",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/cloud-orchestration/tasks.md",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:20:54Z",
+    "finished_at": "2026-10-18T08:20:55Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/task-state-check.log"
+  },
+  {
+    "id": "workflow-state",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:20:55Z",
+    "finished_at": "2026-10-18T08:21:29Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/workflow-state.log"
+  },
+  {
+    "id": "requirement-traceability",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/cloud-orchestration/traceability.json /workspace/sdd-forge require-evidence",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:21:29Z",
+    "finished_at": "2026-10-18T08:21:29Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/requirement-traceability.log"
+  },
+  {
+    "id": "check-component-coverage",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+    "exit_code": 0,
+    "started_at": "2026-10-18T08:21:29Z",
+    "finished_at": "2026-10-18T08:21:29Z",
+    "evidence": "specs/cloud-orchestration/verification/T-012/quality-cycle-1-recheck/check-component-coverage.log"
+  }
+]

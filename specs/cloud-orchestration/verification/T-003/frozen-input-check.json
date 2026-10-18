@@ -1,0 +1,62 @@
+[
+  {
+    "path": "specs/cloud-orchestration/acceptance-tests.md",
+    "before": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+    "after": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/design.md",
+    "before": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+    "after": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/frontend-spec.md",
+    "before": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+    "after": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/infra-spec.md",
+    "before": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+    "after": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/investigation.md",
+    "before": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c",
+    "after": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/requirements.md",
+    "before": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+    "after": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/security-spec.md",
+    "before": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+    "after": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/tasks.md",
+    "before": "50050fedb1ebeac90c50ddcf3a777d511239a366a499b46c1c10c0a369a84425",
+    "after": "50050fedb1ebeac90c50ddcf3a777d511239a366a499b46c1c10c0a369a84425",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/traceability.md",
+    "before": "6c7c7ff4fd36cb0468a5d91f6228b1d27f55f408e7098a660285290df277a0e0",
+    "after": "6c7c7ff4fd36cb0468a5d91f6228b1d27f55f408e7098a660285290df277a0e0",
+    "unchanged": true
+  },
+  {
+    "path": "specs/cloud-orchestration/ux-spec.md",
+    "before": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+    "after": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+    "unchanged": true
+  }
+]

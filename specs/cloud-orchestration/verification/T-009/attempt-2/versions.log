@@ -1,0 +1,576 @@
+{
+  "classification": "synthetic-offline-diagnostics",
+  "versions": [
+    {
+      "case": "absent schema (legacy)",
+      "consumer": "python",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\n",
+      "stderr": ""
+    },
+    {
+      "case": "absent schema (legacy)",
+      "consumer": "posix",
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.sh",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\n",
+      "stderr": ""
+    },
+    {
+      "case": "absent schema (legacy)",
+      "consumer": "powershell",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "-ContractPath",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "-RepoRoot",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\n",
+      "stderr": ""
+    },
+    {
+      "case": "absent schema (legacy)",
+      "consumer": "selected-plan CLI (existing fixture helper)",
+      "exit_code": 0,
+      "stdout": "selected-verification-plan: PASS\n",
+      "stderr": "",
+      "verdict": "PASS",
+      "check_ids": [
+        "acceptance-tests",
+        "build",
+        "iac-cloud",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ]
+    },
+    {
+      "case": "current v2",
+      "consumer": "python",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\n",
+      "stderr": ""
+    },
+    {
+      "case": "current v2",
+      "consumer": "posix",
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.sh",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\n",
+      "stderr": ""
+    },
+    {
+      "case": "current v2",
+      "consumer": "powershell",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "-ContractPath",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "-RepoRoot",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\n",
+      "stderr": ""
+    },
+    {
+      "case": "current v2",
+      "consumer": "selected-plan CLI (existing fixture helper)",
+      "exit_code": 0,
+      "stdout": "selected-verification-plan: PASS\n",
+      "stderr": "",
+      "verdict": "PASS",
+      "check_ids": [
+        "acceptance-tests",
+        "build",
+        "iac-cloud",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ]
+    },
+    {
+      "case": "explicit v1 (not recognized by current parser)",
+      "consumer": "python",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - contract schema is unrecognized: verification-contract/v1\n",
+      "stderr": ""
+    },
+    {
+      "case": "explicit v1 (not recognized by current parser)",
+      "consumer": "posix",
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.sh",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - contract schema is unrecognized: verification-contract/v1\n",
+      "stderr": ""
+    },
+    {
+      "case": "explicit v1 (not recognized by current parser)",
+      "consumer": "powershell",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "-ContractPath",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "-RepoRoot",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - contract schema is unrecognized: verification-contract/v1\n",
+      "stderr": ""
+    },
+    {
+      "case": "explicit v1 (not recognized by current parser)",
+      "consumer": "selected-plan CLI (existing fixture helper)",
+      "exit_code": 1,
+      "stdout": "selected-verification-plan: BLOCKED\n",
+      "stderr": "contract schema is unrecognized: verification-contract/v1\n",
+      "verdict": "BLOCKED",
+      "check_ids": [
+        "acceptance-tests",
+        "build",
+        "iac-cloud",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ]
+    },
+    {
+      "case": "v3 without mandatory cloud fields",
+      "consumer": "python",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - cloud profile invalid: INVALID_ARTIFACT\n",
+      "stderr": ""
+    },
+    {
+      "case": "v3 without mandatory cloud fields",
+      "consumer": "posix",
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.sh",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - cloud profile invalid: INVALID_ARTIFACT\n",
+      "stderr": ""
+    },
+    {
+      "case": "v3 without mandatory cloud fields",
+      "consumer": "powershell",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "-ContractPath",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "-RepoRoot",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - cloud profile invalid: INVALID_ARTIFACT\n",
+      "stderr": ""
+    },
+    {
+      "case": "v3 without mandatory cloud fields",
+      "consumer": "selected-plan CLI (existing fixture helper)",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "selected-verification-plan: BLOCKED: INVALID_ARTIFACT\n",
+      "verdict": null,
+      "check_ids": []
+    },
+    {
+      "case": "unknown version",
+      "consumer": "python",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - contract schema is unrecognized: verification-contract/v999\n",
+      "stderr": ""
+    },
+    {
+      "case": "unknown version",
+      "consumer": "posix",
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.sh",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - contract schema is unrecognized: verification-contract/v999\n",
+      "stderr": ""
+    },
+    {
+      "case": "unknown version",
+      "consumer": "powershell",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "-ContractPath",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "-RepoRoot",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - contract schema is unrecognized: verification-contract/v999\n",
+      "stderr": ""
+    },
+    {
+      "case": "unknown version",
+      "consumer": "selected-plan CLI (existing fixture helper)",
+      "exit_code": 1,
+      "stdout": "selected-verification-plan: BLOCKED\n",
+      "stderr": "contract schema is unrecognized: verification-contract/v999\n",
+      "verdict": "BLOCKED",
+      "check_ids": [
+        "acceptance-tests",
+        "build",
+        "iac-cloud",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ]
+    },
+    {
+      "case": "cloud reducer output is not a legacy contract",
+      "consumer": "python",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - contract schema is unrecognized: cloud-verification/v1\n",
+      "stderr": ""
+    },
+    {
+      "case": "cloud reducer output is not a legacy contract",
+      "consumer": "posix",
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.sh",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - contract schema is unrecognized: cloud-verification/v1\n",
+      "stderr": ""
+    },
+    {
+      "case": "cloud reducer output is not a legacy contract",
+      "consumer": "powershell",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "-ContractPath",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "-RepoRoot",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - contract schema is unrecognized: cloud-verification/v1\n",
+      "stderr": ""
+    },
+    {
+      "case": "cloud reducer output is not a legacy contract",
+      "consumer": "selected-plan CLI (existing fixture helper)",
+      "exit_code": 1,
+      "stdout": "selected-verification-plan: BLOCKED\n",
+      "stderr": "contract schema is unrecognized: cloud-verification/v1\n",
+      "verdict": "BLOCKED",
+      "check_ids": [
+        "acceptance-tests",
+        "build",
+        "iac-cloud",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ]
+    },
+    {
+      "case": "v2 with unknown cloud discriminator",
+      "consumer": "python",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - cloud profile requires verification-contract/v3\n",
+      "stderr": ""
+    },
+    {
+      "case": "v2 with unknown cloud discriminator",
+      "consumer": "posix",
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.sh",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - cloud profile requires verification-contract/v3\n",
+      "stderr": ""
+    },
+    {
+      "case": "v2 with unknown cloud discriminator",
+      "consumer": "powershell",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "-ContractPath",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "-RepoRoot",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 1,
+      "stdout": "Verification contract FAILED for task T-003:\n - cloud profile requires verification-contract/v3\n",
+      "stderr": ""
+    },
+    {
+      "case": "v2 with unknown cloud discriminator",
+      "consumer": "selected-plan CLI (existing fixture helper)",
+      "exit_code": 1,
+      "stdout": "selected-verification-plan: BLOCKED\n",
+      "stderr": "cloud profile requires verification-contract/v3\n",
+      "verdict": "BLOCKED",
+      "check_ids": [
+        "acceptance-tests",
+        "build",
+        "iac-cloud",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ]
+    },
+    {
+      "case": "v2 with unknown field",
+      "consumer": "python",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.py",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\n",
+      "stderr": ""
+    },
+    {
+      "case": "v2 with unknown field",
+      "consumer": "posix",
+      "command": [
+        "sh",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.sh",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\n",
+      "stderr": ""
+    },
+    {
+      "case": "v2 with unknown field",
+      "consumer": "powershell",
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "-ContractPath",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8/contract.json",
+        "-RepoRoot",
+        "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/boundary-6bwis6d8"
+      ],
+      "exit_code": 0,
+      "stdout": "Verification contract passed for task T-003.\n",
+      "stderr": ""
+    },
+    {
+      "case": "v2 with unknown field",
+      "consumer": "selected-plan CLI (existing fixture helper)",
+      "exit_code": 0,
+      "stdout": "selected-verification-plan: PASS\n",
+      "stderr": "",
+      "verdict": "PASS",
+      "check_ids": [
+        "acceptance-tests",
+        "build",
+        "iac-cloud",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ]
+    }
+  ],
+  "provenance": [
+    {
+      "case": "matched synthetic collection",
+      "overall_result": "PASS",
+      "evidence_complete": false
+    },
+    {
+      "case": "self-consistent native labels with default untrusted caller",
+      "rejected": "COLLECTOR_PROVENANCE_REQUIRED"
+    },
+    {
+      "case": "deliberately unsafe trust assertion on same forged fixture",
+      "returned_evidence_complete": true,
+      "native_evidence": false,
+      "meaning": "Saved labels/hashes cannot authorize trusted_native=True"
+    }
+  ],
+  "legacy_sets": {
+    "baseline": [
+      "build",
+      "lint",
+      "placeholder-scan",
+      "task-state-check",
+      "typecheck",
+      "unit-tests"
+    ],
+    "risk_tiers": {
+      "low": [
+        "build",
+        "lint",
+        "placeholder-scan",
+        "task-state-check",
+        "typecheck"
+      ],
+      "medium": [
+        "acceptance-tests",
+        "build",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ],
+      "high": [
+        "acceptance-tests",
+        "build",
+        "check-component-coverage",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "requirement-traceability",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ],
+      "critical": [
+        "acceptance-tests",
+        "build",
+        "check-component-coverage",
+        "lint",
+        "placeholder-scan",
+        "regression",
+        "requirement-traceability",
+        "task-state-check",
+        "typecheck",
+        "unit-tests"
+      ]
+    },
+    "stacks": [
+      "code",
+      "docs",
+      "shell",
+      "spec"
+    ]
+  },
+  "legacy_sets_unchanged": true
+}

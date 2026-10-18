@@ -1,0 +1,456 @@
+test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) ... 
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='run_id') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='unit_id') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='provider') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='principal') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='native_operation_id') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='resource_ids') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='scope') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='request_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='profile_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='policy_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='dependency_lock_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='timestamp') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='status') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='exit_code') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='result_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='check_id') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='query') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='classification') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='run_id') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='unit_id') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='provider') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='principal') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='native_operation_id') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='resource_ids') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='scope') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='request_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='profile_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='policy_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='dependency_lock_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='timestamp') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='status') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='exit_code') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='result_sha256') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='check_id') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='query') ... FAIL
+  test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='classification') ... FAIL
+test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract) ... FAIL
+test_shared_reducer_available (__main__.EntryPreflight.test_shared_reducer_available) ... FAIL
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='run_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='unit_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='principal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='native_operation_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='resource_ids')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='request_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='profile_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='policy_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='dependency_lock_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='timestamp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='exit_code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='result_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='check_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='query')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='azure', field='classification')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='run_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='unit_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='principal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='native_operation_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='resource_ids')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='request_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='profile_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='policy_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='dependency_lock_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='timestamp')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='exit_code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='result_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='check_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='query')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) (provider='aws', field='classification')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 68, in test_fake_native_payload_never_confers_collector_provenance
+    self.assertEqual(result['error_code'], 'TRUSTED_COLLECTOR_REQUIRED')
+AssertionError: 'OPERATION_UNIMPLEMENTED' != 'TRUSTED_COLLECTOR_REQUIRED'
+- OPERATION_UNIMPLEMENTED
++ TRUSTED_COLLECTOR_REQUIRED
+
+
+======================================================================
+FAIL: test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 75, in test_observation_settings_have_closed_executable_contract
+    self.assertIn('observation', schema['oneOf'][1]['properties'])
+AssertionError: 'observation' not found in {'schema': {'const': 'azure-local-config/v1', 'type': 'string'}, 'import_resources': {'const': False, 'type': 'boolean'}, 'entrypoint': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'parameters': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'upstream_root': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'output_directory': {'type': 'string', 'pattern': '^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])', 'maxLength': 1024}, 'network': {'type': 'object', 'additionalProperties': False, 'required': ['subnet_id', 'private_management', 'inbound_internet'], 'properties': {'subnet_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}, 'private_management': {'const': True, 'type': 'boolean'}, 'inbound_internet': {'const': False, 'type': 'boolean'}}}, 'identity': {'type': 'object', 'additionalProperties': False, 'required': ['resource_id'], 'properties': {'resource_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}}}, 'monitoring': {'type': 'object', 'additionalProperties': False, 'required': ['data_collection_rule_id'], 'properties': {'data_collection_rule_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}}}, 'backup': {'type': 'object', 'additionalProperties': False, 'required': ['policy_id'], 'properties': {'policy_id': {'type': 'string', 'pattern': '^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])'}}}, 'cost': {'type': 'object', 'additionalProperties': False, 'required': ['estimated_minor_units', 'currency', 'duration_hours'], 'properties': {'estimated_minor_units': {'type': 'integer', 'minimum': 1, 'maximum': 2147483647}, 'currency': {'type': 'string', 'pattern': '^[A-Z]{3}$(?![\\s\\S])'}, 'duration_hours': {'type': 'integer', 'minimum': 1, 'maximum': 2147483647}}}, 'evidence': {'type': 'object', 'additionalProperties': False, 'required': ['residency', 'retention_days', 'access'], 'properties': {'residency': {'type': 'string', 'pattern': '^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$(?![\\s\\S])'}, 'retention_days': {'type': 'integer', 'minimum': 1, 'maximum': 2147483647}, 'access': {'const': 'restricted', 'type': 'string'}}}}
+
+======================================================================
+FAIL: test_shared_reducer_available (__main__.EntryPreflight.test_shared_reducer_available)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 79, in test_shared_reducer_available
+    self.assertTrue(path.is_file(), 'Shared reducer has not yet been implemented')
+AssertionError: False is not true : Shared reducer has not yet been implemented
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.276s
+
+FAILED (failures=38)

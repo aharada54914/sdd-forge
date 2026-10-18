@@ -1,0 +1,16 @@
+RUN_ID: 01a14f28-c7fd-7a62-882c-0f2a0386fb94
+HOST_SESSION_ID: 01a14f28-c7fd-7a62-882c-0f2a0386fb94
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-009/quality-cycle-2/review/invocation.json SHA-256 27bd73116f90b152c9eaaf378b65353fce5855616ae36b8ab77155886ab38e87
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Recomputed invocation and reservation-record hashes; both match supplied pins. Verified task/report identity, implementation-context separation, and authorization of all 1,076 manifest entries.
+- Inspected T-009 scope, REQ-008, AC-008/TEST-008, design and ADR 0036.
+- Inspected cloud_verification.py:427–663, check-contract.py:457–469, PowerShell dispatch and selected-plan validation: explicit version selection, mandatory checks and saved-evidence rejection are implemented.
+- Inspected provider readback and profile tests, including mismatched bindings, substituted assets, unsupported versions and mandatory failed/unavailable checks. Synthetic protocol tests are not live-cloud proof.
+- Read saved command outputs: 78 verification tests, 33 contract tests and 163 legacy assertions passed; guard suites reported 42 Bash and 55 PowerShell passes, with the documented existing PowerShell skip. Lint and type checks passed.
+- Compared captured before/after version behavior: legacy required checks remain unchanged. Read disposable rollback outputs: 56 baseline verification tests, 32 contracts and 163 legacy assertions passed; reapplication passed 22 profile tests.
+- Compared root/package schema bytes: all three new schema mirrors match. Current source pins match the final source inventory.
+- Read the T-009-specific human preflight exception; historical missing executions remain disclosed, not retroactively claimed.
+- No tests were rerun in this read-only evaluation. This PASS covers T-009 only—not live cloud acceptance, native Windows/Python 3.6, full-repository validation or later tasks.

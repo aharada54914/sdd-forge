@@ -1,0 +1,5 @@
+$ git worktree add --detach /tmp/cloud-T006-01a14e73/rollback 65ee658c1b3e522eced2413aeb55bb897783bf1b
+Preparing worktree (detached HEAD 65ee658c)
+HEAD is now at 65ee658c test(cloud): add synthetic native wire collector cases before adapters
+
+Exit code: 0

@@ -1,0 +1,2072 @@
+[
+  {
+    "path": "plugins/sdd-quality-loop/contracts/capability-registry.json",
+    "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75",
+    "matches": [
+      {
+        "line": 35,
+        "text": "      \"id\": \"check-contract\","
+      },
+      {
+        "line": 38,
+        "text": "      \"implementation_ref\": \"plugins/sdd-quality-loop/scripts/check-contract.py\""
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+    "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392",
+    "matches": [
+      {
+        "line": 10,
+        "text": "      \"const\": \"cloud-verification-registry/v1\""
+      },
+      {
+        "line": 37,
+        "text": "  \"$id\": \"https://github.com/aharada54914/sdd-forge/contracts/cloud-verification-registry.schema.json\""
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+    "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5",
+    "matches": [
+      {
+        "line": 17,
+        "text": "      \"const\": \"selected-verification-plan/v2\""
+      },
+      {
+        "line": 153,
+        "text": "  \"$id\": \"https://github.com/aharada54914/sdd-forge/contracts/selected-verification-plan-v2.schema.json\""
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/contracts/selected-verification-plan.schema.json",
+    "sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe",
+    "matches": [
+      {
+        "line": 3,
+        "text": "  \"$id\": \"https://github.com/aharada54914/sdd-forge/contracts/selected-verification-plan.schema.json\","
+      },
+      {
+        "line": 9,
+        "text": "    \"schema\": { \"const\": \"selected-verification-plan/v1\" },"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+    "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a",
+    "matches": [
+      {
+        "line": 15,
+        "text": "      \"const\": \"verification-contract/v3\""
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+    "sha256": "de0153f09def1b805818f9bef1ddea065a30d3fee95e12f026bdaec40720d06d",
+    "matches": [
+      {
+        "line": 2,
+        "text": "  \"schema\": \"cloud-verification-registry/v1\","
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/deterministic-check-policy.md",
+    "sha256": "ce2628c45b342a0883d9f6d13870cb70d22f3d73b14933de01085c332734ef41",
+    "matches": [
+      {
+        "line": 24,
+        "text": "   `waiver_reason` \u2014 an empty string fails `check-contract`."
+      },
+      {
+        "line": 25,
+        "text": "4. Before any `Done` decision, run `scripts/check-contract.(sh|ps1)"
+      },
+      {
+        "line": 30,
+        "text": "   `check-contract`."
+      },
+      {
+        "line": 46,
+        "text": "| `check-contract` | Refuse Done while any required (tier-minimum) contract check fails or lacks evidence | Before the Done decision |"
+      },
+      {
+        "line": 86,
+        "text": "cannot be waived** \u2014 `check-contract` enforces this: only the compile-check"
+      },
+      {
+        "line": 153,
+        "text": "  `check-contract`, and artifact entries for the contract plus every passing"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/differential-test-policy.md",
+    "sha256": "191f71258780f0389cd3931ebd3edb4952ca911b1f3555dfadffdb5187df2217",
+    "matches": [
+      {
+        "line": 89,
+        "text": "Added for risk-adaptive-layer T-004, which makes `check-contract.{sh,ps1,py}`"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+    "sha256": "4c43639cd9b90b2c7c4ac83d80b41b3808ad9f865550e465cb1db63743a523ae",
+    "matches": [
+      {
+        "line": 14,
+        "text": "    \"plugins/sdd-quality-loop/scripts/check-contract.sh\","
+      },
+      {
+        "line": 15,
+        "text": "    \"plugins/sdd-quality-loop/scripts/check-contract.ps1\","
+      },
+      {
+        "line": 16,
+        "text": "    \"plugins/sdd-quality-loop/scripts/check-contract.py\","
+      },
+      {
+        "line": 65,
+        "text": "    \"plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py\","
+      },
+      {
+        "line": 114,
+        "text": "    \"plugins/sdd-quality-loop/references/cloud-verification-registry.json\","
+      },
+      {
+        "line": 121,
+        "text": "    \"contracts/selected-verification-plan-v2.schema.json\","
+      },
+      {
+        "line": 122,
+        "text": "    \"plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json\","
+      },
+      {
+        "line": 123,
+        "text": "    \"contracts/cloud-verification-registry.schema.json\","
+      },
+      {
+        "line": 124,
+        "text": "    \"plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json\","
+      },
+      {
+        "line": 279,
+        "text": "    \"plugins/sdd-quality-loop/scripts/check-contract.ps1\","
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+    "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305",
+    "matches": [
+      {
+        "line": 7,
+        "text": "by `check-risk.(sh|ps1)` and enforced by `check-contract.(sh|ps1)` via the"
+      },
+      {
+        "line": 64,
+        "text": "RT-20260821-001, verified against measured `check-contract` behavior: a"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+    "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725",
+    "matches": [
+      {
+        "line": 4,
+        "text": "that `check-contract.(sh|ps1)` requires to be `passes:true` with evidence. The"
+      },
+      {
+        "line": 10,
+        "text": "> in `check-contract` MUST equal the `Required check ids` lists below. If you change"
+      },
+      {
+        "line": 45,
+        "text": "  backward compatible). Enforced by `check-contract` Pass 6; the consensus itself is"
+      },
+      {
+        "line": 53,
+        "text": "  a human edit of the R-10-protected `check-contract` scripts and their parity"
+      },
+      {
+        "line": 68,
+        "text": "Hard rules (enforced by `check-contract` Pass 4, tested in `tests/gates.tests.sh`"
+      },
+      {
+        "line": 82,
+        "text": "These id sets are the contract-check ids `check-contract` requires per tier. The"
+      },
+      {
+        "line": 97,
+        "text": "  **`check-contract`'s own protected, hardcoded tier-minimum set is NOT yet"
+      },
+      {
+        "line": 98,
+        "text": "  live** \u2014 `check-contract.*` is already R-10 protected, so the matching"
+      },
+      {
+        "line": 101,
+        "text": "  (`check-contract.{py,ps1}`, with its own machine-readable `MANIFEST.sha256`)"
+      },
+      {
+        "line": 103,
+        "text": "  Until that human-apply step happens, `check-contract` does NOT enforce"
+      },
+      {
+        "line": 121,
+        "text": "  (preserves existing baseline-protection rule in `check-contract`)."
+      },
+      {
+        "line": 131,
+        "text": "| tier required-set superset | `check-contract` |"
+      },
+      {
+        "line": 133,
+        "text": "| tdd Red\u2192Green evidence | `check-contract` (when `required_workflow == tdd`) |"
+      },
+      {
+        "line": 134,
+        "text": "| `spec_revision` present (high/critical) | `check-contract` + `check-evidence-bundle` |"
+      },
+      {
+        "line": 142,
+        "text": "A contract with **no** `risk` field runs in **legacy mode**: `check-contract`"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/sudo-mode-policy.md",
+    "sha256": "0e7e9b535d5efe8d791d1f7bb3a4ab3b5103413586141ab89ceb9ce5878837ed",
+    "matches": [
+      {
+        "line": 32,
+        "text": "  - `check-contract`: Verifies every required contract check has real evidence."
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/test-policy.md",
+    "sha256": "ec77cace489812bf891c2988f80cd71b4e45cebf0e14d9afa840b86d780bab2e",
+    "matches": [
+      {
+        "line": 30,
+        "text": "  `check-contract` enforces the Red\u2192Green evidence; `check-risk` rejects a"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+    "sha256": "f8ea0ded7c6b9b794dba617ba0575500dc9491f502ebfb78f8ddb975ee6d0ae5",
+    "matches": [
+      {
+        "line": 65,
+        "text": "    # on BOTH runtimes -- requirements.md is explicit that check-contract's"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+    "sha256": "66505c65b073bc083d32b734a4e073bc85a216dd98a3b81a5bf581ae4956d9b3",
+    "matches": [
+      {
+        "line": 2,
+        "text": "# Usage: check-contract.ps1 <path-to-contract.json> [-RepoRoot <path>]"
+      },
+      {
+        "line": 30,
+        "text": "if ($contract.schema -ceq 'verification-contract/v3') {"
+      },
+      {
+        "line": 32,
+        "text": "    Invoke-SddPyDispatch -Master (Join-Path $PSScriptRoot 'check-contract.py') -DiagnosticPrefix 'cloud-profile' -Arguments @($ContractPath, $RepoRoot)"
+      },
+      {
+        "line": 36,
+        "text": "    Write-Output ' - cloud profile requires verification-contract/v3'"
+      },
+      {
+        "line": 43,
+        "text": "# check-contract.py -- and any string the coercion cannot parse at all"
+      },
+      {
+        "line": 153,
+        "text": "# Kept byte-for-byte in step with check-contract.py's PROJECT_CONTEXT_REL_PATH"
+      },
+      {
+        "line": 475,
+        "text": "if ($contractSchema -and $contractSchema -cne 'verification-contract/v2') {"
+      },
+      {
+        "line": 502,
+        "text": "        if ($contractSchema -ceq 'verification-contract/v2' -and ($risk -cin @('high', 'critical'))) {"
+      },
+      {
+        "line": 507,
+        "text": "                $failures += \"risk $risk requires a well-formed spec_revision (40- or 64-hex lowercase) under verification-contract/v2\""
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+    "sha256": "9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7",
+    "matches": [
+      {
+        "line": 2,
+        "text": "\"\"\"R-04: Standalone check-contract logic (extracted from check-contract.sh heredoc)."
+      },
+      {
+        "line": 4,
+        "text": "Usage (via check-contract.sh dispatcher):"
+      },
+      {
+        "line": 5,
+        "text": "    CONTRACT=<path> ROOT=<repo-root> python3 check-contract.py"
+      },
+      {
+        "line": 8,
+        "text": "    python3 check-contract.py <contract-path> [repo-root]"
+      },
+      {
+        "line": 30,
+        "text": "    print(f\"check-contract: cannot import validate-path.py: {exc}\", file=sys.stderr)"
+      },
+      {
+        "line": 31,
+        "text": "    print(\"check-contract: validate-path.py must be present alongside check-contract.py\", file=sys.stderr)"
+      },
+      {
+        "line": 289,
+        "text": "    # RT-20260821-005(c) / AC-005 contract side: under verification-contract/v2"
+      },
+      {
+        "line": 295,
+        "text": "    if (contract.get(\"schema\") or \"\").strip() == \"verification-contract/v2\" and risk in {\"high\", \"critical\"}:"
+      },
+      {
+        "line": 301,
+        "text": "                f\"(40- or 64-hex lowercase) under verification-contract/v2\")"
+      },
+      {
+        "line": 458,
+        "text": "    if isinstance(contract, dict) and contract.get(\"schema\") == \"verification-contract/v3\":"
+      },
+      {
+        "line": 469,
+        "text": "        return contract.get(\"task_id\", \"?\"), [\"cloud profile requires verification-contract/v3\"]"
+      },
+      {
+        "line": 494,
+        "text": "    if contract_schema and contract_schema != \"verification-contract/v2\":"
+      },
+      {
+        "line": 531,
+        "text": "        print(\"check-contract: usage: check-contract.py <contract-path> [repo-root]\", file=sys.stderr)"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-contract.sh",
+    "sha256": "fc3a081d4e584ac13e4e09821815b8a14ca637e214fc70b8d470aff1bfecb416",
+    "matches": [
+      {
+        "line": 3,
+        "text": "# Usage: check-contract.sh <path-to-contract.json> [repo-root]"
+      },
+      {
+        "line": 18,
+        "text": "# R-04: The 315-line inline Python heredoc has been extracted to check-contract.py."
+      },
+      {
+        "line": 24,
+        "text": "  echo \"check-contract: contract file not found: $contract\" >&2"
+      },
+      {
+        "line": 31,
+        "text": "  # R-04: invoke standalone check-contract.py (fail-closed if missing)."
+      },
+      {
+        "line": 32,
+        "text": "  py_script=\"${dir}/check-contract.py\""
+      },
+      {
+        "line": 34,
+        "text": "    echo \"check-contract: check-contract.py not found alongside check-contract.sh\" >&2"
+      },
+      {
+        "line": 43,
+        "text": "    \"$ps\" -NoProfile -ExecutionPolicy Bypass -File \"${dir}/check-contract.ps1\" -ContractPath \"$contract\" -RepoRoot \"$root\""
+      },
+      {
+        "line": 48,
+        "text": "echo \"check-contract: needs python3 or PowerShell. Install one, or run check-contract.ps1 directly.\" >&2"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.sh",
+    "sha256": "abf48c19906ce392e564240469923617989085bdb6291814acfe1e99435ab360",
+    "matches": [
+      {
+        "line": 7,
+        "text": "# Thin dispatcher (same shape as check-contract.sh): python3 -> PowerShell ->"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1",
+    "sha256": "0f9b32251f645f0aa51684007c5489cc34597b5976e07c6c1d2da93a890b7582",
+    "matches": [
+      {
+        "line": 280,
+        "text": "$checkContractScript = Join-Path $scriptRoot \"scripts/check-contract.ps1\""
+      },
+      {
+        "line": 285,
+        "text": "        Add-Failure \"verification_contract failed check-contract validation: $verificationContract\""
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+    "sha256": "bc09790f2ab992f93e240b0e77a2919fdbaf4bd66286b8cba633b6efbf751c1d",
+    "matches": [
+      {
+        "line": 238,
+        "text": "    check_script = pathlib.Path(script_dir) / \"check-contract.sh\""
+      },
+      {
+        "line": 240,
+        "text": "        fail(f\"check-contract script not found: {check_script}\")"
+      },
+      {
+        "line": 244,
+        "text": "            fail(f\"verification_contract failed check-contract validation: {verification_contract}\")"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-traceability.ps1",
+    "sha256": "0344b1b557b15abdc0c35516f6da7e551dffb1e3359773d7ba7e343a357a96ac",
+    "matches": [
+      {
+        "line": 121,
+        "text": "            # Path safety checks (same as check-contract)"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+    "sha256": "f735a2b315161a2dfe61e45a199ffc513b8461a2cccb3adf00d74830dc56016d",
+    "matches": [
+      {
+        "line": 100,
+        "text": "            # Path safety checks (same as check-contract)"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "sha256": "b2488aa48d32716b270fd920fbf4b13f43cf19440e975b48721d91e38de62a68",
+    "matches": [
+      {
+        "line": 203,
+        "text": "        protected_selection(profile, policy)"
+      },
+      {
+        "line": 451,
+        "text": "        selection = protected_selection(profile, policy)"
+      },
+      {
+        "line": 518,
+        "text": "        c._require(protected_selection(profile, policy) == selection, \"PROFILE_REGISTRY_DRIFT\")"
+      },
+      {
+        "line": 523,
+        "text": "            schema=\"verification-contract/v3\", profile=\"cloud\","
+      },
+      {
+        "line": 571,
+        "text": "def protected_selection(profile: dict, policy: dict) -> tuple[list[str], str]:"
+      },
+      {
+        "line": 577,
+        "text": "    path = Path(__file__).resolve().parents[1] / \"references/cloud-verification-registry.json\""
+      },
+      {
+        "line": 581,
+        "text": "    c._record(registry, dict(schema=lambda v: c._enum(v, (\"cloud-verification-registry/v1\",)), profiles=lambda v: c._list(v, lambda _: None, 1)))"
+      },
+      {
+        "line": 630,
+        "text": "    return dict(schema=\"selected-verification-plan/v2\", profile=\"cloud\","
+      },
+      {
+        "line": 640,
+        "text": "    c._record(value, dict(schema=lambda v: c._enum(v, (\"verification-contract/v3\",)),"
+      },
+      {
+        "line": 650,
+        "text": "    selection = protected_selection(profile, policy)"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+    "sha256": "68b6ebecfb4996cae3e97e1723fa64d9e8d97ebbc2489058afddd442c7bd6e7c",
+    "matches": [
+      {
+        "line": 34,
+        "text": "legacy = load('selected_plan_legacy', 'check-contract.py')"
+      },
+      {
+        "line": 59,
+        "text": "    contract = schema('selected-verification-plan-v2.schema.json' if isinstance(plan, dict) and plan.get('schema') == 'selected-verification-plan/v2' else 'selected-verification-plan.schema.json')"
+      },
+      {
+        "line": 62,
+        "text": "    if isinstance(plan, dict) and plan.get('schema') != 'selected-verification-plan/v2' and isinstance(plan.get('checks'), list):"
+      },
+      {
+        "line": 100,
+        "text": "    if isinstance(contract, dict) and contract.get('schema') == 'verification-contract/v3':"
+      },
+      {
+        "line": 173,
+        "text": "    plan = {'schema': 'selected-verification-plan/v1', 'feature': manifest['feature'],"
+      },
+      {
+        "line": 239,
+        "text": "        print('selected-verification-plan: ' + plan['verdict'])"
+      },
+      {
+        "line": 242,
+        "text": "        print('selected-verification-plan: BLOCKED: ' + str(error), file=sys.stderr)"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "sha256": "a08c294f2a7fcfb0e9c574feda16db135a0d4f50509da98661769a6ddcee4aeb",
+    "matches": [
+      {
+        "line": 48,
+        "text": "    \"plugins/sdd-quality-loop/scripts/check-contract.ps1\","
+      },
+      {
+        "line": 85,
+        "text": "    \"plugins/sdd-quality-loop/scripts/check-contract.sh\","
+      },
+      {
+        "line": 86,
+        "text": "    \"plugins/sdd-quality-loop/scripts/check-contract.ps1\","
+      },
+      {
+        "line": 87,
+        "text": "    \"plugins/sdd-quality-loop/scripts/check-contract.py\","
+      },
+      {
+        "line": 139,
+        "text": "    \"plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py\","
+      },
+      {
+        "line": 192,
+        "text": "    \"plugins/sdd-quality-loop/references/cloud-verification-registry.json\","
+      },
+      {
+        "line": 199,
+        "text": "    \"contracts/selected-verification-plan-v2.schema.json\","
+      },
+      {
+        "line": 200,
+        "text": "    \"plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json\","
+      },
+      {
+        "line": 201,
+        "text": "    \"contracts/cloud-verification-registry.schema.json\","
+      },
+      {
+        "line": 202,
+        "text": "    \"plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json\","
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
+    "sha256": "26c20a6a62259b598851beea58070aa1ddf2918fda5048f7467380852d648144",
+    "matches": [
+      {
+        "line": 34,
+        "text": "      \"id\": \"check-contract\","
+      },
+      {
+        "line": 37,
+        "text": "      \"implementation_ref\": \"plugins/sdd-quality-loop/scripts/check-contract.py\""
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "sha256": "e5ba22671799fefccbd0f1f8a8f8d2aa8964a7cfc0e171ebbc4c50977f44cd58",
+    "matches": [
+      {
+        "line": 5,
+        "text": "    PROTECTED_GATE_SUFFIXES = @('plugins/sdd-quality-loop/scripts/sdd-hook-guard.js', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh', 'plugins/sdd-quality-loop/scripts/kill-switch.js', 'plugins/sdd-quality-loop/scripts/kill-switch.sh', 'plugins/sdd-quality-loop/scripts/kill-switch.ps1', 'plugins/sdd-quality-loop/hooks/claude-hooks.json', 'plugins/sdd-quality-loop/hooks/hooks.json', 'plugins/sdd-quality-loop/hooks/copilot-hooks.json', 'plugins/sdd-quality-loop/scripts/check-contract.sh', 'plugins/sdd-quality-loop/scripts/check-contract.ps1', 'plugins/sdd-quality-loop/scripts/check-contract.py', 'plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh', 'plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1', 'plugins/sdd-quality-loop/scripts/check-evidence-bundle.py', 'plugins/sdd-quality-loop/scripts/validate_path.py', '.claude/settings.json', '.claude/settings.local.json', 'tests/gates.tests.sh', 'tests/eval.tests.sh', 'tests/guard-parity.tests.sh', 'tests/constant-parity.tests.sh', 'plugins/sdd-review-loop/agents/impl-reviewer-a.md', 'plugins/sdd-review-loop/agents/impl-reviewer-b.md', 'plugins/sdd-review-loop/agents/task-reviewer-a.md', 'plugins/sdd-review-loop/agents/task-reviewer-b.md', 'plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md', 'plugins/sdd-review-loop/skills/task-review-loop/SKILL.md', 'plugins/sdd-ship/skills/ship/SKILL.md', 'plugins/sdd-quality-loop/scripts/check-workflow-state.sh', 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1', 'plugins/sdd-quality-loop/scripts/check-task-state.sh', 'plugins/sdd-quality-loop/scripts/check-cross-model.sh', 'plugins/sdd-quality-loop/scripts/check-cross-model.ps1', 'plugins/sdd-quality-loop/scripts/check-placeholders.sh', 'plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh', 'plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1', 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh', 'plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1', 'plugins/sdd-quality-loop/scripts/initialize-review-identity.py', 'plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py', 'plugins/sdd-quality-loop/scripts/emit-run-record.sh', 'plugins/sdd-quality-loop/scripts/emit-run-record.ps1', 'plugins/sdd-quality-loop/scripts/detect-panel.sh', 'plugins/sdd-quality-loop/scripts/detect-panel.ps1', 'plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh', 'plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1', 'plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh', 'plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh', 'plugins/sdd-quality-loop/scripts/vendor-capability-registry.py', 'plugins/sdd-review-loop/scripts/spec-review-precheck.sh', 'plugins/sdd-review-loop/scripts/impl-review-precheck.sh', 'plugins/sdd-review-loop/scripts/task-review-precheck.sh', 'plugins/sdd-review-loop/scripts/launch-impl-review.py', 'plugins/sdd-review-loop/scripts/preflight-host-review.py', 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py', 'plugins/sdd-review-loop/scripts/probe-nontty-review.py', 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs', 'plugins/sdd-review-loop/scripts/review-hash-normalization.ps1', 'plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py', 'plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py', 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py', 'plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py', 'plugins/sdd-implementation/scripts/validate-task-input-manifest.sh', 'plugins/sdd-implementation/scripts/validate-implementation-report.sh', 'plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh', 'plugins/sdd-implementation/scripts/prepare-task-snapshot.sh', 'plugins/sdd-implementation/scripts/select-agent-model.sh', 'plugins/sdd-bootstrap/scripts/check-sdd-structure.sh', 'plugins/sdd-bootstrap/scripts/design-sync-scan.sh', 'plugins/sdd-bootstrap/scripts/resolve-design-sync.py', 'plugins/sdd-domain/scripts/domain-review-precheck.sh', 'plugins/sdd-domain/scripts/finalize-domain-review.py', 'plugins/sdd-domain/scripts/finalize-domain-review.sh', 'plugins/sdd-domain/scripts/finalize-domain-review.ps1', 'tests/lib/cross-runtime-consumer-evidence.py', 'plugins/sdd-domain/scripts/record-upstream-concept-issue.py', 'plugins/sdd-domain/scripts/validate-domain-contract.sh', 'plugins/sdd-domain/scripts/validate-domain-contract.ps1', 'plugins/sdd-domain/scripts/validate-concept-test.sh', 'plugins/sdd-domain/scripts/validate-concept-test.ps1', 'plugins/sdd-domain/scripts/validate-concept-test.py', 'plugins/sdd-domain/scripts/domain-review-precheck.ps1', 'plugins/sdd-lite/scripts/check-task-state-lite.sh', 'plugins/sdd-quality-loop/scripts/lib/panelist-common.sh', 'plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh', 'plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh', 'plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1', 'scripts/validate-a9-rollback-receipt.py', 'scripts/validate-a9-promotion.py', 'scripts/validate-a9-candidate.py', 'scripts/observe-a9-advisory.py', 'plugins/sdd-quality-loop/scripts/validate-live-host-proof.py', 'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py', 'plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py', 'plugins/sdd-quality-loop/scripts/resolve-component-paths.py', 'plugins/sdd-quality-loop/scripts/validate-capability-registry.py', 'plugins/sdd-quality-loop/scripts/generate-registry-digest.py', 'plugins/sdd-quality-loop/scripts/registry_discovery.py', 'plugins/sdd-quality-loop/scripts/evaluate-predicate.py', 'plugins/sdd-review-loop/references/a8-trusted-signers.json', 'plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json', 'plugins/sdd-review-loop/references/a8-skip-allowlist.json', 'tests/hook-activation-live-proof/nonce-ledger.json', 'contracts/lite-check-catalog.json', 'contracts/lite-check-catalog.schema.json', 'plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py', 'plugins/sdd-quality-loop/references/readonly-input-contracts.json', 'tests/guard-readonly-inputs.tests.py', 'plugins/sdd-quality-loop/references/cloud-verification-registry.json', 'plugins/sdd-quality-loop/scripts/cloud_verification.py', 'plugins/sdd-quality-loop/scripts/cloud_contracts.py', 'plugins/sdd-azure-cloud/scripts/azure_observation.py', 'plugins/sdd-aws-cloud/scripts/aws_observation.py', 'contracts/verification-contract-v3.schema.json', 'plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json', 'contracts/selected-verification-plan-v2.schema.json', 'plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json', 'contracts/cloud-verification-registry.schema.json', 'plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json', 'plugins/sdd-lite/references/risk-upgrade-policy.md', 'plugins/sdd-lite/scripts/check-risk-upgrade.sh', 'plugins/sdd-lite/scripts/check-risk-upgrade.ps1', 'plugins/sdd-lite/skills/lite-spec/SKILL.md', 'plugins/sdd-quality-loop/references/guard-invariants.json', 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh', '.github/workflows/test.yml', 'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1', 'contracts/capability-registry.schema.json', 'contracts/capability-registry.json', 'contracts/lite-upgrade-reason-catalog.json', 'plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py', 'plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json', 'plugins/sdd-quality-loop/contracts/capability-registry.json', 'plugins/sdd-quality-loop/contracts/capability-registry.schema.json', 'plugins/sdd-quality-loop/scripts/check-component-coverage.py', 'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1', 'plugins/sdd-quality-loop/scripts/check-component-coverage.sh', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js', 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py', 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh', 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.ps1', 'plugins/sdd-quality-loop/scripts/detect-policy-weakening.py', 'plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh', 'plugins/sdd-quality-loop/scripts/detect-policy-weakening.ps1', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1', 'sdd/project-context.approval.json', 'sdd/provider-bindings.approval.json', 'sdd/approver-registry.yaml', 'sdd/.hook-canary-sentinel', 'sdd/.approved-context/project-context.approved.yaml', 'sdd/.approved-context/provider-bindings.approved.yaml', 'plugins/sdd-quality-loop/scripts/apply-human-copy.sh', 'plugins/sdd-quality-loop/scripts/apply-human-copy.ps1', 'plugins/sdd-quality-loop/scripts/resolve-project-context.py', 'plugins/sdd-quality-loop/scripts/resolve-project-context.sh', 'plugins/sdd-quality-loop/scripts/resolve-project-context.ps1', 'plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json')"
+      },
+      {
+        "line": 23,
+        "text": "    PHASE2_HUMAN_COPY_TARGETS = @('plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh', 'plugins/sdd-quality-loop/scripts/check-contract.ps1', 'plugins/sdd-lite/references/risk-upgrade-policy.md', 'plugins/sdd-lite/scripts/check-risk-upgrade.sh', 'plugins/sdd-lite/scripts/check-risk-upgrade.ps1', 'plugins/sdd-lite/skills/lite-spec/SKILL.md', 'plugins/sdd-ship/skills/ship/SKILL.md', 'plugins/sdd-quality-loop/references/guard-invariants.json', 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh', 'tests/guard-parity.tests.sh', '.github/workflows/test.yml', 'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1', 'contracts/capability-registry.schema.json', 'contracts/capability-registry.json', 'contracts/lite-upgrade-reason-catalog.json', 'plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py', 'plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json', 'plugins/sdd-quality-loop/contracts/capability-registry.json', 'plugins/sdd-quality-loop/contracts/capability-registry.schema.json', 'plugins/sdd-quality-loop/scripts/check-component-coverage.py', 'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1', 'plugins/sdd-quality-loop/scripts/check-component-coverage.sh')"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "sha256": "e36f7c64f22fa347ed62fcedc9f85da7f784b13c9d602b1d11d6a7c3916a1013",
+    "matches": [
+      {
+        "line": 4,
+        "text": "PROTECTED_GATE_SUFFIXES = ('plugins/sdd-quality-loop/scripts/sdd-hook-guard.js', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh', 'plugins/sdd-quality-loop/scripts/kill-switch.js', 'plugins/sdd-quality-loop/scripts/kill-switch.sh', 'plugins/sdd-quality-loop/scripts/kill-switch.ps1', 'plugins/sdd-quality-loop/hooks/claude-hooks.json', 'plugins/sdd-quality-loop/hooks/hooks.json', 'plugins/sdd-quality-loop/hooks/copilot-hooks.json', 'plugins/sdd-quality-loop/scripts/check-contract.sh', 'plugins/sdd-quality-loop/scripts/check-contract.ps1', 'plugins/sdd-quality-loop/scripts/check-contract.py', 'plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh', 'plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1', 'plugins/sdd-quality-loop/scripts/check-evidence-bundle.py', 'plugins/sdd-quality-loop/scripts/validate_path.py', '.claude/settings.json', '.claude/settings.local.json', 'tests/gates.tests.sh', 'tests/eval.tests.sh', 'tests/guard-parity.tests.sh', 'tests/constant-parity.tests.sh', 'plugins/sdd-review-loop/agents/impl-reviewer-a.md', 'plugins/sdd-review-loop/agents/impl-reviewer-b.md', 'plugins/sdd-review-loop/agents/task-reviewer-a.md', 'plugins/sdd-review-loop/agents/task-reviewer-b.md', 'plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md', 'plugins/sdd-review-loop/skills/task-review-loop/SKILL.md', 'plugins/sdd-ship/skills/ship/SKILL.md', 'plugins/sdd-quality-loop/scripts/check-workflow-state.sh', 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1', 'plugins/sdd-quality-loop/scripts/check-task-state.sh', 'plugins/sdd-quality-loop/scripts/check-cross-model.sh', 'plugins/sdd-quality-loop/scripts/check-cross-model.ps1', 'plugins/sdd-quality-loop/scripts/check-placeholders.sh', 'plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh', 'plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1', 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh', 'plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1', 'plugins/sdd-quality-loop/scripts/initialize-review-identity.py', 'plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py', 'plugins/sdd-quality-loop/scripts/emit-run-record.sh', 'plugins/sdd-quality-loop/scripts/emit-run-record.ps1', 'plugins/sdd-quality-loop/scripts/detect-panel.sh', 'plugins/sdd-quality-loop/scripts/detect-panel.ps1', 'plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh', 'plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1', 'plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh', 'plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh', 'plugins/sdd-quality-loop/scripts/vendor-capability-registry.py', 'plugins/sdd-review-loop/scripts/spec-review-precheck.sh', 'plugins/sdd-review-loop/scripts/impl-review-precheck.sh', 'plugins/sdd-review-loop/scripts/task-review-precheck.sh', 'plugins/sdd-review-loop/scripts/launch-impl-review.py', 'plugins/sdd-review-loop/scripts/preflight-host-review.py', 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py', 'plugins/sdd-review-loop/scripts/probe-nontty-review.py', 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs', 'plugins/sdd-review-loop/scripts/review-hash-normalization.ps1', 'plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py', 'plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py', 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py', 'plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py', 'plugins/sdd-implementation/scripts/validate-task-input-manifest.sh', 'plugins/sdd-implementation/scripts/validate-implementation-report.sh', 'plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh', 'plugins/sdd-implementation/scripts/prepare-task-snapshot.sh', 'plugins/sdd-implementation/scripts/select-agent-model.sh', 'plugins/sdd-bootstrap/scripts/check-sdd-structure.sh', 'plugins/sdd-bootstrap/scripts/design-sync-scan.sh', 'plugins/sdd-bootstrap/scripts/resolve-design-sync.py', 'plugins/sdd-domain/scripts/domain-review-precheck.sh', 'plugins/sdd-domain/scripts/finalize-domain-review.py', 'plugins/sdd-domain/scripts/finalize-domain-review.sh', 'plugins/sdd-domain/scripts/finalize-domain-review.ps1', 'tests/lib/cross-runtime-consumer-evidence.py', 'plugins/sdd-domain/scripts/record-upstream-concept-issue.py', 'plugins/sdd-domain/scripts/validate-domain-contract.sh', 'plugins/sdd-domain/scripts/validate-domain-contract.ps1', 'plugins/sdd-domain/scripts/validate-concept-test.sh', 'plugins/sdd-domain/scripts/validate-concept-test.ps1', 'plugins/sdd-domain/scripts/validate-concept-test.py', 'plugins/sdd-domain/scripts/domain-review-precheck.ps1', 'plugins/sdd-lite/scripts/check-task-state-lite.sh', 'plugins/sdd-quality-loop/scripts/lib/panelist-common.sh', 'plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh', 'plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh', 'plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1', 'scripts/validate-a9-rollback-receipt.py', 'scripts/validate-a9-promotion.py', 'scripts/validate-a9-candidate.py', 'scripts/observe-a9-advisory.py', 'plugins/sdd-quality-loop/scripts/validate-live-host-proof.py', 'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py', 'plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py', 'plugins/sdd-quality-loop/scripts/resolve-component-paths.py', 'plugins/sdd-quality-loop/scripts/validate-capability-registry.py', 'plugins/sdd-quality-loop/scripts/generate-registry-digest.py', 'plugins/sdd-quality-loop/scripts/registry_discovery.py', 'plugins/sdd-quality-loop/scripts/evaluate-predicate.py', 'plugins/sdd-review-loop/references/a8-trusted-signers.json', 'plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json', 'plugins/sdd-review-loop/references/a8-skip-allowlist.json', 'tests/hook-activation-live-proof/nonce-ledger.json', 'contracts/lite-check-catalog.json', 'contracts/lite-check-catalog.schema.json', 'plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py', 'plugins/sdd-quality-loop/references/readonly-input-contracts.json', 'tests/guard-readonly-inputs.tests.py', 'plugins/sdd-quality-loop/references/cloud-verification-registry.json', 'plugins/sdd-quality-loop/scripts/cloud_verification.py', 'plugins/sdd-quality-loop/scripts/cloud_contracts.py', 'plugins/sdd-azure-cloud/scripts/azure_observation.py', 'plugins/sdd-aws-cloud/scripts/aws_observation.py', 'contracts/verification-contract-v3.schema.json', 'plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json', 'contracts/selected-verification-plan-v2.schema.json', 'plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json', 'contracts/cloud-verification-registry.schema.json', 'plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json', 'plugins/sdd-lite/references/risk-upgrade-policy.md', 'plugins/sdd-lite/scripts/check-risk-upgrade.sh', 'plugins/sdd-lite/scripts/check-risk-upgrade.ps1', 'plugins/sdd-lite/skills/lite-spec/SKILL.md', 'plugins/sdd-quality-loop/references/guard-invariants.json', 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh', '.github/workflows/test.yml', 'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1', 'contracts/capability-registry.schema.json', 'contracts/capability-registry.json', 'contracts/lite-upgrade-reason-catalog.json', 'plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py', 'plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json', 'plugins/sdd-quality-loop/contracts/capability-registry.json', 'plugins/sdd-quality-loop/contracts/capability-registry.schema.json', 'plugins/sdd-quality-loop/scripts/check-component-coverage.py', 'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1', 'plugins/sdd-quality-loop/scripts/check-component-coverage.sh', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js', 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py', 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh', 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.ps1', 'plugins/sdd-quality-loop/scripts/detect-policy-weakening.py', 'plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh', 'plugins/sdd-quality-loop/scripts/detect-policy-weakening.ps1', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1', 'sdd/project-context.approval.json', 'sdd/provider-bindings.approval.json', 'sdd/approver-registry.yaml', 'sdd/.hook-canary-sentinel', 'sdd/.approved-context/project-context.approved.yaml', 'sdd/.approved-context/provider-bindings.approved.yaml', 'plugins/sdd-quality-loop/scripts/apply-human-copy.sh', 'plugins/sdd-quality-loop/scripts/apply-human-copy.ps1', 'plugins/sdd-quality-loop/scripts/resolve-project-context.py', 'plugins/sdd-quality-loop/scripts/resolve-project-context.sh', 'plugins/sdd-quality-loop/scripts/resolve-project-context.ps1', 'plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json',)"
+      },
+      {
+        "line": 22,
+        "text": "PHASE2_HUMAN_COPY_TARGETS = ('plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh', 'plugins/sdd-quality-loop/scripts/check-contract.ps1', 'plugins/sdd-lite/references/risk-upgrade-policy.md', 'plugins/sdd-lite/scripts/check-risk-upgrade.sh', 'plugins/sdd-lite/scripts/check-risk-upgrade.ps1', 'plugins/sdd-lite/skills/lite-spec/SKILL.md', 'plugins/sdd-ship/skills/ship/SKILL.md', 'plugins/sdd-quality-loop/references/guard-invariants.json', 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh', 'tests/guard-parity.tests.sh', '.github/workflows/test.yml', 'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1', 'contracts/capability-registry.schema.json', 'contracts/capability-registry.json', 'contracts/lite-upgrade-reason-catalog.json', 'plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py', 'plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json', 'plugins/sdd-quality-loop/contracts/capability-registry.json', 'plugins/sdd-quality-loop/contracts/capability-registry.schema.json', 'plugins/sdd-quality-loop/scripts/check-component-coverage.py', 'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1', 'plugins/sdd-quality-loop/scripts/check-component-coverage.sh',)"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1",
+    "sha256": "b15ef1ee7b8b89fb7717ed09b4d7c0e6150bbbd87478594f61a146b6596b30fb",
+    "matches": [
+      {
+        "line": 3,
+        "text": "# Twin of lib/py-dispatch.sh; the INV-008 family (check-contract,"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh",
+    "sha256": "abde8035c825c318a56a3d9e1b24b2fd618553f10f9784ceae8ab2173eeadf0c",
+    "matches": [
+      {
+        "line": 4,
+        "text": "# sourced-library convention; the INV-008 family \u2014 check-contract,"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+    "sha256": "8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d",
+    "matches": [
+      {
+        "line": 351,
+        "text": "# field -- contract shape is check-contract.ps1's job, not this script's;"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+    "sha256": "17cb11a0aa3c38b6f83bfe3324723f3349d5b088653ae78c28c204bf7f6be752",
+    "matches": [
+      {
+        "line": 427,
+        "text": "# \"checks\" field \u2014 contract shape is check-contract.py's job, not this"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+    "sha256": "ac2118d4104e187a51b0ae8d04d3d591201ff0caf7f0a5072b29195a13903b05",
+    "matches": [
+      {
+        "line": 8,
+        "text": "# Python) \u2014 the same INV-008 convention check-contract.ps1/.py already"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+    "sha256": "7de26e8f1c5aa9bd6b69c9224794f25b0dc35a8a08bb89640d9c54b70388ec26",
+    "matches": [
+      {
+        "line": 36,
+        "text": "CI installs no Python packages for its gate scripts (check-contract.py sets"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.sh",
+    "sha256": "f5852cb1960830e3d42214485d89e552423ec4246a4804851c8a2512a3b35528",
+    "matches": [
+      {
+        "line": 3,
+        "text": "# mirrors check-contract.sh: python3 -> pwsh/powershell -> error exit)."
+      },
+      {
+        "line": 25,
+        "text": "    # repository; check-contract.sh/.ps1 sidesteps this because it takes"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+    "sha256": "1123c6d1ad7c79d33d86d55098526d9d41db43a922b7643e60dd1d58548e037c",
+    "matches": [
+      {
+        "line": 119,
+        "text": "    'plugins/sdd-quality-loop/scripts/check-contract.sh',"
+      },
+      {
+        "line": 120,
+        "text": "    'plugins/sdd-quality-loop/scripts/check-contract.ps1',"
+      },
+      {
+        "line": 121,
+        "text": "    'plugins/sdd-quality-loop/scripts/check-contract.py',"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/validate_path.py",
+    "sha256": "56306107b68809f5ee443085028019f6187cba7c99379ad290be51661933d2b9",
+    "matches": [
+      {
+        "line": 3,
+        "text": "Imported by check-contract.py and check-evidence-bundle.py via __file__-relative"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+    "sha256": "a61f889f274a8069d06c359caf813f79a444de5c77ee64c5a37404a8de8b973b",
+    "matches": [
+      {
+        "line": 55,
+        "text": "    \"selected-verification-plan.schema.json\","
+      },
+      {
+        "line": 57,
+        "text": "    \"selected-verification-plan-v2.schema.json\","
+      },
+      {
+        "line": 58,
+        "text": "    \"cloud-verification-registry.schema.json\","
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+    "sha256": "ce29654fc042e2e1fad4ce0f12c159dcbdc390137f5acc867a7e99d0dd4a21a2",
+    "matches": [
+      {
+        "line": 67,
+        "text": "   - `check-contract` on the task contract: enforces the tier-minimum required"
+      },
+      {
+        "line": 72,
+        "text": "     `python3 scripts/evaluate-selected-plan.py --repo-root <project-root>"
+      },
+      {
+        "line": 121,
+        "text": "     registered in `check-contract`'s own protected tier-minimum required-"
+      },
+      {
+        "line": 394,
+        "text": "- `check-contract` passes: every required contract check (the tier-minimum"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+    "sha256": "392e32a6478337274b0a927f58ed31d0fe0204c12bf5817e121d457de6a3ac98",
+    "matches": [
+      {
+        "line": 94,
+        "text": "- **All deterministic gate scripts**: `check-contract`, `check-placeholders`,"
+      }
+    ]
+  },
+  {
+    "path": "plugins/sdd-quality-loop/templates/verification-contract.template.json",
+    "sha256": "d803be2741e21ea71ba7aaac691aeea314f63f477ee5bab27f37a8e7a553dbe5",
+    "matches": [
+      {
+        "line": 8,
+        "text": "  \"comment\": \"Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.\","
+      }
+    ]
+  },
+  {
+    "path": "contracts/capability-registry.json",
+    "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75",
+    "matches": [
+      {
+        "line": 35,
+        "text": "      \"id\": \"check-contract\","
+      },
+      {
+        "line": 38,
+        "text": "      \"implementation_ref\": \"plugins/sdd-quality-loop/scripts/check-contract.py\""
+      }
+    ]
+  },
+  {
+    "path": "contracts/cloud-verification-registry.schema.json",
+    "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392",
+    "matches": [
+      {
+        "line": 10,
+        "text": "      \"const\": \"cloud-verification-registry/v1\""
+      },
+      {
+        "line": 37,
+        "text": "  \"$id\": \"https://github.com/aharada54914/sdd-forge/contracts/cloud-verification-registry.schema.json\""
+      }
+    ]
+  },
+  {
+    "path": "contracts/selected-verification-plan-v2.schema.json",
+    "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5",
+    "matches": [
+      {
+        "line": 17,
+        "text": "      \"const\": \"selected-verification-plan/v2\""
+      },
+      {
+        "line": 153,
+        "text": "  \"$id\": \"https://github.com/aharada54914/sdd-forge/contracts/selected-verification-plan-v2.schema.json\""
+      }
+    ]
+  },
+  {
+    "path": "contracts/selected-verification-plan.schema.json",
+    "sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe",
+    "matches": [
+      {
+        "line": 3,
+        "text": "  \"$id\": \"https://github.com/aharada54914/sdd-forge/contracts/selected-verification-plan.schema.json\","
+      },
+      {
+        "line": 9,
+        "text": "    \"schema\": { \"const\": \"selected-verification-plan/v1\" },"
+      }
+    ]
+  },
+  {
+    "path": "contracts/verification-contract-v3.schema.json",
+    "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a",
+    "matches": [
+      {
+        "line": 15,
+        "text": "      \"const\": \"verification-contract/v3\""
+      }
+    ]
+  },
+  {
+    "path": "scripts/observe-a9-advisory.py",
+    "sha256": "d788e472e4d0e70b37d9ab197c7b04c3bfcaef7624d1fb9490a53eef9af1d0ab",
+    "matches": [
+      {
+        "line": 39,
+        "text": "plans = load('evaluate-selected-plan')"
+      },
+      {
+        "line": 352,
+        "text": "    run('selected-plan', 'evaluate-selected-plan.py', ['--repo-root', root, '--registry', registry,"
+      },
+      {
+        "line": 409,
+        "text": "    if (not isinstance(parsed, dict) or parsed.get('schema') != 'verification-contract/v2'"
+      }
+    ]
+  },
+  {
+    "path": "tests/a9-advisory-evidence.tests.py",
+    "sha256": "cd2175e9b0b2a22f8a76935107e82bea02148fd88224ed00e60b2e7bb15ef4f0",
+    "matches": [
+      {
+        "line": 46,
+        "text": "    contract = {'schema': 'verification-contract/v2', 'task_id': 'T-001', 'risk': 'medium',"
+      }
+    ]
+  },
+  {
+    "path": "tests/bootstrap-layer-templates.tests.sh",
+    "sha256": "5705201ecf666d98c9ce7b354e0d4b0193eff2ceb9635de83b2846080354528b",
+    "matches": [
+      {
+        "line": 229,
+        "text": "# behavioral - gates.tests.sh T-004.1 pins check-contract's legacy skip. This"
+      }
+    ]
+  },
+  {
+    "path": "tests/capability-registry-parity.tests.ps1",
+    "sha256": "0fb2ba98fbee54d0239dd31200083d1550d125a6e2e277d2472d9594d343faaa",
+    "matches": [
+      {
+        "line": 117,
+        "text": "    \"check-contract.py\", \"check-hook-activation-handshake.py\","
+      }
+    ]
+  },
+  {
+    "path": "tests/capability-registry-parity.tests.sh",
+    "sha256": "756aaa0ae1a8a1b5b31e3961d7370718d184ed5561148cba8d417f9949b15598",
+    "matches": [
+      {
+        "line": 141,
+        "text": "    \"check-contract.py\", \"check-hook-activation-handshake.py\","
+      }
+    ]
+  },
+  {
+    "path": "tests/check-component-coverage.tests.ps1",
+    "sha256": "d48056c4689fbd0a28ef13215317b16af3f023211930e59a394c482e954de7df",
+    "matches": [
+      {
+        "line": 299,
+        "text": "# check-contract.ps1/guard-invariants.json \u2014 and TEST-055.3 asserts the"
+      },
+      {
+        "line": 304,
+        "text": "$liveContractPy = Join-Path $repoRoot \"plugins/sdd-quality-loop/scripts/check-contract.py\""
+      },
+      {
+        "line": 305,
+        "text": "$liveContractPs1 = Join-Path $repoRoot \"plugins/sdd-quality-loop/scripts/check-contract.ps1\""
+      },
+      {
+        "line": 351,
+        "text": "# live check-contract.ps1 registers the check in high AND critical and"
+      },
+      {
+        "line": 357,
+        "text": "    Ok \"TEST-036.3: live check-contract.ps1 registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact)\""
+      },
+      {
+        "line": 359,
+        "text": "    Fail \"TEST-036.3: expected the live check-contract.ps1 to carry the conditional check-component-coverage registration\""
+      },
+      {
+        "line": 446,
+        "text": "# check-contract.ps1 \u2014 with a present, schema-valid project-context.yaml in"
+      },
+      {
+        "line": 454,
+        "text": "    Ok \"TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.ps1 fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)\""
+      },
+      {
+        "line": 456,
+        "text": "    Fail \"TEST-035.1: expected the live check-contract.ps1 to fail the fixture naming check-component-coverage, got exit=$($r035.ExitCode) out=$($r035.Output)\""
+      },
+      {
+        "line": 495,
+        "text": "Write-Output \"=== TEST-055: check-contract producer-digest verification (AC-055, pwsh side) ===\""
+      },
+      {
+        "line": 498,
+        "text": "# against the LIVE check-contract.ps1, plus the structural pin that the"
+      },
+      {
+        "line": 520,
+        "text": "    Ok \"TEST-055.1: the LIVE, applied check-contract.ps1 REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (the delivered tamper-evidence rejection, behavioral on this runtime)\""
+      },
+      {
+        "line": 522,
+        "text": "    Fail \"TEST-055.1: expected the live check-contract.ps1 to reject the tampered evidence, got exit=$($r055bad.ExitCode) out=$($r055bad.Output)\""
+      },
+      {
+        "line": 526,
+        "text": "    Ok \"TEST-055.2: the LIVE, applied check-contract.ps1 PASSES a genuine, live-produced check-component-coverage evidence record (positive case \u2014 the pass is not stuck shut)\""
+      },
+      {
+        "line": 528,
+        "text": "    Fail \"TEST-055.2: expected the live check-contract.ps1 to pass genuine evidence, got exit=$($r055ok.ExitCode) out=$($r055ok.Output)\""
+      },
+      {
+        "line": 534,
+        "text": "    Ok \"TEST-055.2b: the LIVE, applied check-contract pair defines the producer-digest verification pass on both runtimes (structural pin)\""
+      },
+      {
+        "line": 536,
+        "text": "    Fail \"TEST-055.2b: expected the producer-digest verification pass in the live check-contract pair\""
+      },
+      {
+        "line": 541,
+        "text": "if (-not (Test-Path -LiteralPath (Join-Path $drafts \"bundle-b/scripts/check-contract.py\")) -and"
+      },
+      {
+        "line": 542,
+        "text": "    -not (Test-Path -LiteralPath (Join-Path $drafts \"bundle-b/scripts/check-contract.ps1\")) -and"
+      },
+      {
+        "line": 543,
+        "text": "    -not ($draftsManifestRows -match \"bundle-b/scripts/check-contract\")) {"
+      },
+      {
+        "line": 544,
+        "text": "    Ok \"TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) \u2014 the stale apply channel cannot silently revert the conditional gate\""
+      },
+      {
+        "line": 546,
+        "text": "    Fail \"TEST-055.3: the superseded drafts/bundle-b check-contract candidate or its manifest mapping has been resurrected\""
+      }
+    ]
+  },
+  {
+    "path": "tests/check-component-coverage.tests.sh",
+    "sha256": "1e3917e207f7ed236e6724d165196aaae21adb4e351d4fa207c1c84062ec34e8",
+    "matches": [
+      {
+        "line": 244,
+        "text": "# exercised end-to-end against check-contract's staged producer-digest pass"
+      },
+      {
+        "line": 362,
+        "text": "# check-contract.{py,ps1}, live guard-invariants.json + generator), pinned"
+      },
+      {
+        "line": 383,
+        "text": "# the live check-contract pair did NOT register the check (documenting the"
+      },
+      {
+        "line": 390,
+        "text": "LIVE_CONTRACT_PY=\"${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-contract.py\""
+      },
+      {
+        "line": 391,
+        "text": "LIVE_CONTRACT_PS1=\"${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-contract.ps1\""
+      },
+      {
+        "line": 399,
+        "text": "  ok \"TEST-036.3: live check-contract.{py,ps1} registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact, not the superseded unconditional candidate)\""
+      },
+      {
+        "line": 401,
+        "text": "  fail \"TEST-036.3: expected the live check-contract pair to carry the conditional check-component-coverage registration\""
+      },
+      {
+        "line": 493,
+        "text": "# APPLIED live check-contract.py, per acceptance-tests.md's amended TEST-035"
+      },
+      {
+        "line": 550,
+        "text": "  ok \"TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.py fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)\""
+      },
+      {
+        "line": 552,
+        "text": "  fail \"TEST-035.1: expected the live check-contract.py to fail the fixture naming check-component-coverage, got exit=$code035 out=$out035\""
+      },
+      {
+        "line": 608,
+        "text": "echo \"=== TEST-055: check-contract producer-digest verification (AC-055) ===\""
+      },
+      {
+        "line": 614,
+        "text": "# check-contract.py: .1 proves the delivered tamper-evidence rejection, .2"
+      },
+      {
+        "line": 650,
+        "text": "  ok \"TEST-055.1: the LIVE, applied check-contract.py REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (AC-054 negative clause / AC-055 \u2014 the delivered tamper-evidence rejection, proven against real check-component-coverage.py bytes)\""
+      },
+      {
+        "line": 652,
+        "text": "  fail \"TEST-055.1: expected the live check-contract.py to reject the tampered evidence, got exit=$live_bad_code out=$live_bad_out\""
+      },
+      {
+        "line": 660,
+        "text": "  ok \"TEST-055.2: the LIVE, applied check-contract.py PASSES a genuine, live-produced check-component-coverage evidence record (positive case \u2014 the producer-digest pass is not stuck shut)\""
+      },
+      {
+        "line": 662,
+        "text": "  fail \"TEST-055.2: expected the live check-contract.py to pass genuine evidence, got exit=$live_ok_code out=$live_ok_out\""
+      },
+      {
+        "line": 667,
+        "text": "# check-contract candidate staged under drafts/bundle-b/ was superseded by"
+      },
+      {
+        "line": 674,
+        "text": "if [ ! -e \"${DRAFTS}/bundle-b/scripts/check-contract.py\" ] \\"
+      },
+      {
+        "line": 675,
+        "text": "   && [ ! -e \"${DRAFTS}/bundle-b/scripts/check-contract.ps1\" ] \\"
+      },
+      {
+        "line": 676,
+        "text": "   && ! grep -v '^#' \"${DRAFTS}/MANIFEST.sha256\" | grep -q \"bundle-b/scripts/check-contract\"; then"
+      },
+      {
+        "line": 677,
+        "text": "  ok \"TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) \u2014 the stale apply channel cannot silently revert the conditional gate\""
+      },
+      {
+        "line": 679,
+        "text": "  fail \"TEST-055.3: the superseded drafts/bundle-b check-contract candidate or its manifest mapping has been resurrected\""
+      }
+    ]
+  },
+  {
+    "path": "tests/cloud-orchestration-verification.tests.py",
+    "sha256": "d49e32812d2d35519c76898fbeb0c6cf286f865d5366c728fecfdbf67cfea03e",
+    "matches": [
+      {
+        "line": 3314,
+        "text": "            contract = dict(schema=\"verification-contract/v2\", task_id=\"T-009\", profile=\"cloud\", checks=["
+      },
+      {
+        "line": 3320,
+        "text": "            proc = subprocess.run([sys.executable, \"-B\", str(SHARED / \"check-contract.py\"), str(path), str(root)], capture_output=True, text=True)"
+      },
+      {
+        "line": 3322,
+        "text": "            self.assertIn(\"cloud profile requires verification-contract/v3\", proc.stdout)"
+      },
+      {
+        "line": 3420,
+        "text": "            [sys.executable, \"-B\", str(SHARED / \"check-contract.py\"), str(path), str(case.root)],"
+      },
+      {
+        "line": 3421,
+        "text": "            [\"sh\", str(SHARED / \"check-contract.sh\"), str(path), str(case.root)],"
+      },
+      {
+        "line": 3425,
+        "text": "            commands.append([powershell, \"-NoProfile\", \"-File\", str(SHARED / \"check-contract.ps1\"), \"-ContractPath\", str(path), \"-RepoRoot\", str(case.root)])"
+      },
+      {
+        "line": 3451,
+        "text": "        proc = subprocess.run([sys.executable, \"-B\", str(SHARED / \"evaluate-selected-plan.py\"),"
+      },
+      {
+        "line": 3456,
+        "text": "        self.assertIn(\"selected-verification-plan: BLOCKED\", proc.stdout)"
+      },
+      {
+        "line": 3524,
+        "text": "        spec = importlib.util.spec_from_file_location(\"profile_selected_evaluator\", SHARED / \"evaluate-selected-plan.py\")"
+      },
+      {
+        "line": 3549,
+        "text": "        for field, value in [(\"schema\", \"selected-verification-plan/v999\"), (\"verdict\", \"PASS\"), (\"selection_result\", \"FAIL\"), (\"profile\", \"Cloud\")]:"
+      },
+      {
+        "line": 3555,
+        "text": "        registry = ROOT / \"plugins/sdd-quality-loop/references/cloud-verification-registry.json\""
+      },
+      {
+        "line": 3558,
+        "text": "        chosen, _ = v.protected_selection(profile, dict(backup_required=True))"
+      },
+      {
+        "line": 3564,
+        "text": "                v.protected_selection(profile, dict(backup_required=True))"
+      },
+      {
+        "line": 3568,
+        "text": "                v.protected_selection(mutated, dict(backup_required=True))"
+      },
+      {
+        "line": 3571,
+        "text": "        for name in (\"selected-verification-plan.schema.json\", \"selected-verification-plan-v2.schema.json\", \"verification-contract-v3.schema.json\", \"cloud-verification-registry.schema.json\", \"capability-registry.schema.json\", \"capability-registry.json\"):"
+      },
+      {
+        "line": 3577,
+        "text": "        script = SHARED / \"check-contract.py\""
+      },
+      {
+        "line": 3667,
+        "text": "        self.assertEqual(len(v.protected_selection(profile, dict(backup_required=True))[0]), 9)"
+      },
+      {
+        "line": 3675,
+        "text": "                    v.protected_selection(changed, dict(backup_required=True))"
+      },
+      {
+        "line": 3682,
+        "text": "                    v.protected_selection(changed, dict(backup_required=True))"
+      },
+      {
+        "line": 3716,
+        "text": "            with patch.object(sys.modules[\"aws_observation\"], \"profile_preview_readback\", return_value=None):"
+      }
+    ]
+  },
+  {
+    "path": "tests/constant-parity.tests.sh",
+    "sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+    "matches": [
+      {
+        "line": 3,
+        "text": "# Verifies that the hardcoded constants in check-contract.py (R-04 extracted) and"
+      },
+      {
+        "line": 4,
+        "text": "# check-contract.ps1 are identical. No runtime JSON loading; constants stay hardcoded"
+      },
+      {
+        "line": 19,
+        "text": "# R-04: constants now live in check-contract.py (extracted from check-contract.sh heredoc)."
+      },
+      {
+        "line": 20,
+        "text": "PY=\"${SCRIPTS_DIR}/check-contract.py\""
+      },
+      {
+        "line": 21,
+        "text": "PS1=\"${SCRIPTS_DIR}/check-contract.ps1\""
+      },
+      {
+        "line": 24,
+        "text": "    fail \"check-contract.py not found: $PY\""
+      },
+      {
+        "line": 29,
+        "text": "    fail \"check-contract.ps1 not found: $PS1\""
+      },
+      {
+        "line": 35,
+        "text": "# Extract BASELINE_IDS from check-contract.py"
+      },
+      {
+        "line": 40,
+        "text": "    # R-04: constants live in check-contract.py (extracted from check-contract.sh heredoc)"
+      },
+      {
+        "line": 56,
+        "text": "# Extract BASELINE_IDS from check-contract.ps1"
+      },
+      {
+        "line": 83,
+        "text": "# Extract RISK_TIERS tier:id pairs from check-contract.py"
+      },
+      {
+        "line": 109,
+        "text": "# Extract RISK_TIERS tier:id pairs from check-contract.ps1"
+      }
+    ]
+  },
+  {
+    "path": "tests/eval.tests.sh",
+    "sha256": "a6615a848f63a2cd43ae59cf3280a82a3f1655776c3ac9a244841aecef8fc98a",
+    "matches": [
+      {
+        "line": 24,
+        "text": "    bash \"${SCRIPTS_DIR}/check-contract.sh\" \"$1\" \"${2:-.}\" 2>&1 || true"
+      },
+      {
+        "line": 27,
+        "text": "    bash \"${SCRIPTS_DIR}/check-contract.sh\" \"$1\" \"${2:-.}\" >/dev/null 2>&1"
+      },
+      {
+        "line": 197,
+        "text": "    ok \"clean-pass: check-contract PASS\""
+      },
+      {
+        "line": 199,
+        "text": "    fail \"clean-pass: check-contract should pass \u2014 $(run_check_contract \"$contract1\" \"$S1\")\""
+      },
+      {
+        "line": 249,
+        "text": "# check-contract must fail."
+      },
+      {
+        "line": 276,
+        "text": "    ok \"missing-evidence: check-contract FAILS \u2014 mentions missing evidence\""
+      },
+      {
+        "line": 278,
+        "text": "    fail \"missing-evidence: check-contract should fail on missing evidence file (out='${out3}')\""
+      },
+      {
+        "line": 419,
+        "text": "# check-contract must fail and mention waiver_reason."
+      },
+      {
+        "line": 446,
+        "text": "    ok \"optional-check-no-waiver: check-contract FAILS \u2014 mentions waiver_reason\""
+      },
+      {
+        "line": 448,
+        "text": "    fail \"optional-check-no-waiver: check-contract should fail on optional passes=false + empty waiver_reason (out='${out8}')\""
+      }
+    ]
+  },
+  {
+    "path": "tests/fixtures/capability-registry/validate-registry-fully-clean.json",
+    "sha256": "128950b2f1111add0e5afb04c7d1da40748e349c4d6ed2e37c3833877803fac8",
+    "matches": [
+      {
+        "line": 5,
+        "text": "      \"id\": \"check-contract\","
+      },
+      {
+        "line": 8,
+        "text": "      \"implementation_ref\": \"plugins/sdd-quality-loop/scripts/check-contract.py\""
+      },
+      {
+        "line": 79,
+        "text": "        \"check-contract\""
+      }
+    ]
+  },
+  {
+    "path": "tests/gates.tests.sh",
+    "sha256": "854a76133ee6dc6bcac1b308b37ae9fcfa174d087e2ad7826a7ccb32cf4537a6",
+    "matches": [
+      {
+        "line": 2,
+        "text": "# gates.tests.sh \u2014 test deterministic gates (check-task-state, check-contract)"
+      },
+      {
+        "line": 23,
+        "text": "# Invoke check-contract.sh and return exit code"
+      },
+      {
+        "line": 27,
+        "text": "    bash \"${SCRIPTS_DIR}/check-contract.sh\" \"$contract\" \"$root\" 2>&1 || true"
+      },
+      {
+        "line": 30,
+        "text": "# Check if check-contract passes (exit 0)"
+      },
+      {
+        "line": 34,
+        "text": "    bash \"${SCRIPTS_DIR}/check-contract.sh\" \"$contract\" \"$root\" >/dev/null 2>&1"
+      },
+      {
+        "line": 1122,
+        "text": "# T-003: risk-aware check-contract Tests"
+      },
+      {
+        "line": 1125,
+        "text": "echo \"=== T-003: risk-aware check-contract ===\""
+      },
+      {
+        "line": 1646,
+        "text": "        if pwsh -NoProfile -File \"${SCRIPTS_DIR}/check-contract.ps1\" \"${WORK}/t004_wf_${wf_variant}/T-004WF.contract.json\" \"${WORK}/t004_wf_${wf_variant}\" >/dev/null 2>&1; then"
+      },
+      {
+        "line": 1675,
+        "text": "    if pwsh -NoProfile -File \"${SCRIPTS_DIR}/check-contract.ps1\" \"${WORK}/t004_badrisk/T-004BR.contract.json\" \"${WORK}/t004_badrisk\" >/dev/null 2>&1; then"
+      },
+      {
+        "line": 1683,
+        "text": "    if pwsh -NoProfile -File \"${SCRIPTS_DIR}/check-contract.ps1\" \"${WORK}/t004_caserisk/T-004CR.contract.json\" \"${WORK}/t004_caserisk\" >/dev/null 2>&1; then"
+      },
+      {
+        "line": 1691,
+        "text": "# T-004V (RT-20260821-005(c)): verification-contract/v2 schema versioning."
+      },
+      {
+        "line": 1728,
+        "text": "write_t004v_contract \"${WORK}/t004v_missing\" ', \"schema\": \"verification-contract/v2\"'"
+      },
+      {
+        "line": 1736,
+        "text": "    if pwsh -NoProfile -File \"${SCRIPTS_DIR}/check-contract.ps1\" \"${WORK}/t004v_missing/T-004V.contract.json\" \"${WORK}/t004v_missing\" >/dev/null 2>&1; then"
+      },
+      {
+        "line": 1744,
+        "text": "write_t004v_contract \"${WORK}/t004v_sr64\" \", \\\"schema\\\": \\\"verification-contract/v2\\\", \\\"spec_revision\\\": \\\"${SR64}\\\"\""
+      },
+      {
+        "line": 1750,
+        "text": "write_t004v_contract \"${WORK}/t004v_sr40\" \", \\\"schema\\\": \\\"verification-contract/v2\\\", \\\"spec_revision\\\": \\\"${SR40}\\\"\""
+      },
+      {
+        "line": 1758,
+        "text": "write_t004v_contract \"${WORK}/t004v_upper\" \", \\\"schema\\\": \\\"verification-contract/v2\\\", \\\"spec_revision\\\": \\\"$(echo \"$SR40\" | tr b B)\\\"\""
+      },
+      {
+        "line": 1782,
+        "text": "    if pwsh -NoProfile -File \"${SCRIPTS_DIR}/check-contract.ps1\" \"${WORK}/t004v_bogus/T-004V.contract.json\" \"${WORK}/t004v_bogus\" >/dev/null 2>&1; then"
+      },
+      {
+        "line": 1790,
+        "text": "write_t004v_contract \"${WORK}/t004v_medium\" ', \"schema\": \"verification-contract/v2\"'"
+      },
+      {
+        "line": 3563,
+        "text": "# R-04: fail-closed dispatcher tests for check-contract.sh"
+      },
+      {
+        "line": 3566,
+        "text": "# R04-1: check-contract.sh exits 1 when check-contract.py is missing"
+      },
+      {
+        "line": 3568,
+        "text": "    PY_SCRIPT=\"${SCRIPTS_DIR}/check-contract.py\""
+      },
+      {
+        "line": 3570,
+        "text": "    cp \"$PY_SCRIPT\" \"${R04_TMP}/check-contract.py\""
+      },
+      {
+        "line": 3573,
+        "text": "    bash \"${SCRIPTS_DIR}/check-contract.sh\" /dev/null . >/dev/null 2>&1 || r04_exit=$?"
+      },
+      {
+        "line": 3574,
+        "text": "    cp \"${R04_TMP}/check-contract.py\" \"$PY_SCRIPT\""
+      },
+      {
+        "line": 3577,
+        "text": "        ok \"R04-1: check-contract.sh exits 1 (fail-closed) when check-contract.py is missing\""
+      },
+      {
+        "line": 3579,
+        "text": "        fail \"R04-1: expected exit 1 but got $r04_exit when check-contract.py is missing\""
+      },
+      {
+        "line": 3599,
+        "text": "# structurally incapable of asserting anything. check-contract therefore drops"
+      }
+    ]
+  },
+  {
+    "path": "tests/guard-r10-port.tests.ps1",
+    "sha256": "09f0fefbed2c7ab1a12f9e91732f2daa2370a40411dc571da4ce4576092474b3",
+    "matches": [
+      {
+        "line": 179,
+        "text": "Assert-Parity \"r10 multiedit: check-contract.ps1\"          2 '{\"tool_name\":\"multiedit\",\"tool_input\":{\"file_path\":\"plugins/sdd-quality-loop/scripts/check-contract.ps1\",\"edits\":[{\"old_string\":\"a\",\"new_string\":\"b\"}]}}'"
+      },
+      {
+        "line": 239,
+        "text": "# gate scripts (check-contract.ps1 covered above)"
+      },
+      {
+        "line": 240,
+        "text": "Assert-Parity \"r10 file-write: check-contract.sh\"          2 '{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"plugins/sdd-quality-loop/scripts/check-contract.sh\",\"content\":\"x\"}}'"
+      },
+      {
+        "line": 241,
+        "text": "Assert-Parity \"r10 file-write: check-contract.py\"          2 '{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"plugins/sdd-quality-loop/scripts/check-contract.py\",\"content\":\"x\"}}'"
+      }
+    ]
+  },
+  {
+    "path": "tests/hook-activation-live-proof/copilot-subagent-expected-unavailable.json",
+    "sha256": "3d03f4357623e4a9a5dac9fb5fb5468039bf96cecb289bc91f4689e023d935bd",
+    "matches": [
+      {
+        "line": 34,
+        "text": "  \"notes\": \"manual-required and automated-pending-confirmation until a real-Copilot-subagent session contract is confirmed; subagent-expected-unavailable semantic cell; fallback documented at docs/troubleshooting.md:185-204 using check-task-state.sh, check-contract.sh, and check-evidence-bundle.sh; AC-016 five-consumer fingerprinted inventory is a draft SKIP\""
+      }
+    ]
+  },
+  {
+    "path": "tests/host-review-preflight.tests.py",
+    "sha256": "981f419d293e372e888fd2e7270225de3f5e2ea87eb715eeb187ac96170c1aec",
+    "matches": [
+      {
+        "line": 399,
+        "text": "                QUALITY_SCRIPTS + 'evaluate-selected-plan.py',"
+      },
+      {
+        "line": 403,
+        "text": "        mutated['protected_gate_suffixes'].remove(QUALITY_SCRIPTS + 'evaluate-selected-plan.py')"
+      }
+    ]
+  },
+  {
+    "path": "tests/phase2-contract-path-helper.tests.ps1",
+    "sha256": "ece9c15615bc4a6dd4c3a5a2d1a760f6e6b93ba71d60c7708e0484b825f353d3",
+    "matches": [
+      {
+        "line": 11,
+        "text": "$expectedCandidatePath = Join-Path $repositoryRoot \"specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1\""
+      },
+      {
+        "line": 281,
+        "text": "        $liveBaseline = Join-Path $repositoryRoot \"plugins/sdd-quality-loop/scripts/check-contract.ps1\""
+      }
+    ]
+  },
+  {
+    "path": "tests/phase2-guard-invariants.tests.ps1",
+    "sha256": "eddaeaa0d49a4c1345393441cdd2b696d8333a9e15bc31ed882540d5b726dcf1",
+    "matches": [
+      {
+        "line": 212,
+        "text": "    'plugins/sdd-quality-loop/scripts/check-contract.ps1',"
+      },
+      {
+        "line": 471,
+        "text": "    'plugins/sdd-quality-loop/scripts/check-contract.ps1',"
+      }
+    ]
+  },
+  {
+    "path": "tests/phase2-guard-invariants.tests.sh",
+    "sha256": "a2fb162c1039c3c1d04a68cd9d77f37c8fab6544c138ae9f5c26b1bcce505019",
+    "matches": [
+      {
+        "line": 70,
+        "text": "  'plugins/sdd-quality-loop/scripts/check-contract.ps1'"
+      }
+    ]
+  },
+  {
+    "path": "tests/registry-discovery.tests.ps1",
+    "sha256": "01af3ec6b60245cdc5ddd59b6df9fac3b933367d45aa0c3a0270b93b460e3da0",
+    "matches": [
+      {
+        "line": 169,
+        "text": "foreach ($extra in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json', 'selected-verification-plan.schema.json', 'lite-check-catalog.json', 'lite-check-catalog.schema.json')) {"
+      }
+    ]
+  },
+  {
+    "path": "tests/registry-discovery.tests.sh",
+    "sha256": "543034c4685c8c7b9c1c632b3c70d717109a1026d93b29d2ea3289914457ba6e",
+    "matches": [
+      {
+        "line": 160,
+        "text": "              context-projection.schema.json selected-verification-plan.schema.json lite-check-catalog.json lite-check-catalog.schema.json; do"
+      }
+    ]
+  },
+  {
+    "path": "tests/scenario.tests.ps1",
+    "sha256": "a66afdb415669489f731a2b7f664e75b293bf8aca02238ba34ca92c32b366c96",
+    "matches": [
+      {
+        "line": 173,
+        "text": "# ---- A.3: check-contract passes T-101 (docs stack, compile checks waived) ----"
+      },
+      {
+        "line": 174,
+        "text": "Write-Host \"--- A.3: check-contract passes T-101 with docs stack ---\""
+      },
+      {
+        "line": 176,
+        "text": "$ec = Invoke-Gate \"check-contract.ps1\" @((Join-Path $sa \"verification/T-101.contract.json\"), \"-RepoRoot\", $sa)"
+      },
+      {
+        "line": 177,
+        "text": "Assert-ExitCode \"A.3: check-contract passes T-101 (docs stack, compile checks waived with waiver_reason)\" $ec 0"
+      },
+      {
+        "line": 238,
+        "text": "# ---- A.4: check-contract passes T-102 (high risk, tdd) ----"
+      },
+      {
+        "line": 239,
+        "text": "Write-Host \"--- A.4: check-contract passes T-102 ---\""
+      },
+      {
+        "line": 241,
+        "text": "$ec = Invoke-Gate \"check-contract.ps1\" @((Join-Path $sa \"verification/T-102.contract.json\"), \"-RepoRoot\", $sa)"
+      },
+      {
+        "line": 242,
+        "text": "Assert-ExitCode \"A.4: check-contract passes T-102 (high risk, tdd, full evidence)\" $ec 0"
+      },
+      {
+        "line": 244,
+        "text": "# ---- A.5: check-contract fails when a required check has passes:false + empty waiver_reason ----"
+      },
+      {
+        "line": 245,
+        "text": "Write-Host \"--- A.5: check-contract fails on required passes:false ---\""
+      },
+      {
+        "line": 274,
+        "text": "$ec5 = Invoke-Gate \"check-contract.ps1\" @((Join-Path $sa \"verification/T-102-bad.contract.json\"), \"-RepoRoot\", $sa)"
+      },
+      {
+        "line": 276,
+        "text": "    ok \"A.5: check-contract fails when required check has passes:false\""
+      },
+      {
+        "line": 278,
+        "text": "    fail \"A.5: check-contract should fail on required passes:false (got exit 0)\""
+      }
+    ]
+  },
+  {
+    "path": "tests/scenario.tests.sh",
+    "sha256": "340b4d07590e4620abe372cf983c294ea53f5c4f6ee58bcb9047c0cd54868a58",
+    "matches": [
+      {
+        "line": 42,
+        "text": "    bash \"${SCRIPTS_DIR}/check-contract.sh\" \"$1\" \"${2:-.}\" 2>&1 || true"
+      },
+      {
+        "line": 45,
+        "text": "    bash \"${SCRIPTS_DIR}/check-contract.sh\" \"$1\" \"${2:-.}\" >/dev/null 2>&1"
+      },
+      {
+        "line": 97,
+        "text": "#   check-contract    pass; docs stack waives compile checks; fail on passes:false+empty waiver"
+      },
+      {
+        "line": 215,
+        "text": "# ---- A.3: check-contract passes T-101 (docs stack, compile checks waived) ----"
+      },
+      {
+        "line": 216,
+        "text": "echo \"--- A.3: check-contract passes T-101 with docs stack ---\""
+      },
+      {
+        "line": 219,
+        "text": "    ok \"A.3: check-contract passes T-101 (docs stack, compile checks waived with waiver_reason)\""
+      },
+      {
+        "line": 221,
+        "text": "    fail \"A.3: check-contract should pass T-101 \u2014 $(run_check_contract \"${SA}/verification/T-101.contract.json\" \"$SA\")\""
+      },
+      {
+        "line": 283,
+        "text": "# ---- A.4: check-contract passes T-102 (high risk, tdd) ----"
+      },
+      {
+        "line": 284,
+        "text": "echo \"--- A.4: check-contract passes T-102 ---\""
+      },
+      {
+        "line": 287,
+        "text": "    ok \"A.4: check-contract passes T-102 (high risk, tdd, full evidence)\""
+      },
+      {
+        "line": 289,
+        "text": "    fail \"A.4: check-contract should pass T-102 \u2014 $(run_check_contract \"${SA}/verification/T-102.contract.json\" \"$SA\")\""
+      },
+      {
+        "line": 292,
+        "text": "# ---- A.5: check-contract fails when a required check has passes:false + empty waiver_reason ----"
+      },
+      {
+        "line": 293,
+        "text": "echo \"--- A.5: check-contract fails on required passes:false ---\""
+      },
+      {
+        "line": 324,
+        "text": "    ok \"A.5: check-contract fails when required check has passes:false\""
+      },
+      {
+        "line": 326,
+        "text": "    fail \"A.5: check-contract should fail on required passes:false (out='${out_a5}')\""
+      },
+      {
+        "line": 1023,
+        "text": "# the canonical home of the tier minimums (design.md names it); check-contract"
+      },
+      {
+        "line": 1027,
+        "text": "if python3 - \"${SCRIPTS_DIR}/check-contract.py\" \"${REPO_ROOT}/plugins/sdd-quality-loop/references/risk-gate-matrix.md\" <<'PYEOF'"
+      },
+      {
+        "line": 1033,
+        "text": "assert m, \"RISK_TIERS not found in check-contract.py\""
+      },
+      {
+        "line": 1065,
+        "text": "    ok \"RT007-DG: check-contract RISK_TIERS equals the risk-gate-matrix machine form (all 4 tiers)\""
+      },
+      {
+        "line": 1067,
+        "text": "    fail \"RT007-DG: tier-set drift between check-contract.py and risk-gate-matrix.md\""
+      }
+    ]
+  },
+  {
+    "path": "tests/scripts.tests.ps1",
+    "sha256": "55c9d34e690c6987a479f95206d12ebb3d524143789b8f591ca3f947299b93fe",
+    "matches": [
+      {
+        "line": 81,
+        "text": "    # acceptance-tests/regression, so leaving risk=medium would fail check-contract"
+      },
+      {
+        "line": 126,
+        "text": "    # --- check-contract ---"
+      },
+      {
+        "line": 128,
+        "text": "    Assert-ExitCode \"check-contract default-fail template\" (Invoke-Gate \"check-contract.ps1\" @($templatePath, \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 133,
+        "text": "    # regression), so a medium contract-good.json would fail check-contract Pass 4."
+      },
+      {
+        "line": 150,
+        "text": "    Assert-ExitCode \"check-contract passing\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-good.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 167,
+        "text": "        (Invoke-Gate \"check-contract.ps1\" @(\"contract-good.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 173,
+        "text": "        (Invoke-Gate \"check-contract.ps1\" @(\"contract-wfi046-valid.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 177,
+        "text": "        (Invoke-Gate \"check-contract.ps1\" @(\"contract-wfi046-cmd.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 181,
+        "text": "        (Invoke-Gate \"check-contract.ps1\" @(\"contract-wfi046-rc.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 186,
+        "text": "        (Invoke-Gate \"check-contract.ps1\" @(\"contract-wfi046-ts.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 198,
+        "text": "        (Invoke-Gate \"check-contract.ps1\" @(\"contract-wfi046-tslower.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 203,
+        "text": "        (Invoke-Gate \"check-contract.ps1\" @(\"contract-wfi046-tsjunk.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 207,
+        "text": "    Assert-ExitCode \"check-contract missing evidence\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-badev.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 259,
+        "text": "    # NEW RULES: check-contract"
+      },
+      {
+        "line": 270,
+        "text": "    Assert-ExitCode \"check-contract duplicate ids\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-dup-ids.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 276,
+        "text": "    Assert-ExitCode \"check-contract evidence escapes root\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-escape.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 282,
+        "text": "    Assert-ExitCode \"check-contract absolute evidence path\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-abs.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 290,
+        "text": "    Assert-ExitCode \"check-contract optional no-waiver fails\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-waiver-bad.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 293,
+        "text": "    Assert-ExitCode \"check-contract optional with-waiver passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-good.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 312,
+        "text": "    Assert-ExitCode \"CM.1: cross_model:required passing -> pass\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-cm1.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 327,
+        "text": "    Assert-ExitCode \"CM.2: cross_model:required missing check -> fail\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-cm2.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 342,
+        "text": "    Assert-ExitCode \"CM.3: cross_model absent (legacy) -> pass\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-cm3.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 358,
+        "text": "    Assert-ExitCode \"CM.4: cross_model:waived with reason -> pass\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-cm4.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 364,
+        "text": "    Assert-ExitCode \"CM.5: cross_model:bogus (invalid) -> fail\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-cm5.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 370,
+        "text": "    Assert-ExitCode \"check-contract baseline id removed\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-no-lint.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 379,
+        "text": "    Assert-ExitCode \"check-contract baseline downgrade no-waiver fails\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-downgrade-bad.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 387,
+        "text": "    Assert-ExitCode \"check-contract baseline downgrade with-waiver passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-downgrade-good.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 390,
+        "text": "    # T-003: risk-aware check-contract"
+      },
+      {
+        "line": 420,
+        "text": "    Assert-ExitCode \"T-003.1: LEGACY (no risk field) with baseline set passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t003-1.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 439,
+        "text": "    Assert-ExitCode \"T-003.2: risk: low with required set passes (unit-tests optional)\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t003-2.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 458,
+        "text": "    Assert-ExitCode \"T-003.3: risk: low with build required:false fails correctly\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t003-3.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 478,
+        "text": "    Assert-ExitCode \"T-003.4: risk: medium missing acceptance-tests fails correctly\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t003-4.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 499,
+        "text": "    Assert-ExitCode \"T-003.5: risk: medium with full required set passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t003-5.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 520,
+        "text": "    Assert-ExitCode \"T-003.6: risk: high missing requirement-traceability fails correctly\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t003-6.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 543,
+        "text": "    Assert-ExitCode \"T-003.7: risk: high with full required set passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t003-7.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 566,
+        "text": "    Assert-ExitCode \"T-003.8: risk: critical with full required set passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t003-8.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 580,
+        "text": "    Assert-ExitCode \"T-003.9: risk: 'severe' (invalid) fails correctly\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t003-9.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 605,
+        "text": "    Assert-ExitCode \"T-012.1: stack docs waives compile checks with reasons -> passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t012-1.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 623,
+        "text": "    Assert-ExitCode \"T-012.2: absent stack (=code) keeps build mandatory\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t012-2.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 641,
+        "text": "    Assert-ExitCode \"T-012.3: stack docs cannot waive unit-tests (abuse blocked)\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t012-3.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 659,
+        "text": "    Assert-ExitCode \"T-012.4: stack docs waiver still requires waiver_reason\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t012-4.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 677,
+        "text": "    Assert-ExitCode \"T-012.5: explicit stack code keeps build mandatory\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t012-5.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 693,
+        "text": "    Assert-ExitCode \"T-012.6: invalid stack value fails correctly\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t012-6.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 712,
+        "text": "    Assert-ExitCode \"T-012.7: stack shell at high+tdd tier waives compile checks -> passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t012-7.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 719,
+        "text": "    # and be non-empty for check-contract Pass 5 to accept the Red\u2192Green pair."
+      },
+      {
+        "line": 738,
+        "text": "    Assert-ExitCode \"T-004.1: LEGACY (no risk, no required_workflow) passes without red/green\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t004-1.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 757,
+        "text": "    Assert-ExitCode \"T-004.2: required_workflow: test-after (low) passes without red/green\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t004-2.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 779,
+        "text": "    Assert-ExitCode \"T-004.3: required_workflow: tdd with valid red+green evidence passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t004-3.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 801,
+        "text": "    Assert-ExitCode \"T-004.4: missing red_evidence fails with correct message\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t004-4.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 823,
+        "text": "    Assert-ExitCode \"T-004.5: non-existent red_evidence file fails correctly\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t004-5.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 845,
+        "text": "    Assert-ExitCode \"T-004.6: risk high with wrong required_workflow fails\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t004-6.json\", \"-RepoRoot\", \".\")) 1"
+      },
+      {
+        "line": 867,
+        "text": "    Assert-ExitCode \"T-004.7: risk high full tier set with tdd red+green passes\" (Invoke-Gate \"check-contract.ps1\" @(\"contract-t004-7.json\", \"-RepoRoot\", \".\")) 0"
+      },
+      {
+        "line": 1288,
+        "text": "        # check-contract.sh: duplicate ids"
+      },
+      {
+        "line": 1289,
+        "text": "        & bash (Join-Path $scriptsDir \"check-contract.sh\") \"contract-dup-ids.json\" \".\" *> $null"
+      },
+      {
+        "line": 1290,
+        "text": "        Assert-ExitCode \"check-contract.sh duplicate ids\" $LASTEXITCODE 1"
+      },
+      {
+        "line": 1292,
+        "text": "        # check-contract.sh: evidence escapes root"
+      },
+      {
+        "line": 1293,
+        "text": "        & bash (Join-Path $scriptsDir \"check-contract.sh\") \"contract-escape.json\" \".\" *> $null"
+      },
+      {
+        "line": 1294,
+        "text": "        Assert-ExitCode \"check-contract.sh evidence escapes root\" $LASTEXITCODE 1"
+      },
+      {
+        "line": 1296,
+        "text": "        # check-contract.sh: absolute evidence path"
+      },
+      {
+        "line": 1297,
+        "text": "        & bash (Join-Path $scriptsDir \"check-contract.sh\") \"contract-abs.json\" \".\" *> $null"
+      },
+      {
+        "line": 1298,
+        "text": "        Assert-ExitCode \"check-contract.sh absolute evidence path\" $LASTEXITCODE 1"
+      },
+      {
+        "line": 1300,
+        "text": "        # check-contract.sh: optional no-waiver fails"
+      },
+      {
+        "line": 1301,
+        "text": "        & bash (Join-Path $scriptsDir \"check-contract.sh\") \"contract-waiver-bad.json\" \".\" *> $null"
+      },
+      {
+        "line": 1302,
+        "text": "        Assert-ExitCode \"check-contract.sh optional no-waiver fails\" $LASTEXITCODE 1"
+      },
+      {
+        "line": 1304,
+        "text": "        # check-contract.sh: optional with-waiver passes"
+      },
+      {
+        "line": 1305,
+        "text": "        & bash (Join-Path $scriptsDir \"check-contract.sh\") \"contract-good.json\" \".\" *> $null"
+      },
+      {
+        "line": 1306,
+        "text": "        Assert-ExitCode \"check-contract.sh optional with-waiver passes\" $LASTEXITCODE 0"
+      },
+      {
+        "line": 1308,
+        "text": "        # check-contract.sh: baseline id removed"
+      },
+      {
+        "line": 1309,
+        "text": "        & bash (Join-Path $scriptsDir \"check-contract.sh\") \"contract-no-lint.json\" \".\" *> $null"
+      },
+      {
+        "line": 1310,
+        "text": "        Assert-ExitCode \"check-contract.sh baseline id removed\" $LASTEXITCODE 1"
+      },
+      {
+        "line": 1312,
+        "text": "        # check-contract.sh: baseline downgrade no-waiver fails"
+      },
+      {
+        "line": 1313,
+        "text": "        & bash (Join-Path $scriptsDir \"check-contract.sh\") \"contract-downgrade-bad.json\" \".\" *> $null"
+      },
+      {
+        "line": 1314,
+        "text": "        Assert-ExitCode \"check-contract.sh baseline downgrade no-waiver fails\" $LASTEXITCODE 1"
+      },
+      {
+        "line": 1316,
+        "text": "        # check-contract.sh: baseline downgrade with-waiver passes"
+      },
+      {
+        "line": 1317,
+        "text": "        & bash (Join-Path $scriptsDir \"check-contract.sh\") \"contract-downgrade-good.json\" \".\" *> $null"
+      },
+      {
+        "line": 1318,
+        "text": "        Assert-ExitCode \"check-contract.sh baseline downgrade with-waiver passes\" $LASTEXITCODE 0"
+      }
+    ]
+  },
+  {
+    "path": "tests/sdd-domain-multitarget-T-003.tests.py",
+    "sha256": "ca48739d79ee0e54bf002db7946ee5f2aefe1ffbec65bb72a11f4e051a6e57ae",
+    "matches": [
+      {
+        "line": 17,
+        "text": "EVALUATOR = SCRIPTS / 'evaluate-selected-plan.py'"
+      },
+      {
+        "line": 32,
+        "text": "legacy = load('t003_legacy', SCRIPTS / 'check-contract.py')"
+      },
+      {
+        "line": 54,
+        "text": "    contract = {'schema': 'verification-contract/v2', 'task_id': 'T-003', 'risk': 'medium',"
+      },
+      {
+        "line": 310,
+        "text": "            name = 'selected-verification-plan.schema.json'"
+      },
+      {
+        "line": 324,
+        "text": "        for name in ('selected-verification-plan.schema.json', 'capability-registry.schema.json'):"
+      },
+      {
+        "line": 399,
+        "text": "        self.assertEqual(plan['schema'], 'selected-verification-plan/v1')"
+      },
+      {
+        "line": 523,
+        "text": "        mutations = [(['schema'], 'selected-verification-plan/v0'), (['feature'], 'other'),"
+      },
+      {
+        "line": 588,
+        "text": "        self.assertIn('evaluate-selected-plan.py', skill)"
+      },
+      {
+        "line": 674,
+        "text": "                            self.assertIn('selected-verification-plan: BLOCKED:', run.stderr)"
+      }
+    ]
+  },
+  {
+    "path": "tests/validate-repository.ps1",
+    "sha256": "f5cfe7527a177288882ff12ace1ddcc583cccb6eeac0e15746b80800d3112c1d",
+    "matches": [
+      {
+        "line": 239,
+        "text": "foreach ($rule in @(\"Implementation Complete\", \"maximum of 3\", \"Done\", \"Playwright\", \"traceability\", \"check-contract\", \"check-evidence-bundle\", \"check-placeholders\", \"check-task-state\", \"sdd-evaluator\")) {"
+      },
+      {
+        "line": 246,
+        "text": "foreach ($script in @(\"check-contract\", \"check-evidence-bundle\", \"check-placeholders\", \"check-task-state\")) {"
+      }
+    ]
+  },
+  {
+    "path": "tests/wfi-059-evidence-path-base.tests.ps1",
+    "sha256": "3cf806fa6818d286099634ea87632821ff849b970cbbba08f2354145bdfe43c2",
+    "matches": [
+      {
+        "line": 6,
+        "text": "$CheckPs1 = if ($env:WFI_059_CHECK_PS1) { $env:WFI_059_CHECK_PS1 } else { Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/check-contract.ps1' }"
+      }
+    ]
+  },
+  {
+    "path": "tests/wfi-059-evidence-path-base.tests.sh",
+    "sha256": "3760a8f43dc58db8909858e010ebf26b80691b08eaac70eacba1a9e36d28a4ff",
+    "matches": [
+      {
+        "line": 7,
+        "text": "CHECK_SH=\"${WFI_059_CHECK_SH:-${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-contract.sh}\""
+      },
+      {
+        "line": 63,
+        "text": "# pass check-contract, while the preparer resolved it from the project root."
+      }
+    ]
+  }
+]

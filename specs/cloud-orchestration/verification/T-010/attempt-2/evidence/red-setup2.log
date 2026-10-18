@@ -1,0 +1,4 @@
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4275
+    python3 - <<'PY'
+              ^^
+SyntaxError: invalid syntax

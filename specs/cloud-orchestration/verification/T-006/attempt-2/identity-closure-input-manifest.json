@@ -1,0 +1,53 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-006",
+  "run_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "session_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "agent_instance_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T10:35:25Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "identity-closure/docs-acquisition.json",
+      "sha256": "2034dc8ea3d9775bfb089bb18276dc2bb909901a5c7a65bd1ebbbdcd87895b4a"
+    },
+    {
+      "path": "identity-closure/managed-identities-best-practice.md",
+      "sha256": "a4deef7ffa3b1da0bc5f6ac6cf6700927ce6c58faec05267fe6b90c155fd4a29"
+    },
+    {
+      "path": "identity-closure/list-rest.md",
+      "sha256": "5a9f1d20ba042b5ab8a105faf19c996a72e42be250e485a655ec5493b8ad63c3"
+    },
+    {
+      "path": "identity-closure/acquisition.json",
+      "sha256": "72f57d1fc14a08103ee7e926127898c8c08813149dd7be73ffde07bd2784f3c5"
+    },
+    {
+      "path": "identity-closure/role-assignments.json",
+      "sha256": "0a4e9a83b672454c9005edd88fc7adde48a545a553cb6c74e921a72af67b5f43"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "plugins/sdd-azure-cloud/scripts/",
+    "plugins/sdd-aws-cloud/scripts/",
+    "plugins/sdd-azure-cloud/references/",
+    "plugins/sdd-aws-cloud/references/",
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/cloud-orchestration-contracts.tests.py",
+    "contracts/cloud-collection-context.schema.json",
+    "contracts/cloud-check-result.schema.json",
+    "contracts/cloud-observation-evidence.schema.json",
+    "reports/implementation/cloud-orchestration/T-006.md",
+    "specs/cloud-orchestration/verification/T-006/attempt-2/"
+  ]
+}

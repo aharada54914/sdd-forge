@@ -1,0 +1,4 @@
+tests/cloud-orchestration-execution.tests.py:1133: error: Unsupported target for indexed assignment ("dict[Any, Any] | Any | str")  [index]
+tests/cloud-orchestration-execution.tests.py:1477: error: Cannot assign to a method  [method-assign]
+tests/cloud-orchestration-execution.tests.py:1621: error: Incompatible types in assignment (expression has type "dict[str, object]", variable has type "str")  [assignment]
+Found 3 errors in 1 file (checked 6 source files)

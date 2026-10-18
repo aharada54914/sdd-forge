@@ -102,7 +102,7 @@ function Invoke-Cell([string]$CellTarget) {
                 ForEach-Object { Write-Host ($_ | ConvertTo-Json -Compress) }
         }
 
-        $allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
+        $allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
         & $uninstaller -InstallRoot $installRoot -Target $CellTarget -Plugins $allPlugins -Mcp @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
         if ($LASTEXITCODE -ne 0) { throw "uninstall exited with code $LASTEXITCODE" }
         if (-not (Test-Path -LiteralPath $installRoot)) { Write-Ok "$CellTarget verify_residue empty" } else { Write-Fail "$CellTarget verify_residue residual_paths=$installRoot" }

@@ -1,0 +1,14 @@
+{
+  "id": 900072,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14e73-9069-76d0-a748-f448ad86b023",
+    "expectedTurnId": "01a14e73-923d-7593-8ab7-0f3b6d51b21f",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root actual deterministic probe root-freshness-probe.json confirms fresh() rejects a sample 60 seconds old when deployment completed 2 hours earlier, max_age_seconds=300. This is actual helper execution, not live cloud/review. Current max_age appears to be freshness relative to collected/current time, not an undocumented maximum deployment age. Please add genuine committed Red for older deployment with fresh current metric/backup, then fix so completed <= sample <= collected <= now and current-sample <= max_age; retain truly stale/future/pre-completion rejection. Also inspect native query windows: StartTime=original completion fetches historical stale points and samples rejects all. Bound recent query window intersected with post-completion interval, using actual provider bucket rounding semantics; do not cherry-pick healthy points or invent API behavior. Preserve fail on unhealthy points in selected window. Admit any needed official API source. This is T006 correction, no scope expansion or historical evidence rewrite."
+      }
+    ]
+  }
+}

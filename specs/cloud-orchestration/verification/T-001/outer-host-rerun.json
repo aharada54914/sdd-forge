@@ -1,0 +1,18 @@
+{
+  "schema": "cloud-task-caller-verification/v1",
+  "task_id": "T-001",
+  "caller_run_id": "01a14cdd-d51f-75c3-bc6c-96ac92f6e0a6",
+  "recorded_at": "2026-10-18T04:49:25.061973+00:00",
+  "command": "python3 -B tests/sdd-domain-multitarget-T-003.tests.py",
+  "exit_code": 0,
+  "source": {
+    "path": "tests/sdd-domain-multitarget-T-003.tests.py",
+    "sha256": "ca48739d79ee0e54bf002db7946ee5f2aefe1ffbec65bb72a11f4e051a6e57ae"
+  },
+  "log": {
+    "path": "specs/cloud-orchestration/verification/T-001/T-003-outer-host.log",
+    "sha256": "c6e45184d7d5dc7d77e60109e6338dfa3b4e7e163285fdf5d934137b9a2e953e"
+  },
+  "result": "31 passed; 1 real Windows junction skip on Linux",
+  "environment": "Outer authorized workspace; no /tmp/.git. No source/test changes or deleted sandbox sentinels."
+}

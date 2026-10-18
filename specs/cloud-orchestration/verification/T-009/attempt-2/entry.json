@@ -1,0 +1,12 @@
+{
+  "run_id": "01a14ef5-f7d9-79e3-8b89-23b4811edc3b",
+  "session_id": "01a14ef5-f7d9-79e3-8b89-23b4811edc3b",
+  "agent_instance_id": "01a14ef5-f7d9-79e3-8b89-23b4811edc3b",
+  "identity_source": "Caller-supplied native allocation, not process environment",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "scratch_root": "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b",
+  "snapshot_root": "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/inputs",
+  "base_revision": "f2d51e4a2d4b2c2f440222351684f3162ec88fc4",
+  "classification": "offline implementation continuation"
+}

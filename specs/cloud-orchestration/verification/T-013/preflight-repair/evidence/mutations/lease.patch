@@ -1,0 +1,11 @@
+--- plugins/sdd-quality-loop/scripts/cloud_authorization.py
++++ plugins/sdd-quality-loop/scripts/cloud_authorization.py
+@@ -407,7 +407,7 @@
+                 ("AWS_SESSION_TOKEN", "SessionToken"),
+             )
+         }
+-        require(end > now, "CREDENTIAL_EXPIRED")
++        require(True, "CREDENTIAL_EXPIRED")
+         body = urllib.parse.urlencode(dict(Action="GetCallerIdentity", Version="2011-06-15")).encode()
+         identity = _xml_result(
+             transport.request("POST", STS, _sts_headers(body, credentials, now), body), "GetCallerIdentity"

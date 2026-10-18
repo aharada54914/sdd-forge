@@ -1,0 +1,509 @@
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:185:42
+    |
+183 |                  'a\nx', 'a/%2e%2e/x', 'a/CON', 'a/x.', 'a/x ', 'a/aux.txt', 'a/NUL')
+184 |         for path in paths:
+185 |             bad = copy.deepcopy(original); bad['changes']['path'] = path
+    |                                          ^
+186 |             with self.subTest(path=path):
+187 |                 self.both(bad, False)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:188:60
+    |
+186 |             with self.subTest(path=path):
+187 |                 self.both(bad, False)
+188 |         bad = copy.deepcopy(self.f['cloud-observation/v1']); bad['exit_code'] = True
+    |                                                            ^
+189 |         self.both(bad, False)
+190 |         self.rejects(dict(original, expires_at=NOW))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:196:29
+    |
+194 |         for name in ('source.bin','compiled.bin','asset.bin','parameters.bin','module.bin',
+195 |                      'policy.json','profile.json','upstream/main.md','upstream/child.md','tool.json','changes.json'):
+196 |             p=self.root/name; p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(b'fixture')
+    |                             ^
+197 |         lock=f['cloud-dependency-lock/v1']; lock_ref=self.put('lock.json',lock)
+198 |         request=f['cloud-run-request/v1']; request['dependency_lock']=lock_ref
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:196:73
+    |
+194 |         for name in ('source.bin','compiled.bin','asset.bin','parameters.bin','module.bin',
+195 |                      'policy.json','profile.json','upstream/main.md','upstream/child.md','tool.json','changes.json'):
+196 |             p=self.root/name; p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(b'fixture')
+    |                                                                         ^
+197 |         lock=f['cloud-dependency-lock/v1']; lock_ref=self.put('lock.json',lock)
+198 |         request=f['cloud-run-request/v1']; request['dependency_lock']=lock_ref
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:197:43
+    |
+195 |                      'policy.json','profile.json','upstream/main.md','upstream/child.md','tool.json','changes.json'):
+196 |             p=self.root/name; p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(b'fixture')
+197 |         lock=f['cloud-dependency-lock/v1']; lock_ref=self.put('lock.json',lock)
+    |                                           ^
+198 |         request=f['cloud-run-request/v1']; request['dependency_lock']=lock_ref
+199 |         request_ref=self.put('request.json',request)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:198:42
+    |
+196 |             p=self.root/name; p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(b'fixture')
+197 |         lock=f['cloud-dependency-lock/v1']; lock_ref=self.put('lock.json',lock)
+198 |         request=f['cloud-run-request/v1']; request['dependency_lock']=lock_ref
+    |                                          ^
+199 |         request_ref=self.put('request.json',request)
+200 |         preview=f['cloud-preview/v1']; preview.update(request=request_ref, dependency_lock=lock_ref,
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:200:38
+    |
+198 |         request=f['cloud-run-request/v1']; request['dependency_lock']=lock_ref
+199 |         request_ref=self.put('request.json',request)
+200 |         preview=f['cloud-preview/v1']; preview.update(request=request_ref, dependency_lock=lock_ref,
+    |                                      ^
+201 |                                                      semantic_sha256=ref('changes.json')['sha256'])
+202 |         preview_ref=self.put('preview.json',preview)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:203:52
+    |
+201 |                                                      semantic_sha256=ref('changes.json')['sha256'])
+202 |         preview_ref=self.put('preview.json',preview)
+203 |         receipt=f['cloud-authorization-receipt/v1']; receipt.update(request=request_ref,preview=preview_ref,dependency_lock=lock_ref)
+    |                                                    ^
+204 |         receipt_ref=self.put('receipt.json',receipt)
+205 |         return request_ref,preview_ref,receipt_ref
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:208:27
+    |
+207 |     def put(self,path,value):
+208 |         data=encode(value); (self.root/path).write_bytes(data); return ref(path,data)
+    |                           ^
+209 |
+210 |     def bound(self,refs):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:208:63
+    |
+207 |     def put(self,path,value):
+208 |         data=encode(value); (self.root/path).write_bytes(data); return ref(path,data)
+    |                                                               ^
+209 |
+210 |     def bound(self,refs):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:217:35
+    |
+215 |         self.bound(refs)
+216 |         for path in sorted(p for p in self.root.rglob('*') if p.is_file()):
+217 |             data=path.read_bytes(); path.write_bytes(data+b' ')
+    |                                   ^
+218 |             with self.subTest(file=path.name), self.assertRaises(self.c.ContractError):
+219 |                 self.bound(refs)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:229:28
+    |
+227 | …     original=json.loads((self.root/path).read_bytes())
+228 | …     fields=['run_id','unit_id','provider','scope']
+229 | …     if ref_index==0: fields += ['owner','binding_id','environment','source_revision','verification_profile','policy']
+    |                      ^
+230 | …     if ref_index==1: fields += ['preview_identity','semantic_sha256','request','dependency_lock','policy','verification_profile']
+231 | …     if ref_index==2: fields += ['request','preview','dependency_lock','policy','verification_profile']
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:230:28
+    |
+228 | …     fields=['run_id','unit_id','provider','scope']
+229 | …     if ref_index==0: fields += ['owner','binding_id','environment','source_revision','verification_profile','policy']
+230 | …     if ref_index==1: fields += ['preview_identity','semantic_sha256','request','dependency_lock','policy','verification_profile']
+    |                      ^
+231 | …     if ref_index==2: fields += ['request','preview','dependency_lock','policy','verification_profile']
+232 | …     for key in fields:
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:231:28
+    |
+229 | …     if ref_index==0: fields += ['owner','binding_id','environment','source_revision','verification_profile','policy']
+230 | …     if ref_index==1: fields += ['preview_identity','semantic_sha256','request','dependency_lock','policy','verification_profile']
+231 | …     if ref_index==2: fields += ['request','preview','dependency_lock','policy','verification_profile']
+    |                      ^
+232 | …     for key in fields:
+233 | …         bad=copy.deepcopy(original)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:234:32
+    |
+232 |             for key in fields:
+233 |                 bad=copy.deepcopy(original)
+234 |                 if key=='scope': bad[key]['region']='different-region'
+    |                                ^
+235 |                 elif isinstance(bad[key],dict): bad[key]['sha256']='b'*64
+236 |                 elif key in ('source_revision','semantic_sha256'): bad[key]='b'*len(bad[key])
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:235:47
+    |
+233 |                 bad=copy.deepcopy(original)
+234 |                 if key=='scope': bad[key]['region']='different-region'
+235 |                 elif isinstance(bad[key],dict): bad[key]['sha256']='b'*64
+    |                                               ^
+236 |                 elif key in ('source_revision','semantic_sha256'): bad[key]='b'*len(bad[key])
+237 |                 else: bad[key]='different'
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:236:66
+    |
+234 |                 if key=='scope': bad[key]['region']='different-region'
+235 |                 elif isinstance(bad[key],dict): bad[key]['sha256']='b'*64
+236 |                 elif key in ('source_revision','semantic_sha256'): bad[key]='b'*len(bad[key])
+    |                                                                  ^
+237 |                 else: bad[key]='different'
+238 |                 changed=list(refs); changed[ref_index]=self.put(path,bad)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:237:21
+    |
+235 |                 elif isinstance(bad[key],dict): bad[key]['sha256']='b'*64
+236 |                 elif key in ('source_revision','semantic_sha256'): bad[key]='b'*len(bad[key])
+237 |                 else: bad[key]='different'
+    |                     ^
+238 |                 changed=list(refs); changed[ref_index]=self.put(path,bad)
+239 |                 with self.subTest(schema=schema,key=key),self.assertRaises(self.c.ContractError):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:238:35
+    |
+236 |                 elif key in ('source_revision','semantic_sha256'): bad[key]='b'*len(bad[key])
+237 |                 else: bad[key]='different'
+238 |                 changed=list(refs); changed[ref_index]=self.put(path,bad)
+    |                                   ^
+239 |                 with self.subTest(schema=schema,key=key),self.assertRaises(self.c.ContractError):
+240 |                     self.bound(changed)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:246:27
+    |
+245 |     def test_lock_closure_versions_packages_schemas_and_adapter(self):
+246 |         self.make_bundle(); lock=json.loads((self.root/'lock.json').read_bytes())
+    |                           ^
+247 |         kwargs=dict(consumed_paths=['upstream/main.md','upstream/child.md'],
+248 |                     tools=copy.deepcopy(lock['tools']),adapter_version='1.0.0',
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:257:38
+    |
+255 |                 self.c.verify_lock(self.root,lock,**dict(kwargs,**{key:value}))
+256 |         for key in ('version','sha256'):
+257 |             bad=copy.deepcopy(kwargs); bad['tools'][0][key]='2.2.2' if key=='version' else 'b'*64
+    |                                      ^
+258 |             with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,lock,**bad)
+259 |         for target in ('upstream/missing.md','elsewhere.md','../escape'):
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:258:57
+    |
+256 |         for key in ('version','sha256'):
+257 |             bad=copy.deepcopy(kwargs); bad['tools'][0][key]='2.2.2' if key=='version' else 'b'*64
+258 |             with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,lock,**bad)
+    |                                                         ^
+259 |         for target in ('upstream/missing.md','elsewhere.md','../escape'):
+260 |             bad=copy.deepcopy(lock); bad['upstream'][0]['files'][0]['references']=[target]
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:260:36
+    |
+258 |             with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,lock,**bad)
+259 |         for target in ('upstream/missing.md','elsewhere.md','../escape'):
+260 |             bad=copy.deepcopy(lock); bad['upstream'][0]['files'][0]['references']=[target]
+    |                                    ^
+261 |             with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,bad,**kwargs)
+262 |         bad=copy.deepcopy(lock); bad['upstream'][0]['files'].append(copy.deepcopy(bad['upstream'][0]['files'][0]))
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:261:57
+    |
+259 |         for target in ('upstream/missing.md','elsewhere.md','../escape'):
+260 |             bad=copy.deepcopy(lock); bad['upstream'][0]['files'][0]['references']=[target]
+261 |             with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,bad,**kwargs)
+    |                                                         ^
+262 |         bad=copy.deepcopy(lock); bad['upstream'][0]['files'].append(copy.deepcopy(bad['upstream'][0]['files'][0]))
+263 |         with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,bad,**kwargs)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:262:32
+    |
+260 |             bad=copy.deepcopy(lock); bad['upstream'][0]['files'][0]['references']=[target]
+261 |             with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,bad,**kwargs)
+262 |         bad=copy.deepcopy(lock); bad['upstream'][0]['files'].append(copy.deepcopy(bad['upstream'][0]['files'][0]))
+    |                                ^
+263 |         with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,bad,**kwargs)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:263:53
+    |
+261 |             with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,bad,**kwargs)
+262 |         bad=copy.deepcopy(lock); bad['upstream'][0]['files'].append(copy.deepcopy(bad['upstream'][0]['files'][0]))
+263 |         with self.assertRaises(self.c.ContractError): self.c.verify_lock(self.root,bad,**kwargs)
+    |                                                     ^
+264 |
+265 |     def test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles(self):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:266:35
+    |
+265 |     def test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles(self):
+266 |         (self.root/'real').mkdir(); (self.root/'real/x').write_bytes(b'fixture')
+    |                                   ^
+267 |         (self.root/'alias').symlink_to(self.root/'real',target_is_directory=True)
+268 |         (self.root/'link').symlink_to(self.root/'real/x')
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:276:53
+    |
+274 |             self.c.read_verified(self.root/'alias',ref('x'))
+275 |         os.mkfifo(self.root/'fifo')
+276 |         with self.assertRaises(self.c.ContractError): self.c.read_verified(self.root,ref('fifo'))
+    |                                                     ^
+277 |
+278 |     def test_publication_atomic_no_overwrite_containment_and_scan_failure(self):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:279:45
+    |
+278 |     def test_publication_atomic_no_overwrite_containment_and_scan_failure(self):
+279 |         value=self.f['cloud-input-error/v1']; data=encode(value)
+    |                                             ^
+280 |         self.c.publish_artifact(self.root,'new.json',data,scan=lambda b:True)
+281 |         self.assertEqual((self.root/'new.json').read_bytes(),data)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:282:53
+    |
+280 |         self.c.publish_artifact(self.root,'new.json',data,scan=lambda b:True)
+281 |         self.assertEqual((self.root/'new.json').read_bytes(),data)
+282 |         with self.assertRaises(self.c.ContractError): self.c.publish_artifact(self.root,'new.json',data,scan=lambda b:True)
+    |                                                     ^
+283 |         (self.root/'alias').symlink_to(self.root,target_is_directory=True)
+284 |         for path in ('alias/out.json','../escape.json'):
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:285:57
+    |
+283 |         (self.root/'alias').symlink_to(self.root,target_is_directory=True)
+284 |         for path in ('alias/out.json','../escape.json'):
+285 |             with self.assertRaises(self.c.ContractError): self.c.publish_artifact(self.root,path,data,scan=lambda b:True)
+    |                                                         ^
+286 |         canary='canary-'+'do-not-publish-482'; bad=encode(dict(value,message=canary))
+287 |         for scanner in (lambda b:False,lambda b:None,lambda b:1):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:286:46
+    |
+284 |         for path in ('alias/out.json','../escape.json'):
+285 |             with self.assertRaises(self.c.ContractError): self.c.publish_artifact(self.root,path,data,scan=lambda b:True)
+286 |         canary='canary-'+'do-not-publish-482'; bad=encode(dict(value,message=canary))
+    |                                              ^
+287 |         for scanner in (lambda b:False,lambda b:None,lambda b:1):
+288 |             with self.assertRaises(self.c.ContractError): self.c.publish_artifact(self.root,'secret.json',bad,scan=scanner)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:288:57
+    |
+286 |         canary='canary-'+'do-not-publish-482'; bad=encode(dict(value,message=canary))
+287 |         for scanner in (lambda b:False,lambda b:None,lambda b:1):
+288 |             with self.assertRaises(self.c.ContractError): self.c.publish_artifact(self.root,'secret.json',bad,scan=scanner)
+    |                                                         ^
+289 |             self.assertFalse((self.root/'secret.json').exists())
+290 |         def broken(_): raise RuntimeError(canary)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:301:34
+    |
+299 |                                   ('BLOCKED','BLOCKED',2),('FAIL','FAILED',1),('UNKNOWN','UNKNOWN',3)]:
+300 |             value=dict(original,result=result,state=state,error_code=None if code==0 else 'ERROR')
+301 |             self.both(value,True); self.assertEqual(self.c.exit_code(value),code)
+    |                                  ^
+302 |             self.both(dict(value,state='Done'),False)
+303 |             self.both(dict(value,error_code='ERROR' if code==0 else None),False)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:309:30
+    |
+307 |             self.rejects(dict(original,run_id=bad))
+308 |         error=self.c.input_error('INVALID_INPUT','run_id')
+309 |         self.both(error,True); self.assertEqual(self.c.exit_code(error),2)
+    |                              ^
+310 |         self.assertEqual(set(error),{'schema','error_code','message','field'})
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:315:40
+    |
+313 |         original=self.f['cloud-verification/v1']
+314 |         for result in ('FAIL','BLOCKED'):
+315 |             bad=copy.deepcopy(original); bad['checks'][0]['result']=result
+    |                                        ^
+316 |             self.rejects(bad)
+317 |         for field in ('checks','required_check_ids'):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:318:40
+    |
+316 |             self.rejects(bad)
+317 |         for field in ('checks','required_check_ids'):
+318 |             bad=copy.deepcopy(original); bad[field]*=2; self.rejects(bad)
+    |                                        ^
+319 |         bad=copy.deepcopy(original); bad['checks'][0]['check_id']='other'; self.rejects(bad)
+320 |         self.rejects(dict(original,overall_result='FAIL',evidence_complete=True))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:318:55
+    |
+316 |             self.rejects(bad)
+317 |         for field in ('checks','required_check_ids'):
+318 |             bad=copy.deepcopy(original); bad[field]*=2; self.rejects(bad)
+    |                                                       ^
+319 |         bad=copy.deepcopy(original); bad['checks'][0]['check_id']='other'; self.rejects(bad)
+320 |         self.rejects(dict(original,overall_result='FAIL',evidence_complete=True))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:319:36
+    |
+317 |         for field in ('checks','required_check_ids'):
+318 |             bad=copy.deepcopy(original); bad[field]*=2; self.rejects(bad)
+319 |         bad=copy.deepcopy(original); bad['checks'][0]['check_id']='other'; self.rejects(bad)
+    |                                    ^
+320 |         self.rejects(dict(original,overall_result='FAIL',evidence_complete=True))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:319:74
+    |
+317 |         for field in ('checks','required_check_ids'):
+318 |             bad=copy.deepcopy(original); bad[field]*=2; self.rejects(bad)
+319 |         bad=copy.deepcopy(original); bad['checks'][0]['check_id']='other'; self.rejects(bad)
+    |                                                                          ^
+320 |         self.rejects(dict(original,overall_result='FAIL',evidence_complete=True))
+    |
+
+F841 Local variable `refs` is assigned to but never used
+   --> tests/cloud-orchestration-contracts.tests.py:342:9
+    |
+341 |     def test_prepare_binding_does_not_invent_preview(self):
+342 |         refs = self.make_bundle()
+    |         ^^^^
+343 |         request = json.loads((self.root/'request.json').read_bytes())
+344 |         request['operation'] = 'prepare'
+    |
+help: Remove assignment to unused variable `refs`
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:422:48
+    |
+420 |                     candidates=['',value+'\n',value+' ',value+'/', 'x'*3000]
+421 |                 for candidate in candidates:
+422 |                     bad=copy.deepcopy(original); at(bad,path[:-1])[path[-1]]=candidate
+    |                                                ^
+423 |                     schema_valid=not self.oracle._schema_validate(schema,bad)
+424 |                     with self.subTest(kind=kind,path=path,candidate=candidate[:30]):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:438:39
+    |
+436 |         self.both(request,True)
+437 |         for field in ('unit_id','path','sha256'):
+438 |             bad=copy.deepcopy(request);del bad['predecessor_receipts'][0][field]
+    |                                       ^
+439 |             self.both(bad,False)
+440 |         for extra in (None,7,{},''):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:445:48
+    |
+444 |     def test_schema_published_limits_have_executable_runtime_counterparts(self):
+445 |         original=self.f['cloud-observation/v1']; schema=self.schema(original['schema'])
+    |                                                ^
+446 |         self.assertEqual(schema['properties']['exit_code']['maximum'],2147483647)
+447 |         self.assertEqual(schema['properties']['resource_ids']['maxItems'],4096)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/cloud-orchestration-contracts.tests.py:450:37
+    |
+448 |         self.assertEqual(schema['properties']['timestamp']['format'],'date-time')
+449 |         self.c.parse_artifact(encode(dict(original,status='FAIL',exit_code=2147483647)))
+450 |         for value in (-1,2147483648): self.rejects(dict(original,exit_code=value))
+    |                                     ^
+451 |         self.c.parse_artifact(encode(dict(original,resource_ids=['r'+str(i) for i in range(4096)])))
+452 |         self.rejects(dict(original,resource_ids=['r'+str(i) for i in range(4097)]))
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:478:50
+    |
+476 |         for field,value in (('run_id','other-run'),('unit_id','other-unit'),('provider','azure'),
+477 |                             ('semantic_sha256','b'*64),('created_at','2026-10-18T06:30:00Z')):
+478 |             changed=dict(preview,**{field:value}); changed_ref=self.put('preview.json',changed)
+    |                                                  ^
+479 |             with self.subTest(field=field),self.assertRaises(self.c.ContractError):
+480 |                 self.c.verify_binding(self.root,refs[0],changed_ref,None,now=NOW)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/cloud-orchestration-contracts.tests.py:481:37
+    |
+479 |             with self.subTest(field=field),self.assertRaises(self.c.ContractError):
+480 |                 self.c.verify_binding(self.root,refs[0],changed_ref,None,now=NOW)
+481 |         scope=copy.deepcopy(preview);scope['scope']['account_id']='other-account'
+    |                                     ^
+482 |         changed_ref=self.put('preview.json',scope)
+483 |         with self.assertRaises(self.c.ContractError):
+    |
+
+Found 47 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

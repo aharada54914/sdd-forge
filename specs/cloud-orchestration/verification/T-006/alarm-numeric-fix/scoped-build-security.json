@@ -1,0 +1,19 @@
+{
+  "build": "Python compile() succeeded for all three changed Python surfaces; no build artifact or provider tool",
+  "security": "Source delta adds only local Decimal/regex parsing. No networking, credentials, subprocess, publication or authorization change in product code; tests use existing synthetic XML and guarded public fixture. No new dependency or suppression.",
+  "scope": "Only aws_observation.py and cloud-orchestration-verification.tests.py product/test delta; evidence driver and report are task-local.",
+  "files": [
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "sha256": "6057a5d62afd366f7b9fc589e887fc8dce9c37daf20b69ff8facb1cff395cc13"
+    },
+    {
+      "path": "tests/cloud-orchestration-verification.tests.py",
+      "sha256": "7cdbf61264499cec788e7da535f9c0b1cdb603d555975b93498cc1a2e65f0135"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-006/alarm-numeric-fix/verify-scoped.py",
+      "sha256": "a119845eba10b4caff0d2820d99883052272d5b46177807902b32e2ba5e7f1d4"
+    }
+  ]
+}

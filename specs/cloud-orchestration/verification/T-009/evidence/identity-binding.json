@@ -1,0 +1,11 @@
+{
+  "schema": "scoped-native-identity-binding/v1",
+  "source": "native allocation, whitelisted fields only; raw host events excluded",
+  "thread_id": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+  "model": "gpt-6-astra",
+  "provider": "openai",
+  "effort": "high",
+  "run_id": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+  "session_id": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+  "agent_instance_id": "01a14ed8-ab42-7832-8945-e75ca77b0d2e"
+}

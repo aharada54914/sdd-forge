@@ -1,0 +1,1 @@
+Unconsumed precheck preserved before correcting Markdown table row continuity. No reviewer context was allocated or reserved for this snapshot. The canonical attempt-2/round-1 precheck was regenerated after the formatting correction. No review verdict or historical passed input was overwritten.

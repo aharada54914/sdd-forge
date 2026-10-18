@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-c",
+    "\nfrom pathlib import Path\nimport ast, hashlib, json\nE=Path(\"specs/cloud-orchestration/verification/T-007/attempt-1\")\nsha=lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()\nentry=json.loads((E/\"coverage-completion-entry.json\").read_text())\nrollback=json.loads((E/\"final-rollback-result.json\").read_text())\nchanged=[p for p,h in entry[\"entry_outputs\"].items() if sha(p)!=h]\nassert changed==[\"tests/install-cloud.tests.py\"], changed\nassert all(sha(p)==h for p,h in entry[\"historical_evidence\"].items())\nrollback_changed=[p for p,h in rollback[\"candidate\"].items() if sha(p)!=h]\nassert rollback_changed==changed\nold=Path(\"/tmp/cloud-t007-01a14f96/install-cloud.before-coverage.py\")\nassert sha(old)==entry[\"test_before_sha256\"]\ndef probe(path):\n    return next(ast.literal_eval(n.value) for n in ast.parse(Path(path).read_text()).body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==\"RUNTIME_PROBE\" for t in n.targets))\nassert probe(old)==probe(\"tests/install-cloud.tests.py\")\nresult=dict(run_id=entry[\"run_id\"], task_attempt_count=1, changed_prior_output_paths=changed, historical_evidence_checked=len(entry[\"historical_evidence\"]), historical_evidence_unchanged=True, first_handoff_sha256=sha(E/\"first-handoff-report.md\"), original_manifest_sha256=sha(E/\"task-input-manifest.json\"), runtime_probe_unchanged=True, runtime_probe_sha256=hashlib.sha256(probe(old).encode()).hexdigest(), rollback_candidate_differences=rollback_changed, rollback_qualification=\"Prior isolated rollback exercised the final production bytes and prior test bytes; this follow-up only strengthens installed-CLI test coverage. Rollback was not rerun for the test-only delta.\", current_task_file_hashes={p:sha(p) for p in rollback[\"candidate\"]})\n(E/\"coverage-completion-result.json\").write_text(json.dumps(result,indent=2)+\"\\n\")\nprint(\"113 historical evidence artifacts unchanged; original manifest and first handoff preserved\")\nprint(\"21 of 22 rollback candidate files unchanged; only tests/install-cloud.tests.py strengthened\")\nprint(\"Separate in-process authenticated-deadline probe unchanged\")\n"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:49:52Z",
+  "exit_code": 0,
+  "elapsed_seconds": 0.049,
+  "classification": "offline local command; no live cloud"
+}

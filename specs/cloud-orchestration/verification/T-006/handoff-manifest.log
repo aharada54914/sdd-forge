@@ -1,0 +1,5 @@
+MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts
+$ bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --manifest specs/cloud-orchestration/verification/T-006/task-input-manifest.json --snapshot-root /tmp/cloud-T006-01a14e57 --expected-task T-006
+TASK_INPUT_OK
+
+Exit code: 0

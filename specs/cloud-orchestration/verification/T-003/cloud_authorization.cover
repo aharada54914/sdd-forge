@@ -1,0 +1,599 @@
+    1: """Protected GitHub admission, not a cloud engine or local approval authority.
+       
+       Trusted, pinned provider adapters call WriteBoundary.write for EVERY mutation.
+       Policy and this module must come from the external protected executor, never
+       from deployment inputs. Runtime strings alone grant nothing: HTTPS GitHub OIDC,
+       REST metadata, native provider federation and identity readback must all agree.
+       Transport/clock injection is for deterministic tests in trusted code ONLY; there
+       is no fixture-file, receipt-import, approved-flag or environment-based bypass.
+       
+       Receipts are integrity/audit artifacts. Exclusive publication and an in-process
+       latch prevent job-local duplicate submissions, NOT distributed serialization or
+       durable external authorization. GitHub first-attempt-only protected jobs plus
+       account/region workflow concurrency and externally enforced exclusive repository
+       write ownership are prerequisites. A lost process never resumes writes; reconcile
+       original operation IDs, then use a fresh separately approved dispatch if needed.
+       """
+       
+    1: from __future__ import annotations
+       
+    1: import base64
+    1: from dataclasses import dataclass, field
+    1: from datetime import datetime, timezone
+    1: import hashlib
+    1: import hmac
+    1: import json
+    1: from pathlib import Path
+    1: import re
+    1: import threading
+    1: import time
+    1: from typing import Any, Callable, Protocol
+    1: import urllib.parse
+    1: import urllib.request
+    1: import xml.etree.ElementTree as ET
+       
+    1: import cloud_contracts as contracts
+       
+    1: ISSUER = "https://token.actions.githubusercontent.com"
+    1: GITHUB = "https://api.github.com"
+    1: STS = "https://sts.amazonaws.com/"
+    1: MAX_RESPONSE = 4 * 1024 * 1024
+       
+       
+    2: class AdmissionDenied(ValueError):
+    1:     """Safe fixed diagnostic. The adapter maps this pre-write error to BLOCKED."""
+       
+       
+    1: def require(condition: object, code: str = "ADMISSION_DENIED") -> None:
+16678:     if not condition:
+   96:         raise AdmissionDenied(code)
+       
+       
+    1: def digest(data: bytes) -> str:
+   89:     return hashlib.sha256(data).hexdigest()
+       
+       
+    1: def encode(value: Any) -> bytes:
+   13:     return (json.dumps(value, sort_keys=True, ensure_ascii=True) + "\n").encode()
+       
+       
+    1: def decode(data: bytes) -> Any:
+  581:     require(type(data) is bytes and len(data) <= MAX_RESPONSE)
+       
+  581:     def pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
+ 1537:         result: dict[str, Any] = {}
+ 8271:         for key, value in items:
+ 6735:             require(key not in result)
+ 6734:             result[key] = value
+ 1536:         return result
+       
+  581:     def invalid(_: str) -> None:
+>>>>>>         raise AdmissionDenied("INVALID_AUTH_RESPONSE")
+       
+ 1162:     return json.loads(
+  581:         data.decode("utf-8"), object_pairs_hook=pairs, parse_constant=invalid, parse_float=invalid
+           )
+       
+       
+    1: def claims_from_authenticated_response(token: str) -> dict[str, Any]:
+           """Decode ONLY tokens just obtained from a fixed authenticated HTTPS issuer.
+       
+           This is not a general JWT verifier. Caller-supplied token files are unsupported.
+           GitHub's TLS response authenticates its claims; provider federation additionally
+           validates the GitHub JWT signature/audience/subject. Entra's TLS token endpoint
+           response authenticates the access-token claims returned by that endpoint.
+           """
+  142:     require(type(token) is str and len(token) < MAX_RESPONSE)
+  142:     parts = token.split(".")
+  142:     require(len(parts) == 3)
+  142:     value = decode(base64.b64decode(parts[1] + "=" * (-len(parts[1]) % 4), altchars=b"-_", validate=True))
+  142:     require(type(value) is dict)
+  142:     return value
+       
+       
+    1: def utc(epoch: int) -> str:
+  192:     return datetime.fromtimestamp(epoch, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+       
+       
+    1: def epoch(value: str) -> int:
+   16:     require(re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", value))
+   16:     return int(datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp())
+       
+       
+    2: class Transport(Protocol):
+    1:     def request(self, method: str, url: str, headers: dict[str, str], body: bytes | None = None) -> bytes: ...
+       
+       
+    2: class NoRedirect(urllib.request.HTTPRedirectHandler):
+    1:     def redirect_request(self, req: Any, fp: Any, code: int, msg: str, headers: Any, newurl: str) -> None:
+    1:         raise AdmissionDenied("AUTH_REDIRECT_DENIED")
+       
+       
+    2: class HttpsTransport:
+    1:     """TLS verification on, redirects off, bounded read/deadline, no HTTP retries."""
+       
+    1:     def request(self, method: str, url: str, headers: dict[str, str], body: bytes | None = None) -> bytes:
+    3:         try:
+    3:             parsed = urllib.parse.urlsplit(url)
+    6:             require(
+   15:                 parsed.scheme == "https"
+    3:                 and parsed.hostname
+    3:                 and not parsed.username
+    3:                 and not parsed.password
+    3:                 and not parsed.fragment
+    3:                 and parsed.port in (None, 443)
+                   )
+    3:             opener = urllib.request.build_opener(NoRedirect())
+    3:             request = urllib.request.Request(url, data=body, headers=headers, method=method)
+    5:             with opener.open(request, timeout=20) as response:
+    2:                 require(response.status == 200 and response.geturl() == url)
+    2:                 data = response.read(MAX_RESPONSE + 1)
+    2:                 require(len(data) <= MAX_RESPONSE)
+    1:                 return data
+    2:         except Exception:
+    2:             raise AdmissionDenied("AUTH_SERVICE_UNAVAILABLE") from None
+       
+       
+    3: @dataclass(frozen=True)
+    2: class Runtime:
+    1:     github_token: str = field(repr=False)
+    1:     oidc_url: str = field(repr=False)
+    1:     oidc_token: str = field(repr=False)
+       
+       
+    3: @dataclass(frozen=True)
+    2: class Policy:
+    1:     """External trusted executor configuration, NOT parsed from run-request JSON.
+       
+           The policy SHA binds the owner-reviewed policy copy in the artifact bundle.
+           Exclusive ownership must be established by platform IAM/repository administrators;
+           this local object cannot prove absence of other writers in an account.
+           """
+       
+    1:     provider: str
+    1:     repository: str
+    1:     repository_id: int
+    1:     workflow: str
+    1:     workflow_revision: str
+    1:     ref: str
+    1:     operation: str
+    1:     environment: str
+    1:     environment_id: int
+    1:     account_id: str
+    1:     region: str
+    1:     deployment_scope: str
+    1:     policy_sha256: str
+    1:     actors: tuple[tuple[int, str], ...]
+    1:     reviewers: tuple[tuple[int, str], ...]
+    1:     exclusive_repository: str
+    1:     ttl_seconds: int
+    1:     aws_role_arn: str = ""
+    1:     azure_tenant: str = ""
+    1:     azure_client: str = ""
+    1:     azure_principal: str = ""
+       
+       
+    1: def concurrency_key(policy: Policy) -> str:
+           """Conservative key: stack/group/unit deliberately excluded."""
+  148:     require(policy.provider in ("aws", "azure"))
+  148:     require(re.fullmatch(r"[a-z0-9-]+", policy.account_id))
+  148:     require(re.fullmatch(r"[a-z0-9-]+", policy.region))
+  148:     return f"cloud-{policy.provider}-{policy.account_id}-{policy.region}"
+       
+       
+    1: def _policy_valid(p: Policy) -> None:
+  146:     concurrency_key(p)
+  146:     require(p.exclusive_repository == p.repository, "EXCLUSIVE_WRITER_REQUIRED")
+  145:     require(re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+", p.repository))
+  145:     require(re.fullmatch(r"\.github/workflows/[A-Za-z0-9_.-]+\.ya?ml", p.workflow))
+  145:     require(re.fullmatch(r"[a-f0-9]{40}", p.workflow_revision))
+  145:     require(re.fullmatch(r"refs/heads/[A-Za-z0-9_/-]+", p.ref))
+  145:     require(p.operation in ("prepare", "apply") and p.environment.endswith("-" + p.operation))
+  145:     require(re.fullmatch(r"[A-Za-z0-9_-]+", p.environment))
+  145:     require(re.fullmatch(r"[a-f0-9]{64}", p.policy_sha256))
+  145:     require(type(p.ttl_seconds) is int and 0 < p.ttl_seconds <= 3600)
+  145:     require(type(p.repository_id) is int and p.repository_id > 0)
+  145:     require(type(p.environment_id) is int and p.environment_id > 0)
+  435:     for identities in (p.actors, p.reviewers):
+  290:         require(bool(identities) and len(set(identities)) == len(identities))
+  580:         for number, name in identities:
+  580:             require(type(number) is int and number > 0 and re.fullmatch(r"[A-Za-z0-9_-]+", name))
+  145:     if p.provider == "aws":
+  124:         require(re.fullmatch(r"\d{12}", p.account_id))
+  124:         require(re.fullmatch(r"arn:aws:iam::" + p.account_id + r":role/[A-Za-z0-9_+=,.@/-]+", p.aws_role_arn))
+           else:
+  105:         for identifier in (p.account_id, p.azure_tenant, p.azure_client, p.azure_principal):
+   84:             require(re.fullmatch(r"[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}", identifier))
+       
+       
+    1: def _window(claims: dict[str, Any], now: int) -> None:
+  446:     for key in ("iat", "nbf", "exp"):
+  336:         require(type(claims[key]) is int)
+  110:     require(claims["iat"] <= now and claims["nbf"] <= now < claims["exp"])
+  105:     require(claims["iat"] < claims["exp"])
+       
+       
+    2: class GitHubAdmission:
+    1:     def __init__(self, policy: Policy, runtime: Runtime, transport: Transport):
+  125:         self.policy, self.runtime, self.transport = policy, runtime, transport
+       
+    1:     def oidc(self, now: int) -> tuple[str, dict[str, Any]]:
+  125:         p, runtime = self.policy, self.runtime
+  250:         require(
+  622:             all(type(v) is str and v for v in (runtime.github_token, runtime.oidc_url, runtime.oidc_token)),
+  125:             "PROTECTED_WORKFLOW_REQUIRED",
+               )
+  124:         url = urllib.parse.urlsplit(runtime.oidc_url)
+  248:         require(
+  489:             url.scheme == "https"
+  123:             and url.netloc == "pipelines.actions.githubusercontent.com"
+  121:             and not url.fragment
+  121:             and url.path.endswith("/idtoken")
+  121:             and "%" not in url.path
+               )
+  121:         query = urllib.parse.parse_qs(url.query, strict_parsing=True)
+  121:         require(set(query) == {"api-version"} and len(query["api-version"]) == 1)
+  121:         audience = "sts.amazonaws.com" if p.provider == "aws" else "api://AzureADTokenExchange"
+  242:         response = decode(
+  242:             self.transport.request(
+  121:                 "GET",
+  121:                 runtime.oidc_url + "&audience=" + urllib.parse.quote(audience, safe=""),
+  121:                 {"Authorization": "Bearer " + runtime.oidc_token},
+                   )
+               )
+  121:         token = response["value"]
+  121:         claims = claims_from_authenticated_response(token)
+  242:         expected = dict(
+  121:             iss=ISSUER,
+  121:             aud=audience,
+  121:             repository=p.repository,
+  121:             repository_id=str(p.repository_id),
+  121:             workflow_ref=f"{p.repository}/{p.workflow}@{p.ref}",
+  121:             workflow_sha=p.workflow_revision,
+  121:             ref=p.ref,
+  121:             sha=p.workflow_revision,
+  121:             environment=p.environment,
+  121:             event_name="workflow_dispatch",
+  121:             run_attempt="1",
+  121:             sub=f"repo:{p.repository}:environment:{p.environment}:workflow_ref:{p.repository}/{p.workflow}@{p.ref}:workflow_sha:{p.workflow_revision}",
+               )
+ 1417:         for key, value in expected.items():
+ 1320:             require(claims[key] == value, "OIDC_BINDING_MISMATCH")
+  193:         require(type(claims["run_id"]) is str and re.fullmatch(r"[1-9][0-9]{0,19}", claims["run_id"]))
+   96:         require((int(claims["actor_id"]), claims["actor"]) in p.actors)
+   92:         _window(claims, now)
+   86:         return token, claims
+       
+    1:     def metadata(self, claims: dict[str, Any], request_sha: str, preview_sha: str) -> dict[str, str]:
+  112:         p = self.policy
+  112:         base = f"{GITHUB}/repos/{p.repository}"
+  112:         run_url = base + "/actions/runs/" + claims["run_id"]
+  112:         headers = {
+  112:             "Authorization": "Bearer " + self.runtime.github_token,
+  112:             "Accept": "application/vnd.github+json",
+  112:             "X-GitHub-Api-Version": "2022-11-28",
+               }
+  112:         run = decode(self.transport.request("GET", run_url, headers))
+  220:         expected = dict(
+  110:             id=int(claims["run_id"]),
+  110:             run_attempt=1,
+  110:             status="in_progress",
+  110:             conclusion=None,
+  110:             event="workflow_dispatch",
+  110:             head_sha=p.workflow_revision,
+  110:             head_branch=p.ref.removeprefix("refs/heads/"),
+  110:             path=p.workflow,
+  110:             display_title=f"cloud:{request_sha}:{preview_sha}",
+               )
+ 1051:         for key, value in expected.items():
+  954:             require(type(run[key]) is type(value) and run[key] == value, "RUN_BINDING_MISMATCH")
+  288:         for key in ("repository", "head_repository"):
+  193:             require(run[key]["id"] == p.repository_id and run[key]["full_name"] == p.repository)
+  282:         for key in ("actor", "triggering_actor"):
+  189:             require((run[key]["id"], run[key]["login"]) == (int(claims["actor_id"]), claims["actor"]))
+   93:         environment = decode(self.transport.request("GET", base + "/environments/" + p.environment, headers))
+   92:         require(environment["id"] == p.environment_id and environment["name"] == p.environment)
+   90:         require(environment["can_admins_bypass"] is False)
+  178:         require(
+  178:             environment["deployment_branch_policy"]
+   89:             == dict(protected_branches=True, custom_branch_policies=False)
+               )
+  175:         rules = [r for r in environment["protection_rules"] if r["type"] == "required_reviewers"]
+   88:         require(len(rules) == 1 and rules[0]["prevent_self_review"] is True)
+  172:         reviewers = {
+   86:             (r["reviewer"]["id"], r["reviewer"]["login"])
+  258:             for r in rules[0]["reviewers"]
+   86:             if r["type"] == "User"
+               }
+  172:         require(
+   86:             len(rules[0]["reviewers"]) == len(reviewers) and reviewers == set(p.reviewers),
+   86:             "REVIEWER_POLICY_MISMATCH",
+               )
+   85:         approval_url = run_url + "/approvals"
+   85:         raw = self.transport.request("GET", approval_url, headers)
+   84:         history = decode(raw)
+   83:         require(type(history) is list and len(history) == 1, "AMBIGUOUS_REVIEW_HISTORY")
+   71:         matched = []
+  140:         for review in history:
+   71:             require(type(review["environments"]) is list and len(review["environments"]) == 1)
+  140:             for env in review["environments"]:
+                       # Either identity matching but not the other is itself ambiguous.
+   71:                 if env["id"] == p.environment_id or env["name"] == p.environment:
+   71:                     require(env["id"] == p.environment_id and env["name"] == p.environment)
+   69:                     matched.append(review)
+   69:         require(len(matched) == 1, "AMBIGUOUS_REVIEW_HISTORY")
+   69:         review = matched[0]
+   69:         require(review["state"] == "approved", "APPROVAL_REQUIRED")
+   65:         user = (review["user"]["id"], review["user"]["login"])
+   63:         require(user in reviewers and user != (int(claims["actor_id"]), claims["actor"]), "REVIEWER_MISMATCH")
+   61:         return dict(locator=approval_url, sha256=digest(raw))
+       
+       
+    1: def _xml_result(raw: bytes, action: str) -> ET.Element:
+   32:     require(len(raw) <= MAX_RESPONSE and b"<!" not in raw)
+   32:     root = ET.fromstring(raw)
+   30:     namespace = "{https://sts.amazonaws.com/doc/2011-06-15/}"
+   30:     require(root.tag == namespace + action + "Response")
+   30:     results = root.findall(namespace + action + "Result")
+   30:     require(len(results) == 1)
+   30:     return results[0]
+       
+       
+    1: def _xml_text(root: ET.Element, path: str) -> str:
+  158:     namespace = "{https://sts.amazonaws.com/doc/2011-06-15/}"
+  556:     elements = root.findall("/".join(namespace + part for part in path.split("/")))
+  158:     require(len(elements) == 1 and bool(elements[0].text))
+  158:     return str(elements[0].text)
+       
+       
+    1: def _sts_headers(body: bytes, credentials: dict[str, str], now: int) -> dict[str, str]:
+           """SigV4 for the single read-only STS GetCallerIdentity request."""
+   14:     stamp = datetime.fromtimestamp(now, timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+   14:     date = stamp[:8]
+   14:     canonical_headers = (
+   28:         "content-type:application/x-www-form-urlencoded\nhost:sts.amazonaws.com\n"
+   14:         f"x-amz-date:{stamp}\nx-amz-security-token:{credentials['AWS_SESSION_TOKEN']}\n"
+           )
+   14:     names = "content-type;host;x-amz-date;x-amz-security-token"
+   14:     canonical = f"POST\n/\n\n{canonical_headers}\n{names}\n{digest(body)}"
+   14:     scope = date + "/us-east-1/sts/aws4_request"
+   14:     string = f"AWS4-HMAC-SHA256\n{stamp}\n{scope}\n{digest(canonical.encode())}"
+   14:     key = ("AWS4" + credentials["AWS_SECRET_ACCESS_KEY"]).encode()
+   70:     for part in (date, "us-east-1", "sts", "aws4_request"):
+   56:         key = hmac.new(key, part.encode(), hashlib.sha256).digest()
+   14:     signature = hmac.new(key, string.encode(), hashlib.sha256).hexdigest()
+   14:     return {
+   14:         "Content-Type": "application/x-www-form-urlencoded",
+   14:         "X-Amz-Date": stamp,
+   14:         "X-Amz-Security-Token": credentials["AWS_SESSION_TOKEN"],
+   14:         "Authorization": f"AWS4-HMAC-SHA256 Credential={credentials['AWS_ACCESS_KEY_ID']}/{scope}, SignedHeaders={names}, Signature={signature}",
+           }
+       
+       
+    2: class AwsIdentity:
+    1:     """Native STS federation followed by signed identity readback; no resource API."""
+       
+    2:     @staticmethod
+    8:     def exchange(
+    5:         p: Policy, token: str, claims: dict[str, Any], transport: Transport, now: int
+    1:     ) -> tuple[str, int, dict[str, str]]:
+   54:         body = urllib.parse.urlencode(
+   36:             dict(
+   18:                 Action="AssumeRoleWithWebIdentity",
+   18:                 Version="2011-06-15",
+   18:                 RoleArn=p.aws_role_arn,
+   18:                 RoleSessionName="sdd-" + claims["run_id"],
+   18:                 WebIdentityToken=token,
+   18:                 DurationSeconds=900,
+                   )
+   18:         ).encode()
+   36:         result = _xml_result(
+   18:             transport.request("POST", STS, {"Content-Type": "application/x-www-form-urlencoded"}, body),
+   18:             "AssumeRoleWithWebIdentity",
+               )
+   18:         require(_xml_text(result, "SubjectFromWebIdentityToken") == claims["sub"])
+   18:         require(_xml_text(result, "Audience") == "sts.amazonaws.com")
+   18:         require(_xml_text(result, "Provider") == ISSUER)
+   18:         principal = f"arn:aws:sts::{p.account_id}:assumed-role/{p.aws_role_arn.rsplit('/', 1)[1]}/sdd-{claims['run_id']}"
+   18:         require(_xml_text(result, "AssumedRoleUser/Arn") == principal, "PROVIDER_PRINCIPAL_MISMATCH")
+   16:         end = epoch(_xml_text(result, "Credentials/Expiration"))
+   32:         credentials = {
+   48:             key: _xml_text(result, "Credentials/" + field_name)
+   80:             for key, field_name in (
+                       ("AWS_ACCESS_KEY_ID", "AccessKeyId"),
+                       ("AWS_SECRET_ACCESS_KEY", "SecretAccessKey"),
+                       ("AWS_SESSION_TOKEN", "SessionToken"),
+                   )
+               }
+   16:         require(end > now, "CREDENTIAL_EXPIRED")
+   14:         body = urllib.parse.urlencode(dict(Action="GetCallerIdentity", Version="2011-06-15")).encode()
+   28:         identity = _xml_result(
+   14:             transport.request("POST", STS, _sts_headers(body, credentials, now), body), "GetCallerIdentity"
+               )
+   24:         require(
+   12:             _xml_text(identity, "Account") == p.account_id and _xml_text(identity, "Arn") == principal,
+   12:             "PROVIDER_PRINCIPAL_MISMATCH",
+               )
+   10:         return principal, end, credentials
+       
+       
+    2: class AzureIdentity:
+    1:     """Authenticated Entra token issuance/claims plus ARM subscription readback.
+       
+           No supplied access-token JWT is accepted. Principal claims are read solely from
+           Entra's TLS token response, not from CLI account metadata or unverified files.
+           """
+       
+    2:     @staticmethod
+    8:     def exchange(
+    5:         p: Policy, token: str, claims: dict[str, Any], transport: Transport, now: int
+    1:     ) -> tuple[str, int, dict[str, str]]:
+   63:         body = urllib.parse.urlencode(
+   42:             dict(
+   21:                 client_id=p.azure_client,
+   21:                 grant_type="client_credentials",
+   21:                 scope="https://management.azure.com/.default",
+   21:                 client_assertion_type="urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+   21:                 client_assertion=token,
+                   )
+   21:         ).encode()
+   42:         response = decode(
+   42:             transport.request(
+   21:                 "POST",
+   21:                 f"https://login.microsoftonline.com/{p.azure_tenant}/oauth2/v2.0/token",
+   21:                 {"Content-Type": "application/x-www-form-urlencoded"},
+   21:                 body,
+                   )
+               )
+   42:         require(
+   42:             response["token_type"] == "Bearer"
+   21:             and type(response["expires_in"]) is int
+   21:             and response["expires_in"] > 0
+               )
+   21:         access = response["access_token"]
+   21:         identity = claims_from_authenticated_response(access)
+   21:         _window(identity, now)
+   19:         require(identity["oid"] == p.azure_principal and identity["tid"] == p.azure_tenant)
+   15:         require(identity.get("appid", identity.get("azp")) == p.azure_client)
+   13:         require(identity["aud"] == "https://management.azure.com/")
+   22:         subscription = decode(
+   22:             transport.request(
+   11:                 "GET",
+   11:                 f"https://management.azure.com/subscriptions/{p.account_id}?api-version=2022-12-01",
+   11:                 {"Authorization": "Bearer " + access},
+                   )
+               )
+   20:         require(
+   18:             subscription["subscriptionId"] == p.account_id
+    7:             and subscription["tenantId"] == p.azure_tenant
+    7:             and subscription["state"] == "Enabled",
+    9:             "PROVIDER_SCOPE_MISMATCH",
+               )
+    7:         return (
+    7:             p.azure_principal,
+    7:             min(identity["exp"], now + response["expires_in"]),
+    7:             {"AZURE_ACCESS_TOKEN": access},
+               )
+       
+       
+    2: class WriteBoundary:
+    1:     """One protected job's pre-write boundary. Submit is called at most once.
+       
+           Adapters own native operation IDs, fixed commands, exact in-memory artifact
+           bytes, provider preview semantics, tool-closure checks and UNKNOWN recovery.
+           Callers MUST NOT load executable code/policy from the artifact root. The callback
+           receives only the newly federated credentials, never local CLI credentials.
+           Receipt files are permanent consumed markers even when submission raises.
+           """
+       
+    6:     def __init__(
+               self,
+    1:         policy: Policy,
+    1:         runtime: Runtime,
+    1:         evidence_root: Path,
+               *,
+    2:         transport: Transport | None = None,
+    2:         clock: Callable[[], float] = time.time,
+           ):
+  148:         self.policy, self.runtime, self.evidence_root = policy, runtime, evidence_root
+  148:         self.transport = transport if transport is not None else HttpsTransport()
+  148:         self.clock = clock
+  148:         self._seen: set[str] = set()
+  148:         self._mutex = threading.Lock()
+       
+    8:     def write(
+               self,
+    1:         root: Path,
+    1:         request_ref: dict[str, str],
+    1:         preview_ref: dict[str, str] | None,
+               *,
+    1:         mutation_id: str,
+    1:         submit: Callable[[dict[str, str]], Any],
+    1:         scan: Callable[[bytes], bool],
+    1:     ) -> tuple[dict[str, str], Any]:
+               """Fresh admission then exclusive audit publication then one mutation.
+       
+               No imported receipt can grant admission. Stable mutation_id comes from the
+               trusted adapter's deterministic operation plan, never a retry-generated UUID.
+               T-010 extends predecessor admission at the explicitly fail-closed seam below.
+               """
+  292:         with self._mutex:
+  146:             try:
+  146:                 p = self.policy
+  146:                 _policy_valid(p)
+  145:                 require(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", mutation_id))
+  145:                 now = int(self.clock())
+  145:                 contracts.verify_binding(root, request_ref, preview_ref, now=utc(now))
+  133:                 request = contracts.read_artifact(root, request_ref, "cloud-run-request/v1")
+  266:                 require(
+  266:                     request["provider"] == p.provider
+  133:                     and request["operation"] == p.operation
+  133:                     and request["environment"] == p.environment,
+  133:                     "STAGE_MISMATCH",
+                       )
+  264:                 require(
+  264:                     request["scope"]
+  132:                     == dict(account_id=p.account_id, region=p.region, deployment_scope=p.deployment_scope),
+  132:                     "SCOPE_MISMATCH",
+                       )
+  129:                 require(request["policy"]["sha256"] == p.policy_sha256, "POLICY_MISMATCH")
+                       # T-010 replaces this with verified predecessor receipt admission.
+  128:                 require(not request["predecessor_receipts"], "DEPENDENCY_ADMISSION_REQUIRED")
+  127:                 name = f"{request['unit_id']}.{p.operation}.{mutation_id}.authorization.json"
+  127:                 require(name not in self._seen, "REPLAY_DENIED")
+  125:                 github = GitHubAdmission(p, self.runtime, self.transport)
+  125:                 token, claims = github.oidc(now)
+   86:                 require(now < claims["iat"] + p.ttl_seconds, "CREDENTIAL_EXPIRED")
+   85:                 preview_sha = preview_ref["sha256"] if preview_ref is not None else "none"
+   85:                 github.metadata(claims, request_ref["sha256"], preview_sha)
+   39:                 provider = AwsIdentity if p.provider == "aws" else AzureIdentity
+   39:                 principal, lease_end, credentials = provider.exchange(p, token, claims, self.transport, now)
+                       # Recheck revocation, run state and exact bytes after federation, at the write site.
+   17:                 approval = github.metadata(claims, request_ref["sha256"], preview_sha)
+   13:                 end = min(lease_end, claims["exp"], claims["iat"] + p.ttl_seconds)
+   13:                 now = int(self.clock())
+   13:                 require(claims["iat"] <= now < end, "CREDENTIAL_EXPIRED")
+   13:                 contracts.verify_binding(root, request_ref, preview_ref, now=utc(now))
+   52:                 receipt = dict(
+   13:                     schema="cloud-authorization-receipt/v1",
+   26:                     **{
+   78:                         key: request[key]
+  104:                         for key in ("run_id", "unit_id", "provider", "scope", "dependency_lock", "policy")
+                           },
+   13:                     request=request_ref,
+   26:                     verification_profile={
+   52:                         key: request["verification_profile"][key] for key in ("path", "sha256")
+                           },
+   13:                     preview=preview_ref,
+   13:                     operation=p.operation,
+   13:                     issuer=ISSUER,
+   13:                     principal=principal,
+   13:                     subject=claims["sub"],
+   26:                     ci=dict(
+   13:                         repository=p.repository,
+   13:                         workflow=p.workflow,
+   13:                         workflow_revision=p.workflow_revision,
+   13:                         ref=p.ref,
+   13:                         environment=p.environment,
+   13:                         run_id=claims["run_id"],
+   13:                         run_attempt=1,
+                           ),
+   13:                     issued_at=utc(claims["iat"]),
+   13:                     expires_at=utc(end),
+   13:                     approval_evidence=approval,
+                       )
+   13:                 reference = contracts.publish_artifact(self.evidence_root, name, encode(receipt), scan=scan)
+   10:                 self._seen.add(name)
+                       # Publication/scanning can take time; a failed last check keeps the
+                       # consumed marker and never falls through to a native mutation.
+   19:                 require(
+   10:                     github.metadata(claims, request_ref["sha256"], preview_sha) == approval,
+    9:                     "APPROVAL_CHANGED",
+                       )
+    9:                 require(int(self.clock()) < end, "CREDENTIAL_EXPIRED")
+    8:                 contracts.verify_binding(root, request_ref, preview_ref, now=utc(int(self.clock())))
+  139:             except Exception:
+                       # Never echo native errors, tokens or attacker-controlled artifact bytes.
+  139:                 raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+                   # Submission exceptions are NOT converted to pre-write denial or retried.
+    7:             return reference, submit(credentials)

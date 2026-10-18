@@ -1,0 +1,163 @@
+{
+  "task_id": "T-010",
+  "task_attempt_count": 3,
+  "base_revision": "499c15f38a673e7c8732717a4b9a363aab94d8ba",
+  "checkout": "/tmp/cloud-T010-01a14f7b-2c6f-7fd2-a9d1-dfb5c7efdc0c/rollback",
+  "initial": {
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "035bbb6e2d011e2f64ec7bd93674b5b547ff83907337a3b35ff5b16f8adaf688",
+    "tests/cloud-orchestration-verification.tests.py": "3c7579045e94f627d88cd75cbb1ddda008934c869626ef0fd8ea91de60e82dc8"
+  },
+  "candidate": {
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658",
+    "tests/cloud-orchestration-verification.tests.py": "a3bfad88d8bff274ac3acc925cfb885b570aa931606e1a8a9a8580f26153de60"
+  },
+  "commands": [
+    {
+      "label": "rollback-entry-verification",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "started_at": "2026-10-18T14:59:51Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "rollback-entry-execution",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "started_at": "2026-10-18T15:02:18Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "rollback-entry-contracts",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "started_at": "2026-10-18T15:02:30Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "rollback-candidate-focused",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-verification.tests.py",
+        "DependencyCallbackExpiryCases"
+      ],
+      "started_at": "2026-10-18T15:02:31Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "rollback-restored-verification",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "started_at": "2026-10-18T15:02:47Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "rollback-restored-execution",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "started_at": "2026-10-18T15:05:15Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "rollback-restored-contracts",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "started_at": "2026-10-18T15:05:27Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "rollback-defect-reproduced",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-verification.tests.py",
+        "DependencyCallbackExpiryCases"
+      ],
+      "started_at": "2026-10-18T15:05:28Z",
+      "exit_code": 1,
+      "expected_exit": 1
+    },
+    {
+      "label": "rollback-reapplied-verification",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-verification.tests.py",
+        "DependencyCallbackExpiryCases"
+      ],
+      "started_at": "2026-10-18T15:05:45Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "rollback-reapplied-execution",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "started_at": "2026-10-18T15:06:01Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "rollback-reapplied-contracts",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "started_at": "2026-10-18T15:06:13Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    }
+  ],
+  "reconstruction": "Detached entry commit plus exact initial dirty-input snapshots and declared unchanged dependencies.",
+  "network_guard": "Exercised parent/direct Python/shell/PowerShell-child sentinels on every test command.",
+  "resource_rollback": false,
+  "completed": true,
+  "restored": {
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "035bbb6e2d011e2f64ec7bd93674b5b547ff83907337a3b35ff5b16f8adaf688",
+    "tests/cloud-orchestration-verification.tests.py": "3c7579045e94f627d88cd75cbb1ddda008934c869626ef0fd8ea91de60e82dc8"
+  },
+  "reapplied": {
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658",
+    "tests/cloud-orchestration-verification.tests.py": "a3bfad88d8bff274ac3acc925cfb885b570aa931606e1a8a9a8580f26153de60"
+  }
+}

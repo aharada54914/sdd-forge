@@ -1,0 +1,34 @@
+{
+  "final_rollback_matches_current_files": true,
+  "original_canonical_report_unchanged": true,
+  "canonical_predecessor_helper_unchanged": true,
+  "all_required_local_checks_exit_zero": [
+    "final-green-packaging",
+    "green-final-focused",
+    "final-install-bash",
+    "final-install-pwsh",
+    "final-installer-idempotency-bash",
+    "final-installer-idempotency-pwsh",
+    "final-install-uninstall-matrix-bash",
+    "final-install-uninstall-matrix-pwsh",
+    "final-uninstall-bash",
+    "final-uninstall-pwsh",
+    "final-ci-claude-install",
+    "final-repository-validation",
+    "final-python-static",
+    "output-checker-static",
+    "final-bash-syntax",
+    "final-powershell-syntax",
+    "final-manifest-validation",
+    "final-supplement-validation",
+    "rollback-final-driver",
+    "final-report-schema",
+    "final-output-hashes",
+    "final-scoped-diff-check"
+  ],
+  "red_commits": [
+    "56f10ea5",
+    "3c18526b"
+  ],
+  "private_transport_logs_excluded": true
+}

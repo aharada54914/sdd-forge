@@ -445,6 +445,10 @@
     {
       "feature": "a9-interrupted-review-recovery",
       "profile": "full"
+    },
+    {
+      "feature": "cloud-orchestration",
+      "profile": "full"
     }
   ]
 }

@@ -1,0 +1,7 @@
+{
+  "kind": "root-implementation-feedback",
+  "source_sha256": "2bae1659b3c34d3840e19626d191284ede2800b44a2610a115f51a1f674b0163",
+  "native_thread": "01a14de5-5c8e-7223-ad7c-855bb0bde8f9",
+  "native_turn": "01a14de5-5ce8-7ca2-9dae-d747030c68cf",
+  "message": "Root implementation feedback (not independent review): current AzureExecutor.body serializes properties.template as data[1].decode('utf-8'), a JSON string. Official 2025-04-01 DeploymentProperties.template is type object; actual ARM expects a template object, so immediate mock acceptance would hide an invalid API request. Keep approved original bytes hash-bound, embed their parsed object for native JSON envelope, and add an actual payload-shape assertion to deterministic transport. Also final submit callback performs owner/graph scans and durable audit after WriteBoundary's deadline check; ensure credential/policy/preview expiry cannot cross during these operations then still send a mutation. Prior T003 expiry regression is relevant: recheck the bounded admission deadline immediately before transport send after all local work, with an injected advancing-clock failure case. These are concrete review observations on current code; do not invent a quality verdict."
+}

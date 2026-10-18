@@ -1,0 +1,18 @@
+test_native_azure_incomplete_permission_proof_cannot_pass (__main__.NativeCollectorCases.test_native_azure_incomplete_permission_proof_cannot_pass) ... ERROR
+
+======================================================================
+ERROR: test_native_azure_incomplete_permission_proof_cannot_pass (__main__.NativeCollectorCases.test_native_azure_incomplete_permission_proof_cannot_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 667, in test_native_azure_incomplete_permission_proof_cannot_pass
+    collector.identity()
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 359, in identity
+    c._require(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PERMISSION_CONTEXT_UNSUPPORTED
+
+----------------------------------------------------------------------
+Ran 1 test in 0.021s
+
+FAILED (errors=1)

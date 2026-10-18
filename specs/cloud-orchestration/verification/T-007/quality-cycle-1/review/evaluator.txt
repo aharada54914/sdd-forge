@@ -1,0 +1,13 @@
+RUN_ID: 01a14fb8-dc09-7670-8869-47edb320bb3c
+HOST_SESSION_ID: 01a14fb8-dc09-7670-8869-47edb320bb3c
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-007/quality-cycle-1/review/invocation.json SHA-256 2ceb1c0fff8ad3d97d3eb00510f634ebc9bacf75fda88a5a8a8b9d083fd79a47
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Critical] install.sh:1013–1042; install.ps1:801–825 — Installing another selection into the same destination removes an existing provider’s packaged runtime. Both installers materialize runtime only for the current selection, then replace the entire installation directory. Thus Azure followed by AWS-only—or a default install—leaves Azure’s installed files without runtime/. The documented explicit runtime path then produces SHARED_RUNTIME_UNAVAILABLE. Previous registrations are not removed. Preserve or regenerate previously installed provider payloads and add sequential-selection regression tests; tests/install-cloud.tests.py:309–339 currently uses fresh destinations.
+CHECKED:
+- Recomputed invocation digest and scratch-bound reservation hash: both match supplied pins; sequence 1243 extends 1242. Implementation identity differs from evaluator identity.
+- Inspected approved T-007 scope, REQ-011 distribution criteria, relevant specifications, contracts and ADR 0036; excluded T-011 host/bootstrap work and live cloud acceptance.
+- Line-inspected both installers/uninstallers, six provider manifests, marketplace entries, skills, CLI loading/denial paths and packaging tests.
+- Inspected saved quality-cycle command records and output: 11 packaging tests passed; installer, uninstall, matrix, idempotency and repository-validation suites reported success. These do not cover sequential differing selections.
+- Compared rollback before/restored hashes and saved baseline logs: exact restoration recorded, with 51 checks passing before and after; later test-only strengthening is explicitly qualified.
+- Review was read-only: no tests rerun. Native Windows/macOS, native host invocation and live cloud behavior were not verified.

@@ -1,0 +1,2 @@
+tests/cloud-orchestration-execution.tests.py:108: note: By default the bodies of untyped functions are not checked, consider using --check-untyped-defs  [annotation-unchecked]
+Success: no issues found in 5 source files

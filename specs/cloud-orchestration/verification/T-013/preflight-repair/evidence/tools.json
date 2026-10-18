@@ -1,0 +1,28 @@
+{
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "tools": [
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "ruff",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "ruff 0.13.3"
+    },
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "mypy",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "mypy 1.18.2 (compiled: yes)"
+    }
+  ],
+  "identity_source": "explicit caller-supplied native host IDs; no environment-derived identity"
+}

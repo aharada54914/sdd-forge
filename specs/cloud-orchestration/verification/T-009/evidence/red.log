@@ -1,0 +1,25 @@
+test_legacy_cannot_accept_cloud_discriminator (__main__.ProtectedProfileCases.test_legacy_cannot_accept_cloud_discriminator) ... FAIL
+test_unsupported_profile_version_at_reducer (__main__.ProtectedProfileCases.test_unsupported_profile_version_at_reducer) ... FAIL
+
+======================================================================
+FAIL: test_legacy_cannot_accept_cloud_discriminator (__main__.ProtectedProfileCases.test_legacy_cannot_accept_cloud_discriminator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3300, in test_legacy_cannot_accept_cloud_discriminator
+    self.assertNotEqual(proc.returncode, 0, proc.stdout)
+AssertionError: 0 == 0 : Verification contract passed for task T-009.
+
+
+======================================================================
+FAIL: test_unsupported_profile_version_at_reducer (__main__.ProtectedProfileCases.test_unsupported_profile_version_at_reducer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3286, in test_unsupported_profile_version_at_reducer
+    with self.assertRaisesRegex(ValueError, "PROFILE_UNSUPPORTED"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.034s
+
+FAILED (failures=2)

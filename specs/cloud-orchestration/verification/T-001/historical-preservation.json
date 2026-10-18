@@ -1,0 +1,103 @@
+{
+  "base_revision": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+  "files": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/consumer-inventory-evidence.json",
+      "baseline_sha256": "91c7c43b3bd2542e07449020c035105be07b3a397fccc724091a7b52a98ba317",
+      "before_sha256": "91c7c43b3bd2542e07449020c035105be07b3a397fccc724091a7b52a98ba317",
+      "after_sha256": "91c7c43b3bd2542e07449020c035105be07b3a397fccc724091a7b52a98ba317"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json",
+      "baseline_sha256": "9f3b3e3c330d14d00546223cb371084f5bf98a0cebb3900b23f2fc38fcc3edc2",
+      "before_sha256": "9f3b3e3c330d14d00546223cb371084f5bf98a0cebb3900b23f2fc38fcc3edc2",
+      "after_sha256": "9f3b3e3c330d14d00546223cb371084f5bf98a0cebb3900b23f2fc38fcc3edc2"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.tests.py",
+      "baseline_sha256": "73dd92b14acadb21d2f8129f9d098f20a2de1dc69c1d0160c1d56c5aa0ba1b44",
+      "before_sha256": "73dd92b14acadb21d2f8129f9d098f20a2de1dc69c1d0160c1d56c5aa0ba1b44",
+      "after_sha256": "73dd92b14acadb21d2f8129f9d098f20a2de1dc69c1d0160c1d56c5aa0ba1b44"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/native-handshake.json",
+      "baseline_sha256": "322b886c35067cb451b59d4f8e5530d77e1d4d4862d6888ffb62ba57e0ea9dee",
+      "before_sha256": "322b886c35067cb451b59d4f8e5530d77e1d4d4862d6888ffb62ba57e0ea9dee",
+      "after_sha256": "322b886c35067cb451b59d4f8e5530d77e1d4d4862d6888ffb62ba57e0ea9dee"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/contract-boundaries-evidence.json",
+      "baseline_sha256": "721e9a59c66f92a57f6b08d6df39defb05a1f1b168665829902f7fcd9fce597b",
+      "before_sha256": "721e9a59c66f92a57f6b08d6df39defb05a1f1b168665829902f7fcd9fce597b",
+      "after_sha256": "721e9a59c66f92a57f6b08d6df39defb05a1f1b168665829902f7fcd9fce597b"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py",
+      "baseline_sha256": "cb053e841ca41379ee7a0313e0132e9baca4efc05b66051a5f1fe143ff4793ca",
+      "before_sha256": "cb053e841ca41379ee7a0313e0132e9baca4efc05b66051a5f1fe143ff4793ca",
+      "after_sha256": "cb053e841ca41379ee7a0313e0132e9baca4efc05b66051a5f1fe143ff4793ca"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/nested-state-extra1-evidence.json",
+      "baseline_sha256": "68a5c5e04fdf3166d7fe954dc58ee0c54c057e70b626bc4125ce459a7d332f31",
+      "before_sha256": "68a5c5e04fdf3166d7fe954dc58ee0c54c057e70b626bc4125ce459a7d332f31",
+      "after_sha256": "68a5c5e04fdf3166d7fe954dc58ee0c54c057e70b626bc4125ce459a7d332f31"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/nested-state-extra1.md",
+      "baseline_sha256": "0df7fe0b0fd39f3c6c9d9dffd7e4b11b7a8e5f1ec8313c2fdd5306609011a99b",
+      "before_sha256": "0df7fe0b0fd39f3c6c9d9dffd7e4b11b7a8e5f1ec8313c2fdd5306609011a99b",
+      "after_sha256": "0df7fe0b0fd39f3c6c9d9dffd7e4b11b7a8e5f1ec8313c2fdd5306609011a99b"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003-refresh/contract-boundaries-test.log",
+      "baseline_sha256": "360d7cf57b96672446ff3561344810934fa98065ddf20ddbdf78a972601d3377",
+      "before_sha256": "360d7cf57b96672446ff3561344810934fa98065ddf20ddbdf78a972601d3377",
+      "after_sha256": "360d7cf57b96672446ff3561344810934fa98065ddf20ddbdf78a972601d3377"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003/T-002.original.md",
+      "baseline_sha256": "a173689cd877f40bccd430933cab3cf3d147bdc8a65da152eb8f47e2673ae3e6",
+      "before_sha256": "a173689cd877f40bccd430933cab3cf3d147bdc8a65da152eb8f47e2673ae3e6",
+      "after_sha256": "a173689cd877f40bccd430933cab3cf3d147bdc8a65da152eb8f47e2673ae3e6"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/fixture/capability-registry.fixture.json",
+      "baseline_sha256": "70ccb4e052514edae6b7b617da94e5ce5cc003e9ed55b79afbe34d498989a9fc",
+      "before_sha256": "70ccb4e052514edae6b7b617da94e5ce5cc003e9ed55b79afbe34d498989a9fc",
+      "after_sha256": "70ccb4e052514edae6b7b617da94e5ce5cc003e9ed55b79afbe34d498989a9fc"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/registry-migration-cli.tests.py",
+      "baseline_sha256": "d3030da4cd74fb0bba7ae6616236a73931712acfb83927fca4d460936e87edae",
+      "before_sha256": "d3030da4cd74fb0bba7ae6616236a73931712acfb83927fca4d460936e87edae",
+      "after_sha256": "d3030da4cd74fb0bba7ae6616236a73931712acfb83927fca4d460936e87edae"
+    }
+  ],
+  "retained_repair_evidence": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/repair-20261018/historical-preservation.json",
+      "sha256": "b0c76a903fe34f5a22ea18e6b675f31e04d60c8d7a0fcedf5d30f47f629b59e8"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/repair-20261018/powershell-runner-pass.log",
+      "sha256": "b1f84c978d93a8dc3cfe8ffa08675f67f2a4a0291d7276e7250a3a028d4a3470"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/repair-20261018/historical-current-tree-failure.log",
+      "sha256": "9a6a2bbe237190b6c5df32fdb83ba9f10931826642ccfc8de4f1766f0987afc3"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/repair-20261018/selected-plan-regression.log",
+      "sha256": "79f005e25e104048ca2c77ae920ff3f98dee7f1f047e03bde1562ec2cc6623e9"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/repair-20261018/current-suite-pass.log",
+      "sha256": "5daa8c847a32a0513ddc9a9a35b62000353e1762a19ec1a1990337384d7aecc6"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/repair-20261018/current-suite-before-inventory.log",
+      "sha256": "79e1b703c73e41de4dccdf191b1c37d300f47431ecdda8379f9f50da42778126"
+    }
+  ]
+}

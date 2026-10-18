@@ -100,22 +100,23 @@ checksum / sigstore attestation / アップロードチェーン）はそのジ�
 `.github/workflows/release.yml` は、既存のビルドジョブ（`release:`、tarball
 生成・CycloneDX SBOM 生成・SHA-256 チェックサム発行・sigstore keyless
 build-provenance attestation・リリースアセットのアップロードを担う）に加えて、
-新規の必須ジョブ `loop-gate` を持ちます（`release.yml:31-48`）:
+必須ジョブ `ci-green` と `loop-gate` を持ちます:
 
 - **`loop-gate` ジョブ**: `ubuntu-latest` 上で、リポジトリをチェックアウトした
   のち `tests/loop-consistency.tests.sh` と `tests/loop-inventory.tests.sh` を
   順に実行します。いずれかのスイートが非 0 終了した場合、GitHub Actions の
   通常のジョブ失敗としてこのジョブ自体が失敗します。
-- **ビルドジョブ（`release:`）**: `needs: loop-gate` 依存を持ちます
-  (`release.yml:51`)。GitHub Actions のジョブ依存セマンティクスにより、
+- **`ci-green` ジョブ**: タグが指すコミットと同じ SHA の `test.yml` が成功済みであることを GitHub API で確認します。別コミットの成功や実行中の結果では先へ進みません。
+- **ビルドジョブ（`release:`）**: `needs: [ci-green, loop-gate]` 依存を持ちます。GitHub Actions のジョブ依存セマンティクスにより、
   `loop-gate` ジョブが成功しない限り、tarball / SBOM / checksum /
   attestation / アップロードのいずれのステップも一切実行されません。
 
 `release.yml` のトリガー面（`release: [published]` および
 `workflow_dispatch`、`release.yml:10-13`）自体は本タスクで変更していません。
-`test.yml` の実行有無に関わらず、`release.yml` が起動するたびに `loop-gate`
-ジョブ自身が独立してループスイートを実行します — タグを直接 push した場合や
-古い ref に対する `workflow_dispatch` の場合でも、この保証は成立します。
+タグの push だけでは `release.yml` は起動しません。GitHub Release の公開、
+または対象 ref を指定した `workflow_dispatch` が別途必要です。起動時には
+`ci-green` が同じコミットの CI 成功を確認し、`loop-gate` がループスイートを
+独立して実行します。タグ公開と配布アセットの作成結果は分けて記録してください。
 
 ### 権限（no elevated permissions）
 
@@ -161,3 +162,15 @@ failure()` を追加することで、このゲートを無効化できる可能
 
 これらは `tests/run-all.sh` / `.ps1` と `.github/workflows/test.yml` に
 登録済みで、通常の push/PR CI で継続的に実行されます。
+
+## 検証済みコミットへのタグ付け
+
+1. リモートの既存タグと現在のマニフェストを確認し、未使用のバージョンを選びます。
+2. CHANGELOG に実際の変更と未検証事項を記載してから `bash scripts/bump-version.sh <version>` を実行します。
+3. 通常の回帰検証とリリース検証を実行し、変更をコミットします。
+4. 公開済みの対象ブランチで `test.yml` を実行し、そのコミット SHA の成功を確認します。main 以外のブランチは push だけではこのワークフローが起動しないため、`workflow_dispatch` を使います。
+5. その SHA に注釈付きタグ `v<version>` を作成して公開し、リモートの peeled commit が一致することを確認します。既存タグの付け替えや強制 push は行いません。
+
+公開記録にはタグ、コミット、CI の URL、配布アセットの作成有無を残します。
+クラウド対応の fixture 検証は実環境での IAM・デプロイ・ヘルス検証の代わりに
+ならないため、実クラウドの未実行項目も別に記録します。

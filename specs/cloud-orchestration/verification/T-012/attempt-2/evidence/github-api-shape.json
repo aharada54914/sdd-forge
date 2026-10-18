@@ -1,0 +1,74 @@
+{
+  "classification": "read-only official OpenAPI research after implementation; not live GitHub run or immutable upstream Git pin",
+  "url": "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.json",
+  "acquired_at": "2026-10-18T08:05:50Z",
+  "full_snapshot_sha256": "3177ad6a86ca04c57a9bef3fc24e28a339efb8eb040c6f950af3d3ed2fee7fa3",
+  "operation_id": "actions/list-workflow-runs-for-repo",
+  "description": "Lists all workflow runs for a repository. You can use parameters to narrow the list of results. For more information about using parameters, see [Parameters](https://docs.github.com/rest/guides/getting-started-with-the-rest-api#parameters).\n\nAnyone with read access to the repository can use this endpoint.\n\nOAuth app tokens and personal access tokens (classic) need the `repo` scope to use this endpoint with a private repository.\n\nThis endpoint will return up to 1,000 results for each search when using the following parameters: `actor`, `branch`, `check_suite_id`, `created`, `event`, `head_sha`, `status`.",
+  "response": {
+    "type": "object",
+    "required": [
+      "total_count",
+      "workflow_runs"
+    ],
+    "properties": {
+      "total_count": {
+        "type": "integer"
+      },
+      "workflow_runs": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/workflow-run"
+        }
+      }
+    }
+  },
+  "used_workflow_run_properties": {
+    "id": {
+      "type": "integer",
+      "format": "int64",
+      "description": "The ID of the workflow run.",
+      "example": 5
+    },
+    "run_attempt": {
+      "type": "integer",
+      "description": "Attempt number of the run, 1 for first attempt and higher if the workflow was re-run.",
+      "example": 1
+    },
+    "event": {
+      "type": "string",
+      "example": "push"
+    },
+    "path": {
+      "description": "The full path of the workflow",
+      "example": "octocat/octo-repo/.github/workflows/ci.yml@main",
+      "type": "string"
+    },
+    "head_sha": {
+      "description": "The SHA of the head commit that points to the version of the workflow being run.",
+      "example": "009b8a3a9ccbb128af87f9b1c0f4c62e8a304f6d",
+      "type": "string"
+    },
+    "display_title": {
+      "type": "string",
+      "example": "Simple Workflow",
+      "description": "The event-specific title associated with the run or the run-name if set, or the value of `run-name` if it is set in the workflow."
+    },
+    "repository": {
+      "$ref": "#/components/schemas/minimal-repository"
+    },
+    "head_repository": {
+      "$ref": "#/components/schemas/minimal-repository"
+    },
+    "status": {
+      "type": "string",
+      "nullable": true,
+      "example": "completed"
+    },
+    "conclusion": {
+      "type": "string",
+      "nullable": true,
+      "example": "neutral"
+    }
+  }
+}

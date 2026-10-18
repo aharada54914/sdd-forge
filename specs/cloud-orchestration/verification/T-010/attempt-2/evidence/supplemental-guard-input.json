@@ -1,0 +1,15 @@
+{
+  "schema": "task-supplemental-inputs/v1",
+  "task_id": "T-010",
+  "task_attempt_count": 2,
+  "run_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "recorded_at": "2026-10-18T14:25:20Z",
+  "snapshot_root": "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/continuation-inputs",
+  "inputs": [
+    {
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "4c43639cd9b90b2c7c4ac83d80b41b3808ad9f865550e465cb1db63743a523ae",
+      "purpose": "Pre-existing T009 protected registry membership; missing from initial input map. Current unchanged shared regression dependency, not a replacement task-entry product snapshot."
+    }
+  ]
+}

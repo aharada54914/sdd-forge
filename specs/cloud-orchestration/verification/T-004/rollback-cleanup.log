@@ -1,0 +1,3 @@
+$ git worktree remove --force /tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback
+
+exit_code=0

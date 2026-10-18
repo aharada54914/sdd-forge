@@ -1,0 +1,60 @@
+{
+  "classification": "real retained test runs; no retroactive candidate Red",
+  "commits": [
+    {
+      "commit": "9ab2d75fbf43032fb5eb85276aa67a8b9dd09bef",
+      "metadata": "2026-10-18T07:28:19Z test(cloud): retain T-012 Azure governed execution Red cases and preflight",
+      "files": [
+        "reports/implementation/cloud-orchestration/T-012.md",
+        "specs/cloud-orchestration/verification/T-012/evidence/baseline-execution.log",
+        "specs/cloud-orchestration/verification/T-012/evidence/baseline-routing.log",
+        "specs/cloud-orchestration/verification/T-012/evidence/before.json",
+        "specs/cloud-orchestration/verification/T-012/evidence/manifest-validation.log",
+        "specs/cloud-orchestration/verification/T-012/evidence/red.log",
+        "specs/cloud-orchestration/verification/T-012/inputs/before/plugins/sdd-azure-cloud/scripts/cloud.py",
+        "specs/cloud-orchestration/verification/T-012/inputs/before/tests/cloud-orchestration-execution.tests.py",
+        "specs/cloud-orchestration/verification/T-012/inputs/external-0.md",
+        "specs/cloud-orchestration/verification/T-012/inputs/external-1.md",
+        "specs/cloud-orchestration/verification/T-012/inputs/external-2.md",
+        "specs/cloud-orchestration/verification/T-012/inputs/external-3.md",
+        "specs/cloud-orchestration/verification/T-012/inputs/external-4.md",
+        "specs/cloud-orchestration/verification/T-012/inputs/external-5.md",
+        "specs/cloud-orchestration/verification/T-012/inputs/external-6.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/external-7.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/config.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.arm.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.request.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/lock.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/ownership.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/policy.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/profile.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/unit/main.bicep",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/unit/parameters.json",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/LICENSE",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/reference.md",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/README.md",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/main.bicep",
+        "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/references/output-adapters/bicep.md",
+        "specs/cloud-orchestration/verification/T-012/inputs/path-map.json",
+        "specs/cloud-orchestration/verification/T-012/task-input-manifest.json",
+        "tests/cloud-orchestration-execution.tests.py"
+      ]
+    },
+    {
+      "commit": "b9c542b033d39714a69a1a92c0808470e8a2b05d",
+      "metadata": "2026-10-18T07:32:50Z test(cloud): retain T-012 caller acquisition and acyclic setup Red cases",
+      "files": [
+        "specs/cloud-orchestration/verification/T-012/evidence/red-caller.log",
+        "tests/cloud-orchestration-execution.tests.py"
+      ]
+    },
+    {
+      "commit": "09ede21907e31eef2e85f1f8485ab048b31361f5",
+      "metadata": "2026-10-18T07:35:42Z test(cloud): expose T-012 final callback admission deadline crossing",
+      "files": [
+        "specs/cloud-orchestration/verification/T-012/evidence/red-final-deadline.log",
+        "tests/cloud-orchestration-execution.tests.py"
+      ]
+    }
+  ]
+}

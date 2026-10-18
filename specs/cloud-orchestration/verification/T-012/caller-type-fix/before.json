@@ -1,0 +1,7 @@
+{
+  "classification": "caller formal typecheck correction before independent review; test-only typing and mocking; not a production behavior change",
+  "source_sha256": "3681acdbed2af843b1a2fcd884d0da410e5c346d9080050664a22ef95911b06c",
+  "failure": "specs/cloud-orchestration/verification/T-012/quality-cycle-1/typecheck.log",
+  "failed_formal_contract": "specs/cloud-orchestration/verification/T-012/quality-cycle-1/contract.log",
+  "canonical_implementation_report_frozen": true
+}

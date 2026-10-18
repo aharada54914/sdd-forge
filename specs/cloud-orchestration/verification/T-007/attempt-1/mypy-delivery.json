@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/tmp/cloud-quality-python/bin/python",
+    "-m",
+    "mypy",
+    "--config-file",
+    "tests/shared-launch-python/pyproject.toml",
+    "tests/install-cloud.tests.py",
+    "specs/cloud-orchestration/verification/T-007/attempt-1/run-command.py",
+    "specs/cloud-orchestration/verification/T-007/attempt-1/rollback.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:37:14Z",
+  "exit_code": 0,
+  "elapsed_seconds": 0.263,
+  "classification": "offline local command; no live cloud"
+}

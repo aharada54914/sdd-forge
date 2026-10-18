@@ -1,0 +1,13 @@
+{
+  "available_candidates": [
+    "gpt-6-astra"
+  ],
+  "canonical_tier": "strong",
+  "effort": "high",
+  "effort_control": "flag",
+  "effort_source": "requested",
+  "escalation": null,
+  "estimated_cost_per_attempt_usd": "5.00",
+  "model": "gpt-6-astra",
+  "xhigh_reason": null
+}

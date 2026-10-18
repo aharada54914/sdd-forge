@@ -1,0 +1,9 @@
+ok: already-registered marketplaces and MCP servers are tolerated
+ok: a non-idempotency registration failure is still fatal
+ok: an already-installed Claude plugin is upgraded and the transition reported
+ok: a machine already at the new version reports no upgrade
+ok: a clean install does not enter the upgrade path
+ok: a placement-phase failure still reverts the install root
+ok: a registration-phase failure keeps the new version and names what failed
+
+Results: 7 passed, 0 failed.

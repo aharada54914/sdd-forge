@@ -1,0 +1,19 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py AzureMetricContextCases.test_metric_context_counterparts
+test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) ... 
+  test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='namespace') ... FAIL
+
+======================================================================
+FAIL: test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='namespace')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 1232, in test_metric_context_counterparts
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.026s
+
+FAILED (failures=1)
+
+Exit code: 1

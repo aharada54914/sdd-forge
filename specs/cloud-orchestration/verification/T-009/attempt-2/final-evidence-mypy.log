@@ -1,0 +1,2 @@
+specs/cloud-orchestration/verification/T-009/attempt-2/mismatch-audit.py:26: error: Argument "resultclass" to "TextTestRunner" has incompatible type "type[AuditResult]"; expected "Callable[[_TextTestStream, bool, int], TextTestResult[Any]] | None"  [arg-type]
+Found 1 error in 1 file (checked 4 source files)

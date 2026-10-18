@@ -1,0 +1,12 @@
+{
+  "test_commit": "0e0df60797d66d07c83a660c91369478ff80ca11",
+  "production_sha256": "f4789a61a5c95c235fb3108277678aca8058d35dd1b6a24153bffb6cc6261dda",
+  "production_unchanged": true,
+  "command": [
+    "python3",
+    "-B",
+    "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py",
+    "AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route"
+  ],
+  "exit_code": 1
+}

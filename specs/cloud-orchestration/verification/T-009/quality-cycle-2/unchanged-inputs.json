@@ -1,0 +1,7 @@
+{
+  "schema": "review-reuse-check/v1",
+  "prior_invocation_sha256": "a745595262fcd007e32ba652142e0fa876cd57d1c04a5f54cc0fd5b93b3c5d4e",
+  "checked_inputs": 1073,
+  "changed_inputs": [],
+  "reason": "No product/test/evidence changes since actual caller checks and cycle1. Reuse saved scoped checks without inventing reruns; newly admitted user disposition and ticket require fresh independent evaluation."
+}

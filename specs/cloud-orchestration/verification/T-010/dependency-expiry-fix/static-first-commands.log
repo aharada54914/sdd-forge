@@ -1,0 +1,8 @@
+MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts
+COMMAND /tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_authorization.py plugins/sdd-quality-loop/scripts/cloud_dependencies.py plugins/sdd-azure-cloud/scripts/azure_execution.py plugins/sdd-aws-cloud/scripts/aws_execution.py tests/cloud-orchestration-verification.tests.py specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py 
+EXIT ruff 0
+All checks passed!
+COMMAND /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_authorization.py plugins/sdd-quality-loop/scripts/cloud_dependencies.py plugins/sdd-azure-cloud/scripts/azure_execution.py plugins/sdd-aws-cloud/scripts/aws_execution.py tests/cloud-orchestration-verification.tests.py specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py 
+EXIT mypy 1
+tests/cloud-orchestration-verification.tests.py:5383: error: Need type annotation for "delays" (hint: "delays: list[<type>] = ...")  [var-annotated]
+Found 1 error in 1 file (checked 6 source files)

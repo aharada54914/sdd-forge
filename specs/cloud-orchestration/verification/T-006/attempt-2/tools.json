@@ -1,0 +1,52 @@
+[
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "ruff 0.13.3",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "mypy 1.18.2 (compiled: yes)",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/workspace/.tools/cloud/bicep/0.48.1/bicep",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "Bicep CLI version 0.48.1 (cec7951cf6)",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "v24.19.0",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/.tools/cloud/cdk/2.1145.0/node_modules/aws-cdk/bin/cdk",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "2.1145.0 (build 13877dc)",
+    "stderr": ""
+  }
+]

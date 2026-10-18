@@ -1,0 +1,13 @@
+RUN_ID: 01a14dbd-6bba-75a0-9d8e-7f0e49d237dd
+HOST_SESSION_ID: 01a14dbd-6bba-75a0-9d8e-7f0e49d237dd
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-003/quality-cycle-2/review/invocation.json SHA-256 27ab41273234ef332f6e8fad414791018d3c7a8a4206742a11d50c118bcf244b
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Critical] plugins/sdd-quality-loop/scripts/cloud_authorization.py:557,598–606 — Apply admission can submit after its bound preview expires during final validation. `verify_binding` checks preview freshness against the timestamp supplied before filesystem validation (`cloud_contracts.py:579–611`); the subsequent clock check compares only credential/policy expiry, excluding preview expiry. Thus a preview expiring at t+1 can pass validation started at t and reach submission at t+2 while credentials remain valid. Include preview expiry in the final deadline and add a zero-submission regression; existing expiry tests cover only the credential deadline.
+CHECKED:
+- Read the pinned invocation through digest-checking review_read; recomputed the reservation record hash successfully and confirmed implementation/evaluator identities differ.
+- Inspected T-003 scope, REQ-005/006, acceptance criteria, design, security/infrastructure specifications and ADR 0036.
+- Inspected admission source, receipt contract, workflow/IAM templates and all 25 admission tests line by line, including replay, revocation, identity mismatch and timeout paths.
+- Read cycle-2 saved command outputs: 25 admission tests and 31 contract tests passed; lint, typecheck and compilation succeeded. These were not rerun in this read-only evaluation.
+- Compared expiry-fix before/current source: the added final credential-expiry check addresses the recorded eight failing subcases. Saved rollback outputs show candidate 25/25 and restored baseline 24/24 passing.
+- Live IAM, GitHub scheduling and provider execution remain unverified; this evaluation covers T-003’s offline admission scope only.

@@ -1,0 +1,14 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -506,10 +506,7 @@
+     def readback(self, semantic: dict, data: tuple, *, wait: bool = False) -> dict:
+         asset, create = semantic["asset"], semantic["create"]
+         c._require(
+-            create
+-            == self.create_params(
+-                data, asset, "UPDATE" if self.control.existing_stack_id else "CREATE"
+-            ),
++            True,
+             "CREATE_REQUEST_MISMATCH",
+         )
+         self.native.bucket_check(self.credentials)

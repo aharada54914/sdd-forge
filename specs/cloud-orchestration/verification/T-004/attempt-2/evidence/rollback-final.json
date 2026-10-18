@@ -1,0 +1,106 @@
+{
+  "candidate_hashes": {
+    "plugins/sdd-azure-cloud/examples/README.md": "18d4bac06d053a486ab77936c75cd7e4f0824fff90728431cbfdf7f89d9cc873",
+    "plugins/sdd-azure-cloud/examples/private-vm.bicep": "81ba478fb3744e96496243358f3aef3477646027a58e1220f3c16b7b428c9422",
+    "plugins/sdd-azure-cloud/references/azure-local-config.schema.json": "6a9d1d5fe91ca828ca2b50a282457c4e4e3dfa7f79b0c59d3a9e3f6c5f40ebb6",
+    "plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json": "e4584e317609585b3effc865412757ef730448d814b2ce7f78eebf485728b68a",
+    "plugins/sdd-azure-cloud/references/azure-parameters.schema.json": "5922b55565b1a506db4cc424560cbfaa0b07766f1e26bf50dd4247ade18fc3ae",
+    "plugins/sdd-azure-cloud/references/local-contract.md": "c6ed05fc942c6e3c9e17ef66e0db0796243583536de3ee5f29f1081fdb934fc5",
+    "plugins/sdd-azure-cloud/references/upstream-lock.json": "f7e22249f21c062e6207579460b1ad1042af52e4eb619d8566fd4d99db675644",
+    "plugins/sdd-azure-cloud/scripts/azure_graph.py": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f",
+    "plugins/sdd-azure-cloud/scripts/azure_local.py": "13c1b71923501fdd861e583ce14f7026d538e6c8e89505a87f5211fc4b82bbbd",
+    "plugins/sdd-azure-cloud/scripts/cloud.py": "f4789a61a5c95c235fb3108277678aca8058d35dd1b6a24153bffb6cc6261dda",
+    "tests/cloud-orchestration-routing.tests.py": "ced34d267e8a200e54013483f4f2ea7ce8a741321b45f1cbb2890046b966b330"
+  },
+  "base_revision": "d3c1ce886a60165a79c6bf33cadebff8e3f91435",
+  "task_owned_initial_provider_tree": "absent",
+  "routing_before_sha256": "5e4eb42aeda61f474d84fe543bcd081e6568beec7088382690fc39fe3c3e41e8",
+  "routing_restored_sha256": "5e4eb42aeda61f474d84fe543bcd081e6568beec7088382690fc39fe3c3e41e8",
+  "exact_restoration": true,
+  "cloud_resources_created": false,
+  "limits": "Restores local task files only; initial routing Red remains Red. No state/review/identity ledger restored.",
+  "commands": [
+    {
+      "label": "rollback-create",
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+        "d3c1ce886a60165a79c6bf33cadebff8e3f91435"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "start_utc": "2026-10-18T06:31:25Z",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-before-contracts",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:31:26Z",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-before-routing",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:31:26Z",
+      "exit_code": 1
+    },
+    {
+      "label": "rollback-candidate-routing",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:31:26Z",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-restored-contracts",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:31:52Z",
+      "exit_code": 0
+    },
+    {
+      "label": "rollback-restored-routing",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback",
+      "start_utc": "2026-10-18T06:31:52Z",
+      "exit_code": 1
+    },
+    {
+      "label": "rollback-remove",
+      "command": [
+        "git",
+        "worktree",
+        "remove",
+        "--force",
+        "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/rollback"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "start_utc": "2026-10-18T06:31:53Z",
+      "exit_code": 0
+    }
+  ]
+}

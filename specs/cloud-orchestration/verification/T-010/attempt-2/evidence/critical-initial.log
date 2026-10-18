@@ -1,0 +1,42 @@
+test_freshness_expires_during_final_acquisition_not_consumer_lease (__main__.DependencyBoundaryCases.test_freshness_expires_during_final_acquisition_not_consumer_lease) ... ok
+test_approval_self_review_uses_stable_id_despite_extra_metadata (__main__.DependencyBoundaryCases.test_approval_self_review_uses_stable_id_despite_extra_metadata) ... ok
+test_each_write_reacquires_and_final_scan_revocation_blocks (__main__.DependencyBoundaryCases.test_each_write_reacquires_and_final_scan_revocation_blocks) ... ok
+test_physically_resolved_temporary_root (__main__.DependencyBoundaryCases.test_physically_resolved_temporary_root) ... ok
+test_read_only_verify_policy_is_loadable_but_never_a_writer (__main__.DependencyBoundaryCases.test_read_only_verify_policy_is_loadable_but_never_a_writer) ... ok
+test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a) ... ERROR
+
+======================================================================
+ERROR: test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4999, in test_three_actual_adapter_units_partial_failure_preserves_a
+    case.executor=case.stage("prepare")
+                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1018, in stage
+    return self.e.AzureExecutor(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_execution.py", line 193, in __init__
+    self.request = c.read_artifact(root, request_ref, "cloud-run-request/v1")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 433, in read_artifact
+    references(value)
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 429, in references
+    references(child)
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 432, in references
+    references(child)
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 427, in references
+    read_verified(root, _file_ref(node))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 399, in read_verified
+    with _parent(root, reference['path']) as (parent, name):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 390, in _parent
+    raise ContractError('UNSAFE_OR_UNAVAILABLE_FILE') from None
+cloud_contracts.ContractError: UNSAFE_OR_UNAVAILABLE_FILE
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.619s
+
+FAILED (errors=1)

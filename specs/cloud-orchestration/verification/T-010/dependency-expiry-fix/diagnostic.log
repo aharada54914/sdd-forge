@@ -1,0 +1,314 @@
+NETWORK_SENTINEL_PARENT_CHILD_SHELL_PASS
+NETWORK_SENTINEL_POWERSHELL_CHILD_PASS
+test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) ... ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='predecessor') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='policy') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='oidc') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='provider') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='predecessor') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='policy') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='oidc') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='provider') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='preview') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='predecessor') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='policy') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='oidc') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='provider') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='predecessor') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='policy') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='oidc') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='provider') ... ERROR
+ADMISSION_DIAGNOSTIC TypeError can't compare offset-naive and offset-aware datetimes
+ADMISSION_DIAGNOSTIC AdmissionDenied WRITE_ADMISSION_BLOCKED
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='preview') ... ERROR
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='oidc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='oidc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='preview')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='oidc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='oidc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='preview')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+----------------------------------------------------------------------
+Ran 1 test in 0.825s
+
+FAILED (errors=18)

@@ -1,0 +1,17 @@
+{
+  "request": {
+    "id": 900007,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14dcb-540f-74f1-ac06-0cb8ccbe95f8",
+      "expectedTurnId": "01a14dcb-545b-7b71-ad36-451a5da58c61",
+      "input": [
+        {
+          "type": "text",
+          "text": "Concrete root graph finding (actual no-cloud probe saved as verification/T-005/root-graph-reference-probe.json): Expressions resolves resource Ref/GetAtt to plain strings such as @Workload. A literal alarm Dimensions.Value=\"@Workload\" is accepted by validate_graph, although CloudFormation treats it as a literal dimension and it will not monitor the instance. Likewise literal backup Resources=\"arn:aws:ec2:us-east-1:111111111111:instance/@Workload\" passes. Both mutated graphs and baseline were accepted at source sha 4fe07bf60756fbab69703ac7854dc9a732eee149b5e461c737d5087916b9a047. Preserve the proof, add committed real failing regressions, and distinguish genuine symbolic references/compositions from attacker-written strings (typed tokens or another robust provenance-aware check). Cover Join/Sub construction as well, so a string marker restriction alone cannot be bypassed by concatenation. Keep the structural validator bounded and accept real independently authored valid CDK graphs."
+        }
+      ]
+    }
+  },
+  "scope": "actual in-turn implementation finding, not independent gate"
+}

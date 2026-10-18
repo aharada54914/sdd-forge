@@ -1,0 +1,134 @@
+test_case_variants_at_operator_and_file_discovery_layers (__main__.InstalledLifecycle.test_case_variants_at_operator_and_file_discovery_layers) ... ok
+test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) ... 
+  test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='bash', providers=('azure',)) ... FAIL
+  test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='bash', providers=('aws',)) ... FAIL
+  test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='bash', providers=('azure', 'aws')) ... FAIL
+  test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='pwsh', providers=('azure',)) ... FAIL
+  test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='pwsh', providers=('aws',)) ... FAIL
+  test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='pwsh', providers=('azure', 'aws')) ... FAIL
+test_missing_shared_dependency_aborts_before_placement (__main__.InstalledLifecycle.test_missing_shared_dependency_aborts_before_placement) ... ok
+test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) ... ok
+test_existing_name_and_version_guards (__main__.ManifestBoundary.test_existing_name_and_version_guards) ... ok
+test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) ... ok
+test_matched_control (__main__.ManifestBoundary.test_matched_control) ... ok
+test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) ... ok
+test_each_entry_frontmatter_and_relative_links (__main__.SkillVisibility.test_each_entry_frontmatter_and_relative_links) ... ok
+
+======================================================================
+FAIL: test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='bash', providers=('azure',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 311, in test_each_provider_and_both_real_install_and_uninstall
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 337, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 43, in <module>
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmpt_q4vtb9/installed/plugins/sdd-azure-cloud/runtime/scripts/cloud_dependencies.py", line 629, in admit_predecessors
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmpt_q4vtb9/installed/plugins/sdd-azure-cloud/runtime/scripts/cloud_dependencies.py", line 629, in <genexpr>
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+
+
+======================================================================
+FAIL: test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='bash', providers=('aws',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 311, in test_each_provider_and_both_real_install_and_uninstall
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 337, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 43, in <module>
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmptnlted6d/installed/plugins/sdd-aws-cloud/runtime/scripts/cloud_dependencies.py", line 629, in admit_predecessors
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmptnlted6d/installed/plugins/sdd-aws-cloud/runtime/scripts/cloud_dependencies.py", line 629, in <genexpr>
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+
+
+======================================================================
+FAIL: test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='bash', providers=('azure', 'aws'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 311, in test_each_provider_and_both_real_install_and_uninstall
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 337, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 43, in <module>
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmp5u8fdd9w/installed/plugins/sdd-azure-cloud/runtime/scripts/cloud_dependencies.py", line 629, in admit_predecessors
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmp5u8fdd9w/installed/plugins/sdd-azure-cloud/runtime/scripts/cloud_dependencies.py", line 629, in <genexpr>
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+
+
+======================================================================
+FAIL: test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='pwsh', providers=('azure',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 311, in test_each_provider_and_both_real_install_and_uninstall
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 337, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 43, in <module>
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmpyr9ca_0v/installed/plugins/sdd-azure-cloud/runtime/scripts/cloud_dependencies.py", line 629, in admit_predecessors
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmpyr9ca_0v/installed/plugins/sdd-azure-cloud/runtime/scripts/cloud_dependencies.py", line 629, in <genexpr>
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+
+
+======================================================================
+FAIL: test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='pwsh', providers=('aws',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 311, in test_each_provider_and_both_real_install_and_uninstall
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 337, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 43, in <module>
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmptu96jju4/installed/plugins/sdd-aws-cloud/runtime/scripts/cloud_dependencies.py", line 629, in admit_predecessors
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmptu96jju4/installed/plugins/sdd-aws-cloud/runtime/scripts/cloud_dependencies.py", line 629, in <genexpr>
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+
+
+======================================================================
+FAIL: test_each_provider_and_both_real_install_and_uninstall (__main__.InstalledLifecycle.test_each_provider_and_both_real_install_and_uninstall) (shell='pwsh', providers=('azure', 'aws'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 311, in test_each_provider_and_both_real_install_and_uninstall
+    self.check_runtime_and_cli(plugin, provider, Path(temp))
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 337, in check_runtime_and_cli
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 43, in <module>
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmprdetpk13/installed/plugins/sdd-azure-cloud/runtime/scripts/cloud_dependencies.py", line 629, in admit_predecessors
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-install-lifecycle-8wgeia4z/tmprdetpk13/installed/plugins/sdd-azure-cloud/runtime/scripts/cloud_dependencies.py", line 629, in <genexpr>
+    all(c._utc(v.utc(clock())) <= end for end in deadlines),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 39.485s
+
+FAILED (failures=6)

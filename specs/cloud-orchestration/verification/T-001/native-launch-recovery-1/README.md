@@ -1,0 +1,1 @@
+The dev-profile native thread/start response exceeded the initial 40-second deadline. No allocation response was received, no task turn was requested, and no implementation identity or task manifest was invented. Retry disables the irrelevant chrome-devtools MCP startup and retains stderr diagnostics.

@@ -1,0 +1,14 @@
+RUN_ID: 01a14fd4-08b4-78b1-9c4b-d659b934478a
+HOST_SESSION_ID: 01a14fd4-08b4-78b1-9c4b-d659b934478a
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-007/quality-cycle-2/review/invocation.json SHA-256 70b8e30ae52c57fd0a7b677835a9d0e2c4ea0ca9b88dea5b36fff0644c28ebcf
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Verified invocation digest, reservation receipt arithmetic, sequence linkage, supplemental bindings, and independent implementation identity.
+- Inspected T-007’s approved distribution scope against REQ-011, AC-011/TEST-011, design, contracts, and ADR 0036.
+- Inspected install.sh:1010–1049 and install.ps1:802–837: selected and retained runtimes rebuild from staged canonical inputs before replacement; missing dependencies fail beforehand.
+- Inspected tests/install-cloud.tests.py:211–508: four-module imports, installed CLI routing, exact predecessor-denial assertions, unauthorized prepare/apply denial, cache isolation, uninstall preservation, and sequential-install regression coverage.
+- Read saved quality-cycle-2 command records and logs: 13 packaging tests passed; Bash/PowerShell installation, uninstall, matrix, idempotency, repository validation, lint, and typecheck passed.
+- Compared repair diff, failing baseline logs, and rollback evidence: restored hashes equal entry hashes; reapplied hashes match current manifest pins; focused regression tests passed.
+- Limitations: no tests rerun in this read-only evaluation. Component coverage reports disabled-legacy, not exercised coverage. Native host invocation, native Windows/macOS execution, live cloud behavior, and subsequent gate finalization are not established by this scoped PASS.

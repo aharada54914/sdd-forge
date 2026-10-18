@@ -1,0 +1,56 @@
+{
+  "base_revision": "ea9dff5d7a93949e97bf9a02b441d3a1f75c8265",
+  "commands": [
+    {
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-t013-01a14e1f/rollback-final",
+        "ea9dff5d7a93949e97bf9a02b441d3a1f75c8265"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "exit_code": 0,
+      "log": "rollback-checkout.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-t013-01a14e1f/rollback-final",
+      "exit_code": 0,
+      "log": "rollback-candidate.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-t013-01a14e1f/rollback-final",
+      "exit_code": 0,
+      "log": "rollback-baseline.log"
+    }
+  ],
+  "restored": {
+    "plugins/sdd-aws-cloud/scripts/cloud.py": {
+      "before": "2f5d4edf95dde79328046760bbfb110b50c47025fddf685eeb204145d4ec7332",
+      "restored": "2f5d4edf95dde79328046760bbfb110b50c47025fddf685eeb204145d4ec7332"
+    },
+    "tests/cloud-orchestration-execution.tests.py": {
+      "before": "79c1d170d1e68cdcd353594507d99b629e7d275e835d9840fff3e8691c38090d",
+      "restored": "79c1d170d1e68cdcd353594507d99b629e7d275e835d9840fff3e8691c38090d"
+    }
+  },
+  "new_files_absent": {
+    "plugins/sdd-aws-cloud/scripts/aws_native.py": true,
+    "plugins/sdd-aws-cloud/scripts/aws_execution.py": true,
+    "plugins/sdd-aws-cloud/scripts/aws_control.py": true,
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py": true,
+    "plugins/sdd-aws-cloud/scripts/governed-setup.md": true
+  },
+  "scope": "Task-owned code/tests only; original untracked candidate dependencies overlaid from initial snapshot; no history/status/identity restoration"
+}

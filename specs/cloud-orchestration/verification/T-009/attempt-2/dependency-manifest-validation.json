@@ -1,0 +1,23 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+    "--manifest",
+    "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-009/attempt-2/dependency-input-manifest.json",
+    "--snapshot-root",
+    "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b/dependency-inputs",
+    "--expected-task",
+    "T-009"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "environment_overrides": {
+    "TMPDIR": "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+    "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+  },
+  "started_at": "2026-10-18T12:31:44Z",
+  "finished_at": "2026-10-18T12:31:44Z",
+  "exit_code": 0,
+  "log": "specs/cloud-orchestration/verification/T-009/attempt-2/dependency-manifest-validation.log"
+}

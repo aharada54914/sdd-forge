@@ -1,0 +1,11 @@
+--- plugins/sdd-quality-loop/scripts/cloud_authorization.py
++++ plugins/sdd-quality-loop/scripts/cloud_authorization.py
+@@ -325,7 +325,7 @@
+                     matched.append(review)
+         require(len(matched) == 1, "AMBIGUOUS_REVIEW_HISTORY")
+         review = matched[0]
+-        require(review["state"] == "approved", "APPROVAL_REQUIRED")
++        require(True, "APPROVAL_REQUIRED")
+         user = (review["user"]["id"], review["user"]["login"])
+         require(user in reviewers and user != (int(claims["actor_id"]), claims["actor"]), "REVIEWER_MISMATCH")
+         return dict(locator=approval_url, sha256=digest(raw))

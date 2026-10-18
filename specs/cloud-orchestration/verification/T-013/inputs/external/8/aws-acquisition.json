@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/tmp/cloud-api-reference/aws-cloudformation-2010-05-15.json",
+    "url": "https://raw.githubusercontent.com/boto/botocore/4de93abe62cc263980414f7a66be5226bd541b77/botocore/data/cloudformation/2010-05-15/service-2.json",
+    "revision": "4de93abe62cc263980414f7a66be5226bd541b77",
+    "sha256": "142ac136f30bf2ba93723536c67e66443b00d86cc2128448916d6d7ab145eec3",
+    "bytes": 594167,
+    "apiVersion": "2010-05-15",
+    "acquired_at": "2026-10-18T07:54:23.879755+00:00",
+    "classification": "official AWS SDK service model read-only research; no provider call"
+  },
+  {
+    "path": "/tmp/cloud-api-reference/aws-s3-2006-03-01.json",
+    "url": "https://raw.githubusercontent.com/boto/botocore/4de93abe62cc263980414f7a66be5226bd541b77/botocore/data/s3/2006-03-01/service-2.json",
+    "revision": "4de93abe62cc263980414f7a66be5226bd541b77",
+    "sha256": "84c3a4e6ac1c80ed49cb1ddf1f548ea7f51d8a41acbfa0f198b9ba0028d784e8",
+    "bytes": 1397156,
+    "apiVersion": "2006-03-01",
+    "acquired_at": "2026-10-18T07:54:23.858308+00:00",
+    "classification": "official AWS SDK service model read-only research; no provider call"
+  }
+]

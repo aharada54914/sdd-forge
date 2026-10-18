@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "feature": "cloud-orchestration",
+  "run_id": "01a14d40-f617-7ab2-bc81-40aa18e3adce",
+  "host_session_id": "01a14d40-f617-7ab2-bc81-40aa18e3adce",
+  "sequence": 1210,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "7c6731fd0d71dee74b290dec3aa66128e2d274f0ecb39e3050c91d854b56c764",
+  "previous_record_sha256": "928941a9d71adce60539f2a4aeae1c5686987e14492dc915013414ba5ba2cf7f",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+    },
+    {
+      "path": "reports/impl-review/cloud-orchestration/attempt-2/round-3/precheck-result.json",
+      "sha256": "bda012eb08eb3b26cbcb653b1e89ab7879f7a638e88306417c4a07a77141a40d"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "d96c3b646c1abe920028a3d7c185989a89c0e9915156f3e754460872914afddd"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "docs/adr/0036-thin-cloud-orchestration.md",
+      "sha256": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"
+    },
+    {
+      "path": "reports/impl-review/cloud-orchestration/attempt-2/round-3/integrated-summary.json",
+      "sha256": "19061a24fe3d1b6c0268b2a59ef2e8f77b3ccf2ad59f2f1b96a69cd65c4dea8a"
+    }
+  ]
+}

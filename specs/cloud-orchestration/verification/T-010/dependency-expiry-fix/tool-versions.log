@@ -1,0 +1,7 @@
+PowerShell executable: /workspace/.tools/sdd-forge-dev/bin/pwsh
+7.6.7
+Bicep CLI version 0.48.1 (cec7951cf6)
+v24.19.0
+Python 3.12.14
+ruff 0.13.3
+mypy 1.18.2 (compiled: yes)

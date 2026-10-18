@@ -1,0 +1,13 @@
+$ python3 -B tests/sdd-domain-multitarget-foundation.tests.py
+Traceback (most recent call last):
+  File "/tmp/cloud-t001-01a14d52/rollback/tests/sdd-domain-multitarget-foundation.tests.py", line 137, in <module>
+    INVENTORY.ConsumerInventoryTests.inventory = resolve_inventory(inventory, ROOT)
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-t001-01a14d52/rollback/tests/sdd-domain-multitarget-foundation.tests.py", line 76, in resolve_inventory
+    start, end = section_range(path.read_text(encoding="utf-8"), source.pop("section"))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-t001-01a14d52/rollback/tests/sdd-domain-multitarget-foundation.tests.py", line 47, in section_range
+    raise ValueError("section heading is missing or ambiguous: " + heading)
+ValueError: section heading is missing or ambiguous: ## Removed requirement
+
+exit_code=1

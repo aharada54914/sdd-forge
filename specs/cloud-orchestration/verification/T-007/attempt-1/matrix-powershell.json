@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "-NoProfile",
+    "-File",
+    "tests/install-uninstall-matrix.tests.ps1"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:31:58Z",
+  "exit_code": 0,
+  "elapsed_seconds": 16.234,
+  "classification": "offline local command; no live cloud"
+}

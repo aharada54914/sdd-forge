@@ -1,0 +1,2 @@
+plugins/sdd-aws-cloud/scripts/aws_graph.py:88: error: Argument 1 to "subnet_of" of "_BaseNetwork" has incompatible type "IPv4Network | IPv6Network"; expected "IPv4Network"  [arg-type]
+Found 1 error in 1 file (checked 3 source files)

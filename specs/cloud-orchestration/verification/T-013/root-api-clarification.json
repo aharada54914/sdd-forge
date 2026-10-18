@@ -1,0 +1,4 @@
+{
+  "kind": "root-native-api-research-clarification",
+  "message": "Additional official-model detail, not a defect claim: the admitted CloudFormation service model documents CreateChangeSet.OnStackFailure and ExecuteChangeSet.DisableRollback as mutually exclusive. DO_NOTHING on creation is equivalent to disabling rollback at execute; RetainExceptOnCreate=true can delete newly created resources even if their DeletionPolicy is Retain. Preserve the approved no-automatic-cleanup behavior with explicit compatible native failure settings and readback/binding where returned; don't accidentally send both incompatible parameters, inherit destructive rollback semantics or set RetainExceptOnCreate=true. Exercise actual native parameter shape/denial with the deterministic client. Existing official model paths/SHA in initial brief are the source; no cloud call or live permission is implied."
+}

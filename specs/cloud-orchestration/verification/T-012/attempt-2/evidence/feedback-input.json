@@ -1,0 +1,7 @@
+{
+  "path": "specs/cloud-orchestration/verification/T-012/attempt-2/root-reconcile-scope-probe.json",
+  "sha256": "0a17ca85ae47702bbf11be73583c3537b0fdb93b8d633fd9dc4a5773cbffb3e0",
+  "classification": "caller supplied mid-attempt implementation feedback; not independent verdict; supplemental to initial manifest",
+  "production_before_sha256": "e981117a6da9230b50c04c50f1d132a1730a6c87f156bde419cd119c3c649612",
+  "red_commit": "ea9dff5d"
+}

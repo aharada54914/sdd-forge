@@ -1,0 +1,14 @@
+{
+  "id": 900102,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+    "expectedTurnId": "01a14f3e-b57c-7a41-966b-885034bf442b",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root code-reading feedback for completion tests (not an independent gate): current admit_predecessors/_verified accepts a now string captured BEFORE artifact/producer HTTP acquisition. Add an exercised case where acquisition advances the clock enough that predecessor observations become stale while the consumer credential/preview remains valid. Ensure final write cannot use that stale predecessor; re-evaluate freshness with actual post-acquisition time rather than only the initial string. Likewise preserve current consumer expiry checks. In _producer, self-review identity should compare stable user ID, not whole GitHub user dictionaries (extra optional metadata must not make the same actor look different); add the corresponding actual mismatch. For native macOS, newly created TemporaryDirectory roots may contain /var symlinks: resolve the temporary root physically before strict containment, preserving no-follow policy (T011 will check other fixtures). These are concrete boundary review points within T010; no new authorization or task scope. Continue implementation and final checks."
+      }
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+2026-10-18T14:20:47Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py tests/cloud-orchestration-verification.tests.py
+2026-10-18T14:22:59Z EXIT verification 0
+test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) ... ok
+
+----------------------------------------------------------------------
+Ran 106 tests in 132.130s
+
+OK
+2026-10-18T14:22:59Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py tests/cloud-orchestration-execution.tests.py
+2026-10-18T14:23:10Z EXIT execution 0
+test_unknown_semantics_at_real_callsite_blocks_zero_apply (__main__.AzureExecution.test_unknown_semantics_at_real_callsite_blocks_zero_apply) ... ok
+
+----------------------------------------------------------------------
+Ran 86 tests in 10.571s
+
+OK
+2026-10-18T14:23:10Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py tests/cloud-orchestration-routing.tests.py
+2026-10-18T14:24:56Z EXIT routing 0
+test_unsupported_only_unit_is_not_migrated (__main__.AzureRouting.test_unsupported_only_unit_is_not_migrated) ... ok
+
+----------------------------------------------------------------------
+Ran 86 tests in 105.352s
+
+OK
+2026-10-18T14:24:56Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/attempt-2/evidence/run-scoped.py tests/cloud-orchestration-contracts.tests.py
+2026-10-18T14:24:57Z EXIT contracts 0
+test_verification_inconsistent_claims_and_duplicate_checks (__main__.Contracts.test_verification_inconsistent_claims_and_duplicate_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.378s
+
+OK

@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -424,7 +424,7 @@
+         no_change = (
+             value["Status"] == "FAILED"
+             and value["ExecutionStatus"] == "UNAVAILABLE"
+-            and value.get("StatusReason") == NO_CHANGES
++            and True
+             and value.get("Changes", []) == []
+         )
+         c._require(

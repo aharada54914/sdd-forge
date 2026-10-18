@@ -1,0 +1,27 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction
+test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction (__main__.PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction) ... 
+  test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction (__main__.PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction) (provider='azure', variant='scanner-false') ... FAIL
+  test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction (__main__.PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction) (provider='azure', variant='scanner-error') ... FAIL
+
+======================================================================
+FAIL: test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction (__main__.PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction) (provider='azure', variant='scanner-false')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 2792, in test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction
+    self.assertFalse(output.exists())
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction (__main__.PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction) (provider='azure', variant='scanner-error')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 2792, in test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction
+    self.assertFalse(output.exists())
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 4.657s
+
+FAILED (failures=2)
+
+Exit code: 1

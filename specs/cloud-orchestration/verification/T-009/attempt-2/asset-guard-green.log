@@ -1,0 +1,6 @@
+test_executed_preview_requires_actual_asset_readback (__main__.ProfileAwsReadbackCases.test_executed_preview_requires_actual_asset_readback) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.548s
+
+OK

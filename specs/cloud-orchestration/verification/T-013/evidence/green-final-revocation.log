@@ -1,0 +1,8 @@
+test_last_send_revocation_publish (__main__.AwsExecution.test_last_send_revocation_publish) ... ok
+test_last_send_revocation_create (__main__.AwsExecution.test_last_send_revocation_create) ... ok
+test_last_send_revocation_execute (__main__.AwsExecution.test_last_send_revocation_execute) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.631s
+
+OK

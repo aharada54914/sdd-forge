@@ -1,0 +1,4 @@
+[work 499c15f3] test(cloud): execute exhaustive T-010 trust field Red at existing seam
+ 4 files changed, 2417 insertions(+), 10 deletions(-)
+ create mode 100644 specs/cloud-orchestration/verification/T-010/attempt-2/evidence/preflight-field-matrix.json
+ create mode 100644 specs/cloud-orchestration/verification/T-010/attempt-2/evidence/red-per-field.log

@@ -1,0 +1,49 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py FreshnessCases.test_metric_query_recent_postcompletion_minute_window
+test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) ... 
+  test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='aws', completed='2026-10-18T04:00:00Z') ... FAIL
+  test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='aws', completed='2026-10-18T06:00:10Z') ... FAIL
+
+======================================================================
+FAIL: test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='aws', completed='2026-10-18T04:00:00Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 502, in test_metric_query_recent_postcompletion_minute_window
+    self.assertEqual(query["StartTime"], [expected])
+AssertionError: Lists differ: ['2026-10-18T04:00:00Z'] != ['2026-10-18T05:58:00Z']
+
+First differing element 0:
+'2026-10-18T04:00:00Z'
+'2026-10-18T05:58:00Z'
+
+- ['2026-10-18T04:00:00Z']
+?               ^ ^^
+
++ ['2026-10-18T05:58:00Z']
+?               ^ ^^
+
+
+======================================================================
+FAIL: test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) (provider='aws', completed='2026-10-18T06:00:10Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 502, in test_metric_query_recent_postcompletion_minute_window
+    self.assertEqual(query["StartTime"], [expected])
+AssertionError: Lists differ: ['2026-10-18T06:00:10Z'] != ['2026-10-18T06:01:00Z']
+
+First differing element 0:
+'2026-10-18T06:00:10Z'
+'2026-10-18T06:01:00Z'
+
+- ['2026-10-18T06:00:10Z']
+?                   --
+
++ ['2026-10-18T06:01:00Z']
+?                  ++
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.034s
+
+FAILED (failures=2)
+
+Exit code: 1

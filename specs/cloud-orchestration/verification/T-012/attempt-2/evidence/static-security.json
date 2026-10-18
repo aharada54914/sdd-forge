@@ -1,0 +1,35 @@
+{
+  "classification": "scoped syntax and captured-evidence secret-canary checks, not independent security review",
+  "files": [
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "sha256": "83f9789f6d42eb68391d69ccf0dfeb7f24e214d677290e9ffd646b2dc999e5f7",
+      "syntax": "PASS"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "sha256": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86",
+      "syntax": "PASS"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "sha256": "661a545a10620fceb0f05337834c36b20efa23b08b663b068efb388abe6444ab",
+      "syntax": "PASS"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "sha256": "a0669240ae1acdfb62adfedb36e131d1421349c5a0b65f7411106c660aea458c",
+      "syntax": "PASS"
+    },
+    {
+      "path": "tests/cloud-orchestration-execution.tests.py",
+      "sha256": "3681acdbed2af843b1a2fcd884d0da410e5c346d9080050664a22ef95911b06c",
+      "syntax": "PASS"
+    }
+  ],
+  "captured_fence_contains_no_fixture_credentials": true,
+  "new_transport": "existing authenticated bounded no-redirect GitHub transport; fixed GET URL only",
+  "write_site": "existing WriteBoundary plus final binding/deadline check preserved after all added history work",
+  "no_new_dependencies": true,
+  "no_ui": true
+}

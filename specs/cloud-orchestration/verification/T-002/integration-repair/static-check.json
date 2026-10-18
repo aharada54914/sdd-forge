@@ -1,0 +1,97 @@
+{
+  "plugins/sdd-quality-loop/scripts/cloud_contracts.py": {
+    "sha256": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d",
+    "compile": "OK",
+    "imports": [
+      "from contextlib import contextmanager",
+      "from datetime import datetime",
+      "import hashlib",
+      "import json",
+      "import os",
+      "from pathlib import Path",
+      "import re",
+      "import secrets",
+      "import stat"
+    ],
+    "dynamic_execution_calls": []
+  },
+  "plugins/sdd-quality-loop/scripts/cloud_authorization.py": {
+    "sha256": "0408cc042f46b329ea356e35b6d3c407535f64b5449f9179cc636bd40f88d8a8",
+    "compile": "OK",
+    "imports": [
+      "from __future__ import annotations",
+      "import base64",
+      "from dataclasses import dataclass, field",
+      "from datetime import datetime, timezone",
+      "import hashlib",
+      "import hmac",
+      "import json",
+      "from pathlib import Path",
+      "import re",
+      "import threading",
+      "import time",
+      "from typing import Any, Callable, Protocol",
+      "import urllib.parse",
+      "import urllib.request",
+      "import xml.etree.ElementTree as ET",
+      "import cloud_contracts as contracts"
+    ],
+    "dynamic_execution_calls": []
+  },
+  "tests/cloud-orchestration-contracts.tests.py": {
+    "sha256": "71b89cf257b302fe695f7bdb5b42e648eaec0edb7ef14ce2c7f927bb5cd1a90b",
+    "compile": "OK",
+    "imports": [
+      "import copy",
+      "import hashlib",
+      "import importlib.util",
+      "import json",
+      "import os",
+      "from pathlib import Path",
+      "import tempfile",
+      "import unittest",
+      "from concurrent.futures import ThreadPoolExecutor",
+      "from unittest.mock import patch",
+      "from unittest.mock import patch",
+      "from unittest.mock import patch",
+      "from unittest.mock import patch",
+      "from unittest.mock import patch",
+      "from unittest.mock import patch",
+      "from unittest.mock import patch"
+    ],
+    "dynamic_execution_calls": []
+  },
+  "tests/cloud-orchestration-execution.tests.py": {
+    "sha256": "bcde82e05cbcc84865af664a6620971ce524eb5a2869b256c74ce4ad75089257",
+    "compile": "OK",
+    "imports": [
+      "import base64",
+      "import copy",
+      "from dataclasses import replace",
+      "from datetime import datetime, timezone",
+      "import hashlib",
+      "import importlib.util",
+      "import json",
+      "import os",
+      "from pathlib import Path",
+      "import sys",
+      "import tempfile",
+      "import unittest",
+      "from urllib.parse import parse_qs",
+      "from unittest.mock import patch",
+      "from typing import Any",
+      "import cloud_contracts as contracts",
+      "import cloud_authorization",
+      "from io import BytesIO"
+    ],
+    "dynamic_execution_calls": []
+  },
+  "templates/cloud/iam/trusted-policy.example.py": {
+    "sha256": "7e70f84eec5094a6b4a2aee3fe16dcaec968f2ec330fb7f51226969a01bd64e9",
+    "compile": "OK",
+    "imports": [
+      "from cloud_authorization import Policy"
+    ],
+    "dynamic_execution_calls": []
+  }
+}

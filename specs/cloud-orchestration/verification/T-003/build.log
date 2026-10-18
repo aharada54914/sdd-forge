@@ -1,0 +1,3 @@
+py_compile.compile(..., doraise=True) on all six new Python source/evidence files; bytecode under task scratch only.
+EXIT: 0
+Syntax build only; separate mypy check recorded.

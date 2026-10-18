@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "cloud-orchestration",
+  "run_id": "01a14d43-acc9-78b2-ac67-73ffaa15ba03",
+  "host_session_id": "01a14d43-acc9-78b2-ac67-73ffaa15ba03",
+  "sequence": 1211,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "d1f818c8447067669493ab446eebe9c1a39cd52420d221f686db232fef8d4e67",
+  "previous_record_sha256": "62be43b0f1d5ecc2855de59f673e93ecfe9bef75f36cfa4abf697ad23fa5b40e",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "reports/task-review/cloud-orchestration/attempt-1/round-1/precheck-result.json",
+      "sha256": "9da8f27f3f3c797acb9ffee3dcc9f2f47159ebebf01e0e290886fcbb4a2f7d5d"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "specs/cloud-orchestration/tasks.md",
+      "sha256": "10059b70a699a5b36810122e4dadce0cca1c0440f64fc4e5babfc059d9c03967"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "sha256": "3aa1636c38c9bb41ff96da6aba58eb371ffba69b2ed47a979bc173ea657c39fa"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "reports/task-review/cloud-orchestration/attempt-1/round-1/dependency-graph.json",
+      "sha256": "a90d89b1d909ed5e4c25604cb440dbab523cbbbb9c90de711cee14264e6082ab"
+    }
+  ]
+}

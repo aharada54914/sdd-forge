@@ -1,0 +1,10 @@
+{
+  "path": "specs/cloud-orchestration/verification/T-006/api/cloudwatch.json",
+  "sha256": "56b0a8bf43250cc80f9d74208da12665445d7b3ceba5a30111e2bc29e427272a",
+  "source_url": "https://raw.githubusercontent.com/boto/botocore/4de93abe62cc263980414f7a66be5226bd541b77/botocore/data/cloudwatch/2010-08-01/service-2.json",
+  "member": "shapes.MetricAlarm.members.Threshold.shape",
+  "shape": "Threshold",
+  "type": "double",
+  "acquisition": "Reused admitted on-disk model; no network retrieval",
+  "semantics": "StatusCheckFailed alarm requires exact finite numeric zero; all other field comparisons unchanged"
+}

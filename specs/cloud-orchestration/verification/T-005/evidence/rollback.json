@@ -1,0 +1,60 @@
+{
+  "base_revision": "74e5b177151739cab6a5b5f487fc9eec7d51ab36",
+  "before_sha256": "8c7425a05465a229f380e4c19eaf68e7455b31737a1a465a36ef2c9b46acc34e",
+  "restored_sha256": "8c7425a05465a229f380e4c19eaf68e7455b31737a1a465a36ef2c9b46acc34e",
+  "restored_aws_absence": true,
+  "commands": [
+    {
+      "label": "rollback-create",
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-T005-01a14dcb/rollback-checkout",
+        "74e5b177151739cab6a5b5f487fc9eec7d51ab36"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "exit_code": 0,
+      "elapsed_seconds": 0.464
+    },
+    {
+      "label": "rollback-before",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T005-01a14dcb/rollback-checkout",
+      "exit_code": 0,
+      "elapsed_seconds": 26.305
+    },
+    {
+      "label": "rollback-candidate",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py",
+        "AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution",
+        "AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references",
+        "AwsNativePreparation.test_installed_runtime_mutation_denied",
+        "AzureNativePreparation.test_real_compile_locked_plan_and_validate_exact_bytes"
+      ],
+      "cwd": "/tmp/cloud-T005-01a14dcb/rollback-checkout",
+      "exit_code": 0,
+      "elapsed_seconds": 13.451
+    },
+    {
+      "label": "rollback-restored",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T005-01a14dcb/rollback-checkout",
+      "exit_code": 0,
+      "elapsed_seconds": 26.097
+    }
+  ],
+  "scope": "Task code/config restoration only, not cloud cleanup or evidence/history rollback"
+}

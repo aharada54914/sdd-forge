@@ -1,0 +1,10 @@
+Implemented T-006’s remaining local scope.
+
+- Verification: 52 tests / 720 subtests passed.
+- Execution, routing, contracts, configured Ruff/mypy passed.
+- Rollback and 20 sensitivity mutations verified.
+- Report validator and 378 output hashes passed.
+
+Report: `reports/implementation/cloud-orchestration/T-006.md`
+
+Earlier HTTPS-harness uncertainty is documented; final checks prohibit network access. Live tests remain BLOCKED. Root review and task status remain pending.

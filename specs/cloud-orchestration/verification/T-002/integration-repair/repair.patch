@@ -1,0 +1,1620 @@
+--- pre-repair/contracts/cloud-operation-result.schema.json
++++ repaired/contracts/cloud-operation-result.schema.json
+@@ -95,9 +95,16 @@
+       "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+     },
+     "evidence_manifest_path": {
+-      "type": "string",
+-      "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+-      "maxLength": 1024
++      "oneOf": [
++        {
++          "type": "string",
++          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++          "maxLength": 1024
++        },
++        {
++          "type": "null"
++        }
++      ]
+     },
+     "native_operation_id": {
+       "type": "string",
+@@ -107,7 +114,7 @@
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "$id": "https://sdd-forge.local/contracts/cloud-operation-result.schema.json",
+   "title": "Cloud operation-result v1",
+-  "$comment": "Integrity only, never authority. Runtime additionally checks exact-byte references, safe filesystem paths, UTC ordering/freshness, unique IDs and cross-artifact consistency. No cloud operation is authorized by schema conformance.",
++  "$comment": "Integrity only, never authority. Runtime also checks contained physical files, exact-byte digests, keyed uniqueness and cross-artifact consistency.",
+   "oneOf": [
+     {
+       "properties": {
+@@ -131,6 +138,11 @@
+         },
+         "error_code": {
+           "type": "null"
++        },
++        "evidence_manifest_path": {
++          "type": "string",
++          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++          "maxLength": 1024
+         }
+       }
+     },
+@@ -147,6 +159,11 @@
+         },
+         "native_operation_id": {
+           "type": "null"
++        },
++        "evidence_manifest_path": {
++          "type": "string",
++          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++          "maxLength": 1024
+         }
+       }
+     },
+@@ -162,7 +179,28 @@
+           "type": "string",
+           "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+         }
+-      }
++      },
++      "oneOf": [
++        {
++          "properties": {
++            "evidence_manifest_path": {
++              "type": "string",
++              "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++              "maxLength": 1024
++            }
++          }
++        },
++        {
++          "properties": {
++            "evidence_manifest_path": {
++              "type": "null"
++            },
++            "native_operation_id": {
++              "type": "null"
++            }
++          }
++        }
++      ]
+     },
+     {
+       "properties": {
+@@ -176,7 +214,28 @@
+           "type": "string",
+           "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+         }
+-      }
++      },
++      "oneOf": [
++        {
++          "properties": {
++            "evidence_manifest_path": {
++              "type": "string",
++              "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++              "maxLength": 1024
++            }
++          }
++        },
++        {
++          "properties": {
++            "evidence_manifest_path": {
++              "type": "null"
++            },
++            "native_operation_id": {
++              "type": "null"
++            }
++          }
++        }
++      ]
+     },
+     {
+       "properties": {
+@@ -189,6 +248,11 @@
+         "error_code": {
+           "type": "string",
+           "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
++        },
++        "evidence_manifest_path": {
++          "type": "string",
++          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++          "maxLength": 1024
+         }
+       }
+     }
+--- pre-repair/contracts/cloud-run-request.schema.json
++++ repaired/contracts/cloud-run-request.schema.json
+@@ -70,17 +70,35 @@
+       }
+     },
+     "owner": {
+-      "type": "string",
+-      "enum": [
+-        "bicep",
+-        "cdk"
++      "oneOf": [
++        {
++          "type": "string",
++          "enum": [
++            "bicep",
++            "cdk",
++            "terraform",
++            "sam",
++            "cloudformation",
++            "azd"
++          ]
++        },
++        {
++          "type": "null"
++        }
+       ]
+     },
+     "route": {
+-      "type": "string",
+-      "enum": [
+-        "azure-bicep",
+-        "aws-cdk"
++      "oneOf": [
++        {
++          "type": "string",
++          "enum": [
++            "azure-bicep",
++            "aws-cdk"
++          ]
++        },
++        {
++          "type": "null"
++        }
+       ]
+     },
+     "operation": {
+@@ -230,12 +248,99 @@
+           "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+         }
+       }
++    },
++    "local_context": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++        "workspace_anchor",
++        "artifact_root",
++        "unit_roots",
++        "evidence_directory",
++        "feature",
++        "task_id",
++        "ownership",
++        "provider_config"
++      ],
++      "properties": {
++        "workspace_anchor": {
++          "const": "CLOUD_WORKSPACE_ROOT"
++        },
++        "artifact_root": {
++          "type": "string",
++          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++          "maxLength": 1024
++        },
++        "unit_roots": {
++          "type": "array",
++          "items": {
++            "type": "string",
++            "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++            "maxLength": 1024
++          },
++          "minItems": 1,
++          "maxItems": 4096,
++          "uniqueItems": true
++        },
++        "evidence_directory": {
++          "type": "string",
++          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++          "maxLength": 1024
++        },
++        "feature": {
++          "type": "string",
++          "pattern": "^(?=[a-z0-9]+(?:-[a-z0-9]+)*$(?![\\s\\S]))(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++          "maxLength": 1024
++        },
++        "task_id": {
++          "type": "string",
++          "pattern": "^(?:T-[0-9]{3})$(?![\\s\\S])"
++        },
++        "ownership": {
++          "type": "object",
++          "additionalProperties": false,
++          "required": [
++            "path",
++            "sha256"
++          ],
++          "properties": {
++            "path": {
++              "type": "string",
++              "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++              "maxLength": 1024
++            },
++            "sha256": {
++              "type": "string",
++              "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
++            }
++          }
++        },
++        "provider_config": {
++          "type": "object",
++          "additionalProperties": false,
++          "required": [
++            "path",
++            "sha256"
++          ],
++          "properties": {
++            "path": {
++              "type": "string",
++              "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++              "maxLength": 1024
++            },
++            "sha256": {
++              "type": "string",
++              "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
++            }
++          }
++        }
++      }
+     }
+   },
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "$id": "https://sdd-forge.local/contracts/cloud-run-request.schema.json",
+   "title": "Cloud run-request v1",
+-  "$comment": "Integrity only, never authority. Runtime additionally checks exact-byte references, safe filesystem paths, UTC ordering/freshness, unique IDs and cross-artifact consistency. No cloud operation is authorized by schema conformance.",
++  "$comment": "Integrity only, never authority. Runtime also checks contained physical files, exact-byte digests, keyed uniqueness and cross-artifact consistency.",
+   "oneOf": [
+     {
+       "properties": {
+@@ -260,6 +365,16 @@
+         },
+         "route": {
+           "const": "azure-bicep"
++        }
++      }
++    },
++    {
++      "properties": {
++        "operation": {
++          "const": "route"
++        },
++        "route": {
++          "type": "null"
+         }
+       }
+     }
+--- pre-repair/contracts/cloud-ownership.schema.json
++++ repaired/contracts/cloud-ownership.schema.json
+@@ -0,0 +1,104 @@
++{
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "schema",
++    "owners",
++    "existing_resources"
++  ],
++  "properties": {
++    "schema": {
++      "const": "cloud-ownership/v1"
++    },
++    "owners": {
++      "type": "array",
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "owner",
++          "root"
++        ],
++        "properties": {
++          "owner": {
++            "type": "string",
++            "enum": [
++              "bicep",
++              "cdk",
++              "terraform",
++              "sam",
++              "cloudformation",
++              "azd"
++            ]
++          },
++          "root": {
++            "type": "string",
++            "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
++            "maxLength": 1024
++          }
++        }
++      },
++      "minItems": 0,
++      "maxItems": 4096,
++      "uniqueItems": true
++    },
++    "existing_resources": {
++      "type": "array",
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "resource_id",
++          "owner",
++          "attachments"
++        ],
++        "properties": {
++          "resource_id": {
++            "type": "string",
++            "pattern": "^(?:[\\x20-\\x7e]{1,2048})$(?![\\s\\S])"
++          },
++          "owner": {
++            "type": "string",
++            "enum": [
++              "bicep",
++              "cdk",
++              "terraform",
++              "sam",
++              "cloudformation",
++              "azd"
++            ]
++          },
++          "attachments": {
++            "type": "array",
++            "items": {
++              "type": "object",
++              "additionalProperties": false,
++              "required": [
++                "resource_type",
++                "name"
++              ],
++              "properties": {
++                "resource_type": {
++                  "type": "string",
++                  "pattern": "^(?:[\\x20-\\x7e]{1,2048})$(?![\\s\\S])"
++                },
++                "name": {
++                  "type": "string",
++                  "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
++                }
++              }
++            },
++            "minItems": 0,
++            "maxItems": 4096,
++            "uniqueItems": true
++          }
++        }
++      },
++      "minItems": 0,
++      "maxItems": 4096
++    }
++  },
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "$id": "https://sdd-forge.local/contracts/cloud-ownership.schema.json",
++  "$comment": "Integrity only, never authority. Runtime also checks contained physical files, exact-byte digests, keyed uniqueness and cross-artifact consistency."
++}
+--- pre-repair/contracts/cloud-deployment-policy.schema.json
++++ repaired/contracts/cloud-deployment-policy.schema.json
+@@ -0,0 +1,112 @@
++{
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "schema",
++    "allowed_scopes",
++    "allowed_resource_types",
++    "backup_required",
++    "private_networking",
++    "budget",
++    "evidence"
++  ],
++  "properties": {
++    "schema": {
++      "const": "cloud-deployment-policy/v1"
++    },
++    "allowed_scopes": {
++      "type": "array",
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "account_id",
++          "region",
++          "deployment_scope"
++        ],
++        "properties": {
++          "account_id": {
++            "type": "string",
++            "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
++          },
++          "region": {
++            "type": "string",
++            "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
++          },
++          "deployment_scope": {
++            "type": "string",
++            "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
++          }
++        }
++      },
++      "minItems": 1,
++      "maxItems": 4096,
++      "uniqueItems": true
++    },
++    "allowed_resource_types": {
++      "type": "array",
++      "items": {
++        "type": "string",
++        "pattern": "^(?:[\\x20-\\x7e]{1,2048})$(?![\\s\\S])"
++      },
++      "minItems": 1,
++      "maxItems": 4096,
++      "uniqueItems": true
++    },
++    "backup_required": {
++      "type": "boolean"
++    },
++    "private_networking": {
++      "type": "boolean",
++      "const": true
++    },
++    "budget": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++        "ceiling_minor_units",
++        "currency"
++      ],
++      "properties": {
++        "ceiling_minor_units": {
++          "type": "integer",
++          "minimum": 1,
++          "maximum": 2147483647
++        },
++        "currency": {
++          "type": "string",
++          "pattern": "^(?:[A-Z]{3})$(?![\\s\\S])"
++        }
++      }
++    },
++    "evidence": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++        "residency",
++        "retention_days",
++        "access"
++      ],
++      "properties": {
++        "residency": {
++          "type": "string",
++          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
++        },
++        "retention_days": {
++          "type": "integer",
++          "minimum": 1,
++          "maximum": 2147483647
++        },
++        "access": {
++          "type": "string",
++          "enum": [
++            "restricted"
++          ]
++        }
++      }
++    }
++  },
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "$id": "https://sdd-forge.local/contracts/cloud-deployment-policy.schema.json",
++  "$comment": "Integrity only, never authority. Runtime also checks contained physical files, exact-byte digests, keyed uniqueness and cross-artifact consistency."
++}
+--- pre-repair/contracts/cloud-verification-profile.schema.json
++++ repaired/contracts/cloud-verification-profile.schema.json
+@@ -0,0 +1,42 @@
++{
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "schema",
++    "id",
++    "version",
++    "required_check_ids",
++    "max_age_seconds"
++  ],
++  "properties": {
++    "schema": {
++      "const": "cloud-verification-profile/v1"
++    },
++    "id": {
++      "type": "string",
++      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
++    },
++    "version": {
++      "type": "string",
++      "pattern": "^(?:[0-9]+(?:\\.[0-9]+){0,3}(?:-[A-Za-z0-9.-]+)?)$(?![\\s\\S])"
++    },
++    "required_check_ids": {
++      "type": "array",
++      "items": {
++        "type": "string",
++        "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
++      },
++      "minItems": 1,
++      "maxItems": 4096,
++      "uniqueItems": true
++    },
++    "max_age_seconds": {
++      "type": "integer",
++      "minimum": 1,
++      "maximum": 2147483647
++    }
++  },
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "$id": "https://sdd-forge.local/contracts/cloud-verification-profile.schema.json",
++  "$comment": "Integrity only, never authority. Runtime also checks contained physical files, exact-byte digests, keyed uniqueness and cross-artifact consistency."
++}
+--- pre-repair/plugins/sdd-quality-loop/scripts/cloud_contracts.py
++++ repaired/plugins/sdd-quality-loop/scripts/cloud_contracts.py
+@@ -18,10 +18,12 @@
+ import hashlib
+ import json
+ import os
++from pathlib import Path
+ import re
+ import secrets
+ import stat
+ 
++OWNERS = ('bicep', 'cdk', 'terraform', 'sam', 'cloudformation', 'azd')
+ MAX_BYTES = 4 * 1024 * 1024
+ OPERATIONS = ('route', 'plan', 'validate', 'prepare', 'apply', 'reconcile', 'observe', 'verify')
+ SUCCESS_STATES = ('ROUTED', 'PLANNED', 'LOCAL_VALIDATED', 'PREPARE_AUTHORIZED',
+@@ -158,6 +160,61 @@
+     _record(value, {'schema': lambda v: _enum(v, (name,)), **fields}, optional)
+ 
+ 
++def _owner(value):
++    _enum(value, OWNERS)
++
++
++def _local_context(value):
++    def directories(v):
++        _list(v, _path, 1)
++        _unique(v)
++    _record(value, {
++        'workspace_anchor': lambda v: _enum(v, ('CLOUD_WORKSPACE_ROOT',)),
++        'artifact_root': _path, 'unit_roots': directories, 'evidence_directory': _path,
++        'feature': lambda v: (_match(v, r'[a-z0-9]+(?:-[a-z0-9]+)*'), _path(v)),
++        'task_id': lambda v: _match(v, r'T-[0-9]{3}'),
++        'ownership': _ref, 'provider_config': _ref})
++
++
++def _ownership(value):
++    def owner(v):
++        _record(v, {'owner': _owner, 'root': _path})
++    def resource(v):
++        _record(v, {'resource_id': _text, 'owner': _owner,
++                    'attachments': lambda a: _list(a, lambda x: _record(x, {
++                        'resource_type': _text, 'name': _id}))})
++        _unique([(a['resource_type'], a['name']) for a in v['attachments']])
++    _schema(value, 'cloud-ownership/v1', {
++        'owners': lambda v: _list(v, owner),
++        'existing_resources': lambda v: _list(v, resource)})
++    _unique([(o['owner'], o['root']) for o in value['owners']])
++    _unique([r['resource_id'] for r in value['existing_resources']])
++
++
++def _deployment_policy(value):
++    def scopes(v):
++        _list(v, _scope, 1)
++        _unique([tuple(s[k] for k in ('account_id', 'region', 'deployment_scope')) for s in v])
++    def types(v):
++        _list(v, _text, 1)
++        _unique(v)
++    _schema(value, 'cloud-deployment-policy/v1', {
++        'allowed_scopes': scopes, 'allowed_resource_types': types,
++        'backup_required': _boolean,
++        'private_networking': lambda v: _require(v is True),
++        'budget': lambda v: _record(v, {'ceiling_minor_units': lambda n: _integer(n, 1),
++                                      'currency': lambda c: _match(c, r'[A-Z]{3}')}),
++        'evidence': lambda v: _record(v, {'residency': _id,
++            'retention_days': lambda n: _integer(n, 1),
++            'access': lambda a: _enum(a, ('restricted',))})})
++
++
++def _verification_profile(value):
++    _schema(value, 'cloud-verification-profile/v1', {
++        'id': _id, 'version': _version, 'required_check_ids': lambda v: _ids(v, 1),
++        'max_age_seconds': lambda n: _integer(n, 1)})
++
++
+ def _request(value):
+     def artifact(v):
+         _record(v, {'kind': lambda k: _enum(k, ('source', 'compiled', 'asset', 'parameters', 'module')),
+@@ -166,13 +223,13 @@
+         _record(v, {'unit_id': _id, 'path': _path, 'sha256': _sha})
+     _schema(value, 'cloud-run-request/v1', {
+         **_identity_fields(), 'binding_id': _id, 'environment': _id, 'scope': _scope,
+-        'owner': lambda v: _enum(v, ('bicep', 'cdk')),
+-        'route': lambda v: _enum(v, ('azure-bicep', 'aws-cdk')),
++        'owner': lambda v: None if v is None else _owner(v),
++        'route': lambda v: None if v is None else _enum(v, ('azure-bicep', 'aws-cdk')),
+         'operation': lambda v: _enum(v, OPERATIONS),
+         'predecessor_receipts': lambda v: _list(v, predecessor), 'source_revision': _revision,
+         'input_artifacts': lambda v: _list(v, artifact, 1), 'dependency_lock': _ref,
+-        'policy': _ref, 'verification_profile': _profile})
+-    _require((value['provider'], value['owner'], value['route']) in
++        'policy': _ref, 'verification_profile': _profile}, {'local_context': _local_context})
++    _require((value['operation'] == 'route' and value['route'] is None) or (value['provider'], value['owner'], value['route']) in
+              (('azure', 'bicep', 'azure-bicep'), ('aws', 'cdk', 'aws-cdk')))
+     _unique([v['path'] for v in value['input_artifacts']])
+     _unique([v['unit_id'] for v in value['predecessor_receipts']])
+@@ -262,9 +319,12 @@
+         **_identity_fields(), 'operation': lambda v: _enum(v, OPERATIONS),
+         'state': lambda v: _enum(v, SUCCESS_STATES + ('NO_CHANGE', 'BLOCKED', 'FAILED', 'UNKNOWN')),
+         'result': lambda v: _enum(v, EXIT_CODES), 'error_code': lambda v: None if v is None else _id(v),
+-        'message': _text, 'input_manifest_sha256': _sha, 'evidence_manifest_path': _path},
++        'message': _text, 'input_manifest_sha256': _sha,
++        'evidence_manifest_path': lambda v: None if v is None else _path(v)},
+         {'native_operation_id': _text})
+     result = value['result']
++    _require(value['evidence_manifest_path'] is not None or
++             (result in ('BLOCKED', 'FAIL') and 'native_operation_id' not in value))
+     _require((value['error_code'] is None) == (result in ('PASS', 'NO_CHANGE')))
+     if result == 'PASS':
+         _require(value['state'] in SUCCESS_STATES)
+@@ -277,7 +337,9 @@
+     _schema(value, 'cloud-input-error/v1', {'error_code': _id, 'message': _text, 'field': _id})
+ 
+ 
+-VALIDATORS = {'cloud-run-request/v1': _request, 'cloud-dependency-lock/v1': _lock,
++VALIDATORS = {'cloud-ownership/v1': _ownership,
++              'cloud-deployment-policy/v1': _deployment_policy,
++              'cloud-verification-profile/v1': _verification_profile, 'cloud-run-request/v1': _request, 'cloud-dependency-lock/v1': _lock,
+               'cloud-preview/v1': _preview, 'cloud-authorization-receipt/v1': _receipt,
+               'cloud-observation/v1': _observation, 'cloud-verification/v1': _verification,
+               'cloud-operation-result/v1': _result, 'cloud-input-error/v1': _input_error}
+@@ -400,20 +462,148 @@
+     _verify_lock_files(root, lock)
+ 
+ 
+-def verify_binding(root, request_ref, preview_ref, receipt_ref=None, *, now):
++def workspace_root():
++    """Resolve ONLY explicit CLOUD_WORKSPACE_ROOT; reject normalization and links.
++
++    Returns a physical absolute Path. No cwd, home or request-parent fallback.
++    This boundary grants no authority and must be owned by the trusted caller.
++    """
++    root = os.environ.get('CLOUD_WORKSPACE_ROOT', '')
++    _require(type(root) is str and not any(ord(c) < 32 or ord(c) == 127 for c in root)
++             and root.startswith('/') and root != '/' and
++             all(p and p not in ('.', '..') for p in root.split('/')[1:]), 'UNSAFE_ROOT')
++    with _parent(root, 'boundary-probe'):
++        pass
++    return Path(root)
++
++
++def _within(path, directory):
++    return path == directory or path.startswith(directory + '/')
++
++
++def _scan_unit(root, directory):
++    """List every regular file recursively; never follow links or hide metadata."""
++    found = []
++    def visit(fd, relative):
++        _path(relative)
++        for name in sorted(os.listdir(fd)):
++            path = relative + '/' + name
++            _path(path)
++            info = os.stat(name, dir_fd=fd, follow_symlinks=False)
++            if stat.S_ISDIR(info.st_mode):
++                child = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
++                try:
++                    visit(child, path)
++                finally:
++                    os.close(child)
++            else:
++                _require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1, 'UNSAFE_FILE')
++                found.append(path)
++                _require(len(found) <= 4096, 'SCAN_TOO_LARGE')
++    with _parent(root, directory + '/boundary-probe') as (fd, _):
++        visit(fd, directory)
++    return found
++
++
++def verify_local_context(root, request, *, execution=False):
++    """Check declared roots, immutable local bodies and return ALL scanned paths.
++
++    Required for provider entry/admission. Router must detect owners from these
++    actual files as well as inventory; this helper is not an IaC classifier or
++    provider-config validator. Missing context is a typed ContractError for the
++    CLI to map to BLOCKED. No directory is created and no authority is granted.
++    """
++    _request(request)
++    _require('local_context' in request, 'LOCAL_CONTEXT_REQUIRED')
++    _require(os.fspath(root) == os.fspath(workspace_root()), 'WORKSPACE_MISMATCH')
++    context = request['local_context']
++    artifact = context['artifact_root']
++    evidence = context['evidence_directory']
++    expected = (f"specs/{context['feature']}/verification/{context['task_id']}/cloud/"
++                f"{request['run_id']}/{request['unit_id']}")
++    _path(expected)
++    _require(evidence == expected and not _within(evidence, artifact)
++             and not _within(artifact, evidence), 'EVIDENCE_BOUNDARY_MISMATCH')
++    with _parent(root, artifact + '/boundary-probe'):
++        pass
++    # Validate all existing output components without requiring the future directory.
++    parts = evidence.split('/')
++    for i in range(1, len(parts) + 1):
++        relative = '/'.join(parts[:i])
++        with _parent(root, relative) as (fd, name):
++            try:
++                info = os.stat(name, dir_fd=fd, follow_symlinks=False)
++            except FileNotFoundError:
++                break
++            _require(stat.S_ISDIR(info.st_mode), 'UNSAFE_EVIDENCE_DIRECTORY')
++    refs = [*request['input_artifacts'], request['dependency_lock'], request['policy'],
++            request['verification_profile'], context['ownership'], context['provider_config']]
++    lock = parse_artifact(read_verified(root, request['dependency_lock']), 'cloud-dependency-lock/v1')
++    refs += [f for u in lock['upstream'] for f in u['files']]
++    refs += [e['tool_schema'] for e in lock['managed_endpoints']]
++    for ref in refs:
++        _require(_within(ref['path'], artifact), 'INPUT_OUTSIDE_ARTIFACT_ROOT')
++        read_verified(root, _file_ref(ref))
++    ownership = read_artifact(root, context['ownership'], 'cloud-ownership/v1')
++    policy = read_artifact(root, request['policy'], 'cloud-deployment-policy/v1')
++    profile = read_artifact(root, _file_ref(request['verification_profile']), 'cloud-verification-profile/v1')
++    _require(all(profile[k] == request['verification_profile'][k] for k in ('id', 'version')),
++             'PROFILE_MISMATCH')
++    _require(request['scope'] in policy['allowed_scopes'], 'SCOPE_DENIED')
++    checks = {'resource', 'network', 'identity', 'monitoring', 'workload'}
++    if policy['backup_required']:
++        checks.add('backup')
++    _require(checks <= set(profile['required_check_ids']), 'CHECK_SET_MISMATCH')
++    files = set()
++    for unit in context['unit_roots']:
++        _require(_within(unit, artifact), 'UNIT_OUTSIDE_ARTIFACT_ROOT')
++        files.update(_scan_unit(root, unit))
++        _require(len(files) <= 4096, 'SCAN_TOO_LARGE')
++    for owner in ownership['owners']:
++        _require(any(_within(owner['root'], unit) for unit in context['unit_roots']), 'OWNER_OUTSIDE_UNIT_ROOT')
++    if execution:
++        _require(request['operation'] == 'apply' and
++                 (request['provider'], request['owner'], request['route']) in
++                 (('azure', 'bicep', 'azure-bicep'), ('aws', 'cdk', 'aws-cdk')), 'EXECUTION_ROUTE_REQUIRED')
++        _require({o['owner'] for o in ownership['owners']} == {request['owner']}, 'OWNER_MISMATCH')
++    for ref in request['predecessor_receipts']:
++        prior = read_artifact(root, _file_ref(ref), 'cloud-verification/v1')
++        _require(prior['unit_id'] == ref['unit_id'], 'PREDECESSOR_MISMATCH')
++        prefix = f"specs/{context['feature']}/verification/"
++        suffix = f"/cloud/{prior['run_id']}/{prior['unit_id']}/"
++        _require(re.fullmatch(re.escape(prefix) + r'T-[0-9]{3}' + re.escape(suffix) + r'[^/]+', ref['path'])
++                 is not None, 'PREDECESSOR_PATH_MISMATCH')
++    return sorted(files)
++
++
++def verify_binding(root, request_ref, preview_ref, receipt_ref=None, *, now, operation=None):
+     """Check exact bytes and cross-artifact bindings. Returns None, NEVER authority.
+ 
++operation is required for local_context requests: prepare/apply are stages of
++the same apply intent. None preserves legacy integrity-only behavior. Protected
++CI environment is authenticated by admission, not equated to the logical target.
+ Caller must separately authenticate admission, check live tool closure via
+ verify_lock and recheck immediately at the write site. Preview semantics are
+ provider-owned: semantic_sha256 binds the adapter's normalized changes file.
+ """
+     _utc(now)
+     request = read_artifact(root, request_ref, 'cloud-run-request/v1')
++    if operation is not None:
++        _enum(operation, ('prepare', 'apply'))
++        verify_local_context(root, request, execution=True)
++    elif 'local_context' in request:
++        raise ContractError('EXPLICIT_PHASE_REQUIRED')
++    phase = request['operation'] if operation is None else operation
+     preview = None if preview_ref is None else read_artifact(root, preview_ref, 'cloud-preview/v1')
+-    _require(request['operation'] != 'apply' or preview is not None, 'PREVIEW_REQUIRED')
++    _require(phase != 'apply' or preview is not None, 'PREVIEW_REQUIRED')
+     read_artifact(root, request['dependency_lock'], 'cloud-dependency-lock/v1')
+     expected = {key: request[key] for key in ('run_id', 'unit_id', 'provider', 'scope', 'dependency_lock', 'policy')}
+     expected.update(request=request_ref, verification_profile=_file_ref(request['verification_profile']))
++    if 'local_context' in request:
++        evidence = request['local_context']['evidence_directory']
++        for ref in (preview_ref, receipt_ref, None if preview is None else preview['changes']):
++            if ref is not None:
++                _require(ref['path'].startswith(evidence + '/'), 'EVIDENCE_BOUNDARY_MISMATCH')
+     if preview is not None:
+         _require(preview['semantic_sha256'] == preview['changes']['sha256'], 'PREVIEW_DRIFT')
+         for key, value in expected.items():
+@@ -423,8 +613,9 @@
+         receipt = read_artifact(root, receipt_ref, 'cloud-authorization-receipt/v1')
+         for key, value in expected.items():
+             _require(receipt[key] == value, 'BINDING_MISMATCH')
+-        _require(receipt['operation'] == request['operation'] and
+-                 receipt['ci']['environment'] == request['environment'], 'BINDING_MISMATCH')
++        _require(receipt['operation'] == phase, 'BINDING_MISMATCH')
++        if operation is None:
++            _require(receipt['ci']['environment'] == request['environment'], 'BINDING_MISMATCH')
+         _require(receipt['preview'] == preview_ref, 'BINDING_MISMATCH')
+         _require(_utc(receipt['issued_at']) <= _utc(now) < _utc(receipt['expires_at']), 'EXPIRED_RECEIPT')
+ 
+--- pre-repair/plugins/sdd-quality-loop/scripts/cloud_authorization.py
++++ repaired/plugins/sdd-quality-loop/scripts/cloud_authorization.py
+@@ -158,6 +158,7 @@
+     ref: str
+     operation: str
+     environment: str
++    target_environment: str
+     environment_id: int
+     account_id: str
+     region: str
+@@ -190,6 +191,7 @@
+     require(re.fullmatch(r"refs/heads/[A-Za-z0-9_/-]+", p.ref))
+     require(p.operation in ("prepare", "apply") and p.environment.endswith("-" + p.operation))
+     require(re.fullmatch(r"[A-Za-z0-9_-]+", p.environment))
++    require(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}", p.target_environment))
+     require(re.fullmatch(r"[a-f0-9]{64}", p.policy_sha256))
+     require(type(p.ttl_seconds) is int and 0 < p.ttl_seconds <= 3600)
+     require(type(p.repository_id) is int and p.repository_id > 0)
+@@ -523,12 +525,12 @@
+                 _policy_valid(p)
+                 require(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", mutation_id))
+                 now = int(self.clock())
+-                contracts.verify_binding(root, request_ref, preview_ref, now=utc(now))
++                contracts.verify_binding(root, request_ref, preview_ref, now=utc(now), operation=p.operation)
+                 request = contracts.read_artifact(root, request_ref, "cloud-run-request/v1")
+                 require(
+                     request["provider"] == p.provider
+-                    and request["operation"] == p.operation
+-                    and request["environment"] == p.environment,
++                    and request["operation"] == "apply"
++                    and request["environment"] == p.target_environment,
+                     "STAGE_MISMATCH",
+                 )
+                 require(
+@@ -539,6 +541,8 @@
+                 require(request["policy"]["sha256"] == p.policy_sha256, "POLICY_MISMATCH")
+                 # T-010 replaces this with verified predecessor receipt admission.
+                 require(not request["predecessor_receipts"], "DEPENDENCY_ADMISSION_REQUIRED")
++                require(self.evidence_root == root / request["local_context"]["evidence_directory"],
++                        "EVIDENCE_BOUNDARY_MISMATCH")
+                 name = f"{request['unit_id']}.{p.operation}.{mutation_id}.authorization.json"
+                 require(name not in self._seen, "REPLAY_DENIED")
+                 github = GitHubAdmission(p, self.runtime, self.transport)
+@@ -553,7 +557,7 @@
+                 end = min(lease_end, claims["exp"], claims["iat"] + p.ttl_seconds)
+                 now = int(self.clock())
+                 require(claims["iat"] <= now < end, "CREDENTIAL_EXPIRED")
+-                contracts.verify_binding(root, request_ref, preview_ref, now=utc(now))
++                contracts.verify_binding(root, request_ref, preview_ref, now=utc(now), operation=p.operation)
+                 receipt = dict(
+                     schema="cloud-authorization-receipt/v1",
+                     **{
+@@ -591,9 +595,11 @@
+                     "APPROVAL_CHANGED",
+                 )
+                 require(int(self.clock()) < end, "CREDENTIAL_EXPIRED")
+-                contracts.verify_binding(root, request_ref, preview_ref, now=utc(int(self.clock())))
++                contracts.verify_binding(root, request_ref, preview_ref, now=utc(int(self.clock())), operation=p.operation)
+             except Exception:
+                 # Never echo native errors, tokens or attacker-controlled artifact bytes.
+                 raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+             # Submission exceptions are NOT converted to pre-write denial or retried.
++            # All public references use the explicit workspace anchor, not a private sub-root.
++            reference = dict(reference, path=request["local_context"]["evidence_directory"] + "/" + reference["path"])
+             return reference, submit(credentials)
+--- pre-repair/tests/cloud-orchestration-contracts.tests.py
++++ repaired/tests/cloud-orchestration-contracts.tests.py
+@@ -180,6 +180,58 @@
+     }
+ 
+ 
++def local_bodies(scope=None, owner="cdk"):
++    """Strict synthetic local data; never credentials or executable policy."""
++    scope = scope or fixtures()["cloud-run-request/v1"]["scope"]
++    return {
++        "cloud-ownership/v1": dict(schema="cloud-ownership/v1",
++            owners=[dict(owner=owner, root="bundle/unit")],
++            existing_resources=[dict(resource_id="synthetic-resource", owner="terraform",
++                attachments=[dict(resource_type="synthetic/attachment", name="monitor")])]),
++        "cloud-deployment-policy/v1": dict(schema="cloud-deployment-policy/v1",
++            allowed_scopes=[scope], allowed_resource_types=["synthetic/compute"],
++            backup_required=True, private_networking=True,
++            budget=dict(ceiling_minor_units=10000, currency="USD"),
++            evidence=dict(residency="owner-selected", retention_days=30, access="restricted")),
++        "cloud-verification-profile/v1": dict(schema="cloud-verification-profile/v1",
++            id="health", version="1", required_check_ids=["resource", "network", "identity",
++            "monitoring", "workload", "backup"], max_age_seconds=300),
++    }
++
++
++def install_local_context(root, request):
++    """Upgrade an integrity fixture; move inputs, not request/preview evidence."""
++    def put(path, value):
++        data = value if isinstance(value, bytes) else encode(value)
++        dest = root / path
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        dest.write_bytes(data)
++        return ref(path, data)
++    bodies = local_bodies(request["scope"], request["owner"])
++    for item in request["input_artifacts"]:
++        item.update(put("bundle/unit/" + Path(item["path"]).name, b"fixture"))
++    lock = fixtures()["cloud-dependency-lock/v1"]
++    for upstream in lock["upstream"]:
++        upstream["root"] = "bundle/" + upstream["root"]
++        for item in upstream["files"]:
++            item.update(put("bundle/" + item["path"], b"fixture"))
++            item["references"] = ["bundle/" + r for r in item["references"]]
++    for endpoint in lock["managed_endpoints"]:
++        endpoint["tool_schema"] = put("bundle/tool.json", b"fixture")
++    request["dependency_lock"] = put("bundle/lock.json", lock)
++    request["policy"] = put("bundle/policy.json", bodies["cloud-deployment-policy/v1"])
++    request["verification_profile"] = dict(id="health", version="1",
++        **put("bundle/profile.json", bodies["cloud-verification-profile/v1"]))
++    evidence = f"specs/cloud-orchestration/verification/T-002/cloud/{request['run_id']}/{request['unit_id']}"
++    request["local_context"] = dict(workspace_anchor="CLOUD_WORKSPACE_ROOT",
++        artifact_root="bundle", unit_roots=["bundle/unit"], evidence_directory=evidence,
++        feature="cloud-orchestration", task_id="T-002",
++        ownership=put("bundle/ownership.json", bodies["cloud-ownership/v1"]),
++        provider_config=put("bundle/provider.json", b'{"synthetic":true}'))
++    (root / evidence).mkdir(parents=True, exist_ok=True)
++    return request
++
++
+ def nodes(value, path=()):
+     yield path, value
+     if isinstance(value, dict):
+@@ -206,7 +258,7 @@
+             ROOT / "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+             "schema_oracle",
+         )
+-        self.f = fixtures()
++        self.f = {**fixtures(), **local_bodies()}
+         self.temp = tempfile.TemporaryDirectory(prefix="cloud-contracts-")
+         self.addCleanup(self.temp.cleanup)
+         self.root = Path(self.temp.name)
+@@ -782,6 +834,7 @@
+                     optional = (
+                         {"native_operation_id"}
+                         if kind == "cloud-operation-result/v1" and not path
++                        else {"local_context"} if kind == "cloud-run-request/v1" and not path
+                         else set()
+                     )
+                     self.assertEqual(
+@@ -839,5 +892,238 @@
+         self.assertEqual(self.c.read_verified(self.root, original), data)
+ 
+ 
++    def test_repair_local_context_schema_and_each_field(self):
++        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
++        self.both(request, True)
++        for path, node in nodes(request["local_context"]):
++            full = ("local_context",) + path
++            if isinstance(node, dict):
++                for key in list(node) + ["unknown"]:
++                    bad = copy.deepcopy(request)
++                    if key == "unknown":
++                        at(bad, full)[key] = True
++                    else:
++                        del at(bad, full)[key]
++                    self.both(bad, False)
++            elif not isinstance(node, list):
++                bad = copy.deepcopy(request)
++                at(bad, full[:-1])[full[-1]] = {}
++                self.both(bad, False)
++        for field, value in [("workspace_anchor", "HOME"), ("task_id", "T-2"),
++                             ("artifact_root", "../escape"), ("feature", "a/b"),
++                             ("unit_roots", [])]:
++            bad = copy.deepcopy(request)
++            bad["local_context"][field] = value
++            self.both(bad, False)
++
++        bad = copy.deepcopy(request)
++        bad["local_context"]["unit_roots"] *= 2
++        self.rejects(bad)  # existing structural oracle does not implement uniqueItems
++        self.assertTrue(self.schema(request["schema"])["properties"]["local_context"]["properties"]["unit_roots"]["uniqueItems"])
++
++    def test_repair_discovery_and_honest_unpublished_errors(self):
++        for owner in (None, "terraform", "sam", "cloudformation", "azd", "bicep", "cdk"):
++            request = dict(fixtures()["cloud-run-request/v1"], operation="route", owner=owner, route=None)
++            self.both(request, True)
++            self.both(dict(request, operation="apply"), False)
++        original = self.f["cloud-operation-result/v1"]
++        for result, state in [("BLOCKED", "BLOCKED"), ("FAIL", "FAILED")]:
++            good = dict(original, result=result, state=state, evidence_manifest_path=None)
++            self.both(good, True)
++            self.both(dict(good, native_operation_id="submitted"), False)
++        for result, state in [("PASS", "PLANNED"), ("NO_CHANGE", "NO_CHANGE"), ("UNKNOWN", "UNKNOWN")]:
++            self.both(dict(original, result=result, state=state,
++                error_code="UNCERTAIN" if result == "UNKNOWN" else None, evidence_manifest_path=None), False)
++
++    def test_repair_explicit_phase_preserves_legacy_integrity_api(self):
++        from unittest.mock import patch
++        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
++        rr = self.put("request.json", request)
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
++            self.c.verify_binding(self.root, rr, None, now=NOW, operation="prepare")
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_binding(self.root, rr, None, now=NOW, operation="apply")
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_binding(self.root, rr, None, now=NOW, operation="route")
++
++    def test_repair_physical_workspace_and_declared_boundary(self):
++        from unittest.mock import patch
++        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
++            self.assertEqual(self.c.workspace_root(), self.root)
++            files = self.c.verify_local_context(self.root, request, execution=True)
++            self.assertIn("bundle/unit/source.bin", files)
++            # A real recursive scan must expose undeclared conflicting metadata to the router.
++            (self.root / "bundle/unit/nested").mkdir()
++            (self.root / "bundle/unit/nested/main.tf").write_text("synthetic")
++            self.assertIn("bundle/unit/nested/main.tf", self.c.verify_local_context(self.root, request))
++            for field, value in [("artifact_root", "other"), ("unit_roots", ["outside"]),
++                                 ("evidence_directory", "bundle/unit"),
++                                 ("evidence_directory", "specs/wrong/verification/T-002/cloud/run-1/unit-1")]:
++                bad = copy.deepcopy(request)
++                bad["local_context"][field] = value
++                with self.assertRaises(self.c.ContractError):
++                    self.c.verify_local_context(self.root, bad)
++            link = self.root / "bundle/unit/link"
++            link.symlink_to(self.root / "bundle/unit/source.bin")
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_local_context(self.root, request)
++            link.unlink()
++            for field in ("ownership", "provider_config"):
++                dest = self.root / request["local_context"][field]["path"]
++                data = dest.read_bytes()
++                dest.write_bytes(data + b" ")
++                with self.assertRaises(self.c.ContractError):
++                    self.c.verify_local_context(self.root, request)
++                dest.write_bytes(data)
++        for value in ("", "relative", str(self.root / "..")):
++            with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": value}):
++                with self.assertRaises(self.c.ContractError):
++                    self.c.workspace_root()
++        link = self.root / "workspace-link"
++        link.symlink_to(self.root, target_is_directory=True)
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(link)}):
++            with self.assertRaises(self.c.ContractError):
++                self.c.workspace_root()
++
++
++
++    def test_repair_workspace_control_bytes_are_typed_blocked(self):
++        from unittest.mock import patch
++        for value in (str(self.root) + "\x00", str(self.root) + "\n", "/", str(self.root) + "//"):
++            with self.subTest(value=repr(value)), patch.object(self.c.os, "environ", {"CLOUD_WORKSPACE_ROOT": value}):
++                with self.assertRaises(self.c.ContractError):
++                    self.c.workspace_root()
++
++    def test_repair_context_cross_artifact_controls(self):
++        from unittest.mock import patch
++        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
++            # Rehash edited bodies so these exercise semantic checks, not stale outer hashes.
++            for body_field, mutation in [
++                ("policy", lambda b: b["allowed_scopes"][0].update(region="wrong")),
++                ("verification_profile", lambda b: b.update(id="wrong")),
++                ("verification_profile", lambda b: b.update(required_check_ids=["network"])),
++                ("ownership", lambda b: b["owners"][0].update(root="outside")),
++                ("ownership", lambda b: b["owners"].append(dict(owner="terraform", root="bundle/unit"))),
++            ]:
++                bad = copy.deepcopy(request)
++                container = bad["local_context"] if body_field == "ownership" else bad
++                dest = self.root / container[body_field]["path"]
++                original = dest.read_bytes()
++                value = json.loads(original)
++                mutation(value)
++                raw = encode(value)
++                dest.write_bytes(raw)
++                container[body_field]["sha256"] = hashlib.sha256(raw).hexdigest()
++                with self.subTest(body=body_field), self.assertRaises(self.c.ContractError):
++                    self.c.verify_local_context(self.root, bad, execution=True)
++                dest.write_bytes(original)
++            for field in ("policy", "dependency_lock", "verification_profile"):
++                bad = copy.deepcopy(request)
++                data = (self.root / bad[field]["path"]).read_bytes()
++                (self.root / "outside.json").write_bytes(data)
++                bad[field]["path"] = "outside.json"
++                with self.subTest(ref=field), self.assertRaises(self.c.ContractError):
++                    self.c.verify_local_context(self.root, bad)
++            # Recursive dependency references are not exempt from the declared artifact root.
++            bad = copy.deepcopy(request)
++            lock_path = self.root / bad["dependency_lock"]["path"]
++            original = lock_path.read_bytes()
++            lock = json.loads(original)
++            lock["upstream"][0]["root"] = "outside"
++            for f in lock["upstream"][0]["files"]:
++                f["path"] = f["path"].replace("bundle/upstream", "outside")
++                f["references"] = [r.replace("bundle/upstream", "outside") for r in f["references"]]
++                dest = self.root / f["path"]
++                dest.parent.mkdir(exist_ok=True)
++                dest.write_bytes(b"fixture")
++            lock_path.write_bytes(encode(lock))
++            bad["dependency_lock"]["sha256"] = hashlib.sha256(encode(lock)).hexdigest()
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_local_context(self.root, bad)
++            lock_path.write_bytes(original)
++            # Existing evidence ancestors and scan directories cannot be links.
++            evidence = self.root / request["local_context"]["evidence_directory"]
++            evidence.rmdir()
++            evidence.symlink_to(self.root / "bundle", target_is_directory=True)
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_local_context(self.root, request)
++            evidence.unlink()
++            link = self.root / "bundle/unit/nested-link"
++            link.symlink_to(self.root / "bundle", target_is_directory=True)
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_local_context(self.root, request)
++            link.unlink()
++            link = self.root / "bundle/unit/linked-file"
++            os.link(self.root / "bundle/unit/source.bin", link)
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_local_context(self.root, request)
++
++    def test_repair_phase_receipt_and_evidence_path_controls(self):
++        from unittest.mock import patch
++        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
++        rr = self.put("request.json", request)
++        evidence = request["local_context"]["evidence_directory"]
++        changes = self.put(evidence + "/changes.json", {"synthetic": True})
++        preview = dict(fixtures()["cloud-preview/v1"], request=rr,
++            dependency_lock=request["dependency_lock"], policy=request["policy"],
++            verification_profile={k: request["verification_profile"][k] for k in ("path", "sha256")},
++            changes=changes, semantic_sha256=changes["sha256"])
++        pr = self.put(evidence + "/preview.json", preview)
++        receipt = dict(fixtures()["cloud-authorization-receipt/v1"], request=rr, preview=pr,
++            dependency_lock=request["dependency_lock"], policy=request["policy"],
++            verification_profile=preview["verification_profile"])
++        receipt["ci"]["environment"] = "sandbox-apply"
++        ar = self.put(evidence + "/receipt.json", receipt)
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
++            self.c.verify_binding(self.root, rr, pr, ar, now=NOW, operation="apply")
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_binding(self.root, rr, pr, ar, now=NOW)  # no implicit bound phase
++            for case in ("stage", "preview-path", "receipt-path", "changes-path", "request-digest"):
++                changed_pr, changed_ar = pr, ar
++                if case == "stage":
++                    changed_ar = self.put(evidence + "/wrong-stage.json", dict(receipt, operation="prepare"))
++                elif case == "preview-path":
++                    changed_pr = self.put("outside-preview.json", preview)
++                    changed_ar = None
++                elif case == "receipt-path":
++                    changed_ar = self.put("outside-receipt.json", receipt)
++                elif case == "changes-path":
++                    changed = self.put("outside-changes.json", {"synthetic": True})
++                    changed_pr = self.put(evidence + "/wrong-changes.json", dict(preview, changes=changed))
++                    changed_ar = None
++                else:
++                    changed_pr = self.put(evidence + "/wrong-request.json", dict(preview, request=dict(rr, sha256="b" * 64)))
++                    changed_ar = None
++                with self.subTest(case=case), self.assertRaises(self.c.ContractError):
++                    self.c.verify_binding(self.root, rr, changed_pr, changed_ar, now=NOW, operation="apply")
++
++
++
++    def test_repair_predecessor_paths_are_separate_run_unit_evidence_not_authority(self):
++        from unittest.mock import patch
++        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
++        prior_dir = "specs/cloud-orchestration/verification/T-001/cloud/prior-run/prior-unit"
++        (self.root / prior_dir).mkdir(parents=True)
++        observation = self.put(prior_dir + "/observation.json", {"synthetic": True})
++        prior = dict(fixtures()["cloud-verification/v1"], run_id="prior-run", unit_id="prior-unit",
++                     profile=request["verification_profile"])
++        prior["checks"][0]["observation"] = observation
++        reference = self.put(prior_dir + "/verification.json", prior)
++        request["predecessor_receipts"] = [dict(unit_id="prior-unit", **reference)]
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
++            # Only integrity and identity/path checks; admission still denies predecessors.
++            self.c.verify_local_context(self.root, request)
++            for case in ("path", "unit"):
++                bad = copy.deepcopy(request)
++                if case == "path":
++                    bad["predecessor_receipts"][0].update(self.put("outside-prior.json", prior))
++                else:
++                    bad["predecessor_receipts"][0]["unit_id"] = "other-unit"
++                with self.subTest(case=case), self.assertRaises(self.c.ContractError):
++                    self.c.verify_local_context(self.root, bad)
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)
+--- pre-repair/tests/cloud-orchestration-execution.tests.py
++++ repaired/tests/cloud-orchestration-execution.tests.py
+@@ -33,6 +33,8 @@
+ TENANT = "00000000-0000-0000-0000-000000000002"
+ CLIENT = "00000000-0000-0000-0000-000000000003"
+ OBJECT = "00000000-0000-0000-0000-000000000004"
++APPLY_CLIENT = "00000000-0000-0000-0000-000000000005"
++APPLY_OBJECT = "00000000-0000-0000-0000-000000000006"
+ OIDC_URL = "https://pipelines.actions.githubusercontent.com/synthetic/idtoken?api-version=2.0"
+ 
+ 
+@@ -115,9 +117,9 @@
+         self.account = "123456789012"
+         self.lease_end = NOW + 300
+         self.azure_claims = dict(
+-            oid=OBJECT,
++            oid=OBJECT if stage == "prepare" else APPLY_OBJECT,
+             tid=TENANT,
+-            appid=CLIENT,
++            appid=CLIENT if stage == "prepare" else APPLY_CLIENT,
+             aud="https://management.azure.com/",
+             iat=NOW - 10,
+             nbf=NOW - 10,
+@@ -176,7 +178,7 @@
+             assert method == "POST"
+             args = parse_qs(body.decode())
+             assert args == dict(
+-                client_id=[CLIENT],
++                client_id=[self.azure_claims["appid"]],
+                 grant_type=["client_credentials"],
+                 scope=["https://management.azure.com/.default"],
+                 client_assertion_type=["urn:ietf:params:oauth:client-assertion-type:jwt-bearer"],
+@@ -201,8 +203,19 @@
+         self.evidence = self.root / "evidence"
+         self.evidence.mkdir()
+         self.writes = []
++        self.local_mode = False
++        self.anchor = patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)})
++        self.anchor.start()
++        self.addCleanup(self.anchor.stop)
+ 
+     def put(self, path, value):
++        if self.local_mode:
++            if path in ("source.bin", "compiled.bin", "asset.bin", "parameters.bin", "module.bin"):
++                path = "bundle/unit/" + path
++            elif path in ("policy.json", "profile.json", "lock.json", "tool.json") or path.startswith("upstream/"):
++                path = "bundle/" + path
++            elif path in ("preview.json", "changes.json"):
++                path = self.request["local_context"]["evidence_directory"] + "/" + path
+         data = value if isinstance(value, bytes) else encode(value)
+         dest = self.root / path
+         dest.parent.mkdir(parents=True, exist_ok=True)
+@@ -210,6 +223,7 @@
+         return dict(path=path, sha256=hashlib.sha256(data).hexdigest())
+ 
+     def setup_case(self, provider="aws", stage="prepare"):
++        self.local_mode = False
+         spec = importlib.util.spec_from_file_location(
+             "contract_fixtures", ROOT / "tests/cloud-orchestration-contracts.tests.py"
+         )
+@@ -226,8 +240,8 @@
+         profile_ref = self.put("profile.json", b"synthetic-profile")
+         request = fixtures["cloud-run-request/v1"]
+         request.update(
+-            operation=stage,
+-            environment="sandbox-" + stage,
++            operation="apply",
++            environment="sandbox",
+             provider=provider,
+             dependency_lock=lock_ref,
+             policy=policy_ref,
+@@ -238,6 +252,12 @@
+             request["scope"].update(account_id=SUBSCRIPTION, region="eastus", deployment_scope="group-1")
+         for item in request["input_artifacts"]:
+             self.put(item["path"], b"fixture")
++        module.install_local_context(self.root, request)
++        self.local_mode = True
++        self.evidence = self.root / request["local_context"]["evidence_directory"]
++        policy_ref = request["policy"]
++        lock_ref = request["dependency_lock"]
++        profile_ref = {k: request["verification_profile"][k] for k in ("path", "sha256")}
+         self.request = request
+         self.request_ref = self.put("request.json", request)
+         self.preview_ref = None
+@@ -271,6 +291,7 @@
+             ref="refs/heads/main",
+             operation=stage,
+             environment="sandbox-" + stage,
++            target_environment="sandbox",
+             environment_id=99,
+             account_id=request["scope"]["account_id"],
+             region=request["scope"]["region"],
+@@ -282,8 +303,8 @@
+             ttl_seconds=120,
+             aws_role_arn=f"arn:aws:iam::123456789012:role/cloud-{stage}",
+             azure_tenant=TENANT,
+-            azure_client=CLIENT,
+-            azure_principal=OBJECT,
++            azure_client=CLIENT if stage == "prepare" else APPLY_CLIENT,
++            azure_principal=OBJECT if stage == "prepare" else APPLY_OBJECT,
+         )
+         self.runtime = self.a.Runtime("synthetic-github-bearer", OIDC_URL, "synthetic-oidc-bearer")
+         self.boundary = self.a.WriteBoundary(
+@@ -311,10 +332,10 @@
+                 with self.subTest(provider=provider, stage=stage):
+                     self.setup_case(provider, stage)
+                     # Each fixture is an independent protected job evidence directory.
+-                    for p in self.evidence.iterdir():
++                    for p in self.evidence.glob("*.authorization.json"):
+                         p.unlink()
+                     ref, _ = self.write()
+-                    receipt = contracts.parse_artifact(contracts.read_verified(self.evidence, ref))
++                    receipt = contracts.parse_artifact(contracts.read_verified(self.root, ref))
+                     self.assertEqual(receipt["schema"], "cloud-authorization-receipt/v1")
+                     for field in ("run_id", "unit_id", "provider", "scope", "dependency_lock", "policy"):
+                         self.assertEqual(receipt[field], self.request[field])
+@@ -338,7 +359,7 @@
+                     self.assertEqual(receipt["subject"], self.transport.subject)
+                     self.assertEqual(receipt["issuer"], "https://token.actions.githubusercontent.com")
+                     self.assertEqual(
+-                        receipt["principal"], self.transport.principal if provider == "aws" else OBJECT
++                        receipt["principal"], self.transport.principal if provider == "aws" else self.transport.azure_claims["oid"]
+                     )
+                     self.assertEqual(
+                         receipt["approval_evidence"],
+@@ -490,7 +511,7 @@
+             self.request_ref = self.put("request.json", self.request)
+             self.denied()
+         for field, value in [
+-            ("operation", "apply"),
++            ("operation", "prepare"),
+             ("environment", "other"),
+             ("run_id", "other"),
+             ("unit_id", "other"),
+@@ -520,8 +541,8 @@
+         with self.assertRaises(self.a.AdmissionDenied):
+             self.write(other)
+         self.assertEqual(self.writes, ["write"])
+-        data = contracts.read_verified(self.evidence, ref)
+-        (self.evidence / ref["path"]).write_bytes(data.replace(b'"prepare"', b'"apply"'))
++        data = contracts.read_verified(self.root, ref)
++        (self.root / ref["path"]).write_bytes(data.replace(b'"prepare"', b'"apply"'))
+         with self.assertRaises(self.a.AdmissionDenied):
+             self.write(other)
+         self.assertEqual(self.writes, ["write"])
+@@ -632,7 +653,7 @@
+         for case in ("expiry", "swap", "revoked"):
+             with self.subTest(case=case):
+                 self.setup_case("azure")
+-                for p in self.evidence.iterdir():
++                for p in self.evidence.glob("*.authorization.json"):
+                     p.unlink()
+ 
+                 def scan(_):
+@@ -673,7 +694,8 @@
+                 self.put(path, b"changed")
+                 self.denied()
+         self.setup_case(stage="apply")
+-        preview = json.loads((self.root / "preview.json").read_bytes())
++        assert self.preview_ref is not None
++        preview = json.loads((self.root / self.preview_ref["path"]).read_bytes())
+         preview["preview_identity"] = "other-native-preview"
+         self.preview_ref = self.put("preview.json", preview)
+         self.denied()
+@@ -783,5 +805,70 @@
+             self.assertNotIn("*", role["Actions"])
+ 
+ 
++    def test_repair_same_request_prepare_preview_apply_separate_policies(self):
++        for provider in ("aws", "azure"):
++            self.setup_case(provider, "prepare")
++            for file in self.evidence.iterdir():
++                file.unlink()
++            request_bytes = (self.root / self.request_ref["path"]).read_bytes()
++            request_ref = dict(self.request_ref)
++            prepare_policy = self.policy
++            prepare_ref, _ = self.write(mutation="prepare-preview")
++            prepare_receipt = contracts.read_artifact(self.root, prepare_ref)
++            self.assertEqual(prepare_receipt["operation"], "prepare")
++            # Separate protected apply identity; never rewrite the frozen request.
++            self.policy = replace(self.policy, operation="apply", environment="sandbox-apply",
++                aws_role_arn="arn:aws:iam::123456789012:role/cloud-apply",
++                azure_client=APPLY_CLIENT, azure_principal=APPLY_OBJECT)
++            self.transport = DeterministicTransport(provider, "apply")
++            changes = self.put("changes.json", b"synthetic-preview")
++            preview = dict(schema="cloud-preview/v1",
++                **{k: self.request[k] for k in ("run_id", "unit_id", "provider", "scope", "policy", "dependency_lock")},
++                request=self.request_ref, verification_profile={k: self.request["verification_profile"][k] for k in ("path", "sha256")},
++                preview_identity="synthetic-preview", changes=changes, semantic_sha256=changes["sha256"],
++                replacements=[], deletes=[], created_at=utc(NOW), expires_at=utc(NOW + 300))
++            self.preview_ref = self.put("preview.json", preview)
++            self.transport.run["display_title"] = f"cloud:{request_ref['sha256']}:{self.preview_ref['sha256']}"
++            self.boundary = self.a.WriteBoundary(self.policy, self.runtime, self.evidence,
++                transport=self.transport, clock=lambda: NOW)
++            apply_ref, _ = self.write(mutation="apply-exact-preview")
++            apply_receipt = contracts.read_artifact(self.root, apply_ref)
++            self.assertEqual(apply_receipt["operation"], "apply")
++            self.assertNotEqual(prepare_receipt["ci"]["environment"], apply_receipt["ci"]["environment"])
++            self.assertEqual(prepare_policy.policy_sha256, self.policy.policy_sha256)
++            self.assertNotEqual(prepare_receipt["subject"], apply_receipt["subject"])
++            self.assertNotEqual(prepare_receipt["principal"], apply_receipt["principal"])
++            self.assertEqual(prepare_receipt["request"], apply_receipt["request"])
++            self.assertEqual(request_bytes, (self.root / request_ref["path"]).read_bytes())
++            contracts.verify_binding(self.root, request_ref, self.preview_ref, apply_ref,
++                now=utc(NOW), operation="apply")
++        self.assertEqual(len(self.writes), 4)
++
++    def test_repair_stage_target_context_and_digest_controls_zero_submissions(self):
++        for case in ("phase", "target", "protected", "digest", "missing-context", "missing-anchor", "evidence-root", "preview"):
++            with self.subTest(case=case):
++                self.setup_case(stage="apply")
++                if case == "phase":
++                    self.policy = replace(self.policy, operation="prepare")
++                elif case == "target":
++                    self.policy = replace(self.policy, target_environment="production")
++                elif case == "protected":
++                    self.transport.claims["environment"] = "sandbox-prepare"
++                elif case == "digest":
++                    self.policy = replace(self.policy, policy_sha256="b" * 64)
++                elif case == "missing-context":
++                    del self.request["local_context"]
++                    self.request_ref = self.put("request.json", self.request)
++                elif case == "missing-anchor":
++                    os.environ.pop("CLOUD_WORKSPACE_ROOT", None)
++                elif case == "evidence-root":
++                    self.evidence = self.root
++                else:
++                    self.preview_ref = None
++                self.boundary = self.a.WriteBoundary(self.policy, self.runtime, self.evidence,
++                    transport=self.transport, clock=lambda: NOW)
++                self.denied()
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)
+--- pre-repair/templates/cloud/iam/trusted-policy.example.py
++++ repaired/templates/cloud/iam/trusted-policy.example.py
+@@ -1,11 +1,9 @@
+ """INERT external policy sketch; never import from deployment inputs.
+ 
+ Replace placeholders/zero IDs via owner review in the pinned executor repository.
+-One file per stage. Receipt policy digest binds these exact external policy bytes.
++One file per stage. Both pin the SAME reviewed deployment-policy JSON digest.
++Trusted Python configuration is protected by the workflow/executor revision.
+ """
+-
+-import hashlib
+-from pathlib import Path
+ 
+ from cloud_authorization import Policy
+ 
+@@ -18,11 +16,12 @@
+     ref="refs/heads/main",
+     operation="prepare",
+     environment="sandbox-prepare",
++    target_environment="sandbox",
+     environment_id=0,
+     account_id="REPLACE_AWS_ACCOUNT_ID",
+     region="REPLACE_AWS_REGION",
+     deployment_scope="REPLACE_STACK",
+-    policy_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
++    policy_sha256="REPLACE_64_HEX_REVIEWED_DEPLOYMENT_POLICY_JSON_SHA256",
+     actors=((0, "REPLACE_OPERATOR_LOGIN"),),
+     reviewers=((0, "REPLACE_REVIEWER_LOGIN"),),
+     exclusive_repository="REPLACE_ORG/REPLACE_CONTROL_REPO",
+@@ -31,4 +30,4 @@
+ )
+ # Azure policy uses provider='azure', exact subscription/resource-group/region,
+ # and distinct azure_tenant, azure_client and azure_principal per stage. The
+-# policy's sha binds this external configuration, not a self-authored approval.
++# policy_sha256 pins data in cloud-deployment-policy/v1, never this Python file.
+--- pre-repair/templates/cloud/iam/README.md
++++ repaired/templates/cloud/iam/README.md
+@@ -62,6 +62,13 @@
+ 
+ Dispatch a new run for each stage. The authenticated run's `display_title` is
+ `cloud:<request SHA-256>:<preview SHA-256 or none>`; this must match exactly.
++The same frozen request bytes use `operation: apply` and logical target
++`environment: sandbox` throughout prepare and apply. Each trusted `Policy` has
++`operation` (actual prepare/apply stage), `environment` (protected CI environment,
++e.g. sandbox-prepare), and separate `target_environment: sandbox`. Both stage
++policies pin the **same deployment-policy JSON SHA-256**; never hash the two
++Python policy files as deployment-policy data. The protected executor/workflow
++revision protects executable trusted configuration. No data body is imported.
+ The request binds every input, lock, target policy and verification profile.
+ Apply must bind the exact preview. Display/review these artifacts before native
+ approval. Artifact producer run IDs are locators, not authority.
+@@ -71,9 +78,12 @@
+ request endpoint/token. Tokens are credentials, not approval flags. Call:
+ 
+ ```python
++workspace_root = cloud_contracts.workspace_root()
++# Pre-create this exact private directory safely; never follow links or reuse markers.
++protected_run_evidence_directory = workspace_root / request["local_context"]["evidence_directory"]
+ boundary = WriteBoundary(policy, runtime, protected_run_evidence_directory)
+ receipt_ref, native_result = boundary.write(
+-    artifact_root, request_ref, preview_ref,
++    workspace_root, request_ref, preview_ref,
+     mutation_id="stable-adapter-operation-id",
+     submit=one_native_mutation, scan=trusted_secret_scanner,
+ )
+@@ -118,3 +128,95 @@
+ request contracts and decision behavior only. Actual federation, IAM permissions,
+ GitHub scheduling/serialization and native Windows are **unverified**. No live
+ resource operation, real approval or credential lease was used for these tests.
++
++## Shared local input contracts (T-002 integration repair)
++
++Set `CLOUD_WORKSPACE_ROOT` explicitly to the physical absolute workspace directory
++on each host. No cwd or request-parent fallback exists. The same relative paths
++and exact bytes may be transported to a different physical checkout. The anchor
++selects a filesystem boundary, not authorization. Provider entry points must map
++missing/invalid context or `ContractError` to typed BLOCKED, never attempt writes.
++
++The strict optional `cloud-run-request/v1.local_context` object contains:
++
++- `workspace_anchor`: constant `CLOUD_WORKSPACE_ROOT`;
++- `artifact_root`: canonical relative directory containing **all** input artifacts,
++  dependency files/tool schemas, ownership, provider config, policy and profile;
++- `unit_roots`: nonempty unique relative directories inside artifact_root;
++- `feature`, `task_id`, `evidence_directory`: the latter must equal
++  `specs/<feature>/verification/<task_id>/cloud/<run_id>/<unit_id>` and be disjoint
++  from artifact_root. Preview, changes and receipt references stay inside it;
++- `ownership`, `provider_config`: exact `{path, sha256}` references.
++
++Every reference uses the workspace anchor, including WriteBoundary's returned
++receipt reference. The request manifest itself may be a separate contained
++workspace file; it is never an implicit root. Predecessor references must name
++separately validated run/unit verification evidence (integrity only); admission
++still blocks all predecessors until T-010. Do not infer predecessor authority.
++
++Three closed data-body schemas (all require their named `/v1` schema field):
++
++- `cloud-ownership/v1`: `owners: [{owner, root}]` and
++  `existing_resources: [{resource_id, owner, attachments: [{resource_type, name}]}]`.
++  Owner is bicep, cdk, terraform, sam, cloudformation or azd. Attachments are
++  explicit additive intentions, not import or permission to mutate the parent.
++  Empty inventory permits discovery, not execution. For `operation: route`, owner
++  may be null/unsupported and route null. Other requests require the supported
++  azure/bicep/azure-bicep or aws/cdk/aws-cdk tuple.
++- `cloud-deployment-policy/v1`: nonempty `allowed_scopes` (account_id, region,
++  deployment_scope), nonempty `allowed_resource_types` strings, `backup_required`
++  boolean, `private_networking: true`, `budget: {ceiling_minor_units, currency}`,
++  `evidence: {residency, retention_days, access: "restricted"}`. Ceiling uses
++  positive integer minor currency units, currency is three uppercase letters;
++  retention is positive integer days. These inputs are owner-supplied, not a
++  quote, residency attestation, or proof that policy was enforced by a provider.
++- `cloud-verification-profile/v1`: `id`, `version`, nonempty unique
++  `required_check_ids`, positive integer `max_age_seconds`. The profile id/version
++  must match the request reference. Context verification requires resource,
++  network, identity, monitoring and workload checks, plus backup when policy
++  requires it. Later collectors must actually execute all declared checks and
++  enforce freshness; this contract does not produce a health verdict.
++
++`provider_config` is opaque hash-bound data at the shared layer. Each provider
++must strictly validate its own settings before consuming it; no common resource
++DSL or execution engine is supplied. All integer fields are capped at 2147483647.
++
++Public helpers in `cloud_contracts`:
++
++```python
++workspace_root() -> Path
++verify_local_context(root, request, *, execution=False) -> list[str]
++verify_binding(root, request_ref, preview_ref, receipt_ref=None, *, now, operation=None) -> None
++```
++
++`verify_local_context` validates physical containment, hashes and bodies, then
++returns every regular file recursively scanned under the declared unit roots.
++It rejects links (including directory symlinks), hardlinks and special files.
++The router must detect real owner metadata from **all** returned files and combine
++that with inventory; the inventory must never hide an undeclared conflicting
++owner. This helper does not classify IaC or validate provider-config contents.
++Execution additionally requires apply intent and a single supported inventory
++owner. A successful scan is not a complete lock proof: adapters still call
++`verify_lock` with their independently observed actual transitive reads/tools.
++
++`verify_binding(..., operation="prepare")` accepts a missing preview;
++`operation="apply"` requires a fresh bound preview. Receipt operation must match
++that explicit phase. Protected CI environment is checked by authenticated
++admission against external Policy, not against the logical target. Omitting
++operation is allowed **only** for old integrity-only requests without
++local_context and preserves their old operation/environment comparisons. It is
++not an execution fallback; WriteBoundary always supplies its trusted actual phase
++and requires the context. Offline receipt checks grant no authority.
++
++`cloud-operation-result/v1.evidence_manifest_path` may be null only for
++pre-publication BLOCKED/FAIL without a native_operation_id. PASS, NO_CHANGE,
++UNKNOWN and results carrying native IDs require genuine evidence paths. The
++caller must know whether submission occurred; omitting an ID cannot convert an
++uncertain submitted operation into a pre-publication failure. Invalid identity
++still uses cloud-input-error/v1. Never publish into an unsafe requested output.
++
++Remaining provider obligations include safe creation of the private evidence
++directory, complete owner detection, strict provider-config validation, actual
++IaC/policy enforcement, normalized preview semantics, immutable in-memory mutation
++inputs, tool closure checks, observations and recovery. POSIX no-follow primitives
++are required; unsupported filesystems fail closed. No live IAM or Windows claim.

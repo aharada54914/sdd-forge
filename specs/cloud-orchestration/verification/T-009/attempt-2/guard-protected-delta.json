@@ -1,0 +1,17 @@
+{
+  "before_sha256": "35645f911bdc7eb82ed96cf4a8ac59ab165be9d53f2bf5d215d8b1536b0ca224",
+  "after_sha256": "4c43639cd9b90b2c7c4ac83d80b41b3808ad9f865550e465cb1db63743a523ae",
+  "added": [
+    "contracts/cloud-verification-registry.schema.json",
+    "contracts/selected-verification-plan-v2.schema.json",
+    "contracts/verification-contract-v3.schema.json",
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+    "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+    "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
+    "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+    "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+    "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py"
+  ]
+}

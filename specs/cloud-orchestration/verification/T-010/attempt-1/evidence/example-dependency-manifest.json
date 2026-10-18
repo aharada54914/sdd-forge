@@ -1,0 +1,56 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-010",
+  "run_id": "01a14f33-2447-79d0-8195-087bbe42669c",
+  "session_id": "01a14f33-2447-79d0-8195-087bbe42669c",
+  "agent_instance_id": "01a14f33-2447-79d0-8195-087bbe42669c",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T13:32:07Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/README.md",
+      "sha256": "0caceb7832a0c3e467042a760789f03a47521eaca375e712ea15120931e2ea5a"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/app.js",
+      "sha256": "710c6889188eac80e9f5e6b505c3796ded52747c9a56c305c58a53d05f3c2b25"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/cdk.json",
+      "sha256": "7802e394180f0d618f4caf7d1a6647f406ad327fa0aaa38c84b8b6b8471b24a5"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json",
+      "sha256": "b106084fff5e18ca94260509133337891b58d5269d77166ff9320a36419cccec"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/package.json",
+      "sha256": "beddc07bfbf3d198ca58b3d500e746b7bd4ebc14a25b469033fb1c41ba50a00b"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/README.md",
+      "sha256": "18d4bac06d053a486ab77936c75cd7e4f0824fff90728431cbfdf7f89d9cc873"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/private-vm.bicep",
+      "sha256": "81ba478fb3744e96496243358f3aef3477646027a58e1220f3c16b7b428c9422"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/cloud_dependencies.py",
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+    "tests/cloud-orchestration-verification.tests.py",
+    "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+    "reports/implementation/cloud-orchestration/T-010.md",
+    "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/",
+    "specs/cloud-orchestration/verification/T-010/attempt-1/task-input-manifest.json"
+  ]
+}

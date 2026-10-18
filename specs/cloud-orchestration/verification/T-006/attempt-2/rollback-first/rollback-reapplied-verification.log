@@ -1,0 +1,31 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py
+test_emitted_contracts_are_closed (__main__.AwsObservationOrchestration.test_emitted_contracts_are_closed) ... ok
+test_legacy_physical_config_rejected_before_admission (__main__.AwsObservationOrchestration.test_legacy_physical_config_rejected_before_admission) ... ok
+test_native_healthy_substitute_response_blocks (__main__.AwsObservationOrchestration.test_native_healthy_substitute_response_blocks) ... ok
+test_original_native_operation_not_copied_receipt (__main__.AwsObservationOrchestration.test_original_native_operation_not_copied_receipt) ... ok
+test_publication_fresh_checks_never_reuse_saved_success (__main__.AwsObservationOrchestration.test_publication_fresh_checks_never_reuse_saved_success) ... ok
+test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) ... ok
+test_unknown_create_ids_resolved_without_request_edits (__main__.AwsObservationOrchestration.test_unknown_create_ids_resolved_without_request_edits) ... ok
+test_cli_without_trusted_executor_rejects_verify (__main__.EntryPreflight.test_cli_without_trusted_executor_rejects_verify) ... ok
+test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract) ... ok
+test_shared_reducer_available (__main__.EntryPreflight.test_shared_reducer_available) ... ok
+test_backup_discovery_without_future_identifier (__main__.NativeCollectorCases.test_backup_discovery_without_future_identifier) ... ok
+test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) ... ok
+test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) ... ok
+test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) ... ok
+test_optional_backup_is_omitted_only_by_original_profile (__main__.NativeCollectorCases.test_optional_backup_is_omitted_only_by_original_profile) ... ok
+test_all_checks_synthetic_never_complete (__main__.ReducerCases.test_all_checks_synthetic_never_complete) ... ok
+test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) ... ok
+test_context_shape_and_window (__main__.ReducerCases.test_context_shape_and_window) ... ok
+test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) ... ok
+test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) ... ok
+test_each_payload_counterpart_mismatch (__main__.ReducerCases.test_each_payload_counterpart_mismatch) ... ok
+test_profile_policy_and_check_set (__main__.ReducerCases.test_profile_policy_and_check_set) ... ok
+test_query_trace_shape (__main__.ReducerCases.test_query_trace_shape) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 4.233s
+
+OK
+
+Exit code: 0

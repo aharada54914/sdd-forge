@@ -1,0 +1,15 @@
+from pathlib import Path
+import subprocess,json,os,hashlib,sys
+from datetime import datetime,timezone
+base=Path('specs/cloud-orchestration/verification/T-013/preflight-repair'); paths=[str(base/'probes.py'),str(base/'run-mutations.py'),str(base/'evidence/rollback.py')]
+checks=[('execution',[sys.executable,'-B','tests/cloud-orchestration-execution.tests.py']),('contracts',[sys.executable,'-B','tests/cloud-orchestration-contracts.tests.py']),('ruff',['/tmp/cloud-quality-python/bin/python','-m','ruff','check','--config','tests/shared-launch-python/pyproject.toml',*paths]),('mypy',['/tmp/cloud-quality-python/bin/python','-m','mypy','--config-file','tests/shared-launch-python/pyproject.toml',*paths]),('manifest',['bash','plugins/sdd-implementation/scripts/validate-task-input-manifest.sh','--manifest',str(base/'task-input-manifest.json'),'--snapshot-root','/tmp/cloud-t013-preflight-01a14e44/snapshot','--expected-task','T-013']),('report',['bash','plugins/sdd-implementation/scripts/validate-implementation-report.sh','reports/implementation/cloud-orchestration/T-013-preflight-repair.md'])]
+env=dict(os.environ,MYPYPATH='plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts'); records=[]
+for name,command in checks:
+ start=datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'); result=subprocess.run(command,capture_output=True,text=True,env=env)
+ path=base/'evidence'/('after-'+name+'.log'); path.write_text(result.stdout+result.stderr);records.append(dict(check=name,command=command,started_at=start,exit_code=result.returncode,log=str(path),MYPYPATH=env['MYPYPATH'] if name=='mypy' else None));print(name,result.returncode)
+(base/'evidence/final-checks.json').write_text(json.dumps(records,indent=2)+'\n')
+m=json.loads((base/'evidence/supplemental-task-input-manifest.json').read_text()); checks=[]
+for ref in m['allowed_inputs']:
+ current=hashlib.sha256(Path(ref['path']).read_bytes()).hexdigest(); checks.append(dict(**ref,current_sha256=current,unchanged=current==ref['sha256']))
+assert all(x['unchanged'] for x in checks)
+(base/'evidence/input-preservation.json').write_text(json.dumps(checks,indent=2)+'\n')

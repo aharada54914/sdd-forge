@@ -1,0 +1,27 @@
+ticket_id: RT-20261018-CLOUD-OWNER
+status: resolved
+type: ownership-detection-defect
+severity: critical
+target:
+  feature: cloud-orchestration
+  task: T-004
+  files:
+    - plugins/sdd-azure-cloud/scripts/cloud.py
+    - plugins/sdd-azure-cloud/references/local-contract.md
+    - tests/cloud-orchestration-routing.tests.py
+summary: Escaped CloudFormation keys bypass raw-byte owner discovery
+problem: >-
+  Independent evaluator 01a14dbe-2a3a-7221-819e-f459ecb038a2 found that valid
+  JSON with an escaped Resources key is missed by byte predicates. Mixed Bicep
+  and CloudFormation can therefore route as Bicep. Ownership must be determined
+  from decoded JSON; YAML that cannot be unambiguously classified must block.
+expected_fix:
+  - Commit actual failing escaped-key regressions before production changes.
+  - Decode JSON keys for classification and fail closed for ambiguous non-JSON YAML; preserve unrelated JSON and existing owner routes.
+  - Run routing and contract suites, static checks and scoped rollback.
+  - Supply a non-frozen independent-review completion addendum; never rewrite the original report or invent a PASS.
+approval: Existing user approval covers the AC-002 mixed-owner denial and report-evidence correction without new permissions.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1
+resolution: Decoded JSON ownership and typed unresolved YAML denial implemented. Three isolated bypasses failed before the fix; 42 routing and 31 contract tests, static checks and 42-candidate/40-restored rollback passed. Current independent review completion is recorded through a frozen-report addendum; actual cycle-2 verdict remains required.

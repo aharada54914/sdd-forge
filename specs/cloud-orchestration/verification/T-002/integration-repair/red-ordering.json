@@ -1,0 +1,116 @@
+{
+  "commits": [
+    {
+      "commit": "06e55a3701fbfa26131d61b39d60cce53b66166e",
+      "parent": "a6337067ce6a868cf59cac943a519643ecde2851",
+      "tree": "e7fa07ed20e7733dfc367d8fe28ad82a3833873c",
+      "classification": "Initial integration regression Red, before any production repair",
+      "files": {
+        "reports/implementation/cloud-orchestration/T-002-integration-repair.md": "df39158f464b83a1e051e84692b5fcaf2f622827",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/before-admission.log": "1763ff9b7e3e74935adce022d4e46781ef5fe4c1",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/before-contracts.log": "b35a73a88311c37cb2bc9689f8613f0ed7127813",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/before-schema.log": "dfe58496a19dd4ee30cdcb2b135ff4cd885033c2",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/before.json": "e9dde2574df6db7c87d2b6d71bf32c667b8e3c66",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/callers.txt": "9a19e0bda6f030b204c43ebaa40e0b6994397f69",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/input-path-map.json": "f65334eb187f23426ac146042be0058a2c5ea930",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/manifest-validation.log": "a44ac2a4271f192c0e450ffd92df4405d8aa566e",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/preflight.md": "ba05382dd21715727cb2985b5a7b26624e5be6b7",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/production-baseline-git.json": "8c80c0cc7197cf7ff6cab2587f2723c70e087f77",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/production-before.diff": "1b7ef6dbc2c28340b397c979ca772b86b08f2569",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/red-admission.log": "ad8c238509b6ca08d41019023fdc9f6d8de3a363",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/red-contracts.log": "183d6d7a5700dbfb8f0a7a89964085e99c2c3875",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/task-input-manifest.json": "69c491dc2da2e43dc68ed655c06a47ac4a7a3db1",
+        "tests/cloud-orchestration-contracts.tests.py": "cf11c755aaa8babf402f694e79d37deec2e9918c",
+        "tests/cloud-orchestration-execution.tests.py": "28a1116fb5e37fca1fbd329f353273008cf90cad"
+      },
+      "production_paths_in_commit_diff": []
+    },
+    {
+      "commit": "feeb5d7344a7d9d43c65fcc2a2bf5511a783d67e",
+      "parent": "06e55a3701fbfa26131d61b39d60cce53b66166e",
+      "tree": "e3812b66b646c7b907856284867644855cc31fbe",
+      "classification": "Root-control harness failure, NOT product Red",
+      "files": {
+        "specs/cloud-orchestration/verification/T-002/integration-repair/red-root-controls.log": "d37212953e80f220b91e7590a26d0e01b3645cb3",
+        "specs/cloud-orchestration/verification/T-002/integration-repair/root-controls-production.json": "d8a523807c425a376916cbf8022d57911dbbc9ec",
+        "tests/cloud-orchestration-contracts.tests.py": "25800af747bda41a764adbea009f613c5458d4e4"
+      },
+      "production_paths_in_commit_diff": []
+    },
+    {
+      "commit": "d3c1ce886a60165a79c6bf33cadebff8e3f91435",
+      "parent": "feeb5d7344a7d9d43c65fcc2a2bf5511a783d67e",
+      "tree": "db4038b1706844a421dc59be757f953c765878f2",
+      "classification": "Corrected root-control product Red, before control-byte rejection",
+      "files": {
+        "specs/cloud-orchestration/verification/T-002/integration-repair/red-root-controls-corrected.log": "f6e110d8fa4a6aa1239ca1f61ea9e17f7d874b3e",
+        "tests/cloud-orchestration-contracts.tests.py": "6649ee68b9a1af723e4fe00af14f59cf31b51bd7"
+      },
+      "production_paths_in_commit_diff": []
+    }
+  ],
+  "production_baseline_tree": "6d5ca00ddfa2650b8e95eb07ad4e18d358bc0ad2",
+  "validated_production_blobs": {
+    "contracts/cloud-operation-result.schema.json": {
+      "git_blob": "2bab4610ee7e8278929add73db3b6dc7440f7120",
+      "sha256": "78c63243cfe6abea7bb4cc2bb190fd617879248311bde065bf35a69c567368ac",
+      "matches_initial_snapshot": true
+    },
+    "contracts/cloud-dependency-lock.schema.json": {
+      "git_blob": "0d99aa7730e48ec7083755743519984d6667779f",
+      "sha256": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec",
+      "matches_initial_snapshot": true
+    },
+    "contracts/cloud-run-request.schema.json": {
+      "git_blob": "84cc206ce0cd42964560a5d53571c4a3393217c4",
+      "sha256": "c7492ec7c790db1f5449070817f7e52b19707aa72bd04cba2089410c0e6ca125",
+      "matches_initial_snapshot": true
+    },
+    "contracts/cloud-input-error.schema.json": {
+      "git_blob": "9338a1cba730da2a69a58faaa63d572925ad79f0",
+      "sha256": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77",
+      "matches_initial_snapshot": true
+    },
+    "contracts/cloud-preview.schema.json": {
+      "git_blob": "ce204c42f289dcf026128d6448e4e0651a0ec6ce",
+      "sha256": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99",
+      "matches_initial_snapshot": true
+    },
+    "contracts/cloud-observation.schema.json": {
+      "git_blob": "c20bf0fe1cdacb5ccd770cdb17a0e1c87590177d",
+      "sha256": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826",
+      "matches_initial_snapshot": true
+    },
+    "contracts/cloud-authorization-receipt.schema.json": {
+      "git_blob": "821220b415cf95c01b75d20661ae3b612001e2b2",
+      "sha256": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8",
+      "matches_initial_snapshot": true
+    },
+    "contracts/cloud-verification.schema.json": {
+      "git_blob": "ce9a2b16e39aab0aabeba52155426302bdc7ef64",
+      "sha256": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e",
+      "matches_initial_snapshot": true
+    },
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": {
+      "git_blob": "40641557918ecb5886df7716fea6799ff5f6e146",
+      "sha256": "284d6189da9279327973a757104c15a650827968d9849f76639dfa0b20a0fd5a",
+      "matches_initial_snapshot": true
+    },
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": {
+      "git_blob": "dd236bf80208e488df480a699ed52ef72db08887",
+      "sha256": "9d7ad425167d0b165a7057dd090f2b9c8c88878e8888a09c12ea134cfccaaeb8",
+      "matches_initial_snapshot": true
+    },
+    "templates/cloud/iam/trusted-policy.example.py": {
+      "git_blob": "4796ff1c81d007f5bd582294af9fc1fbdbc92693",
+      "sha256": "a6e4af089fae1b9594ef1c0ca581541aa3c44958d3ea1c59ec74350b887ccbd0",
+      "matches_initial_snapshot": true
+    },
+    "templates/cloud/iam/README.md": {
+      "git_blob": "473f5bfa0a2eeade4460a5a288e854a48eaf814a",
+      "sha256": "040132962152c701ffc7ebf3ccb3b93f801805d2bf9d116e990124144fda7da3",
+      "matches_initial_snapshot": true
+    }
+  },
+  "note": "Production was already implemented but untracked. The separate baseline Git tree binds exact candidate bytes; absence from Red commit tree is NOT an absent implementation claim. Red test commits also carry earlier candidate formatting already present on entry; use initial-input-to-Red patch to isolate this attempt."
+}

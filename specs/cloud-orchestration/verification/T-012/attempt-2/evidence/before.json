@@ -1,0 +1,43 @@
+{
+  "base_revision": "1082e961b92ba65b158b82313efe2bfbc6fec816",
+  "scratch_root": "/tmp/cloud-T012-01a14e03",
+  "task_owned": [
+    {
+      "original": "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "path": "specs/cloud-orchestration/verification/T-012/attempt-2/inputs/plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "sha256": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86"
+    },
+    {
+      "original": "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "path": "specs/cloud-orchestration/verification/T-012/attempt-2/inputs/plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "sha256": "755344b50911ccae4b35e4a60177d4fe28fbdeee89608bc3c2c6f6602ecec139"
+    },
+    {
+      "original": "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "path": "specs/cloud-orchestration/verification/T-012/attempt-2/inputs/plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "sha256": "a0669240ae1acdfb62adfedb36e131d1421349c5a0b65f7411106c660aea458c"
+    },
+    {
+      "original": "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "path": "specs/cloud-orchestration/verification/T-012/attempt-2/inputs/plugins/sdd-azure-cloud/scripts/cloud.py",
+      "sha256": "0acf156a2b52c4b674daedeec75ee0098bfe926ac687e80d89813b809c64d736"
+    },
+    {
+      "original": "plugins/sdd-azure-cloud/scripts/governed-setup.md",
+      "path": "specs/cloud-orchestration/verification/T-012/attempt-2/inputs/plugins/sdd-azure-cloud/scripts/governed-setup.md",
+      "sha256": "0754fe91c8123e8a8d096e702c914e4389c0067a548f75cabfaa5b40399b9edd"
+    },
+    {
+      "original": "reports/implementation/cloud-orchestration/T-012.md",
+      "path": "specs/cloud-orchestration/verification/T-012/attempt-2/inputs/reports/implementation/cloud-orchestration/T-012.md",
+      "sha256": "77c6882f73b05c939f545358ddc297c7daa86032414ef866a42cfd050a0c6abc"
+    },
+    {
+      "original": "tests/cloud-orchestration-execution.tests.py",
+      "path": "specs/cloud-orchestration/verification/T-012/attempt-2/inputs/tests/cloud-orchestration-execution.tests.py",
+      "sha256": "8d57d72ce42a3e822668a3b5b98c79cff1eb706c006ff4286254a1461345e537"
+    }
+  ],
+  "run_id": "01a14e03-aadd-7da3-9d54-8d3db30fd7bc",
+  "classification": "entry candidate includes committed known Red; not passing baseline"
+}

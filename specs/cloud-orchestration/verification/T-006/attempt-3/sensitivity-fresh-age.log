@@ -1,0 +1,19 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py FreshnessCases.test_old_deployment_recent_samples_and_time_order
+OFFLINE_GUARD_INSTALLED
+test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... 
+  test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) (sample='2026-10-18T05:57:29Z') ... FAIL
+
+======================================================================
+FAIL: test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) (sample='2026-10-18T05:57:29Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 467, in test_old_deployment_recent_samples_and_time_order
+    self.assertFalse(fresh(sample, context, 300, now))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=1)
+
+Exit code: 1

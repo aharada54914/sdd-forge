@@ -1,0 +1,33 @@
+{
+  "classification": "implementer scoped self-check; not independent review or quality gate",
+  "preserved_azure_and_admission_source_prefix": true,
+  "cloud_actions": false,
+  "task_status_edits": false,
+  "whole_repository_suite": false,
+  "new_engine": false,
+  "credentialed_application_execution": false,
+  "new_native_mutations": [
+    "S3 PutObject",
+    "CloudFormation CreateChangeSet",
+    "CloudFormation ExecuteChangeSet"
+  ],
+  "every_mutation_shared_write_boundary": true,
+  "readonly_recovery_mutations": 0,
+  "history_limit": "one authenticated complete page <=100; external retention/exclusive writer prerequisites",
+  "unsupported_assets": [
+    "docker/ECR",
+    "non-template file",
+    "executable",
+    "remote"
+  ],
+  "known_limits": [
+    "lost S3 VersionId stays UNKNOWN",
+    "missing original prepare archive evidence stays UNKNOWN",
+    "pagination blocks",
+    "no live sandbox",
+    "no workload verification"
+  ],
+  "initial_red_commit": "c9283184",
+  "late_revocation_test_commit": "3c4eac92",
+  "new_run_prepare_red_commit": "b31b4076"
+}

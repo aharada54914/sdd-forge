@@ -1,0 +1,6 @@
+install.ps1 : 0 parser errors
+uninstall.ps1 : 0 parser errors
+tests/validate-repository.ps1 : 0 parser errors
+tests/install.tests.ps1 : 0 parser errors
+tests/uninstall.tests.ps1 : 0 parser errors
+tests/install-uninstall-matrix.tests.ps1 : 0 parser errors

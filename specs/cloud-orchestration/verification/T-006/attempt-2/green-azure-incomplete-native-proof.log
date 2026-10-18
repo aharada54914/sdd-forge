@@ -1,0 +1,6 @@
+test_native_azure_incomplete_permission_proof_cannot_pass (__main__.NativeCollectorCases.test_native_azure_incomplete_permission_proof_cannot_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.018s
+
+OK

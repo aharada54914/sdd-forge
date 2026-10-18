@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-10-18T09:48:34.488528+00:00",
+  "classification": "early static implementation feedback; no executed exploit, no independent verdict",
+  "source": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+  "sha256": "18398bf4cea4f4a7adda502efe57b0bafd7c8120540714986bb64f568affe47f",
+  "request": {
+    "id": 900064,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14e57-c9ef-7892-a76f-bdaa02a2fde5",
+      "expectedTurnId": "01a14e57-ca33-7151-b4dd-28bf4e32cac5",
+      "input": [
+        {
+          "type": "text",
+          "text": "Root source review while implementation is active: aws_observation.observe currently proves the original stack/token completed, then constructs Collector from config.instance_id; Collector.instance checks that configured ID/account but there is no native stack-resource membership binding. A healthy unrelated EC2 in the same account/VPC could satisfy that target. Also an immutable pre-deploy config cannot know a newly allocated EC2 instance ID for CREATE. Resolve the instance from an explicit compiled logical-resource selector via the original stack/native resource readback (with exact resource type/stack binding), then bind all observations to that actual ID; do not accept an arbitrary configured ID as deployment provenance. Equivalent Azure linkage must bind its VM to the original deployment/template/operation rather than a healthy arbitrary ID. This is an early static call-path finding, not a claimed executed exploit or independent verdict. Preserve CREATE as a usable native path; owner setup cannot predeclare a random future EC2 ID. Add actual substituted-resource tests and supported CREATE resolution tests before the fix."
+        }
+      ]
+    }
+  }
+}

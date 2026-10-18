@@ -1,0 +1,299 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:13:28Z",
+    "finished_at": "2026-10-18T12:14:21Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-cloud-verification.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:14:21Z",
+    "finished_at": "2026-10-18T12:14:22Z",
+    "exit_code": 1,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-cloud-contracts.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/sdd-domain-multitarget-T-003.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:14:22Z",
+    "finished_at": "2026-10-18T12:14:48Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-selected-plan.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/gates.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:14:48Z",
+    "finished_at": "2026-10-18T12:15:00Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-contracts.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/constant-parity.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:00Z",
+    "finished_at": "2026-10-18T12:15:01Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-constant-parity.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/phase2-guard-invariants.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:01Z",
+    "finished_at": "2026-10-18T12:15:01Z",
+    "exit_code": 1,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-guard-invariants-sh.log"
+  },
+  {
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/phase2-guard-invariants.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:01Z",
+    "finished_at": "2026-10-18T12:15:04Z",
+    "exit_code": 1,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-guard-invariants-ps1.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/capability-registry-schema.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:04Z",
+    "finished_at": "2026-10-18T12:15:04Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-registry-schema.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:04Z",
+    "finished_at": "2026-10-18T12:15:04Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-guard-projection.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+      "--check"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:04Z",
+    "finished_at": "2026-10-18T12:15:04Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-gate-projection.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "--check"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:04Z",
+    "finished_at": "2026-10-18T12:15:04Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-vendored-mirrors.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+      "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "tests/cloud-orchestration-verification.tests.py",
+      "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "plugins/sdd-aws-cloud/scripts/aws_observation.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:04Z",
+    "finished_at": "2026-10-18T12:15:04Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-ruff.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
+      "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:04Z",
+    "finished_at": "2026-10-18T12:15:05Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-mypy-shared.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-azure-cloud/scripts/azure_observation.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:05Z",
+    "finished_at": "2026-10-18T12:15:05Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-mypy-azure.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-aws-cloud/scripts/aws_observation.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment_overrides": {
+      "TMPDIR": "/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+      "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+    },
+    "started_at": "2026-10-18T12:15:05Z",
+    "finished_at": "2026-10-18T12:15:05Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-009/evidence/final-mypy-aws.log"
+  }
+]

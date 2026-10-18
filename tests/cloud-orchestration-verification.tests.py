@@ -5363,6 +5363,7 @@ class DependencyCallbackExpiryCases(unittest.TestCase):
 
     def callback_case(self, provider, mutation, checkpoint, elapsed):
         import cloud_dependencies as dependencies
+        import inspect
 
         fixtures = self.fixtures()
         if provider == "azure":
@@ -5379,7 +5380,7 @@ class DependencyCallbackExpiryCases(unittest.TestCase):
         executor.clock = executor.boundary.clock = lambda: now[0]
         deadline = c._utc(fixtures.utc(fixtures.NOW + 10))
         acquisitions = []
-        delays = []
+        delays: list[str] = []
         guards = []
         journal = case.root / case.directory / (mutation + "-submission.json")
         if provider == "azure":
@@ -5390,8 +5391,8 @@ class DependencyCallbackExpiryCases(unittest.TestCase):
         original_require = case.e.c._require
 
         def observe_guard(condition, code="INVALID_ARTIFACT"):
-            if delays and code == "CREDENTIAL_EXPIRED":
-                guards.append(bool(condition))
+            if delays and code in ("CREDENTIAL_EXPIRED", "READ_CREDENTIAL_EXPIRED"):
+                guards.append((code, bool(condition)))
             original_require(condition, code)
 
         def admitted(*args, **kwargs):
@@ -5437,7 +5438,9 @@ class DependencyCallbackExpiryCases(unittest.TestCase):
 
                 def metadata(admission, *args, **kwargs):
                     result = original_metadata(admission, *args, **kwargs)
-                    if journal.exists():
+                    if journal.exists() and any(
+                        frame.function == "final_admission" for frame in inspect.stack()
+                    ):
                         delay()
                     return result
 
@@ -5481,7 +5484,9 @@ class DependencyCallbackExpiryCases(unittest.TestCase):
               "elapsed", elapsed, "admissions", acquisitions, "guards", guards,
               "target_native_submissions", writes, "result", result["result"], flush=True)
         self.assertEqual(delays, [checkpoint])
-        self.assertTrue(guards, "real final expiry guard must execute")
+        self.assertTrue(guards, "real callback expiry guard must execute")
+        if elapsed >= 10:
+            self.assertTrue(any(not valid for _, valid in guards))
         self.assertTrue(journal.is_file(), "consumed intent retained")
         self.assertLess(now[0], fixtures.NOW + 110, "consumer TTL still valid")
         if mutation in ("deploy", "execute"):

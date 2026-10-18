@@ -1,0 +1,4 @@
+2026-10-18T14:57:45Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py tests/cloud-orchestration-verification.tests.py
+a3bfad88d8bff274ac3acc925cfb885b570aa931606e1a8a9a8580f26153de60  tests/cloud-orchestration-verification.tests.py
+17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658  plugins/sdd-quality-loop/scripts/cloud_authorization.py
+2026-10-18T15:00:22Z EXIT 0

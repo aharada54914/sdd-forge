@@ -1,0 +1,20 @@
+$ python3 -B tests/cloud-orchestration-routing.tests.py tests/cloud-orchestration-contracts.tests.py specs/cloud-orchestration/verification/T-006/attempt-2/rollback.py
+tests (unittest.loader._FailedTest.tests) ... ERROR
+specs (unittest.loader._FailedTest.specs) ... ERROR
+
+======================================================================
+ERROR: tests (unittest.loader._FailedTest.tests)
+----------------------------------------------------------------------
+AttributeError: module '__main__' has no attribute 'tests'
+
+======================================================================
+ERROR: specs (unittest.loader._FailedTest.specs)
+----------------------------------------------------------------------
+AttributeError: module '__main__' has no attribute 'specs'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+FAILED (errors=2)
+
+Exit code: 1

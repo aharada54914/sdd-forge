@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "specs/cloud-orchestration/verification/T-007/attempt-1/rollback.py",
+    "final-"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:36:41Z",
+  "exit_code": 0,
+  "elapsed_seconds": 110.048,
+  "classification": "offline local command; no live cloud"
+}

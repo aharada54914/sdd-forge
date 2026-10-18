@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/attempt-2/evidence/rollback-experiment.py", line 119, in <module>
+    main()
+  File "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/attempt-2/evidence/rollback-experiment.py", line 87, in main
+    run('entry-verification', 'verification')
+  File "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-010/attempt-2/evidence/rollback-experiment.py", line 78, in run
+    assert proc.returncode == expected, label
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: entry-verification

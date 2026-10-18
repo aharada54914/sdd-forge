@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/install-cloud.tests.py",
+    "SkillVisibility"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:31:19Z",
+  "exit_code": 0,
+  "elapsed_seconds": 0.638,
+  "classification": "offline local command; no live cloud"
+}

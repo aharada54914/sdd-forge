@@ -1,0 +1,20 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py AzureMetricContextCases.test_metric_context_counterparts
+OFFLINE_GUARD_INSTALLED
+test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) ... 
+  test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='namespace') ... FAIL
+
+======================================================================
+FAIL: test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='namespace')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 1232, in test_metric_context_counterparts
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.020s
+
+FAILED (failures=1)
+
+Exit code: 1

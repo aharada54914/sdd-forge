@@ -1,0 +1,4 @@
+Environment diagnostic (not a product failure)
+dr-xr-xr-x 2 agent agent 40 Oct 18 04:46 /tmp/.git
+drwx------ 2 agent agent 40 Oct 18 04:46 /tmp/cloud-t001-01a14d52/tmp
+Git ancestor entries: ['/tmp/.git']

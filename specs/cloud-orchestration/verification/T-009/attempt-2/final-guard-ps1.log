@@ -1,0 +1,57 @@
+ok: staged generator exists
+ok: generated output exists: guard_invariants.py
+ok: generated output exists: guard-invariants.generated.js
+ok: generated output exists: guard-invariants.generated.ps1
+ok: generated output exists: guard-invariants.generated.sh
+ok: generator --check succeeds
+ok: Python output exports the exact v1 key set
+ok: Node output exports the exact v1 key set
+ok: PowerShell output exports the exact v1 key set
+ok: PowerShell schema/version constants are v1/64
+ok: generator --check rejects malformed canonical JSON
+ok: generator --check rejects canonical read I/O errors
+ok: Python uses explicit importlib fixed loader
+ok: Python loader names fixed native module
+ok: Node loader names fixed native module
+ok: Node loader is not CWD-relative
+ok: PowerShell loader names fixed native module
+ok: PowerShell loader is not PWD-relative
+ok: dispatcher sources only schema/provenance output
+ok: runtime avoids canonical JSON: sdd-hook-guard.py
+ok: runtime avoids canonical JSON: sdd-hook-guard.js
+ok: runtime avoids canonical JSON: sdd-hook-guard.ps1
+ok: runtime avoids canonical JSON: sdd-hook-guard.sh
+ok: Python staged guard preserves shared read-only corpus from another CWD
+ok: Node staged guard preserves shared read-only corpus from another CWD
+ok: PowerShell staged guard preserves shared read-only corpus from another CWD
+ok: TEST-012 Python denies a missing fixed generated module
+ok: TEST-012 Python denies an unconsumed fixed-module export
+ok: TEST-012 Node denies a missing fixed generated module
+ok: TEST-012 Node denies an unconsumed fixed-module export
+ok: TEST-012 PowerShell denies a missing fixed generated module
+ok: TEST-012 PowerShell denies an unconsumed fixed-module export
+ok: TEST-013 staged batch contains each exact protected candidate
+ok: TEST-013 final manifest has exact ordered lowercase staged hashes
+ok: TEST-013 class lock: the bundle manifest is present (absence assertions are non-vacuous)
+ok: TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/references/guard-invariants.json is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generate-guard-invariants.py is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard_invariants.py is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-013 class lock: repo-shared plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh is not snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-011 label normalization accepts the exact quoted display prefix
+ok: TEST-011 label normalization preserves undecorated names
+ok: TEST-011 label normalization never rewrites run commands
+ok: TEST-011 label normalization does not accept a mis-cased prefix
+ok: TEST-011 live CI uses platform-native generator and invariant suites before validation and guards
+ok: TEST-013 staged bootstrap validator exists
+ok: TEST-013 bootstrap validator is ASCII/no-BOM for PowerShell 5.1
+ok: TEST-013 runner binds the reviewed anchored native API contract
+ok: TEST-013 runner has no path-based copy or source-hash fallback
+ok: TEST-013 runner fails closed outside FullLanguage and local NTFS capability floor
+ok: TEST-013 isolated fixtures have inert source, parent, prepare, and rename patch markers
+ok: TEST-013 pre-refresh runner is accompanied by its staged refresh candidate
+skip - TEST-013 runner install-path assertions: the installed runner still reads the evicted staged canonical; apply apply-protected-files.refresh-candidate-20260814.ps1 (see the bundle NOTES) to re-enable them
+ok: WFI-016 staged targets are byte-identical to live (no stale staging)
+phase2-guard-invariants.tests.ps1: 55 passed, 0 failed, 1 skipped

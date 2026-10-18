@@ -1,0 +1,6 @@
+test_protected_mandatory_checks_never_become_optional (__main__.ProfileCompletionCases.test_protected_mandatory_checks_never_become_optional) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 8.169s
+
+OK

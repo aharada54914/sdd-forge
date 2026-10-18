@@ -1,0 +1,111 @@
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) ... 
+  test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) (field='provider') ... FAIL
+  test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) (field='producer_run_id') ... FAIL
+  test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) (field='repository_id') ... FAIL
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyReceiptCases.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) ... 
+  test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.provider') ... FAIL
+  test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.request.path') ... FAIL
+  test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.repository_id') ... FAIL
+  test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.workflow_revision') ... FAIL
+  test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.producer_run_id') ... FAIL
+  test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='run.path') ... FAIL
+test_consumer_request_and_trust_set (__main__.DependencyFieldMatrix.test_consumer_request_and_trust_set) ... ok
+test_order_and_each_invalid_graph_before_callbacks (__main__.DependencyGraphCases.test_order_and_each_invalid_graph_before_callbacks) ... ok
+test_transitive_unknown_preserves_identity_without_retry (__main__.DependencyGraphCases.test_transitive_unknown_preserves_identity_without_retry) ... ok
+
+======================================================================
+FAIL: test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) (field='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4269, in test_dependency_per_field_red_mismatches
+    self.failure(state,guard)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4240, in failure
+    self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+AssertionError: 'DEPENDENCY_REQUEST_BINDING' not found in ['DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH'] : Mismatch reached existing boundary; blanket denial is not this field guard
+
+======================================================================
+FAIL: test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) (field='producer_run_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4269, in test_dependency_per_field_red_mismatches
+    self.failure(state,guard)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4240, in failure
+    self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+AssertionError: 'DEPENDENCY_RUN_MISMATCH' not found in ['ARTIFACT_IDENTITY_CHANGED'] : Mismatch reached existing boundary; blanket denial is not this field guard
+
+======================================================================
+FAIL: test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) (field='repository_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4269, in test_dependency_per_field_red_mismatches
+    self.failure(state,guard)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4240, in failure
+    self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+AssertionError: 'DEPENDENCY_RUN_MISMATCH' not found in ['DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH'] : Mismatch reached existing boundary; blanket denial is not this field guard
+
+======================================================================
+FAIL: test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4349, in test_every_new_trust_and_producer_binding
+    self.failure(state,guard)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4240, in failure
+    self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+AssertionError: 'DEPENDENCY_REQUEST_BINDING' not found in ['DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH'] : Mismatch reached existing boundary; blanket denial is not this field guard
+
+======================================================================
+FAIL: test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.request.path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4349, in test_every_new_trust_and_producer_binding
+    self.failure(state,guard)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4240, in failure
+    self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+AssertionError: 'UNSAFE_OR_UNAVAILABLE_FILE' not found in [] : Mismatch reached existing boundary; blanket denial is not this field guard
+
+======================================================================
+FAIL: test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.repository_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4349, in test_every_new_trust_and_producer_binding
+    self.failure(state,guard)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4240, in failure
+    self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+AssertionError: 'DEPENDENCY_RUN_MISMATCH' not found in ['DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH'] : Mismatch reached existing boundary; blanket denial is not this field guard
+
+======================================================================
+FAIL: test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.workflow_revision')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4349, in test_every_new_trust_and_producer_binding
+    self.failure(state,guard)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4240, in failure
+    self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+AssertionError: 'DEPENDENCY_RUN_MISMATCH' not found in ['DEPENDENCY_ARTIFACT_PRODUCER_MISMATCH'] : Mismatch reached existing boundary; blanket denial is not this field guard
+
+======================================================================
+FAIL: test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='pin.producer_run_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4349, in test_every_new_trust_and_producer_binding
+    self.failure(state,guard)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4240, in failure
+    self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+AssertionError: 'DEPENDENCY_RUN_MISMATCH' not found in ['ARTIFACT_IDENTITY_CHANGED'] : Mismatch reached existing boundary; blanket denial is not this field guard
+
+======================================================================
+FAIL: test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) (field='run.path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4349, in test_every_new_trust_and_producer_binding
+    self.failure(state,guard)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4240, in failure
+    self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+AssertionError: 'DEPENDENCY_RUN_MISMATCH' not found in ['ARTIFACT_DIGEST_MISMATCH'] : Mismatch reached existing boundary; blanket denial is not this field guard
+
+----------------------------------------------------------------------
+Ran 7 tests in 30.525s
+
+FAILED (failures=9)

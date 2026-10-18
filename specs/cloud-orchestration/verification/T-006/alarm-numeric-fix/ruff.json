@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/tmp/cloud-quality-python/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "--config",
+    "tests/shared-launch-python/pyproject.toml",
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+    "tests/cloud-orchestration-verification.tests.py",
+    "specs/cloud-orchestration/verification/T-006/alarm-numeric-fix/verify-scoped.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T11:37:23Z",
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "source_sha256": "6057a5d62afd366f7b9fc589e887fc8dce9c37daf20b69ff8facb1cff395cc13",
+  "test_sha256": "7cdbf61264499cec788e7da535f9c0b1cdb603d555975b93498cc1a2e65f0135"
+}

@@ -1,0 +1,115 @@
+{
+  "checks": 222,
+  "result": "PASS",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "dependencies": {
+    "jsonschema": {
+      "version": "4.26.0",
+      "files": {
+        "jsonschema/__init__.py": "a7e470e134bfd0e3c76482722260d6b1d5a099de823d61cc5cbabb06e4314c67",
+        "jsonschema/__main__.py": "88bb197f6ba9501de294129394c9f22be1c7b760a79df930c318bf73a80bbd20",
+        "jsonschema/_format.py": "96bb3553b892076657f59d846a5b113987909b577d91e7f0d822e8d3c1bc3f8b",
+        "jsonschema/_keywords.py": "afcfc3aea01f9fa40bc109e65c4820bde89253e51a20bda9da7b8f20d7a57c57",
+        "jsonschema/_legacy_keywords.py": "dad5aec113d66d84bb10097cc01202feb69b1aebf527875f60ba8d10fa528610",
+        "jsonschema/_types.py": "7ff9e44c36eb8dadc4ddfb083530bbdf2fe03174d4db5d08fc7eea2b434ddf47",
+        "jsonschema/_typing.py": "a572e71b2de336d2144ead37ee451fab4c1ed7bd3ce5e1ed2700c9dadfbe9901",
+        "jsonschema/_utils.py": "5efebfc0a2ac941265c328fdfa3d9cf090c5c3ee33e1a5859d57b6a57f21ed4e",
+        "jsonschema/benchmarks/__init__.py": "034b10af10c15474b243ef2bbb72f5d613177f7abd815b81f71fd88076f847d3",
+        "jsonschema/benchmarks/const_vs_enum.py": "0d5162dd60ea05a95914e89b9e3a57d6e4d2af74716b670f805728c1ded492bb",
+        "jsonschema/benchmarks/contains.py": "81ec50a14ac23b0102a1f6edd7d05ea2c419ed614be8f0dd917e3d0d6c0194e8",
+        "jsonschema/benchmarks/import_benchmark.py": "d834483954baa7e6ea2e7ffcdb607f5f9164211bec2765750989d5d9daeecc3b",
+        "jsonschema/benchmarks/issue232.py": "dcb2d82c89411909d5bb2ca8da202ffb1932e4fe8f4451c0371e3ecc82103a81",
+        "jsonschema/benchmarks/issue232/issue.json": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79",
+        "jsonschema/benchmarks/json_schema_test_suite.py": "3ef7da6e9518705e3fedcb180d37136ae103f2b9c510661b758e51a935c3d3cb",
+        "jsonschema/benchmarks/nested_schemas.py": "9a8d3b771f82220992388eb608db38839c6ed45cc79252c1a644280f159870ab",
+        "jsonschema/benchmarks/subcomponents.py": "7c4ca2333b1678ada977b0c4182bae63ebf31ae9f08477334415849c144b288a",
+        "jsonschema/benchmarks/unused_registry.py": "87047038d73d71e7cfb58ce4a17fd36113b71b25288eb8afd3e61068adef9e3d",
+        "jsonschema/benchmarks/useless_applicator_schemas.py": "1159b9f84b4e105a0b3ff56dda3e12ac2c25c74e4d84fa8db9943a2c830fd437",
+        "jsonschema/benchmarks/useless_keywords.py": "6e3ff32abd6855cb4596ac9968e6c2b184e01638a23603f30b486bd58f3af261",
+        "jsonschema/benchmarks/validator_creation.py": "52451094b027bacb27aff29d08875a77ac71da95f140b998b6c5e88a2aca7964",
+        "jsonschema/cli.py": "6aff743ada52c6e8a4a37140c841edc6923e352b97dd632da10a48c74f686c96",
+        "jsonschema/exceptions.py": "6f8da150339f3c5729ac8e1994da630de2cabfc93dbce86059cb768f20e5c739",
+        "jsonschema/protocols.py": "960cabc951ea1628d2151033f79721dd5376173fa84c5ca18fd39b732e4ffc22",
+        "jsonschema/tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "jsonschema/tests/_suite.py": "da4d17f7537b74e1e141ce66ad8bf8d0e29fd707a2a23e91301a9680b4faf8f2",
+        "jsonschema/tests/fuzz_validate.py": "7d403bc932488a1682c09a659147a165ec81f381dc5c472ab58e683c95c83bb2",
+        "jsonschema/tests/test_cli.py": "03cf6be4b387cbea5e2cf640e580e439a3135aacd03bfc364eef16173fefa613",
+        "jsonschema/tests/test_deprecations.py": "c86ea6911247a531db5a8c692c2e72e47edf93c7ab18eb3c7fff55e2d081121f",
+        "jsonschema/tests/test_exceptions.py": "aec12a763927533ddd13225bebf0e232874f1d7b094c45b30ebc54b1c83c1b9a",
+        "jsonschema/tests/test_format.py": "7959b948c69617694e3cedbc6cf03036f92242f1c240acbe327b808047217c47",
+        "jsonschema/tests/test_jsonschema_test_suite.py": "b407f192733ae4e47d2f20cf1eed699046a899b2e08d12e727a14f8963ddc638",
+        "jsonschema/tests/test_types.py": "705e752930e676cc74e8cac87387d72add17f5f22c560c39ba14fc09a9956bc5",
+        "jsonschema/tests/test_utils.py": "b1aa3be28d4fc9833105fab07a8910378f021524baca1264e459027cc2793ec2",
+        "jsonschema/tests/test_validators.py": "bb397e6a0c8ba193d3b9fa2e2074b114f7cf62b7487633708c7703ff93725381",
+        "jsonschema/tests/typing/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "jsonschema/tests/typing/test_all_concrete_validators_match_protocol.py": "2395d4979658512668dc03e4175d25f0c9df934f685caaaf5d6b6d186777b039",
+        "jsonschema/validators.py": "97f171b995b4b0ca05530a9366a1252fb1753f99f3cb7b1068b6d9aab1096fa5"
+      }
+    },
+    "jsonschema-specifications": {
+      "version": "2025.9.1",
+      "files": {
+        "jsonschema_specifications/__init__.py": "aa84c1d83298eeabcdac684c3c7ea0b6600944b8a599543e7c56704faaf2ab0d",
+        "jsonschema_specifications/_core.py": "b4585cd42325789dc024e2bf6e3c4ea4541376bb140a51467c5c4f054fc279b3",
+        "jsonschema_specifications/schemas/draft201909/metaschema.json": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b",
+        "jsonschema_specifications/schemas/draft202012/metaschema.json": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f",
+        "jsonschema_specifications/schemas/draft3/metaschema.json": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b",
+        "jsonschema_specifications/schemas/draft4/metaschema.json": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2",
+        "jsonschema_specifications/schemas/draft6/metaschema.json": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d",
+        "jsonschema_specifications/schemas/draft7/metaschema.json": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e",
+        "jsonschema_specifications/tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "jsonschema_specifications/tests/test_jsonschema_specifications.py": "5a46d8456e80e85a19d2b8af4a17ea54b482b00887276c7c4f1a840894d73d36"
+      }
+    },
+    "referencing": {
+      "version": "0.37.0",
+      "files": {
+        "referencing/__init__.py": "e4864a5da007fc55b20894646939f55dca6d2df83d72f78b6fdbb99d853124ab",
+        "referencing/_attrs.py": "6e04fe28c84354b786b56c4cfd218a61e2da6411734f691454574090e7178bc8",
+        "referencing/_core.py": "d923c67da4efcc0dec46a6e3ff8476c02fbe7e25e8942515a4b14b249eb3759f",
+        "referencing/exceptions.py": "cc581a120e9688a793e7c310b8a36c8060e71ecce9dba738a11782eac17d8073",
+        "referencing/jsonschema.py": "8d767ab7ac7da13bd31cc202d2d4726858d6e6bdaa78739b62ebbb52149f2b74",
+        "referencing/retrieval.py": "727f4478075a6936e7303742e094488621295c38df95174708e2c5af0d5984b0",
+        "referencing/tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "referencing/tests/test_core.py": "79aa74080688db7be33086d5c848fddaa2dd769de21c7dc0c42e7908a50de0b5",
+        "referencing/tests/test_exceptions.py": "ede39d1f2a1b5ccb7bfa1e409e71fbbbc8b0dae1cf687ed4e01b3d2612e08d6a",
+        "referencing/tests/test_jsonschema.py": "e109e35163803009f9c9e03c66d95d264848e78bf02962560742c3ccd771e717",
+        "referencing/tests/test_referencing_suite.py": "c03eaf78c7cbb14bb4b3830b8e6ee94bc720e1c21f2fb14c044367824ef7cc22",
+        "referencing/tests/test_retrieval.py": "bdc6e77c0e13a957aa5335b4ef7c0efa72dea9522fd2b41958d5afd33f649b8f",
+        "referencing/typing.py": "5a351b9d9ea33c0777d5c9c214069e588544373c87b47749c8e95e96fd4663bd"
+      }
+    },
+    "rpds-py": {
+      "version": "2026.6.3",
+      "files": {
+        "rpds/__init__.py": "c373205d6ee5a530880b0d0a5dbc36d105f9ef7fe46ec12758878cb0202e82f3",
+        "rpds/rpds.cpython-312-x86_64-linux-gnu.so": "8022895ab80b26f9e40fd5160223cfdfb41d421d6fecbc93ef49199c750a45ab",
+        "rpds_py-2026.6.3.dist-info/sboms/rpds-py.cyclonedx.json": "80a3bfbae1607e51b2569566a469b8a6d9a984d4923c0824086418a6c8a3e763"
+      }
+    },
+    "attrs": {
+      "version": "26.1.0",
+      "files": {
+        "attr/__init__.py": "7ce608bedd5e192a90adee2e092dec256299d26c00b82f140faa9b6b9392f7f5",
+        "attr/_cmp.py": "dcd9f54e3c659546225ff9c9a159c4917a0393484cd4360a8f90c4ec665ee22d",
+        "attr/_compat.py": "c7483b88450e9c15490bbdb3c850a06f578aab2c52fbb7f62c69cdc99febf79b",
+        "attr/_config.py": "746ab7c51e9f819105e9406dfcbd13f9e507201e22e37911987d0fdbcb09570f",
+        "attr/_funcs.py": "231e481134dfcf9174d45fb5d8c17f0921689889f687c6faec4555cf6802b411",
+        "attr/_make.py": "1fb387d9e592e429c1ccb5233451355b299f3eb985d6bf1fbf644f76df4cb980",
+        "attr/_next_gen.py": "050b42525cf08368161d3617050beb118067cc152b0ef3b9eeed0fcba5023e17",
+        "attr/_version_info.py": "c3847e1580b734afe43241945899583f87150251fd1d1682fae9b77dc8d89073",
+        "attr/converters.py": "1a50de3b33de4c581e0412db8fd1b9ec4cf994093af2e85200b45827f7b17bce",
+        "attr/exceptions.py": "6f8bcc6e7a10dd5a7059986aad88bfb2c5d508af28d9ce074124b4f5c49433da",
+        "attr/filters.py": "64188a58ba774742df099b2aed7d75a67f565fc36c952db05cce23b272ce19cf",
+        "attr/setters.py": "e7e75c4fadc640adf938d1334a07d70a46c1ee93e4691faabf5e669b83d54b34",
+        "attr/validators.py": "9b7411cd94c036be1fd82e1e55d528160d753605d66a4f166ade2a4131a1bdcb",
+        "attrs/__init__.py": "47168064dc1888487e7dcbc72d936943f0d62a78bbdccfe3c443c47ed8aad597",
+        "attrs/converters.py": "f244258eb5707d24d1bbc20dc0493c488d1e1abce659fb6c4fbaccd04ab2a213",
+        "attrs/exceptions.py": "0020829a0d7dfaf0c56833d8f6f165d7df523d709030dfdb10db380c02e3ce6b",
+        "attrs/filters.py": "54e50c66e83db8453a754b80d1d1758c89d42b43cbddf2e03f45414b977e0831",
+        "attrs/setters.py": "78bd5889d6105774f687dfd2608652651d4501c1c66f54ee093cb41342efd925",
+        "attrs/validators.py": "c5ccbac03e53b5391d086d5fe1759ba1c3d23b47da06393921f5497cfe92523d"
+      }
+    }
+  }
+}

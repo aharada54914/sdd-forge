@@ -1,0 +1,26 @@
+{
+  "records": [
+    {
+      "commit": "1082e961b92ba65b158b82313efe2bfbc6fec816",
+      "details": "commit 1082e961b92ba65b158b82313efe2bfbc6fec816\nAuthor:     Harada <jrmagneticlevitation@gmail.com>\nAuthorDate: Sun Oct 18 07:51:32 2026 +0000\nCommit:     Harada <jrmagneticlevitation@gmail.com>\nCommitDate: Sun Oct 18 07:51:32 2026 +0000\n\n    test(cloud): expose T-012 cross-job uncertain intent replay and history gaps\n\n .../implementation/cloud-orchestration/T-012.md    | 285 ++++++++++++++++++++-\n .../T-012/evidence/red-cross-job-replay.log        |  29 +++\n tests/cloud-orchestration-execution.tests.py       |  73 ++++++\n 3 files changed, 373 insertions(+), 14 deletions(-)\n"
+    },
+    {
+      "commit": "733e30ac3d7b5398b3e997673651ea1c93a9b26d",
+      "details": "commit 733e30ac3d7b5398b3e997673651ea1c93a9b26d\nAuthor:     Harada <jrmagneticlevitation@gmail.com>\nAuthorDate: Sun Oct 18 07:59:20 2026 +0000\nCommit:     Harada <jrmagneticlevitation@gmail.com>\nCommitDate: Sun Oct 18 07:59:20 2026 +0000\n\n    test(cloud): retain Red authenticated Azure intent history mismatches\n\n .../T-012/attempt-2/evidence/red-additional.log    | 123 +++++++++++++++++++++\n tests/cloud-orchestration-execution.tests.py       |  90 +++++++++++++++\n 2 files changed, 213 insertions(+)\n"
+    },
+    {
+      "commit": "ea9dff5d7a93949e97bf9a02b441d3a1f75c8265",
+      "details": "commit ea9dff5d7a93949e97bf9a02b441d3a1f75c8265\nAuthor:     Harada <jrmagneticlevitation@gmail.com>\nAuthorDate: Sun Oct 18 08:09:16 2026 +0000\nCommit:     Harada <jrmagneticlevitation@gmail.com>\nCommitDate: Sun Oct 18 08:09:16 2026 +0000\n\n    test(cloud): retain Red trusted policy binding for Azure recovery\n\n .../attempt-2/evidence/red-reconcile-binding.log   | 201 +++++++++++++++++++++\n tests/cloud-orchestration-execution.tests.py       |  70 ++++++-\n 2 files changed, 270 insertions(+), 1 deletion(-)\n"
+    }
+  ],
+  "entry_reproduction": "entry-execution.log",
+  "additional_red": "red-additional.log",
+  "production_before": {
+    "plugins/sdd-azure-cloud/scripts/azure_execution.py": "755344b50911ccae4b35e4a60177d4fe28fbdeee89608bc3c2c6f6602ecec139",
+    "plugins/sdd-azure-cloud/scripts/cloud.py": "0acf156a2b52c4b674daedeec75ee0098bfe926ac687e80d89813b809c64d736",
+    "plugins/sdd-azure-cloud/scripts/governed-setup.md": "0754fe91c8123e8a8d096e702c914e4389c0067a548f75cabfaa5b40399b9edd",
+    "reports/implementation/cloud-orchestration/T-012.md": "77c6882f73b05c939f545358ddc297c7daa86032414ef866a42cfd050a0c6abc",
+    "tests/cloud-orchestration-execution.tests.py": "8d57d72ce42a3e822668a3b5b98c79cff1eb706c006ff4286254a1461345e537"
+  },
+  "classification": "Red commits preceded continuation production edits; first attempt candidate is not retroactive Red"
+}

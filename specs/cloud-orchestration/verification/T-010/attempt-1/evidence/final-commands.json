@@ -1,0 +1,49 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py",
+      "--repo-root",
+      "."
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py",
+      "EntryPreflight.test_live_network_is_forbidden_before_transport",
+      "ReducerCases",
+      "AzureCompletionCases",
+      "ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py",
+      "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/rollback.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py",
+      "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/rollback.py"
+    ],
+    "exit_code": 0
+  }
+]

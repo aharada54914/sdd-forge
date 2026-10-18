@@ -1,0 +1,32 @@
+test_all_object_boundaries_unknown_and_missing_fields (cloud_contract_tests.Contracts.test_all_object_boundaries_unknown_and_missing_fields) ... ok
+test_all_scalar_types_and_schema_versions (cloud_contract_tests.Contracts.test_all_scalar_types_and_schema_versions) ... ok
+test_bound_scope_owner_profile_policy_identity_and_preview_drift (cloud_contract_tests.Contracts.test_bound_scope_owner_profile_policy_identity_and_preview_drift) ... ok
+test_concurrent_publication_has_one_complete_winner (cloud_contract_tests.Contracts.test_concurrent_publication_has_one_complete_winner) ... ok
+test_digests_utc_paths_and_scalar_edge_cases (cloud_contract_tests.Contracts.test_digests_utc_paths_and_scalar_edge_cases) ... ok
+test_every_bound_file_mutation_is_rejected (cloud_contract_tests.Contracts.test_every_bound_file_mutation_is_rejected) ... ok
+test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash (cloud_contract_tests.Contracts.test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash) ... ok
+test_input_alias_output_and_expected_type_are_rejected (cloud_contract_tests.Contracts.test_input_alias_output_and_expected_type_are_rejected) ... ok
+test_large_numbers_bounded_payloads_and_unpaired_unicode (cloud_contract_tests.Contracts.test_large_numbers_bounded_payloads_and_unpaired_unicode) ... ok
+test_lock_closure_versions_packages_schemas_and_adapter (cloud_contract_tests.Contracts.test_lock_closure_versions_packages_schemas_and_adapter) ... ok
+test_parser_rejects_ambiguous_json_without_echo (cloud_contract_tests.Contracts.test_parser_rejects_ambiguous_json_without_echo) ... ok
+test_positive_all_families_and_both_providers (cloud_contract_tests.Contracts.test_positive_all_families_and_both_providers) ... ok
+test_prepare_binding_does_not_invent_preview (cloud_contract_tests.Contracts.test_prepare_binding_does_not_invent_preview) ... ok
+test_publication_atomic_no_overwrite_containment_and_scan_failure (cloud_contract_tests.Contracts.test_publication_atomic_no_overwrite_containment_and_scan_failure) ... ok
+test_read_artifact_checks_observation_and_verification_references (cloud_contract_tests.Contracts.test_read_artifact_checks_observation_and_verification_references) ... ok
+test_result_exit_mapping_and_invalid_identity (cloud_contract_tests.Contracts.test_result_exit_mapping_and_invalid_identity) ... ok
+test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles (cloud_contract_tests.Contracts.test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles) ... ok
+test_scanner_receives_exact_bytes_and_no_secret_publication (cloud_contract_tests.Contracts.test_scanner_receives_exact_bytes_and_no_secret_publication) ... ok
+test_schema_inventory_has_no_open_object_or_unexercised_family (cloud_contract_tests.Contracts.test_schema_inventory_has_no_open_object_or_unexercised_family) ... ok
+test_schema_published_limits_have_executable_runtime_counterparts (cloud_contract_tests.Contracts.test_schema_published_limits_have_executable_runtime_counterparts) ... ok
+test_schema_scalar_domains_and_optional_field_boundaries (cloud_contract_tests.Contracts.test_schema_scalar_domains_and_optional_field_boundaries) ... ok
+test_unavailable_safe_filesystem_primitives_fail_closed (cloud_contract_tests.Contracts.test_unavailable_safe_filesystem_primitives_fail_closed) ... ok
+test_verification_inconsistent_claims_and_duplicate_checks (cloud_contract_tests.Contracts.test_verification_inconsistent_claims_and_duplicate_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 2.073s
+
+OK
+lines   cov%   module   (path)
+  333   100%   workspace.sdd-forge.plugins.sdd-quality-loop.scripts.cloud_contracts   (/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py)
+  571    32%   workspace.sdd-forge.plugins.sdd-quality-loop.scripts.validate-approval-sidecar   (/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py)
+  448    87%   workspace.sdd-forge.tests.cloud-orchestration-contracts.tests   (/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py)

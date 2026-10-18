@@ -1,0 +1,121 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py ReducerCases.test_each_context_counterpart_mismatch
+test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) ... 
+  test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='request') ... FAIL
+  test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='run_id') ... FAIL
+  test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='unit_id') ... FAIL
+  test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='provider') ... FAIL
+  test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='scope') ... FAIL
+  test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='dependency_lock') ... FAIL
+  test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='policy') ... FAIL
+  test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='verification_profile') ... FAIL
+
+======================================================================
+FAIL: test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='request')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: OBSERVATION_BINDING_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 238, in test_each_context_counterpart_mismatch
+    self.assertRaisesRegex(ValueError, "COLLECTION_BINDING_MISMATCH"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "COLLECTION_BINDING_MISMATCH" does not match "OBSERVATION_BINDING_MISMATCH"
+
+======================================================================
+FAIL: test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='run_id')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: OBSERVATION_BINDING_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 238, in test_each_context_counterpart_mismatch
+    self.assertRaisesRegex(ValueError, "COLLECTION_BINDING_MISMATCH"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "COLLECTION_BINDING_MISMATCH" does not match "OBSERVATION_BINDING_MISMATCH"
+
+======================================================================
+FAIL: test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='unit_id')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: OBSERVATION_BINDING_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 238, in test_each_context_counterpart_mismatch
+    self.assertRaisesRegex(ValueError, "COLLECTION_BINDING_MISMATCH"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "COLLECTION_BINDING_MISMATCH" does not match "OBSERVATION_BINDING_MISMATCH"
+
+======================================================================
+FAIL: test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='provider')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: OBSERVATION_BINDING_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 238, in test_each_context_counterpart_mismatch
+    self.assertRaisesRegex(ValueError, "COLLECTION_BINDING_MISMATCH"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "COLLECTION_BINDING_MISMATCH" does not match "OBSERVATION_BINDING_MISMATCH"
+
+======================================================================
+FAIL: test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='scope')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: OBSERVATION_BINDING_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 238, in test_each_context_counterpart_mismatch
+    self.assertRaisesRegex(ValueError, "COLLECTION_BINDING_MISMATCH"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "COLLECTION_BINDING_MISMATCH" does not match "OBSERVATION_BINDING_MISMATCH"
+
+======================================================================
+FAIL: test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='dependency_lock')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: OBSERVATION_BINDING_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 238, in test_each_context_counterpart_mismatch
+    self.assertRaisesRegex(ValueError, "COLLECTION_BINDING_MISMATCH"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "COLLECTION_BINDING_MISMATCH" does not match "OBSERVATION_BINDING_MISMATCH"
+
+======================================================================
+FAIL: test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='policy')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: OBSERVATION_BINDING_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 238, in test_each_context_counterpart_mismatch
+    self.assertRaisesRegex(ValueError, "COLLECTION_BINDING_MISMATCH"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "COLLECTION_BINDING_MISMATCH" does not match "OBSERVATION_BINDING_MISMATCH"
+
+======================================================================
+FAIL: test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) (field='verification_profile')
+----------------------------------------------------------------------
+cloud_contracts.ContractError: OBSERVATION_BINDING_MISMATCH
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 238, in test_each_context_counterpart_mismatch
+    self.assertRaisesRegex(ValueError, "COLLECTION_BINDING_MISMATCH"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "COLLECTION_BINDING_MISMATCH" does not match "OBSERVATION_BINDING_MISMATCH"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.009s
+
+FAILED (failures=8)
+
+Exit code: 1

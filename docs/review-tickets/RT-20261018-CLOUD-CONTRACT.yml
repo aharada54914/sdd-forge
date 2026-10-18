@@ -1,0 +1,35 @@
+ticket_id: RT-20261018-CLOUD-CONTRACT
+status: resolved
+type: integration-defect
+severity: major
+target:
+  feature: cloud-orchestration
+  task: T-002
+  files:
+    - contracts/cloud-*.schema.json
+    - plugins/sdd-quality-loop/scripts/cloud_contracts.py
+    - plugins/sdd-quality-loop/scripts/cloud_authorization.py
+    - tests/cloud-orchestration-contracts.tests.py
+    - tests/cloud-orchestration-execution.tests.py
+    - templates/cloud/iam/trusted-policy.example.py
+    - templates/cloud/iam/README.md
+summary: Declared local boundaries and immutable cross-phase intent are not representable in current contracts
+problem: >-
+  T-004 reproduced the absence of declared workspace, artifact and scan roots,
+  ownership and evidence-directory inputs in the strict request. Additionally,
+  request operation and environment are equated with protected CI stages while
+  preview binds the whole request digest; prepare and apply therefore cannot
+  share the frozen request. The external policy sketch hashes its own Python
+  bytes although the request needs a deployment-policy JSON document.
+expected_fix:
+  - Implement the bounded clarification in verification/T-002/integration-contract-decision.md.
+  - Keep all prior reports, Red commits and review verdicts immutable.
+  - Add genuine failing regression tests and field/counterpart preflight before repair.
+  - Repair only shared validation and its immediate admission caller and fixtures; no provider executor or new privilege.
+  - Verify prepare and apply use the same request bytes while distinct protected stage identities remain mandatory.
+approval: User approved implementing Azure/AWS orchestration and fixing its integration in this session; this repair implements existing declared-root and immutable-artifact requirements without extending cloud authority.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 0
+resolution: Implemented in fresh repair context; independent repair review PASS and generated evidence bundle validated.
+quality_report: reports/quality-gate/20261018-cloud-orchestration-T-002-repair-cycle-1.md

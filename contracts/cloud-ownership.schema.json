@@ -1,0 +1,104 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "owners",
+    "existing_resources"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cloud-ownership/v1"
+    },
+    "owners": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "owner",
+          "root"
+        ],
+        "properties": {
+          "owner": {
+            "type": "string",
+            "enum": [
+              "bicep",
+              "cdk",
+              "terraform",
+              "sam",
+              "cloudformation",
+              "azd"
+            ]
+          },
+          "root": {
+            "type": "string",
+            "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+            "maxLength": 1024
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 4096,
+      "uniqueItems": true
+    },
+    "existing_resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "resource_id",
+          "owner",
+          "attachments"
+        ],
+        "properties": {
+          "resource_id": {
+            "type": "string",
+            "pattern": "^(?:[\\x20-\\x7e]{1,2048})$(?![\\s\\S])"
+          },
+          "owner": {
+            "type": "string",
+            "enum": [
+              "bicep",
+              "cdk",
+              "terraform",
+              "sam",
+              "cloudformation",
+              "azd"
+            ]
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "resource_type",
+                "name"
+              ],
+              "properties": {
+                "resource_type": {
+                  "type": "string",
+                  "pattern": "^(?:[\\x20-\\x7e]{1,2048})$(?![\\s\\S])"
+                },
+                "name": {
+                  "type": "string",
+                  "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+                }
+              }
+            },
+            "minItems": 0,
+            "maxItems": 4096,
+            "uniqueItems": true
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 4096
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sdd-forge.local/contracts/cloud-ownership.schema.json",
+  "$comment": "Integrity only, never authority. Runtime also checks contained physical files, exact-byte digests, keyed uniqueness and cross-artifact consistency."
+}

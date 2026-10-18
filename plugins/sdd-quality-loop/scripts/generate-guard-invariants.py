@@ -189,6 +189,17 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
     "plugins/sdd-quality-loop/references/readonly-input-contracts.json",
     "tests/guard-readonly-inputs.tests.py",
+    "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+    "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+    "contracts/verification-contract-v3.schema.json",
+    "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+    "contracts/selected-verification-plan-v2.schema.json",
+    "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+    "contracts/cloud-verification-registry.schema.json",
+    "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

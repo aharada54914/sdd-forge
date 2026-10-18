@@ -1,0 +1,8 @@
+{
+  "note": "Existing negative-test symlink is not a regular review input. Preserve fixture unchanged; actual regular target is already admitted. Original report hash follows the target, not the link text. Original failed preflight is preserved; no evaluator turn/reservation occurred. No production/source evidence omitted.",
+  "path": "tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered-symlink.py",
+  "kind": "symlink",
+  "link_text": "check-registered.py",
+  "regular_target": "tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered.py",
+  "target_sha256": "8154a68e0fd5205dcf567d5d0efa4c7ff7588dcf9bdc4e5cb973e4bd624953bf"
+}

@@ -1,0 +1,24 @@
+{
+  "thread_id": "01a14de5-5c8e-7223-ad7c-855bb0bde8f9",
+  "session_id": "01a14de5-5c8e-7223-ad7c-855bb0bde8f9",
+  "turn": {
+    "id": "01a14de5-5ce8-7ca2-9dae-d747030c68cf",
+    "items": [
+      {
+        "type": "agentMessage",
+        "id": "msg_05255556c9706029016ad47b2f5b448191b4752a61f8a688a8",
+        "text": "T-012 remains incomplete.\n\n- Committed replay regressions: `1082e961`; both fail.\n- Cross-job authenticated intent fence is still required.\n- Report corrected; manifest and v2 report validators pass.\n- Live TEST-003/005/009 remain BLOCKED.\n\nHandoff saved in `reports/implementation/cloud-orchestration/T-012.md`. Per required compaction policy, implementation must resume in a fresh session. No task status changed.",
+        "phase": "final_answer",
+        "memoryCitation": null,
+        "delivery": null,
+        "questions": null
+      }
+    ],
+    "itemsView": "summary",
+    "status": "completed",
+    "error": null,
+    "startedAt": 1792308239,
+    "completedAt": 1792310065,
+    "durationMs": 1826101
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R7.journal-created_at",
+      "row": 7,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "JOURNAL_MISMATCH_ACCEPTED",
+      "guards": []
+    }
+  ]
+}

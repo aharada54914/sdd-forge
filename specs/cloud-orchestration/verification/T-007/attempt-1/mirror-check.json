@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "scripts/sync-human-copy-mirrors.py",
+    "--check"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:39:09Z",
+  "exit_code": 0,
+  "elapsed_seconds": 0.072,
+  "classification": "offline local command; no live cloud"
+}

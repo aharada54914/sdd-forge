@@ -1,0 +1,93 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "cloud-orchestration",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "01a14d4d-bd6c-7710-8f38-b466a6f2543c",
+  "host_session_id": "01a14d4d-bd6c-7710-8f38-b466a6f2543c",
+  "manifest": {
+    "allowed_inputs": [
+      {"path":"specs/cloud-orchestration/requirements.md","sha256":"31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"},
+      {"path":"specs/cloud-orchestration/acceptance-tests.md","sha256":"4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"},
+      {"path":"reports/task-review/cloud-orchestration/attempt-2/round-1/precheck-result.json","sha256":"7830df3a3365ab2fdab7a25092e5e2bfd245b65a7355a7d12fa10e8e6333778b"},
+      {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"},
+      {"path":"specs/cloud-orchestration/design.md","sha256":"f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"},
+      {"path":"specs/cloud-orchestration/tasks.md","sha256":"f3507908928a7de8a087617360d6cba836e08a1ff45db28166dc4d24e80dc998"},
+      {"path":"specs/cloud-orchestration/traceability.md","sha256":"6c7c7ff4fd36cb0468a5d91f6228b1d27f55f408e7098a660285290df277a0e0"},
+      {"path":"specs/cloud-orchestration/ux-spec.md","sha256":"d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"},
+      {"path":"specs/cloud-orchestration/frontend-spec.md","sha256":"586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"},
+      {"path":"specs/cloud-orchestration/infra-spec.md","sha256":"9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"},
+      {"path":"specs/cloud-orchestration/security-spec.md","sha256":"fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"},
+      {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"},
+      {"path":"reports/task-review/cloud-orchestration/attempt-2/round-1/integrated-summary.json","sha256":"7e543503129235730ef58d5e0fcc6f422eca5bcf8e0f19e1466dc5432603c6c1"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 through T-007 and T-009 through T-013 cover contracts, authorization, identity policies or protected dispatch and declare high risk. T-001 scoped regression integration and T-008 documentation/release delivery declare medium risk without adding cloud authority."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every high-risk task's Done When requires failing tests committed before implementation, Red→Green evidence and a named independent reviewer verdict. No critical task is declared."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Provider-local preparation, governed execution, observation, dispatch, dependency validation, packaging and host integration have separate task boundaries. Each task has four or five Done When bullets; no single-edit fragmentation is present."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001 through AC-012 and corresponding task criteria include removed anchors, unsupported owners, missing backup, digest mutation, denied authorization, replay/timeouts, destructive changes, unsupported profiles, stale observations, unsafe evidence and direct-entry denial. T-008 is documentation/release work."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Planned integration cases cross router/entry, authorization/executor, collector/reducer or installer/installed-entry boundaries. Local module cases are distinguished from real compile/synthesis, isolated host and live sandbox evidence; acceptance checks cite AC-001 through AC-014."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every high-risk task explicitly requires a documented and tested rollback procedure with hashes and baseline output. The shared rollback section requires task-owned restoration, disables defective cloud entry/workflows and prohibits destructive cloud rollback or historical ledger restoration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Shared routing tests are ordered T-004 → T-005 → T-011; execution tests T-003 → T-012 → T-013; verification tests T-006 → T-009 → T-010. Provider adapter extensions and final driver wiring also have transitive blocking relationships."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md T-007 declares Blockers: T-010, but its packaging/install scope and Done When consume provider CLIs and shared validation, not T-010's dependency receipt validator or ordering helper. No T-010 output is identified as an installation prerequisite. This unnecessarily places independent packaging behind dependency orchestration and inflates the critical path; identify a concrete consumed artifact or replace the blocker with genuine packaging prerequisites."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Goal requires diagnosis of the historical stale-line failure before further fixes. Done When retains the exact failure log, investigates the section reference and runs the foundation regression command with removal, relocation, duplicate-heading and path-escape cases."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-007",
+      "finding": "tasks.md T-007 Blockers names T-010, whose output is a dependency receipt validator and ordering helper. T-007's plugin manifests, shared-validation installation and install/uninstall tests identify no dependency on that output. The spurious blocker unnecessarily serializes independent packaging behind orchestration work. Specify the actual consumed T-010 artifact or use genuine packaging prerequisites."
+    }
+  ]
+}

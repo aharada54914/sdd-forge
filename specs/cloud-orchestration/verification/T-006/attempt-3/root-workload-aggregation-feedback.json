@@ -1,0 +1,21 @@
+{
+  "classification": "static source finding, no executed exploit",
+  "source_hashes": {
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py": "2423b5368b0715270de96a94648aafdf468ed8ec4565811defd94f882e62b983",
+    "plugins/sdd-azure-cloud/scripts/azure_observation.py": "22ad31a11f0a26afa4a5e8f242428b759b56eb2054106a15ca3a8ac8e5a579f9"
+  },
+  "steer": {
+    "id": 900083,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14e9b-59d8-7aa1-b988-8c2551229993",
+      "expectedTurnId": "01a14e9b-5a16-7780-8aa7-c503b0850f2b",
+      "input": [
+        {
+          "type": "text",
+          "text": "Additional STATIC root finding for workload range semantics (not executed exploit): both workload metric collectors request only Maximum (AWS Statistics / Azure aggregation). For configured Healthy minimum=maximum=1, a native period containing samples 0 and 1 aggregates Maximum=1 and can hide below-minimum unhealthy data; current bad fixture999 only exercises above-maximum. The fixed config has both minimum and maximum, so inspect whether this satisfies the actual intended range contract. Prefer native Minimum+Maximum in the same fixed metric request and enforce both bounds (while StatusCheckFailed monitoring Maximum remains appropriate), using the already admitted official statistic/aggregation response shapes; add actual below-minimum/mixed-bucket Red before correction if confirmed. Do not invent API fields or claim this static observation was a live/independent finding. Existing window tests cover multiple returned buckets, not necessarily within-bucket aggregation."
+        }
+      ]
+    }
+  }
+}

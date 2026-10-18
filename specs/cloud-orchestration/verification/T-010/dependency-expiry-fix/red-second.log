@@ -1,0 +1,850 @@
+NETWORK_SENTINEL_PARENT_CHILD_SHELL_PASS
+NETWORK_SENTINEL_POWERSHELL_CHILD_PASS
+test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) ... SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=11) ... FAIL
+test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) ... SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=11) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 0 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=0) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 10 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=10) ... FAIL
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 11 admissions [1792303200, 1792303200] guards [] target_native_submissions 0 result BLOCKED
+  test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=11) ... FAIL
+test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) ... 
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='predecessor') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='policy') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='oidc') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='provider') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='predecessor') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='policy') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='oidc') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='provider') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='preview') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='predecessor') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='policy') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='oidc') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='provider') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='predecessor') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='policy') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='oidc') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='provider') ... ERROR
+  test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='preview') ... ERROR
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='oidc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='prepare', bound='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='oidc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='azure', stage='apply', bound='preview')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='oidc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='prepare', bound='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='predecessor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='oidc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='provider')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+ERROR: test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) (provider='aws', stage='apply', bound='preview')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5553, in test_receipt_expiry_minimum_and_empty_predecessors
+    ref, _ = case.write()
+             ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 315, in write
+    return (boundary or self.boundary).write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_authorization.py", line 619, in write
+    raise AdmissionDenied("WRITE_ADMISSION_BLOCKED") from None
+cloud_authorization.AdmissionDenied: WRITE_ADMISSION_BLOCKED
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['authentication']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'authentication'
+
+- []
++ ['authentication']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['authentication']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'authentication'
+
+- []
++ ['authentication']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='publish', checkpoint='authentication', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['authentication']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'authentication'
+
+- []
++ ['authentication']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['authentication']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'authentication'
+
+- []
++ ['authentication']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['authentication']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'authentication'
+
+- []
++ ['authentication']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='authentication', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['authentication']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'authentication'
+
+- []
++ ['authentication']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['authentication']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'authentication'
+
+- []
++ ['authentication']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['authentication']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'authentication'
+
+- []
++ ['authentication']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='authentication', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['authentication']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'authentication'
+
+- []
++ ['authentication']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['readback']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'readback'
+
+- []
++ ['readback']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['readback']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'readback'
+
+- []
++ ['readback']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='create', checkpoint='readback', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['readback']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'readback'
+
+- []
++ ['readback']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['readback']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'readback'
+
+- []
++ ['readback']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['readback']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'readback'
+
+- []
++ ['readback']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='readback', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['readback']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'readback'
+
+- []
++ ['readback']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['history']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'history'
+
+- []
++ ['history']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['history']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'history'
+
+- []
++ ['history']
+
+======================================================================
+FAIL: test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) (mutation='execute', checkpoint='history', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5513, in test_aws_callback_freshness_readback_history_and_authentication
+    self.callback_case("aws", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['history']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'history'
+
+- []
++ ['history']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['validation']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'validation'
+
+- []
++ ['validation']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['validation']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'validation'
+
+- []
++ ['validation']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='validation', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['validation']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'validation'
+
+- []
++ ['validation']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['journal']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'journal'
+
+- []
++ ['journal']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['journal']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'journal'
+
+- []
++ ['journal']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='preview', checkpoint='journal', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['journal']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'journal'
+
+- []
++ ['journal']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['validation']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'validation'
+
+- []
++ ['validation']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['validation']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'validation'
+
+- []
++ ['validation']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='validation', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['validation']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'validation'
+
+- []
++ ['validation']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['journal']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'journal'
+
+- []
++ ['journal']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['journal']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'journal'
+
+- []
++ ['journal']
+
+======================================================================
+FAIL: test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) (mutation='deploy', checkpoint='journal', elapsed=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5500, in test_azure_callback_freshness_validation_and_journal
+    self.callback_case("azure", mutation, checkpoint, elapsed)
+  File "tests/cloud-orchestration-verification.tests.py", line 5484, in callback_case
+    self.assertEqual(delays, [checkpoint])
+AssertionError: Lists differ: [] != ['journal']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'journal'
+
+- []
++ ['journal']
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.293s
+
+FAILED (failures=30, errors=18)

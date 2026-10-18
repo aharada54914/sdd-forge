@@ -1,0 +1,1 @@
+{"id": "synthetic-profile", "max_age_seconds": 300, "required_check_ids": ["resource", "network", "identity", "monitoring", "workload", "backup"], "schema": "cloud-verification-profile/v1", "version": "1"}

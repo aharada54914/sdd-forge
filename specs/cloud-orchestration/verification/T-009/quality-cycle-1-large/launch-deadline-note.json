@@ -1,0 +1,10 @@
+{
+  "scope": "caller launch only; unchanged canonical automated preflight and reservation; no manual fallback",
+  "adapter": "specs/cloud-orchestration/verification/T-009/quality-cycle-1-large/large-input-preflight.py",
+  "canonical_preflight": "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+  "canonical_sha256": "4a9fa0c679b77959983eb3cc6c0674c03c2c3e3641d41b374fdbae51cb758a3e",
+  "original_timeout_seconds": 120,
+  "extended_timeout_seconds": 600,
+  "prior_invocation_to_error_seconds": 120.105,
+  "checks": "All canonical validation, manifest/scratch hashes and atomic identity reservation still required. No input trimmed and no condition disabled. Earlier attempt stopped before model turn/reservation."
+}

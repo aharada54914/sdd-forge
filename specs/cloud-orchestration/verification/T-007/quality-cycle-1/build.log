@@ -1,0 +1,1 @@
+{"command": ["python3", "-m", "py_compile", "tests/install-cloud.tests.py", "specs/cloud-orchestration/verification/T-007/attempt-1/run-command.py", "specs/cloud-orchestration/verification/T-007/attempt-1/rollback.py"], "exit_code": 0, "stdout": "", "stderr": ""}

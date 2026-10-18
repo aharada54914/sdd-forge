@@ -1,0 +1,8 @@
+{
+  "url": "https://servicereference.us-east-1.amazonaws.com/v1/cloudformation/cloudformation.json",
+  "path": "/tmp/cloud-api-reference/aws-cloudformation-authorization.json",
+  "sha256": "5f5214d42df63c5d04964ae9086788bc060bd09d52c92a75ba51f6914385e83c",
+  "bytes": 74566,
+  "acquired_at": "2026-10-18T08:31:08.009568+00:00",
+  "classification": "official AWS machine-readable service authorization reference, read-only snapshot, no provider operation"
+}

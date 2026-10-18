@@ -1,0 +1,14 @@
+RUN_ID: 01a14de1-35b7-7760-b4ee-0b632572f054
+HOST_SESSION_ID: 01a14de1-35b7-7760-b4ee-0b632572f054
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-005/quality-cycle-1/review/invocation.json SHA-256 a74e830d9ebc0b572af620cc5739172d7f4d5a60155070b01de4dacb0f14cec1
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Verified invocation through hash-checked review_read; recomputed reservation receipt hash successfully and confirmed separate implementation identity.
+- Inspected T-005 scope against REQ-002/003/007, acceptance criteria, design, layer specifications and ADR 0036.
+- Inspected cloud.py:141–265, aws_local.py:94–280 and aws_graph.py:112–206: owner/import denial, pinned synthesis, immutable assembly, structural policy and governed-phase blocking are implemented.
+- Inspected test assertions and saved gate output: 86 routing tests passed without skips; 31 contract regressions passed. Saved lint, typecheck, build and contract checks succeeded.
+- Inspected native assembly and receipts: seven files retained, CDK synthesis exit 0, matching plan/validate hashes, and no invented compiler execution during validation.
+- Inspected routing diff, Red evidence and rollback harness/logs: original Azure tests retained; baseline/restored runs each passed 42 tests, candidate run passed four.
+- No tests rerun in this read-only evaluation. Component coverage reported disabled-legacy/not-applicable. Live cloud acceptance remains BLOCKED; later execution, packaging and host-integration tasks are outside this PASS.

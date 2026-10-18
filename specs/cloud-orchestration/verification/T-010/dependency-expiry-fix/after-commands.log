@@ -1,0 +1,32 @@
+2026-10-18T14:54:35Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py tests/cloud-orchestration-verification.tests.py
+2026-10-18T14:57:03Z EXIT verification 0
+test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) ... ok
+
+----------------------------------------------------------------------
+Ran 109 tests in 147.195s
+
+OK
+2026-10-18T14:57:03Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py tests/cloud-orchestration-execution.tests.py
+2026-10-18T14:57:14Z EXIT execution 0
+test_unknown_semantics_at_real_callsite_blocks_zero_apply (__main__.AzureExecution.test_unknown_semantics_at_real_callsite_blocks_zero_apply) ... ok
+
+----------------------------------------------------------------------
+Ran 86 tests in 10.471s
+
+OK
+2026-10-18T14:57:14Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py tests/cloud-orchestration-routing.tests.py
+2026-10-18T14:59:03Z EXIT routing 0
+test_unsupported_only_unit_is_not_migrated (__main__.AzureRouting.test_unsupported_only_unit_is_not_migrated) ... ok
+
+----------------------------------------------------------------------
+Ran 86 tests in 108.950s
+
+OK
+2026-10-18T14:59:03Z COMMAND python3 -B specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py tests/cloud-orchestration-contracts.tests.py
+2026-10-18T14:59:04Z EXIT contracts 0
+test_verification_inconsistent_claims_and_duplicate_checks (__main__.Contracts.test_verification_inconsistent_claims_and_duplicate_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.386s
+
+OK

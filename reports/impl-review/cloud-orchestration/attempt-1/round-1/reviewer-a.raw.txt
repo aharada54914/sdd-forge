@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a14d2d-6986-73f0-9fd7-c7b1180012aa",
+  "host_session_id": "01a14d2d-6986-73f0-9fd7-c7b1180012aa",
+  "allowed_input_manifest": [
+    {"path":"specs/cloud-orchestration/requirements.md","sha256":"a6961460c29e6612aff917f7aaf2ba5a58fbed1636c0745312a0045e04933a13"},
+    {"path":"specs/cloud-orchestration/acceptance-tests.md","sha256":"94dc8ef93766bce1cabcf08913f1830398e531f825166adc852dacfba2f98ec0"},
+    {"path":"specs/cloud-orchestration/investigation.md","sha256":"38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"},
+    {"path":"reports/impl-review/cloud-orchestration/attempt-1/round-1/precheck-result.json","sha256":"77f1e30387cfc98a7bbbf5a3861f68f7aed5d72e44cadb416d845f0a5fbba79a"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"},
+    {"path":"specs/cloud-orchestration/design.md","sha256":"b45b4d44ac1bb610998a0827179cfe8da7fbc4dc699ebc6a09430d559101f32f"},
+    {"path":"specs/cloud-orchestration/ux-spec.md","sha256":"d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"},
+    {"path":"specs/cloud-orchestration/frontend-spec.md","sha256":"586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"},
+    {"path":"specs/cloud-orchestration/infra-spec.md","sha256":"9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"},
+    {"path":"specs/cloud-orchestration/security-spec.md","sha256":"fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "developer-tooling / cloud orchestration",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md Architecture defines bootstrap-to-provider execution and observation interactions; Components assigns ownership and Python, provider CLI/CDK, existing evaluator and GitHub Actions technologies. Frontend specification explicitly excludes a browser layer; provider deployment state owns persistence."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. The depicted execution flow is acyclic."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Data Plan names operation artifact entities, existing inventory/binding/evidence effects, versioned migration and unchanged legacy dispatch, plus contained no-overwrite artifact storage."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md API / Contract Plan lists six JSON document families and mandatory content, but does not define the public invocation contracts for the new provider skills and route/prepare/apply/reconcile/verify operations required by REQ-011 and AC-011. Specify each entry's accepted inputs, returned result schema and failure/compatibility behavior, and identify breaking or deprecated interfaces. Without this, direct invocation and bootstrap integration can implement incompatible interfaces despite sharing artifact schemas."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Security Boundaries identifies local-to-CI, CI-to-provider and provider-to-evidence boundaries with authentication, authorization, classification and OWASP concerns. security-spec.md refines OIDC restrictions, protected revisions, injection defenses, redaction and negative tests."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no fullstack surface exists. Feature Type is developer-tooling / cloud orchestration; frontend-spec.md explicitly declares no browser client, frontend state or web routes."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md Test Strategy names TEST-001–012, fixture transports, integration regressions and isolated verify-codex behavior, but does not identify unit-tested modules and their mocked boundaries. AC-002 names unit/integration testing of the router without supplying that missing scope. Define unit scope for routing, contract/digest validation and verification reduction, distinguishing mocked CI/provider behavior from integration coverage; otherwise the required unit level remains ambiguous."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Architecture component labels resolve to Components responsibilities or named detailed-design subsections: routing, provider skills, shared validation, protected CI, approval, collectors and verification. Existing bootstrap and evaluator integration is established by investigation.md."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md ADR Change Log identifies new thin-provider/CI-authorization/separate-lifecycle decisions through a Markdown link to ../../docs/adr/0036-thin-cloud-orchestration.md. This is not the required single-backtick canonical ADR declaration; precheck adr_inputs is empty, so no ADR is admitted and its existence/content cannot be verified. Add the canonical inline declaration and regenerate the hash-bound ADR admission. This is an unverifiable architectural decision record, not evidence that the file is absent."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped applicability: design.md Design System Compliance records exactly N/A — ds_profile: none."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped applicability: the host states no domain/ directory exists, consistent with investigation.md's domain-sync statement."
+    }
+  ]
+}

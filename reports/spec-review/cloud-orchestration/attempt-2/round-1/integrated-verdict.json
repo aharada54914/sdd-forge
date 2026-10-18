@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "cloud-orchestration",
+  "attempt": 2,
+  "round": 1,
+  "reviewer_a_run_id": "01a14d37-99d1-7c01-885a-1af0ae96d2fb",
+  "reviewer_b_run_id": "01a14d39-dfe9-7c40-96b2-8a3c6716a340",
+  "reviewer_a_host_session_id": "01a14d37-99d1-7c01-885a-1af0ae96d2fb",
+  "reviewer_b_host_session_id": "01a14d39-dfe9-7c40-96b2-8a3c6716a340",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

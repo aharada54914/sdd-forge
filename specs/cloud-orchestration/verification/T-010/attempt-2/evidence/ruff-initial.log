@@ -1,0 +1,316 @@
+F401 [*] `cloud.digest` imported but unused
+  --> plugins/sdd-aws-cloud/scripts/aws_governed.py:25:30
+   |
+23 |     HERE.parents[1] / "sdd-quality-loop/scripts"
+24 | )
+25 | from cloud import c, decode, digest, encode, run  # noqa: E402
+   |                              ^^^^^^
+26 | from aws_native import Response  # noqa: E402,F401
+27 | from aws_execution import AwsExecutor  # noqa: E402
+   |
+help: Remove unused import: `cloud.digest`
+
+F401 [*] `cloud.digest` imported but unused
+  --> plugins/sdd-azure-cloud/scripts/azure_governed.py:24:30
+   |
+22 |     HERE.parents[1] / "sdd-quality-loop/scripts"
+23 | )
+24 | from cloud import c, decode, digest, encode, run  # noqa: E402
+   |                              ^^^^^^
+25 | from azure_arm import Response  # noqa: E402,F401
+26 | from azure_execution import AzureExecutor  # noqa: E402
+   |
+help: Remove unused import: `cloud.digest`
+
+F401 [*] `cloud_verification.encode` imported but unused
+  --> plugins/sdd-quality-loop/scripts/cloud_dependencies.py:26:48
+   |
+24 | import cloud_contracts as c
+25 | import cloud_verification as v
+26 | from cloud_verification import decode, digest, encode
+   |                                                ^^^^^^
+   |
+help: Remove unused import: `cloud_verification.encode`
+
+E731 Do not assign a `lambda` expression, use a `def`
+   --> plugins/sdd-quality-loop/scripts/cloud_dependencies.py:192:5
+    |
+190 | def validate_trust(pin: dict) -> None:
+191 |     """Closed external executor configuration, not an artifact-supplied authority."""
+192 |     repository = lambda x: c._match(x, r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+")
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+193 |     positive = lambda x: c._require(type(x) is int and 0 < x < 10**20)
+194 |     identities = lambda x: c._list(x, lambda pair: c._require(
+    |
+help: Rewrite `repository` as a `def`
+
+E731 Do not assign a `lambda` expression, use a `def`
+   --> plugins/sdd-quality-loop/scripts/cloud_dependencies.py:193:5
+    |
+191 |     """Closed external executor configuration, not an artifact-supplied authority."""
+192 |     repository = lambda x: c._match(x, r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+")
+193 |     positive = lambda x: c._require(type(x) is int and 0 < x < 10**20)
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+194 |     identities = lambda x: c._list(x, lambda pair: c._require(
+195 |         type(pair) is list and len(pair) == 2 and type(pair[0]) is int and pair[0] > 0
+    |
+help: Rewrite `positive` as a `def`
+
+E731 Do not assign a `lambda` expression, use a `def`
+   --> plugins/sdd-quality-loop/scripts/cloud_dependencies.py:194:5
+    |
+192 |       repository = lambda x: c._match(x, r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+")
+193 |       positive = lambda x: c._require(type(x) is int and 0 < x < 10**20)
+194 | /     identities = lambda x: c._list(x, lambda pair: c._require(
+195 | |         type(pair) is list and len(pair) == 2 and type(pair[0]) is int and pair[0] > 0
+196 | |         and type(pair[1]) is str and re.fullmatch(r"[A-Za-z0-9_-]+", pair[1])), 1)
+    | |__________________________________________________________________________________^
+197 |       c._record(pin, dict(
+198 |           unit_id=c._id, run_id=c._id, provider=lambda x: c._enum(x, ("azure", "aws")),
+    |
+help: Rewrite `identities` as a `def`
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-verification.tests.py:4291:54
+     |
+4289 |                 guard="DEPENDENCY_PRODUCER_OUTPUT_MISMATCH"
+4290 |                 if variant=="job":
+4291 |                     state.job["conclusion"]="failure"; guard="DEPENDENCY_VERIFY_JOB_REQUIRED"
+     |                                                      ^
+4292 |                 elif variant=="run":
+4293 |                     state.run["conclusion"]="failure"; guard="DEPENDENCY_RUN_MISMATCH"
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-verification.tests.py:4293:54
+     |
+4291 |                     state.job["conclusion"]="failure"; guard="DEPENDENCY_VERIFY_JOB_REQUIRED"
+4292 |                 elif variant=="run":
+4293 |                     state.run["conclusion"]="failure"; guard="DEPENDENCY_RUN_MISMATCH"
+     |                                                      ^
+4294 |                 elif variant=="artifact":
+4295 |                     state.metadata["expired"]=True; guard="ARTIFACT_IDENTITY_CHANGED"
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-verification.tests.py:4295:51
+     |
+4293 |                     state.run["conclusion"]="failure"; guard="DEPENDENCY_RUN_MISMATCH"
+4294 |                 elif variant=="artifact":
+4295 |                     state.metadata["expired"]=True; guard="ARTIFACT_IDENTITY_CHANGED"
+     |                                                   ^
+4296 |                 elif variant=="stale":
+4297 |                     state.target.boundary.clock=lambda: state.now+10000; guard="DEPENDENCY_NOT_VERIFIED"
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-verification.tests.py:4297:72
+     |
+4295 | …         state.metadata["expired"]=True; guard="ARTIFACT_IDENTITY_CHANGED"
+4296 | …     elif variant=="stale":
+4297 | …         state.target.boundary.clock=lambda: state.now+10000; guard="DEPENDENCY_NOT_VERIFIED"
+     |                                                              ^
+4298 | …     else:
+4299 | …         suffix={"classification":".manifest.json", "context":".context.json", "observation":".manifest.json", "payload":".manifest…
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4302:49
+     |
+4300 |                     path=state.producer.root/(state.output+suffix)
+4301 |                     value=json.loads(path.read_bytes())
+4302 |                     if variant=="classification": value["classification"]="synthetic"
+     |                                                 ^
+4303 |                     elif variant=="context": value["principal"]="wrong-principal"
+4304 |                     elif variant in ("observation","payload"):
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4303:44
+     |
+4301 |                     value=json.loads(path.read_bytes())
+4302 |                     if variant=="classification": value["classification"]="synthetic"
+4303 |                     elif variant=="context": value["principal"]="wrong-principal"
+     |                                            ^
+4304 |                     elif variant in ("observation","payload"):
+4305 |                         row=value["observations"][0]
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4310:49
+     |
+4308 | …         value=json.loads(path.read_bytes())
+4309 | …         value["principal" if variant=="observation" else "context_sha256"]="wrong" if variant=="observation" else "b"*64
+4310 | …     elif variant=="verification": value["evidence_complete"]=False
+     |                                   ^
+4311 | …     elif variant=="plan": value["verdict"]="BLOCKED"
+4312 | …     else: value.update(result="BLOCKED",state="BLOCKED",error_code="EVIDENCE_INCOMPLETE")
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4311:41
+     |
+4309 | …         value["principal" if variant=="observation" else "context_sha256"]="wrong" if variant=="observation" else "b"*64
+4310 | …     elif variant=="verification": value["evidence_complete"]=False
+4311 | …     elif variant=="plan": value["verdict"]="BLOCKED"
+     |                           ^
+4312 | …     else: value.update(result="BLOCKED",state="BLOCKED",error_code="EVIDENCE_INCOMPLETE")
+4313 | …     path.write_bytes(encode(value))
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4312:25
+     |
+4310 |                     elif variant=="verification": value["evidence_complete"]=False
+4311 |                     elif variant=="plan": value["verdict"]="BLOCKED"
+4312 |                     else: value.update(result="BLOCKED",state="BLOCKED",error_code="EVIDENCE_INCOMPLETE")
+     |                         ^
+4313 |                     path.write_bytes(encode(value))
+4314 |                     if variant in ("context","observation","payload","verification"):
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-verification.tests.py:4377:51
+     |
+4375 |                     object.__setattr__(state.target.policy,"predecessor_trust",())
+4376 |                 elif variant=="trust-added":
+4377 |                     other=copy.deepcopy(state.pin);other["unit_id"]="other"
+     |                                                   ^
+4378 |                     object.__setattr__(state.target.policy,"predecessor_trust",(state.pin,other))
+4379 |                 else:
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-verification.tests.py:4384:59
+     |
+4382 |                     else:
+4383 |                         # New valid-format independent receipt, not a duplicate/schema error.
+4384 |                         other=copy.deepcopy(state.receipt);other["unit_id"]="other"
+     |                                                           ^
+4385 |                         path=state.ref["path"].replace('/'+state.receipt["unit_id"]+'/', '/other/')
+4386 |                         ref=state.target.put(path,other)
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-verification.tests.py:4399:33
+     |
+4397 |         values=[]
+4398 |         for unit in ("C","B","A"):
+4399 |             value=request("aws");value["unit_id"]=unit
+     |                                 ^
+4400 |             if unit=="C":value["predecessor_receipts"]=[dict(unit_id="B",path="b.json",sha256="a"*64)]
+4401 |             values.append(value)
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4400:25
+     |
+4398 |         for unit in ("C","B","A"):
+4399 |             value=request("aws");value["unit_id"]=unit
+4400 |             if unit=="C":value["predecessor_receipts"]=[dict(unit_id="B",path="b.json",sha256="a"*64)]
+     |                         ^
+4401 |             values.append(value)
+4402 |         return values
+     |
+
+E731 Do not assign a `lambda` expression, use a `def`
+    --> tests/cloud-orchestration-verification.tests.py:4413:17
+     |
+4411 |             with self.subTest(variant=variant):
+4412 |                 changed=copy.deepcopy(values)
+4413 |                 edge=lambda unit:dict(unit_id=unit,path="b.json",sha256="a"*64)
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4414 |                 if variant=="cycle":changed[1]["predecessor_receipts"]=[edge("C")]
+4415 |                 elif variant=="self":changed[1]["predecessor_receipts"]=[edge("B")]
+     |
+help: Rewrite `edge` as a `def`
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4414:36
+     |
+4412 |                 changed=copy.deepcopy(values)
+4413 |                 edge=lambda unit:dict(unit_id=unit,path="b.json",sha256="a"*64)
+4414 |                 if variant=="cycle":changed[1]["predecessor_receipts"]=[edge("C")]
+     |                                    ^
+4415 |                 elif variant=="self":changed[1]["predecessor_receipts"]=[edge("B")]
+4416 |                 elif variant=="duplicate-unit":changed.append(copy.deepcopy(changed[1]))
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4415:37
+     |
+4413 |                 edge=lambda unit:dict(unit_id=unit,path="b.json",sha256="a"*64)
+4414 |                 if variant=="cycle":changed[1]["predecessor_receipts"]=[edge("C")]
+4415 |                 elif variant=="self":changed[1]["predecessor_receipts"]=[edge("B")]
+     |                                     ^
+4416 |                 elif variant=="duplicate-unit":changed.append(copy.deepcopy(changed[1]))
+4417 |                 elif variant=="duplicate-edge":changed[0]["predecessor_receipts"]*=2
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4416:47
+     |
+4414 |                 if variant=="cycle":changed[1]["predecessor_receipts"]=[edge("C")]
+4415 |                 elif variant=="self":changed[1]["predecessor_receipts"]=[edge("B")]
+4416 |                 elif variant=="duplicate-unit":changed.append(copy.deepcopy(changed[1]))
+     |                                               ^
+4417 |                 elif variant=="duplicate-edge":changed[0]["predecessor_receipts"]*=2
+4418 |                 else:changed[0]["predecessor_receipts"]=[edge("absent")]
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4417:47
+     |
+4415 |                 elif variant=="self":changed[1]["predecessor_receipts"]=[edge("B")]
+4416 |                 elif variant=="duplicate-unit":changed.append(copy.deepcopy(changed[1]))
+4417 |                 elif variant=="duplicate-edge":changed[0]["predecessor_receipts"]*=2
+     |                                               ^
+4418 |                 else:changed[0]["predecessor_receipts"]=[edge("absent")]
+4419 |                 with self.assertRaises(ValueError):d.ordered_units(changed)
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4418:21
+     |
+4416 |                 elif variant=="duplicate-unit":changed.append(copy.deepcopy(changed[1]))
+4417 |                 elif variant=="duplicate-edge":changed[0]["predecessor_receipts"]*=2
+4418 |                 else:changed[0]["predecessor_receipts"]=[edge("absent")]
+     |                     ^
+4419 |                 with self.assertRaises(ValueError):d.ordered_units(changed)
+     |
+
+E701 Multiple statements on one line (colon)
+    --> tests/cloud-orchestration-verification.tests.py:4419:51
+     |
+4417 |                 elif variant=="duplicate-edge":changed[0]["predecessor_receipts"]*=2
+4418 |                 else:changed[0]["predecessor_receipts"]=[edge("absent")]
+4419 |                 with self.assertRaises(ValueError):d.ordered_units(changed)
+     |                                                   ^
+4420 |
+4421 |     def test_transitive_unknown_preserves_identity_without_retry(self):
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-verification.tests.py:4424:28
+     |
+4422 |         self.assertTrue((SHARED/"cloud_dependencies.py").is_file(),"Ordering component absent")
+4423 |         import cloud_dependencies as d
+4424 |         values=self.graph();values[2]["predecessor_receipts"]=[dict(unit_id="C",path="c.json",sha256="a"*64)]
+     |                            ^
+4425 |         calls=[]
+4426 |         unknown=dict(result="UNKNOWN",native_operation_id="original-operation")
+     |
+
+E702 Multiple statements on one line (semicolon)
+    --> tests/cloud-orchestration-verification.tests.py:4427:54
+     |
+4425 |         calls=[]
+4426 |         unknown=dict(result="UNKNOWN",native_operation_id="original-operation")
+4427 |         def execute(req):calls.append(req["unit_id"]);return unknown
+     |                                                      ^
+4428 |         result=d.dispatch(values,execute,{},None)
+4429 |         self.assertEqual(calls,["B"])
+     |
+
+Found 28 errors.
+[*] 3 fixable with the `--fix` option (4 hidden fixes can be enabled with the `--unsafe-fixes` option).

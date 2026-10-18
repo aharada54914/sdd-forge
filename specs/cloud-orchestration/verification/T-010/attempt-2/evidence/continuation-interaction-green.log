@@ -1,0 +1,15 @@
+NETWORK_SENTINEL_PARENT_CHILD_PASS
+test_emitted_contracts_are_closed (__main__.AwsObservationOrchestration.test_emitted_contracts_are_closed) ... ok
+test_legacy_physical_config_rejected_before_admission (__main__.AwsObservationOrchestration.test_legacy_physical_config_rejected_before_admission) ... ok
+test_native_healthy_substitute_response_blocks (__main__.AwsObservationOrchestration.test_native_healthy_substitute_response_blocks) ... ok
+test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) ... ok
+test_original_native_operation_not_copied_receipt (__main__.AwsObservationOrchestration.test_original_native_operation_not_copied_receipt) ... ok
+test_publication_fresh_checks_never_reuse_saved_success (__main__.AwsObservationOrchestration.test_publication_fresh_checks_never_reuse_saved_success) ... ok
+test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) ... ok
+test_unknown_create_ids_resolved_without_request_edits (__main__.AwsObservationOrchestration.test_unknown_create_ids_resolved_without_request_edits) ... ok
+test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 6.053s
+
+OK

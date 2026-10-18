@@ -1,0 +1,53 @@
+{
+  "records": [
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "plugins/sdd-azure-cloud/scripts/cloud.py",
+        "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+        "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+        "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+        "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/cloud-orchestration/verification/T-012/caller-type-fix/typecheck.log",
+      "started_at": "2026-10-18T08:18:55.702017+00:00"
+    },
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "plugins/sdd-azure-cloud/scripts/cloud.py",
+        "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+        "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+        "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+        "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/cloud-orchestration/verification/T-012/caller-type-fix/lint.log",
+      "started_at": "2026-10-18T08:18:56.155942+00:00"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/cloud-orchestration/verification/T-012/caller-type-fix/execution.log",
+      "started_at": "2026-10-18T08:18:56.179547+00:00"
+    }
+  ],
+  "source_sha256": "79c1d170d1e68cdcd353594507d99b629e7d275e835d9840fff3e8691c38090d",
+  "effect": "Test-only typing/mocking correction; production code unchanged; no suppression or weaker mypy configuration"
+}

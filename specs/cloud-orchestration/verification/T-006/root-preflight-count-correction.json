@@ -1,0 +1,17 @@
+{
+  "recorded_at": "2026-10-18T09:37:35.196054+00:00",
+  "request": {
+    "id": 900063,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14e57-c9ef-7892-a76f-bdaa02a2fde5",
+      "expectedTurnId": "01a14e57-ca33-7151-b4dd-28bf4e32cac5",
+      "input": [
+        {
+          "type": "text",
+          "text": "Correction to the phrase nine-field map in900062: nine rows belonged to T013. For T006 cover every persisted evidence field and counterpart required by its actual contracts; there is no fixed nine-row requirement."
+        }
+      ]
+    }
+  }
+}

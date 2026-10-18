@@ -1,0 +1,34 @@
+{
+  "platform": "Linux",
+  "architecture": "x86_64",
+  "tools": [
+    {
+      "command": [
+        "python3",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "Python 3.12.14"
+    },
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "ruff",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "ruff 0.13.3"
+    },
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "mypy",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "mypy 1.18.2 (compiled: yes)"
+    }
+  ]
+}

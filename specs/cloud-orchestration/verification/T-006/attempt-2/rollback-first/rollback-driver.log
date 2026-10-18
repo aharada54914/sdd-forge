@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-006/attempt-2/rollback.py", line 46, in <module>
+    assert all((ROOT/p).read_bytes()==b for p,b in current.items())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

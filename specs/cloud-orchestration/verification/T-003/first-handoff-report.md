@@ -1,0 +1,308 @@
+# Implementation Report: T-003
+
+- Task ID: T-003
+Run ID: 01a14d65-83d0-76c1-b3a1-d40ee5e2079c
+Task Attempt Count: 1
+- **Run ID**: 01a14d65-83d0-76c1-b3a1-d40ee5e2079c
+- **Session ID**: 01a14d65-83d0-76c1-b3a1-d40ee5e2079c
+- **Scratch Root**: /tmp/cloud-T-003-01a14d65
+- Agent Instance ID: 01a14d65-83d0-76c1-b3a1-d40ee5e2079c
+- Provider / model / effort / tier: openai / gpt-6-astra / high / strong
+- Isolation: fresh-agent; identity supplied by caller, not inherited environment
+spec_revision: 31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922
+Input manifest: `specs/cloud-orchestration/verification/T-003/task-input-manifest.json`, SHA-256 `2b933b0f6b1255c40d63e933a5a184385c5a2063437838b25ffa8a8131f8071e`
+
+## Scope and delivery
+
+Implemented only the T-003 admission boundary, protected workflow/IAM templates
+and admission test cases. No task/approval fields, frozen specifications, schema
+contracts, other-task implementation, root identity ledgers or historical reviews
+were edited. `frozen-input-check.json` records unchanged initial spec/task bytes.
+The spec_revision above is the raw requirements.md SHA-256, not the Git revision.
+T-003 implementation/templates/tests/report were absent at entry (`before.json`);
+T-002 and #423 candidate changes are preserved, not retroactively called Red.
+
+`WriteBoundary.write` is the shared callable immediately before **each** native
+mutation. Its callback is supplied by fixed trusted provider code, not by input
+JSON. It is not a cross-cloud resource engine or an authorization server. Future
+T-012/T-013 adapters must use it for each asset publication, preview creation and
+apply; T-010 owns the dependency-admission seam. Until then, nonempty predecessor
+receipt lists fail closed. Deployment CLI, resource execution, provider preview
+semantics, tool-closure enumeration and reconciliation remain those tasks' work.
+
+## Pre-implementation high-risk preflight
+
+Executed `python3 -B tests/cloud-orchestration-execution.tests.py`: exit 1,
+15 failures because the new admission module is absent (`red.log`). These are
+new admission tests, not retroactive Red for T-002 or #423 candidate work.
+Baseline `python3 -B tests/cloud-orchestration-contracts.tests.py`: exit 0,
+23 tests. Snapshot manifest validator: exit 0, TASK_INPUT_OK. Tests and this
+preflight are committed before any admission implementation.
+
+| Persisted field / claim | Counterpart | Executed failing mismatch test (Red) |
+|---|---|---|
+| receipt schema, run_id, unit_id, provider, operation | T-002 receipt schema and immutable request | test_native_positive_both_stages_providers_and_receipt_contract; test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch |
+| scope.account_id, scope.region, scope.deployment_scope | trusted external target policy and native account/subscription | test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch; test_provider_identity_and_lease_mismatch_before_each_stage |
+| request, dependency_lock, policy, verification_profile, preview path/digests | T-002 verify_binding and authenticated run display_title binding request/preview hashes | test_manifest_and_scope_rebinding_never_matches_authenticated_dispatch; test_native_positive_both_stages_providers_and_receipt_contract |
+| issuer, subject, principal | TLS-authenticated GitHub OIDC endpoint response, provider exchange and native identity | test_each_authenticated_oidc_binding_mismatch_denies; test_provider_identity_and_lease_mismatch_before_each_stage |
+| ci.repository, workflow, workflow_revision, ref, environment, run_id, run_attempt | authenticated OIDC claims, GitHub run/environment and fixed trusted policy | test_each_authenticated_oidc_binding_mismatch_denies; test_each_authenticated_run_binding_mismatch_denies; test_environment_policy_and_missing_api_data_fail_closed |
+| issued_at, expires_at | authenticated OIDC/provider credential lease and stricter policy TTL; never review timestamp | test_each_authenticated_oidc_binding_mismatch_denies; test_provider_identity_and_lease_mismatch_before_each_stage; test_native_positive_both_stages_providers_and_receipt_contract |
+| approval_evidence.locator, sha256 | exact authenticated REST approvals bytes and allowed reviewer/environment IDs | test_absent_revoked_denied_unknown_duplicate_approval_history; test_native_positive_both_stages_providers_and_receipt_contract |
+| immutable receipt publication and replay denial / REQ-006 admission claim | T-002 exclusive publication, one trusted job, workflow first-attempt rule | test_replay_different_instance_tamper_and_unknown_submission_no_retry; test_timeout_is_not_retried_and_receipt_is_retained |
+| zero-write denial / REQ-005, TEST-005 | submit callback count at common boundary | all denial tests, test_local_flags_receipts_and_missing_runtime_never_authorize |
+| canonical conservative concurrency / TEST-006 admission | account/subscription-region templates; external exclusive-writer prerequisite | test_concurrency_key_conservative_canonical_and_scope_prerequisite; test_templates_have_distinct_environments_roles_and_no_cancellation |
+
+No cloud result envelope, VERIFIED verdict, task-state or traceability status
+is persisted by this task. Runtime receipts use the existing closed schema.
+No raw supplied receipts/tokens or reviewer reports are task inputs/evidence.
+All fixture credential values are synthetic. Native Windows and live IAM
+remain unverified; no unsafe filesystem fallback is planned.
+
+The initial failing tests and preflight were committed before implementation in
+`a604a0f0836f90eae493db82b8b35749177d3412`. Only those two explicit task files were committed;
+implementation changes remain uncommitted for the root orchestrator. The exact
+initial test and preflight bytes are also preserved as `red-tests.py` and
+`preflight-before-implementation.md` under this task's verification directory.
+
+## Implemented boundary and trust assumptions
+
+- `Policy` is configured in the separately pinned trusted executor, never loaded
+  from deployment JSON. `Runtime` carries job credentials only, with secret
+  fields excluded from repr. Neither object nor environment flags alone grant
+  authority. No local receipt-import, approved flag, fixture file loader, local
+  CLI credential fallback or generic permissive fallback exists.
+- The default bounded HTTPS transport verifies TLS, denies redirects, accepts
+  only 200 responses, and performs no retry. It fetches the GitHub OIDC token
+  from the authenticated native endpoint. Claims are decoded only from that
+  authenticated TLS response, not an arbitrary supplied JWT. Native STS/Entra
+  federation subsequently verifies the token's signature, audience and subject.
+  This deliberately is not a general-purpose JWT verification library.
+- Authenticated GitHub REST run metadata, environment policy and `/approvals`
+  history use `X-GitHub-Api-Version: 2022-11-28`. Exact repository ID/name,
+  workflow path/commit/ref, dispatch event, actor ID/login, active run and first
+  attempt must agree with native OIDC claims and trusted policy. The run's exact
+  `display_title` binds request and preview SHA-256 before environment approval.
+- Only one unambiguous approval-history entry for the exact environment is
+  accepted in this single-stage dispatch shape. Reviewer IDs/logins must match
+  the protected environment's allowed User reviewers; self-review, admin bypass,
+  wrong environment, missing data, denial, duplicate history, and run_attempt
+  greater than 1 block. History timestamps/attempt IDs are never invented.
+  Reruns require a fresh workflow dispatch and native environment approval.
+- AWS federates at STS, checks subject/audience/issuer and exact assumed-role ARN,
+  then signs `GetCallerIdentity` with the acquired credentials and matches native
+  account/principal. Azure obtains an Entra client-assertion token from its fixed
+  tenant endpoint, reads principal/client/tenant claims solely from that TLS
+  issuance response, and authenticates ARM subscription/tenant readback. Opaque
+  or unsupported Azure token shapes fail closed, not through a guessed identity.
+- Receipt issued_at derives from the authenticated job OIDC lease's iat.
+  expires_at is the minimum of the OIDC expiry, provider lease and iat + policy
+  TTL. No human approval timestamp is inferred. GitHub metadata is checked before
+  federation, after federation, and after receipt scanning/publication; expiry
+  and local bindings are checked again immediately before submit. Native IAM
+  remains authoritative at the actual provider operation; no atomic cross-service
+  revocation guarantee is claimed.
+- T-002 `verify_binding`, `read_artifact` and `publish_artifact` are reused with
+  their existing APIs and unchanged closed receipt schema. Integrity remains
+  separate from authorization. Secret scanning is mandatory; rejected/error scan,
+  changed input, publication collision or unavailable safe filesystem denies.
+  Exact artifact bytes and provider-native operation scope remain the trusted
+  callback's responsibility; it must not reread mutable/untrusted executable code.
+- Canonical unit/stage/stable-mutation receipt paths are exclusive, no-overwrite
+  consumed markers; an in-process latch also rejects repeat submission. Existing
+  or tampered markers cannot authorize or be replaced. Submit exceptions propagate
+  without retry and retain the receipt. These are **job-local** replay controls,
+  not durable external authorization or cloud locks. Trusted native first-attempt
+  jobs and external GitHub/IAM controls provide the surrounding boundary.
+
+## Templates and deployment prerequisites
+
+The two inactive `templates/cloud/github-*.yml` files use JSON-formatted YAML,
+so tests inspect their parsed semantics without a new YAML dependency. Each uses
+one account/subscription-region concurrency key, cancel-in-progress false, and
+separate protected prepare/apply jobs. The immutable request/preview digest is
+in the run name before approval. Only pinned external executor/policy code is
+checked out; deployment bundles are data in a separate directory. No untrusted
+CDK synthesis, package install, hooks or input scripts run with credentials.
+
+IAM templates customize the OIDC subject with repository, environment,
+workflow_ref **and workflow_sha**; native provider trust therefore binds the
+exact protected control workflow revision as well as its ref. Prepare/apply
+roles or Azure applications must be distinct. AWS publication/Change Set creation
+permissions are separated from execution; PassRole is limited to one scoped
+CloudFormation service role. Azure skeleton roles exclude broad Contributor and
+require owner-reviewed resource-specific permissions before live deployment.
+Placeholders and reviewer ID 0 deliberately make these non-deployable unchanged.
+`templates/cloud/iam/README.md` documents the full callable boundary and limits.
+
+One control repository must be the exclusive writer for the entire conservative
+scope, enforced externally by platform/IAM administrators. The trusted policy's
+repository setting records that prerequisite; it does not prove ownership by
+itself. GitHub concurrency does not coordinate unrelated repositories. No local
+lock, fixture result or self-authored approved JSON is claimed to establish
+external serialization. No cloud workflow was activated or IAM policy installed.
+
+## Actual tests and author diagnostics
+
+All external requests in the execution suite use explicitly labeled deterministic
+synthetic transports. The tests exercise real admission decisions, zero-submit
+counts, exact HTTP methods/URLs/versions/authentication bodies, native identity
+parsing and real local filesystem publication. They do not establish live IAM.
+
+| Check | Actual result | Evidence under verification/T-003/ |
+|---|---|---|
+| Initial T-002 baseline | exit 0, 23 tests | baseline.log |
+| Admission Red before implementation | exit 1, 15 failures (module absent) | red.log, red-tests.py, red-commit.txt |
+| Initial slice | exit 1, missing templates after working admission cases | green-initial.log |
+| Post-publication expiry/input-swap Red | exit 1, two failing subcases | red-final-window.log |
+| Post-publication revocation Red | exit 1, one failing subcase | red-final-revocation.log |
+| Final admission suite | exit 0, 22 tests, no skips | green.log, checks.json |
+| Related contract regression | exit 0, 23 tests | regression.log |
+| Ruff using repository config | exit 0, six current Python source/evidence files | lint.log, checks.json |
+| Mypy using repository config | exit 0, six current Python source/evidence files | typecheck.log, checks.json |
+| Syntax build (not a typecheck) | py_compile successful, scratch-only bytecode | build.log |
+| Stdlib line tracing of actual suite | exit 0, 22 tests; admission module 99% reported line coverage | coverage.log, cloud_authorization.cover |
+| Initial and supplemental input manifests | exit 0, TASK_INPUT_OK against preserved snapshot | manifest-validation-final.log, supplemental-manifest-validation.log |
+| Focused security/secret-pattern checks | no findings; not an exhaustive audit | security-check.json |
+| Disposable rollback | candidate 22 tests; restored baseline 23 tests; exit 0 | rollback.json and rollback-*.log |
+
+Ruff formatting/lint and genuine mypy errors in dynamic fixture loading/type
+inference were fixed; `typecheck-initial.log` retains the initial type failures.
+Line tracing is **not branch coverage**. No whole-repository suite was run; the
+root's concurrent full baseline and its fixtures were left alone. No existing
+platform-SKIP condition was changed. Native Windows remains unverified; POSIX
+fd/no-follow requirements remain fail-closed through T-002.
+
+A read-only public AWS documentation check clarified STS's `Provider` response:
+for OIDC it is the full `iss` value, not the host-only value initially used by the
+fixture. The exact initial input manifest is preserved; a separately validated
+`supplemental-api-input-manifest.json` binds the added documentation snapshot
+before the correction. `api-source.json` records URL/hash and record time;
+`api-contract-excerpt.txt` preserves the relevant text without example credentials.
+`red-api-and-final-check.log` and `red-native-revision.log` are additional genuine
+intermediate failures, not substitutes for the committed pre-implementation Red.
+No authenticated cloud request or resource action was made by that public-doc read.
+
+## Rollback experiment and operational limits
+
+Base revision: `0ea1ac14bd691952b922fa92ca161aa2e4dc85db`.
+The disposable checkout overlays the exact initial T-002 candidate dependencies
+from `/tmp/cloud-T-003-01a14d65/inputs`, runs its 23-test baseline, installs only
+T-003 code/templates/tests, runs 22 admission tests, then restores the initially
+absent task-owned files and reruns the 23-test baseline. Before/candidate/restored
+hash maps and actual commands/exits are persisted. The disposable worktree was
+removed. No shared-tree reset, identity-ledger truncation, approval restoration
+or historical evidence rewrite occurred.
+
+For operational defects, disable the external cloud entry/workflow rather than
+weakening admission or legacy gates. Code rollback does not destroy resources.
+Uncertain submissions require read-only reconciliation of the original native ID;
+cleanup/corrective writes require separate environment authorization.
+
+## Limits and root-owned remaining work
+
+- Live TEST-005 and actual IAM/GitHub concurrency enforcement: **BLOCKED / not
+  executed**, pending owner scope/federation, approved images/bootstrap,
+  health/backup, budget, evidence retention and native sandbox authorization
+  (OQ-001). No production readiness or live deployment claim.
+- TEST-006 coverage here is admission/template scope only. Provider execution,
+  original-ID recovery and dependency graph acceptance belong to T-012/T-013
+  and T-010. T-003 does not claim those checks implemented.
+- Existing local unauthenticated CLI writes are not supported or claimed.
+  The later installed provider CLI must construct this boundary from trusted
+  runtime/policy and call it for every native mutation. These inactive templates
+  reference those future provider entry points, not a working T-003 deployment CLI.
+- Formal independent named reviewer verdict, final scoped review, quality gate
+  and task-status decisions remain root-owned and outstanding. No Done or gate
+  PASS is asserted. No subagents, cloud writes, push, tag or merge occurred.
+
+## Outputs
+
+Paths include unchanged test dependencies needed to reproduce the checks; their
+presence here does not claim T-003 ownership. Initial-input hashes are separately
+bound by the manifest/snapshot. Root-owned native allocation/delivery transcript
+files were not modified or used as mutable output hashes. The report itself is
+intentionally excluded from its own table.
+
+| Path | SHA-256 |
+|---|---|
+| contracts/cloud-authorization-receipt.schema.json | 5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8 |
+| contracts/cloud-dependency-lock.schema.json | e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec |
+| contracts/cloud-input-error.schema.json | d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77 |
+| contracts/cloud-observation.schema.json | 5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826 |
+| contracts/cloud-operation-result.schema.json | 78c63243cfe6abea7bb4cc2bb190fd617879248311bde065bf35a69c567368ac |
+| contracts/cloud-preview.schema.json | 12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99 |
+| contracts/cloud-run-request.schema.json | c7492ec7c790db1f5449070817f7e52b19707aa72bd04cba2089410c0e6ca125 |
+| contracts/cloud-verification.schema.json | dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e |
+| contracts/task-input-manifest.schema.json | 22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749 |
+| plugins/sdd-implementation/scripts/validate-task-input-manifest.sh | 5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73 |
+| plugins/sdd-quality-loop/scripts/cloud_authorization.py | 9d7ad425167d0b165a7057dd090f2b9c8c88878e8888a09c12ea134cfccaaeb8 |
+| plugins/sdd-quality-loop/scripts/cloud_contracts.py | 284d6189da9279327973a757104c15a650827968d9849f76639dfa0b20a0fd5a |
+| plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py | d19f258b904dd168410f184f7854d47a3790319832b5bda919b3f7049ab41a06 |
+| specs/cloud-orchestration/verification/T-003/api-contract-excerpt.txt | 738a924654987c5e6698be73791f4288ce9340837aeb50339e49b8abaea1261c |
+| specs/cloud-orchestration/verification/T-003/api-source.json | 52e4d650ab871719375cc3c7195dbf6f804ba18abec6be1dcac68ca0ee79f664 |
+| specs/cloud-orchestration/verification/T-003/baseline.log | 1e82f1c8e9b859c9bc45246cc7ccd92f6b473b8b934f743bad514399b1d6993c |
+| specs/cloud-orchestration/verification/T-003/before.json | 63c68ce25ecdb8a3a63758d884020e8a3fb761882e39b03a851193aa3e50af9d |
+| specs/cloud-orchestration/verification/T-003/build.log | 111df24fe16621e03d05e2bda33ae3d63e5a1a087933e5ca634a960d556b9891 |
+| specs/cloud-orchestration/verification/T-003/checks.json | db4f38260325bebf28c41c2ff7d8fc8107c3854e9f6b999637cb0bb808cf777a |
+| specs/cloud-orchestration/verification/T-003/cloud_authorization.cover | adcb43ff7c5c76452eb6168a69af311146227e2399cf64ef1a11b06027eb2295 |
+| specs/cloud-orchestration/verification/T-003/coverage-runner.py | 3e93b4595502ff5cf9ee1354a04450e4eaddea439f4d694f34ca1692421894bf |
+| specs/cloud-orchestration/verification/T-003/coverage.log | 27b1b84d87d2e058b2308c4a5704d74b72b0dbcfd0f73d53c6c66374671454fd |
+| specs/cloud-orchestration/verification/T-003/execution.json | b6846c2d10b54419b8c271fd46b1a680659a9b115423c6e5fd1828e40d4c732b |
+| specs/cloud-orchestration/verification/T-003/frozen-input-check.json | 9ba8bb0c80ed8eac9dddd97ba75b99d3a2b93e1c660499e4b1fe127c61543043 |
+| specs/cloud-orchestration/verification/T-003/green-expanded.log | 66888737464d160acc29f22c8c0152d09793cbc0053e4908ef4618c9d2865706 |
+| specs/cloud-orchestration/verification/T-003/green-initial.log | 175332a4cd5f2e2e03f04d197a0ff70641cfb6a20726d0bed5a32013aead04fa |
+| specs/cloud-orchestration/verification/T-003/green.log | b22ecce1c566dc50db0db012c03188c0b66d227e8343774bc3beaa708d78eb80 |
+| specs/cloud-orchestration/verification/T-003/input-locations.json | 023b12dbc78a5415365e847aaadd31db67386f1dc2030004d570e3f78b5f60a9 |
+| specs/cloud-orchestration/verification/T-003/lint.log | 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18 |
+| specs/cloud-orchestration/verification/T-003/manifest-validation-final.log | 5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75 |
+| specs/cloud-orchestration/verification/T-003/manifest-validation.log | 5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75 |
+| specs/cloud-orchestration/verification/T-003/preflight-before-implementation.md | 1fb886410e6963a2ff4810dc4191baf3413eef8a1669e1f52ab6161b8845cb2c |
+| specs/cloud-orchestration/verification/T-003/red-api-and-final-check.log | 974ca90bd08c631f759b82dbb70c9e91fc6b04735aae33d5fd65db78eba6f40b |
+| specs/cloud-orchestration/verification/T-003/red-commit.txt | 9a4df8cd6cf31ba9db4e01556c4fc84c3f4234990808fd85cb3c47f37e98fb22 |
+| specs/cloud-orchestration/verification/T-003/red-final-revocation.log | 0553947f76b54577a46b9f2ff4ee1aecf11610fd3b3cfb746beb80977708c451 |
+| specs/cloud-orchestration/verification/T-003/red-final-window.log | d96d10e609917038ede4753aa964f37ae8462875475c8748cd43bda38bcc3ebf |
+| specs/cloud-orchestration/verification/T-003/red-native-revision.log | 97bb92a53cc5c939753b133303f632e9c902e3602788fc4759530a1e3c022d73 |
+| specs/cloud-orchestration/verification/T-003/red-tests.py | 1b193e7bf4f79a878313e7bf0b8f2cc0b2750949d982b8f6642bd1de18c04120 |
+| specs/cloud-orchestration/verification/T-003/red.log | edb139e7841e2d2ee4a9f5037b8125116a77fecc4705e5b6cc428115133f434b |
+| specs/cloud-orchestration/verification/T-003/regression.log | 0ada36cbbd293ae2a499192c163a4b22300d103c5a496eaf5b56ecce201b2c97 |
+| specs/cloud-orchestration/verification/T-003/rollback-baseline-after.log | d16a126d5169460eded4ac7854f42d41fffd674d4bc76dbe4e6c27fb6ca8456c |
+| specs/cloud-orchestration/verification/T-003/rollback-baseline-before.log | b165cd0cb0881be8f87784e3060f976ecffbb64714bbd4e3f3b9dac25c2bf120 |
+| specs/cloud-orchestration/verification/T-003/rollback-candidate.log | 5702ed469d3912fa4bd4f527a48dbbe9f825d0d25e20009b5db8c2412945bb1a |
+| specs/cloud-orchestration/verification/T-003/rollback-checkout.log | ca2eba4aeea73dac35a2089dcc8fa92a53a1f6c81405a1ebf76692d9d527b4de |
+| specs/cloud-orchestration/verification/T-003/rollback-cleanup.log | 0aa9c8a632dc83916fac5fe78c9dc1ad9874af6abb0e39e3d9f012b79c179961 |
+| specs/cloud-orchestration/verification/T-003/rollback-test.py | ff5ddb8af5b4411e2b71ce0145034a573a71287a6e0df382ffee01dbdcab5661 |
+| specs/cloud-orchestration/verification/T-003/rollback.json | b5b377f96e78d77f4c49715fc5e2f62626d799443af75a1f1ffce469e0a84a02 |
+| specs/cloud-orchestration/verification/T-003/security-check.json | 65f413d46d55b3e88a03096c9c20a8770b529e4935383649b5b6d84331aa3d9d |
+| specs/cloud-orchestration/verification/T-003/supplemental-api-input-manifest.json | 7d04bc413000cda6383f925325e492efc1178c365db544afb79ae845134431af |
+| specs/cloud-orchestration/verification/T-003/supplemental-manifest-validation.log | 5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75 |
+| specs/cloud-orchestration/verification/T-003/task-input-manifest.json | 2b933b0f6b1255c40d63e933a5a184385c5a2063437838b25ffa8a8131f8071e |
+| specs/cloud-orchestration/verification/T-003/toolchain.json | 86f9190b4151c299aab31e3bd8965bd68dda1cf29e2ecabe075e1666ffcbb6ba |
+| specs/cloud-orchestration/verification/T-003/typecheck-initial.log | ab410f2c0e1350ef0a5188f64d8151c514a4ddd30441f4e05c6ff3856e6e5814 |
+| specs/cloud-orchestration/verification/T-003/typecheck.log | ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff |
+| specs/cloud-orchestration/verification/T-003/verify-local.py | 1645501b34598039e76e197083e85de17cea71e3199570669541148cba8bef90 |
+| templates/cloud/github-aws.yml | 72ddd25758096b0844ed9e3b14d3563f90e3f80d67acc4090fe3294222b2c7b4 |
+| templates/cloud/github-azure.yml | 5c9c208f3cc0eb4ea0fe11617a159acdcde9cb3bb61a8a92bc0ebf178299b4ab |
+| templates/cloud/iam/README.md | 040132962152c701ffc7ebf3ccb3b93f801805d2bf9d116e990124144fda7da3 |
+| templates/cloud/iam/aws-apply-permissions.json | 9b6ab4f6f70b6d138b8f5b143e25b51abf82f2a00d5606484bb17578bb6342cb |
+| templates/cloud/iam/aws-apply-trust.json | b6a668ac1c6d6bfecf347823a7bf7f4211eab6eedeb8b70e80d5b1095c88546a |
+| templates/cloud/iam/aws-prepare-permissions.json | 97b33e38eb4b5c62c45006b1fa82d101b3c745d89053b7aef1975ae63aaf5135 |
+| templates/cloud/iam/aws-prepare-trust.json | fb816c23c404a2c6dc664885da932bd208fdda8c4675c991ff694e03ab17406c |
+| templates/cloud/iam/azure-apply-federation.json | edbece3a3e08ad661a37bb5bbad33e5738aee8ea96e66148fd8b948f3fb01a24 |
+| templates/cloud/iam/azure-apply-role.json | 305f5622da98f47d3b81df756eb5ef1959069e47b59f7ec012c3d0fd4812d889 |
+| templates/cloud/iam/azure-prepare-federation.json | 50d8cbc667ee96d6667bbbb5313562a426ab826966483b20c4187fa5b9934370 |
+| templates/cloud/iam/azure-prepare-role.json | 18558291d8f2bd725926e1a99c532ebd4952a0a192aa7740c3be18e6c76cf61d |
+| templates/cloud/iam/github-environment.json | 5bf72c589d439d0dc23b02b92c62fb6b4d897f1b95a2653b2aaa4d0069ddd291 |
+| templates/cloud/iam/github-oidc-subject.json | 69a4c0a488e543cb5bb6587ffd6ab9ccd66706ad0423db76b2d4fcc2dbbb1d60 |
+| templates/cloud/iam/trusted-policy.example.py | a6e4af089fae1b9594ef1c0ca581541aa3c44958d3ea1c59ec74350b887ccbd0 |
+| tests/cloud-orchestration-contracts.tests.py | 5bce4bd58638266eac92bdea3a8e394324ce74fdb3c8676158b2285a47256c72 |
+| tests/cloud-orchestration-execution.tests.py | f6197706c9cd0ae7abc4fb9385fdc58141ac2678454b81147b3cfbc8bfde1692 |
+| tests/shared-launch-python/pyproject.toml | 8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12 |
+
+## Session Handoff
+
+Task-scoped implementation and local checks are ready for the root's review.
+Preserved scratch root contains immutable initial inputs, supplemental public
+API documentation, isolated build/type caches and coverage output. No supplied
+real receipt or lease material is persisted. Do not resume writes from a receipt;
+no cloud operation was attempted. Root owns all remaining reviews, task status,
+packaging/integration and eventual release decisions.

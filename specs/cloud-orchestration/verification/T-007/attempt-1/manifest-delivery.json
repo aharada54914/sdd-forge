@@ -1,0 +1,17 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+    "--manifest",
+    "specs/cloud-orchestration/verification/T-007/attempt-1/task-input-manifest.json",
+    "--snapshot-root",
+    "/tmp/cloud-t007-01a14f96/snapshot",
+    "--expected-task",
+    "T-007"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:37:14Z",
+  "exit_code": 0,
+  "elapsed_seconds": 0.035,
+  "classification": "offline local command; no live cloud"
+}

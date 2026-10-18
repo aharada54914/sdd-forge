@@ -1,0 +1,8 @@
+NETWORK_SENTINEL_PARENT_CHILD_SHELL_PASS
+test_consumer_expiry_during_second_acquisition (__main__.DependencyFinalBoundaryCases.test_consumer_expiry_during_second_acquisition) ... ok
+test_final_consumer_metadata_latency_cannot_stale_predecessor (__main__.DependencyFinalBoundaryCases.test_final_consumer_metadata_latency_cannot_stale_predecessor) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.106s
+
+OK

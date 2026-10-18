@@ -1,0 +1,7 @@
+T-006 is incomplete; handoff recorded in `reports/implementation/cloud-orchestration/T-006.md`.
+
+- Verification, contracts and execution tests pass.
+- Routing: 9 failures; Ruff/mypy also fail.
+- Resource provenance, generated-ID discovery and rollback remain unfinished.
+- Manifest and report validators pass.
+- No cloud actions, status changes or release actions occurred.

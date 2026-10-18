@@ -1,0 +1,20 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py AwsObservationOrchestration.test_stack_membership_counterparts
+OFFLINE_GUARD_INSTALLED
+test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) ... 
+  test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='LogicalResourceId') ... FAIL
+
+======================================================================
+FAIL: test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) (field='LogicalResourceId')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 1873, in test_stack_membership_counterparts
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 1.961s
+
+FAILED (failures=1)
+
+Exit code: 1

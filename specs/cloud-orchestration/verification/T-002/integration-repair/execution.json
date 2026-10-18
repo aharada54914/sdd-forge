@@ -1,0 +1,102 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-002/integration-repair/green-contracts.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-002/integration-repair/green-admission.log"
+  },
+  {
+    "command": [
+      "bash",
+      "tests/project-context-schema.tests.sh"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-002/integration-repair/regression.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "tests/cloud-orchestration-contracts.tests.py",
+      "tests/cloud-orchestration-execution.tests.py",
+      "templates/cloud/iam/trusted-policy.example.py"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-002/integration-repair/ruff.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "tests/cloud-orchestration-contracts.tests.py",
+      "tests/cloud-orchestration-execution.tests.py",
+      "templates/cloud/iam/trusted-policy.example.py"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-002/integration-repair/mypy.log"
+  },
+  {
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-002/integration-repair/task-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T-002-repair-01a14d8e/inputs",
+      "--expected-task",
+      "T-002"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-002/integration-repair/manifest-validation-final.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "tests/cloud-orchestration-contracts.tests.py",
+      "tests/cloud-orchestration-execution.tests.py",
+      "templates/cloud/iam/trusted-policy.example.py",
+      "templates/cloud/iam/README.md",
+      "contracts/cloud-authorization-receipt.schema.json",
+      "contracts/cloud-dependency-lock.schema.json",
+      "contracts/cloud-deployment-policy.schema.json",
+      "contracts/cloud-input-error.schema.json",
+      "contracts/cloud-observation.schema.json",
+      "contracts/cloud-operation-result.schema.json",
+      "contracts/cloud-ownership.schema.json",
+      "contracts/cloud-preview.schema.json",
+      "contracts/cloud-run-request.schema.json",
+      "contracts/cloud-verification-profile.schema.json",
+      "contracts/cloud-verification.schema.json"
+    ],
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-002/integration-repair/diff-check.log"
+  }
+]

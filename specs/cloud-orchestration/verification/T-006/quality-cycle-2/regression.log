@@ -1,0 +1,10 @@
+test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) ... ok
+test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) ... ok
+test_other_alarm_field_semantics_remain_exact (__main__.AlarmNumericCases.test_other_alarm_field_semantics_remain_exact) ... ok
+test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) ... ok
+test_live_network_is_forbidden_before_transport (__main__.EntryPreflight.test_live_network_is_forbidden_before_transport) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 12.179s
+
+OK

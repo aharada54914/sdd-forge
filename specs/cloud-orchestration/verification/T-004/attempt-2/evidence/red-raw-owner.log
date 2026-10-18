@@ -1,0 +1,30 @@
+test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) ... 
+  test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) (name='raw.yml') ... FAIL
+  test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) (name='template.json') ... FAIL
+
+======================================================================
+FAIL: test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) (name='raw.yml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 206, in test_detected_unsupported_owner_cannot_be_hidden_by_inventory
+    self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_CONFLICT")
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 176, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) (name='template.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 206, in test_detected_unsupported_owner_cannot_be_hidden_by_inventory
+    self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_CONFLICT")
+AssertionError: 'OUTPUT_EXISTS' != 'OWNER_CONFLICT'
+- OUTPUT_EXISTS
++ OWNER_CONFLICT
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.323s
+
+FAILED (failures=2)

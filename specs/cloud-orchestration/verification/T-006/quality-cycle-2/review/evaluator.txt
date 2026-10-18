@@ -1,0 +1,14 @@
+RUN_ID: 01a14ed4-6080-72c3-97e6-4c3f69eff3ef
+HOST_SESSION_ID: 01a14ed4-6080-72c3-97e6-4c3f69eff3ef
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-006/quality-cycle-2/review/invocation.json SHA-256 261b67e6b457745849399b6d76ff1346e12db0c1c408032423fa657d5dc5db99
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Verified invocation digest, reservation-record hash, sequence linkage, and distinct implementation/evaluator contexts.
+- Inspected T-006 scope, REQ-009/010, AC-009/010, contracts, ADR 0036, and implementation diffs.
+- Line-level inspection of both collectors and cloud_verification.py: original-operation binding, permission checks, freshness, mandatory checks, digest validation, guarded publication, and synthetic-evidence restrictions.
+- Inspected aws_observation.py:153–163,514–530 and numeric regression assertions: finite decimal zero accepted; nonzero, malformed, and nonfinite thresholds rejected.
+- Read saved cycle-2 command outputs: verification 56 tests, contracts 32 tests, focused regression 5 tests—all passed; scoped Ruff and mypy passed.
+- Compared saved baseline/rollback evidence: restored observation baseline passed 36 tests; numeric rollback reproduced 18 assertion failures, and reapplied repair passed.
+- No tests rerun under this read-only boundary. PASS covers local T-006 scope only; live TEST-003/005/009 remain BLOCKED by OQ-001.

@@ -1,0 +1,130 @@
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-145b61fcf3274d5da00d88ba967da035/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: All install_1 present
+ok: All verify_1 drift_check
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-145b61fcf3274d5da00d88ba967da035/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: All install_2 idempotent
+Removed installed files at: /tmp/sdd-matrix-145b61fcf3274d5da00d88ba967da035/install.
+
+SDD plugins uninstalled.
+ok: All verify_residue empty
+ok: All result schema install-uninstall-matrix-result/v1
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-b3b88c8ed24943d7b197332e076bdd9b/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+ok: Codex install_1 present
+ok: Codex verify_1 drift_check
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-b3b88c8ed24943d7b197332e076bdd9b/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+ok: Codex install_2 idempotent
+Removed installed files at: /tmp/sdd-matrix-b3b88c8ed24943d7b197332e076bdd9b/install.
+
+SDD plugins uninstalled.
+ok: Codex verify_residue empty
+ok: Codex result schema install-uninstall-matrix-result/v1
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-5eccf4feca4948248e9714d5e2010cd7/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Claude: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Claude install_1 present
+ok: Claude verify_1 drift_check
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-5eccf4feca4948248e9714d5e2010cd7/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Claude: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Claude install_2 idempotent
+Removed installed files at: /tmp/sdd-matrix-5eccf4feca4948248e9714d5e2010cd7/install.
+
+SDD plugins uninstalled.
+ok: Claude verify_residue empty
+ok: Claude result schema install-uninstall-matrix-result/v1
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-13f8bf2bbbad48e7bc1151d3ed135cad/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Copilot: registered
+ok: Copilot install_1 present
+ok: Copilot verify_1 drift_check
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-matrix-13f8bf2bbbad48e7bc1151d3ed135cad/install
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Copilot: registered
+ok: Copilot install_2 idempotent
+Removed installed files at: /tmp/sdd-matrix-13f8bf2bbbad48e7bc1151d3ed135cad/install.
+
+SDD plugins uninstalled.
+ok: Copilot verify_residue empty
+ok: Copilot result schema install-uninstall-matrix-result/v1
+ok: FilesOnly is explicitly out-of-matrix (AC-011)
+install-uninstall-matrix: 21 passed, 0 failed

@@ -1,0 +1,14 @@
+{
+  "id": 900084,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14e9b-59d8-7aa1-b988-8c2551229993",
+    "expectedTurnId": "01a14e9b-5a16-7780-8aa7-c503b0850f2b",
+    "input": [
+      {
+        "type": "text",
+        "text": "Acknowledged your discovered real-HTTPS alias defect. Preserve the original affected logs and identify exact cases/mutants plus any observed request attempts; do not continue blanket no-cloud-call claims if actual read attempts are unknown. Literal synthetic token/no write path is distinct from no request. The suite-wide network prohibition should raise an unmistakable test failure (e.g. AssertionError), not OSError/ValueError swallowed by collector fail-closed handling and mistaken for the intended guard. Ensure it applies to all final normal/public-matrix/sensitivity harness execution paths, and rerun affected evidence with the correct independent fixture alias. No real provider requests/sandbox validation are authorized here; official documentation retrieval remains separate. Root will accept only corrected actual guard evidence and honest qualification of earlier results; no need for user approval to make these local test repairs."
+      }
+    ]
+  }
+}

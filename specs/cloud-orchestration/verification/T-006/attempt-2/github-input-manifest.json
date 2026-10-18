@@ -1,0 +1,41 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-006",
+  "run_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "session_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "agent_instance_id": "01a14e73-9069-76d0-a748-f448ad86b023",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T10:01:50Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "github/github-openapi.json",
+      "sha256": "3177ad6a86ca04c57a9bef3fc24e28a339efb8eb040c6f950af3d3ed2fee7fa3"
+    },
+    {
+      "path": "github/github-source.json",
+      "sha256": "308b3b5f6e6ee3f514c74f4f9337a8388e17ede91c2c676ffc8d1ff30844561d"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "plugins/sdd-azure-cloud/scripts/",
+    "plugins/sdd-aws-cloud/scripts/",
+    "plugins/sdd-azure-cloud/references/",
+    "plugins/sdd-aws-cloud/references/",
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/cloud-orchestration-contracts.tests.py",
+    "contracts/cloud-collection-context.schema.json",
+    "contracts/cloud-check-result.schema.json",
+    "contracts/cloud-observation-evidence.schema.json",
+    "reports/implementation/cloud-orchestration/T-006.md",
+    "specs/cloud-orchestration/verification/T-006/attempt-2/"
+  ]
+}

@@ -1,0 +1,248 @@
+--- entry/plugins/sdd-quality-loop/scripts/cloud_authorization.py
++++ candidate/plugins/sdd-quality-loop/scripts/cloud_authorization.py
+@@ -550,7 +550,9 @@
+                 )
+                 require(request["policy"]["sha256"] == p.policy_sha256, "POLICY_MISMATCH")
+                 from cloud_dependencies import admit_predecessors
+-                admit_predecessors(root, request, request_ref, p, self.runtime, self.transport, clock=self.clock)
++                dependency_deadline = admit_predecessors(
++                    root, request, request_ref, p, self.runtime, self.transport, clock=self.clock
++                )
+                 require(self.evidence_root == root / request["local_context"]["evidence_directory"],
+                         "EVIDENCE_BOUNDARY_MISMATCH")
+                 name = f"{request['unit_id']}.{p.operation}.{mutation_id}.authorization.json"
+@@ -565,6 +567,10 @@
+                 # Recheck revocation, run state and exact bytes after federation, at the write site.
+                 approval = github.metadata(claims, request_ref["sha256"], preview_sha)
+                 end = min(lease_end, claims["exp"], claims["iat"] + p.ttl_seconds)
++                if dependency_deadline is not None:
++                    # Carry freshness through callback work to both providers' final guards.
++                    # Exclusive whole-second expiry conservatively excludes the freshness endpoint.
++                    end = min(end, epoch(dependency_deadline.strftime("%Y-%m-%dT%H:%M:%SZ")))
+                 if preview_ref is not None:
+                     preview = contracts.read_artifact(root, preview_ref, "cloud-preview/v1")
+                     end = min(end, epoch(preview["expires_at"]))
+--- entry/tests/cloud-orchestration-verification.tests.py
++++ candidate/tests/cloud-orchestration-verification.tests.py
+@@ -5345,5 +5345,221 @@
+                 self.assertEqual(result.returncode, 0, result.stderr)
+ 
+ 
++class DependencyCallbackExpiryCases(unittest.TestCase):
++    """Synthetic admitted deadline, real boundary/provider guards and wire counters.
++
++    This isolates deadline handoff, NOT predecessor provenance. The separate
++    DependencyReceipt/FieldMatrix/FinalBoundary cases exercise real acquisition.
++    """
++
++    def fixtures(self):
++        spec = importlib.util.spec_from_file_location(
++            "dependency_expiry_execution", ROOT / "tests/cloud-orchestration-execution.tests.py"
++        )
++        assert spec and spec.loader
++        module = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(module)
++        return module
++
++    def callback_case(self, provider, mutation, checkpoint, elapsed):
++        import cloud_dependencies as dependencies
++        import inspect
++
++        fixtures = self.fixtures()
++        if provider == "azure":
++            isolation = AzureTestBase()
++            isolation.setUp()
++            self.addCleanup(isolation.doCleanups)
++        case = fixtures.AzureExecution() if provider == "azure" else fixtures.AwsExecution()
++        case.setUp()
++        self.addCleanup(case.doCleanups)
++        if mutation in ("deploy", "execute"):
++            case.prepare()
++        executor = case.executor
++        now = [fixtures.NOW]
++        executor.clock = executor.boundary.clock = lambda: now[0]
++        deadline = c._utc(fixtures.utc(fixtures.NOW + 10))
++        acquisitions = []
++        delays: list[str] = []
++        guards = []
++        journal = case.root / case.directory / (mutation + "-submission.json")
++        if provider == "azure":
++            journal = case.root / case.directory / (
++                "deployment-submission.json" if mutation == "deploy"
++                else "prepare-what-if-submission.json"
++            )
++        original_require = case.e.c._require
++
++        def observe_guard(condition, code="INVALID_ARTIFACT"):
++            if delays and code in ("CREDENTIAL_EXPIRED", "READ_CREDENTIAL_EXPIRED"):
++                guards.append((code, bool(condition)))
++            original_require(condition, code)
++
++        def admitted(*args, **kwargs):
++            self.assertLess(now[0], fixtures.NOW + 10)
++            acquisitions.append(now[0])
++            return deadline
++
++        def delay():
++            if not delays:
++                # Two dependency admissions completed while fresh; delay is INSIDE
++                # the provider callback, never another shared pre-submit check.
++                self.assertGreaterEqual(len(acquisitions), 2)
++                self.assertEqual(len(acquisitions) % 2, 0)
++                delays.append(checkpoint)
++                now[0] += elapsed
++
++        from contextlib import ExitStack
++        with ExitStack() as stack:
++            stack.enter_context(patch.object(dependencies, "admit_predecessors", side_effect=admitted))
++            stack.enter_context(patch.object(case.e.c, "_require", side_effect=observe_guard))
++            if checkpoint == "journal":
++                original = executor.audit
++
++                def audit(path, value):
++                    result = original(path, value)
++                    if case.root / path == journal:
++                        delay()
++                    return result
++
++                stack.enter_context(patch.object(executor, "audit", side_effect=audit))
++            elif checkpoint == "validation":
++                original_check = executor.check
++
++                def check():
++                    result = original_check()
++                    if len(acquisitions) >= (4 if mutation == "deploy" else 2):
++                        delay()
++                    return result
++
++                stack.enter_context(patch.object(executor, "check", side_effect=check))
++            elif checkpoint == "authentication":
++                original_metadata = case.a.GitHubAdmission.metadata
++
++                def metadata(admission, *args, **kwargs):
++                    result = original_metadata(admission, *args, **kwargs)
++                    if journal.exists() and any(
++                        frame.function == "final_admission" for frame in inspect.stack()
++                    ):
++                        delay()
++                    return result
++
++                stack.enter_context(patch.object(case.a.GitHubAdmission, "metadata", metadata))
++            elif checkpoint == "history":
++                original_history = case.e.intent_history
++
++                def history(*args, **kwargs):
++                    result = original_history(*args, **kwargs)
++                    if journal.exists():
++                        delay()
++                    return result
++
++                stack.enter_context(patch.object(case.e, "intent_history", side_effect=history))
++            else:
++                self.assertEqual(checkpoint, "readback")
++                holder = executor.native if mutation == "create" else executor
++                method = "read_object" if mutation == "create" else "readback"
++                original_read = getattr(holder, method)
++
++                def read(*args, **kwargs):
++                    result = original_read(*args, **kwargs)
++                    if journal.exists():
++                        delay()
++                    return result
++
++                stack.enter_context(patch.object(holder, method, side_effect=read))
++            result = (
++                case.apply("dependency-expiry.json") if mutation in ("deploy", "execute")
++                else executor.prepare(case.directory + "/dependency-expiry.json")
++            )
++        if provider == "azure":
++            writes = case.arm.submissions if mutation == "deploy" else sum(
++                method == "POST" and "/whatIf?" in url for method, url, _ in case.arm.calls
++            )
++        else:
++            writes = case.native.writes.count(
++                dict(publish="PutObject", create="CreateChangeSet", execute="ExecuteChangeSet")[mutation]
++            )
++        print("SYNTHETIC_DEADLINE_REAL_FINAL_GUARD", provider, mutation, checkpoint,
++              "elapsed", elapsed, "admissions", acquisitions, "guards", guards,
++              "target_native_submissions", writes, "result", result["result"], flush=True)
++        self.assertEqual(delays, [checkpoint])
++        self.assertTrue(guards, "real callback expiry guard must execute")
++        if elapsed >= 10:
++            self.assertTrue(any(not valid for _, valid in guards))
++        self.assertTrue(journal.is_file(), "consumed intent retained")
++        self.assertLess(now[0], fixtures.NOW + 110, "consumer TTL still valid")
++        if mutation in ("deploy", "execute"):
++            preview = c.read_artifact(case.root, case.preview_ref, "cloud-preview/v1")
++            self.assertLess(now[0], case.a.epoch(preview["expires_at"]))
++        self.assertEqual(writes, 0 if elapsed >= 10 else 1)
++        self.assertEqual(result["result"], "BLOCKED" if elapsed >= 10 else "PASS")
++
++    def test_azure_callback_freshness_validation_and_journal(self):
++        for mutation in ("preview", "deploy"):
++            for checkpoint in ("validation", "journal"):
++                for elapsed in (0, 10, 11):
++                    with self.subTest(mutation=mutation, checkpoint=checkpoint, elapsed=elapsed):
++                        try:
++                            self.callback_case("azure", mutation, checkpoint, elapsed)
++                        finally:
++                            self.doCleanups()
++
++    def test_aws_callback_freshness_readback_history_and_authentication(self):
++        for mutation, checkpoint in (
++            ("publish", "authentication"), ("create", "authentication"),
++            ("execute", "authentication"), ("create", "readback"),
++            ("execute", "readback"), ("execute", "history"),
++        ):
++            for elapsed in (0, 10, 11):
++                with self.subTest(mutation=mutation, checkpoint=checkpoint, elapsed=elapsed):
++                    try:
++                        self.callback_case("aws", mutation, checkpoint, elapsed)
++                    finally:
++                        self.doCleanups()
++
++    def test_receipt_expiry_minimum_and_empty_predecessors(self):
++        import cloud_dependencies as dependencies
++
++        fixtures = self.fixtures()
++        for provider in ("azure", "aws"):
++            for stage in ("prepare", "apply"):
++                for bound in ("predecessor", "policy", "oidc", "provider", "preview", "empty"):
++                    if bound == "preview" and stage == "prepare":
++                        continue
++                    with self.subTest(provider=provider, stage=stage, bound=bound):
++                        case = fixtures.Admission()
++                        case.setUp()
++                        try:
++                            case.setup_case(provider, stage)
++                            end = fixtures.NOW + (10 if bound == "predecessor" else 110)
++                            if bound == "oidc":
++                                case.transport.claims["exp"] = end = fixtures.NOW + 20
++                            if bound == "provider":
++                                case.transport.lease_end = end = fixtures.NOW + 20
++                                case.transport.azure_claims["exp"] = end
++                            if bound == "preview":
++                                preview = json.loads((case.root / case.preview_ref["path"]).read_bytes())
++                                preview["expires_at"] = case.a.utc(end := fixtures.NOW + 20)
++                                case.preview_ref = case.put(case.preview_ref["path"], preview)
++                                case.transport.run["display_title"] = (
++                                    "cloud:" + case.request_ref["sha256"] + ":" + case.preview_ref["sha256"]
++                                )
++                            deadline = c._utc(fixtures.utc(
++                                fixtures.NOW + (10 if bound == "predecessor" else 200)
++                            ))
++                            if bound == "empty":
++                                # Execute the real empty predecessor admission, not a stub.
++                                ref, _ = case.write()
++                            else:
++                                with patch.object(dependencies, "admit_predecessors", return_value=deadline):
++                                    ref, _ = case.write()
++                            receipt = c.read_artifact(case.root, ref, "cloud-authorization-receipt/v1")
++                            self.assertEqual(case.writes, ["write"])
++                            self.assertEqual(receipt["expires_at"], case.a.utc(end))
++                        finally:
++                            case.doCleanups()
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)

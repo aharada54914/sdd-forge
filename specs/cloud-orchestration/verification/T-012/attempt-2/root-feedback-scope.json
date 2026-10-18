@@ -1,0 +1,6 @@
+{
+  "kind": "root-implementation-feedback",
+  "message": "Root actual deterministic probe found a read-only scope-binding gap in reconcile; preserve attempt-2/root-reconcile-scope-probe.json (source SHA e981117...). With a valid original UNKNOWN submission, changing ONLY boundary.policy.deployment_scope to different-approved-group still sends a GET to the original request's synthetic-group and returns PASS/OBSERVED. No real cloud calls. This is implementation feedback, not independent verdict. Add a committed negative test and enforce trusted provider/account/region/deployment_scope/logical target/deployment-policy binding before native reconciliation reads (including both original journal and history-fence paths). Reuse a pure trusted binding check; do not require unexpired apply preview or new mutation approval just for read-only recovery. Preserve original native identity/UNKNOWN semantics on inability to recover. Inspect other changed authority fields similarly; unsigned journal/request equality is insufficient without expected trusted policy. Existing valid readonly recovery must stay green.",
+  "native_thread": "01a14e03-aadd-7da3-9d54-8d3db30fd7bc",
+  "native_turn": "01a14e03-ab23-71d3-83be-ebe0a136d3e8"
+}

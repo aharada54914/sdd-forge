@@ -1,0 +1,8 @@
+Updated T-007’s installed CLI coverage with canonical receipt paths, matched/restored PASS controls, and exact missing/invalid error assertions.
+
+- Scoped suite: 11 tests passed across 32 installed/cache invocations.
+- Configured Ruff, mypy, manifest and v2 report validation passed.
+- Production bytes and historical evidence preserved; rollback’s test-only limitation documented.
+- Canonical report and output hashes updated.
+
+Formal review remains root-owned.

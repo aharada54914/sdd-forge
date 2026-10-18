@@ -1,0 +1,73 @@
+{
+  "thread_id": "01a14d37-99d1-7c01-885a-1af0ae96d2fb",
+  "session_id": "01a14d37-99d1-7c01-885a-1af0ae96d2fb",
+  "turn": {
+    "id": "01a14d37-a79e-7302-b43e-21f8f9de1c0c",
+    "items": [
+      {
+        "type": "agentMessage",
+        "id": "msg_0f5814cd95034b92016ad447a7f1c88191a506813d504aef03",
+        "text": "{\n  \"schema\": \"spec-reviewer-a/v1\",\n  \"stage\": \"spec\",\n  \"role\": \"spec-reviewer-a\",\n  \"run_id\": \"01a14d37-99d1-7c01-885a-1af0ae96d2fb\",\n  \"host_session_id\": \"01a14d37-99d1-7c01-885a-1af0ae96d2fb\",\n  \"allowed_input_manifest\": [\n    {\"path\":\"specs/cloud-orchestration/requirements.md\",\"sha256\":\"4fc5f49fb5e5dba420c5e1c2588a37be74a1fb12d78d3d54a48642f1d50698c3\"},\n    {\"path\":\"specs/cloud-orchestration/acceptance-tests.md\",\"sha256\":\"4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0\"},\n    {\"path\":\"specs/cloud-orchestration/investigation.md\",\"sha256\":\"38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c\"},\n    {\"path\":\"reports/spec-review/cloud-orchestration/attempt-2/round-1/precheck-result.json\",\"sha256\":\"3f4d9d07652c38aaa6a83921b0a3dba048d5f6b7db491c218b2b94435eb78116\"},\n    {\"path\":\"plugins/sdd-review-loop/references/spec-review-calibration.md\",\"sha256\":\"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385\"}\n  ],\n  \"verdict\": \"PASS\",\n  \"checks\": [\n    {\n      \"id\": \"REQ-TESTABILITY\",\n      \"result\": \"PASS\",\n      \"severity\": \"Critical\",\n      \"finding\": \"REQ-001\u2013014 specify verifiable routing, authorization, ownership, verification, evidence, documentation and release outcomes. AC-001\u2013014 identify corresponding test targets and observable success or denial conditions.\"\n    },\n    {\n      \"id\": \"GOAL-AC-TRACE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Each goal REQ-001\u2013014 has an explicitly mapped acceptance criterion AC-001\u2013014.\"\n    },\n    {\n      \"id\": \"AC-OBSERVABLE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Acceptance criteria specify observable executor selections, blocked writes, validation results, operation reconciliation, evidence integrity, reachable entry points and exact remote tag resolution. Planned tests are sufficient at this specification gate.\"\n    },\n    {\n      \"id\": \"SCOPE-BOUNDARY\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Non-goals explicitly exclude additional execution adapters, import, destructive rollback, production provisioning and a generic deployment engine. Initial execution is bounded to Azure Bicep and AWS CDK.\"\n    },\n    {\n      \"id\": \"CONSTRAINTS-EXPLICIT\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Roles, Security Boundaries, Assumptions and AC-004\u2013007 explicitly constrain authenticated prepare/apply approval, immutable inputs, IAM, concurrency and brownfield ownership. Evidence Rules separately authorize cleanup. Historical #423 references describe another feature's baseline, not premature implementation of this feature; no amendment suppression is needed.\"\n    },\n    {\n      \"id\": \"RISK-VALIDATION-SURFACE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"AC-004\u2013010 plan adversarial validation for input substitution, unauthorized writes, replay, overlapping scopes, uncertain operations, unhealthy deployments and evidence attacks. Provider-specific observations require Azure preview-change and AWS Change Set substitution checks. AC-012 distinguishes fixtures from authentic live and isolated-host evidence.\"\n    },\n    {\n      \"id\": \"DOMAIN-CONFORMANCE\",\n      \"result\": \"SKIP\",\n      \"severity\": \"Major\",\n      \"finding\": \"The host states that the target project has no domain/ directory; investigation.md independently records domain-sync skipped for that reason.\"\n    }\n  ]\n}",
+        "phase": "final_answer",
+        "memoryCitation": null,
+        "delivery": null,
+        "questions": null
+      }
+    ],
+    "itemsView": "summary",
+    "status": "completed",
+    "error": null,
+    "startedAt": 1792296855,
+    "completedAt": 1792296884,
+    "durationMs": 29097
+  },
+  "reads": [
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/requirements.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/cloud-orchestration/investigation.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "reports/spec-review/cloud-orchestration/attempt-2/round-1/precheck-result.json",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "allowed": true
+    }
+  ],
+  "input_hashes_after": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "4fc5f49fb5e5dba420c5e1c2588a37be74a1fb12d78d3d54a48642f1d50698c3"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+    },
+    {
+      "path": "reports/spec-review/cloud-orchestration/attempt-2/round-1/precheck-result.json",
+      "sha256": "3f4d9d07652c38aaa6a83921b0a3dba048d5f6b7db491c218b2b94435eb78116"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/install-cloud.tests.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:47:58Z",
+  "exit_code": 0,
+  "elapsed_seconds": 65.262,
+  "classification": "offline local command; no live cloud"
+}

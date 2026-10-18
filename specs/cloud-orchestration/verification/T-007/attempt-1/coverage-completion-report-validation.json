@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "reports/implementation/cloud-orchestration/T-007.md"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:50:25Z",
+  "exit_code": 0,
+  "elapsed_seconds": 0.03,
+  "classification": "offline local command; no live cloud"
+}

@@ -1,0 +1,15 @@
+RUN_ID: 01a14dc7-be47-7ab2-8f6d-4e2d399a39f7
+HOST_SESSION_ID: 01a14dc7-be47-7ab2-8f6d-4e2d399a39f7
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-004/quality-cycle-2/review/invocation.json SHA-256 2a7b00e92f9641b79c9000f56f9009715458cfe1ecd37cbc0bc0ceeed7b25816
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Verified invocation digest, reservation-chain hash, sequence and implementation-context separation. Reads used only hash-checked admitted paths.
+- Compared T-004 against REQ-002/003/007, scoped AC-002/003/007, design, layer specifications, contracts and ADR 0036.
+- Inspected cloud.py:139–195: explicit owner selection, mixed/unsupported-owner rejection and import denial. Compared owner-fix before/after sources and regression assertions.
+- Inspected azure_local.py:51–224 and azure_graph.py:151–293: pinned compiler/upstream closure, exact compiled-byte binding, private networking, identity, monitoring, backup and additive-attachment checks.
+- Inspected saved quality-cycle-2 outputs: 42 routing tests and 31 contract tests passed without skips; lint, typecheck and compilation succeeded. Tests contain substantive subprocess and negative assertions.
+- Inspected native Bicep compilation records, distinct example/modular ARM artifacts and validation manifests; evidence correctly states local classification and cloud_validated=false.
+- Inspected committed Red evidence, owner-fix failures and rollback records; restored baseline hashes and recorded baseline outcomes agree.
+- No tests were rerun in this read-only evaluation. PASS covers T-004’s local scope only—not live deployment, IAM enforcement, health verification, future phases or final gate-artifact publication.

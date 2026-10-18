@@ -1,0 +1,14 @@
+{
+  "id": 900074,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14e73-9069-76d0-a748-f448ad86b023",
+    "expectedTurnId": "01a14e73-923d-7593-8ab7-0f3b6d51b21f",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root researched a potential narrow Azure permission-closure path, NOT yet implemented or validated: /tmp/cloud-api-reference/azure-identity-closure/{role-assignments.json,acquisition.json,list-rest.md,docs-acquisition.json,managed-identities-best-practice.md}. Official ARM model ListForScope/Subscription says principalId filter includes at/above/below scope. Official Azure docs list-rest.md describes assignedTo(objectId) accepting users or service principals and transitive group role assignments. This may allow bounded complete role-assignment/role-definition closure over the declared subscription/deployment scope, rejecting group-derived/conditional/wildcard/unsupported contexts, rather than only sampling a few target permissions. Managed identity best-practice source explains group-role caching; do not claim fresh enumeration magically revokes cached permissions. Read/admit exact sources before use; this is research guidance, no assumed endpoint semantics, global guarantee, new scope waiver or instruction to build generic IAM engine. Current docs explicitly say Azure permission proof incomplete; native positive result must not contradict that. Complete the supported original spec scope if feasible; otherwise preserve precise local gap in genuine handoff. Freshness/check-driver corrections still apply."
+      }
+    ]
+  }
+}

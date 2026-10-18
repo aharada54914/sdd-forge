@@ -1,0 +1,10 @@
+Implemented T-004 local Azure routing/planning/validation, including bounded expression parsing and typed BLOCKED recursion handling.
+
+- 40 routing tests and 31 contract tests passed.
+- Ruff, mypy, manifest and report validators passed.
+- Real Bicep compilation and rollback evidence preserved.
+- No cloud actions or full-suite run.
+
+Report: `reports/implementation/cloud-orchestration/T-004.md`
+
+Independent review and quality gate remain root-owned.

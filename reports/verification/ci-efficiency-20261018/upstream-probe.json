@@ -1,0 +1,64 @@
+{
+  "revision": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+  "scope": "Actual calls of unchanged upstream pure proposal/coverage functions, not implemented CI selection and not full CI validation",
+  "sources": {
+    "verification-workflow.py": "eb6b9185f7b70be56ca91a834eaa9ac3371be20c385450bf0ab0d0c33986d6b9",
+    "verification-impact.py": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3"
+  },
+  "proposals": [
+    {
+      "paths": null,
+      "selected_count": 190,
+      "full_count": 190,
+      "reason": "diff-unavailable"
+    },
+    {
+      "paths": [],
+      "selected_count": 190,
+      "full_count": 190,
+      "reason": "no-change-full-baseline"
+    },
+    {
+      "paths": [
+        "README.md"
+      ],
+      "selected_count": 5,
+      "full_count": 190,
+      "reason": "readme-only-hypothesis"
+    },
+    {
+      "paths": [
+        ".github/dependabot.yml"
+      ],
+      "selected_count": 190,
+      "full_count": 190,
+      "reason": "unknown-or-shared-impact"
+    },
+    {
+      "paths": [
+        "mcp/ci-mcp/src/index.ts"
+      ],
+      "selected_count": 190,
+      "full_count": 190,
+      "reason": "unknown-or-shared-impact"
+    },
+    {
+      "paths": [
+        "plugins/sdd-azure-cloud/scripts/azure_execution.py"
+      ],
+      "selected_count": 190,
+      "full_count": 190,
+      "reason": "unknown-or-shared-impact"
+    }
+  ],
+  "dynamic_condition_currently_admitted": false,
+  "catalog_suites": 357,
+  "profiles": {
+    "local-posix": 190,
+    "local-powershell": 124,
+    "ci-posix-fallback": 84,
+    "ci-shared-python": 17,
+    "ci-a7-native": 4,
+    "ci-portable-prechecks": 4
+  }
+}

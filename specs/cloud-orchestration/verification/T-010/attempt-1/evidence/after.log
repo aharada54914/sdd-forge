@@ -1,0 +1,19 @@
+test_live_network_is_forbidden_before_transport (__main__.EntryPreflight.test_live_network_is_forbidden_before_transport) ... ok
+test_all_checks_synthetic_never_complete (__main__.ReducerCases.test_all_checks_synthetic_never_complete) ... ok
+test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) ... ok
+test_context_shape_and_window (__main__.ReducerCases.test_context_shape_and_window) ... ok
+test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) ... ok
+test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) ... ok
+test_each_payload_counterpart_mismatch (__main__.ReducerCases.test_each_payload_counterpart_mismatch) ... ok
+test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) ... ok
+test_profile_policy_and_check_set (__main__.ReducerCases.test_profile_policy_and_check_set) ... ok
+test_query_trace_shape (__main__.ReducerCases.test_query_trace_shape) ... ok
+test_inert_template_has_literal_separate_phase_boundaries (__main__.AzureCompletionCases.test_inert_template_has_literal_separate_phase_boundaries) ... ok
+test_original_job_completion_matches_fixed_pinned_workflow (__main__.AzureCompletionCases.test_original_job_completion_matches_fixed_pinned_workflow) ... ok
+test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) ... ok
+test_native_transport_protocol_double_reaches_positive_existing_boundary (__main__.ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.760s
+
+OK

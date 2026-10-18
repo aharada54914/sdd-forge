@@ -1,0 +1,32 @@
+[
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/ec2-instance.html",
+    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-ec2-instance.html",
+    "sha256": "f9d0241ad8d0369adac8d77267242168d851601e1c81a0be0754428d738bc4b9",
+    "acquired_at": "2026-10-18T10:02:42Z"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/ec2-securitygroup.html",
+    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-ec2-securitygroup.html",
+    "sha256": "0c8eb960911a6dd9710829bdd023efcd6bf1bc4e2732bb596bc6e1b15e9324b6",
+    "acquired_at": "2026-10-18T10:02:44Z"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/cloudwatch-alarm.html",
+    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-cloudwatch-alarm.html",
+    "sha256": "f823f042822008f620d3bf9524413f07b84a84ebdbfbb272581454dfe2c0aad3",
+    "acquired_at": "2026-10-18T10:02:45Z"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/backup-backupselection.html",
+    "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-backup-backupselection.html",
+    "sha256": "f0f99a5a152a8db197542b3c77ea5546e0cc61a4d7c8086e6ebb4f56c1df9951",
+    "acquired_at": "2026-10-18T10:02:47Z"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/azure-dcr-rule.json",
+    "url": "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/monitor/resource-manager/Microsoft.Insights/Insights/stable/2023-03-11/dataCollectionRules_API.json",
+    "sha256": "fd6dfe97584e643746b44bcb2d170f6764e1c74e79dd26b848dcea9dd6630b2b",
+    "acquired_at": "2026-10-18T10:02:47Z"
+  }
+]

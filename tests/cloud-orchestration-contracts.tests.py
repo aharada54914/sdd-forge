@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE = ROOT / "plugins/sdd-quality-loop/scripts/cloud_contracts.py"
@@ -822,11 +823,18 @@ class Contracts(unittest.TestCase):
             self.c.parse_artifact(b'{"x":1,"\\u0078":2}')
 
     def test_schema_inventory_has_no_open_object_or_unexercised_family(self):
-        expected = {kind.split("/")[0] + ".schema.json" for kind in self.f}
+        # Collector-only records have no standalone artifact trust boundary.
+        # Their executable schema/emission/binding cases live in T-006, while
+        # the legacy artifact parser's closed validator inventory stays exact.
+        collector_kinds = {'cloud-collection-context/v1', 'cloud-check-result/v1',
+                           'cloud-observation-evidence/v1'}
+        # Protected configuration is not a run artifact and cannot enter parse_artifact.
+        configuration_kinds = {"cloud-verification-registry/v1"}
+        expected = {kind.split("/")[0] + ".schema.json" for kind in set(self.f) | collector_kinds | configuration_kinds}
         self.assertEqual(
             {p.name for p in (ROOT / "contracts").glob("cloud-*.schema.json")}, expected
         )
-        for kind in self.f:
+        for kind in set(self.f) | collector_kinds | configuration_kinds:
             schema = self.schema(kind)
             for path, node in nodes(schema):
                 if isinstance(node, dict) and node.get("type") == "object":
@@ -844,6 +852,64 @@ class Contracts(unittest.TestCase):
                     )
             self.assertEqual(schema["properties"]["schema"]["const"], kind)
         self.assertEqual(set(self.c.VALIDATORS), set(self.f))
+
+    def test_protected_registry_configuration_schema_and_runtime(self):
+        verification = load(ROOT / "tests/cloud-orchestration-verification.tests.py", "profile_configuration_tests")
+        import cloud_verification as v
+
+        path = ROOT / "plugins/sdd-quality-loop/references/cloud-verification-registry.json"
+        value = json.loads(path.read_bytes())
+        schema = self.schema(value["schema"])
+        profile = dict(schema="cloud-verification-profile/v1", id="cloud-compute",
+                       version="2", required_check_ids=sorted(v.CHECKS), max_age_seconds=300)
+        self.assertEqual(self.oracle._schema_validate(schema, value), [])
+        self.assertEqual(set(v.protected_selection(profile, dict(backup_required=True))[0]),
+                         set(v.CHECKS) | set(v.PREFLIGHT_IDS))
+        self.rejects(value)  # configuration must not acquire run-artifact authority
+        variants = [dict(value, extra=True), dict(value, schema="cloud-verification-registry/v999"),
+                    dict(value, profiles=[]), dict(value, profiles=value["profiles"] * 2)]
+        for field in value:
+            changed = copy.deepcopy(value)
+            del changed[field]
+            variants.append(changed)
+        for field in value["profiles"][0]:
+            changed = copy.deepcopy(value)
+            del changed["profiles"][0][field]
+            variants.append(changed)
+            changed = copy.deepcopy(value)
+            changed["profiles"][0][field] = [] if field.endswith("ids") else "999"
+            variants.append(changed)
+        for index, changed in enumerate(variants):
+            with self.subTest(variant=index):
+                self.assertTrue(self.oracle._schema_validate(schema, changed))
+                with patch.object(Path, "read_bytes", return_value=verification.encode(changed)):
+                    with self.assertRaises(ValueError):
+                        v.protected_selection(profile, dict(backup_required=True))
+
+    def test_collector_schema_families_have_executed_bindings(self):
+        verification = load(ROOT / 'tests/cloud-orchestration-verification.tests.py', 'collector_contract_fixtures')
+        case = verification.reducer_case()
+        result = verification.ReducerCases().reduce(case)
+        self.assertEqual(result['overall_result'], 'PASS')
+        self.assertFalse(result['evidence_complete'])
+        context, records = case[4:]
+        values = [context, json.loads(records[0]['payload_bytes']),
+                  dict(schema='cloud-observation-evidence/v1', request=case[1],
+                       context=verification.ref('context.json', context),
+                       observations=[dict(check_id=r['check_id'],
+                           observation=ref(r['observation_path'], r['observation_bytes']),
+                           result=json.loads(r['observation_bytes'])['result']) for r in records],
+                       verification=verification.ref('verification.json', result),
+                       classification='synthetic', provenance='synthetic-transport',
+                       saved_receipt_authorizes_nothing=True)]
+        for value in values:
+            schema = self.schema(value['schema'])
+            self.assertEqual(self.oracle._schema_validate(schema, value), [])
+            self.assertTrue(self.oracle._schema_validate(schema, dict(value, extra=True)))
+            for key in value:
+                changed = dict(value)
+                del changed[key]
+                self.assertTrue(self.oracle._schema_validate(schema, changed), (value['schema'], key))
 
     def test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash(self):
         refs = self.make_bundle()
@@ -1098,6 +1164,31 @@ class Contracts(unittest.TestCase):
                     changed_ar = None
                 with self.subTest(case=case), self.assertRaises(self.c.ContractError):
                     self.c.verify_binding(self.root, rr, changed_pr, changed_ar, now=NOW, operation="apply")
+
+
+
+    def test_repair_predecessor_paths_are_separate_run_unit_evidence_not_authority(self):
+        from unittest.mock import patch
+        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
+        prior_dir = "specs/cloud-orchestration/verification/T-001/cloud/prior-run/prior-unit"
+        (self.root / prior_dir).mkdir(parents=True)
+        observation = self.put(prior_dir + "/observation.json", {"synthetic": True})
+        prior = dict(fixtures()["cloud-verification/v1"], run_id="prior-run", unit_id="prior-unit",
+                     profile=request["verification_profile"])
+        prior["checks"][0]["observation"] = observation
+        reference = self.put(prior_dir + "/verification.json", prior)
+        request["predecessor_receipts"] = [dict(unit_id="prior-unit", **reference)]
+        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
+            # Only integrity and identity/path checks; admission still denies predecessors.
+            self.c.verify_local_context(self.root, request)
+            for case in ("path", "unit"):
+                bad = copy.deepcopy(request)
+                if case == "path":
+                    bad["predecessor_receipts"][0].update(self.put("outside-prior.json", prior))
+                else:
+                    bad["predecessor_receipts"][0]["unit_id"] = "other-unit"
+                with self.subTest(case=case), self.assertRaises(self.c.ContractError):
+                    self.c.verify_local_context(self.root, bad)
 
 
 if __name__ == "__main__":

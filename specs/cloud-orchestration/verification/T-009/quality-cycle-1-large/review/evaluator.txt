@@ -1,0 +1,14 @@
+RUN_ID: 01a14f14-4430-7903-9c16-8a44a1ada210
+HOST_SESSION_ID: 01a14f14-4430-7903-9c16-8a44a1ada210
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-009/quality-cycle-1-large/review/invocation.json SHA-256 a745595262fcd007e32ba652142e0fa876cd57d1c04a5f54cc0fd5b93b3c5d4e
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] specs/cloud-orchestration/tasks.md:25-29,398 — Required pre-implementation mismatch evidence remains incomplete. The original `T-009/evidence/preflight.md:12-23` defers most field checks until Green; `red.log` records only two initial failing tests. `attempt-2/preflight.md:3-8` explicitly confirms the missing chronology. Later passing sensitivity tests demonstrate current guards, not satisfaction of this approved prerequisite. An explicit authorized disposition is needed; evidence must not be backdated.
+CHECKED:
+- Recomputed invocation SHA-256 and scratch-bound reservation hash; both match supplied pins. Sequence 1239 extends 1238, identities differ from implementation, and all admitted paths have report/declaration authorization.
+- Inspected REQ-008, AC-008, T-009 scope, design and ADR 0036 against dispatch code. `cloud_verification.py:571-663` enforces protected selection and bindings; saved evidence remains BLOCKED.
+- Inspected publication and provider integration: actual executor checks precede profile results; AWS executed-preview readback binds native operation, template and assets. Profile tests exercise positive controls, missing checks, tampering and mandatory failures without synthetic TDD observations.
+- Read saved command outputs: cloud verification 78 tests successful; contracts 33 successful; selected-plan 32 run with one Windows-only skip; legacy gates 163 passed.
+- Compared saved before/after version results and rollback evidence: legacy required sets retained; restored T006 baseline ran 56 successful tests.
+- Read guard outputs: Bash 42 passed; PowerShell 55 passed with one disclosed existing skip; generated projections and vendor mirrors reported no drift.
+- No repository tests were rerun under this read-only delivery boundary. Live-cloud acceptance, native Windows and Python 3.6 execution remain unverified; later-task and release completion were not evaluated.

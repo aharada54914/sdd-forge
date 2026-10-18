@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R3.header-ETag",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_SUBSTITUTION",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:S3_SUBSTITUTION",
+      "guards": []
+    }
+  ]
+}

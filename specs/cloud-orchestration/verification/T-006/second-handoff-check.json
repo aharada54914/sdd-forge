@@ -1,0 +1,16 @@
+{
+  "recorded_at": "2026-10-18T10:42:17.702528+00:00",
+  "report": "specs/cloud-orchestration/verification/T-006/second-handoff-report.md",
+  "sha256": "764fd017ceec3191755013410be84789f8bf9465f3a8a38686e01fcbc78cfcd1",
+  "outputs_count": 313,
+  "matching_outputs": 312,
+  "mismatches": [
+    {
+      "path": "specs/cloud-orchestration/verification/T-006/attempt-2/native-events.jsonl",
+      "recorded_sha256": "0f629d91c939efb62d57910eb4a4df978e5980aa14ae09e4fcaa52a6dc8ad423",
+      "current_sha256": "c13798f8cab32e2bb458a26cf8e9a05591fe2e1e626a8630a31f2f26f7927d6b"
+    }
+  ],
+  "task_state": "incomplete; no independent review",
+  "private_logs": "Raw native-events/stderr remain private. A self-mutating transport log is not a stable public evidence artifact. Preserve report as authored; next canonical report must use actual stable identities and scoped command evidence instead."
+}

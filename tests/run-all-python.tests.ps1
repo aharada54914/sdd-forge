@@ -12,6 +12,8 @@ $loops = @($ast.FindAll({ param($node)
 }, $true))
 if ($loops.Count -ne 1) { throw 'expected exactly one Python suite loop' }
 $loop = [scriptblock]::Create($loops[0].Extent.Text)
+$suiteCount = @($loops[0].Condition.SafeGetValue()).Count
+if ($suiteCount -lt 1) { throw 'Python suite inventory must not be empty' }
 
 function Get-Command {
     param($Name, $ErrorAction)
@@ -26,10 +28,10 @@ function Invoke-FixturePython {
 }
 
 foreach ($case in @(
-    @{ Available = 'python3'; Code = 0; Failures = 0; Calls = 10; Lookups = 10 },
-    @{ Available = 'python'; Code = 0; Failures = 0; Calls = 10; Lookups = 20 },
-    @{ Available = ''; Code = 0; Failures = 10; Calls = 0; Lookups = 20 },
-    @{ Available = 'python3'; Code = 9; Failures = 10; Calls = 10; Lookups = 10 }
+    @{ Available = 'python3'; Code = 0; Failures = 0; Calls = $suiteCount; Lookups = $suiteCount },
+    @{ Available = 'python'; Code = 0; Failures = 0; Calls = $suiteCount; Lookups = (2 * $suiteCount) },
+    @{ Available = ''; Code = 0; Failures = $suiteCount; Calls = 0; Lookups = (2 * $suiteCount) },
+    @{ Available = 'python3'; Code = 9; Failures = $suiteCount; Calls = $suiteCount; Lookups = $suiteCount }
 )) {
     $script:available = $case.Available
     $script:code = $case.Code

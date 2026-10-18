@@ -1,0 +1,9 @@
+{
+  "legacy_policy": "check-contract.py standalone stdlib Python 3.6+",
+  "cloud_policy": "explicit v3 branch requires Python 3.10+",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "powershell": "7.6.7",
+  "native_windows_executed": false,
+  "python36_executed": false,
+  "legacy_checks": "AST feature_version=(3,6), subprocess import-isolation, real legacy consumer regressions under installed Python; no actual 3.6 binary trial"
+}

@@ -1,0 +1,8 @@
+test_inert_template_has_literal_separate_phase_boundaries (__main__.AzureCompletionCases.test_inert_template_has_literal_separate_phase_boundaries) ... ok
+test_original_job_completion_matches_fixed_pinned_workflow (__main__.AzureCompletionCases.test_original_job_completion_matches_fixed_pinned_workflow) ... ok
+test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.107s
+
+OK

@@ -1,0 +1,19 @@
+Read-only public AWS STS API documentation; original SHA-256 and URL in api-source.json.
+Exact original HTML lines 374-390 follow (Provider response field):
+               <p>This field is deprecated. Use <code class="code">SessionTokenUtilization</code> instead.</p>
+               <p>Type: Integer</p>
+               <p>Valid Range: Minimum value of 0.</p>
+            </dd>
+          
+            <dt><span class="term">
+               <b>
+                  Provider
+               </b>
+            </span></dt>
+            <dd>
+               <p> The issuing authority of the web identity token presented. For OpenID Connect ID
+         tokens, this contains the value of the <code class="code">iss</code> field. For OAuth 2.0 access tokens,
+         this contains the value of the <code class="code">ProviderId</code> parameter that was passed in the
+            <code class="code">AssumeRoleWithWebIdentity</code> request.</p>
+               <p>Type: String</p>
+            </dd>

@@ -1,0 +1,5 @@
+$ git worktree add --detach /tmp/cloud-T006-01a14e9b/rollback 9301c049fd323fdef6f41fb79fa522e88cf99c60
+Preparing worktree (detached HEAD 9301c049)
+HEAD is now at 9301c049 test(cloud): reject incomplete Azure native permission proof
+
+Exit code: 0

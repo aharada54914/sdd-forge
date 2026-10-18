@@ -1,0 +1,50 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected
+OFFLINE_GUARD_INSTALLED
+test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) ... 
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-stack') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-resource') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='missing-token') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='same-time') ... FAIL
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-stack')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 1850, in test_newer_or_ambiguous_stack_operation_rejected
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-resource')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 1850, in test_newer_or_ambiguous_stack_operation_rejected
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='missing-token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 1850, in test_newer_or_ambiguous_stack_operation_rejected
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='same-time')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 1850, in test_newer_or_ambiguous_stack_operation_rejected
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 2.091s
+
+FAILED (failures=4)
+
+Exit code: 1

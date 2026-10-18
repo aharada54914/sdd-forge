@@ -1,0 +1,103 @@
+ok: full install registers all plugins
+ok: subset --plugins only registers chosen plugins
+ok: lite selection resolves the full dependency closure
+ok: domain selection registers its dependency closure
+ok: failure on registration keeps the freshly placed install
+ok: failure on registration keeps the new version over the pre-existing install
+ok: invalid source directory rejected before touching existing install
+ok: invalid plugin name rejected
+
+SDD plugins installed at: /tmp/tmp.zgRjfC9KD6/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+SDD plugins installed at: /tmp/tmp.zgRjfC9KD6/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: idempotency: second install exits 0, state consistent
+
+SDD plugins installed at: /tmp/tmp.JSbvh2RSzw/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+ok: malformed source agent TOML rejected before deployment
+ok: authenticated remote install uses GitHub CLI token flow
+
+SDD plugins installed at: /tmp/tmp.CRo1otERoE/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: local source installs Git-tracked files only
+ok: untracked required release file is rejected before deployment
+
+SDD plugins installed at: /tmp/tmp.WqpwBeakQM/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: concurrent install blocked, succeeds after lock released
+ok: lock: released on success — lock dir absent after install
+
+SDD plugins installed at: /tmp/tmp.ktkFf4QeU1/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: stale lock with dead pid reclaimed — install succeeds
+
+SDD plugins installed at: /tmp/tmp.XOpcZGeQc0/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: smoke (D): installed native review identity producer matches bundled bytes
+ok: smoke (D): installed operator nonce issuer matches bundled bytes
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/scripts/finalize-domain-review.py
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/scripts/finalize-domain-review.sh
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/scripts/finalize-domain-review.ps1
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/templates/domain-review-integrated-verdict.template.json
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/templates/domain-review-contract.template.json
+ok: smoke (D): installed domain finalizer payload matches bundled bytes: plugins/sdd-domain/templates/domain-review-report.template.md
+Risk check passed for 1 task(s).
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+Risk check FAILED:
+ - T-001 (risk high) must declare Required Workflow: tdd (none found)
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: sdd-ship expansion: auto-includes all companion plugins
+ok: marketplace: sdd-ship entry present in both marketplace files
+ok: sdd-ship required paths: all plugin files present
+ok: sdd-review-loop required paths: manifests and skills present
+ok: Claude manifest validation fails before marketplace registration
+ok: default install places and registers ALL THREE MCP servers, with ci-mcp token guidance
+
+SDD plugins installed at: /tmp/tmp.DQhgyLVrNk/installed
+ok: --skip-mcp skips both MCP placement and registration
+
+SDD plugins installed at: /tmp/tmp.jn6D1dak02/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+SDD plugins installed at: /tmp/tmp.QIrU6HXm2M/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: --mcp <list> installs valid names and rejects invalid/empty ones
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: unsupported Node warns and skips MCP only, plugin install continues
+ok: Node boundary v22.18.0 is rejected
+ok: Node boundary v22.19.0 is accepted
+ok: Node boundary v24.0.0 is accepted
+ok: Node boundary v22.19.0-rc.1 is rejected
+ok: Node boundary v999999999999999999999.0.0 is rejected
+ok: Node boundary not-a-version is rejected
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice
+ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice
+ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues
+ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues
+ok: T-003 install output is unaffected by project-context presence
+
+Results: 51 passed, 0 failed.

@@ -1,0 +1,46 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeChangeSet",
+        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackEvents"
+      ],
+      "Resource": [
+        "arn:aws:cloudformation:REPLACE_AWS_REGION:REPLACE_AWS_ACCOUNT_ID:stack/REPLACE_STACK/*",
+        "arn:aws:cloudformation:REPLACE_AWS_REGION:REPLACE_AWS_ACCOUNT_ID:changeSet/REPLACE_CHANGESET_PREFIX-*/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::REPLACE_ASSET_BUCKET/REPLACE_ASSET_PREFIX/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:CreateChangeSet"
+      ],
+      "Resource": [
+        "arn:aws:cloudformation:REPLACE_AWS_REGION:REPLACE_AWS_ACCOUNT_ID:stack/REPLACE_STACK/*",
+        "arn:aws:cloudformation:REPLACE_AWS_REGION:REPLACE_AWS_ACCOUNT_ID:changeSet/REPLACE_CHANGESET_PREFIX-*/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": "arn:aws:iam::REPLACE_AWS_ACCOUNT_ID:role/REPLACE_SCOPED_CFN_SERVICE_ROLE",
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "cloudformation.amazonaws.com"
+        }
+      }
+    }
+  ]
+}

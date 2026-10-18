@@ -1,0 +1,1 @@
+{"command": ["python3", "-m", "py_compile", "plugins/sdd-aws-cloud/scripts/cloud.py", "plugins/sdd-aws-cloud/scripts/aws_native.py", "plugins/sdd-aws-cloud/scripts/aws_execution.py", "plugins/sdd-aws-cloud/scripts/aws_control.py", "plugins/sdd-aws-cloud/scripts/aws_governed.py", "tests/cloud-orchestration-execution.tests.py"], "exit_code": 0, "stdout": "", "stderr": ""}

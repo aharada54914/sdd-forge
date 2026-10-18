@@ -1,0 +1,96 @@
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) ... 
+  test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='azure', stage='prepare') ... ERROR
+  test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='azure', stage='apply') ... ERROR
+  test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='aws', stage='prepare') ... FAIL
+  test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='aws', stage='apply') ... FAIL
+
+======================================================================
+ERROR: test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='azure', stage='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4246, in test_dependency_matched_control_at_both_shared_stages
+    state=self.fixture(provider,stage)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4092, in fixture
+    producer, _, _, module = harness.setup_execution(provider, protected=True)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2591, in setup_execution
+    harness.setUp()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1980, in setUp
+    import azure_governed
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_governed.py", line 30, in <module>
+    from cloud_dependencies import (  # noqa: E402,F401
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_dependencies.py", line 269
+    and sorted([[r["reviewer"]["id"], r["reviewer"]["login"]] for r in rules[0]["reviewers"] if r["type"] == "User")
+                                                                                                                   ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '['
+
+======================================================================
+ERROR: test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='azure', stage='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4246, in test_dependency_matched_control_at_both_shared_stages
+    state=self.fixture(provider,stage)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4092, in fixture
+    producer, _, _, module = harness.setup_execution(provider, protected=True)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2591, in setup_execution
+    harness.setUp()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1980, in setUp
+    import azure_governed
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_governed.py", line 30, in <module>
+    from cloud_dependencies import (  # noqa: E402,F401
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_dependencies.py", line 269
+    and sorted([[r["reviewer"]["id"], r["reviewer"]["login"]] for r in rules[0]["reviewers"] if r["type"] == "User")
+                                                                                                                   ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '['
+
+======================================================================
+FAIL: test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='aws', stage='prepare')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4246, in test_dependency_matched_control_at_both_shared_stages
+    state=self.fixture(provider,stage)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4092, in fixture
+    producer, _, _, module = harness.setup_execution(provider, protected=True)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2597, in setup_execution
+    case, wire = harness.setup_execution(protected=protected)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1784, in setup_execution
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2217, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': 'bd1aec26f544a7d1453b00de5fb7c585b69197cb28709ea5488ff1d29e4d38e0', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/prepare.json.manifest.json'}
+
+======================================================================
+FAIL: test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) (provider='aws', stage='apply')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4246, in test_dependency_matched_control_at_both_shared_stages
+    state=self.fixture(provider,stage)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 4092, in fixture
+    producer, _, _, module = harness.setup_execution(provider, protected=True)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2597, in setup_execution
+    case, wire = harness.setup_execution(protected=protected)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1784, in setup_execution
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2217, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': 'bd1aec26f544a7d1453b00de5fb7c585b69197cb28709ea5488ff1d29e4d38e0', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/prepare.json.manifest.json'}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.120s
+
+FAILED (failures=2, errors=2)

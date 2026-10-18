@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/tmp/cloud-quality-python/bin/python",
+    "-m",
+    "mypy",
+    "--config-file",
+    "tests/shared-launch-python/pyproject.toml",
+    "specs/cloud-orchestration/verification/T-009/attempt-2/run-command.py",
+    "specs/cloud-orchestration/verification/T-009/attempt-2/version-inventory.py",
+    "specs/cloud-orchestration/verification/T-009/attempt-2/guard-runtime-probes.py",
+    "specs/cloud-orchestration/verification/T-009/attempt-2/mismatch-audit.py",
+    "tests/cloud-orchestration-verification.tests.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "environment_overrides": {
+    "TMPDIR": "/tmp/cloud-T009-01a14ef5-f7d9-79e3-8b89-23b4811edc3b",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+    "PATH": "/workspace/.tools/sdd-forge-dev/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/bin:/usr/bin"
+  },
+  "started_at": "2026-10-18T12:35:54Z",
+  "finished_at": "2026-10-18T12:35:54Z",
+  "exit_code": 0,
+  "log": "specs/cloud-orchestration/verification/T-009/attempt-2/final-evidence-mypy2.log"
+}

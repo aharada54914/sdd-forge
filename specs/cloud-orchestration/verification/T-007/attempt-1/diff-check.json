@@ -1,0 +1,27 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "install.sh",
+    "install.ps1",
+    "uninstall.sh",
+    "uninstall.ps1",
+    ".agents/plugins/marketplace.json",
+    ".claude-plugin/marketplace.json",
+    "tests/validate-repository.ps1",
+    "tests/install-cloud.tests.py",
+    "tests/install.tests.sh",
+    "tests/install.tests.ps1",
+    "tests/uninstall.tests.sh",
+    "tests/uninstall.tests.ps1",
+    "tests/install-uninstall-matrix.tests.sh",
+    "tests/install-uninstall-matrix.tests.ps1"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:39:09Z",
+  "exit_code": 0,
+  "elapsed_seconds": 0.01,
+  "classification": "offline local command; no live cloud"
+}

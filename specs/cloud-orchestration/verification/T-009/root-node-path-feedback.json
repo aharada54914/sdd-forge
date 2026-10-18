@@ -1,0 +1,14 @@
+{
+  "id": 900092,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+    "expectedTurnId": "01a14ed8-ab82-7e80-ab82-8a651f31ebec",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root observed baseline-registry-parity.log failed only because run-scoped.py replaces PATH with /workspace/.tools/sdd-forge-dev/bin + os.defpath, removing available Node. Parent environment command -v node is /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node. Preserve that original failure as environment evidence, include the discovered Node directory in the scoped test environment, and rerun that baseline/check without a SKIP or product change. Existing /tmp/cloud-test-env.sh preserves inherited PATH. This is harness guidance, not another product finding."
+      }
+    ]
+  }
+}

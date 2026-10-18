@@ -1,0 +1,51 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "started_at": "2026-10-18T06:48:07.488284+00:00",
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-004/owner-fix/green.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "started_at": "2026-10-18T06:48:32.933059+00:00",
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-004/owner-fix/contracts.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "started_at": "2026-10-18T06:48:33.472431+00:00",
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-004/owner-fix/ruff.log"
+  },
+  {
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "tests/cloud-orchestration-routing.tests.py"
+    ],
+    "started_at": "2026-10-18T06:48:33.492260+00:00",
+    "exit_code": 0,
+    "evidence": "specs/cloud-orchestration/verification/T-004/owner-fix/mypy.log"
+  }
+]

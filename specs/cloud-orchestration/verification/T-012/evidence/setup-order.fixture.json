@@ -1,0 +1,13 @@
+{
+  "classification": "synthetic, no native federation or IAM changes",
+  "order": [
+    "review executor E",
+    "render workflow pinned to E",
+    "review and commit control workflow W",
+    "owner installs protected external policy pinned to W",
+    "owner pins native federation subject to W"
+  ],
+  "executor_pin": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "workflow_fixture_sha256": "537937c155bf3721457d175580f1e0a8f67a1716aaf1cdc1d07074874fe84e89",
+  "control_pin_source": "independent owner configuration after control commit; never an OIDC/run/input claim"
+}

@@ -1,0 +1,7 @@
+T-004 is blocked: the strict request contract lacks the declared roots and ownership/policy inputs required for safe implementation.
+
+- Committed Red CLI tests: `a6337067`
+- Manifest/report validation, Ruff, mypy and rollback checks passed.
+- Report: `reports/implementation/cloud-orchestration/T-004.md`
+
+No runtime implementation, Bicep compilation, cloud actions or task-status changes. Root must resolve the documented contract gap.

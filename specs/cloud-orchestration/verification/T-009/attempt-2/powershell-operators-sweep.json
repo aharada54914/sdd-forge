@@ -1,0 +1,170 @@
+{
+  "source": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+  "sha256": "66505c65b073bc083d32b734a4e073bc85a216dd98a3b81a5bf581ae4956d9b3",
+  "sites": [
+    {
+      "line": 30,
+      "text": "if ($contract.schema -ceq 'verification-contract/v3') {"
+    },
+    {
+      "line": 34,
+      "text": "if (@($contract.PSObject.Properties.Name) -ccontains 'profile') {"
+    },
+    {
+      "line": 64,
+      "text": "            if ($property.Name -ceq 'checks') { $checks = $property.Value }"
+    },
+    {
+      "line": 66,
+      "text": "        if ($null -eq $checks -or"
+    },
+    {
+      "line": 67,
+      "text": "            $checks.ValueKind -ne [System.Text.Json.JsonValueKind]::Array -or"
+    },
+    {
+      "line": 72,
+      "text": "            if ($property.Name -ceq $Field) {"
+    },
+    {
+      "line": 75,
+      "text": "                if ($property.Value.ValueKind -eq [System.Text.Json.JsonValueKind]::Null) {"
+    },
+    {
+      "line": 78,
+      "text": "                if ($property.Value.ValueKind -ne [System.Text.Json.JsonValueKind]::String) {"
+    },
+    {
+      "line": 138,
+      "text": "#     therefore EXACTLY equivalent to `Get-DerivedState -ne \"disabled-legacy\"`"
+    },
+    {
+      "line": 189,
+      "text": "            if ($segments.Length -gt 1 -and $segments[0] -ceq 'specs') {"
+    },
+    {
+      "line": 194,
+      "text": "        if (-not $parent -or $parent -eq $current) { break }"
+    },
+    {
+      "line": 208,
+      "text": "if ($absEvidenceRoot -ne $absRoot) {"
+    },
+    {
+      "line": 248,
+      "text": "    if (-not ($pathFull.StartsWith($rootFull + $separator) -or $pathFull -eq $rootFull)) {"
+    },
+    {
+      "line": 268,
+      "text": "        if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {"
+    },
+    {
+      "line": 298,
+      "text": "    if (($Evidence.Length -ge 2 -and $Evidence[1] -eq ':') -or $Evidence.StartsWith(\"\\\\\")) {"
+    },
+    {
+      "line": 312,
+      "text": "    if (-not ($joined.StartsWith($RepoRoot + $sep) -or $joined -eq $RepoRoot)) {"
+    },
+    {
+      "line": 329,
+      "text": "        if ($fileInfo -and $fileInfo.Length -eq 0) {"
+    },
+    {
+      "line": 359,
+      "text": "    if ($null -eq $required -or $required -isnot [bool]) {"
+    },
+    {
+      "line": 365,
+      "text": "    if ($null -eq $passes -or $passes -isnot [bool]) {"
+    },
+    {
+      "line": 380,
+      "text": "    if ($checkProps -contains 'command') { $commandValue = $check.command }"
+    },
+    {
+      "line": 381,
+      "text": "    if ($null -ne $commandValue) {"
+    },
+    {
+      "line": 387,
+      "text": "    if ($checkProps -contains 'exit_code') { $exitCodeValue = $check.exit_code }"
+    },
+    {
+      "line": 388,
+      "text": "    if ($null -ne $exitCodeValue) {"
+    },
+    {
+      "line": 401,
+      "text": "            $tsRaw.Text -cnotmatch '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$') {"
+    },
+    {
+      "line": 441,
+      "text": "    $check = $contract.checks | Where-Object { $_.id -eq $bid } | Select-Object -First 1"
+    },
+    {
+      "line": 458,
+      "text": "    if ($scalarProp -and $null -ne $scalarProp.Value -and $scalarProp.Value -isnot [string]) {"
+    },
+    {
+      "line": 475,
+      "text": "if ($contractSchema -and $contractSchema -cne 'verification-contract/v2') {"
+    },
+    {
+      "line": 502,
+      "text": "        if ($contractSchema -ceq 'verification-contract/v2' -and ($risk -cin @('high', 'critical'))) {"
+    },
+    {
+      "line": 504,
+      "text": "            $srOk = ($specRevision.Length -eq 40 -or $specRevision.Length -eq 64) -and"
+    },
+    {
+      "line": 505,
+      "text": "                    ($specRevision -cmatch '\\A[0-9a-f]+\\z')"
+    },
+    {
+      "line": 513,
+      "text": "            $requiredIds = @($requiredIds | Where-Object { $CAPABILITY_STATE_GATED_IDS -notcontains $_ })"
+    },
+    {
+      "line": 523,
+      "text": "                $check = $contract.checks | Where-Object { $_.id -ceq $reqId } | Select-Object -First 1"
+    },
+    {
+      "line": 540,
+      "text": "if ($requiredWorkflow -ceq \"tdd\") {"
+    },
+    {
+      "line": 587,
+      "text": "    } elseif ($requiredWorkflow -cne \"tdd\") {"
+    },
+    {
+      "line": 596,
+      "text": "if ($crossModel -and $crossModel -ne \"legacy\") {"
+    },
+    {
+      "line": 600,
+      "text": "        $cmCheck = $contract.checks | Where-Object { $_.id -eq \"cross-model-verification\" } | Select-Object -First 1"
+    },
+    {
+      "line": 601,
+      "text": "        if ($crossModel -eq \"required\") {"
+    },
+    {
+      "line": 607,
+      "text": "        } elseif ($crossModel -eq \"waived\") {"
+    },
+    {
+      "line": 623,
+      "text": "    if ($check.id -ne $PRODUCER_DIGEST_CHECK_ID) { continue }"
+    },
+    {
+      "line": 639,
+      "text": "    if ($record.PSObject.Properties.Name -contains \"producer\") {"
+    },
+    {
+      "line": 654,
+      "text": "    if ([string]$recordedSha256 -ne $liveSha256) {"
+    }
+  ]
+}

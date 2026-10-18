@@ -1,0 +1,90 @@
+[
+  {
+    "id": "risk",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/cloud-orchestration/tasks.md T-003",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:28Z",
+    "finished_at": "2026-10-18T06:39:28Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/risk.log"
+  },
+  {
+    "id": "lint",
+    "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_authorization.py tests/cloud-orchestration-execution.tests.py templates/cloud/iam/trusted-policy.example.py specs/cloud-orchestration/verification/T-003/coverage-runner.py specs/cloud-orchestration/verification/T-003/rollback-test.py specs/cloud-orchestration/verification/T-003/verify-local.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:28Z",
+    "finished_at": "2026-10-18T06:39:28Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/lint.log"
+  },
+  {
+    "id": "typecheck",
+    "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_authorization.py tests/cloud-orchestration-execution.tests.py templates/cloud/iam/trusted-policy.example.py specs/cloud-orchestration/verification/T-003/coverage-runner.py specs/cloud-orchestration/verification/T-003/rollback-test.py specs/cloud-orchestration/verification/T-003/verify-local.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:28Z",
+    "finished_at": "2026-10-18T06:39:28Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/typecheck.log"
+  },
+  {
+    "id": "build",
+    "command": "python3 -m py_compile plugins/sdd-quality-loop/scripts/cloud_authorization.py tests/cloud-orchestration-execution.tests.py templates/cloud/iam/trusted-policy.example.py specs/cloud-orchestration/verification/T-003/coverage-runner.py specs/cloud-orchestration/verification/T-003/rollback-test.py specs/cloud-orchestration/verification/T-003/verify-local.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:28Z",
+    "finished_at": "2026-10-18T06:39:28Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/build.log"
+  },
+  {
+    "id": "unit-tests",
+    "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:28Z",
+    "finished_at": "2026-10-18T06:39:29Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/unit-tests.log"
+  },
+  {
+    "id": "regression",
+    "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:29Z",
+    "finished_at": "2026-10-18T06:39:30Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/regression.log"
+  },
+  {
+    "id": "placeholder-scan",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:30Z",
+    "finished_at": "2026-10-18T06:39:30Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/placeholder-scan.log"
+  },
+  {
+    "id": "task-state-check",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/cloud-orchestration/tasks.md",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:30Z",
+    "finished_at": "2026-10-18T06:39:30Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/task-state-check.log"
+  },
+  {
+    "id": "workflow-state",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:39:30Z",
+    "finished_at": "2026-10-18T06:40:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/workflow-state.log"
+  },
+  {
+    "id": "requirement-traceability",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/cloud-orchestration/traceability.json /workspace/sdd-forge require-evidence",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:40:07Z",
+    "finished_at": "2026-10-18T06:40:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/requirement-traceability.log"
+  },
+  {
+    "id": "check-component-coverage",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+    "exit_code": 0,
+    "started_at": "2026-10-18T06:40:07Z",
+    "finished_at": "2026-10-18T06:40:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-2/check-component-coverage.log"
+  }
+]

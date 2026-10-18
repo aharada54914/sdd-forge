@@ -1,0 +1,214 @@
+--- entry/install.sh
++++ repair/install.sh
+@@ -765,14 +765,15 @@
+     ".codex/agents/sdd-investigator.toml"
+     ".codex/agents/sdd-evaluator.toml"
+ )
+-# Cloud manifests are required only for explicitly selected entries.
++CLOUD_ENTRY_FILES=(.claude-plugin/plugin.json .codex-plugin/plugin.json .plugin/plugin.json skills/orchestrate/SKILL.md scripts/cloud.py)
++# Source precheck covers explicit selections; retained entries are checked in staging.
+ for plugin in "${PLUGIN_LIST[@]}"; do
+     case "$plugin" in
+         sdd-azure-cloud|sdd-aws-cloud)
+-            for host in .claude-plugin .codex-plugin .plugin; do
+-                REQUIRED_PATHS+=("plugins/$plugin/$host/plugin.json")
++            provider="${plugin#sdd-}"
++            for rel in "${CLOUD_ENTRY_FILES[@]}" "scripts/${provider%-cloud}_local.py"; do
++                REQUIRED_PATHS+=("plugins/$plugin/$rel")
+             done
+-            REQUIRED_PATHS+=("plugins/$plugin/skills/orchestrate/SKILL.md")
+             ;;
+     esac
+ done
+@@ -1006,27 +1007,33 @@
+     done
+ fi
+ 
+-# Materialize the canonical shared dependency INSIDE selected provider payloads.
+-# Host caches may isolate a plugin/version from its siblings. Skills set the
+-# existing explicit runtime override to this package-local absolute directory.
++# Rebuild selected and previously materialized runtimes before replacing the tree.
++# Prior payload presence retains availability, never registration or executable bytes.
+ # Read only staged (tracked/archive) bytes, never untracked source files.
+-for plugin in "${PLUGIN_LIST[@]}"; do
+-    case "$plugin" in
+-        sdd-azure-cloud|sdd-aws-cloud)
+-            runtime="$STAGING_ROOT/plugins/$plugin/runtime"
+-            mkdir -p "$runtime/scripts" "$runtime/references" "$runtime/contracts"
+-            for module in cloud_contracts.py cloud_authorization.py cloud_verification.py cloud_dependencies.py; do
+-                cp "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/$module" "$runtime/scripts/$module"
+-            done
+-            cp "$STAGING_ROOT/plugins/sdd-quality-loop/references/cloud-verification-registry.json" "$runtime/references/"
+-            for schema in "$STAGING_ROOT"/contracts/cloud-*.schema.json; do
+-                cp "$schema" "$runtime/contracts/"
+-            done
+-            for schema in verification-contract-v3.schema.json selected-verification-plan-v2.schema.json; do
+-                cp "$STAGING_ROOT/plugins/sdd-quality-loop/contracts/$schema" "$runtime/contracts/"
+-            done
+-            ;;
++for plugin in sdd-azure-cloud sdd-aws-cloud; do
++    case ",$PLUGINS," in
++        *,"$plugin",*) ;;
++        *) [[ -d "$INSTALL_ROOT/plugins/$plugin/runtime" ]] || continue ;;
+     esac
++    provider="${plugin#sdd-}"
++    for rel in "${CLOUD_ENTRY_FILES[@]}" "scripts/${provider%-cloud}_local.py"; do
++        if [[ ! -f "$STAGING_ROOT/plugins/$plugin/$rel" ]]; then
++            echo "Error: Required staged cloud entry file is missing: plugins/$plugin/$rel" >&2
++            exit 1
++        fi
++    done
++    runtime="$STAGING_ROOT/plugins/$plugin/runtime"
++    mkdir -p "$runtime/scripts" "$runtime/references" "$runtime/contracts"
++    for module in cloud_contracts.py cloud_authorization.py cloud_verification.py cloud_dependencies.py; do
++        cp "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/$module" "$runtime/scripts/$module"
++    done
++    cp "$STAGING_ROOT/plugins/sdd-quality-loop/references/cloud-verification-registry.json" "$runtime/references/"
++    for schema in "$STAGING_ROOT"/contracts/cloud-*.schema.json; do
++        cp "$schema" "$runtime/contracts/"
++    done
++    for schema in verification-contract-v3.schema.json selected-verification-plan-v2.schema.json; do
++        cp "$STAGING_ROOT/plugins/sdd-quality-loop/contracts/$schema" "$runtime/contracts/"
++    done
+ done
+ 
+ # Backup existing install — generate a unique path without pre-creating it
+--- entry/install.ps1
++++ repair/install.ps1
+@@ -564,9 +564,10 @@
+     Invoke-WebRequest -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath
+ }
+ 
++$cloudEntryFiles = @(".claude-plugin/plugin.json", ".codex-plugin/plugin.json", ".plugin/plugin.json", "skills/orchestrate/SKILL.md", "scripts/cloud.py")
++
+ function Get-RequiredPaths {
+     $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain")
+-    $allPluginNames += @($Plugins | Where-Object { $_ -cin @("sdd-azure-cloud", "sdd-aws-cloud") })
+     $paths = @(
+         ".agents/plugins/marketplace.json",
+         ".claude-plugin/marketplace.json",
+@@ -581,7 +582,9 @@
+         $paths += "plugins/$plugin/.plugin/plugin.json"
+     }
+     foreach ($plugin in @($Plugins | Where-Object { $_ -cin @("sdd-azure-cloud", "sdd-aws-cloud") })) {
+-        $paths += "plugins/$plugin/skills/orchestrate/SKILL.md"
++        foreach ($file in $cloudEntryFiles + @("scripts/$($plugin.Split('-')[1])_local.py")) {
++            $paths += "plugins/$plugin/$file"
++        }
+     }
+     return $paths
+ }
+@@ -796,9 +799,18 @@
+         }
+     }
+ 
+-    # Keep selected cloud entries self-contained in independently cached hosts.
++    # Rebuild selected and previously materialized runtimes before replacing the tree.
++    # Prior payload presence retains availability, never registration or executable bytes.
+     # Copy only the already staged tracked/archive bytes (no source-tree fallback).
+-    foreach ($plugin in @($Plugins | Where-Object { $_ -cin @("sdd-azure-cloud", "sdd-aws-cloud") })) {
++    foreach ($plugin in @("sdd-azure-cloud", "sdd-aws-cloud")) {
++        if ($Plugins -cnotcontains $plugin -and -not (Test-Path -LiteralPath (Join-Path $InstallRoot "plugins/$plugin/runtime") -PathType Container)) {
++            continue
++        }
++        foreach ($file in $cloudEntryFiles + @("scripts/$($plugin.Split('-')[1])_local.py")) {
++            if (-not (Test-Path -LiteralPath (Join-Path $stagingRoot "plugins/$plugin/$file") -PathType Leaf)) {
++                throw "Required staged cloud entry file is missing: plugins/$plugin/$file"
++            }
++        }
+         $runtime = Join-Path $stagingRoot "plugins/$plugin/runtime"
+         foreach ($directory in @("scripts", "references", "contracts")) {
+             New-Item -ItemType Directory -Path (Join-Path $runtime $directory) -Force | Out-Null
+--- entry/tests/install-cloud.tests.py
++++ repair/tests/install-cloud.tests.py
+@@ -423,6 +423,90 @@
+         finally:
+             path.write_bytes(raw)
+ 
++    def test_sequential_selections_rebuild_prior_runtime(self) -> None:
++        for shell in ('bash', 'pwsh'):
++            for first, second in (PROVIDERS, tuple(reversed(PROVIDERS))):
++                with tempfile.TemporaryDirectory(dir=self.root) as temp:
++                    dest = Path(temp) / 'installed'
++                    installed: list[str] = []
++                    selections = ((f'sdd-{first}-cloud',), (f'sdd-{second}-cloud',), (), ('sdd-review-loop',))
++                    for step, selection in enumerate(selections):
++                        print(f'sequential {shell}: {first}->{second}, step={step}, selection={selection or "default"}', flush=True)
++                        p = self.installer(shell, selection, dest)
++                        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
++                        if step < 2:
++                            installed.append((first, second)[step])
++                        for provider in PROVIDERS:
++                            plugin = dest / f'plugins/sdd-{provider}-cloud'
++                            if provider not in installed:
++                                self.assertFalse((plugin / 'runtime').exists(), 'unselected provider was materialized')
++                                continue
++                            with self.subTest(shell=shell, first=first, step=step, provider=provider, check='canonical bytes'):
++                                mismatches = [rel for rel, canonical in runtime_sources().items()
++                                              if not (plugin / 'runtime' / rel).is_file()
++                                              or (plugin / 'runtime' / rel).read_bytes() != canonical.read_bytes()]
++                                self.assertEqual(mismatches, [])
++                            with self.subTest(shell=shell, first=first, step=step, provider=provider, check='installed CLI'):
++                                self.check_runtime_and_cli(plugin, provider, Path(temp))
++                            with self.subTest(shell=shell, first=first, step=step, provider=provider, check='direct route'), tempfile.TemporaryDirectory(dir=temp) as work_temp:
++                                work = Path(work_temp)
++                                request = local_request(work, provider)
++                                write_json(work / 'request.json', request)
++                                env = dict(PATH=os.defpath, HOME=work_temp, CLOUD_WORKSPACE_ROOT=work_temp,
++                                           CLOUD_SHARED_RUNTIME_ROOT=str(plugin / 'runtime/scripts'), PYTHONDONTWRITEBYTECODE='1')
++                                p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), 'route', '--request', str(work / 'request.json'),
++                                         '--output', request['local_context']['evidence_directory'] + '/route.json'], work, env)
++                                print(f'direct {shell}/{provider} step={step}: exit={p.returncode} {p.stdout.strip()}', flush=True)
++                                self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
++                        # Prior executable/schema bytes are NOT trusted upgrade inputs.
++                        # The next real install must regenerate every payload from source.
++                        if step < len(selections) - 1:
++                            for provider in installed:
++                                for rel in runtime_sources():
++                                    path = dest / f'plugins/sdd-{provider}-cloud/runtime' / rel
++                                    if path.is_file():
++                                        path.write_bytes(b'stale or tampered prior payload\n')
++
++    def test_prior_runtime_rebuild_failure_preserves_installation(self) -> None:
++        # Remove inputs from the export index, leaving their untracked source
++        # bytes available: neither source fallback nor the old runtime is trusted.
++        groups = (
++            ('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',),
++            ('plugins/sdd-quality-loop/references/cloud-verification-registry.json',),
++            ('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',),
++            tuple(str(p.relative_to(ROOT)) for p in (ROOT / 'contracts').glob('cloud-*.schema.json')),
++            ('plugins/sdd-azure-cloud/scripts/cloud.py',),
++            ('plugins/sdd-azure-cloud/scripts/azure_local.py',),
++            ('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',),
++            ('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',),
++        )
++        for shell in ('bash', 'pwsh'):
++            for missing in groups:
++                with self.subTest(shell=shell, missing=missing), tempfile.TemporaryDirectory(dir=self.root) as temp:
++                    dest = Path(temp) / 'installed'
++                    p = self.installer(shell, ('sdd-azure-cloud',), dest)
++                    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
++                    before = {str(p.relative_to(dest)): hashlib.sha256(p.read_bytes()).hexdigest()
++                              for p in dest.rglob('*') if p.is_file()}
++                    p = run(['git', 'rm', '--cached', '--', *missing], self.source)
++                    self.assertEqual(p.returncode, 0, p.stderr)
++                    try:
++                        p = self.installer(shell, ('sdd-review-loop',), dest)
++                    finally:
++                        restored = run(['git', 'add', '--', *missing], self.source)
++                        self.assertEqual(restored.returncode, 0, restored.stderr)
++                    after = {str(p.relative_to(dest)): hashlib.sha256(p.read_bytes()).hexdigest()
++                             for p in dest.rglob('*') if p.is_file()}
++                    print(f'prior rebuild {shell}: missing={missing}, exit={p.returncode}, preserved={before == after}', flush=True)
++                    print(p.stdout + p.stderr, flush=True)
++                    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
++                    if len(missing) == 1:
++                        self.assertIn(Path(missing[0]).name, p.stdout + p.stderr)
++                    else:
++                        self.assertIn('cloud-' if shell == 'bash' else 'Cloud schemas are missing', p.stdout + p.stderr)
++                    self.assertEqual(after, before)
++                    self.check_runtime_and_cli(dest / 'plugins/sdd-azure-cloud', 'azure', Path(temp))
++
+     def test_case_variants_at_operator_and_file_discovery_layers(self) -> None:
+         for shell in ('bash', 'pwsh'):
+             for plugin in ('SDD-AZURE-CLOUD', 'sdd-Aws-cloud'):

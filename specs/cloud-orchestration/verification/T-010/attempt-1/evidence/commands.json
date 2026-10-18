@@ -1,0 +1,66 @@
+[
+  {
+    "name": "manifest-validation",
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-010/attempt-1/task-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-T010-01a14f33-2447-79d0-8195-087bbe42669c/snapshot",
+      "--expected-task",
+      "T-010"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T13:34:38Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/manifest-validation.log"
+  },
+  {
+    "name": "baseline",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py",
+      "EntryPreflight.test_live_network_is_forbidden_before_transport",
+      "ReducerCases",
+      "AzureCompletionCases",
+      "ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T13:34:38Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/baseline.log"
+  },
+  {
+    "name": "ruff",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T13:34:39Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/ruff.log"
+  },
+  {
+    "name": "mypy",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/probe.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T13:34:39Z",
+    "exit_code": 1,
+    "log": "specs/cloud-orchestration/verification/T-010/attempt-1/evidence/mypy.log"
+  }
+]

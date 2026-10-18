@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R5.principal",
+      "row": 5,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "PROVIDER_PRINCIPAL_MISMATCH",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:PROVIDER_PRINCIPAL_MISMATCH",
+      "guards": []
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+[
+  {
+    "id": "regression-t003",
+    "command": [
+      "python3",
+      "-B",
+      "tests/sdd-domain-multitarget-T-003.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-18T04:55:19.207569+00:00",
+    "finished_at": "2026-10-18T04:55:45.307992+00:00",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/regression-t003.log"
+  },
+  {
+    "id": "regression-t004",
+    "command": [
+      "python3",
+      "-B",
+      "tests/sdd-domain-multitarget-T-004.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-18T04:55:45.308424+00:00",
+    "finished_at": "2026-10-18T04:56:03.513978+00:00",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/regression-t004.log"
+  },
+  {
+    "id": "regression-pwsh",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/run-all-python.tests.ps1"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-18T04:56:03.514394+00:00",
+    "finished_at": "2026-10-18T04:56:03.841844+00:00",
+    "evidence": "specs/cloud-orchestration/verification/T-001/quality-cycle-1/regression-pwsh.log"
+  }
+]

@@ -1,0 +1,29 @@
+test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) ... ok
+test_input_output_alias_is_not_overwritten (__main__.AzureCliContract.test_input_output_alias_is_not_overwritten) ... ok
+test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) ... ok
+test_unknown_operation_and_flag_are_typed_rejections (__main__.AzureCliContract.test_unknown_operation_and_flag_are_typed_rejections) ... ok
+test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) ... ok
+test_explicit_unsupported_inventory_and_provider_mismatch (__main__.AzureRouting.test_explicit_unsupported_inventory_and_provider_mismatch) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AzureRouting.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_owner_import_and_metadata_id_preservation (__main__.AzureRouting.test_missing_owner_import_and_metadata_id_preservation) ... ok
+test_mutated_input_output_escape_alias_and_no_overwrite (__main__.AzureRouting.test_mutated_input_output_escape_alias_and_no_overwrite) ... ok
+test_one_explicit_bicep_owner_routes_with_stable_apply_intent (__main__.AzureRouting.test_one_explicit_bicep_owner_routes_with_stable_apply_intent) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AzureRouting.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AzureRouting.test_symlink_root_input_and_output_fail_closed) ... ERROR
+
+======================================================================
+ERROR: test_symlink_root_input_and_output_fail_closed (__main__.AzureRouting.test_symlink_root_input_and_output_fail_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 254, in test_symlink_root_input_and_output_fail_closed
+    self.assertEqual(self.invoke(expected=2, env_extra={"CLOUD_WORKSPACE_ROOT": str(link)})["result"], "BLOCKED")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 174, in invoke
+    self.assertEqual(result["operation"], phase)
+                     ~~~~~~^^^^^^^^^^^^^
+KeyError: 'operation'
+
+----------------------------------------------------------------------
+Ran 12 tests in 2.271s
+
+FAILED (errors=1)

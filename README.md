@@ -105,6 +105,17 @@ flowchart LR
 プラグインのインストール手順は本ファイルの [インストール](#インストール) 節を、運用手順は [docs/workflow-guide.md](docs/workflow-guide.md) をご覧ください。
 **初めての方は workflow-guide.md の正常系フローからお読みください。**
 
+### マルチターゲット基盤とクラウド対応
+
+#423 の基盤は、対象に応じた検証義務の選択と実装段階の証跡評価を扱います。
+ゲートの選択だけで Azure / AWS のデプロイや稼働確認が完了するわけではありません。
+既存の必須チェックと、Full トラックの7つの仕様書を維持します。
+
+現在の基盤検証は `python3 -B tests/sdd-domain-multitarget-foundation.tests.py`
+で実行できます。過去のインベントリを保存したまま、現在の必須出力の節と契約境界を
+検査し、通常の CI でも実行します。対応範囲とクラウド拡張の進捗は
+[クラウド対応ガイド](docs/cloud-orchestration.md)を参照してください。
+
 `install.sh` / `install.ps1` には read-only の MCP サーバーが同梱されており、既定で配置・登録されます。
 
 ### MCP サーバー

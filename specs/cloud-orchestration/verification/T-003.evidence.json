@@ -1,0 +1,242 @@
+{
+  "task_id": "T-003",
+  "feature": "cloud-orchestration",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "9b8a12e8d875cf283e0c4370426ecf3c6e4338feff27a69ff888a2888066c440",
+  "quality_report": "reports/quality-gate/20261018-cloud-orchestration-T-003-cycle-3.md",
+  "verification_contract": "specs/cloud-orchestration/verification/T-003.contract.json",
+  "git_commit": "74e5b177151739cab6a5b5f487fc9eec7d51ab36",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_authorization.py tests/cloud-orchestration-execution.tests.py templates/cloud/iam/trusted-policy.example.py specs/cloud-orchestration/verification/T-003/coverage-runner.py specs/cloud-orchestration/verification/T-003/rollback-test.py specs/cloud-orchestration/verification/T-003/verify-local.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:44:53Z",
+      "finished_at": "2026-10-18T06:44:53Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/lint.log",
+      "evidence_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_authorization.py tests/cloud-orchestration-execution.tests.py templates/cloud/iam/trusted-policy.example.py specs/cloud-orchestration/verification/T-003/coverage-runner.py specs/cloud-orchestration/verification/T-003/rollback-test.py specs/cloud-orchestration/verification/T-003/verify-local.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:44:53Z",
+      "finished_at": "2026-10-18T06:44:53Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/typecheck.log",
+      "evidence_sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:44:54Z",
+      "finished_at": "2026-10-18T06:44:55Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/unit-tests.log",
+      "evidence_sha256": "6e5983ebf3fd0c1d68575a58c52800fa316aadfa1728ca2ee11733ff11085167"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "python3 -m py_compile plugins/sdd-quality-loop/scripts/cloud_authorization.py tests/cloud-orchestration-execution.tests.py templates/cloud/iam/trusted-policy.example.py specs/cloud-orchestration/verification/T-003/coverage-runner.py specs/cloud-orchestration/verification/T-003/rollback-test.py specs/cloud-orchestration/verification/T-003/verify-local.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:44:53Z",
+      "finished_at": "2026-10-18T06:44:54Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/build.log",
+      "evidence_sha256": "1d09e01df7fc4ab6129e8f78c9fde5ac8a633e0dd5544ec182849bbc43938e22"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:44:55Z",
+      "finished_at": "2026-10-18T06:44:55Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/placeholder-scan.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/cloud-orchestration/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:44:55Z",
+      "finished_at": "2026-10-18T06:44:56Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/task-state-check.log",
+      "evidence_sha256": "b44649e7dc271577bbfd340eeab809e1f9fb49983d84c72bbaaac70f22c414c3"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/cloud-orchestration-execution.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:44:54Z",
+      "finished_at": "2026-10-18T06:44:55Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/unit-tests.log",
+      "evidence_sha256": "6e5983ebf3fd0c1d68575a58c52800fa316aadfa1728ca2ee11733ff11085167"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:44:55Z",
+      "finished_at": "2026-10-18T06:44:55Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/regression.log",
+      "evidence_sha256": "c011bf63b398ebd114fc33c94b410fb0338f07e96f7e7d4557a9bb26f30cd9a5"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/cloud-orchestration/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:45:30Z",
+      "finished_at": "2026-10-18T06:45:30Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/requirement-traceability.log",
+      "evidence_sha256": "7679d582a9202c24d8bf857a1d7b893bb643be215c3fcc7af60bb71202c3b7d8"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-18T06:45:30Z",
+      "finished_at": "2026-10-18T06:45:30Z",
+      "evidence": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/check-component-coverage.log",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/cloud-orchestration/verification/T-003.contract.json",
+      "sha256": "1b73e2723f936f7a33c376c4b1002f36b0103d2390be68b6d2fc82ec9d35ce39"
+    },
+    {
+      "path": "reports/quality-gate/20261018-cloud-orchestration-T-003-cycle-3.md",
+      "sha256": "4dc85100c505132fe7e79147af279829ad5c22214270311912b2624a0891fa62"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/build.log",
+      "sha256": "1d09e01df7fc4ab6129e8f78c9fde5ac8a633e0dd5544ec182849bbc43938e22"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/check-component-coverage.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/regression.log",
+      "sha256": "c011bf63b398ebd114fc33c94b410fb0338f07e96f7e7d4557a9bb26f30cd9a5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/requirement-traceability.log",
+      "sha256": "7679d582a9202c24d8bf857a1d7b893bb643be215c3fcc7af60bb71202c3b7d8"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/task-state-check.log",
+      "sha256": "b44649e7dc271577bbfd340eeab809e1f9fb49983d84c72bbaaac70f22c414c3"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/typecheck.log",
+      "sha256": "ab35ee42183d4d6d3ba483825ab037d18a5a15622d03be01d82220b1564851ff"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-003/quality-cycle-3/unit-tests.log",
+      "sha256": "6e5983ebf3fd0c1d68575a58c52800fa316aadfa1728ca2ee11733ff11085167"
+    }
+  ]
+}

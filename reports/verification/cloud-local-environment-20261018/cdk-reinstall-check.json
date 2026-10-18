@@ -1,0 +1,18 @@
+{
+  "purpose": "Independent operator-toolchain reproducibility check; no source, cloud API or install lifecycle scripts executed",
+  "command": [
+    "npm",
+    "ci",
+    "--ignore-scripts",
+    "--offline",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "exit_code": 0,
+  "at": "2026-10-18T07:27:09.974526+00:00",
+  "output_tail": "\nadded 6 packages in 2s\n",
+  "file_count": 8095,
+  "installed_tree_sha256": "34824a391a509c6907a9e6bb64f3a370a473bfbacd6e7f1cf1987ddd7431c1e1",
+  "expected_tree_sha256": "34824a391a509c6907a9e6bb64f3a370a473bfbacd6e7f1cf1987ddd7431c1e1",
+  "matches": true
+}

@@ -1,0 +1,7 @@
+Implemented the replay/history fence and reconciliation policy-binding fix.
+
+- Tests: 60 execution, 86 routing, 31 contracts passed.
+- Ruff, mypy, schema parity, rollback, manifest and report validation passed.
+- Report: `reports/implementation/cloud-orchestration/T-012.md`
+
+No full suite or cloud execution performed. Live acceptance remains BLOCKED; statuses and independent review remain root-owned.

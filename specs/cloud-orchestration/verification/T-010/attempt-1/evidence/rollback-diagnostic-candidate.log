@@ -1,0 +1,464 @@
+{
+  "classification": "synthetic-protocol-only",
+  "observations": [
+    {
+      "case": "network-sentinel",
+      "result": "intercepted-before-I/O"
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "empty",
+      "outcome": "submitted-synthetic-callback",
+      "failure_points": [],
+      "synthetic_submissions": 1,
+      "authenticated_service_calls": 12
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "local-pass",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "failed",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "incomplete",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "wrong-run",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:PREDECESSOR_PATH_MISMATCH",
+        "binding:ContractError:PREDECESSOR_PATH_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "wrong-unit",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:PREDECESSOR_MISMATCH",
+        "binding:ContractError:PREDECESSOR_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "wrong-provider",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "wrong-profile",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "tamper",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:DIGEST_MISMATCH",
+        "binding:ContractError:DIGEST_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "prepare",
+      "case": "missing",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "binding:ContractError:UNSAFE_OR_UNAVAILABLE_FILE"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "empty",
+      "outcome": "submitted-synthetic-callback",
+      "failure_points": [],
+      "synthetic_submissions": 1,
+      "authenticated_service_calls": 12
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "local-pass",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "failed",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "incomplete",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "wrong-run",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:PREDECESSOR_PATH_MISMATCH",
+        "binding:ContractError:PREDECESSOR_PATH_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "wrong-unit",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:PREDECESSOR_MISMATCH",
+        "binding:ContractError:PREDECESSOR_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "wrong-provider",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "wrong-profile",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "tamper",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:DIGEST_MISMATCH",
+        "binding:ContractError:DIGEST_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "aws",
+      "stage": "apply",
+      "case": "missing",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "binding:ContractError:UNSAFE_OR_UNAVAILABLE_FILE"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "empty",
+      "outcome": "submitted-synthetic-callback",
+      "failure_points": [],
+      "synthetic_submissions": 1,
+      "authenticated_service_calls": 12
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "local-pass",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "failed",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "incomplete",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "wrong-run",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:PREDECESSOR_PATH_MISMATCH",
+        "binding:ContractError:PREDECESSOR_PATH_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "wrong-unit",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:PREDECESSOR_MISMATCH",
+        "binding:ContractError:PREDECESSOR_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "wrong-provider",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "wrong-profile",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "tamper",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:DIGEST_MISMATCH",
+        "binding:ContractError:DIGEST_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "prepare",
+      "case": "missing",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "binding:ContractError:UNSAFE_OR_UNAVAILABLE_FILE"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "empty",
+      "outcome": "submitted-synthetic-callback",
+      "failure_points": [],
+      "synthetic_submissions": 1,
+      "authenticated_service_calls": 12
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "local-pass",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "failed",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "incomplete",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "wrong-run",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:PREDECESSOR_PATH_MISMATCH",
+        "binding:ContractError:PREDECESSOR_PATH_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "wrong-unit",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:PREDECESSOR_MISMATCH",
+        "binding:ContractError:PREDECESSOR_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "wrong-provider",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "wrong-profile",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "admission:DEPENDENCY_ADMISSION_REQUIRED"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "tamper",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "contract:DIGEST_MISMATCH",
+        "binding:ContractError:DIGEST_MISMATCH"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "provider": "azure",
+      "stage": "apply",
+      "case": "missing",
+      "outcome": "WRITE_ADMISSION_BLOCKED",
+      "failure_points": [
+        "binding:ContractError:UNSAFE_OR_UNAVAILABLE_FILE"
+      ],
+      "synthetic_submissions": 0,
+      "authenticated_service_calls": 0
+    },
+    {
+      "case": "existing-apply-job-control",
+      "completion": "2026-10-18T06:01:00Z"
+    },
+    {
+      "case": "verify-job-through-existing-apply-primitive",
+      "failure_point": "ORIGINAL_APPLY_JOB_REQUIRED",
+      "classification": "unsupported-purpose; not an executed verify-producer field guard"
+    }
+  ],
+  "production_edits": false,
+  "complete_preflight": false
+}

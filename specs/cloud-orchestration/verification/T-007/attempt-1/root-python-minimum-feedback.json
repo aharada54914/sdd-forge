@@ -1,0 +1,14 @@
+{
+  "id": 900201,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14f96-e637-7773-aa3b-74e44216f500",
+    "expectedTurnId": "01a14f96-e680-7b42-9536-cc3c9e4cf44e",
+    "input": [
+      {
+        "type": "text",
+        "text": "Small current-skill accuracy correction before delivery: the new Azure orchestrate skill currently states Python 3.10+, while the approved/current provider local-contract.md requires Python 3.11+ and no actual 3.10 compatibility run is established. Keep the existing 3.11+ requirement in both provider skills unless you have concrete reviewed support evidence; do not broaden the supported minimum as an incidental packaging change. Continue the existing scoped regression/rollback/report work; no new scope or approval needed. Root will update the full operator docs in T008."
+      }
+    ]
+  }
+}

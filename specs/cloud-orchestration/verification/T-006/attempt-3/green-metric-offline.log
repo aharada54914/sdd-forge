@@ -1,0 +1,6 @@
+test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.013s
+
+OK

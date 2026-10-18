@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R1.preview-run_id",
+      "row": 1,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "BINDING_MISMATCH",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:BINDING_MISMATCH",
+      "guards": []
+    }
+  ]
+}

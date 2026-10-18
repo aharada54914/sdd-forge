@@ -1,0 +1,10 @@
+test_cli_without_trusted_executor_rejects_verify (__main__.EntryPreflight.test_cli_without_trusted_executor_rejects_verify) ... ok
+test_live_network_is_forbidden_before_transport (__main__.EntryPreflight.test_live_network_is_forbidden_before_transport) ... ok
+test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract) ... ok
+test_shared_reducer_available (__main__.EntryPreflight.test_shared_reducer_available) ... ok
+test_query_digests_are_exact_transport_bytes (__main__.ExpandedBindingCases.test_query_digests_are_exact_transport_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.222s
+
+OK

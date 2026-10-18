@@ -1,0 +1,13 @@
+{
+  "schema": "cloud-model-compatibility-evidence/v1",
+  "recorded_at": "2026-10-18T04:35:15.689676+00:00",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "high",
+  "native_thread_id": "01a14d4a-d8ab-76d3-baab-563e822cdf42",
+  "native_session_id": "01a14d4a-d8ab-76d3-baab-563e822cdf42",
+  "turn_status": "completed",
+  "response": "MODEL_READY",
+  "registry": "contracts/agent-model-capabilities.v2.json",
+  "registry_change_needed": false,
+  "scope": "Connectivity and registered-model compatibility only; no quality verdict or task completion."
+}

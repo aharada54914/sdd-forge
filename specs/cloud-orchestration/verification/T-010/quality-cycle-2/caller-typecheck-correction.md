@@ -1,0 +1,3 @@
+# Caller typecheck invocation correction
+
+The first caller invocation supplied two standalone scripts both named run-scoped.py to mypy in one module graph, which reported duplicate module identity before type checking. That setup failure and the original contract/command records are preserved in caller-setup-first/. No product or test source changed. The corrected invocation checks the eight distinct active files together and the original standalone runner separately with the same strict repository configuration. Both actual commands passed. Other completed caller checks were retained without repeating unchanged tests. This is no waiver or manual preflight fallback.

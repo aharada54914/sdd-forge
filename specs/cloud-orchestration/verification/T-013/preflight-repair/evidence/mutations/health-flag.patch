@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -610,7 +610,7 @@
+                         operation=phase,
+                         result=result,
+                         recorded_at=utc(int(self.clock())),
+-                        health_verified=False,
++                        health_verified=True,
+                     ),
+                 )
+                 value["evidence_manifest_path"] = path

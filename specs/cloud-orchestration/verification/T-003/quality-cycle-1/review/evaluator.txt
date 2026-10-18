@@ -1,0 +1,12 @@
+RUN_ID: 01a14da0-97a6-7751-b4e2-9eeef48b2077
+HOST_SESSION_ID: 01a14da0-97a6-7751-b4e2-9eeef48b2077
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-003/quality-cycle-1/review/invocation.json SHA-256 d33a641950b34b003c5d6ad036c8a0da45703c81033d9373fe9973884cfa04c1
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Critical] plugins/sdd-quality-loop/scripts/cloud_authorization.py:597-605 — Authorization can expire during final artifact verification and still reach `submit`. The last expiry check precedes `verify_binding`, which hashes files and recursively scans directories; no clock check follows it. A shorter policy TTL can expire while provider credentials remain valid, violating AC-005’s zero-submission requirement. Existing expiry tests advance time during publication scanning, not this final verification. Recheck expiration after verification and add a deterministic zero-submit regression.
+CHECKED:
+- Verified invocation digest, reservation-chain hash, sequence linkage and distinct implementation context.
+- Inspected T-003 scope, REQ-005/006, acceptance criteria, design, security requirements, ADR, admission implementation, contracts, templates and tests line by line.
+- Inspected saved current command output: 24 admission tests and 31 contract tests passed; lint, typecheck and syntax build passed.
+- Inspected committed-Red evidence, preflight, integration-repair diff and original disposable rollback results: 23 baseline, 22 candidate and 23 restored tests passed.
+- No tests rerun: this context permits read-only artifact inspection only. Live IAM, cloud concurrency and Windows remain unverified; future provider execution was excluded from this evaluation.

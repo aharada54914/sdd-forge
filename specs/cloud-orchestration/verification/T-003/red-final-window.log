@@ -1,0 +1,26 @@
+test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) ... 
+  test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='expiry') ... FAIL
+  test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='swap') ... FAIL
+
+======================================================================
+FAIL: test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='expiry')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 646, in test_expiry_or_artifact_swap_during_scan_denies_before_submit
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+======================================================================
+FAIL: test_expiry_or_artifact_swap_during_scan_denies_before_submit (__main__.Admission.test_expiry_or_artifact_swap_during_scan_denies_before_submit) (case='swap')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 646, in test_expiry_or_artifact_swap_during_scan_denies_before_submit
+    with self.assertRaises(self.a.AdmissionDenied):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AdmissionDenied not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.031s
+
+FAILED (failures=2)

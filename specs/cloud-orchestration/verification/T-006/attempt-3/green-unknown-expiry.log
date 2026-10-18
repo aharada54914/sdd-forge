@@ -1,0 +1,7 @@
+test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) ... ok
+test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.640s
+
+OK

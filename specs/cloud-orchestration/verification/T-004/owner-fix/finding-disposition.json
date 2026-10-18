@@ -1,0 +1,14 @@
+{
+  "cycle": 1,
+  "review_run_id": "01a14dbe-2a3a-7221-819e-f459ecb038a2",
+  "findings": [
+    {
+      "severity": "Critical",
+      "disposition": "accepted; decoded ownership and ambiguous YAML denial with committed Red"
+    },
+    {
+      "severity": "Major",
+      "disposition": "accepted missing later-completion attestation; addendum specifies actual named evaluator plus caller formal gate and bundle. An additional separate reviewer beyond the named evaluator is not specified. No frozen report retrofitting or preclaimed PASS."
+    }
+  ]
+}

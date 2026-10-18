@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "set -e; export MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts; /tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml specs/cloud-orchestration/verification/T-007/install-selection-fix/validate-output-hashes.py; /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml specs/cloud-orchestration/verification/T-007/install-selection-fix/validate-output-hashes.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:16:02Z",
+  "exit_code": 0
+}

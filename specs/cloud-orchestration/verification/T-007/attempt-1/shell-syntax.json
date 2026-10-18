@@ -1,0 +1,16 @@
+{
+  "command": [
+    "bash",
+    "-n",
+    "install.sh",
+    "uninstall.sh",
+    "tests/install.tests.sh",
+    "tests/uninstall.tests.sh",
+    "tests/install-uninstall-matrix.tests.sh"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:36:09Z",
+  "exit_code": 0,
+  "elapsed_seconds": 0.002,
+  "classification": "offline local command; no live cloud"
+}

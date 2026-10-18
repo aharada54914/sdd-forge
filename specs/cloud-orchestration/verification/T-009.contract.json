@@ -1,0 +1,251 @@
+{
+  "task_id": "T-009",
+  "feature": "cloud-orchestration",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "created": "2026-10-18T12:47:22Z",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/lint.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/check-contract.py plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py plugins/sdd-quality-loop/scripts/cloud_verification.py plugins/sdd-quality-loop/scripts/vendor-capability-registry.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py tests/cloud-orchestration-verification.tests.py tests/cloud-orchestration-contracts.tests.py specs/cloud-orchestration/verification/T-009/attempt-2/run-command.py specs/cloud-orchestration/verification/T-009/attempt-2/version-inventory.py specs/cloud-orchestration/verification/T-009/attempt-2/guard-runtime-probes.py specs/cloud-orchestration/verification/T-009/attempt-2/mismatch-audit.py plugins/sdd-azure-cloud/scripts/azure_observation.py plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:47:22Z",
+      "finished_at": "2026-10-18T12:47:22Z"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "python3 -c 'import os,subprocess,sys; env=dict(os.environ,MYPYPATH=\"plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts\"); commands=[['\"'\"'/tmp/cloud-quality-python/bin/python'\"'\"', '\"'\"'-m'\"'\"', '\"'\"'mypy'\"'\"', '\"'\"'--config-file'\"'\"', '\"'\"'tests/shared-launch-python/pyproject.toml'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/check-contract.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/cloud_verification.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/vendor-capability-registry.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py'\"'\"', '\"'\"'tests/cloud-orchestration-verification.tests.py'\"'\"', '\"'\"'tests/cloud-orchestration-contracts.tests.py'\"'\"', '\"'\"'specs/cloud-orchestration/verification/T-009/attempt-2/run-command.py'\"'\"', '\"'\"'specs/cloud-orchestration/verification/T-009/attempt-2/version-inventory.py'\"'\"', '\"'\"'specs/cloud-orchestration/verification/T-009/attempt-2/guard-runtime-probes.py'\"'\"', '\"'\"'specs/cloud-orchestration/verification/T-009/attempt-2/mismatch-audit.py'\"'\"'], ['\"'\"'/tmp/cloud-quality-python/bin/python'\"'\"', '\"'\"'-m'\"'\"', '\"'\"'mypy'\"'\"', '\"'\"'--config-file'\"'\"', '\"'\"'tests/shared-launch-python/pyproject.toml'\"'\"', '\"'\"'plugins/sdd-azure-cloud/scripts/azure_observation.py'\"'\"'], ['\"'\"'/tmp/cloud-quality-python/bin/python'\"'\"', '\"'\"'-m'\"'\"', '\"'\"'mypy'\"'\"', '\"'\"'--config-file'\"'\"', '\"'\"'tests/shared-launch-python/pyproject.toml'\"'\"', '\"'\"'plugins/sdd-aws-cloud/scripts/aws_observation.py'\"'\"']]; results=[subprocess.run(c,env=env).returncode for c in commands]; sys.exit(0 if all(x==0 for x in results) else 1)'",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:47:22Z",
+      "finished_at": "2026-10-18T12:47:22Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-009/evidence/red.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/commands.json",
+      "command": "python3 -B tests/cloud-orchestration-verification.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:47:23Z",
+      "finished_at": "2026-10-18T12:48:25Z"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/integration-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-009/evidence/red.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/commands.json",
+      "command": "python3 -B tests/sdd-domain-multitarget-T-003.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:48:37Z",
+      "finished_at": "2026-10-18T12:49:03Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/build.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "python3 -m py_compile plugins/sdd-quality-loop/scripts/check-contract.py plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py plugins/sdd-quality-loop/scripts/cloud_verification.py plugins/sdd-quality-loop/scripts/vendor-capability-registry.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py tests/cloud-orchestration-verification.tests.py tests/cloud-orchestration-contracts.tests.py specs/cloud-orchestration/verification/T-009/attempt-2/run-command.py specs/cloud-orchestration/verification/T-009/attempt-2/version-inventory.py specs/cloud-orchestration/verification/T-009/attempt-2/guard-runtime-probes.py specs/cloud-orchestration/verification/T-009/attempt-2/mismatch-audit.py plugins/sdd-azure-cloud/scripts/azure_observation.py plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:47:22Z",
+      "finished_at": "2026-10-18T12:47:23Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/check-contract.py plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py plugins/sdd-quality-loop/scripts/cloud_verification.py plugins/sdd-quality-loop/scripts/vendor-capability-registry.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py plugins/sdd-azure-cloud/scripts/azure_observation.py plugins/sdd-aws-cloud/scripts/aws_observation.py plugins/sdd-quality-loop/scripts/check-contract.ps1 plugins/sdd-quality-loop/references/cloud-verification-registry.json contracts/cloud-verification-registry.schema.json contracts/selected-verification-plan-v2.schema.json contracts/verification-contract-v3.schema.json",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:49:07Z",
+      "finished_at": "2026-10-18T12:49:07Z"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/task-state-check.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/cloud-orchestration/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:49:07Z",
+      "finished_at": "2026-10-18T12:49:08Z"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/smoke-run.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-009/evidence/red.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/commands.json",
+      "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:49:03Z",
+      "finished_at": "2026-10-18T12:49:03Z"
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI or differential baseline in this task. Live sandbox acceptance remains separately BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI or differential baseline in this task. Live sandbox acceptance remains separately BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI or differential baseline in this task. Live sandbox acceptance remains separately BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-009/evidence/red.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/commands.json",
+      "command": "python3 -B tests/cloud-orchestration-verification.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:47:23Z",
+      "finished_at": "2026-10-18T12:48:25Z"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-009/evidence/red.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/commands.json",
+      "command": "bash tests/gates.tests.sh",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:48:25Z",
+      "finished_at": "2026-10-18T12:48:37Z"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/requirement-traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/cloud-orchestration/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:49:44Z",
+      "finished_at": "2026-10-18T12:49:44Z"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/check-component-coverage.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-18T12:49:44Z",
+      "finished_at": "2026-10-18T12:49:44Z"
+    }
+  ]
+}

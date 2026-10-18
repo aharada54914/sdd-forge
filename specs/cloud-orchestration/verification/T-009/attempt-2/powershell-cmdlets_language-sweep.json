@@ -1,0 +1,42 @@
+{
+  "source": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+  "sha256": "66505c65b073bc083d32b734a4e073bc85a216dd98a3b81a5bf581ae4956d9b3",
+  "sites": [
+    {
+      "line": 187,
+      "text": "        if ($contractAbs.StartsWith($prefix)) {"
+    },
+    {
+      "line": 188,
+      "text": "            $segments = $contractAbs.Substring($prefix.Length) -split '[\\\\/]'"
+    },
+    {
+      "line": 230,
+      "text": "    foreach ($seg in ($PROJECT_CONTEXT_REL_PATH -split '/')) { $p = Join-Path $p $seg }"
+    },
+    {
+      "line": 248,
+      "text": "    if (-not ($pathFull.StartsWith($rootFull + $separator) -or $pathFull -eq $rootFull)) {"
+    },
+    {
+      "line": 254,
+      "text": "    foreach ($component in ($relativePath -split '[\\\\/]+')) {"
+    },
+    {
+      "line": 293,
+      "text": "    if ($Evidence.StartsWith(\"/\")) {"
+    },
+    {
+      "line": 298,
+      "text": "    if (($Evidence.Length -ge 2 -and $Evidence[1] -eq ':') -or $Evidence.StartsWith(\"\\\\\")) {"
+    },
+    {
+      "line": 312,
+      "text": "    if (-not ($joined.StartsWith($RepoRoot + $sep) -or $joined -eq $RepoRoot)) {"
+    },
+    {
+      "line": 518,
+      "text": "        foreach ($reqId in ($requiredIds | Sort-Object)) {"
+    }
+  ]
+}

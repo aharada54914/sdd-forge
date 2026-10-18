@@ -1,0 +1,297 @@
+{
+  "recorded_at": "2026-10-18T09:19:46Z",
+  "classification": "current-code corrective mutation evidence; NOT historical pre-implementation Red",
+  "rows": [
+    {
+      "row": "R1",
+      "persisted_fields": "request digest; run/unit/provider/scope; owner; policy/profile/lock/config; assembly/source",
+      "counterpart": "verified request/preview closure and owner policy pins",
+      "cases": [
+        "R1.bytes-request",
+        "R1.bytes-policy",
+        "R1.bytes-lock",
+        "R1.bytes-profile",
+        "R1.bytes-ownership",
+        "R1.bytes-config",
+        "R1.bytes-source-0",
+        "R1.bytes-source-1",
+        "R1.bytes-source-2",
+        "R1.bytes-source-3",
+        "R1.bytes-parameters-4",
+        "R1.bytes-compiled-5",
+        "R1.bytes-compiled-6",
+        "R1.bytes-compiled-7",
+        "R1.bytes-compiled-8",
+        "R1.bytes-compiled-9",
+        "R1.bytes-compiled-10",
+        "R1.bytes-compiled-11",
+        "R1.bytes-preview",
+        "R1.preview-run_id",
+        "R1.preview-unit_id",
+        "R1.preview-provider",
+        "R1.preview-scope.account_id",
+        "R1.preview-scope.region",
+        "R1.preview-scope.deployment_scope",
+        "R1.preview-request",
+        "R1.preview-dependency_lock",
+        "R1.preview-policy",
+        "R1.preview-verification_profile"
+      ],
+      "additional_existing_bodies": "R1.*; existing every_bound_file method",
+      "equivalence_and_limits": "Byte mutations cover every artifact reference, including source/assembly/owner/config; identity/refs/scope additionally use schema-valid, rehashed preview disagreements.",
+      "matched_controls": "Every supplemental prepared() case first runs successful prepare, authenticated apply setup and exact matched readback; no-op uses its own genuine native no-op positive control. R9 maps output-only result emissions.",
+      "executed_guards": [
+        "BINDING_MISMATCH",
+        "DIGEST_MISMATCH"
+      ],
+      "sensitivity_controls": [
+        "preview-binding",
+        "file-digest"
+      ]
+    },
+    {
+      "row": "R2",
+      "persisted_fields": "Change Set ARN/name, stack/account/region, parameters/capabilities, semantic changes, original template digest",
+      "counterpart": "DescribeChangeSet/GetTemplate Original plus original create request",
+      "cases": [
+        "R2.wire-ChangeSetId",
+        "R2.wire-ChangeSetName",
+        "R2.wire-StackId",
+        "R2.wire-StackName",
+        "R2.wire-Description",
+        "R2.wire-Parameters",
+        "R2.wire-Capabilities",
+        "R2.wire-NextToken",
+        "R2.wire-OnStackFailure",
+        "R2.arn-account",
+        "R2.arn-region",
+        "R2.arn-direct-account",
+        "R2.template",
+        "R2.semantic-change"
+      ],
+      "additional_existing_bodies": "R2.*; existing destructive_reference method",
+      "equivalence_and_limits": "Template bytes are compared directly; ARN suffix equality and ARN account/region/name syntax are distinct probes. Benign semantic Scope change reaches PREVIEW_DRIFT; destructive variants reach policy guards.",
+      "matched_controls": "Every supplemental prepared() case first runs successful prepare, authenticated apply setup and exact matched readback; no-op uses its own genuine native no-op positive control. R9 maps output-only result emissions.",
+      "executed_guards": [
+        "AWS_PAGINATION_UNSUPPORTED",
+        "CHANGE_SET_BINDING_MISMATCH",
+        "NATIVE_ID_MISMATCH",
+        "PREVIEW_DRIFT",
+        "TEMPLATE_SUBSTITUTION"
+      ],
+      "sensitivity_controls": [
+        "native-binding",
+        "arn-scope",
+        "template",
+        "semantic-drift"
+      ]
+    },
+    {
+      "row": "R3",
+      "persisted_fields": "S3 bucket/key/version/etag/SHA-256/encryption/owner/region; template URL",
+      "counterpart": "protected destination and versioned GetObject plus original create request",
+      "cases": [
+        "R3.asset-bucket",
+        "R3.asset-expected_owner",
+        "R3.asset-region",
+        "R3.asset-sha256",
+        "R3.asset-version",
+        "R3.asset-etag",
+        "R3.asset-encryption",
+        "R3.asset-key",
+        "R3.header-x-amz-version-id",
+        "R3.header-ETag",
+        "R3.header-x-amz-server-side-encryption",
+        "R3.object-bytes"
+      ],
+      "additional_existing_bodies": "R3.*; existing native_bucket_checks method",
+      "equivalence_and_limits": "Valid alternate key is rejected by CREATE_REQUEST_MISMATCH: do not claim the synthetic S3 fixture independently enforces key lookup. Header/body substitutions exercise real Native parsing. Expected-owner header is asserted by the existing wire fixture; foreign-owner denial is synthetic 403, not live IAM.",
+      "matched_controls": "Every supplemental prepared() case first runs successful prepare, authenticated apply setup and exact matched readback; no-op uses its own genuine native no-op positive control. R9 maps output-only result emissions.",
+      "executed_guards": [
+        "CREATE_REQUEST_MISMATCH",
+        "S3_IDENTITY_MISMATCH",
+        "S3_OBJECT_DENIED",
+        "S3_SUBSTITUTION"
+      ],
+      "sensitivity_controls": [
+        "asset-readback",
+        "asset-encryption",
+        "asset-key"
+      ]
+    },
+    {
+      "row": "R4",
+      "persisted_fields": "execution RoleARN; failure settings; original create/execute token",
+      "counterpart": "Control, create input, stack readback, Execute query, original-token stack events",
+      "cases": [
+        "R4.create-RoleARN",
+        "R4.create-ClientToken",
+        "R4.create-TemplateURL",
+        "R4.create-StackName",
+        "R4.create-ChangeSetName",
+        "R4.DisableRollback",
+        "R4.RetainExceptOnCreate",
+        "R4.stack-role",
+        "R4.event-token"
+      ],
+      "additional_existing_bodies": "R4.*; existing exact_async method",
+      "equivalence_and_limits": "No fictional DescribeChangeSet RoleARN/ClientToken readback is used. Observe actual create/execute params, mutate protected role input and stack RoleARN, serializer failure settings and native event token.",
+      "matched_controls": "Every supplemental prepared() case first runs successful prepare, authenticated apply setup and exact matched readback; no-op uses its own genuine native no-op positive control. R9 maps output-only result emissions.",
+      "executed_guards": [
+        "AWS_FAILURE_POLICY",
+        "CREATE_REQUEST_MISMATCH",
+        "STACK_AUTHORITY_MISMATCH"
+      ],
+      "sensitivity_controls": [
+        "role-input",
+        "failure-policy",
+        "stack-role",
+        "event-token"
+      ]
+    },
+    {
+      "row": "R5",
+      "persisted_fields": "receipt/principal/stage/lease",
+      "counterpart": "WriteBoundary authenticated GitHub/OIDC/STS response and emitted receipt",
+      "cases": [
+        "R5.approval",
+        "R5.lease",
+        "R5.principal",
+        "R5.receipt-operation",
+        "R5.receipt-expires_at",
+        "R5.receipt-run_id"
+      ],
+      "additional_existing_bodies": "R5.*; R9.observed-bindings; existing last_send_revocation methods",
+      "equivalence_and_limits": "Receipt is output, not offline write authority. Schema-valid receipt stage/run/expiry disagreements go through verify_binding; native principal and lease disagreement go through AwsIdentity.exchange. Observe emitted principal, issuance and min(lease, OIDC exp, iat+120) expiry: NOW+110, not NOW+120.",
+      "matched_controls": "Every supplemental prepared() case first runs successful prepare, authenticated apply setup and exact matched readback; no-op uses its own genuine native no-op positive control. R9 maps output-only result emissions.",
+      "executed_guards": [
+        "APPROVAL_REQUIRED",
+        "BINDING_MISMATCH",
+        "CREDENTIAL_EXPIRED",
+        "EXPIRED_RECEIPT",
+        "PROVIDER_PRINCIPAL_MISMATCH"
+      ],
+      "sensitivity_controls": [
+        "approval",
+        "lease",
+        "principal",
+        "receipt-stage",
+        "receipt-expiry"
+      ]
+    },
+    {
+      "row": "R6",
+      "persisted_fields": "preview/result NO_CHANGE; no fabricated native deployment ID",
+      "counterpart": "exact native FAILED/UNAVAILABLE/no-change reason/empty changes and result contract",
+      "cases": [
+        "R6.no-op-Status",
+        "R6.no-op-ExecutionStatus",
+        "R6.no-op-StatusReason",
+        "R6.no-op-Changes",
+        "R6.fabricated-deployment"
+      ],
+      "additional_existing_bodies": "R6.*; existing no_change method",
+      "equivalence_and_limits": "All four native no-op predicates have individual disagreements and individual predicate-removal mutations. Genuine no-op positive control checks no ExecuteChangeSet and absent native_operation_id; fabricated ID is rejected by actual result parser.",
+      "matched_controls": "Every supplemental prepared() case first runs successful prepare, authenticated apply setup and exact matched readback; no-op uses its own genuine native no-op positive control. R9 maps output-only result emissions.",
+      "executed_guards": [
+        "CHANGE_SET_UNAVAILABLE",
+        "INVALID_ARTIFACT"
+      ],
+      "sensitivity_controls": [
+        "no-op-Status",
+        "no-op-ExecutionStatus",
+        "no-op-StatusReason",
+        "no-op-Changes",
+        "no-op-native-id"
+      ]
+    },
+    {
+      "row": "R7",
+      "persisted_fields": "submission identity/status/time/body hash; UNKNOWN",
+      "counterpart": "fixed original ARN/token/request/scope, query bytes, durable history, native events",
+      "cases": [
+        "R7.journal-request",
+        "R7.journal-scope",
+        "R7.journal-client_token",
+        "R7.journal-status",
+        "R7.journal-created_at",
+        "R7.journal-body_sha256",
+        "R7.journal-native_operation_id",
+        "R7.journal-stack_id",
+        "R7.journal-mutation",
+        "R7.journal-body.ClientRequestToken",
+        "R7.journal-body.ChangeSetName",
+        "R7.journal-body.StackName",
+        "R7.journal-body.DisableRollback",
+        "R7.journal-body.RetainExceptOnCreate"
+      ],
+      "additional_existing_bodies": "R7.*; R9.observed-bindings; existing timeout/fresh_prepare/unknown methods",
+      "equivalence_and_limits": "Journal identity includes request hash binding run/unit/provider. Rehashed body disagreements target counterpart checks rather than only stale digest. Timestamp emission is observed against fixture clock and invalid timestamp rejected by shared UTC validation; no stronger native-time correlation is asserted. Execute body hash is independently recomputed from real query bytes; hash-emitter mutant is killed.",
+      "matched_controls": "Every supplemental prepared() case first runs successful prepare, authenticated apply setup and exact matched readback; no-op uses its own genuine native no-op positive control. R9 maps output-only result emissions.",
+      "executed_guards": [
+        "AWS_FAILURE_POLICY",
+        "AWS_REQUEST_SHAPE",
+        "EXECUTE_INTENT_MISMATCH",
+        "INTENT_BYTES_MISMATCH",
+        "INVALID_ARTIFACT",
+        "RECOVERY_BINDING_MISMATCH"
+      ],
+      "sensitivity_controls": [
+        "journal-binding",
+        "journal-hash",
+        "journal-body",
+        "journal-time"
+      ]
+    },
+    {
+      "row": "R8",
+      "persisted_fields": "recovery authority/provider/account/region/deployment/policy/unit; original journal",
+      "counterpart": "trusted Policy/Control before native queries",
+      "cases": [
+        "R8.trusted-provider",
+        "R8.trusted-account_id",
+        "R8.trusted-region",
+        "R8.trusted-deployment_scope",
+        "R8.trusted-policy_sha256",
+        "R8.trusted-unit_id"
+      ],
+      "additional_existing_bodies": "R8.*; R7.*",
+      "equivalence_and_limits": "For account/provider substitution, adjust ancillary role/UUID fields so trusted policy remains structurally valid and reaches binding guard. Unit mismatch must block before any native reads even though later stack tags independently guard it.",
+      "matched_controls": "Every supplemental prepared() case first runs successful prepare, authenticated apply setup and exact matched readback; no-op uses its own genuine native no-op positive control. R9 maps output-only result emissions.",
+      "executed_guards": [
+        "TRUSTED_POLICY_BINDING_MISMATCH",
+        "UNIT_AUTHORITY_MISMATCH"
+      ],
+      "sensitivity_controls": [
+        "recovery-trusted-scope",
+        "recovery-trusted-unit"
+      ]
+    },
+    {
+      "row": "R9",
+      "persisted_fields": "trace response/request digests/status/endpoint/method; health false; result/state/exit",
+      "counterpart": "actual fixture transport bytes and shared operation-result contract",
+      "cases": [
+        "R9.observed-bindings",
+        "R9.result-mapping",
+        "R9.result-state",
+        "R9.result-result",
+        "R9.result-error_code"
+      ],
+      "additional_existing_bodies": "R9.*; existing exact_async/no_change/timeout methods",
+      "equivalence_and_limits": "Transport observer records sanitized hashes, not response bodies or credentials. Compare actual trace suffix for new apply Native instance. Health false and state are observed emitter properties, not a second verification engine. Explicit expected exit map covers PASS/NO_CHANGE/BLOCKED/FAIL/UNKNOWN. Contract contradictions use actual emitted results.",
+      "matched_controls": "Every supplemental prepared() case first runs successful prepare, authenticated apply setup and exact matched readback; no-op uses its own genuine native no-op positive control. R9 maps output-only result emissions.",
+      "executed_guards": [
+        "INVALID_ARTIFACT"
+      ],
+      "sensitivity_controls": [
+        "response-digest",
+        "health-flag",
+        "state",
+        "exit",
+        "receipt-principal-emission",
+        "journal-hash-emission"
+      ]
+    }
+  ]
+}

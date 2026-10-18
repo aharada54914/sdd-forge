@@ -1,0 +1,36 @@
+ticket_id: RT-20261018-CLOUD-PREFLIGHT
+status: resolved
+type: verification-evidence-defect
+severity: major
+target:
+  feature: cloud-orchestration
+  task: T-013
+  files:
+    - reports/implementation/cloud-orchestration/T-013.md
+    - specs/cloud-orchestration/verification/T-013/
+    - tests/cloud-orchestration-execution.tests.py
+summary: Initial missing-component Red does not demonstrate executed field-mismatch preflight
+problem: >-
+  Independent evaluator 01a14e3f-5838-7ce0-a3ce-51482ba85566 found that all
+  eight initial tests stopped in setUp because aws_execution.py was absent.
+  The frozen report line370 incorrectly says the mismatch cases executed.
+  Original feature Red is real, but does not establish that stronger claim.
+expected_fix:
+  - Preserve the original report and initial failed tests; explicitly supersede the inaccurate execution claim in a dated non-frozen correction.
+  - Execute actual field/counterpart mismatch probes for every persisted-field preflight row, with observed guard failures and isolated negative controls proving the checks detect disagreement.
+  - Record exact commands, bytes, results and chronology; never describe later validation as historical pre-implementation evidence.
+  - Repair evidence or test gaps without weakening any required field binding; rerun scoped checks and a fresh independent quality gate.
+approval: Existing user approval covers implementation defects and accurate verification evidence; no scope or requirement exception is authorized or requested.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1
+resolution: >-
+  Corrective evidence delivered by fresh context01a14e44-7b84-7691-afa4-e0a84f80d4a7:
+  126 current-code probe entries and35 isolated sensitive mutations with restored
+  hashes;86 execution and31 contract regressions, strict static checks and scoped
+  rollback pass. Canonical report and product code remain unchanged. Dated addendum
+  explicitly corrects line370. Historical pre-implementation mismatch execution
+  remains unproven and is not retroactively asserted. Actual independent cycle2
+  evaluator01a14e53-aa3f-7880-b4ea-54b2243f66fa returned PASS; canonical report
+  reports/quality-gate/20261018-cloud-orchestration-T-013-cycle-2.md and the
+  validated T-013.evidence.json bind that completed review.

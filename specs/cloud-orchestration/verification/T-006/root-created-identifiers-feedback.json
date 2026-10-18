@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-18T09:49:24.214167+00:00",
+  "classification": "static contract/usability feedback; no claimed executed exploit",
+  "request": {
+    "id": 900065,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14e57-c9ef-7892-a76f-bdaa02a2fde5",
+      "expectedTurnId": "01a14e57-ca33-7151-b4dd-28bf4e32cac5",
+      "input": [
+        {
+          "type": "text",
+          "text": "Follow-up900064: the same immutable-predeploy-ID problem applies to newly created security group IDs, generated alarm names, BackupSelection IDs and later recovery-point ARNs. Distinguish existing owner-supplied IDs (VPC/subnet/profile/backup plan/vault) from created resource IDs. Use fixed supported logical selectors/native stack membership for created resources, and bounded read-only discovery of recovery points bound to actual resource, approved plan/vault and post-completion window. Do not require users to edit the immutable provider config after apply just to observe the created deployment. Preserve strict provenance and no arbitrary query engine. Capture local fixture tests that allocate previously unknown physical IDs and still verify the same original request."
+        }
+      ]
+    }
+  }
+}

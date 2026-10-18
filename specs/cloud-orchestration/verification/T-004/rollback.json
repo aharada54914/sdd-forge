@@ -1,0 +1,15 @@
+{
+  "base_revision": "a604a0f0836f90eae493db82b8b35749177d3412",
+  "candidate_revision": "a6337067ce6a868cf59cac943a519643ecde2851",
+  "disposable_checkout": "/tmp/cloud-T004-01a14d79-fe10-7172-8962-409b3b347a90/rollback",
+  "restored_paths": {
+    "tests/cloud-orchestration-routing.tests.py": "absent (initial state)"
+  },
+  "candidate_sha256": "5e4eb42aeda61f474d84fe543bcd081e6568beec7088382690fc39fe3c3e41e8",
+  "baseline_before_exit": 0,
+  "candidate_red_exit": 1,
+  "baseline_after_exit": 0,
+  "runtime_changed": false,
+  "cloud_actions": 0,
+  "historical_evidence_or_identity_ledgers_restored": false
+}

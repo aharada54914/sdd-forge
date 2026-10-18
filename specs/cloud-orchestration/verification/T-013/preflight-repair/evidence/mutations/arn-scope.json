@@ -1,0 +1,22 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R2.arn-account",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "NATIVE_ID_MISMATCH",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "WRONG_GUARD:NATIVE_ID_MISMATCH:CHANGE_SET_BINDING_MISMATCH",
+      "guards": [
+        {
+          "code": "CHANGE_SET_BINDING_MISMATCH",
+          "file": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+          "line": 402
+        }
+      ]
+    }
+  ]
+}

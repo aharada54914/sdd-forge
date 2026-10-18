@@ -1,0 +1,75 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py FreshnessCases.test_old_deployment_native_recent_metric_and_backup
+test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) ... 
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='backup', variant='healthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='backup', variant='unhealthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='backup', variant='healthy') ... ERROR
+  test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='backup', variant='unhealthy') ... ERROR
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='backup', variant='healthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 575, in backup
+    samples(
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 374, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='aws', check='backup', variant='unhealthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 575, in backup
+    samples(
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 374, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='backup', variant='healthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 536, in backup
+    _, stamp = samples(
+               ^^^^^^^^
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 374, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+======================================================================
+ERROR: test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) (provider='azure', check='backup', variant='unhealthy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 478, in test_old_deployment_native_recent_metric_and_backup
+    getattr(collector, check)()[0], variant == "healthy"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 536, in backup
+    _, stamp = samples(
+               ^^^^^^^^
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-quality-loop/scripts/cloud_verification.py", line 374, in samples
+    c._require(fresh(stamp, context, age, now), "STALE_SIGNAL")
+  File "/tmp/cloud-T006-01a14e73/rollback/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: STALE_SIGNAL
+
+----------------------------------------------------------------------
+Ran 1 test in 0.035s
+
+FAILED (errors=4)
+
+Exit code: 1

@@ -1,0 +1,9 @@
+[work 2c2caf3f] test(cloud): reproduce T-010 callback-time dependency expiry before fix
+ 8 files changed, 3690 insertions(+), 196 deletions(-)
+ create mode 100644 reports/implementation/cloud-orchestration/T-010-dependency-expiry-fix.md
+ create mode 100644 specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/entry.json
+ create mode 100644 specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/manifest-validation.log
+ create mode 100644 specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/preflight.md
+ create mode 100644 specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/red.log
+ create mode 100644 specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/run-scoped.py
+ create mode 100644 specs/cloud-orchestration/verification/T-010/dependency-expiry-fix/task-input-manifest.json

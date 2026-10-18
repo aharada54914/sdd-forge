@@ -1,0 +1,18 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "cloud-orchestration",
+  "attempt": 1,
+  "round": 3,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "061f47e6beef4205ed6dc88ceab7eb69f1447b3978b1b6856b717918a54942ea",
+  "tasks_sha256_form": "raw",
+  "requirements_sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "acceptance_sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+  "design_sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+  "traceability_sha256": "b2aef6dd8a09b68c67e6a39855a3c1e79fa497b336f53cf1eb5ee0cc17d0f43a",
+  "frozen_artifact_done_when": [],
+  "layer_sha256": {"ux-spec.md":"d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc","frontend-spec.md":"586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b","infra-spec.md":"9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d","security-spec.md":"fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"},
+  "input_sha256": "ed60c10e7278f3145fdce91a55ada03cfcecb4865ac6014bbbc6f5001c514ddc",
+  "generated_at": "2026-10-18T04:33:26Z"
+}

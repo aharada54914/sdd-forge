@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-10-18T14:33:35.369274+00:00",
+  "implementation_report": "reports/implementation/cloud-orchestration/T-010.md",
+  "sha256": "ede48a70e1eddc7fa60f90bb58444f330654f3921b7b0ecdcd724c0c151005b0",
+  "output_count": 276,
+  "all_declared_hashes_match": true,
+  "private_transport_outputs": [],
+  "symlinks": [],
+  "classification": "caller delivery check; not an independent review",
+  "continuation": {
+    "native_run_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+    "same_native_thread_confirmed": true,
+    "completed_exit_code": 0,
+    "first_handoff_sha256": "61408022d71d968946c0783a3f972599487f86bf95b274c3a3a17766acff61c5"
+  },
+  "tests": "106 verification,86 execution,86 routing,33 contracts; 311 no skips. Native tool compile/synth and PowerShell executed. Configured static7files and rollback/reapply passed. Caller formal checks next."
+}

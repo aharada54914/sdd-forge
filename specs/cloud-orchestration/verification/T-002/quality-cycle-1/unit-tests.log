@@ -1,0 +1,28 @@
+test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) ... ok
+test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) ... ok
+test_bound_scope_owner_profile_policy_identity_and_preview_drift (__main__.Contracts.test_bound_scope_owner_profile_policy_identity_and_preview_drift) ... ok
+test_concurrent_publication_has_one_complete_winner (__main__.Contracts.test_concurrent_publication_has_one_complete_winner) ... ok
+test_digests_utc_paths_and_scalar_edge_cases (__main__.Contracts.test_digests_utc_paths_and_scalar_edge_cases) ... ok
+test_every_bound_file_mutation_is_rejected (__main__.Contracts.test_every_bound_file_mutation_is_rejected) ... ok
+test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash (__main__.Contracts.test_explicit_preview_and_receipt_mismatches_without_stale_outer_hash) ... ok
+test_input_alias_output_and_expected_type_are_rejected (__main__.Contracts.test_input_alias_output_and_expected_type_are_rejected) ... ok
+test_large_numbers_bounded_payloads_and_unpaired_unicode (__main__.Contracts.test_large_numbers_bounded_payloads_and_unpaired_unicode) ... ok
+test_lock_closure_versions_packages_schemas_and_adapter (__main__.Contracts.test_lock_closure_versions_packages_schemas_and_adapter) ... ok
+test_parser_rejects_ambiguous_json_without_echo (__main__.Contracts.test_parser_rejects_ambiguous_json_without_echo) ... ok
+test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) ... ok
+test_prepare_binding_does_not_invent_preview (__main__.Contracts.test_prepare_binding_does_not_invent_preview) ... ok
+test_publication_atomic_no_overwrite_containment_and_scan_failure (__main__.Contracts.test_publication_atomic_no_overwrite_containment_and_scan_failure) ... ok
+test_read_artifact_checks_observation_and_verification_references (__main__.Contracts.test_read_artifact_checks_observation_and_verification_references) ... ok
+test_result_exit_mapping_and_invalid_identity (__main__.Contracts.test_result_exit_mapping_and_invalid_identity) ... ok
+test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles (__main__.Contracts.test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles) ... ok
+test_scanner_receives_exact_bytes_and_no_secret_publication (__main__.Contracts.test_scanner_receives_exact_bytes_and_no_secret_publication) ... ok
+test_schema_inventory_has_no_open_object_or_unexercised_family (__main__.Contracts.test_schema_inventory_has_no_open_object_or_unexercised_family) ... ok
+test_schema_published_limits_have_executable_runtime_counterparts (__main__.Contracts.test_schema_published_limits_have_executable_runtime_counterparts) ... ok
+test_schema_scalar_domains_and_optional_field_boundaries (__main__.Contracts.test_schema_scalar_domains_and_optional_field_boundaries) ... ok
+test_unavailable_safe_filesystem_primitives_fail_closed (__main__.Contracts.test_unavailable_safe_filesystem_primitives_fail_closed) ... ok
+test_verification_inconsistent_claims_and_duplicate_checks (__main__.Contracts.test_verification_inconsistent_claims_and_duplicate_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.411s
+
+OK

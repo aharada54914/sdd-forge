@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a14d29-25f6-79f2-91f1-3148ff25e594",
+  "host_session_id": "01a14d29-25f6-79f2-91f1-3148ff25e594",
+  "allowed_input_manifest": [
+    {"path":"specs/cloud-orchestration/requirements.md","sha256":"1f20621a1b0a2d8f96f266d4c61967760710718c53aaa5b21f279b05100a7aad"},
+    {"path":"specs/cloud-orchestration/acceptance-tests.md","sha256":"94dc8ef93766bce1cabcf08913f1830398e531f825166adc852dacfba2f98ec0"},
+    {"path":"specs/cloud-orchestration/investigation.md","sha256":"38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"},
+    {"path":"reports/spec-review/cloud-orchestration/attempt-1/round-1/precheck-result.json","sha256":"45a9ba97539eb98e4cb03b08cd762e7a4147d374651d1c31f3481f6365c777bf"},
+    {"path":"plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001–012 specify observable routing, authorization, ownership, concurrency, verification and evidence outcomes. TEST-001–012 provide concrete positive and denial scenarios, including provider-specific substitution and preview-change tests."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every stated goal REQ-001–012 maps explicitly to its corresponding AC-001–012 and TEST-001–012 in acceptance-tests.md."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria identify inspectable results: blocked writes, selected executors, unchanged historical bytes, retained legacy checks, original operation reconciliation, denied evidence completion and actual deployed-resource observations."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly exclude production provisioning, import, destructive rollback, generic deployment engines and Terraform/SAM/azd execution. Initial execution paths are Bicep and CDK; raw CloudFormation execution is explicitly blocked by AC-002."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Roles, Security Boundaries and Assumptions define protected GitHub Actions authorization, separate prepare/apply permissions, scoped OIDC, immutable inputs, secret-free evidence and required deployment inputs. Historical #423 evidence is clearly distinguished from implementation of this new feature; its citations do not establish premature execution of cloud-orchestration."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-004–010 cover authorization substitution, dependency drift, concurrency, replay, uncertain operations, brownfield mutation, unhealthy deployments and evidence attacks. Provider-specific observations and Evidence Rules distinguish live validation from fixtures and require separately authorized cleanup."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The host explicitly reports no domain/ directory; investigation.md independently records domain-sync skipped for that reason. The applicability condition is absent."
+    }
+  ]
+}

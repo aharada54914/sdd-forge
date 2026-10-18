@@ -1,0 +1,11 @@
+rollback-entry-verification 0
+rollback-entry-execution 0
+rollback-entry-contracts 0
+rollback-candidate-focused 0
+rollback-restored-verification 0
+rollback-restored-execution 0
+rollback-restored-contracts 0
+rollback-defect-reproduced 1
+rollback-reapplied-verification 0
+rollback-reapplied-execution 0
+rollback-reapplied-contracts 0

@@ -1,0 +1,10 @@
+{
+  "base_revision": "0ea1ac14bd691952b922fa92ca161aa2e4dc85db",
+  "task_files": {
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": null,
+    "tests/cloud-orchestration-execution.tests.py": null,
+    "templates/cloud/": null,
+    "reports/implementation/cloud-orchestration/T-003.md": null
+  },
+  "spec_revision": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+}

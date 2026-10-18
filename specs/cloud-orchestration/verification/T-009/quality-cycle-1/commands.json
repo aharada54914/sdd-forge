@@ -1,0 +1,170 @@
+[
+  {
+    "id": "risk",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/cloud-orchestration/tasks.md T-009",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:47:22Z",
+    "finished_at": "2026-10-18T12:47:22Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/risk.log"
+  },
+  {
+    "id": "lint",
+    "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/check-contract.py plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py plugins/sdd-quality-loop/scripts/cloud_verification.py plugins/sdd-quality-loop/scripts/vendor-capability-registry.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py tests/cloud-orchestration-verification.tests.py tests/cloud-orchestration-contracts.tests.py specs/cloud-orchestration/verification/T-009/attempt-2/run-command.py specs/cloud-orchestration/verification/T-009/attempt-2/version-inventory.py specs/cloud-orchestration/verification/T-009/attempt-2/guard-runtime-probes.py specs/cloud-orchestration/verification/T-009/attempt-2/mismatch-audit.py plugins/sdd-azure-cloud/scripts/azure_observation.py plugins/sdd-aws-cloud/scripts/aws_observation.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:47:22Z",
+    "finished_at": "2026-10-18T12:47:22Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/lint.log"
+  },
+  {
+    "id": "typecheck",
+    "command": "python3 -c 'import os,subprocess,sys; env=dict(os.environ,MYPYPATH=\"plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts\"); commands=[['\"'\"'/tmp/cloud-quality-python/bin/python'\"'\"', '\"'\"'-m'\"'\"', '\"'\"'mypy'\"'\"', '\"'\"'--config-file'\"'\"', '\"'\"'tests/shared-launch-python/pyproject.toml'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/check-contract.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/cloud_verification.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/vendor-capability-registry.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'\"'\"', '\"'\"'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py'\"'\"', '\"'\"'tests/cloud-orchestration-verification.tests.py'\"'\"', '\"'\"'tests/cloud-orchestration-contracts.tests.py'\"'\"', '\"'\"'specs/cloud-orchestration/verification/T-009/attempt-2/run-command.py'\"'\"', '\"'\"'specs/cloud-orchestration/verification/T-009/attempt-2/version-inventory.py'\"'\"', '\"'\"'specs/cloud-orchestration/verification/T-009/attempt-2/guard-runtime-probes.py'\"'\"', '\"'\"'specs/cloud-orchestration/verification/T-009/attempt-2/mismatch-audit.py'\"'\"'], ['\"'\"'/tmp/cloud-quality-python/bin/python'\"'\"', '\"'\"'-m'\"'\"', '\"'\"'mypy'\"'\"', '\"'\"'--config-file'\"'\"', '\"'\"'tests/shared-launch-python/pyproject.toml'\"'\"', '\"'\"'plugins/sdd-azure-cloud/scripts/azure_observation.py'\"'\"'], ['\"'\"'/tmp/cloud-quality-python/bin/python'\"'\"', '\"'\"'-m'\"'\"', '\"'\"'mypy'\"'\"', '\"'\"'--config-file'\"'\"', '\"'\"'tests/shared-launch-python/pyproject.toml'\"'\"', '\"'\"'plugins/sdd-aws-cloud/scripts/aws_observation.py'\"'\"']]; results=[subprocess.run(c,env=env).returncode for c in commands]; sys.exit(0 if all(x==0 for x in results) else 1)'",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:47:22Z",
+    "finished_at": "2026-10-18T12:47:22Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/typecheck.log"
+  },
+  {
+    "id": "build",
+    "command": "python3 -m py_compile plugins/sdd-quality-loop/scripts/check-contract.py plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py plugins/sdd-quality-loop/scripts/cloud_verification.py plugins/sdd-quality-loop/scripts/vendor-capability-registry.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py tests/cloud-orchestration-verification.tests.py tests/cloud-orchestration-contracts.tests.py specs/cloud-orchestration/verification/T-009/attempt-2/run-command.py specs/cloud-orchestration/verification/T-009/attempt-2/version-inventory.py specs/cloud-orchestration/verification/T-009/attempt-2/guard-runtime-probes.py specs/cloud-orchestration/verification/T-009/attempt-2/mismatch-audit.py plugins/sdd-azure-cloud/scripts/azure_observation.py plugins/sdd-aws-cloud/scripts/aws_observation.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:47:22Z",
+    "finished_at": "2026-10-18T12:47:23Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/build.log"
+  },
+  {
+    "id": "unit-tests",
+    "command": "python3 -B tests/cloud-orchestration-verification.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:47:23Z",
+    "finished_at": "2026-10-18T12:48:25Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/unit-tests.log"
+  },
+  {
+    "id": "regression",
+    "command": "bash tests/gates.tests.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:48:25Z",
+    "finished_at": "2026-10-18T12:48:37Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/regression.log"
+  },
+  {
+    "id": "integration-tests",
+    "command": "python3 -B tests/sdd-domain-multitarget-T-003.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:48:37Z",
+    "finished_at": "2026-10-18T12:49:03Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/integration-tests.log"
+  },
+  {
+    "id": "smoke-run",
+    "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:03Z",
+    "finished_at": "2026-10-18T12:49:03Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/smoke-run.log"
+  },
+  {
+    "id": "constant-parity",
+    "command": "bash tests/constant-parity.tests.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:03Z",
+    "finished_at": "2026-10-18T12:49:03Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/constant-parity.log"
+  },
+  {
+    "id": "guard-sh",
+    "command": "bash tests/phase2-guard-invariants.tests.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:03Z",
+    "finished_at": "2026-10-18T12:49:04Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/guard-sh.log"
+  },
+  {
+    "id": "guard-ps1",
+    "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/phase2-guard-invariants.tests.ps1",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:04Z",
+    "finished_at": "2026-10-18T12:49:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/guard-ps1.log"
+  },
+  {
+    "id": "registry-schema",
+    "command": "bash tests/capability-registry-schema.tests.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:07Z",
+    "finished_at": "2026-10-18T12:49:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/registry-schema.log"
+  },
+  {
+    "id": "guard-projection",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:07Z",
+    "finished_at": "2026-10-18T12:49:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/guard-projection.log"
+  },
+  {
+    "id": "gate-projection",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:07Z",
+    "finished_at": "2026-10-18T12:49:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/gate-projection.log"
+  },
+  {
+    "id": "vendor-mirrors",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:07Z",
+    "finished_at": "2026-10-18T12:49:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/vendor-mirrors.log"
+  },
+  {
+    "id": "human-copy-mirrors",
+    "command": "python3 scripts/sync-human-copy-mirrors.py --check",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:07Z",
+    "finished_at": "2026-10-18T12:49:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/human-copy-mirrors.log"
+  },
+  {
+    "id": "placeholder-scan",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/check-contract.py plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py plugins/sdd-quality-loop/scripts/cloud_verification.py plugins/sdd-quality-loop/scripts/vendor-capability-registry.py plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py plugins/sdd-azure-cloud/scripts/azure_observation.py plugins/sdd-aws-cloud/scripts/aws_observation.py plugins/sdd-quality-loop/scripts/check-contract.ps1 plugins/sdd-quality-loop/references/cloud-verification-registry.json contracts/cloud-verification-registry.schema.json contracts/selected-verification-plan-v2.schema.json contracts/verification-contract-v3.schema.json",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:07Z",
+    "finished_at": "2026-10-18T12:49:07Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/placeholder-scan.log"
+  },
+  {
+    "id": "task-state-check",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/cloud-orchestration/tasks.md",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:07Z",
+    "finished_at": "2026-10-18T12:49:08Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/task-state-check.log"
+  },
+  {
+    "id": "workflow-state",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:08Z",
+    "finished_at": "2026-10-18T12:49:44Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/workflow-state.log"
+  },
+  {
+    "id": "requirement-traceability",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/cloud-orchestration/traceability.json /workspace/sdd-forge require-evidence",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:44Z",
+    "finished_at": "2026-10-18T12:49:44Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/requirement-traceability.log"
+  },
+  {
+    "id": "check-component-coverage",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+    "exit_code": 0,
+    "started_at": "2026-10-18T12:49:44Z",
+    "finished_at": "2026-10-18T12:49:44Z",
+    "evidence": "specs/cloud-orchestration/verification/T-009/quality-cycle-1/check-component-coverage.log"
+  }
+]

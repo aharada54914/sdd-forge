@@ -1,0 +1,40 @@
+NETWORK_SENTINEL_PARENT_CHILD_SHELL_PASS
+NETWORK_SENTINEL_POWERSHELL_CHILD_PASS
+test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) ... SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 0 admissions [1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 10 admissions [1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 11 admissions [1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+ok
+test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) ... SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+ok
+test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 15.550s
+
+OK

@@ -1,0 +1,144 @@
+{
+  "name": "Governed Azure",
+  "run-name": "cloud:${{ inputs.request_sha256 }}:${{ inputs.preview_sha256 }}",
+  "on": {
+    "workflow_dispatch": {
+      "inputs": {
+        "request_sha256": {
+          "required": true,
+          "type": "string"
+        },
+        "preview_sha256": {
+          "required": true,
+          "type": "string"
+        },
+        "artifact_id": {
+          "required": true,
+          "type": "string"
+        },
+        "artifact_run_id": {
+          "required": true,
+          "type": "string"
+        },
+        "operation": {
+          "required": true,
+          "type": "choice",
+          "options": [
+            "prepare",
+            "apply",
+            "reconcile"
+          ]
+        }
+      }
+    }
+  },
+  "permissions": {},
+  "concurrency": {
+    "group": "cloud-azure-00000000-0000-0000-0000-000000000001-eastus",
+    "cancel-in-progress": false
+  },
+  "jobs": {
+    "prepare": {
+      "if": "${{ github.run_attempt == 1 && inputs.operation == 'prepare' }}",
+      "runs-on": "ubuntu-24.04",
+      "environment": "sandbox-prepare",
+      "permissions": {
+        "contents": "read",
+        "actions": "read",
+        "id-token": "write"
+      },
+      "timeout-minutes": 30,
+      "steps": [
+        {
+          "name": "Reviewed executor only",
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "with": {
+            "repository": "synthetic/executor",
+            "ref": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "path": "executor",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Integrity checked data acquisition and governed execution",
+          "shell": "bash",
+          "env": {
+            "AZURE_CONTROL_POLICY": "${{ vars.AZURE_PREPARE_POLICY }}",
+            "GH_TOKEN": "${{ github.token }}",
+            "ARTIFACT_TOKEN": "${{ secrets.INPUT_ARTIFACT_READ_TOKEN }}",
+            "ARTIFACT_REPOSITORY": "synthetic/plans",
+            "ARTIFACT_ID": "${{ inputs.artifact_id }}",
+            "ARTIFACT_RUN_ID": "${{ inputs.artifact_run_id }}",
+            "REQUEST_SHA256": "${{ inputs.request_sha256 }}",
+            "PREVIEW_SHA256": "${{ inputs.preview_sha256 }}",
+            "CLOUD_PHASE": "${{ inputs.operation }}"
+          },
+          "run": "set -euo pipefail\npython3 -I executor/plugins/sdd-azure-cloud/scripts/azure_governed.py \"$CLOUD_PHASE\" --workspace \"$RUNNER_TEMP/azure-data\""
+        },
+        {
+          "name": "Retain immutable data and original operation identity even on failure",
+          "if": "${{ always() }}",
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "with": {
+            "name": "azure-prepare-${{ github.run_id }}",
+            "path": "${{ runner.temp }}/azure-data/",
+            "if-no-files-found": "error",
+            "include-hidden-files": true,
+            "retention-days": "${{ vars.AZURE_EVIDENCE_RETENTION_DAYS }}"
+          }
+        }
+      ]
+    },
+    "apply": {
+      "if": "${{ github.run_attempt == 1 && (inputs.operation == 'apply' || inputs.operation == 'reconcile') }}",
+      "runs-on": "ubuntu-24.04",
+      "environment": "sandbox-apply",
+      "permissions": {
+        "contents": "read",
+        "actions": "read",
+        "id-token": "write"
+      },
+      "timeout-minutes": 30,
+      "steps": [
+        {
+          "name": "Reviewed executor only",
+          "uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "with": {
+            "repository": "synthetic/executor",
+            "ref": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "path": "executor",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Integrity checked data acquisition and governed execution",
+          "shell": "bash",
+          "env": {
+            "AZURE_CONTROL_POLICY": "${{ vars.AZURE_APPLY_POLICY }}",
+            "GH_TOKEN": "${{ github.token }}",
+            "ARTIFACT_TOKEN": "${{ github.token }}",
+            "ARTIFACT_REPOSITORY": "${{ github.repository }}",
+            "ARTIFACT_ID": "${{ inputs.artifact_id }}",
+            "ARTIFACT_RUN_ID": "${{ inputs.artifact_run_id }}",
+            "REQUEST_SHA256": "${{ inputs.request_sha256 }}",
+            "PREVIEW_SHA256": "${{ inputs.preview_sha256 }}",
+            "CLOUD_PHASE": "${{ inputs.operation }}"
+          },
+          "run": "set -euo pipefail\npython3 -I executor/plugins/sdd-azure-cloud/scripts/azure_governed.py \"$CLOUD_PHASE\" --workspace \"$RUNNER_TEMP/azure-data\""
+        },
+        {
+          "name": "Retain immutable data and original operation identity even on failure",
+          "if": "${{ always() }}",
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "with": {
+            "name": "azure-apply-${{ github.run_id }}",
+            "path": "${{ runner.temp }}/azure-data/",
+            "if-no-files-found": "error",
+            "include-hidden-files": true,
+            "retention-days": "${{ vars.AZURE_EVIDENCE_RETENTION_DAYS }}"
+          }
+        }
+      ]
+    }
+  }
+}

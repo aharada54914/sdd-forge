@@ -1,0 +1,2 @@
+tests/cloud-orchestration-verification.tests.py:4323: error: Need type annotation for "rows" (hint: "rows: list[<type>] = ...")  [var-annotated]
+Found 1 error in 1 file (checked 5 source files)

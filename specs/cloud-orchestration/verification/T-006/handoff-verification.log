@@ -1,0 +1,22 @@
+MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts
+$ python3 -B tests/cloud-orchestration-verification.tests.py
+test_fake_native_payload_never_confers_collector_provenance (__main__.EntryPreflight.test_fake_native_payload_never_confers_collector_provenance) ... ok
+test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract) ... ok
+test_shared_reducer_available (__main__.EntryPreflight.test_shared_reducer_available) ... ok
+test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) ... ok
+test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) ... ok
+test_all_checks_synthetic_never_complete (__main__.ReducerCases.test_all_checks_synthetic_never_complete) ... ok
+test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) ... ok
+test_context_shape_and_window (__main__.ReducerCases.test_context_shape_and_window) ... ok
+test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) ... ok
+test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) ... ok
+test_each_payload_counterpart_mismatch (__main__.ReducerCases.test_each_payload_counterpart_mismatch) ... ok
+test_profile_policy_and_check_set (__main__.ReducerCases.test_profile_policy_and_check_set) ... ok
+test_query_trace_shape (__main__.ReducerCases.test_query_trace_shape) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.161s
+
+OK
+
+Exit code: 0

@@ -1,0 +1,64 @@
+NETWORK_SENTINEL_PARENT_CHILD_PASS
+test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) ... ok
+test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) ... ok
+test_other_alarm_field_semantics_remain_exact (__main__.AlarmNumericCases.test_other_alarm_field_semantics_remain_exact) ... ok
+test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) ... ok
+test_emitted_contracts_are_closed (__main__.AwsObservationOrchestration.test_emitted_contracts_are_closed) ... ok
+test_legacy_physical_config_rejected_before_admission (__main__.AwsObservationOrchestration.test_legacy_physical_config_rejected_before_admission) ... ok
+test_native_healthy_substitute_response_blocks (__main__.AwsObservationOrchestration.test_native_healthy_substitute_response_blocks) ... ok
+test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) ... ok
+test_original_native_operation_not_copied_receipt (__main__.AwsObservationOrchestration.test_original_native_operation_not_copied_receipt) ... ok
+test_publication_fresh_checks_never_reuse_saved_success (__main__.AwsObservationOrchestration.test_publication_fresh_checks_never_reuse_saved_success) ... ok
+test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) ... ok
+test_unknown_create_ids_resolved_without_request_edits (__main__.AwsObservationOrchestration.test_unknown_create_ids_resolved_without_request_edits) ... ok
+test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) ... ok
+test_native_positive_permission_closure_protocol (__main__.AzureClosureAndDcrCases.test_native_positive_permission_closure_protocol) ... ok
+test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) ... ok
+test_inert_template_has_literal_separate_phase_boundaries (__main__.AzureCompletionCases.test_inert_template_has_literal_separate_phase_boundaries) ... ok
+test_original_job_completion_matches_fixed_pinned_workflow (__main__.AzureCompletionCases.test_original_job_completion_matches_fixed_pinned_workflow) ... ok
+test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) ... ok
+test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) ... ok
+test_public_verify_uses_original_operation_and_received_signal (__main__.AzureObservationOrchestration.test_public_verify_uses_original_operation_and_received_signal) ... ok
+test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) ... ok
+test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a) ... B_PREPARE_CAUGHT_EXCEPTION ContractError OWNER_UNSUPPORTED
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_execution.py", line 457, in prepare
+    receipt, semantic = self.what_if(None)
+                        ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_execution.py", line 330, in what_if
+    data = self.check()
+           ^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_execution.py", line 223, in check
+    data = exact_artifacts(self.root, self.request_ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_execution.py", line 54, in exact_artifacts
+    ownership = detect_owner(root, request, files)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/cloud.py", line 182, in detect_owner
+    c._require(detected == {"cdk"}, "OWNER_UNSUPPORTED")
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+FAIL
+
+======================================================================
+FAIL: test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 5089, in test_three_actual_adapter_units_partial_failure_preserves_a
+    result = d.dispatch(
+             ^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_dependencies.py", line 690, in dispatch
+    result = execute(request)
+             ^^^^^^^^^^^^^^^^
+  File "tests/cloud-orchestration-verification.tests.py", line 5085, in execute
+    case.prepare()
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1029, in prepare
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'unit-b', 'provider': 'azure', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AZURE_EXECUTION_BLOCKED', 'message': 'Native execution evidence only; resource health is not verified.', 'input_manifest_sha256': '6ff789c792a9493e0e2c03ea7fd9367d5bde466d484a4016ed45c332e723a847', 'evidence_manifest_path': None}
+
+----------------------------------------------------------------------
+Ran 22 tests in 51.974s
+
+FAILED (failures=1)

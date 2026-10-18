@@ -1,0 +1,7 @@
+Implemented only the T-010 dependency-expiry fix.
+
+- Committed genuine Red tests: `2c2caf3f`.
+- 314 scoped tests pass; Ruff, mypy, rollback/reapply and report validation pass.
+- [Fix report](reports/implementation/cloud-orchestration/T-010-dependency-expiry-fix.md).
+
+Canonical history preserved. No cloud actions or whole-repository suite; review, gate and status changes remain root-owned.

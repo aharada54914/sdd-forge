@@ -1,0 +1,38 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py NativeCollectorCases.test_expired_collector_lease_has_zero_reads
+test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) ... 
+  test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) (provider='aws') ... FAIL
+test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) ... FAIL
+
+======================================================================
+FAIL: test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) (provider='aws')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 711, in test_expired_collector_lease_has_zero_reads
+    self.assertRaisesRegex(ValueError, "READ_CREDENTIAL_EXPIRED"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e73/rollback/tests/cloud-orchestration-verification.tests.py", line 714, in test_expired_collector_lease_has_zero_reads
+    self.assertEqual(fixture.calls, [])
+AssertionError: Lists differ: [('POST', 'https://ec2.us-east-1.amazonaws[84 chars]f0')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+('POST', 'https://ec2.us-east-1.amazonaws.com/', b'Action=DescribeInstances&Version=2016-11-15&InstanceId.1=i-0123456789abcdef0')
+
++ []
+- [('POST',
+-   'https://ec2.us-east-1.amazonaws.com/',
+-   b'Action=DescribeInstances&Version=2016-11-15&InstanceId.1=i-0123456789abc'
+-   b'def0')]
+
+----------------------------------------------------------------------
+Ran 1 test in 0.026s
+
+FAILED (failures=2)
+
+Exit code: 1

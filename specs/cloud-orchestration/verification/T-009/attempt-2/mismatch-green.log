@@ -1,0 +1,10 @@
+test_every_plan_leaf_and_closed_object (__main__.ProfileCompletionCases.test_every_plan_leaf_and_closed_object) ... ok
+test_original_profile_version_and_conditional_backup (__main__.ProfileCompletionCases.test_original_profile_version_and_conditional_backup) ... ok
+test_preview_guard_matrix (__main__.ProfileCompletionCases.test_preview_guard_matrix) ... ok
+test_saved_observation_mismatch_sensitivity (__main__.ProfileCompletionCases.test_saved_observation_mismatch_sensitivity) ... ok
+test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.777s
+
+OK

@@ -1,0 +1,7 @@
+{
+  "report": "reports/implementation/cloud-orchestration/T-006-alarm-numeric-fix.md",
+  "report_sha256": "f18ae3e52e2faefa991e9b6d05255f7b70516d3ad43a7e7619747c0470827ea2",
+  "outputs_checked": 145,
+  "mismatches": [],
+  "raw_transport_outputs": false
+}

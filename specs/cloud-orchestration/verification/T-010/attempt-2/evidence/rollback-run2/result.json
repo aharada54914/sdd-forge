@@ -1,0 +1,138 @@
+{
+  "schema": "task-rollback-experiment/v1",
+  "task_id": "T-010",
+  "attempt": 2,
+  "checkout": "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback",
+  "entry_revision": "f2d51e4a2d4b2c2f440222351684f3162ec88fc4",
+  "reconstruction": "detached task-entry commit plus exact preserved initial dirty-input snapshot; explicitly declared unchanged test dependencies overlaid",
+  "initial": {
+    "plugins/sdd-quality-loop/scripts/cloud_dependencies.py": null,
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "b165a6aa307a25721a63607f3c314bb6d290b1e1e450006be66c9a7d208ba916",
+    "plugins/sdd-azure-cloud/scripts/azure_governed.py": "a4a759aca319fe34382d0dc0af3a409a3b54522e9e84baa88e584dfa95694a0e",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py": "33dd06c2b3130d1357938f4b9f077aa6d855149a690d69fdd06d55f94e0cddff",
+    "tests/cloud-orchestration-verification.tests.py": "2055a5d2e463bec8b60c75082adf71bd3e60777282f048cfec4029bd823148f7"
+  },
+  "candidate": {
+    "plugins/sdd-quality-loop/scripts/cloud_dependencies.py": "7974e7e9a8d7da0c60b219a58db54c4747f0250653fda3af0146091f1f4fb475",
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "035bbb6e2d011e2f64ec7bd93674b5b547ff83907337a3b35ff5b16f8adaf688",
+    "plugins/sdd-azure-cloud/scripts/azure_governed.py": "c919c2fe44f462db08ccfd5f766b7635ae3e9eb4bf416bac96e2c9ded1509bc8",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py": "94f9f9c07aee2de6bb1e7229c0244cde7423441d59b813cc8c426e2a71943ff0",
+    "tests/cloud-orchestration-verification.tests.py": "3c7579045e94f627d88cd75cbb1ddda008934c869626ef0fd8ea91de60e82dc8"
+  },
+  "commands": [
+    {
+      "label": "entry-verification",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback-offline-runner.py",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "started_at": "2026-10-18T14:25:20Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "entry-admission",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback-offline-runner.py",
+        "tests/cloud-orchestration-execution.tests.py",
+        "Admission"
+      ],
+      "started_at": "2026-10-18T14:26:31Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "candidate-dependencies",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback-offline-runner.py",
+        "tests/cloud-orchestration-verification.tests.py",
+        "DependencyReceiptCases",
+        "DependencyFieldMatrix",
+        "DependencyGraphCases",
+        "DependencyBoundaryCases",
+        "DependencyFinalBoundaryCases"
+      ],
+      "started_at": "2026-10-18T14:26:34Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "restored-verification",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback-offline-runner.py",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "started_at": "2026-10-18T14:27:51Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "restored-admission",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback-offline-runner.py",
+        "tests/cloud-orchestration-execution.tests.py",
+        "Admission"
+      ],
+      "started_at": "2026-10-18T14:29:02Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "restored-feature-loss",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback-offline-runner.py",
+        "tests/cloud-orchestration-verification.tests.py",
+        "DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages"
+      ],
+      "started_at": "2026-10-18T14:29:05Z",
+      "exit_code": 1,
+      "expected_exit": 1
+    },
+    {
+      "label": "reapplied-dependencies",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/cloud-T010-01a14f3e-b525-78c0-9d78-d79635e2a5de/rollback-offline-runner.py",
+        "tests/cloud-orchestration-verification.tests.py",
+        "DependencyReceiptCases",
+        "DependencyFieldMatrix",
+        "DependencyGraphCases",
+        "DependencyBoundaryCases",
+        "DependencyFinalBoundaryCases"
+      ],
+      "started_at": "2026-10-18T14:29:07Z",
+      "exit_code": 0,
+      "expected_exit": 0
+    }
+  ],
+  "network_guard": "exercised parent/direct Python/shell/PowerShell-child urllib sentinel on every run",
+  "resource_rollback": false,
+  "restored": {
+    "plugins/sdd-quality-loop/scripts/cloud_dependencies.py": null,
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "b165a6aa307a25721a63607f3c314bb6d290b1e1e450006be66c9a7d208ba916",
+    "plugins/sdd-azure-cloud/scripts/azure_governed.py": "a4a759aca319fe34382d0dc0af3a409a3b54522e9e84baa88e584dfa95694a0e",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py": "33dd06c2b3130d1357938f4b9f077aa6d855149a690d69fdd06d55f94e0cddff",
+    "tests/cloud-orchestration-verification.tests.py": "2055a5d2e463bec8b60c75082adf71bd3e60777282f048cfec4029bd823148f7"
+  },
+  "reapplied": {
+    "plugins/sdd-quality-loop/scripts/cloud_dependencies.py": "7974e7e9a8d7da0c60b219a58db54c4747f0250653fda3af0146091f1f4fb475",
+    "plugins/sdd-quality-loop/scripts/cloud_authorization.py": "035bbb6e2d011e2f64ec7bd93674b5b547ff83907337a3b35ff5b16f8adaf688",
+    "plugins/sdd-azure-cloud/scripts/azure_governed.py": "c919c2fe44f462db08ccfd5f766b7635ae3e9eb4bf416bac96e2c9ded1509bc8",
+    "plugins/sdd-aws-cloud/scripts/aws_governed.py": "94f9f9c07aee2de6bb1e7229c0244cde7423441d59b813cc8c426e2a71943ff0",
+    "tests/cloud-orchestration-verification.tests.py": "3c7579045e94f627d88cd75cbb1ddda008934c869626ef0fd8ea91de60e82dc8"
+  },
+  "completed": true
+}

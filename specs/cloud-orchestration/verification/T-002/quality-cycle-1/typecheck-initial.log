@@ -1,0 +1,5 @@
+tests/cloud-orchestration-contracts.tests.py:24: error: Argument 1 to "module_from_spec" has incompatible type "ModuleSpec | None"; expected "ModuleSpec"  [arg-type]
+tests/cloud-orchestration-contracts.tests.py:25: error: Item "None" of "ModuleSpec | None" has no attribute "loader"  [union-attr]
+tests/cloud-orchestration-contracts.tests.py:25: error: Item "None" of "Loader | Any | None" has no attribute "exec_module"  [union-attr]
+tests/cloud-orchestration-contracts.tests.py:440: error: Need type annotation for "extra"  [var-annotated]
+Found 4 errors in 1 file (checked 2 source files)

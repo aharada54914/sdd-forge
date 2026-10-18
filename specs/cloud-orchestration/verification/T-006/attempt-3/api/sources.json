@@ -1,0 +1,8 @@
+[
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-3/api/role-definitions.json",
+    "url": "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/authorization/resource-manager/Microsoft.Authorization/Authorization/stable/2022-04-01/authorization-RoleDefinitionsCalls.json",
+    "sha256": "30d7eaad3b1c09e686affeefbd119bf2080a5ddb7bcba78e2955c20f343ffd59",
+    "acquired_at": "2026-10-18T10:45:50Z"
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "scope": "actual local CLI validate against malformed bound assembly; no synth or cloud call",
+  "exit_code": 2,
+  "stdout": "{\"error_code\": \"LOCAL_INPUT_UNAVAILABLE\", \"evidence_manifest_path\": null, \"input_manifest_sha256\": \"9bc18eadaa19dfd5288199f3fc3838aa852e5e3740f6a19b7ca00ecb04225780\", \"message\": \"Local prerequisite failed; correct the named error before retrying.\", \"operation\": \"validate\", \"provider\": \"aws\", \"result\": \"BLOCKED\", \"run_id\": \"synthetic-run\", \"schema\": \"cloud-operation-result/v1\", \"state\": \"BLOCKED\", \"unit_id\": \"synthetic-unit\"}\n",
+  "stderr_tail": "",
+  "source_sha256": "277a0e905e3da8e8e8f9f714b369cb30525fef5c23aff047a66c7d43bba0f2f3"
+}

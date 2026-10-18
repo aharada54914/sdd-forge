@@ -1,0 +1,19 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels
+OFFLINE_GUARD_INSTALLED
+test_nested_context_fields_and_untrusted_native_labels (__main__.ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels) ... FAIL
+
+======================================================================
+FAIL: test_nested_context_fields_and_untrusted_native_labels (__main__.ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 3131, in test_nested_context_fields_and_untrusted_native_labels
+    with self.assertRaisesRegex(ValueError, "COLLECTOR_PROVENANCE_REQUIRED"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.010s
+
+FAILED (failures=1)
+
+Exit code: 1

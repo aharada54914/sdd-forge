@@ -1,0 +1,7 @@
+Implemented T-007 only.
+
+- Both opt-in plugins, runtime packaging, and install/uninstall lifecycle completed.
+- Scoped tests, PowerShell checks, Ruff/mypy, rollback, and report validation passed.
+- Report: `reports/implementation/cloud-orchestration/T-007.md`
+
+No cloud actions, full-suite run, status changes, push, or tag. Independent review and quality gate remain root-owned.

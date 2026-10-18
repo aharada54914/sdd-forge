@@ -1,0 +1,10 @@
+test_all_direct_consumers_explicit_selection_not_saved_authority (__main__.ProfileSavedConsumers.test_all_direct_consumers_explicit_selection_not_saved_authority) ... ok
+test_legacy_import_never_loads_cloud_runtime (__main__.ProfileSavedConsumers.test_legacy_import_never_loads_cloud_runtime) ... ok
+test_plan_fields_match_schema_and_recomputed_counterparts (__main__.ProfileSavedConsumers.test_plan_fields_match_schema_and_recomputed_counterparts) ... ok
+test_registry_protection_and_old_schema_mirrors (__main__.ProfileSavedConsumers.test_registry_protection_and_old_schema_mirrors) ... ok
+test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.035s
+
+OK

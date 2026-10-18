@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "py_compile",
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+    "tests/cloud-orchestration-contracts.tests.py"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": ""
+}

@@ -1,0 +1,108 @@
+test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks (__main__.ProfileDispatchIntegration.test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks) ... 
+  test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks (__main__.ProfileDispatchIntegration.test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks) (provider='aws') ... ERROR
+test_native_transport_protocol_double_reaches_positive_existing_boundary (__main__.ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary) ... 
+  test_native_transport_protocol_double_reaches_positive_existing_boundary (__main__.ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary) (provider='aws') ... FAIL
+test_preview_and_iac_mismatches_at_public_boundary (__main__.ProfileDispatchIntegration.test_preview_and_iac_mismatches_at_public_boundary) ... ok
+test_all_direct_consumers_explicit_selection_not_saved_authority (__main__.ProfileSavedConsumers.test_all_direct_consumers_explicit_selection_not_saved_authority) ... ERROR
+test_legacy_import_never_loads_cloud_runtime (__main__.ProfileSavedConsumers.test_legacy_import_never_loads_cloud_runtime) ... ok
+test_plan_fields_match_schema_and_recomputed_counterparts (__main__.ProfileSavedConsumers.test_plan_fields_match_schema_and_recomputed_counterparts) ... ERROR
+test_registry_protection_and_old_schema_mirrors (__main__.ProfileSavedConsumers.test_registry_protection_and_old_schema_mirrors) ... ok
+test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) ... ERROR
+test_self_consistent_postapply_preview_substitution_is_not_authenticated (__main__.ProfilePreviewProvenance.test_self_consistent_postapply_preview_substitution_is_not_authenticated) ... 
+  test_self_consistent_postapply_preview_substitution_is_not_authenticated (__main__.ProfilePreviewProvenance.test_self_consistent_postapply_preview_substitution_is_not_authenticated) (provider='aws') ... FAIL
+
+======================================================================
+ERROR: test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks (__main__.ProfileDispatchIntegration.test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks) (provider='aws')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3341, in test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks
+    plan = json.loads(Path(str(output) + ".selected-plan.json").read_bytes())
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e/cloud-T013-synthetic-qi1wcyey/specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/protected.json.selected-plan.json'
+
+======================================================================
+ERROR: test_all_direct_consumers_explicit_selection_not_saved_authority (__main__.ProfileSavedConsumers.test_all_direct_consumers_explicit_selection_not_saved_authority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3413, in test_all_direct_consumers_explicit_selection_not_saved_authority
+    case, path, contract = self.fixture()
+                           ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3410, in fixture
+    return case, path, json.loads(path.read_bytes())
+                                  ^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e/cloud-T013-synthetic-dhljhmv1/specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/saved.json.contract.json'
+
+======================================================================
+ERROR: test_plan_fields_match_schema_and_recomputed_counterparts (__main__.ProfileSavedConsumers.test_plan_fields_match_schema_and_recomputed_counterparts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3505, in test_plan_fields_match_schema_and_recomputed_counterparts
+    case, _, baseline = self.fixture()
+                        ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3410, in fixture
+    return case, path, json.loads(path.read_bytes())
+                                  ^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e/cloud-T013-synthetic-yt7bgmvn/specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/saved.json.contract.json'
+
+======================================================================
+ERROR: test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3447, in test_saved_contract_each_field_and_binding_guard
+    case, _, baseline = self.fixture()
+                        ^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3410, in fixture
+    return case, path, json.loads(path.read_bytes())
+                                  ^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/cloud-T009-01a14ed8-ab42-7832-8945-e75ca77b0d2e/cloud-T013-synthetic-3fu1axhb/specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/saved.json.contract.json'
+
+======================================================================
+FAIL: test_native_transport_protocol_double_reaches_positive_existing_boundary (__main__.ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary) (provider='aws')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3367, in test_native_transport_protocol_double_reaches_positive_existing_boundary
+    self.assertEqual(result["result"], "PASS", result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'verify', 'state': 'BLOCKED', 'result': 'BLOCKED', 'error_code': 'LOCAL_INPUT_UNAVAILABLE', 'message': 'Local prerequisite failed; correct the named error before retrying.', 'input_manifest_sha256': 'bd1aec26f544a7d1453b00de5fb7c585b69197cb28709ea5488ff1d29e4d38e0', 'evidence_manifest_path': None}
+
+======================================================================
+FAIL: test_self_consistent_postapply_preview_substitution_is_not_authenticated (__main__.ProfilePreviewProvenance.test_self_consistent_postapply_preview_substitution_is_not_authenticated) (provider='aws')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3593, in test_self_consistent_postapply_preview_substitution_is_not_authenticated
+    self.assertEqual(control["result"], "PASS", control)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'verify', 'state': 'BLOCKED', 'result': 'BLOCKED', 'error_code': 'LOCAL_INPUT_UNAVAILABLE', 'message': 'Local prerequisite failed; correct the named error before retrying.', 'input_manifest_sha256': 'bd1aec26f544a7d1453b00de5fb7c585b69197cb28709ea5488ff1d29e4d38e0', 'evidence_manifest_path': None}
+
+----------------------------------------------------------------------
+Ran 9 tests in 4.206s
+
+FAILED (failures=2, errors=4)

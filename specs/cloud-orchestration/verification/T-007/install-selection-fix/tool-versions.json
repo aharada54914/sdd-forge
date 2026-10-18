@@ -1,0 +1,10 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "python3 --version; bash --version | head -1; git --version; /workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -Command '$PSVersionTable.PSVersion.ToString(); $PSVersionTable.OS'; /tmp/cloud-quality-python/bin/python -m ruff --version; /tmp/cloud-quality-python/bin/python -m mypy --version"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T16:14:08Z",
+  "exit_code": 0
+}

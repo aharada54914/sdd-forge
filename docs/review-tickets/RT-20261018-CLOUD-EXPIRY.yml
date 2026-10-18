@@ -1,0 +1,27 @@
+ticket_id: RT-20261018-CLOUD-EXPIRY
+status: resolved
+type: security-boundary-defect
+severity: critical
+target:
+  feature: cloud-orchestration
+  task: T-003
+  files:
+    - plugins/sdd-quality-loop/scripts/cloud_authorization.py
+    - tests/cloud-orchestration-execution.tests.py
+summary: Authorization may expire during the final artifact verification before submission
+problem: >-
+  Independent evaluator 01a14da0-97a6-7751-b4e2-9eeef48b2077 found that the final
+  expiry check precedes verify_binding. Hashing and recursive directory scans
+  can cross the configured authorization TTL while provider credentials still
+  remain valid, allowing submit despite AC-005. Existing tests advance the
+  clock during publication scanning, not during this final binding check.
+expected_fix:
+  - Add a deterministic regression that expires the narrower authorization TTL during the final verify_binding call while provider credentials remain valid.
+  - Assert zero native submissions and preserve consumed evidence after the denial.
+  - Recheck the same existing expiry boundary immediately after final artifact verification, before submit; no policy or privilege change.
+  - Run the full current admission and contract suites, static checks, and a fresh independent review.
+approval: Existing user authorization covers implementation defects; this enforces the already-approved AC-005 expiry policy without expanding authority.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1
+resolution: Same existing expiry check now follows final binding verification; committed Red covers both providers and stages at/beyond expiry. 25 admission and 31 contract tests, static checks and disposable rollback passed. Fresh quality cycle follows.

@@ -1,0 +1,37 @@
+{
+  "spec_revision": "4598ff27f3bc03e1a8f017c3c7d35ffefce2ab3510e350f268116d2f493da57a",
+  "inputs": [
+    [
+      "specs/cloud-orchestration/requirements.md",
+      "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    ],
+    [
+      "specs/cloud-orchestration/design.md",
+      "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    ],
+    [
+      "specs/cloud-orchestration/acceptance-tests.md",
+      "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    ],
+    [
+      "specs/cloud-orchestration/traceability.md",
+      "c4bff8916b0f7f49b982ef20e04d2e02862ba20dd048a83bfd9451cb342e0774"
+    ],
+    [
+      "specs/cloud-orchestration/ux-spec.md",
+      "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    ],
+    [
+      "specs/cloud-orchestration/frontend-spec.md",
+      "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    ],
+    [
+      "specs/cloud-orchestration/infra-spec.md",
+      "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    ],
+    [
+      "specs/cloud-orchestration/security-spec.md",
+      "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    ]
+  ]
+}

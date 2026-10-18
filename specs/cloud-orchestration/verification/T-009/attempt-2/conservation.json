@@ -1,0 +1,77 @@
+{
+  "spec_revision": "8adfe1a8642b38d9d7abcb845ea33c5821e462119e68c0b38af9fbf166f6b752",
+  "frozen_spec_hashes_verified": [
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "sha256": "6c7c7ff4fd36cb0468a5d91f6228b1d27f55f408e7098a660285290df277a0e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    }
+  ],
+  "historical_evidence_files_unchanged": 60,
+  "changed_admitted_inputs": [
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256",
+      "before_sha256": "d83df199f2202db3770d51d85938f25309b6ef47cf054b5927d1ae56572357ed",
+      "after_sha256": "f0d9378f9a2dbbd6111f0b474f5fff4a9fdc7660f12c7339d81c99c480eee51d"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "before_sha256": "1ce796d91352a488d479a335af08b663a430b0c1d9858dc2593382181d54344a",
+      "after_sha256": "66505c65b073bc083d32b734a4e073bc85a216dd98a3b81a5bf581ae4956d9b3"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256",
+      "before_sha256": "60fe0310e3f5f7a915d1b65a15f90879d1ee26162cc223b861884471373f8f5f",
+      "after_sha256": "d3d6d30573972c99084d153c55dc3008a560af811da6ff5a9c81755d0514f4b8"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "before_sha256": "1ce796d91352a488d479a335af08b663a430b0c1d9858dc2593382181d54344a",
+      "after_sha256": "66505c65b073bc083d32b734a4e073bc85a216dd98a3b81a5bf581ae4956d9b3"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-contract.py",
+      "before_sha256": "2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3",
+      "after_sha256": "9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7"
+    },
+    {
+      "path": "tests/cloud-orchestration-contracts.tests.py",
+      "before_sha256": "c93c19356d8b26e2be5da3633359be5d69ec214c2e910fac77b97213ff4a548c",
+      "after_sha256": "dcd2c5a89119d26be5c983ac54cd586b4b6742b7cdff48b30f55a1e1fdaceba4"
+    },
+    {
+      "path": "tests/cloud-orchestration-verification.tests.py",
+      "before_sha256": "d49e32812d2d35519c76898fbeb0c6cf286f865d5366c728fecfdbf67cfea03e",
+      "after_sha256": "2055a5d2e463bec8b60c75082adf71bd3e60777282f048cfec4029bd823148f7"
+    }
+  ],
+  "report_excluded_as_mutable": true,
+  "pending_mirror_classification_unchanged": true
+}

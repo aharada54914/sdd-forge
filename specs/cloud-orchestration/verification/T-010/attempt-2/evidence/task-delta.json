@@ -1,0 +1,27 @@
+[
+  {
+    "path": "plugins/sdd-quality-loop/scripts/cloud_dependencies.py",
+    "entry_sha256": null,
+    "candidate_sha256": "7974e7e9a8d7da0c60b219a58db54c4747f0250653fda3af0146091f1f4fb475"
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+    "entry_sha256": "b165a6aa307a25721a63607f3c314bb6d290b1e1e450006be66c9a7d208ba916",
+    "candidate_sha256": "035bbb6e2d011e2f64ec7bd93674b5b547ff83907337a3b35ff5b16f8adaf688"
+  },
+  {
+    "path": "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+    "entry_sha256": "a4a759aca319fe34382d0dc0af3a409a3b54522e9e84baa88e584dfa95694a0e",
+    "candidate_sha256": "c919c2fe44f462db08ccfd5f766b7635ae3e9eb4bf416bac96e2c9ded1509bc8"
+  },
+  {
+    "path": "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+    "entry_sha256": "33dd06c2b3130d1357938f4b9f077aa6d855149a690d69fdd06d55f94e0cddff",
+    "candidate_sha256": "94f9f9c07aee2de6bb1e7229c0244cde7423441d59b813cc8c426e2a71943ff0"
+  },
+  {
+    "path": "tests/cloud-orchestration-verification.tests.py",
+    "entry_sha256": "2055a5d2e463bec8b60c75082adf71bd3e60777282f048cfec4029bd823148f7",
+    "candidate_sha256": "3c7579045e94f627d88cd75cbb1ddda008934c869626ef0fd8ea91de60e82dc8"
+  }
+]

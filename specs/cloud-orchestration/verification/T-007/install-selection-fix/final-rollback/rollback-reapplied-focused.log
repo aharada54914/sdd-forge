@@ -1,0 +1,182 @@
+test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) ... sequential bash: azure->aws, step=0, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: azure->aws, step=1, selection=('sdd-aws-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: azure->aws, step=2, selection=default
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: azure->aws, step=3, selection=('sdd-review-loop',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: aws->azure, step=0, selection=('sdd-aws-cloud',)
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: aws->azure, step=1, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: aws->azure, step=2, selection=default
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential bash: aws->azure, step=3, selection=('sdd-review-loop',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/azure step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct bash/aws step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=0, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=1, selection=('sdd-aws-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=2, selection=default
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: azure->aws, step=3, selection=('sdd-review-loop',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: aws->azure, step=0, selection=('sdd-aws-cloud',)
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=0: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: aws->azure, step=1, selection=('sdd-azure-cloud',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=1: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: aws->azure, step=2, selection=default
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=2: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+sequential pwsh: aws->azure, step=3, selection=('sdd-review-loop',)
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/azure step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "3178cad6286e97e6d7f791aa4634cfef859a6c524e0664956cbafcbbcffbc546", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "azure", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+installed aws: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+direct pwsh/aws step=3: exit=0 {"error_code": null, "evidence_manifest_path": "specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit/route.json.manifest.json", "input_manifest_sha256": "0b1bb9a72da12806b5818f65264683f4680c458a66c086027f6c34bf4766e947", "message": "Local check only; no cloud validation or authorization.", "operation": "route", "provider": "aws", "result": "PASS", "run_id": "synthetic-run", "schema": "cloud-operation-result/v1", "state": "ROUTED", "unit_id": "synthetic-unit"}
+ok
+test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) ... prior rebuild bash: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-9aysnxev/tmp0dt2tkq5/sdd-plugins-staging-IqnJhU/plugins/sdd-quality-loop/scripts/cloud_dependencies.py': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-9aysnxev/tmpku37lpgn/sdd-plugins-staging-eorMu1/plugins/sdd-quality-loop/references/cloud-verification-registry.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-9aysnxev/tmp05dcgmab/sdd-plugins-staging-jiigs6/plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('contracts/cloud-verification.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-observation-evidence.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-check-result.schema.json', 'contracts/cloud-authorization-receipt.schema.json'), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-9aysnxev/tmp0xgzda3f/sdd-plugins-staging-XAWgzj/contracts/cloud-*.schema.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/scripts/cloud.py',), exit=1, preserved=True
+Error: Required staged cloud entry file is missing: plugins/sdd-azure-cloud/scripts/cloud.py
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/scripts/azure_local.py',), exit=1, preserved=True
+Error: Required staged cloud entry file is missing: plugins/sdd-azure-cloud/scripts/azure_local.py
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',), exit=1, preserved=True
+Error: Required staged cloud entry file is missing: plugins/sdd-azure-cloud/.codex-plugin/plugin.json
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',), exit=1, preserved=True
+Error: Required staged cloud entry file is missing: plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/tmp/cloud-t007-01a14fbf/rollback-final/install.ps1:819[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 819 | [0m             [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/s[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-9aysnxev/tmp_sckio4n/sdd-plugins-staging-9ebe292e-0f17-409d-b39d-169edde4157f/plugins/sdd-quality-loop/scripts/cloud_dependencies.py' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/tmp/cloud-t007-01a14fbf/rollback-final/install.ps1:821[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 821 | [0m         [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/sdd-q[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-9aysnxev/tmpqyiwzvvg/sdd-plugins-staging-f27aa1b0-9036-4f2f-9303-1d4532276a04/plugins/sdd-quality-loop/references/cloud-verification-registry.json' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/tmp/cloud-t007-01a14fbf/rollback-final/install.ps1:829[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 829 | [0m             [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/s[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-9aysnxev/tmpr5a3lntc/sdd-plugins-staging-5788704f-50c3-493d-9493-abafdbd3f95c/plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('contracts/cloud-verification.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-observation-evidence.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-check-result.schema.json', 'contracts/cloud-authorization-receipt.schema.json'), exit=1, preserved=True
+[31;1mException: [0m/tmp/cloud-t007-01a14fbf/rollback-final/install.ps1:824[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 824 | [0m … unt -eq 0) { [36;1mthrow "Cloud schemas are missing from staged payload."[0m }[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCloud schemas are missing from staged payload.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/scripts/cloud.py',), exit=1, preserved=True
+[31;1mException: [0m/tmp/cloud-t007-01a14fbf/rollback-final/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m …             [36;1mthrow "Required staged cloud entry file is missing: plugi[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mRequired staged cloud entry file is missing:[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mplugins/sdd-azure-cloud/scripts/cloud.py[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/scripts/azure_local.py',), exit=1, preserved=True
+[31;1mException: [0m/tmp/cloud-t007-01a14fbf/rollback-final/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m …             [36;1mthrow "Required staged cloud entry file is missing: plugi[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mRequired staged cloud entry file is missing:[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mplugins/sdd-azure-cloud/scripts/azure_local.py[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',), exit=1, preserved=True
+[31;1mException: [0m/tmp/cloud-t007-01a14fbf/rollback-final/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m …             [36;1mthrow "Required staged cloud entry file is missing: plugi[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mRequired staged cloud entry file is missing:[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mplugins/sdd-azure-cloud/.codex-plugin/plugin.json[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',), exit=1, preserved=True
+[31;1mException: [0m/tmp/cloud-t007-01a14fbf/rollback-final/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m …             [36;1mthrow "Required staged cloud entry file is missing: plugi[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mRequired staged cloud entry file is missing:[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mplugins/sdd-azure-cloud/skills/orchestrate/SKILL.md[0m
+
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 47.577s
+
+OK
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH

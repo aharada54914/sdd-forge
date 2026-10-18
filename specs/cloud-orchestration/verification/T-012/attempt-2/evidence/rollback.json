@@ -1,0 +1,472 @@
+{
+  "base_revision": "1082e961b92ba65b158b82313efe2bfbc6fec816",
+  "commands": [
+    {
+      "label": "rollback-create",
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-T012-01a14e03/rollback",
+        "1082e961b92ba65b158b82313efe2bfbc6fec816"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    },
+    {
+      "label": "rollback-candidate",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14e03/rollback",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    },
+    {
+      "label": "rollback-candidate-contracts",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14e03/rollback",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    },
+    {
+      "label": "rollback-candidate-routing",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14e03/rollback",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    },
+    {
+      "label": "rollback-entry-known-red",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14e03/rollback",
+      "exit_code": 1,
+      "expected_exit_code": 1
+    },
+    {
+      "label": "rollback-entry-contracts",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14e03/rollback",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    },
+    {
+      "label": "rollback-entry-routing",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-routing.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14e03/rollback",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    },
+    {
+      "label": "rollback-reapplied",
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-execution.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T012-01a14e03/rollback",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    },
+    {
+      "label": "rollback-remove",
+      "command": [
+        "git",
+        "worktree",
+        "remove",
+        "--force",
+        "/tmp/cloud-T012-01a14e03/rollback"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    }
+  ],
+  "classification": "continuation rollback preserves original candidate; known two Red restored, never passing baseline",
+  "restored": {
+    "plugins/sdd-azure-cloud/scripts/cloud.py": "0acf156a2b52c4b674daedeec75ee0098bfe926ac687e80d89813b809c64d736",
+    "plugins/sdd-azure-cloud/scripts/azure_execution.py": "755344b50911ccae4b35e4a60177d4fe28fbdeee89608bc3c2c6f6602ecec139",
+    "plugins/sdd-azure-cloud/scripts/governed-setup.md": "0754fe91c8123e8a8d096e702c914e4389c0067a548f75cabfaa5b40399b9edd",
+    "tests/cloud-orchestration-execution.tests.py": "8d57d72ce42a3e822668a3b5b98c79cff1eb706c006ff4286254a1461345e537"
+  },
+  "candidate": [
+    {
+      "path": "contracts/cloud-authorization-receipt.schema.json",
+      "sha256": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8"
+    },
+    {
+      "path": "contracts/cloud-dependency-lock.schema.json",
+      "sha256": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec"
+    },
+    {
+      "path": "contracts/cloud-deployment-policy.schema.json",
+      "sha256": "a064217e4a68838a3d719749fb751ba63ffabb2094d16cf13090afeaed080eb8"
+    },
+    {
+      "path": "contracts/cloud-input-error.schema.json",
+      "sha256": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77"
+    },
+    {
+      "path": "contracts/cloud-observation.schema.json",
+      "sha256": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826"
+    },
+    {
+      "path": "contracts/cloud-operation-result.schema.json",
+      "sha256": "a92bdac86499052256112babe5ff559c2e071adba411f4a2e92ec38b6b5b2aa6"
+    },
+    {
+      "path": "contracts/cloud-ownership.schema.json",
+      "sha256": "71079e7320c968bce57fba67bd105d59ab57c00a51165a3598d522919141f25d"
+    },
+    {
+      "path": "contracts/cloud-preview.schema.json",
+      "sha256": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99"
+    },
+    {
+      "path": "contracts/cloud-run-request.schema.json",
+      "sha256": "781d83fad3d8e883e2c4aa886c5356da12f93d5ef5e35f16a5d83e9c024c9d81"
+    },
+    {
+      "path": "contracts/cloud-verification-profile.schema.json",
+      "sha256": "b25112c7e73583b180941639cb8f137a89fcb7daa82b1afd7ec8eec66c9353bf"
+    },
+    {
+      "path": "contracts/cloud-verification.schema.json",
+      "sha256": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/README.md",
+      "sha256": "0caceb7832a0c3e467042a760789f03a47521eaca375e712ea15120931e2ea5a"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/app.js",
+      "sha256": "710c6889188eac80e9f5e6b505c3796ded52747c9a56c305c58a53d05f3c2b25"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/cdk.json",
+      "sha256": "7802e394180f0d618f4caf7d1a6647f406ad327fa0aaa38c84b8b6b8471b24a5"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json",
+      "sha256": "b106084fff5e18ca94260509133337891b58d5269d77166ff9320a36419cccec"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/package.json",
+      "sha256": "beddc07bfbf3d198ca58b3d500e746b7bd4ebc14a25b469033fb1c41ba50a00b"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/aws-local-config.schema.json",
+      "sha256": "90e8ebd3e71d4041d25a831b1c9a5823c90494f942b68d797d46f07f584bf85e"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/aws-local-evidence.schema.json",
+      "sha256": "d64402c81095bd9a0657d34f4723a02996d91bb93cb0d0906c4ca288aeaa3187"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/local-preparation.md",
+      "sha256": "2a890269fabb6128f125f5533d3eb4c6411589ca0d0843b642b47cc959f7a257"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/toolchain-lock.json",
+      "sha256": "c46bafb8869840c879739f424746eda64ca6c62aafab906d9e98012dee7c3f5d"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream-lock.json",
+      "sha256": "1898ede044cc25e0fba804077559544f5f58e9e323d8d0701721b8545cc97766"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/SKILL.md",
+      "sha256": "af178f8e909efd66496b09c7301c5e11ef96681fd62bf91406dcb340a18aacf6"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md",
+      "sha256": "ce48bf13921481aa6d2df131f0bd32faa8cc07bb50b63b1805ddbfe6ca18a5f0"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md",
+      "sha256": "4d576be561b16fd140c7f44de3b905ca81718752003a5072fec7062f2a2e782c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/construct-patterns.md",
+      "sha256": "029a6450cc738c220051c1e2df94cb08e82b9fd80b20ab6b1b31696015222d6c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/fast-deployments.md",
+      "sha256": "b6ddc7a418ed0d2f6e450c1835e3dc83c0648cbcdf4b582ebd66234918b22171"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md",
+      "sha256": "375e247190c3ebe29b2b8b211f665d4f463c7d959d3a6a067f8816d1a5df3a26"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md",
+      "sha256": "bdc1dacfaaaef810923699fc19803b492815b404190f055f90bd3558587b335c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md",
+      "sha256": "87b36861e1cf656fdb576536c20c61dfff5316e1b7465954f9b1b01cce0f0ee0"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md",
+      "sha256": "80b97fe332046fb025cf6635b3add76046bf9b2933bd45394255585f1694a967"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md",
+      "sha256": "1397f0c8034ccafd1353c3053d119e721c4904b9dc2ba33a1f285f69bfb909ea"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md",
+      "sha256": "f88efb1a4b7451fe194e5c617ea2c467be93ecaa7221264b80361cca035dc181"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_graph.py",
+      "sha256": "21896c758e64f5db7571c2c5209a4ab122cac8347dc18096c29e79f7396a42fd"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "sha256": "277a0e905e3da8e8e8f9f714b369cb30525fef5c23aff047a66c7d43bba0f2f3"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/cloud.py",
+      "sha256": "2f5d4edf95dde79328046760bbfb110b50c47025fddf685eeb204145d4ec7332"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/README.md",
+      "sha256": "18d4bac06d053a486ab77936c75cd7e4f0824fff90728431cbfdf7f89d9cc873"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/private-vm.bicep",
+      "sha256": "81ba478fb3744e96496243358f3aef3477646027a58e1220f3c16b7b428c9422"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-local-config.schema.json",
+      "sha256": "6a9d1d5fe91ca828ca2b50a282457c4e4e3dfa7f79b0c59d3a9e3f6c5f40ebb6"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json",
+      "sha256": "e4584e317609585b3effc865412757ef730448d814b2ce7f78eebf485728b68a"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/azure-parameters.schema.json",
+      "sha256": "5922b55565b1a506db4cc424560cbfaa0b07766f1e26bf50dd4247ade18fc3ae"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/local-contract.md",
+      "sha256": "68850cae945e1e5357fedb284079cce67fec809a07cd1a35f6f923a39b89fdfc"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/upstream-lock.json",
+      "sha256": "f7e22249f21c062e6207579460b1ad1042af52e4eb619d8566fd4d99db675644"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "sha256": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "sha256": "661a545a10620fceb0f05337834c36b20efa23b08b663b068efb388abe6444ab"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "sha256": "a0669240ae1acdfb62adfedb36e131d1421349c5a0b65f7411106c660aea458c"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_graph.py",
+      "sha256": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "sha256": "13c1b71923501fdd861e583ce14f7026d538e6c8e89505a87f5211fc4b82bbbd"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "sha256": "83f9789f6d42eb68391d69ccf0dfeb7f24e214d677290e9ffd646b2dc999e5f7"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/governed-setup.md",
+      "sha256": "b2f038ab953175e2fab863d5cc8baada77a79c0b8cef1281df68142831343388"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "sha256": "b165a6aa307a25721a63607f3c314bb6d290b1e1e450006be66c9a7d208ba916"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "sha256": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "sha256": "d19f258b904dd168410f184f7854d47a3790319832b5bda919b3f7049ab41a06"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/LICENSE",
+      "sha256": "8a5d8efb70942e65032f930c761d097feeb41a7517ebd04c9d2e4ec3764071c5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/reference.md",
+      "sha256": "a4976e733b7793b0014b3be1d5a1c5282002ba16dd7be9a7fffd509c800b5505"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/README.md",
+      "sha256": "61a52989ee67dfe4ee30aeb88a06bd15460d3d61d9f1101f3d0d58c19d1e4852"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/main.bicep",
+      "sha256": "6fa0bd982a36436cc4a6929ce5a8bb2fff748248d2865000110de0a18ef51b5f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/references/output-adapters/bicep.md",
+      "sha256": "ab54837a3cde78093ebb59875c0cb1f471c57ee786d8b7d417f808cf94b56439"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/config.json",
+      "sha256": "ccc52fa5eb81253dec9a1edcbb6376c4f363cbcbe5cc6cd25e16bf51bdf1e6ea"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.arm.json",
+      "sha256": "5d433080a667406b0e7372252cd1e3cace0fee1b505a295dbdc65561c6e96c7c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.request.json",
+      "sha256": "aa2abc4ddb432984ac48c57fdfe46778ea2fbe8356b6edc58307453324ed96a0"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/lock.json",
+      "sha256": "5d2f63bf39f892ae40d578f257af645bf1eccbdf468f4fb047a4187157a797c7"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/ownership.json",
+      "sha256": "5405208196f15113bc06f82ee538997a19415517561e79a07f0077259ed2022c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/policy.json",
+      "sha256": "ca75f6b9e1a6362ba36fa496974bff564a957003f73da3f32443f412469531e4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/profile.json",
+      "sha256": "4ec5f27f718f26f6086dad4216fc8e1a909aba5fed9ba971575c7d57c69747d4"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/unit/main.bicep",
+      "sha256": "81ba478fb3744e96496243358f3aef3477646027a58e1220f3c16b7b428c9422"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/unit/parameters.json",
+      "sha256": "361d0679465fa218a24786f54017a8b4441e8baf9691a4efdea02bd600fd0935"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/LICENSE",
+      "sha256": "8a5d8efb70942e65032f930c761d097feeb41a7517ebd04c9d2e4ec3764071c5"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/reference.md",
+      "sha256": "a4976e733b7793b0014b3be1d5a1c5282002ba16dd7be9a7fffd509c800b5505"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/README.md",
+      "sha256": "61a52989ee67dfe4ee30aeb88a06bd15460d3d61d9f1101f3d0d58c19d1e4852"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/examples/bicep/main.bicep",
+      "sha256": "6fa0bd982a36436cc4a6929ce5a8bb2fff748248d2865000110de0a18ef51b5f"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle/upstream/skills/azure-compute/workflows/vm-creator/references/output-adapters/bicep.md",
+      "sha256": "ab54837a3cde78093ebb59875c0cb1f471c57ee786d8b7d417f808cf94b56439"
+    },
+    {
+      "path": "templates/cloud/github-aws.yml",
+      "sha256": "72ddd25758096b0844ed9e3b14d3563f90e3f80d67acc4090fe3294222b2c7b4"
+    },
+    {
+      "path": "templates/cloud/github-azure.yml",
+      "sha256": "5c9c208f3cc0eb4ea0fe11617a159acdcde9cb3bb61a8a92bc0ebf178299b4ab"
+    },
+    {
+      "path": "templates/cloud/iam/README.md",
+      "sha256": "5b0b6827c7c9eaaa794aea10d8474dcd0156d26f5f0673fe5364f61c596128c6"
+    },
+    {
+      "path": "templates/cloud/iam/aws-apply-permissions.json",
+      "sha256": "9b6ab4f6f70b6d138b8f5b143e25b51abf82f2a00d5606484bb17578bb6342cb"
+    },
+    {
+      "path": "templates/cloud/iam/aws-apply-trust.json",
+      "sha256": "b6a668ac1c6d6bfecf347823a7bf7f4211eab6eedeb8b70e80d5b1095c88546a"
+    },
+    {
+      "path": "templates/cloud/iam/aws-prepare-permissions.json",
+      "sha256": "97b33e38eb4b5c62c45006b1fa82d101b3c745d89053b7aef1975ae63aaf5135"
+    },
+    {
+      "path": "templates/cloud/iam/aws-prepare-trust.json",
+      "sha256": "fb816c23c404a2c6dc664885da932bd208fdda8c4675c991ff694e03ab17406c"
+    },
+    {
+      "path": "templates/cloud/iam/azure-apply-federation.json",
+      "sha256": "edbece3a3e08ad661a37bb5bbad33e5738aee8ea96e66148fd8b948f3fb01a24"
+    },
+    {
+      "path": "templates/cloud/iam/azure-apply-role.json",
+      "sha256": "305f5622da98f47d3b81df756eb5ef1959069e47b59f7ec012c3d0fd4812d889"
+    },
+    {
+      "path": "templates/cloud/iam/azure-prepare-federation.json",
+      "sha256": "50d8cbc667ee96d6667bbbb5313562a426ab826966483b20c4187fa5b9934370"
+    },
+    {
+      "path": "templates/cloud/iam/azure-prepare-role.json",
+      "sha256": "18558291d8f2bd725926e1a99c532ebd4952a0a192aa7740c3be18e6c76cf61d"
+    },
+    {
+      "path": "templates/cloud/iam/github-environment.json",
+      "sha256": "5bf72c589d439d0dc23b02b92c62fb6b4d897f1b95a2653b2aaa4d0069ddd291"
+    },
+    {
+      "path": "templates/cloud/iam/github-oidc-subject.json",
+      "sha256": "69a4c0a488e543cb5bb6587ffd6ab9ccd66706ad0423db76b2d4fcc2dbbb1d60"
+    },
+    {
+      "path": "templates/cloud/iam/trusted-policy.example.py",
+      "sha256": "7e70f84eec5094a6b4a2aee3fe16dcaec968f2ec330fb7f51226969a01bd64e9"
+    },
+    {
+      "path": "tests/cloud-orchestration-contracts.tests.py",
+      "sha256": "71b89cf257b302fe695f7bdb5b42e648eaec0edb7ef14ce2c7f927bb5cd1a90b"
+    },
+    {
+      "path": "tests/cloud-orchestration-execution.tests.py",
+      "sha256": "3681acdbed2af843b1a2fcd884d0da410e5c346d9080050664a22ef95911b06c"
+    },
+    {
+      "path": "tests/cloud-orchestration-routing.tests.py",
+      "sha256": "ed91ffb6d77b2c033574ad8db08abd81dc1b823f759399240f01ef910d80e21e"
+    }
+  ],
+  "unrelated_candidate_bytes_unchanged": true,
+  "cloud_actions": false
+}

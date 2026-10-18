@@ -1,0 +1,1 @@
+Preflight rejected cross-feature supplemental entries before reservation/turn. Those original paths are already declared exactly in the implementation report Outputs; removed redundant entries from supplemental declaration only. Preserved unused genuine allocation and original inputs.

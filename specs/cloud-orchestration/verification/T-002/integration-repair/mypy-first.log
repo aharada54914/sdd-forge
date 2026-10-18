@@ -1,0 +1,3 @@
+templates/cloud/iam/trusted-policy.example.py:12: error: Missing positional argument "target_environment" in call to "Policy"  [call-arg]
+tests/cloud-orchestration-execution.tests.py:695: error: Value of type "Any | None" is not indexable  [index]
+Found 2 errors in 2 files (checked 5 source files)

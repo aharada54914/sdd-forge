@@ -1,0 +1,11 @@
+{
+  "purpose": "Verify published pinned Node bytes can be acquired from official distribution; no downloaded code executed",
+  "version": "24.19.0",
+  "at": "2026-10-18T07:28:03.392948+00:00",
+  "url": "https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-x64.tar.xz",
+  "archive_sha256": "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647",
+  "archive_bytes": 31633904,
+  "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+  "pinned_node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+  "matches": true
+}

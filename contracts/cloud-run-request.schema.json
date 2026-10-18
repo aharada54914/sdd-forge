@@ -1,0 +1,382 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "run_id",
+    "unit_id",
+    "provider",
+    "binding_id",
+    "environment",
+    "scope",
+    "owner",
+    "route",
+    "operation",
+    "predecessor_receipts",
+    "source_revision",
+    "input_artifacts",
+    "dependency_lock",
+    "policy",
+    "verification_profile"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cloud-run-request/v1"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+    },
+    "unit_id": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "azure",
+        "aws"
+      ]
+    },
+    "binding_id": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+    },
+    "environment": {
+      "type": "string",
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "account_id",
+        "region",
+        "deployment_scope"
+      ],
+      "properties": {
+        "account_id": {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+        },
+        "region": {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+        },
+        "deployment_scope": {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+        }
+      }
+    },
+    "owner": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "bicep",
+            "cdk",
+            "terraform",
+            "sam",
+            "cloudformation",
+            "azd"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "route": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "azure-bicep",
+            "aws-cdk"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "operation": {
+      "type": "string",
+      "enum": [
+        "route",
+        "plan",
+        "validate",
+        "prepare",
+        "apply",
+        "reconcile",
+        "observe",
+        "verify"
+      ]
+    },
+    "predecessor_receipts": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 4096,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "unit_id",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+            "maxLength": 1024
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+          }
+        }
+      }
+    },
+    "source_revision": {
+      "type": "string",
+      "pattern": "^(?:(?:[a-f0-9]{40}|[a-f0-9]{64}))$(?![\\s\\S])"
+    },
+    "input_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "source",
+              "compiled",
+              "asset",
+              "parameters",
+              "module"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+            "maxLength": 1024
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+          }
+        }
+      }
+    },
+    "dependency_lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+        }
+      }
+    },
+    "verification_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(?:[0-9]+(?:\\.[0-9]+){0,3}(?:-[A-Za-z0-9.-]+)?)$(?![\\s\\S])"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+        }
+      }
+    },
+    "local_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspace_anchor",
+        "artifact_root",
+        "unit_roots",
+        "evidence_directory",
+        "feature",
+        "task_id",
+        "ownership",
+        "provider_config"
+      ],
+      "properties": {
+        "workspace_anchor": {
+          "const": "CLOUD_WORKSPACE_ROOT"
+        },
+        "artifact_root": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "unit_roots": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+            "maxLength": 1024
+          },
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true
+        },
+        "evidence_directory": {
+          "type": "string",
+          "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "feature": {
+          "type": "string",
+          "pattern": "^(?=[a-z0-9]+(?:-[a-z0-9]+)*$(?![\\s\\S]))(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+          "maxLength": 1024
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^(?:T-[0-9]{3})$(?![\\s\\S])"
+        },
+        "ownership": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+              "maxLength": 1024
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+            }
+          }
+        },
+        "provider_config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?:(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.)(?:/(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][0-9]|[Ll][Pp][Tt][0-9])(?:\\.|/|$))(?!\\.{1,2}(?:/|$))[A-Za-z0-9_.][A-Za-z0-9._-]{0,254}(?<!\\.))*)$(?![\\s\\S])",
+              "maxLength": 1024
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^(?:[a-f0-9]{64})$(?![\\s\\S])"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sdd-forge.local/contracts/cloud-run-request.schema.json",
+  "title": "Cloud run-request v1",
+  "$comment": "Integrity only, never authority. Runtime also checks contained physical files, exact-byte digests, keyed uniqueness and cross-artifact consistency.",
+  "oneOf": [
+    {
+      "properties": {
+        "provider": {
+          "const": "aws"
+        },
+        "owner": {
+          "const": "cdk"
+        },
+        "route": {
+          "const": "aws-cdk"
+        }
+      }
+    },
+    {
+      "properties": {
+        "provider": {
+          "const": "azure"
+        },
+        "owner": {
+          "const": "bicep"
+        },
+        "route": {
+          "const": "azure-bicep"
+        }
+      }
+    },
+    {
+      "properties": {
+        "operation": {
+          "const": "route"
+        },
+        "route": {
+          "type": "null"
+        }
+      }
+    }
+  ]
+}

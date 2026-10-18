@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "-NoProfile",
+    "-File",
+    "tests/validate-repository.ps1"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:29:56Z",
+  "exit_code": 1,
+  "elapsed_seconds": 22.417,
+  "classification": "offline local command; no live cloud"
+}

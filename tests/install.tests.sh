@@ -7,7 +7,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALLER="${REPO_ROOT}/install.sh"
 # shellcheck source=tests/lib/fixture-matrix-builder.sh
 source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
-ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
+ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
 PASS=0
 FAIL=0
 
@@ -81,6 +81,20 @@ git -C "$SOURCE_FIXTURE" add \
     plugins/sdd-domain/templates/domain-review-report.template.md \
     plugins/sdd-review-loop
 git -C "$SOURCE_FIXTURE" diff --cached --quiet || git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
+
+# Cloud packaging is exercised from current candidate bytes, including files
+# not yet in HEAD. Keep this overlay scoped and tracked inside the fixture only.
+for provider in azure aws; do
+    mkdir -p "$SOURCE_FIXTURE/plugins/sdd-$provider-cloud"
+    cp -R "$REPO_ROOT/plugins/sdd-$provider-cloud/." "$SOURCE_FIXTURE/plugins/sdd-$provider-cloud/"
+    find "$SOURCE_FIXTURE/plugins/sdd-$provider-cloud" -type d -name __pycache__ -prune -exec rm -rf {} +
+done
+for relative_path in plugins/sdd-quality-loop/scripts/cloud_contracts.py plugins/sdd-quality-loop/scripts/cloud_authorization.py plugins/sdd-quality-loop/scripts/cloud_verification.py plugins/sdd-quality-loop/scripts/cloud_dependencies.py plugins/sdd-quality-loop/references/cloud-verification-registry.json plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json; do
+    cp "$REPO_ROOT/$relative_path" "$SOURCE_FIXTURE/$relative_path"
+done
+cp "$REPO_ROOT"/contracts/cloud-*.schema.json "$SOURCE_FIXTURE/contracts/"
+git -C "$SOURCE_FIXTURE" add -- plugins/sdd-azure-cloud plugins/sdd-aws-cloud plugins/sdd-quality-loop/scripts/cloud_*.py plugins/sdd-quality-loop/references/cloud-verification-registry.json plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json contracts/cloud-*.schema.json
+git -C "$SOURCE_FIXTURE" diff --cached --quiet || git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Cloud packaging fixture"
 
 # The MCP server payload (mcp/sdd-forge-mcp/dist + package.json) is not yet
 # Git-tracked in this repository (dist/ is committed by a later task). The
@@ -241,6 +255,7 @@ resolve_registered_plugins() {
             local -a dependencies=()
             case "$plugin" in
                 sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+                sdd-azure-cloud|sdd-aws-cloud) dependencies=(sdd-quality-loop) ;;
                 sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
                 sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
                 sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;

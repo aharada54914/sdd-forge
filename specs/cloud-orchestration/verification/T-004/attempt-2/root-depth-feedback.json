@@ -1,0 +1,6 @@
+{
+  "request_id": 900006,
+  "thread_id": "01a14d9e-7a63-71c2-a07c-aa71d275b9de",
+  "turn_id": "01a14d9e-7aac-76c2-bb0d-0e5a5e60a4ab",
+  "message": "Final small caller-boundary check: Expressions.expression() recurses within one string without incrementing the value() step budget, and the CLI final exception list currently omits RecursionError (shared recursive directory scan can raise it too). Ensure excessive expression/scan nesting yields a typed BLOCKED envelope, not an uncaught traceback. A bounded parser depth and/or explicit sanitized RecursionError mapping plus a focused negative test is sufficient; no broader feature work. Preserve the closed expression policy."
+}

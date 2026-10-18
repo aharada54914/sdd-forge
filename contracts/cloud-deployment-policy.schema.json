@@ -1,0 +1,112 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "allowed_scopes",
+    "allowed_resource_types",
+    "backup_required",
+    "private_networking",
+    "budget",
+    "evidence"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cloud-deployment-policy/v1"
+    },
+    "allowed_scopes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "account_id",
+          "region",
+          "deployment_scope"
+        ],
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+          },
+          "region": {
+            "type": "string",
+            "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+          },
+          "deployment_scope": {
+            "type": "string",
+            "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+          }
+        }
+      },
+      "minItems": 1,
+      "maxItems": 4096,
+      "uniqueItems": true
+    },
+    "allowed_resource_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(?:[\\x20-\\x7e]{1,2048})$(?![\\s\\S])"
+      },
+      "minItems": 1,
+      "maxItems": 4096,
+      "uniqueItems": true
+    },
+    "backup_required": {
+      "type": "boolean"
+    },
+    "private_networking": {
+      "type": "boolean",
+      "const": true
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ceiling_minor_units",
+        "currency"
+      ],
+      "properties": {
+        "ceiling_minor_units": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^(?:[A-Z]{3})$(?![\\s\\S])"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "residency",
+        "retention_days",
+        "access"
+      ],
+      "properties": {
+        "residency": {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._:-]{0,127})$(?![\\s\\S])"
+        },
+        "retention_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "access": {
+          "type": "string",
+          "enum": [
+            "restricted"
+          ]
+        }
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sdd-forge.local/contracts/cloud-deployment-policy.schema.json",
+  "$comment": "Integrity only, never authority. Runtime also checks contained physical files, exact-byte digests, keyed uniqueness and cross-artifact consistency."
+}

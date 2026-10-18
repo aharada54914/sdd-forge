@@ -1,0 +1,9 @@
+test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) ... ok
+test_malformed_compiled_outputs_always_typed_and_no_receipt (__main__.AwsNativePreparation.test_malformed_compiled_outputs_always_typed_and_no_receipt) ... ok
+test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported (__main__.AwsNativePreparation.test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported) ... ok
+test_independently_authored_private_graph (__main__.AwsNativePreparation.test_independently_authored_private_graph) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 24.381s
+
+OK

@@ -1,0 +1,44 @@
+[
+  {
+    "package": "node_modules/@aws-cdk/asset-awscli-v1",
+    "integrity": "sha512-d4aMFsAFj19FtxVyw8IzlUKv5Zu4sIvgnEjI2IU6IWBJgVbJ4aFnadANqYa+6MwB1CQbGOg0jh8WE77M+Nb/9A==",
+    "sri_verified": true,
+    "installed_archive_file_count": 20,
+    "installed_bytes_match_archive": true
+  },
+  {
+    "package": "node_modules/@aws-cdk/asset-node-proxy-agent-v6",
+    "integrity": "sha512-98We1QWfin9vtuuQtNFhIIAEWb8CreyYTAP0Vn8HqSBoNiFJM9nZgifJeQawT9Wq0NX1HCNFlxCyTccIrK1PSA==",
+    "sri_verified": true,
+    "installed_archive_file_count": 19,
+    "installed_bytes_match_archive": true
+  },
+  {
+    "package": "node_modules/@aws-cdk/cloud-assembly-schema",
+    "integrity": "sha512-zYI3XhQ/bpuSXuPaF77f7u2q6rZBPwdrPh8a0v+e/B3IxbRQAtQv0fmacQ8uYh9RPVuIVnExE6IsFJBSALH7BA==",
+    "sri_verified": true,
+    "installed_archive_file_count": 122,
+    "installed_bytes_match_archive": true
+  },
+  {
+    "package": "node_modules/aws-cdk",
+    "integrity": "sha512-kV3vJCQX5XvlyVvmRHH79Nn2kOmDicN1WSFGkSaZXsNaDdNj2Re25yehsp+L2ixv0VCm0/HLLmYSoehmVPDkJg==",
+    "sri_verified": true,
+    "installed_archive_file_count": 331,
+    "installed_bytes_match_archive": true
+  },
+  {
+    "package": "node_modules/aws-cdk-lib",
+    "integrity": "sha512-H7hBQHnKn0ZBbpnWRL1Hn0GunSQUsYaLqOk2xIqV0HWr3qbYMwTEZT0HbJBUSxeUdzp1nz0AE2LN3K6qvYr4Zg==",
+    "sri_verified": true,
+    "installed_archive_file_count": 7577,
+    "installed_bytes_match_archive": true
+  },
+  {
+    "package": "node_modules/constructs",
+    "integrity": "sha512-zWjwqIgk4nAWmQGrPnDWv+M2Yly6m7ROyqmmQVLgJiHnWP762It22uWFaF2Pu/sSx0u8WsoUcvt0PZ4DQIQYwQ==",
+    "sri_verified": true,
+    "installed_archive_file_count": 25,
+    "installed_bytes_match_archive": true
+  }
+]

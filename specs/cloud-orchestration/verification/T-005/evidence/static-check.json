@@ -1,0 +1,25 @@
+{
+  "ruff_version": "0.13.3",
+  "mypy_version": "1.18.2",
+  "ruff_exit": 0,
+  "mypy_exit": 0,
+  "python_compile": [
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_graph.py",
+      "sha256": "21896c758e64f5db7571c2c5209a4ab122cac8347dc18096c29e79f7396a42fd",
+      "python_compile": "PASS"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "sha256": "277a0e905e3da8e8e8f9f714b369cb30525fef5c23aff047a66c7d43bba0f2f3",
+      "python_compile": "PASS"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/cloud.py",
+      "sha256": "2f5d4edf95dde79328046760bbfb110b50c47025fddf685eeb204145d4ec7332",
+      "python_compile": "PASS"
+    }
+  ],
+  "diff_check_exit": 0,
+  "scope": "AWS scripts, routing tests and task evidence drivers; not repository-wide"
+}

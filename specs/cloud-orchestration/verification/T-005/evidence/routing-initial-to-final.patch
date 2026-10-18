@@ -1,0 +1,492 @@
+--- initial/tests/cloud-orchestration-routing.tests.py
++++ final/tests/cloud-orchestration-routing.tests.py
+@@ -69,7 +69,7 @@
+         # Deliberately do not inherit cloud credentials or host identity.
+         env = {"PATH": os.defpath, "HOME": str(self.root), "PYTHONDONTWRITEBYTECODE": "1"}
+         result = subprocess.run(
+-            [sys.executable, "-B", str(CLI), operation, "--request", str(source),
++            [sys.executable, "-B", str(getattr(self, "cli", CLI)), operation, "--request", str(source),
+              "--output", str(destination), *extra],
+             cwd=self.root, env=env, capture_output=True, timeout=15,
+         )
+@@ -112,7 +112,7 @@
+         self.assertEqual(value["schema"], "cloud-input-error/v1")
+ 
+ 
+-class AzureRouting(unittest.TestCase):
++class LocalRoutingFixture(unittest.TestCase):
+     def setUp(self):
+         self.temp = tempfile.TemporaryDirectory(prefix="cloud-T004-local-")
+         self.addCleanup(self.temp.cleanup)
+@@ -171,7 +171,7 @@
+                "CLOUD_WORKSPACE_ROOT": str(self.root)}
+         env.update(env_extra or {})
+         output = output or self.evidence + "/" + phase + ".json"
+-        proc = subprocess.run([sys.executable, "-B", str(CLI), phase, "--request", str(self.root / "request.json"),
++        proc = subprocess.run([sys.executable, "-B", str(getattr(self, "cli", CLI)), phase, "--request", str(self.root / "request.json"),
+             "--output", output], cwd=self.root, env=env, capture_output=True, timeout=90)
+         self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+         self.assertTrue(proc.stdout.strip(), "Missing genuine typed CLI result")
+@@ -181,10 +181,12 @@
+         self.assertNotIn("native_operation_id", result)
+         if result.get("evidence_manifest_path"):
+             manifest = json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
+-            schema = json.loads((ROOT/"plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json").read_bytes())
++            schema = json.loads((ROOT/("plugins/sdd-" + self.req["provider"] + "-cloud/references/" + self.req["provider"] + "-local-evidence.schema.json")).read_bytes())
+             self.assertEqual(self.oracle._schema_validate(schema, manifest), [])
+         return result
+ 
++
++class AzureRouting(LocalRoutingFixture):
+     def test_one_explicit_bicep_owner_routes_with_stable_apply_intent(self):
+         result = self.invoke()
+         self.assertEqual((result["result"], result["state"]), ("PASS", "ROUTED"))
+@@ -306,7 +308,7 @@
+ 
+     def test_missing_installed_runtime_and_unknown_config_are_typed_denials(self):
+         self.put("request.json", self.req)
+-        proc = subprocess.run([sys.executable, "-B", str(CLI), "route", "--request", str(self.root/"request.json"),
++        proc = subprocess.run([sys.executable, "-B", str(getattr(self, "cli", CLI)), "route", "--request", str(self.root/"request.json"),
+             "--output", str(self.root/self.evidence/"missing.json")],
+             env={"PATH": os.defpath, "CLOUD_SHARED_RUNTIME_ROOT": str(self.root/"missing")}, capture_output=True, timeout=15)
+         self.assertEqual(proc.returncode, 2)
+@@ -670,7 +672,7 @@
+             deep = deep/"d"
+             deep.mkdir()
+         bootstrap = "import sys,runpy; sys.setrecursionlimit(150); sys.argv=sys.argv[1:]; runpy.run_path(sys.argv[0],run_name='__main__')"
+-        proc = subprocess.run([sys.executable, "-B", "-c", bootstrap, str(CLI), "route", "--request", str(self.root/"request.json"),
++        proc = subprocess.run([sys.executable, "-B", "-c", bootstrap, str(getattr(self, "cli", CLI)), "route", "--request", str(self.root/"request.json"),
+             "--output", str(self.root/self.evidence/"deep.json")], env={"PATH": os.defpath,
+             "CLOUD_WORKSPACE_ROOT": str(self.root)}, capture_output=True, timeout=15)
+         self.assertEqual(proc.returncode, 2, proc.stderr.decode())
+@@ -681,7 +683,7 @@
+     def test_unsupported_filesystem_subprocess(self):
+         self.put("request.json", self.req)
+         bootstrap = "import os,runpy,sys; os.supports_dir_fd=set(); sys.argv=sys.argv[1:]; runpy.run_path(sys.argv[0],run_name='__main__')"
+-        proc = subprocess.run([sys.executable, "-B", "-c", bootstrap, str(CLI), "route", "--request", str(self.root/"request.json"),
++        proc = subprocess.run([sys.executable, "-B", "-c", bootstrap, str(getattr(self, "cli", CLI)), "route", "--request", str(self.root/"request.json"),
+             "--output", str(self.root/self.evidence/"unsupported.json")],
+             env={"PATH": os.defpath, "CLOUD_WORKSPACE_ROOT": str(self.root)}, capture_output=True, timeout=15)
+         self.assertEqual(proc.returncode, 2)
+@@ -690,5 +692,421 @@
+ 
+ 
+ 
++
++AWS_CLI = ROOT / "plugins/sdd-aws-cloud/scripts/cloud.py"
++AWS_PLUGIN = AWS_CLI.parent.parent
++
++
++class AwsCliContract(AzureCliContract):
++    cli = AWS_CLI
++
++    def invoke(self, operation, data, extra=(), output=None):
++        try:
++            body = json.loads(data)
++            if isinstance(body, dict) and body.get("schema") == "cloud-run-request/v1":
++                body.update(provider="aws", owner="cdk", route="aws-cdk")
++                data = json.dumps(body).encode()
++        except (ValueError, UnicodeError):
++            pass
++        return super().invoke(operation, data, extra, output)
++
++    def test_governed_operations_are_typed_blocked_not_fake_success(self):
++        for phase in ("prepare", "apply", "reconcile", "observe", "verify"):
++            value = self.invoke(phase, json.dumps(request("apply")).encode())
++            self.assertEqual((value["provider"], value["operation"], value["error_code"]),
++                             ("aws", phase, "OPERATION_UNIMPLEMENTED"))
++            self.assertNotIn("native_operation_id", value)
++
++
++class AwsRouting(LocalRoutingFixture):
++    cli = AWS_CLI
++
++    def setUp(self):
++        super().setUp()
++        (self.root/self.source["path"]).unlink()
++        self.req.update(provider="aws", owner="cdk", route="aws-cdk")
++        self.req["scope"] = dict(account_id="111111111111", region="us-east-1", deployment_scope="SyntheticPrivate")
++        self.policy["allowed_scopes"] = [copy.deepcopy(self.req["scope"])]
++        self.evidence = "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit"
++        (self.root/self.evidence).mkdir(parents=True)
++        self.req["local_context"].update(task_id="T-005", evidence_directory=self.evidence)
++        self.source = self.put("bundle/unit/cdk.json", dict(app="node app.js"))
++        self.req["input_artifacts"] = [dict(kind="source", **self.source)]
++        self.owner["owners"] = [dict(owner="cdk", root="bundle/unit")]
++        self.config = dict(schema="aws-local-config/v1", import_resources=False)
++        self.refresh()
++
++    test_shared_policy_profile_and_root_mismatches = AzureRouting.test_shared_policy_profile_and_root_mismatches
++    test_symlink_root_input_and_output_fail_closed = AzureRouting.test_symlink_root_input_and_output_fail_closed
++    test_governed_phases_use_phase_not_stable_request_intent = AzureRouting.test_governed_phases_use_phase_not_stable_request_intent
++    test_missing_installed_runtime_and_unknown_config_are_typed_denials = AzureRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials
++    test_explicit_installed_shared_runtime_and_output_link_boundary = AzureRouting.test_explicit_installed_shared_runtime_and_output_link_boundary
++    test_secret_marker_publication_is_denied = AzureRouting.test_secret_marker_publication_is_denied
++    test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route = AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route
++    test_directory_scan_recursion_is_a_typed_cli_denial = AzureNativePreparation.test_directory_scan_recursion_is_a_typed_cli_denial
++    test_unsupported_filesystem_subprocess = AzureNativePreparation.test_unsupported_filesystem_subprocess
++
++    def test_route_owner_identity_and_stable_intent(self):
++        self.owner["existing_resources"] = [dict(resource_id="vpc-11111111", owner="terraform", attachments=[])]
++        self.refresh()
++        result = self.invoke()
++        evidence = json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
++        self.assertEqual((result["state"], evidence["owner"], evidence["route"]), ("ROUTED", "cdk", "aws-cdk"))
++        self.assertEqual(evidence["existing_resources"], self.owner["existing_resources"])
++        self.assertEqual(evidence["request"]["sha256"], result["input_manifest_sha256"])
++        self.assertEqual(self.req["operation"], "apply")
++        self.assertFalse(evidence["cloud_validated"])
++
++    def test_mixed_unsupported_missing_import_and_provider(self):
++        for name, body in [("main.tf", b""), ("main.bicep", b""), ("azure.yaml", b"name: x"),
++                           ("sam.json", b'{"Transform":"AWS::Serverless-2016-10-31"}'),
++                           ("raw.json", b'{"Resources":{}}')]:
++            self.put("bundle/unit/"+name, body)
++            self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_CONFLICT")
++            (self.root/"bundle/unit"/name).unlink()
++        initial = copy.deepcopy((self.owner, self.config, self.req))
++        for edit in (lambda: self.owner.update(owners=[]),
++                     lambda: self.config.update(import_resources=True),
++                     lambda: self.req.update(provider="azure", owner="bicep", route="azure-bicep")):
++            edit()
++            self.refresh()
++            self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
++            self.owner, self.config, self.req = copy.deepcopy(initial)
++        (self.root/self.source["path"]).unlink()
++        self.source = self.put("bundle/unit/main.tf", b"# No import")
++        self.req["input_artifacts"] = [dict(kind="source", **self.source)]
++        self.req.update(owner="terraform", route=None, operation="route")
++        self.owner["owners"][0]["owner"] = "terraform"
++        self.refresh()
++        self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_UNSUPPORTED")
++
++    def test_output_and_source_integrity(self):
++        for output in ("request.json", "other.json", self.evidence+"/../escape.json"):
++            self.assertEqual(self.invoke(expected=2, output=output)["result"], "BLOCKED")
++        self.invoke()
++        before = (self.root/self.evidence/"route.json").read_bytes()
++        self.assertEqual(self.invoke(expected=2)["error_code"], "OUTPUT_EXISTS")
++        self.assertEqual((self.root/self.evidence/"route.json").read_bytes(), before)
++        (self.root/self.source["path"]).write_bytes(b"{}")
++        self.assertEqual(self.invoke(expected=2)["error_code"], "DIGEST_MISMATCH")
++
++
++class AwsNativePreparation(AwsRouting):
++    def setUp(self):
++        super().setUp()
++        self.toolroot = Path(os.environ.get("CLOUD_CDK_ROOT", "/workspace/.tools/cloud/cdk/2.1145.0"))
++        self.node = Path(os.environ.get("CLOUD_NODE_BIN", "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node"))
++        self.env = {"CLOUD_CDK_ROOT": str(self.toolroot), "CLOUD_NODE_BIN": str(self.node)}
++        self.params = dict(account="111111111111", region="us-east-1", stackName="SyntheticPrivate",
++            vpcId="vpc-11111111", subnetId="subnet-11111111", instanceProfile="synthetic-profile",
++            imageId="ami-11111111111111111", instanceType="t3.small", backupPlanId="synthetic-plan",
++            backupRoleArn="arn:aws:iam::111111111111:role/synthetic-backup")
++        self.config = dict(schema="aws-local-config/v1", import_resources=False, entrypoint="bundle/unit/app.js",
++            parameters="bundle/unit/parameters.json", upstream_root="bundle/upstream", output_directory="bundle/generated",
++            private_management=True, cost=dict(estimated_minor_units=100, currency="USD", duration_hours=1),
++            evidence=copy.deepcopy(self.policy["evidence"]))
++        self.policy["allowed_resource_types"] = ["AWS::EC2::Instance", "AWS::EC2::SecurityGroup", "AWS::CloudWatch::Alarm", "AWS::Backup::BackupSelection"]
++        self.owner["existing_resources"] = [dict(resource_id=rid, owner="terraform", attachments=[dict(resource_type=typ,name=name)])
++            for rid,typ,name in [(self.params["vpcId"],"AWS::EC2::SecurityGroup","PrivateGroup"),
++                (self.params["subnetId"],"AWS::EC2::Instance","Workload"),
++                (self.params["instanceProfile"],"AWS::EC2::Instance","Workload"),
++                (self.params["backupPlanId"],"AWS::Backup::BackupSelection","Protection"),
++                (self.params["backupRoleArn"],"AWS::Backup::BackupSelection","Protection")]]
++        self.source_refs = [self.source]
++        for name in ("app.js", "package.json", "package-lock.json"):
++            path = AWS_PLUGIN/"examples/private-ec2"/name
++            if path.exists():
++                self.source_refs.append(self.put("bundle/unit/"+name,path.read_bytes()))
++        pinpath = AWS_PLUGIN/"references/upstream-lock.json"
++        if pinpath.exists():
++            pin=json.loads(pinpath.read_bytes())
++            files=[dict(**self.put("bundle/upstream/"+f["path"],(AWS_PLUGIN/"references/upstream"/f["path"]).read_bytes()),
++                        references=["bundle/upstream/"+p for p in f["references"]]) for f in pin["files"]]
++            tools=json.loads((AWS_PLUGIN/"references/toolchain-lock.json").read_bytes())["tools"]
++            self.lock.update(upstream=[dict(repository=pin["repository"],commit=pin["commit"],root="bundle/upstream",files=files)],tools=tools)
++        (self.root/"bundle/generated").mkdir()
++        self.write_parameters()
++        self.refresh()
++
++    def write_parameters(self):
++        ref=self.put("bundle/unit/parameters.json",self.params)
++        self.req["input_artifacts"]=[dict(kind="source",**r) for r in self.source_refs]+[dict(kind="parameters",**ref)]
++
++    def invoke(self, phase="route", expected=0, output=None, env_extra=None):
++        return super().invoke(phase,expected,output,{**self.env,**(env_extra or {})})
++
++    def native_prerequisites(self):
++        if not (self.toolroot/"node_modules/aws-cdk/bin/cdk").is_file():
++            self.skipTest("Pinned CDK unavailable: native synthesis NOT validated")
++
++    def test_real_synth_complete_locked_assembly_validate_without_execution(self):
++        self.native_prerequisites()
++        original=json.dumps(self.req,sort_keys=True)
++        result=self.invoke("plan")
++        ev=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
++        self.assertEqual(ev["compiler"]["version"],"2.1145.0")
++        self.assertEqual(ev["compiler"]["exit_code"],0)
++        self.assertEqual(json.dumps(self.req,sort_keys=True),original)
++        self.req=self.contracts.read_artifact(self.root,ev["locked_request"],"cloud-run-request/v1")
++        self.assertEqual(self.req["operation"],"apply")
++        self.assertTrue(any(a["path"].endswith("manifest.json") for a in self.req["input_artifacts"]))
++        self.assertTrue(any(a["path"].endswith(".assets.json") for a in self.req["input_artifacts"]))
++        # Validation does not execute source or regenerate assembly, even without a tool installation.
++        self.assertEqual(self.invoke("validate",env_extra={"CLOUD_CDK_ROOT":"/missing"})["state"],"LOCAL_VALIDATED")
++        compiled=next(a for a in self.req["input_artifacts"] if a["path"].endswith(".template.json"))
++        (self.root/compiled["path"]).write_bytes(b"{}")
++        self.assertEqual(self.invoke("validate",expected=2,output=self.evidence+"/tamper.json")["error_code"],"DIGEST_MISMATCH")
++
++    def test_policy_and_bound_field_mismatch_preflight(self):
++        initial=copy.deepcopy((self.config,self.params,self.policy,self.owner,self.lock))
++        edits=[lambda:self.config.update(private_management=False),lambda:self.config.update(import_resources=True),
++               lambda:self.config["cost"].update(estimated_minor_units=10001),lambda:self.config["evidence"].update(retention_days=9),
++               lambda:self.params.update(region="us-west-2"),lambda:self.params.update(imageId="latest"),
++               lambda:self.params.update(backupPlanId="wrong"),lambda:self.owner["existing_resources"][0].update(attachments=[]),
++               lambda:self.lock["tools"][0].update(version="2.0.0"),lambda:self.lock["upstream"][0].update(commit="b"*40),
++               lambda:self.policy.update(allowed_resource_types=["AWS::EC2::Instance"])]
++        for i,edit in enumerate(edits):
++            with self.subTest(case=i):
++                self.config,self.params,self.policy,self.owner,self.lock=copy.deepcopy(initial)
++                edit()
++                self.write_parameters()
++                self.refresh()
++                self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
++                self.assertEqual(list((self.root/"bundle/generated").iterdir()),[])
++
++    def test_ambient_credentials_are_rejected_before_application(self):
++        for env in ({"AWS_ACCESS_KEY_ID":"synthetic"},{"AWS_PROFILE":"synthetic"},
++                    {"AWS_WEB_IDENTITY_TOKEN_FILE":"/synthetic"},{"ACTIONS_ID_TOKEN_REQUEST_URL":"https://example.invalid"}):
++            self.assertEqual(self.invoke("plan",expected=2,env_extra=env)["error_code"],"AMBIENT_CREDENTIALS")
++        self.put(".aws/credentials",b"[synthetic]\n")
++        self.assertEqual(self.invoke("plan",expected=2)["error_code"],"AMBIENT_CREDENTIALS")
++
++    def test_generated_output_inside_source_and_hidden_owners_block(self):
++        self.config["output_directory"]="bundle/unit/generated"
++        self.refresh()
++        self.assertEqual(self.invoke("plan",expected=2)["error_code"],"LOCAL_POLICY_DENIED")
++        self.put("bundle/unit/cdk.out/raw.json",dict(Resources={}))
++        self.assertEqual(self.invoke(expected=2)["error_code"],"OWNER_CONFLICT")
++
++    def test_literal_and_composed_markers_are_not_resource_references(self):
++        self.native_prerequisites()
++        result=self.invoke('plan')
++        ev=json.loads((self.root/result['evidence_manifest_path']).read_bytes())
++        locked=self.contracts.read_artifact(self.root,ev['locked_request'],'cloud-run-request/v1')
++        ref=next(a for a in locked['input_artifacts'] if a['path'].endswith('.template.json'))
++        original=json.loads((self.root/ref['path']).read_bytes())
++        for kind in ('alarm','backup'):
++            marker='@Workload' if kind=='alarm' else 'arn:aws:ec2:us-east-1:111111111111:instance/@Workload'
++            forms=[marker,{'Fn::Join':['',[marker[:-4],marker[-4:]]]},
++                {'Fn::Sub':['${literal}',{'literal':marker}]},
++                {'Fn::Sub':['${left}${right}',{'left':marker[:-4],'right':marker[-4:]}]}]
++            for i,value in enumerate(forms):
++                with self.subTest(kind=kind,form=i):
++                    self.req=copy.deepcopy(locked)
++                    body=copy.deepcopy(original)
++                    if kind=='alarm':
++                        body['Resources']['Health']['Properties']['Dimensions'][0]['Value']=value
++                    else:
++                        body['Resources']['Protection']['Properties']['BackupSelection']['Resources']=[value]
++                    changed=self.put(ref['path'],body)
++                    next(a for a in self.req['input_artifacts'] if a['path']==ref['path']).update(changed)
++                    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
++
++    def test_malformed_compiled_outputs_always_typed_and_no_receipt(self):
++        self.native_prerequisites()
++        result=self.invoke('plan')
++        ev=json.loads((self.root/result['evidence_manifest_path']).read_bytes())
++        locked=self.contracts.read_artifact(self.root,ev['locked_request'],'cloud-run-request/v1')
++        artifacts={a['path']:(self.root/a['path']).read_bytes() for a in locked['input_artifacts'] if a['kind']=='compiled'}
++        manifest=next(p for p in artifacts if p.endswith('/manifest.json'))
++        assets=next(p for p in artifacts if p.endswith('.assets.json'))
++        template=next(p for p in artifacts if p.endswith('.template.json'))
++        cases=[(manifest,{'version':'54.0.0','artifacts':{'bad':None}}),
++            (manifest,[]),(assets,{'version':'54.0.0','files':{'bad':None}}),
++            (template,{'Resources':{'bad':None}}),(template,{'Resources':{},'Parameters':[]}),
++            (template,b'{"Resources":{},"Resources":{}}'),(assets,b'{"version":NaN}')]
++        for i,(path,body) in enumerate(cases):
++            with self.subTest(case=i):
++                for name,data in artifacts.items():
++                    (self.root/name).write_bytes(data)
++                self.req=copy.deepcopy(locked)
++                ref=self.put(path,body)
++                next(a for a in self.req['input_artifacts'] if a['path']==path).update(ref)
++                result=self.invoke('validate',expected=2,output=self.evidence+f'/malformed-{i}.json')
++                self.assertEqual(result['result'],'BLOCKED')
++                self.assertIsNone(result['evidence_manifest_path'])
++
++    def test_fixed_tool_and_upstream_schema_lock_mismatch(self):
++        initial=copy.deepcopy(self.lock)
++        for mode in ('tool-hash','schema','upstream-file','adapter'):
++            self.lock=copy.deepcopy(initial)
++            if mode=='tool-hash':
++                self.lock['tools'][0]['sha256']='a'*64
++            elif mode=='adapter':
++                self.lock['adapter_version']='99.0.0'
++            elif mode=='upstream-file':
++                self.lock['upstream'][0]['files'].pop()
++            else:
++                ref=self.put('bundle/schema.json',{'type':'changed-schema'})
++                self.lock['managed_endpoints']=[dict(endpoint='https://example.invalid',tool_schema=ref)]
++            self.refresh()
++            self.assertEqual(self.invoke('plan',expected=2)['result'],'BLOCKED')
++            self.assertFalse(list((self.root/'bundle/generated').iterdir()))
++
++    def test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported(self):
++        self.native_prerequisites()
++        result=self.invoke('plan')
++        ev=json.loads((self.root/result['evidence_manifest_path']).read_bytes())
++        initial={a['path']:(self.root/a['path']).read_bytes() for a in ev['assembly']}
++        self.assertEqual(self.invoke('plan',expected=2,output=self.evidence+'/repeat.json')['error_code'],'PLAN_EXISTS')
++        self.assertEqual({p:(self.root/p).read_bytes() for p in initial},initial)
++        # Add a real file asset; current adapter deliberately supports template-only publication.
++        ref=self.put('bundle/unit/file.txt',b'harmless local asset')
++        self.source_refs.append(ref)
++        original=(self.root/'bundle/unit/app.js').read_text()
++        self.replace_app(original.replace('app.synth();', "new cdk.aws_s3_assets.Asset(stack,'File',{path:require('path').join(__dirname,'file.txt')}); app.synth();"))
++        self.assertEqual(self.invoke('plan',expected=2,output=self.evidence+'/asset.json')['error_code'],'ASSET_TYPE_UNSUPPORTED')
++        self.assertEqual(len(list((self.root/'bundle/generated').iterdir())),2)
++
++    def replace_app(self, body):
++        ref=self.put("bundle/unit/app.js",body.encode())
++        self.source_refs=[ref if r["path"]==ref["path"] else r for r in self.source_refs]
++        self.write_parameters()
++        self.refresh()
++
++    def test_independently_authored_private_graph(self):
++        self.native_prerequisites()
++        self.replace_app(r"""
++const { App, Stack, CfnResource, CfnParameter, Fn, Validations, DefaultStackSynthesizer } = require('aws-cdk-lib');
++const settings = require('./parameters.json');
++const application = new App();
++const unit = new Stack(application, 'Independent', { env: {region:settings.region,account:settings.account},
++  stackName:settings.stackName, synthesizer:new DefaultStackSynthesizer({generateBootstrapVersionRule:false}) });
++const image = new CfnParameter(unit,'SelectedImage',{type:'AWS::EC2::Image::Id',default:settings.imageId});
++const policy = new CfnResource(unit, 'EndpointAccess', {type:'AWS::EC2::SecurityGroup',properties:{
++  VpcId:settings.vpcId, GroupDescription:'Independent private endpoint access',
++  SecurityGroupEgress:[{CidrIp:'172.16.4.0/24',IpProtocol:'tcp',FromPort:443,ToPort:443}] }});
++const vm = new CfnResource(unit,'Compute',{type:'AWS::EC2::Instance',properties:{
++  InstanceType:settings.instanceType, ImageId:image.valueAsString, IamInstanceProfile:settings.instanceProfile,
++  NetworkInterfaces:[{SubnetId:settings.subnetId, DeviceIndex:'0', AssociatePublicIpAddress:false,
++    GroupSet:[policy.getAtt('GroupId')],DeleteOnTermination:true}],
++  Monitoring:true, MetadataOptions:{HttpTokens:'required',HttpEndpoint:'enabled'},
++  Tags:[{Key:'purpose',Value:'independent-positive'}],
++  BlockDeviceMappings:[{DeviceName:'/dev/sda1',Ebs:{VolumeSize:32,VolumeType:'gp2',Encrypted:true,DeleteOnTermination:false}}]
++}});
++Validations.of(vm).acknowledge({id:'CloudFormation-Validate::W9010',reason:'Explicit immutable image input, not a mutable lookup.'});
++new CfnResource(unit,'Retention',{type:'AWS::Backup::BackupSelection',properties:{BackupPlanId:settings.backupPlanId,
++  BackupSelection:{SelectionName:'independent-retention',IamRoleArn:settings.backupRoleArn,
++    Resources:[Fn.sub('arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/${Compute}')]}}});
++new CfnResource(unit,'StatusAlarm',{type:'AWS::CloudWatch::Alarm',properties:{
++  Dimensions:[{Name:'InstanceId',Value:vm.ref}], TreatMissingData:'breaching',
++  ComparisonOperator:'GreaterThanThreshold', Threshold:0, EvaluationPeriods:3, Period:120,
++  Statistic:'Maximum', MetricName:'StatusCheckFailed',Namespace:'AWS/EC2'}});
++application.synth();
++""")
++        for row in self.owner["existing_resources"]:
++            for a in row["attachments"]:
++                a["name"]={"PrivateGroup":"EndpointAccess","Workload":"Compute","Protection":"Retention"}[a["name"]]
++        self.refresh()
++        result=self.invoke("plan")
++        ev=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
++        self.req=self.contracts.read_artifact(self.root,ev["locked_request"],"cloud-run-request/v1")
++        self.assertEqual(self.invoke("validate")["state"],"LOCAL_VALIDATED")
++
++    def test_actual_synth_public_mutation_and_missing_backup_negatives(self):
++        self.native_prerequisites()
++        original=(self.root/"bundle/unit/app.js").read_text()
++        cases=[(original.replace('associatePublicIpAddress: false','associatePublicIpAddress: true'),'PUBLIC_NETWORK_DENIED'),
++            (original.replace("cidrIp: '10.0.0.0/16'","cidrIp: '0.0.0.0/0'"),'PUBLIC_NETWORK_DENIED'),
++            (original.replace('app.synth();',"new cdk.aws_ec2.CfnSubnet(stack,'ChangedSubnet',{vpcId:p.vpcId,cidrBlock:'10.9.0.0/24'}); app.synth();"),'EXISTING_RESOURCE_MUTATION'),
++            (original.replace('app.synth();',"stack.node.tryRemoveChild('Protection'); app.synth();"),'BACKUP_REQUIRED'),
++            (original.replace('monitoring: true','monitoring: false'),'LOCAL_POLICY_DENIED')]
++        for body,code in cases:
++            with self.subTest(code=code):
++                self.replace_app(body)
++                result=self.invoke("plan",expected=2)
++                self.assertEqual(result["error_code"],code)
++                self.assertFalse(list((self.root/"bundle/generated").iterdir()))
++
++    def test_native_assembly_schema_assets_and_executable_surface_denials(self):
++        self.native_prerequisites()
++        result=self.invoke("plan")
++        ev=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
++        locked=self.contracts.read_artifact(self.root,ev["locked_request"],"cloud-run-request/v1")
++        files={a["path"]:(self.root/a["path"]).read_bytes() for a in locked["input_artifacts"] if a["kind"]=="compiled"}
++        manifest=next(p for p in files if p.endswith('/manifest.json'))
++        assets=next(p for p in files if p.endswith('.assets.json'))
++        template=next(p for p in files if p.endswith('.template.json'))
++        cases=[(manifest,lambda b:b.update(version='999.0.0'),'ASSEMBLY_SCHEMA_DRIFT'),
++               (assets,lambda b:b.update(version='999.0.0'),'ASSET_SCHEMA_DRIFT'),
++               (assets,lambda b:b.update(dockerImages={'synthetic':{}}),'ASSET_TYPE_UNSUPPORTED'),
++               (assets,lambda b:next(iter(b['files'].values()))['source'].update(executable=['sh']),'ASSET_TYPE_UNSUPPORTED'),
++               (assets,lambda b:next(iter(b['files'].values()))['source'].update(packaging='zip'),'ASSET_TYPE_UNSUPPORTED'),
++               (template,lambda b:b.update(Transform='AWS::Serverless-2016-10-31'),'CFN_STRUCTURE_UNSUPPORTED'),
++               (template,lambda b:b['Resources']['Workload']['Properties'].update(UserData={'Fn::Base64':'untrusted'}),'CFN_EXPRESSION_UNSUPPORTED'),
++               (template,lambda b:b.update(Outputs={'Bad':{'Value':{'Fn::ImportValue':'external'}}}),'CFN_EXPRESSION_UNSUPPORTED')]
++        for i,(path,mutate,code) in enumerate(cases):
++            with self.subTest(code=code):
++                for name,data in files.items():
++                    (self.root/name).write_bytes(data)
++                self.req=copy.deepcopy(locked)
++                body=json.loads(files[path])
++                mutate(body)
++                ref=self.put(path,body)
++                next(a for a in self.req['input_artifacts'] if a['path']==path).update(ref)
++                self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/negative-{i}.json')['error_code'],code)
++
++    def test_config_schema_required_and_unknown_fields(self):
++        schema=json.loads((AWS_PLUGIN/'references/aws-local-config.schema.json').read_bytes())
++        self.assertEqual(self.oracle._schema_validate(schema,self.config),[])
++        original=copy.deepcopy(self.config)
++        for key in original:
++            self.config=copy.deepcopy(original)
++            del self.config[key]
++            self.assertTrue(self.oracle._schema_validate(schema,self.config))
++            self.refresh()
++            self.assertEqual(self.invoke('plan',expected=2)['result'],'BLOCKED')
++
++    def test_expression_depth_and_noncanonical_native_windows_root(self):
++        probe="""import sys
++sys.path.insert(0,sys.argv[1])
++import cloud
++from aws_graph import Expressions
++value='x'
++for _ in range(100): value={'Fn::Join':['',[value]]}
++try: Expressions({},{}).value(value)
++except cloud.c.ContractError as exc: print(str(exc))
++else: raise SystemExit(1)
++"""
++        proc=subprocess.run([sys.executable,'-B','-c',probe,str(AWS_CLI.parent)],env={'PATH':os.defpath},capture_output=True,timeout=15)
++        self.assertEqual(proc.returncode,0)
++        self.assertEqual(proc.stdout.strip(),b'CFN_EXPRESSION_LIMIT')
++        self.assertEqual(self.invoke(expected=2,env_extra={'CLOUD_WORKSPACE_ROOT':'C:'+chr(92)+'workspace'})['result'],'BLOCKED')
++
++    def test_explicit_node_location_and_bytes(self):
++        self.native_prerequisites()
++        self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_NODE_BIN":""})["error_code"],"NODE_UNAVAILABLE")
++        alternate=self.root/"trusted-node"
++        alternate.write_bytes(self.node.read_bytes())
++        alternate.chmod(0o700)
++        self.assertEqual(self.invoke("plan",env_extra={"CLOUD_NODE_BIN":str(alternate)})["state"],"PLANNED")
++        alternate.write_bytes(b"#!/bin/sh\nexit 0\n")
++        self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_NODE_BIN":str(alternate)},output=self.evidence+"/wrong-node.json")["error_code"],"NODE_RUNTIME_DRIFT")
++
++    def test_installed_runtime_mutation_denied(self):
++        self.native_prerequisites()
++        import shutil
++        clone=self.root/"toolchain"
++        shutil.copytree(self.toolroot,clone,symlinks=True)
++        target=clone/"node_modules/aws-cdk/bin/cdk"
++        target.write_bytes(target.read_bytes()+b"\n// altered runtime\n")
++        self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_CDK_ROOT":str(clone)})["error_code"],"CDK_RUNTIME_DRIFT")
++        self.assertEqual(list((self.root/"bundle/generated").iterdir()),[])
++
++    def test_unsupported_executable_config_and_unlocked_sources(self):
++        self.put("bundle/unit/hidden.js",b"// not locked")
++        self.assertEqual(self.invoke("plan",expected=2)["error_code"],"UNLOCKED_SOURCE")
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)

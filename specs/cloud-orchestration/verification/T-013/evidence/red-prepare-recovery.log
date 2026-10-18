@@ -1,0 +1,30 @@
+test_create_response_loss_recovers_original_named_change_set_read_only (__main__.AwsExecution.test_create_response_loss_recovers_original_named_change_set_read_only) ... FAIL
+test_lost_asset_version_cannot_be_replaced_with_latest_or_republished (__main__.AwsExecution.test_lost_asset_version_cannot_be_replaced_with_latest_or_republished) ... FAIL
+test_create_pending_status_poll_is_bounded (__main__.AwsExecution.test_create_pending_status_poll_is_bounded) ... ok
+
+======================================================================
+FAIL: test_create_response_loss_recovers_original_named_change_set_read_only (__main__.AwsExecution.test_create_response_loss_recovers_original_named_change_set_read_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2532, in test_create_response_loss_recovers_original_named_change_set_read_only
+    self.assertEqual(result['result'],'PASS',result)
+AssertionError: 'BLOCKED' != 'PASS'
+- BLOCKED
++ PASS
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'reconcile', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': '6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/recovered-create.json.manifest.json'}
+
+======================================================================
+FAIL: test_lost_asset_version_cannot_be_replaced_with_latest_or_republished (__main__.AwsExecution.test_lost_asset_version_cannot_be_replaced_with_latest_or_republished)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2548, in test_lost_asset_version_cannot_be_replaced_with_latest_or_republished
+    self.assertEqual(result['result'],'UNKNOWN',result)
+AssertionError: 'BLOCKED' != 'UNKNOWN'
+- BLOCKED
++ UNKNOWN
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'reconcile', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': '6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/unknown-version.json.manifest.json'}
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.586s
+
+FAILED (failures=2)

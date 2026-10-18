@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.local/azure/azure-parameters.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "contentVersion",
+    "parameters"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+      "type": "string"
+    },
+    "contentVersion": {
+      "const": "1.0.0.0",
+      "type": "string"
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vmName",
+        "location",
+        "vmSize",
+        "imageId",
+        "adminUsername",
+        "adminPublicKey",
+        "subnetId",
+        "identityId",
+        "dataCollectionRuleId",
+        "vaultName",
+        "backupPolicyId"
+      ],
+      "properties": {
+        "vmName": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "location": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "vmSize": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "imageId": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "adminUsername": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "adminPublicKey": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "subnetId": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "identityId": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "dataCollectionRuleId": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "vaultName": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        },
+        "backupPolicyId": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "pattern": "^[\\x20-\\x7e]{1,2048}$(?![\\s\\S])"
+            }
+          }
+        }
+      }
+    }
+  }
+}

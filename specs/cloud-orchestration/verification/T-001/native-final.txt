@@ -1,0 +1,9 @@
+Report: `reports/implementation/cloud-orchestration/T-001.md`
+
+- Foundation: 53/53 before and after.
+- T-004: 7 tests + 5 stale-publication checks passed.
+- PowerShell runner: 4/4 passed.
+- Integration checks and disposable rollback passed.
+- T-003: local sandbox failure retained; caller’s outer-host log shows 31 passed, 1 Windows skip. Root must confirm provenance.
+
+Added inventory pin and preservation evidence. No candidate-code changes, commits, status updates, or cloud actions. Formal quality gate remains root-owned.

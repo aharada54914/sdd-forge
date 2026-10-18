@@ -1,0 +1,32 @@
+ticket_id: RT-20261018-CLOUD-SANDBOX
+status: open
+type: external-verification-prerequisite
+severity: major
+target:
+  feature: cloud-orchestration
+  task: T-003
+  files: []
+affected_tasks:
+    - T-003
+    - T-012
+    - T-013
+    - T-006
+summary: Owner sandbox and live acceptance prerequisites are not available
+problem: >-
+  The user explicitly answered that no sandbox is prepared and requested
+  implementation and local verification first. OQ-001 therefore blocks live
+  TEST-003/005/009: actual protected-environment/IAM enforcement, deployment,
+  concurrency/recovery and observed workload/network/identity/monitoring/backup.
+expected_fix:
+  - Owner supplies approved Azure subscription, region and resource group and AWS account and region, without sending secrets through chat.
+  - Owner configures separate protected CI environments, exact workflow federation, least-privilege roles and exclusive writer ownership.
+  - Owner supplies approved images, existing network/identity/monitoring/backup references, health checks, budget and evidence retention/residency/access policy.
+  - Run authorized live acceptance and retain native evidence; cleanup requires its own explicit authorization.
+current_boundary: >-
+  Local/native compilation, synthesis, deterministic transport tests, host trials,
+  documentation and tagged local-capability release continue under existing
+  authorization. This ticket does not waive live acceptance or permit affected
+  tasks to become Done. The release tag does not assert production readiness.
+auto_fix_allowed: false
+requires_human_decision: true
+human_decision_already_recorded: No sandbox; implement and verify locally first. No renewed permission question is needed for current work.

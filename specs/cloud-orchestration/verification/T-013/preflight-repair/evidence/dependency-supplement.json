@@ -1,0 +1,53 @@
+{
+  "reason": "Shared execution regression reads inactive T-003 templates in addition to AWS fixture inputs. Discovered after initial baseline/probes, admitted before isolated rollback and final focused rerun. Initial manifest is unchanged.",
+  "added": [
+    {
+      "path": "templates/cloud/github-aws.yml",
+      "sha256": "72ddd25758096b0844ed9e3b14d3563f90e3f80d67acc4090fe3294222b2c7b4"
+    },
+    {
+      "path": "templates/cloud/github-azure.yml",
+      "sha256": "5c9c208f3cc0eb4ea0fe11617a159acdcde9cb3bb61a8a92bc0ebf178299b4ab"
+    },
+    {
+      "path": "templates/cloud/iam/aws-apply-permissions.json",
+      "sha256": "9b6ab4f6f70b6d138b8f5b143e25b51abf82f2a00d5606484bb17578bb6342cb"
+    },
+    {
+      "path": "templates/cloud/iam/aws-apply-trust.json",
+      "sha256": "b6a668ac1c6d6bfecf347823a7bf7f4211eab6eedeb8b70e80d5b1095c88546a"
+    },
+    {
+      "path": "templates/cloud/iam/aws-prepare-permissions.json",
+      "sha256": "97b33e38eb4b5c62c45006b1fa82d101b3c745d89053b7aef1975ae63aaf5135"
+    },
+    {
+      "path": "templates/cloud/iam/aws-prepare-trust.json",
+      "sha256": "fb816c23c404a2c6dc664885da932bd208fdda8c4675c991ff694e03ab17406c"
+    },
+    {
+      "path": "templates/cloud/iam/azure-apply-federation.json",
+      "sha256": "edbece3a3e08ad661a37bb5bbad33e5738aee8ea96e66148fd8b948f3fb01a24"
+    },
+    {
+      "path": "templates/cloud/iam/azure-apply-role.json",
+      "sha256": "305f5622da98f47d3b81df756eb5ef1959069e47b59f7ec012c3d0fd4812d889"
+    },
+    {
+      "path": "templates/cloud/iam/azure-prepare-federation.json",
+      "sha256": "50d8cbc667ee96d6667bbbb5313562a426ab826966483b20c4187fa5b9934370"
+    },
+    {
+      "path": "templates/cloud/iam/azure-prepare-role.json",
+      "sha256": "18558291d8f2bd725926e1a99c532ebd4952a0a192aa7740c3be18e6c76cf61d"
+    },
+    {
+      "path": "templates/cloud/iam/github-environment.json",
+      "sha256": "5bf72c589d439d0dc23b02b92c62fb6b4d897f1b95a2653b2aaa4d0069ddd291"
+    },
+    {
+      "path": "templates/cloud/iam/github-oidc-subject.json",
+      "sha256": "69a4c0a488e543cb5bb6587ffd6ab9ccd66706ad0423db76b2d4fcc2dbbb1d60"
+    }
+  ]
+}

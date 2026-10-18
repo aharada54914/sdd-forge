@@ -1,0 +1,5 @@
+# Genuine report-validation diagnostic
+
+The first generated final report failed with IMPLEMENTATION_REPORT_FIELD: isolation narrative contradicts declared mode. The report was truthful: this is a fresh native agent, and no fallback occurred. The validator scans a Markdown table as one prose sentence: the unrelated contracts/spec-review-interrupted-recovery.v1.data-contract.md filename matched its interruption pattern, while the check-terminal-tier-resume script filenames matched its resumption pattern. No actual narrative stated a context fallback.
+
+The unrelated data-contract Markdown document is neither changed nor consumed by these installer/runtime/validator tests; it entered the inventory only through an overly broad snapshot export. It is omitted from the evaluator Outputs table, not modified or hidden from the initial input manifest. All required task runtime/test/contract inputs remain in Outputs. No validator code, isolation declaration or genuine diagnostic was weakened or rewritten. report-validation.log is the original failure; report-validation-final.log records the successful validation.

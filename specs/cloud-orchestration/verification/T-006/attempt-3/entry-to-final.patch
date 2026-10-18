@@ -1,0 +1,2387 @@
+--- /tmp/cloud-T006-01a14e9b/initial/plugins/sdd-quality-loop/scripts/cloud_verification.py	2026-10-18 10:44:07.815254054 +0000
++++ plugins/sdd-quality-loop/scripts/cloud_verification.py	2026-10-18 10:52:41.264553009 +0000
+@@ -436,6 +436,7 @@
+     publish_json,
+     publish_bytes,
+     scan,
++    recheck,
+ ) -> dict:
+     root, request = executor.root, executor.request
+     c.verify_local_context(root, request, execution=True)
+@@ -455,6 +456,16 @@
+         native=native,
+         clock=executor.clock,
+     )
++    # Recheck native operation/membership after health collection, before any publication.
++    queries = recheck()
++    for item in records:
++        if item["check_id"] == "resource":
++            payload = decode(item["payload_bytes"])
++            payload["queries"].extend(queries)
++            item["payload_bytes"] = encode(payload)
++            obs = c.parse_artifact(item["observation_bytes"])
++            obs["result"]["sha256"] = digest(item["payload_bytes"])
++            item["observation_bytes"] = encode(obs)
+     # Rehash original request and all direct inputs after collection as well.
+     request_raw = c.read_verified(root, executor.request_ref)
+     c._require(c.parse_artifact(request_raw) == request, "REQUEST_DRIFT")
+
+--- /tmp/cloud-T006-01a14e9b/initial/plugins/sdd-azure-cloud/scripts/azure_observation.py	2026-10-18 10:44:07.814554989 +0000
++++ plugins/sdd-azure-cloud/scripts/azure_observation.py	2026-10-18 10:58:05.879540357 +0000
+@@ -56,6 +56,7 @@
+             identity_id=resource_id,
+             association_id=resource_id,
+             data_collection_rule_id=resource_id,
++            monitoring_workspace_id=resource_id,
+             workload_metric=metric_config,
+         ),
+         dict(
+@@ -73,6 +74,7 @@
+         nic_id="/providers/Microsoft.Network/networkInterfaces/",
+         identity_id="/providers/Microsoft.ManagedIdentity/userAssignedIdentities/",
+         data_collection_rule_id="/providers/Microsoft.Insights/dataCollectionRules/",
++        monitoring_workspace_id="/providers/Microsoft.OperationalInsights/workspaces/",
+     )
+     for key, typ in types.items():
+         c._require(
+@@ -96,7 +98,11 @@
+ 
+ def permission_ceiling(resource: str, cfg: dict) -> set[str]:
+     """Finite read/metric actions for this exact workload scope; no wildcard policy engine."""
+-    actions = {"Microsoft.Authorization/permissions/read"}
++    actions = {
++        "Microsoft.Authorization/permissions/read",
++        *AUDIT_ACTIONS,
++        *DEPLOYMENT_READS,
++    }
+     if resource == cfg["vm_id"]:
+         actions |= {
+             "Microsoft.Compute/virtualMachines/read",
+@@ -116,20 +122,60 @@
+     elif resource == cfg["data_collection_rule_id"]:
+         actions.add("Microsoft.Insights/dataCollectionRules/read")
+     elif resource == cfg.get("backup", {}).get("protected_item_id"):
+-        actions.add(
+-            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/read"
+-        )
++        actions |= {
++            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/read",
++            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/recoveryPoints/read",
++        }
+     elif "backup" in cfg and resource.startswith(
+         cfg["backup"]["protected_item_id"] + "/recoveryPoints/"
+     ):
+-        actions.add(
+-            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/recoveryPoints/read"
+-        )
++        actions |= permission_ceiling(cfg["backup"]["protected_item_id"], cfg)
+     else:
+         raise c.ContractError("PERMISSION_SCOPE_UNSUPPORTED")
+     return actions
+ 
+ 
++DEPLOYMENT_READS = frozenset(
++    {
++        "Microsoft.Resources/deployments/read",
++        "Microsoft.Resources/deployments/operations/read",
++    }
++)
++AUDIT_ACTIONS = frozenset(
++    {
++        "Microsoft.Authorization/roleAssignments/read",
++        "Microsoft.Authorization/roleDefinitions/read",
++    }
++)
++
++
++def explicit_actions(permissions: list[dict]) -> set[str]:
++    c._require(
++        type(permissions) is list and 0 < len(permissions) <= 128, "PERMISSIONS_MISSING"
++    )
++    actions: set[str] = set()
++    for permission in permissions:
++        c._record(
++            permission,
++            {
++                k: lambda v: c._list(v, c._text)
++                for k in ("actions", "notActions", "dataActions", "notDataActions")
++            },
++        )
++        c._require(
++            not permission["notActions"]
++            and not permission["dataActions"]
++            and not permission["notDataActions"],
++            "PERMISSION_CONTEXT_UNSUPPORTED",
++        )
++        c._require(
++            all("*" not in a and "?" not in a for a in permission["actions"]),
++            "PERMISSION_CONTEXT_UNSUPPORTED",
++        )
++        actions.update(permission["actions"])
++    return actions
++
++
+ class Collector:
+     def __init__(
+         self,
+@@ -156,6 +202,7 @@
+                 "identity_id",
+                 "association_id",
+                 "data_collection_rule_id",
++                "monitoring_workspace_id",
+             )
+         ]
+         resources += list(cfg.get("backup", {}).values())
+@@ -198,7 +245,23 @@
+     ) -> dict:
+         # No URL is taken from a response/input. Every caller constructs a fixed
+         # supported resource operation from validated exact IDs.
+-        resource_id(path)
++        subscription = "/subscriptions/" + self.scope["account_id"]
++        assignment_path = (
++            subscription + "/providers/Microsoft.Authorization/roleAssignments"
++        )
++        definition_prefix = (
++            subscription + "/providers/Microsoft.Authorization/roleDefinitions/"
++        )
++        if path == assignment_path:
++            c._require(
++                params == {"$filter": "assignedTo('" + self.principal + "')"},
++                "READ_OPERATION_DENIED",
++            )
++        elif path.startswith(definition_prefix):
++            c._match(path[len(definition_prefix) :], r"[a-f0-9-]{36}")
++            c._require(params is None, "READ_OPERATION_DENIED")
++        else:
++            resource_id(path)
+         c._require(
+             version
+             in (
+@@ -272,8 +335,22 @@
+         vm = self.vm()
+         state = self.get(self.cfg["vm_id"] + "/instanceView", "2024-07-01")
+         statuses = [v["code"] for v in state["statuses"]]
+-        c._require(
+-            any(v.startswith("PowerState/") for v in statuses), "RESOURCE_STATE_UNKNOWN"
++        power = [v for v in statuses if v.startswith("PowerState/")]
++        c._require(len(power) == 1, "RESOURCE_STATE_UNKNOWN")
++        c._enum(
++            power[0],
++            (
++                "PowerState/running",
++                "PowerState/starting",
++                "PowerState/stopping",
++                "PowerState/stopped",
++                "PowerState/deallocating",
++                "PowerState/deallocated",
++            ),
++        )
++        c._enum(
++            vm["properties"]["provisioningState"],
++            ("Succeeded", "Failed", "Canceled", "Creating", "Updating", "Deleting"),
+         )
+         return vm["properties"][
+             "provisioningState"
+@@ -351,14 +428,6 @@
+         return True, utc(self.clock())
+ 
+     def identity(self) -> tuple[bool, str]:
+-        # Incomplete candidate quarantine: finite per-resource permission reads
+-        # below are not a complete effective-permission closure. Keep synthetic
+-        # parser tests usable, but never promote them to native proof. Replace
+-        # this barrier only with the supported, tested native closure; this is
+-        # deliberately NOT completion of T-006's native-positive requirement.
+-        c._require(
+-            type(self.transport) is not HttpsTransport, "PERMISSION_CONTEXT_UNSUPPORTED"
+-        )
+         cfg = self.cfg
+         vm = self.vm()
+         identity = vm["identity"]
+@@ -386,39 +455,105 @@
+             )
+         ]
+         if "backup" in cfg:
+-            targets += [
+-                cfg["backup"]["protected_item_id"],
+-            ]
+-            targets += [point["id"] for point in self.recovery_points()]
++            targets.append(cfg["backup"]["protected_item_id"])
++        first, grants = self.permission_closure(targets)
+         for target in targets:
+             permissions = self.get(
+                 target + "/providers/Microsoft.Authorization/permissions", "2022-04-01"
+             )["value"]
++            actual = explicit_actions(permissions)
++            if not actual <= permission_ceiling(target, cfg):
++                return False, utc(self.clock())
++            c._require(actual == grants[target], "PERMISSION_CLOSURE_MISMATCH")
++        # Bounded stability check, not an atomic snapshot or a cached-token revocation proof.
++        last, _ = self.permission_closure(targets)
++        c._require(first == last, "PERMISSION_CLOSURE_DRIFT")
++        return True, utc(self.clock())
++
++    def permission_closure(
++        self, targets: list[str]
++    ) -> tuple[dict, dict[str, set[str]]]:
++        """Complete subscription-scoped direct RBAC closure, never a global IAM engine.
++
++        assignedTo includes inherited/descendant and transitive group assignments.
++        Group/conditional/delegated contexts are deliberately unsupported. Native
++        pagination blocks rather than silently truncating or following arbitrary URLs.
++        """
++        c._match(self.principal, r"[a-f0-9-]{36}")
++        subscription = "/subscriptions/" + self.scope["account_id"]
++        assignments = self.get(
++            subscription + "/providers/Microsoft.Authorization/roleAssignments",
++            "2022-04-01",
++            params={"$filter": "assignedTo('" + self.principal + "')"},
++        )["value"]
++        c._require(
++            type(assignments) is list and 0 < len(assignments) <= 128,
++            "PERMISSIONS_MISSING",
++        )
++        c._unique([row["id"] for row in assignments])
++        definitions: dict[str, dict] = {}
++        grants = {target: set(AUDIT_ACTIONS | DEPLOYMENT_READS) for target in targets}
++        audit: set[str] = set()
++        group_reads: set[str] = set()
++        group = subscription + "/resourceGroups/" + self.scope["deployment_scope"]
++        for row in assignments:
++            prop = row["properties"]
++            scope = prop["scope"]
++            c._require(
++                scope in (subscription, group) or scope in targets,
++                "PERMISSION_SCOPE_UNSUPPORTED",
++            )
++            c._match(row["name"], r"[a-f0-9-]{36}")
++            c._require(
++                row["type"] == "Microsoft.Authorization/roleAssignments"
++                and row["id"]
++                == scope
++                + "/providers/Microsoft.Authorization/roleAssignments/"
++                + row["name"]
++                and prop["principalId"] == self.principal
++                and prop["principalType"] == "ServicePrincipal"
++                and not prop.get("condition")
++                and not prop.get("conditionVersion")
++                and not prop.get("delegatedManagedIdentityResourceId"),
++                "PERMISSION_CONTEXT_UNSUPPORTED",
++            )
++            role_id = prop["roleDefinitionId"]
++            prefix = (
++                subscription + "/providers/Microsoft.Authorization/roleDefinitions/"
++            )
+             c._require(
+-                type(permissions) is list and bool(permissions), "PERMISSIONS_MISSING"
++                type(role_id) is str and role_id.startswith(prefix), "ROLE_ID_MISMATCH"
+             )
+-            for permission in permissions:
+-                c._record(
+-                    permission,
+-                    {
+-                        k: lambda v: c._list(v, c._text)
+-                        for k in (
+-                            "actions",
+-                            "notActions",
+-                            "dataActions",
+-                            "notDataActions",
+-                        )
+-                    },
++            c._match(role_id[len(prefix) :], r"[a-f0-9-]{36}")
++            if role_id not in definitions:
++                role = self.get(role_id, "2022-04-01")
++                c._require(
++                    role["id"] == role_id
++                    and role["name"] == role_id[len(prefix) :]
++                    and role["type"] == "Microsoft.Authorization/roleDefinitions",
++                    "ROLE_ID_MISMATCH",
+                 )
++                definitions[role_id] = role
++            actions = explicit_actions(
++                definitions[role_id]["properties"]["permissions"]
++            )
++            if scope == subscription:
++                c._require(actions <= AUDIT_ACTIONS, "PERMISSION_SCOPE_UNSUPPORTED")
++                audit |= actions
++            elif scope == group:
++                c._require(actions <= DEPLOYMENT_READS, "PERMISSION_SCOPE_UNSUPPORTED")
++                group_reads |= actions
++            else:
+                 c._require(
+-                    not permission["notActions"] and not permission["notDataActions"],
++                    actions <= permission_ceiling(scope, self.cfg),
+                     "PERMISSION_CONTEXT_UNSUPPORTED",
+                 )
+-                if permission["dataActions"]:
+-                    return False, utc(self.clock())
+-                if not set(permission["actions"]) <= permission_ceiling(target, cfg):
+-                    return False, utc(self.clock())
+-        return True, utc(self.clock())
++                grants[scope] |= actions
++        c._require(
++            audit == AUDIT_ACTIONS and group_reads == DEPLOYMENT_READS,
++            "PERMISSION_CLOSURE_MISMATCH",
++        )
++        return dict(assignments=assignments, definitions=definitions), grants
+ 
+     def metric(self, cfg: dict, *, workload: bool) -> tuple[bool, str]:
+         end = utc(self.clock())
+@@ -426,7 +561,7 @@
+         params = dict(
+             metricnamespace=cfg["namespace"],
+             metricnames=cfg["name"],
+-            aggregation="Maximum",
++            aggregation="Minimum,Maximum" if workload else "Maximum",
+             timespan=start + "/" + end,
+             interval="PT1M",
+             AutoAdjustTimegrain="false",
+@@ -441,6 +576,13 @@
+             "2023-10-01",
+             params=params,
+         )
++        c._require(
++            response["namespace"] == cfg["namespace"]
++            and response["resourceregion"] == self.scope["region"]
++            and response["interval"] == "PT1M"
++            and response["timespan"] == params["timespan"],
++            "METRIC_CONTEXT_MISMATCH",
++        )
+         values = response["value"]
+         c._require(
+             len(values) == 1 and values[0]["name"]["value"] == cfg["name"],
+@@ -448,11 +590,19 @@
+         )
+         metric = values[0]
+         c._require(
++            metric["id"]
++            == self.cfg["vm_id"]
++            + "/providers/Microsoft.Insights/metrics/"
++            + cfg["name"],
++            "METRIC_ID_MISMATCH",
++        )
++        c._require(
+             not metric.get("errorCode") or metric["errorCode"] == "Success",
+             "METRIC_UNAVAILABLE",
+         )
+         series = metric["timeseries"]
+         c._require(len(series) == 1, "METRIC_CONTEXT_UNSUPPORTED")
++        c._unique([v["name"]["value"] for v in series[0].get("metadatavalues", [])])
+         metadata = {
+             v["name"]["value"]: v["value"] for v in series[0].get("metadatavalues", [])
+         }
+@@ -462,9 +612,10 @@
+             "METRIC_ID_MISMATCH",
+         )
+         points = [
+-            (native_time(p["timeStamp"]), p["maximum"])
++            (native_time(p["timeStamp"]), p[statistic])
+             for p in series[0]["data"]
+-            if "maximum" in p
++            if "maximum" in p or "minimum" in p
++            for statistic in (("minimum", "maximum") if workload else ("maximum",))
+         ]
+         return samples(points, cfg, start, utc(self.clock()), self.age)
+ 
+@@ -477,6 +628,64 @@
+             != cfg["data_collection_rule_id"]
+         ):
+             return False, utc(self.clock())
++        rule = self.get(cfg["data_collection_rule_id"], "2023-03-11")
++        c._require(
++            rule["id"] == cfg["data_collection_rule_id"]
++            and rule["location"] == self.scope["region"]
++            and rule["kind"] == "Linux",
++            "MONITORING_ID_MISMATCH",
++        )
++        props = rule["properties"]
++        c._require(
++            set(props)
++            <= {
++                "description",
++                "immutableId",
++                "metadata",
++                "endpoints",
++                "provisioningState",
++                "dataSources",
++                "destinations",
++                "dataFlows",
++            },
++            "MONITORING_CONTEXT_UNSUPPORTED",
++        )
++        sources = props["dataSources"]
++        destinations = props["destinations"]
++        c._require(
++            set(sources) == {"performanceCounters"}
++            and len(sources["performanceCounters"]) == 1
++            and set(destinations) == {"logAnalytics"}
++            and len(destinations["logAnalytics"]) == 1,
++            "MONITORING_CONTEXT_UNSUPPORTED",
++        )
++        counter = sources["performanceCounters"][0]
++        destination = destinations["logAnalytics"][0]
++        c._record(
++            counter,
++            dict(
++                name=c._text,
++                streams=lambda v: c._list(v, c._text),
++                samplingFrequencyInSeconds=c._integer,
++                counterSpecifiers=lambda v: c._list(v, c._text),
++            ),
++        )
++        c._record(
++            destination,
++            dict(name=c._text, workspaceResourceId=resource_id),
++            dict(workspaceId=c._text),
++        )
++        if not (
++            props["provisioningState"] == "Succeeded"
++            and counter["streams"] == ["Microsoft-Perf"]
++            and counter["samplingFrequencyInSeconds"] == 60
++            and counter["counterSpecifiers"]
++            == ["\\Processor(_Total)\\% Processor Time"]
++            and destination["workspaceResourceId"] == cfg["monitoring_workspace_id"]
++            and props["dataFlows"]
++            == [dict(streams=["Microsoft-Perf"], destinations=[destination["name"]])]
++        ):
++            return False, utc(self.clock())
+         # Platform CPU is a real received signal, not a desired agent configuration.
+         return self.metric(
+             dict(
+@@ -517,6 +726,17 @@
+             and p["policyId"] == cfg["policy_id"],
+             "BACKUP_ID_MISMATCH",
+         )
++        c._enum(p["lastBackupStatus"], ("Completed", "Failed", "InProgress"))
++        c._enum(
++            p["protectionState"],
++            (
++                "Protected",
++                "ProtectionError",
++                "ProtectionStopped",
++                "ProtectionPaused",
++                "IRPending",
++            ),
++        )
+         points = self.recovery_points()
+         # Native lists include history; only points created after original apply
+         # completion are candidates. A page continuation already blocks in get().
+@@ -548,11 +768,65 @@
+         ] == "Completed", stamp
+ 
+ 
++def current_deployment(executor, credentials: dict, trace: list[dict]) -> dict:
++    """Bounded complete RG deployment history; unknown or overlapping writers block.
++
++    ARM template timestamp is used only to order deployments, never as completion.
++    Exclusive governed writer is still a prerequisite; direct resource mutations
++    outside that boundary cannot be proven absent by deployment history.
++    """
++    native = executor.client.native_id
++    prefix = native.rsplit("/", 1)[0] + "/"
++    url = ORIGIN + prefix.rstrip("/") + "?api-version=2025-04-01"
++    response = executor.client.call("GET", url, credentials, executor.request_id)
++    trace.append(
++        dict(
++            locator=url,
++            request_sha256=digest(b""),
++            response_sha256=digest(response.body),
++            http_status=response.status,
++        )
++    )
++    c._require(response.status == 200, "DEPLOYMENT_HISTORY_UNAVAILABLE")
++    value = decode(response.body)
++    rows = value["value"]
++    c._require(
++        not value.get("nextLink") and type(rows) is list and 0 < len(rows) <= 128,
++        "PAGINATION_INCOMPLETE",
++    )
++    c._unique([row["id"] for row in rows])
++    originals = [row for row in rows if row["id"] == native]
++    c._require(
++        len(originals) == 1
++        and originals[0]["properties"]["provisioningState"] == "Succeeded",
++        "ORIGINAL_OPERATION_REQUIRED",
++    )
++    original_time = native_time(originals[0]["properties"]["timestamp"])
++    c._require(
++        c._utc(original_time) <= c._utc(utc(executor.clock())),
++        "DEPLOYMENT_TIME_INVALID",
++    )
++    for row in rows:
++        c._require(
++            row["id"].startswith(prefix) and "/" not in row["id"][len(prefix) :],
++            "DEPLOYMENT_SCOPE_MISMATCH",
++        )
++        if row["id"] != native:
++            c._require(
++                row["properties"]["provisioningState"]
++                in ("Succeeded", "Failed", "Canceled")
++                and native_time(row["properties"]["timestamp"]) < original_time,
++                "ORIGINAL_OPERATION_SUPERSEDED",
++            )
++    return value
++
++
+ def bind_original_resources(
+     executor, cfg: dict, compiled: list[dict], credentials: dict, trace: list[dict]
+ ) -> None:
+     from azure_graph import resource_id as compiled_id
+ 
++    current_deployment(executor, credentials, trace)
+     scope = executor.request["scope"]
+     expected = {
+         (
+@@ -731,6 +1005,14 @@
+     return completed
+ 
+ 
++def recheck_deployment(
++    executor, cfg: dict, compiled: list[dict], credentials: dict
++) -> list[dict]:
++    trace: list[dict] = []
++    bind_original_resources(executor, cfg, compiled, credentials, trace)
++    return trace
++
++
+ def observe(executor, output: str, phase: str) -> dict:
+     from cloud_authorization import (
+         AzureIdentity,
+@@ -830,6 +1112,17 @@
+         run_id=request["run_id"],
+         unit_id=request["unit_id"],
+     )
++
++    def recheck():
++        c._require(
++            int(executor.clock()) < min(end, claims["exp"]), "READ_CREDENTIAL_EXPIRED"
++        )
++        checks = recheck_deployment(executor, observation, data[3], credentials)
++        c._require(
++            int(executor.clock()) < min(end, claims["exp"]), "READ_CREDENTIAL_EXPIRED"
++        )
++        return checks
++
+     collector.provenance_trace = trace
+     collector.directory = output
+     collector.lease = min(end, claims["exp"])
+@@ -850,4 +1143,5 @@
+         publish_json=publish_json,
+         publish_bytes=publish_bytes,
+         scan=safe_publication,
++        recheck=recheck,
+     )
+
+--- /tmp/cloud-T006-01a14e9b/initial/plugins/sdd-aws-cloud/scripts/aws_observation.py	2026-10-18 10:44:07.813208928 +0000
++++ plugins/sdd-aws-cloud/scripts/aws_observation.py	2026-10-18 10:58:05.879102267 +0000
+@@ -234,6 +234,7 @@
+         ):
+             assert required is not None
+             required = required | {
++                "Statistics.member.2",
+                 "Dimensions.member.2.Name",
+                 "Dimensions.member.2.Value",
+                 "Dimensions.member.3.Name",
+@@ -330,7 +331,19 @@
+ 
+     def resource(self) -> tuple[bool, str]:
+         instance = self.instance()
+-        return instance["instanceState"]["name"] == "running", utc(self.clock())
++        state = instance["instanceState"]["name"]
++        c._enum(
++            state,
++            (
++                "pending",
++                "running",
++                "shutting-down",
++                "terminated",
++                "stopping",
++                "stopped",
++            ),
++        )
++        return state == "running", utc(self.clock())
+ 
+     def network(self) -> tuple[bool, str]:
+         machine = self.instance()
+@@ -454,6 +467,7 @@
+         if workload:
+             params.update(
+                 {
++                    "Statistics.member.2": "Minimum",
+                     "Dimensions.member.2.Name": "RunId",
+                     "Dimensions.member.2.Value": self.run_id,
+                     "Dimensions.member.3.Name": "UnitId",
+@@ -463,8 +477,9 @@
+         value = self.call("monitoring", "GetMetricStatistics", params)
+         c._require(value["Label"] == cfg["name"], "METRIC_ID_MISMATCH")
+         points = [
+-            (native_time(p["Timestamp"]), float(p["Maximum"]))
++            (native_time(p["Timestamp"]), float(p[statistic]))
+             for p in value["Datapoints"]
++            for statistic in (("Minimum", "Maximum") if workload else ("Maximum",))
+         ]
+         return samples(points, cfg, start, utc(self.clock()), self.age)
+ 
+@@ -580,6 +595,7 @@
+                 self.age,
+             )
+         recovery = max(points, key=lambda point: point["CreationDate"])
++        c._enum(recovery["Status"], ("COMPLETED", "PARTIAL", "DELETING", "EXPIRED"))
+         healthy, stamp = samples(
+             [(native_time(recovery["CompletionDate"]), 1)],
+             dict(minimum=1, maximum=1),
+@@ -647,6 +663,53 @@
+     return result
+ 
+ 
++def current_operation(executor) -> str:
++    """The latest native stack operation must still be the original execution.
++
++    DescribeStackEvents is reverse chronological. Filtering by the old token
++    first would adopt resources from a later UPDATE under the old completion.
++    """
++    stack = executor.stack()
++    c._require(
++        stack is not None
++        and stack["StackStatus"] in ("CREATE_COMPLETE", "UPDATE_COMPLETE"),
++        "NATIVE_OPERATION_NOT_SUCCEEDED",
++    )
++    events = executor.read("DescribeStackEvents", dict(StackName=executor.stack_id))[
++        "StackEvents"
++    ]
++    c._require(
++        type(events) is list and 0 < len(events) <= 4096, "ORIGINAL_OPERATION_REQUIRED"
++    )
++    times = [native_time(event["Timestamp"]) for event in events]
++    c._require(times == sorted(times, reverse=True), "EVENT_ORDER_INVALID")
++    stacks = [
++        event
++        for event in events
++        if event.get("ResourceType") == "AWS::CloudFormation::Stack"
++    ]
++    c._require(bool(stacks), "ORIGINAL_OPERATION_REQUIRED")
++    latest = stacks[0]
++    c._require(
++        latest.get("StackId") == executor.stack_id
++        and latest.get("LogicalResourceId")
++        == executor.request["scope"]["deployment_scope"]
++        and latest.get("ClientRequestToken") == executor.token
++        and latest["ResourceStatus"] == stack["StackStatus"],
++        "ORIGINAL_OPERATION_SUPERSEDED",
++    )
++    completed = native_time(latest["Timestamp"])
++    c._require(
++        all(
++            event.get("StackId") == executor.stack_id
++            and (stamp < completed or event.get("ClientRequestToken") == executor.token)
++            for event, stamp in zip(events, times)
++        ),
++        "ORIGINAL_OPERATION_SUPERSEDED",
++    )
++    return completed
++
++
+ def observe(executor, output: str, phase: str) -> dict:
+     """Fresh federation + original execute intent; imported result files never prove health."""
+     from cloud_authorization import (
+@@ -690,28 +753,8 @@
+         p, token, claims, executor.boundary.transport, now
+     )
+     executor.credentials, executor.lease = credentials, min(end, claims["exp"])
+-    stack = executor.stack()
+-    c._require(
+-        stack is not None
+-        and stack["StackStatus"] in ("CREATE_COMPLETE", "UPDATE_COMPLETE"),
+-        "NATIVE_OPERATION_NOT_SUCCEEDED",
+-    )
+-    events = executor.read("DescribeStackEvents", dict(StackName=executor.stack_id))[
+-        "StackEvents"
+-    ]
+-    matching = [
+-        e
+-        for e in events
+-        if e.get("StackId") == executor.stack_id
+-        and e.get("ClientRequestToken") == executor.token
+-        and e.get("ResourceType") == "AWS::CloudFormation::Stack"
+-        and e.get("LogicalResourceId") == request["scope"]["deployment_scope"]
+-    ]
+-    c._require(
+-        bool(matching) and matching[0]["ResourceStatus"] == stack["StackStatus"],
+-        "ORIGINAL_OPERATION_REQUIRED",
+-    )
+-    completed = native_time(matching[0]["Timestamp"])
++    trace_start = len(executor.native.trace)
++    completed = current_operation(executor)
+     observation = resolve_resources(executor, observation)
+     profile = c.read_artifact(
+         root,
+@@ -730,6 +773,25 @@
+         run_id=request["run_id"],
+         unit_id=request["unit_id"],
+     )
++
++    def recheck():
++        c._require(
++            current_operation(executor) == completed, "ORIGINAL_OPERATION_SUPERSEDED"
++        )
++        c._require(
++            resolve_resources(executor, cfg["observation"]) == observation,
++            "ORIGINAL_RESOURCE_DRIFT",
++        )
++        return [
++            dict(
++                locator=v["url"],
++                request_sha256=v["request_sha256"],
++                response_sha256=v["response_sha256"],
++                http_status=v["status"],
++            )
++            for v in executor.native.trace[trace_start:]
++        ]
++
+     collector.directory = output
+     collector.lease = executor.lease
+     native = (
+@@ -749,4 +811,5 @@
+         publish_json=publish_json,
+         publish_bytes=publish_bytes,
+         scan=safe_publication,
++        recheck=recheck,
+     )
+
+--- /tmp/cloud-T006-01a14e9b/initial/tests/cloud-orchestration-verification.tests.py	2026-10-18 10:44:07.840323253 +0000
++++ tests/cloud-orchestration-verification.tests.py	2026-10-18 11:10:29.332822381 +0000
+@@ -25,6 +25,22 @@
+ import cloud_contracts as c  # noqa: E402
+ 
+ 
++# Every protocol fixture is offline. A mock-target mistake must fail loudly,
++# never become an expected cloud-denial exception or an implicit live read.
++_network_guard = patch(
++    "urllib.request.OpenerDirector.open",
++    side_effect=AssertionError("LIVE_NETWORK_FORBIDDEN_IN_VERIFICATION_TESTS"),
++)
++
++
++def setUpModule():
++    _network_guard.start()
++
++
++def tearDownModule():
++    _network_guard.stop()
++
++
+ def encode(value: object) -> bytes:
+     return (json.dumps(value, sort_keys=True) + "\n").encode()
+ 
+@@ -56,6 +72,16 @@
+ 
+ 
+ class EntryPreflight(unittest.TestCase):
++    def test_live_network_is_forbidden_before_transport(self):
++        import urllib.request
++        from unittest.mock import Mock
++
++        self.assertIsInstance(urllib.request.OpenerDirector.open, Mock)
++        with self.assertRaisesRegex(
++            AssertionError, "LIVE_NETWORK_FORBIDDEN_IN_VERIFICATION_TESTS"
++        ):
++            urllib.request.OpenerDirector().open("https://invalid.example")
++
+     def test_cli_without_trusted_executor_rejects_verify(self):
+         # This tests direct CLI admission only; no saved observation is consumed.
+         for provider in ("azure", "aws"):
+@@ -66,6 +92,11 @@
+                     [
+                         sys.executable,
+                         "-B",
++                        "-c",
++                        "import runpy,sys; from unittest.mock import patch; "
++                        "path=sys.argv.pop(1); "
++                        "guard=patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('LIVE_NETWORK_FORBIDDEN_IN_CLI_TEST')); "
++                        "guard.start(); runpy.run_path(path,run_name='__main__')",
+                         str(ROOT / f"plugins/sdd-{provider}-cloud/scripts/cloud.py"),
+                         "verify",
+                         "--request",
+@@ -532,7 +563,12 @@
+                         if provider == "azure":
+                             value = json.loads(result.body)
+                             value["value"][0]["timeseries"][0]["data"].insert(
+-                                0, dict(timeStamp=extra_time, maximum=extra_value)
++                                0,
++                                dict(
++                                    timeStamp=extra_time,
++                                    minimum=extra_value,
++                                    maximum=extra_value,
++                                ),
+                             )
+                             result.body = encode(value)
+                         else:
+@@ -542,6 +578,9 @@
+                             assert points is not None
+                             member = ET.SubElement(points, ns + "member")
+                             ET.SubElement(member, ns + "Timestamp").text = extra_time
++                            ET.SubElement(member, ns + "Minimum").text = str(
++                                extra_value
++                            )
+                             ET.SubElement(member, ns + "Maximum").text = str(
+                                 extra_value
+                             )
+@@ -660,8 +699,18 @@
+         )
+         # The actual native transport class is used, but its I/O is explicitly
+         # mocked with synthetic bytes. No network/provenance claim is made.
+-        with patch.object(native, "request", side_effect=fixture.request):
+-            with self.assertRaisesRegex(ValueError, "PERMISSION_CONTEXT_UNSUPPORTED"):
++        original = fixture.request
++
++        def incomplete(method, url, headers, body=None):
++            response = original(method, url, headers, body)
++            if "/roleAssignments?" in url:
++                response.body = encode(
++                    dict(value=[], nextLink="https://untrusted.example")
++                )
++            return response
++
++        with patch.object(native, "request", side_effect=incomplete):
++            with self.assertRaises(ValueError):
+                 collector.identity()
+ 
+     def test_backup_discovery_without_future_identifier(self):
+@@ -746,6 +795,7 @@
+             fixture = NativeFixture(provider, "all", "healthy")
+             config = copy.deepcopy(fixture.cfg)
+             del config["backup"]
++            fixture.cfg = config
+             collector = module.Collector(
+                 fixture.scope,
+                 config,
+@@ -825,6 +875,8 @@
+         + "/providers/Microsoft.Insights/dataCollectionRuleAssociations/monitor",
+         data_collection_rule_id=prefix
+         + "Microsoft.Insights/dataCollectionRules/workload",
++        monitoring_workspace_id=prefix
++        + "Microsoft.OperationalInsights/workspaces/monitor",
+         workload_metric=dict(
+             namespace="Workload", name="Healthy", minimum=1, maximum=1
+         ),
+@@ -836,6 +888,352 @@
+     )
+ 
+ 
++def azure_actions(resource: str, cfg: dict) -> set[str]:
++    """Independent fixture oracle for the supported VM policy, not implementation output."""
++    actions = {
++        "Microsoft.Authorization/permissions/read",
++        "Microsoft.Authorization/roleAssignments/read",
++        "Microsoft.Authorization/roleDefinitions/read",
++        "Microsoft.Resources/deployments/read",
++        "Microsoft.Resources/deployments/operations/read",
++    }
++    mapping = {
++        cfg["vm_id"]: {
++            "Microsoft.Compute/virtualMachines/read",
++            "Microsoft.Compute/virtualMachines/instanceView/read",
++            "Microsoft.Insights/metrics/read",
++            "Microsoft.Insights/metrics/write",
++        },
++        cfg["nic_id"]: {
++            "Microsoft.Network/networkInterfaces/read",
++            "Microsoft.Network/networkInterfaces/effectiveNetworkSecurityGroups/action",
++        },
++        cfg["identity_id"]: {"Microsoft.ManagedIdentity/userAssignedIdentities/read"},
++        cfg["association_id"]: {
++            "Microsoft.Insights/dataCollectionRuleAssociations/read"
++        },
++        cfg["data_collection_rule_id"]: {"Microsoft.Insights/dataCollectionRules/read"},
++    }
++    if "backup" in cfg:
++        item = cfg["backup"]["protected_item_id"]
++        mapping[item] = {
++            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/read",
++            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/recoveryPoints/read",
++        }
++        if resource.startswith(item + "/recoveryPoints/"):
++            return actions | mapping[item]
++    return actions | mapping[resource]
++
++
++def azure_role_records(fixture):
++    cfg = fixture.cfg
++    subscription = "/subscriptions/" + fixture.scope["account_id"]
++    targets = [
++        cfg[k]
++        for k in (
++            "vm_id",
++            "nic_id",
++            "identity_id",
++            "association_id",
++            "data_collection_rule_id",
++        )
++    ]
++    if "backup" in cfg:
++        targets.append(cfg["backup"]["protected_item_id"])
++    audit = {
++        "Microsoft.Authorization/roleAssignments/read",
++        "Microsoft.Authorization/roleDefinitions/read",
++    }
++    assignments, definitions = [], {}
++    group = subscription + "/resourceGroups/" + fixture.scope["deployment_scope"]
++    deployment_reads = {
++        "Microsoft.Resources/deployments/read",
++        "Microsoft.Resources/deployments/operations/read",
++    }
++    for i, target in enumerate([subscription, group, *targets]):
++        guid = "00000000-0000-0000-0000-" + str(i + 10).zfill(12)
++        role_id = (
++            subscription + "/providers/Microsoft.Authorization/roleDefinitions/" + guid
++        )
++        assignment_id = (
++            target + "/providers/Microsoft.Authorization/roleAssignments/" + guid
++        )
++        actions = (
++            audit
++            if target == subscription
++            else deployment_reads
++            if target == group
++            else azure_actions(target, cfg) - audit - deployment_reads
++        )
++        assignments.append(
++            dict(
++                id=assignment_id,
++                name=guid,
++                type="Microsoft.Authorization/roleAssignments",
++                properties=dict(
++                    scope=target,
++                    principalId=fixture.principal,
++                    principalType="ServicePrincipal",
++                    roleDefinitionId=role_id,
++                    condition=None,
++                    conditionVersion=None,
++                    delegatedManagedIdentityResourceId=None,
++                ),
++            )
++        )
++        definitions[role_id] = dict(
++            id=role_id,
++            name=guid,
++            type="Microsoft.Authorization/roleDefinitions",
++            properties=dict(
++                roleName="Untrusted display name",
++                type="CustomRole",
++                assignableScopes=[subscription],
++                permissions=[
++                    dict(
++                        actions=sorted(actions),
++                        notActions=[],
++                        dataActions=[],
++                        notDataActions=[],
++                    )
++                ],
++            ),
++        )
++    return assignments, definitions
++
++
++class AzureClosureAndDcrCases(unittest.TestCase):
++    @staticmethod
++    def collector(native=False):
++        sys.path.insert(0, str(ROOT / "plugins/sdd-azure-cloud/scripts"))
++        import azure_observation as module
++
++        fixture = NativeFixture("azure", "all", "healthy")
++        transport = module.HttpsTransport() if native else fixture
++        collector = module.Collector(
++            fixture.scope,
++            fixture.cfg,
++            fixture.credentials,
++            principal=fixture.principal,
++            completed="2026-10-18T06:00:00Z",
++            age=300,
++            clock=lambda: 1792303260,
++            transport=transport,
++            run_id="synthetic-run",
++            unit_id="synthetic-unit",
++        )
++        return collector, fixture
++
++    def test_native_positive_permission_closure_protocol(self):
++        collector, fixture = self.collector(native=True)
++        with patch.object(collector.transport, "request", side_effect=fixture.request):
++            self.assertTrue(collector.identity()[0])
++        self.assertTrue(any("assignedTo" in url for _, url, _ in fixture.calls))
++        self.assertTrue(any("/roleDefinitions/" in url for _, url, _ in fixture.calls))
++        self.assertTrue(any("/permissions?" in url for _, url, _ in fixture.calls))
++
++    def test_permission_closure_mismatches(self):
++        # Native and injected paths must enforce the identical guard. Native I/O is
++        # mocked explicitly; no EVIDENCE_COMPLETE or live IAM claim is made.
++        for native in (False, True):
++            for variant in (
++                "principal",
++                "group",
++                "scope",
++                "condition",
++                "wildcard",
++                "data",
++                "notActions",
++                "role-id",
++                "assignment-id",
++                "pagination",
++                "denied",
++                "empty",
++                "caller-disagrees",
++                "drift",
++            ):
++                with self.subTest(native=native, variant=variant):
++                    collector, fixture = self.collector(native=native)
++                    original = fixture.request
++                    assignment_reads = 0
++
++                    def wire(method, url, headers, body=None):
++                        nonlocal assignment_reads
++                        response = original(method, url, headers, body)
++                        value = json.loads(response.body)
++                        if "/roleAssignments?" in url:
++                            assignment_reads += 1
++                            row = value["value"][-1]
++                            prop = row["properties"]
++                            if variant == "principal":
++                                prop["principalId"] = (
++                                    "00000000-0000-0000-0000-000000000099"
++                                )
++                            if variant == "group":
++                                prop["principalType"] = "Group"
++                            if variant == "scope":
++                                prop["scope"] += "/unrelated/child"
++                            if variant == "condition":
++                                prop["condition"] = "unsupported"
++                            if variant == "assignment-id":
++                                row["id"] += "wrong"
++                            if variant == "pagination":
++                                value["nextLink"] = "https://untrusted.example"
++                            if variant == "denied":
++                                response.status = 403
++                            if variant == "empty":
++                                value["value"] = []
++                            if variant == "drift" and assignment_reads > 1:
++                                value["value"] = value["value"][:-1]
++                        if "/roleDefinitions/" in url:
++                            perm = value["properties"]["permissions"][0]
++                            if variant == "wildcard":
++                                perm["actions"] = ["*"]
++                            if variant == "data":
++                                perm["dataActions"] = [
++                                    "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"
++                                ]
++                            if variant == "notActions":
++                                perm["notActions"] = [
++                                    "Microsoft.Compute/virtualMachines/read"
++                                ]
++                            if variant == "role-id":
++                                value["id"] += "wrong"
++                        if "/permissions?" in url and variant == "caller-disagrees":
++                            value["value"][0]["actions"] = []
++                        response.body = encode(value)
++                        return response
++
++                    with patch.object(collector.transport, "request", side_effect=wire):
++                        with self.assertRaises(ValueError):
++                            collector.identity()
++
++    def test_dcr_readback_and_mismatches(self):
++        for variant in (
++            "matched",
++            "id",
++            "location",
++            "kind",
++            "state",
++            "source",
++            "counter",
++            "interval",
++            "stream",
++            "destination",
++            "flow",
++            "transform",
++            "denied",
++            "missing",
++            "pagination",
++        ):
++            with self.subTest(variant=variant):
++                collector, fixture = self.collector()
++                original = fixture.request
++
++                def wire(method, url, headers, body=None):
++                    response = original(method, url, headers, body)
++                    if url.split("?")[0].endswith(
++                        fixture.cfg["data_collection_rule_id"]
++                    ):
++                        value = json.loads(response.body)
++                        props = value["properties"]
++                        if variant == "id":
++                            value["id"] += "wrong"
++                        if variant == "location":
++                            value["location"] = "westus"
++                        if variant == "kind":
++                            value["kind"] = "Windows"
++                        if variant == "state":
++                            props["provisioningState"] = "Failed"
++                        if variant == "source":
++                            props["dataSources"] = {}
++                        if variant == "counter":
++                            props["dataSources"]["performanceCounters"][0][
++                                "counterSpecifiers"
++                            ] = ["unrelated"]
++                        if variant == "interval":
++                            props["dataSources"]["performanceCounters"][0][
++                                "samplingFrequencyInSeconds"
++                            ] = 600
++                        if variant == "stream":
++                            props["dataSources"]["performanceCounters"][0][
++                                "streams"
++                            ] = ["Microsoft-Syslog"]
++                        if variant == "destination":
++                            props["destinations"]["logAnalytics"][0][
++                                "workspaceResourceId"
++                            ] += "wrong"
++                        if variant == "flow":
++                            props["dataFlows"][0]["destinations"] = ["other"]
++                        if variant == "transform":
++                            props["dataFlows"][0]["transformKql"] = (
++                                "source | where false"
++                            )
++                        if variant == "denied":
++                            response.status = 403
++                        if variant == "missing":
++                            value = {}
++                        if variant == "pagination":
++                            value["nextLink"] = "https://untrusted.example"
++                        response.body = encode(value)
++                    return response
++
++                with patch.object(fixture, "request", side_effect=wire):
++                    if variant == "matched":
++                        self.assertTrue(collector.monitoring()[0])
++                    else:
++                        try:
++                            healthy = collector.monitoring()[0]
++                        except (ValueError, KeyError):
++                            healthy = False
++                        self.assertFalse(healthy)
++                self.assertTrue(
++                    any(
++                        url.split("?")[0].endswith(
++                            fixture.cfg["data_collection_rule_id"]
++                        )
++                        for _, url, _ in fixture.calls
++                    )
++                )
++
++
++class AzureMetricContextCases(unittest.TestCase):
++    collector = staticmethod(AzureClosureAndDcrCases.collector)
++
++    def test_metric_context_counterparts(self):
++        for field in (
++            "namespace",
++            "resourceregion",
++            "interval",
++            "timespan",
++            "id",
++            "metadata-duplicate",
++        ):
++            collector, fixture = self.collector()
++            original = fixture.request
++
++            def wire(method, url, headers, body=None):
++                response = original(method, url, headers, body)
++                value = json.loads(response.body)
++                if field == "id":
++                    value["value"][0]["id"] += "wrong"
++                elif field == "metadata-duplicate":
++                    value["value"][0]["timeseries"][0]["metadatavalues"].append(
++                        dict(name=dict(value="RunId"), value="synthetic-run")
++                    )
++                else:
++                    value[field] = "wrong"
++                response.body = encode(value)
++                return response
++
++            with (
++                self.subTest(field=field),
++                patch.object(fixture, "request", side_effect=wire),
++                self.assertRaises(ValueError),
++            ):
++                collector.workload()
++
++
+ class NativeFixture:
+     """Native response transport double; NEVER native evidence provenance."""
+ 
+@@ -898,12 +1296,51 @@
+         cfg = self.cfg
+         bad = self.variant == "unhealthy"
+         self.assert_read(method, path)
++        if path.endswith("/roleAssignments"):
++            assignments, _ = azure_role_records(self)
++            assert query["$filter"] == ["assignedTo('" + self.principal + "')"]
++            return dict(value=assignments)
++        if "/roleDefinitions/" in path:
++            _, definitions = azure_role_records(self)
++            return definitions[path]
++        if path == cfg["data_collection_rule_id"]:
++            return dict(
++                id=path,
++                location=self.scope["region"],
++                kind="Linux",
++                properties=dict(
++                    provisioningState="Succeeded",
++                    dataSources=dict(
++                        performanceCounters=[
++                            dict(
++                                name="cpu",
++                                streams=["Microsoft-Perf"],
++                                samplingFrequencyInSeconds=60,
++                                counterSpecifiers=[
++                                    "\\Processor(_Total)\\% Processor Time"
++                                ],
++                            )
++                        ]
++                    ),
++                    destinations=dict(
++                        logAnalytics=[
++                            dict(
++                                name="workspace",
++                                workspaceResourceId=cfg["vm_id"].split("/providers/")[0]
++                                + "/providers/Microsoft.OperationalInsights/workspaces/monitor",
++                            )
++                        ]
++                    ),
++                    dataFlows=[
++                        dict(streams=["Microsoft-Perf"], destinations=["workspace"])
++                    ],
++                ),
++            )
+         if path.endswith("/permissions"):
+             resource = path.removesuffix(
+                 "/providers/Microsoft.Authorization/permissions"
+             )
+-            module = __import__("azure_observation")
+-            actions = sorted(module.permission_ceiling(resource, cfg))
++            actions = sorted(azure_actions(resource, cfg))
+             if bad and self.check == "identity":
+                 actions.append("Microsoft.Authorization/roleAssignments/write")
+             return dict(
+@@ -942,7 +1379,15 @@
+                 ),
+             )
+         if path == cfg["vm_id"] + "/instanceView":
+-            return dict(statuses=[dict(code="PowerState/running")])
++            return dict(
++                statuses=[
++                    dict(
++                        code="PowerState/stopped"
++                        if bad and self.check == "resource"
++                        else "PowerState/running"
++                    )
++                ]
++            )
+         if path == cfg["nic_id"]:
+             return dict(
+                 id=path,
+@@ -1001,6 +1446,10 @@
+                 else []
+             )
+             return dict(
++                namespace=query["metricnamespace"][0],
++                resourceregion=self.scope["region"],
++                interval="PT1M",
++                timespan=query["timespan"][0],
+                 value=[
+                     dict(
+                         id=path + "/" + name,
+@@ -1008,11 +1457,15 @@
+                         timeseries=[
+                             dict(
+                                 metadatavalues=metadata,
+-                                data=[dict(timeStamp=self.stamp(), maximum=val)],
++                                data=[
++                                    dict(
++                                        timeStamp=self.stamp(), minimum=val, maximum=val
++                                    )
++                                ],
+                             )
+                         ],
+                     )
+-                ]
++                ],
+             )
+         b = cfg["backup"]
+         if path == b["protected_item_id"]:
+@@ -1228,6 +1681,7 @@
+                     dict(
+                         Timestamp=self.stamp(),
+                         Maximum="999" if bad else ("1" if name == "Healthy" else "0"),
++                        Minimum="999" if bad else ("1" if name == "Healthy" else "0"),
+                     )
+                 ],
+             )
+@@ -1261,7 +1715,7 @@
+ class AwsObservationOrchestration(unittest.TestCase):
+     """Production prepare/apply/observe code over explicitly synthetic transports."""
+ 
+-    def setup_execution(self, *, selectors=True):
++    def setup_execution(self, *, selectors=True, update=False):
+         spec = importlib.util.spec_from_file_location(
+             "observation_execution_fixtures",
+             ROOT / "tests/cloud-orchestration-execution.tests.py",
+@@ -1273,6 +1727,13 @@
+             "test_exact_async_assets_native_role_failure_settings_and_single_execution"
+         )
+         case.setUp()
++        if update:
++            from dataclasses import replace
++
++            case.native.existing = True
++            case.native.control = replace(
++                case.native.control, existing_stack_id=case.native.stack
++            )
+         self.addCleanup(case.doCleanups)
+         sys.modules.pop("aws_observation", None)
+         cfg = observation_config("aws")
+@@ -1331,6 +1792,66 @@
+             set(wire.resolved), {"Workload", "PrivateGroup", "Health", "Protection"}
+         )
+ 
++    def test_newer_or_ambiguous_stack_operation_rejected(self):
++        from dataclasses import replace
++        from urllib.parse import parse_qs
++        import xml.etree.ElementTree as ET
++
++        for variant in (
++            "newer-stack",
++            "newer-resource",
++            "missing-token",
++            "unordered",
++            "same-time",
++        ):
++            with self.subTest(variant=variant):
++                case, wire = self.setup_execution(update=True)
++                self.assertEqual(wire.native.create["ChangeSetType"], "UPDATE")
++                wire.health.cfg["instance_id"] = "i-fedcba98765432100"
++                original = wire.request
++
++                def response(method, url, headers, body=None):
++                    value = original(method, url, headers, body)
++                    if "cloudformation." in url and parse_qs(body.decode()).get(
++                        "Action"
++                    ) == ["DescribeStackEvents"]:
++                        tree = ET.fromstring(value.body)
++                        events = next(
++                            n for n in tree.iter() if n.tag.endswith("}StackEvents")
++                        )
++                        other = copy.deepcopy(list(events)[0])
++                        for node in other:
++                            if node.tag.endswith("}ClientRequestToken"):
++                                node.text = (
++                                    ""
++                                    if variant == "missing-token"
++                                    else "other-operation"
++                                )
++                            if node.tag.endswith("}Timestamp"):
++                                node.text = (
++                                    "2026-10-18T06:00:00Z"
++                                    if variant == "same-time"
++                                    else "2026-10-18T06:00:30Z"
++                                )
++                            if (
++                                node.tag.endswith("}ResourceType")
++                                and variant == "newer-resource"
++                            ):
++                                node.text = "AWS::EC2::Instance"
++                        events.insert(
++                            len(events) if variant == "unordered" else 0, other
++                        )
++                        value = replace(value, body=ET.tostring(tree))
++                    return value
++
++                writes = list(wire.writes)
++                with (
++                    patch.object(wire, "request", side_effect=response),
++                    self.assertRaises(ValueError),
++                ):
++                    case.executor.observe(case.directory + "/newer.json", "verify")
++                self.assertEqual(wire.writes, writes)
++
+     def test_legacy_physical_config_rejected_before_admission(self):
+         sys.path.insert(0, str(ROOT / "plugins/sdd-aws-cloud/scripts"))
+         import aws_observation
+@@ -1422,7 +1943,7 @@
+                     self.assertTrue(oracle._schema_validate(schema, changed))
+ 
+ 
+-class AzureCompletionCases(unittest.TestCase):
++class AzureTestBase(unittest.TestCase):
+     def setUp(self):
+         scripts = str(ROOT / "plugins/sdd-azure-cloud/scripts")
+         self.modules = patch.dict(sys.modules)
+@@ -1446,6 +1967,8 @@
+ 
+         self.g, self.o = azure_governed, azure_observation
+ 
++
++class AzureCompletionCases(AzureTestBase):
+     def test_inert_template_has_literal_separate_phase_boundaries(self):
+         workflow = self.g.workflow_template()
+         self.assertEqual(
+@@ -1563,6 +2086,21 @@
+ 
+     def test_original_job_counterpart_mismatches(self):
+         cases = [
++            lambda r, j, listing, w: r.update(event="push"),
++            lambda r, j, listing, w: r.update(status="in_progress"),
++            lambda r, j, listing, w: r.update(conclusion="failure"),
++            lambda r, j, listing, w: r.update(path="other.yml"),
++            lambda r, j, listing, w: r.update(
++                head_repository=dict(id=99, full_name="other/repo")
++            ),
++            lambda r, j, listing, w: j.update(run_attempt=2),
++            lambda r, j, listing, w: j.update(status="queued"),
++            lambda r, j, listing, w: j.update(started_at="2026-10-18T06:02:00Z"),
++            lambda r, j, listing, w: j["steps"][0].update(status="in_progress"),
++            lambda r, j, listing, w: j["steps"][0].update(
++                completed_at="2026-10-18T06:03:00Z"
++            ),
++            lambda r, j, listing, w: listing.update(jobs=[]),
+             lambda r, j, listing, w: r.update(id=999),
+             lambda r, j, listing, w: r.update(run_attempt=2),
+             lambda r, j, listing, w: r.update(head_sha="f" * 40),
+@@ -1589,10 +2127,9 @@
+                 self.completion(mutation)
+ 
+ 
+-class AzureResourceBindingCases(unittest.TestCase):
++class AzureResourceBindingCases(AzureTestBase):
+     o: ModuleType
+     g: ModuleType
+-    setUp = AzureCompletionCases.setUp
+ 
+     def test_compiled_and_original_operation_membership(self):
+         from types import SimpleNamespace
+@@ -1634,6 +2171,11 @@
+             "type",
+             "state",
+             "pagination",
++            "newer-deployment",
++            "active-deployment",
++            "same-time-deployment",
++            "deployment-pagination",
++            "deployment-denied",
+         ):
+             current = copy.deepcopy(cfg)
+             current.pop("backup")
+@@ -1670,6 +2212,44 @@
+ 
+                 def call(self, method, url, credentials, request_id):
+                     self.last = (method, url)
++                    if "/deployments?" in url:
++                        value: dict = dict(
++                            value=[
++                                dict(
++                                    id=native_id,
++                                    properties=dict(
++                                        timestamp="2026-10-18T06:00:00Z",
++                                        provisioningState="Succeeded",
++                                    ),
++                                )
++                            ]
++                        )
++                        if variant in (
++                            "newer-deployment",
++                            "active-deployment",
++                            "same-time-deployment",
++                        ):
++                            value["value"].append(
++                                dict(
++                                    id=native_id + "-other",
++                                    properties=dict(
++                                        timestamp="2026-10-18T05:00:00Z"
++                                        if variant == "active-deployment"
++                                        else "2026-10-18T06:00:00Z"
++                                        if variant == "same-time-deployment"
++                                        else "2026-10-18T06:00:30Z",
++                                        provisioningState="Running"
++                                        if variant == "active-deployment"
++                                        else "Succeeded",
++                                    ),
++                                )
++                            )
++                        if variant == "deployment-pagination":
++                            value["nextLink"] = "https://untrusted.example"
++                        return SimpleNamespace(
++                            status=403 if variant == "deployment-denied" else 200,
++                            body=encode(value),
++                        )
+                     return SimpleNamespace(status=200, body=encode(operations))
+ 
+             client = Client()
+@@ -1678,6 +2258,7 @@
+                 request=dict(scope=scope),
+                 client=client,
+                 request_id="synthetic-request-id",
++                clock=lambda: 1792303320,
+             )
+             with self.subTest(variant=variant):
+                 if variant == "matched":
+@@ -1690,12 +2271,11 @@
+                         )
+ 
+ 
+-class AzureObservationOrchestration(unittest.TestCase):
+-    setUp = AzureCompletionCases.setUp
++class AzureObservationOrchestration(AzureTestBase):
+     o: ModuleType
+     g: ModuleType
+ 
+-    def test_public_verify_uses_original_operation_and_received_signal(self):
++    def setup_execution(self):
+         import base64
+         from types import SimpleNamespace
+         from urllib.parse import urlsplit
+@@ -1726,6 +2306,10 @@
+                 "Microsoft.Insights/dataCollectionRuleAssociations"
+             ],
+             data_collection_rule_id=params["dataCollectionRuleId"],
++            monitoring_workspace_id=resources[
++                "Microsoft.Compute/virtualMachines"
++            ].split("/providers/")[0]
++            + "/providers/Microsoft.OperationalInsights/workspaces/monitor",
+             workload_metric=dict(
+                 namespace="Workload", name="Healthy", minimum=1, maximum=1
+             ),
+@@ -1765,6 +2349,24 @@
+ 
+         def wire(method, url, headers, body=None):
+             path = urlsplit(url).path
++            if path.endswith("/providers/Microsoft.Resources/deployments"):
++                return SimpleNamespace(
++                    status=200,
++                    headers={},
++                    body=encode(
++                        dict(
++                            value=[
++                                dict(
++                                    id=native_id,
++                                    properties=dict(
++                                        timestamp="2026-10-18T06:00:00Z",
++                                        provisioningState="Succeeded",
++                                    ),
++                                )
++                            ]
++                        )
++                    ),
++                )
+             if path == native_id + "/operations":
+                 return SimpleNamespace(
+                     status=200,
+@@ -1853,13 +2455,17 @@
+             return original_auth(method, url, headers, body)
+ 
+         case.executor.clock = lambda: 1792303320
++        for target, method in ((case.arm, wire), (auth, metadata)):
++            patched = patch.object(target, "request", side_effect=method)
++            patched.start()
++            self.addCleanup(patched.stop)
++        return case, health
++
++    def test_public_verify_uses_original_operation_and_received_signal(self):
++        case, health = self.setup_execution()
+         before = (case.root / case.request_ref["path"]).read_bytes()
+         writes = case.arm.submissions
+-        with (
+-            patch.object(case.arm, "request", side_effect=wire),
+-            patch.object(auth, "request", side_effect=metadata),
+-        ):
+-            result = case.executor.observe(case.directory + "/observed.json", "verify")
++        result = case.executor.observe(case.directory + "/observed.json", "verify")
+         verification = json.loads(
+             (
+                 case.root / (case.directory + "/observed.json.verification.json")
+@@ -1954,5 +2560,610 @@
+         return response
+ 
+ 
++class PublicObservationCases(unittest.TestCase):
++    def setup_execution(self, provider):
++        harness: AzureObservationOrchestration | AwsObservationOrchestration
++        if provider == "azure":
++            harness = AzureObservationOrchestration(
++                "test_public_verify_uses_original_operation_and_received_signal"
++            )
++            harness.setUp()
++        else:
++            harness = AwsObservationOrchestration(
++                "test_unknown_create_ids_resolved_without_request_edits"
++            )
++        self.addCleanup(harness.doCleanups)
++        case, wire = harness.setup_execution()
++        health = wire if provider == "azure" else wire.health
++        module = sys.modules["cloud"]
++        return case, wire, health, module
++
++    def run_public(self, case, module, name):
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(case.root)}):
++            return module.run(
++                [
++                    "verify",
++                    "--request",
++                    case.request_ref["path"],
++                    "--output",
++                    case.directory + "/" + name + ".json",
++                ],
++                executor=case.executor,
++            )
++
++    @staticmethod
++    def target(provider, check, url, body):
++        from urllib.parse import parse_qs
++
++        if provider == "azure":
++            return {
++                "resource": "/instanceView?" in url,
++                "network": "/effectiveNetworkSecurityGroups?" in url,
++                "identity": "/permissions?" in url,
++                "monitoring": "metricnames=Percentage%20CPU" in url,
++                "workload": "metricnames=Healthy" in url,
++                "backup": "/protectedItems/" in url,
++            }[check]
++        action = parse_qs(body.decode()).get("Action", [""])[0] if body else ""
++        metric = parse_qs(body.decode()).get("MetricName", [""])[0] if body else ""
++        return {
++            "resource": action == "DescribeInstances",
++            "network": action == "DescribeSecurityGroups",
++            "identity": action == "GetRolePolicy",
++            "monitoring": action == "DescribeAlarms" or metric == "StatusCheckFailed",
++            "workload": metric == "Healthy",
++            "backup": "backup." in url,
++        }[check]
++
++    def test_public_all_checks_matrix_native_protocol_fixtures(self):
++        # Finite required-check branches; dimensions sharing the same reducer guard
++        # are tested separately rather than an unbounded Cartesian product.
++        for provider in ("aws", "azure"):
++            for check in (
++                "resource",
++                "network",
++                "identity",
++                "monitoring",
++                "workload",
++                "backup",
++            ):
++                for variant in ("healthy", "unhealthy", "denied", "missing", "stale"):
++                    if variant == "stale" and check not in (
++                        "monitoring",
++                        "workload",
++                        "backup",
++                    ):
++                        continue  # synchronous configuration read freshness is the lease, tested below
++                    with self.subTest(provider=provider, check=check, variant=variant):
++                        case, wire, health, module = self.setup_execution(provider)
++                        original = health.request
++                        hit = []
++
++                        def response(method, url, headers, body=None):
++                            target = self.target(provider, check, url, body)
++                            health.variant, health.check = (
++                                (variant if target else "healthy"),
++                                check,
++                            )
++                            if target:
++                                hit.append(url)
++                            return original(method, url, headers, body)
++
++                        with patch.object(health, "request", side_effect=response):
++                            result = self.run_public(case, module, "matrix")
++                        self.assertTrue(hit)
++                        v = json.loads(
++                            (
++                                case.root
++                                / (case.directory + "/matrix.json.verification.json")
++                            ).read_bytes()
++                        )
++                        expected = (
++                            "PASS"
++                            if variant == "healthy"
++                            else "FAIL"
++                            if variant == "unhealthy"
++                            else "BLOCKED"
++                        )
++                        self.assertEqual(
++                            next(
++                                c["result"]
++                                for c in v["checks"]
++                                if c["check_id"] == check
++                            ),
++                            expected,
++                        )
++                        self.assertFalse(v["evidence_complete"])
++                        self.assertEqual(
++                            result["result"],
++                            "FAIL" if variant == "unhealthy" else "BLOCKED",
++                        )
++                        # Release nested fixture/module patches promptly between subtests.
++                        self.doCleanups()
++
++    def test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction(self):
++        for provider in ("aws", "azure"):
++            for variant in (
++                "matched",
++                "overwrite",
++                "symlink",
++                "scanner-false",
++                "scanner-error",
++                "raw-secret",
++                "request-drift",
++                "fake-native",
++            ):
++                with self.subTest(provider=provider, variant=variant):
++                    case, wire, health, module = self.setup_execution(provider)
++                    output = case.root / (case.directory + "/publish.json")
++                    original = health.request
++                    canary = ("secret" + "-canary").encode()
++
++                    def response(method, url, headers, body=None):
++                        r = original(method, url, headers, body)
++                        if variant == "raw-secret":
++                            # Provider body only, not a record or a query identifier.
++                            if r.body.startswith(b"{"):
++                                value = json.loads(r.body)
++                                value["privateDiagnostic"] = canary.decode()
++                                r.body = encode(value)
++                            else:
++                                r.body = r.body.replace(
++                                    b"</", b"<!--" + canary + b"--></", 1
++                                )
++                        if variant == "request-drift":
++                            path = case.root / case.request_ref["path"]
++                            if not path.read_bytes().endswith(b" \n"):
++                                path.write_bytes(path.read_bytes() + b" \n")
++                        return r
++
++                    if variant in ("overwrite", "symlink"):
++                        if variant == "overwrite":
++                            output.write_bytes(b"preserved")
++                        else:
++                            output.symlink_to(case.root / "outside.json")
++                    if variant == "fake-native":
++                        (case.root / "fake.json").write_bytes(
++                            encode(
++                                dict(
++                                    classification="native",
++                                    approved=True,
++                                    exit_code=0,
++                                    evidence_complete=True,
++                                )
++                            )
++                        )
++                        setattr(health, "classification", "native")
++                    with patch.object(health, "request", side_effect=response):
++                        if variant.startswith("scanner"):
++                            scan_patch = (
++                                patch.object(
++                                    module, "safe_publication", return_value=False
++                                )
++                                if variant == "scanner-false"
++                                else patch.object(
++                                    module,
++                                    "safe_publication",
++                                    side_effect=OSError("scanner unavailable"),
++                                )
++                            )
++                            with scan_patch:
++                                result = self.run_public(case, module, "publish")
++                        else:
++                            result = self.run_public(case, module, "publish")
++                    self.assertEqual(result["result"], "BLOCKED")
++                    if variant in ("matched", "raw-secret", "fake-native"):
++                        manifest = json.loads(
++                            (
++                                case.root
++                                / (case.directory + "/publish.json.manifest.json")
++                            ).read_bytes()
++                        )
++                        self.assertEqual(manifest["request"], case.request_ref)
++                        self.assertEqual(manifest["classification"], "synthetic")
++                        self.assertTrue(manifest["saved_receipt_authorizes_nothing"])
++                        for ref in [
++                            manifest["request"],
++                            manifest["context"],
++                            manifest["verification"],
++                            *[
++                                row[k]
++                                for row in manifest["observations"]
++                                for k in ("observation", "result")
++                            ],
++                        ]:
++                            data = (case.root / ref["path"]).read_bytes()
++                            self.assertEqual(
++                                hashlib.sha256(data).hexdigest(), ref["sha256"]
++                            )
++                            self.assertNotIn(canary, data)
++                        self.assertEqual(
++                            result["input_manifest_sha256"], case.request_ref["sha256"]
++                        )
++                        self.assertEqual(
++                            result["evidence_manifest_path"],
++                            case.directory + "/publish.json.manifest.json",
++                        )
++                    elif variant == "overwrite":
++                        self.assertEqual(output.read_bytes(), b"preserved")
++                    elif variant == "symlink":
++                        self.assertFalse((case.root / "outside.json").exists())
++                    else:
++                        self.assertFalse(output.exists())
++                        if variant.startswith("scanner"):
++                            self.assertFalse(
++                                Path(str(output) + ".context.json").exists()
++                            )
++                    self.doCleanups()
++
++    def test_all_emitted_required_fields_have_closed_schema_counterparts(self):
++        spec = importlib.util.spec_from_file_location(
++            "schema_oracle",
++            ROOT / "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
++        )
++        assert spec and spec.loader
++        oracle = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(oracle)
++        case, _, _, module = self.setup_execution("azure")
++        self.run_public(case, module, "schema")
++
++        def walk(value, schema, location):
++            if isinstance(value, dict):
++                for key in value:
++                    if location == "operation-result" and key == "native_operation_id":
++                        continue  # contract permits absent native ID for genuine no-op
++                    changed = copy.deepcopy(value)
++                    del changed[key]
++                    with self.subTest(location=location, field=key):
++                        self.assertTrue(oracle._schema_validate(schema, changed))
++                if schema.get("additionalProperties") is False:
++                    with self.subTest(location=location, field="unknown"):
++                        self.assertTrue(
++                            oracle._schema_validate(
++                                schema, dict(value, unknown="extra")
++                            )
++                        )
++                for key, item in value.items():
++                    child = schema.get("properties", {}).get(key)
++                    if child:
++                        walk(item, child, location + "/" + key)
++            elif isinstance(value, list) and "items" in schema:
++                for i, item in enumerate(value):
++                    walk(item, schema["items"], location + "/" + str(i))
++
++        for contract, suffix in [
++            ("collection-context", ".context.json"),
++            ("check-result", ".resource.result.json"),
++            ("observation", ".resource.json"),
++            ("observation-evidence", ".manifest.json"),
++            ("verification", ".verification.json"),
++            ("operation-result", ""),
++        ]:
++            schema = json.loads(
++                (ROOT / ("contracts/cloud-" + contract + ".schema.json")).read_bytes()
++            )
++            value = json.loads(
++                (case.root / (case.directory + "/schema.json" + suffix)).read_bytes()
++            )
++            self.assertEqual(oracle._schema_validate(schema, value), [])
++            walk(value, schema, contract)
++
++    def test_public_request_and_trusted_policy_counterparts(self):
++        for provider in ("aws", "azure"):
++            for field in (
++                "run_id",
++                "unit_id",
++                "scope",
++                "verification_profile",
++                "principal",
++                "missing-credentials",
++            ):
++                with self.subTest(provider=provider, field=field):
++                    case, wire, health, module = self.setup_execution(provider)
++                    if field in ("principal", "missing-credentials"):
++                        # Actual federation/identity exchange denial, not a saved local label.
++                        auth = case.executor.boundary.transport
++                        original = auth.request
++
++                        def deny(method, url, headers, body=None):
++                            if "login.microsoftonline.com" in url or "sts." in url:
++                                if field == "missing-credentials":
++                                    raise OSError("unavailable")
++                                return b"{}"
++                            return original(method, url, headers, body)
++
++                        with patch.object(auth, "request", side_effect=deny):
++                            result = self.run_public(case, module, "binding")
++                    else:
++                        value = copy.deepcopy(case.req)
++                        if field == "scope":
++                            value[field]["region"] = "wrong-region"
++                        elif field == "verification_profile":
++                            value[field]["sha256"] = "f" * 64
++                        else:
++                            value[field] = "other"
++                        (case.root / case.request_ref["path"]).write_bytes(
++                            encode(value)
++                        )
++                        result = self.run_public(case, module, "binding")
++                    self.assertEqual(result["result"], "BLOCKED")
++                    self.assertFalse(
++                        (case.root / (case.directory + "/binding.json")).exists()
++                    )
++                    self.doCleanups()
++
++
++class WorkloadRangeCases(unittest.TestCase):
++    def test_native_bucket_minimum_and_maximum(self):
++        import xml.etree.ElementTree as ET
++        from urllib.parse import parse_qs, urlsplit
++
++        for provider in ("aws", "azure"):
++            for minimum, maximum in ((1, 1), (0, 1), (1, 2), (0, 2)):
++                with self.subTest(provider=provider, minimum=minimum, maximum=maximum):
++                    collector, fixture = FreshnessCases().collector(
++                        provider, "workload", "healthy", "2026-10-18T06:00:00Z"
++                    )
++                    original = fixture.request
++
++                    def response(method, url, headers, body=None):
++                        r = original(method, url, headers, body)
++                        if provider == "azure":
++                            value = json.loads(r.body)
++                            point = value["value"][0]["timeseries"][0]["data"][0]
++                            point.update(minimum=minimum, maximum=maximum)
++                            r.body = encode(value)
++                        else:
++                            tree = ET.fromstring(r.body)
++                            for n in tree.iter():
++                                if n.tag.endswith("}Minimum"):
++                                    n.text = str(minimum)
++                                if n.tag.endswith("}Maximum"):
++                                    n.text = str(maximum)
++                            r.body = ET.tostring(tree)
++                        return r
++
++                    with patch.object(fixture, "request", side_effect=response):
++                        self.assertEqual(
++                            collector.workload()[0], minimum == maximum == 1
++                        )
++                    _, url, body = fixture.calls[-1]
++                    query = parse_qs(body.decode() if body else urlsplit(url).query)
++                    if provider == "aws":
++                        self.assertEqual(
++                            {
++                                query["Statistics.member.1"][0],
++                                query["Statistics.member.2"][0],
++                            },
++                            {"Minimum", "Maximum"},
++                        )
++                    else:
++                        self.assertEqual(
++                            set(query["aggregation"][0].split(",")),
++                            {"Minimum", "Maximum"},
++                        )
++
++
++class NativeAdversarialCases(unittest.TestCase):
++    def test_native_response_binding_pagination_and_unknown(self):
++        import xml.etree.ElementTree as ET
++
++        for provider in ("aws", "azure"):
++            for check in (
++                "resource",
++                "network",
++                "identity",
++                "monitoring",
++                "workload",
++                "backup",
++            ):
++                for variant in ("tampered", "pagination", "unknown"):
++                    if variant == "unknown" and check not in ("resource", "backup"):
++                        continue  # unknown metrics/numbers and unsupported rights have their own concrete tests
++                    with self.subTest(provider=provider, check=check, variant=variant):
++                        collector, fixture = FreshnessCases().collector(
++                            provider, check, "healthy", "2026-10-18T06:00:00Z"
++                        )
++                        original = fixture.request
++
++                        def response(method, url, headers, body=None):
++                            r = original(method, url, headers, body)
++                            if provider == "azure":
++                                value = json.loads(r.body)
++                                if variant == "pagination":
++                                    value["nextLink"] = "https://untrusted.example"
++                                elif variant == "tampered":
++                                    if (
++                                        check == "identity"
++                                        and "principalId" in value.get("properties", {})
++                                    ):
++                                        value["properties"]["principalId"] = "other"
++                                    elif (
++                                        check in ("monitoring", "workload")
++                                        and "/metrics?" in url
++                                    ):
++                                        value["value"][0]["id"] += "wrong"
++                                    elif "id" in value:
++                                        value["id"] += "wrong"
++                                elif variant == "unknown":
++                                    if check == "resource" and "/instanceView?" in url:
++                                        value["statuses"] = [
++                                            dict(code="PowerState/unknown")
++                                        ]
++                                    elif (
++                                        check == "backup"
++                                        and "lastBackupStatus"
++                                        in value.get("properties", {})
++                                    ):
++                                        value["properties"]["lastBackupStatus"] = (
++                                            "unknown"
++                                        )
++                                r.body = encode(value)
++                            elif r.body.startswith(b"{"):
++                                value = json.loads(r.body)
++                                if variant == "pagination":
++                                    value["NextToken"] = "more"
++                                elif "RecoveryPoints" in value:
++                                    point = value["RecoveryPoints"][0]
++                                    point[
++                                        "ResourceArn"
++                                        if variant == "tampered"
++                                        else "Status"
++                                    ] = "unknown"
++                                r.body = encode(value)
++                            else:
++                                tree = ET.fromstring(r.body)
++                                if variant == "pagination":
++                                    container = next(
++                                        (n for n in tree if n.tag.endswith("Result")),
++                                        tree,
++                                    )
++                                    ns = tree.tag.split("}")[0] + "}"
++                                    ET.SubElement(
++                                        container, ns + "NextToken"
++                                    ).text = "more"
++                                else:
++                                    key = {
++                                        "resource": "instanceId"
++                                        if variant == "tampered"
++                                        else "name",
++                                        "network": "groupId",
++                                        "identity": "Arn",
++                                        "monitoring": "AlarmName",
++                                        "workload": "Label",
++                                    }.get(check)
++                                    for node in tree.iter():
++                                        if node.tag.endswith("}" + str(key)):
++                                            node.text = "unknown"
++                                r.body = ET.tostring(tree)
++                            return r
++
++                        with (
++                            patch.object(fixture, "request", side_effect=response),
++                            self.assertRaises((ValueError, KeyError)),
++                        ):
++                            getattr(collector, check)()
++
++    def test_postcollection_lease_expiry_prevents_publication(self):
++        for provider in ("aws", "azure"):
++            harness = PublicObservationCases()
++            self.addCleanup(harness.doCleanups)
++            case, wire, health, module = harness.setup_execution(provider)
++            now = [1792303320 if provider == "azure" else 1792303260]
++            case.executor.clock = lambda: now[0]
++            original = health.request
++
++            def response(method, url, headers, body=None):
++                r = original(method, url, headers, body)
++                if "/recoveryPoints?" in url or "/recovery-points/?" in url:
++                    now[0] += 10000
++                return r
++
++            with patch.object(health, "request", side_effect=response):
++                result = harness.run_public(case, module, "expired")
++            self.assertEqual(result["result"], "BLOCKED")
++            self.assertFalse((case.root / (case.directory + "/expired.json")).exists())
++            self.doCleanups()
++
++
++class ExpandedBindingCases(unittest.TestCase):
++    def test_query_digests_are_exact_transport_bytes(self):
++        for provider in ("aws", "azure"):
++            for check in (
++                "resource",
++                "network",
++                "identity",
++                "monitoring",
++                "workload",
++                "backup",
++            ):
++                with self.subTest(provider=provider, check=check):
++                    collector, fixture = FreshnessCases().collector(
++                        provider, check, "healthy", "2026-10-18T06:00:00Z"
++                    )
++                    original = fixture.request
++                    actual = []
++
++                    def response(method, url, headers, body=None):
++                        r = original(method, url, headers, body)
++                        actual.append(
++                            dict(
++                                locator=url,
++                                request_sha256=hashlib.sha256(body or b"").hexdigest(),
++                                response_sha256=hashlib.sha256(r.body).hexdigest(),
++                                http_status=r.status,
++                            )
++                        )
++                        return r
++
++                    with patch.object(fixture, "request", side_effect=response):
++                        self.assertTrue(getattr(collector, check)()[0])
++                    self.assertEqual(collector.trace, actual)
++
++    def test_nested_context_fields_and_untrusted_native_labels(self):
++        import cloud_verification as v
++
++        for field in (
++            "request",
++            "scope",
++            "dependency_lock",
++            "policy",
++            "verification_profile",
++        ):
++            for subfield in reducer_case()[4][field]:
++                case = reducer_case()
++                case[4][field][subfield] = "f" * 64 if subfield == "sha256" else "wrong"
++                with (
++                    self.subTest(field=field, subfield=subfield),
++                    self.assertRaises(ValueError),
++                ):
++                    v.reduce(*case, now="2026-10-18T06:01:01Z")
++        case = reducer_case()
++        case[4]["classification"] = "native"
++        for item in case[5]:
++            payload = json.loads(item["payload_bytes"])
++            obs = json.loads(item["observation_bytes"])
++            payload["context_sha256"] = v.digest(v.encode(case[4]))
++            item["payload_bytes"] = v.encode(payload)
++            obs["classification"] = "native"
++            obs["result"]["sha256"] = v.digest(item["payload_bytes"])
++            item["observation_bytes"] = v.encode(obs)
++        with self.assertRaisesRegex(ValueError, "COLLECTOR_PROVENANCE_REQUIRED"):
++            v.reduce(*case, now="2026-10-18T06:01:01Z")
++        # Explicitly synthetic library trust-boundary control, never public provenance.
++        self.assertTrue(
++            v.reduce(*case, now="2026-10-18T06:01:01Z", trusted_native=True)[
++                "evidence_complete"
++            ]
++        )
++
++    def test_every_check_lease_expiry_during_native_response(self):
++        for provider in ("aws", "azure"):
++            for check in (
++                "resource",
++                "network",
++                "identity",
++                "monitoring",
++                "workload",
++                "backup",
++            ):
++                with self.subTest(provider=provider, check=check):
++                    collector, fixture = FreshnessCases().collector(
++                        provider, check, "healthy", "2026-10-18T06:00:00Z"
++                    )
++                    original = fixture.request
++
++                    def response(method, url, headers, body=None):
++                        result = original(method, url, headers, body)
++                        collector.lease = 1
++                        return result
++
++                    with (
++                        patch.object(fixture, "request", side_effect=response),
++                        self.assertRaisesRegex(ValueError, "READ_CREDENTIAL_EXPIRED"),
++                    ):
++                        getattr(collector, check)()
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)
+
+--- /tmp/cloud-T006-01a14e9b/initial/plugins/sdd-azure-cloud/references/azure-local-config.schema.json	2026-10-18 10:44:07.813596553 +0000
++++ plugins/sdd-azure-cloud/references/azure-local-config.schema.json	2026-10-18 10:48:33.027539467 +0000
+@@ -187,7 +187,8 @@
+             "identity_id",
+             "association_id",
+             "data_collection_rule_id",
+-            "workload_metric"
++            "workload_metric",
++            "monitoring_workspace_id"
+           ],
+           "properties": {
+             "vm_id": {
+@@ -261,6 +262,10 @@
+                   "pattern": "^(?:/subscriptions/[a-f0-9-]{36}/resourceGroups/[A-Za-z0-9_-]+/providers/[A-Za-z.]+/(?:[A-Za-z0-9_.;-]+/)+[A-Za-z0-9_.;-]+)$(?![\\s\\S])"
+                 }
+               }
++            },
++            "monitoring_workspace_id": {
++              "type": "string",
++              "pattern": "^(?:/subscriptions/[a-f0-9-]{36}/resourceGroups/[A-Za-z0-9_-]+/providers/[A-Za-z.]+/(?:[A-Za-z0-9_.;-]+/)+[A-Za-z0-9_.;-]+)$(?![\\s\\S])"
+             }
+           }
+         }
+
+--- /tmp/cloud-T006-01a14e9b/initial/plugins/sdd-azure-cloud/references/observations.md	2026-10-18 10:44:07.813856545 +0000
++++ plugins/sdd-azure-cloud/references/observations.md	2026-10-18 10:59:07.362163853 +0000
+@@ -1,9 +1,9 @@
+-# Private VM read-only observations (T-006 candidate)
++# Private VM read-only observations (T-006)
+ 
+ The optional closed `observation` configuration is defined by
+ `azure-local-config.schema.json`. Existing local v1 behavior without that object
+ is unchanged; observe/verify block instead of guessing targets. VM, NIC, subnet,
+-sole user-assigned workload identity, DCR association/rule, workload metric and
++sole user-assigned workload identity, DCR association/rule, `monitoring_workspace_id`, workload metric and
+ (when required) protected backup item/policy IDs are explicit. Recovery-point IDs
+ are discovered after deployment, not required before CREATE. No arbitrary shell
+ commands, queries, URLs or model-generated probes are accepted.
+@@ -42,9 +42,20 @@
+ 
+ ## Current checks and explicit limits
+ 
+-Monitoring requires a native association plus a received platform CPU signal;
+-workload health requires the configured metric bound to this RunId/UnitId.
+-Complete DCR configuration readback is still missing. Recovery discovery reads
++Monitoring requires native DCR association **and rule** readback plus a received
++platform CPU signal. The supported DCR is Linux, Succeeded, in the declared region,
++with exactly one performance counter: `\Processor(_Total)\% Processor Time`,
++60-second sampling, stream `Microsoft-Perf`, one Log Analytics destination whose
++workspaceResourceId equals explicit `monitoring_workspace_id`, and one direct
++untransformed flow to that destination. Unknown sources/destinations, transforms,
++missing configuration or denied reads block; known unhealthy configuration fails.
++This is deliberately not a generic DCR/query engine or proof that every possible
++agent stream has been received. Workload health separately requires the configured
++custom metric bound to this RunId/UnitId. Both native Minimum and Maximum are
++requested and checked against the configured range for every returned bucket;
++a healthy maximum cannot hide an unhealthy minimum. Platform CPU uses Maximum.
++Metric response ID, namespace, region, interval, window and unique dimensions
++must match the fixed request; incomplete context blocks. Recovery discovery reads
+ a bounded complete list for the exact protected item, validates contained unique
+ IDs, and selects the newest post-completion point by time, never by health.
+ Missing/incomplete lists block; actual latest backup health remains mandatory.
+@@ -59,17 +70,55 @@
+ one-minute buckets are supported. An empty/not-yet-ready window blocks. Backup
+ history is time-selected locally; no undocumented OData time filter is invented.
+ 
+-**Not ready for native verification:** a temporary fail-closed barrier prevents
+-the real native transport from passing identity verification. Synthetic fixtures
+-exercise partial parsing only; they cannot authorize native evidence. This
+-barrier is not satisfaction of the required supported positive native path.
+-Same-workload-identity caller-permissions
+-reads currently cover queried resource scopes, not a complete proof against
+-other-scope grants. Finite action ceilings or role names alone cannot prove
+-least privilege. Complete scoped permission proof, an independent Azure policy
+-fixture oracle and full DCR readback remain local implementation gaps, not
+-consequences of absent sandbox credentials. The exhaustive public-path failure
+-and publication matrix also remains incomplete. See the attempt-2 report.
++## Supported effective identity proof and prerequisites
++
++The observer must authenticate as the VM's **sole user-assigned workload principal**.
++Native `assignedTo('<principalId>')` subscription enumeration includes inherited and
++descendant assignments and transitive group assignments. Every assignment and
++role-definition ID is checked; at most 128 assignments/definitions, complete single
++pages only. Unknown scope, principal, conditions, delegated identity, groups,
++wildcards, NotActions or data rights block. Role display names are never authority.
++The finite supported grant scopes/actions are:
++
++- Declared subscription: `Microsoft.Authorization/roleAssignments/read` and
++  `Microsoft.Authorization/roleDefinitions/read` only (audit enumeration).
++- Governed resource group: `Microsoft.Resources/deployments/read` and
++  `Microsoft.Resources/deployments/operations/read` only (original/current proof).
++- Exact VM, NIC, identity, DCR association/rule and required backup item: finite
++  read actions for their actual probes, `Microsoft.Authorization/permissions/read`,
++  plus VM `Microsoft.Insights/metrics/write`. Backup recovery read is bounded to
++  the protected item. The executable ceilings are `permission_ceiling`.
++
++All grants are direct ServicePrincipal assignments. Same-principal native caller
++permissions at each exact workload target must equal the enumerated applicable
++grants. Enumeration/role definitions are re-read after these checks and must remain
++unchanged. Excess observed rights fail; unsupported/incomplete proof blocks. This
++checks the declared subscription/governed policy scope, not unrelated tenants or
++accounts. No policy or IAM privileges are created by collection.
++
++**Consistency limit:** ARM/RBAC is not an atomic snapshot. This path requires stable
++direct assignments and exclusive governed writes. Group/App Role/Lighthouse or
++recently changed/cached authorization contexts are unsupported. Microsoft documents
++managed-identity group/role token caching around 24 hours; fresh enumeration is
++**not** evidence that old grants/tokens were revoked. Owners must establish a stable
++direct-assignment context before live acceptance; a local approval flag cannot
++substitute for native reads. Received run-specific health remains independently
++mandatory. Explicitly synthetic protocol tests exercise the real native transport
++class with scoped mocked I/O; they do not claim production verification.
++
++## Current/original operation binding
++
++Before resource binding and again after collection, read a bounded complete list
++of deployments in the governed resource group. The original successful deployment
++must still be uniquely latest by native template timestamp; later/equal-timestamp
++or nonterminal competing deployments, missing history, denied reads or pagination
++block. The timestamp orders templates only; it is **not** used as completion time.
++Original compiled membership and successful deployment operations are checked
++again before publication, with the credential lease checked on both sides.
++As with the execution harness, direct/out-of-band writers and deleted history are
++outside the supported exclusive-writer prerequisite; this is not a general drift
++or global IAM-history audit. The completion bound remains the authenticated original
++successful fixed APPLY job described above.
+ 
+ Shared closed context/check-result/evidence-manifest contracts and publication
+ rules are described in the AWS [evidence section](../../sdd-aws-cloud/references/observations.md#evidence-and-trust).
+
+--- /tmp/cloud-T006-01a14e9b/initial/plugins/sdd-aws-cloud/references/observations.md	2026-10-18 10:44:07.811195631 +0000
++++ plugins/sdd-aws-cloud/references/observations.md	2026-10-18 10:59:07.362297294 +0000
+@@ -1,4 +1,4 @@
+-# Private EC2 read-only observations (T-006 candidate)
++# Private EC2 read-only observations (T-006)
+ 
+ `observe` and `verify` require the trusted governed executor; a direct local CLI
+ without one returns `TRUSTED_COLLECTOR_REQUIRED`, not `OPERATION_UNIMPLEMENTED`.
+@@ -41,6 +41,13 @@
+ candidate's physical-ID observation configuration is intentionally rejected.
+ 
+ Original stack completion is joined to the original execution request token.
++Native events must be reverse chronological, and the latest stack operation must
++still be the original successful operation. A newer/equal-time foreign-token
++stack or resource event, missing token, ambiguous ordering or incomplete history
++blocks before resolving current physical IDs. After health collection, operation
++and physical membership are checked again before publication. This preserves the
++exclusive governed-writer prerequisite; it is not proof against deleted history
++or arbitrary out-of-band resource mutations.
+ All observations bind the original request, unit, scope, profile, principal,
+ native operation and resource. EC2/IAM/CloudWatch use their own native Query
+ protocols, endpoints and API versions; Backup uses its REST protocol, not the
+@@ -103,7 +110,13 @@
+ none are implemented in T-006. Synthetic transport success remains BLOCKED at
+ the public result and never sets production `evidence_complete`.
+ 
+-This is not a task-completion or production-readiness claim. Azure effective
+-permission-scope proof and full DCR readback remain unresolved in the attempt-2 report. Live
++Workload GetMetricStatistics requests both Minimum and Maximum in the same fixed
++query. Every returned bucket must satisfy both configured bounds; Maximum alone
++cannot hide a below-minimum sample. StatusCheckFailed monitoring keeps Maximum.
++Unknown native states block instead of becoming a purported measured failure.
++
++Azure's supported scoped permission closure and DCR readback are documented in
++its observation reference. These local capabilities do not establish live
++production readiness. Live
+ TEST-003/005/009 remain BLOCKED by OQ-001 owner prerequisites. No cloud writes,
+ IAM expansion, profile dispatch, dependency scheduling or live trial occurs here.

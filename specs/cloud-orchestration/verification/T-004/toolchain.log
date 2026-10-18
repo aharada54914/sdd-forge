@@ -1,0 +1,6 @@
+$ /tmp/cloud-quality-python/bin/python -m ruff --version
+ruff 0.13.3
+exit_code=0
+$ /tmp/cloud-quality-python/bin/python -m mypy --version
+mypy 1.18.2 (compiled: yes)
+exit_code=0

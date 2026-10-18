@@ -1,0 +1,17 @@
+test_operation_intent_hashes_actual_native_bytes_and_recovery_rejects_tampering (__main__.AwsExecution.test_operation_intent_hashes_actual_native_bytes_and_recovery_rejects_tampering) ... FAIL
+
+======================================================================
+FAIL: test_operation_intent_hashes_actual_native_bytes_and_recovery_rejects_tampering (__main__.AwsExecution.test_operation_intent_hashes_actual_native_bytes_and_recovery_rejects_tampering)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2759, in test_operation_intent_hashes_actual_native_bytes_and_recovery_rejects_tampering
+    self.assertEqual(journal['body_sha256'],hashlib.sha256(aws_native.query('ExecuteChangeSet',journal['body'])).hexdigest())
+AssertionError: 'bed0d6568fb545910fe1e52afc8398acbd64ea0b9bf98b4f9c9665f0fddeb14b' != '6309a189d0a922393f555ef29458b8d511e52749058ad11a9ed2005481b5cd69'
+- bed0d6568fb545910fe1e52afc8398acbd64ea0b9bf98b4f9c9665f0fddeb14b
++ 6309a189d0a922393f555ef29458b8d511e52749058ad11a9ed2005481b5cd69
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.351s
+
+FAILED (failures=1)

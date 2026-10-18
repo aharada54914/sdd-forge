@@ -1,0 +1,8 @@
+{
+  "commit": "cba7a7ad1e9fbbe1df92d3627ea00e4b0572b518",
+  "test_path": "tests/cloud-orchestration-verification.tests.py",
+  "initial_candidate_sha256": "7cdbf61264499cec788e7da535f9c0b1cdb603d555975b93498cc1a2e65f0135",
+  "red_test_sha256": "c67274ccda407e2b8ebf3bb74376c0306171d3dfd48b488b265d11afe22a47b4",
+  "preflight_sha256": "c0176238aa4dbfdfc41ca2f7f309b0ab3e7c3b4c0054a9f857bc36743766b49f",
+  "prior_candidate_note": "Commit retains 112 additions/11 deletions of pre-existing T-006 candidate context in this shared test file; only two new ProtectedProfileCases tests are T-009 Red. Neither failure is missing-component/setup."
+}

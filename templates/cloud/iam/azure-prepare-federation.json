@@ -1,0 +1,8 @@
+{
+  "name": "github-cloud-prepare",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:REPLACE_ORG/REPLACE_CONTROL_REPO:environment:sandbox-prepare:workflow_ref:REPLACE_ORG/REPLACE_CONTROL_REPO/.github/workflows/cloud-azure.yml@refs/heads/main:workflow_sha:REPLACE_REVIEWED_40_HEX_CONTROL_COMMIT",
+  "audiences": [
+    "api://AzureADTokenExchange"
+  ]
+}

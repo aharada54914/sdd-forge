@@ -1,0 +1,6 @@
+{
+  "url": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html",
+  "sha256": "e5349f6cbfdbc717cf8967f8a3c9aad7293d3b5e171249e610ceb3173e3ee707",
+  "purpose": "Public read-only contract clarification: Provider is OIDC iss, including https scheme; not a cloud operation or credentialed request.",
+  "recorded_at": "2026-10-18T05:15:48Z"
+}

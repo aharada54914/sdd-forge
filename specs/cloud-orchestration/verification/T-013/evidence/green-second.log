@@ -1,0 +1,13 @@
+test_denied_prepare_and_revoked_apply_zero_mutations (__main__.AwsExecution.test_denied_prepare_and_revoked_apply_zero_mutations) ... ok
+test_every_bound_file_mismatch_blocks_before_native_mutation (__main__.AwsExecution.test_every_bound_file_mismatch_blocks_before_native_mutation) ... ok
+test_exact_async_assets_native_role_failure_settings_and_single_execution (__main__.AwsExecution.test_exact_async_assets_native_role_failure_settings_and_single_execution) ... ok
+test_native_binding_substitutions_and_pagination_block (__main__.AwsExecution.test_native_binding_substitutions_and_pagination_block) ... ok
+test_no_change_only_unambiguous_native_failed_diagnosis (__main__.AwsExecution.test_no_change_only_unambiguous_native_failed_diagnosis) ... ok
+test_recovery_scope_mismatch_no_native_reads_even_after_expiry (__main__.AwsExecution.test_recovery_scope_mismatch_no_native_reads_even_after_expiry) ... ok
+test_timeout_original_id_read_only_recovery_and_old_archive_replay (__main__.AwsExecution.test_timeout_original_id_read_only_recovery_and_old_archive_replay) ... ok
+test_versioned_asset_substitution_and_bucket_owner_fail_closed (__main__.AwsExecution.test_versioned_asset_substitution_and_bucket_owner_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 2.125s
+
+OK

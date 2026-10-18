@@ -1,0 +1,12 @@
+RUN_ID: 01a14e3f-5838-7ce0-a3ce-51482ba85566
+HOST_SESSION_ID: 01a14e3f-5838-7ce0-a3ce-51482ba85566
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-013/quality-cycle-1-recheck/review/invocation.json SHA-256 09ce09d4fac742f3b3c365a167e44de7a08810452c61cdf93c4cc6b5f95e04ce
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] reports/implementation/cloud-orchestration/T-013.md:370 — Required executed field/counterpart/mismatch preflight is not demonstrated. The report says all mismatch cases executed, but `evidence/red.log` shows all eight tests stopped in `setUp` because the executor file was absent; no mismatch test body ran. This establishes missing-component Red evidence, not the mismatch preflight required by tasks.md:319 and AGENTS.md.
+CHECKED:
+- Verified invocation digest, reservation-record hash, sequence linkage, and distinct implementation-context identity.
+- Inspected AWS execution, transport, control, caller and test code line by line: exact artifact/readback binding, final-send admission, replay fences, original-token recovery and genuine no-op handling are implemented.
+- Inspected saved recheck commands/output: execution 86/86, routing 86/86 and contracts 31/31 passed; Ruff and mypy passed. Tests were not rerun in this read-only evaluation.
+- Compared admitted initial/current sources: existing admission/Azure test prefix is preserved. Saved disposable rollback logs show candidate 86 tests and restored baseline 60 tests passing.
+- Live IAM, cloud concurrency and TEST-003/005/009 remain unverified/BLOCKED; offline evidence does not establish those guarantees.

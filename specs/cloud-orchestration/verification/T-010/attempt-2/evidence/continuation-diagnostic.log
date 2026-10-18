@@ -1,0 +1,15 @@
+NETWORK_SENTINEL_PARENT_CHILD_PASS
+test_approval_self_review_uses_stable_id_despite_extra_metadata (__main__.DependencyBoundaryCases.test_approval_self_review_uses_stable_id_despite_extra_metadata) ... ok
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyBoundaryCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyBoundaryCases.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyBoundaryCases.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_each_write_reacquires_and_final_scan_revocation_blocks (__main__.DependencyBoundaryCases.test_each_write_reacquires_and_final_scan_revocation_blocks) ... ok
+test_freshness_expires_during_final_acquisition_not_consumer_lease (__main__.DependencyBoundaryCases.test_freshness_expires_during_final_acquisition_not_consumer_lease) ... ok
+test_physically_resolved_temporary_root (__main__.DependencyBoundaryCases.test_physically_resolved_temporary_root) ... ok
+test_read_only_verify_policy_is_loadable_but_never_a_writer (__main__.DependencyBoundaryCases.test_read_only_verify_policy_is_loadable_but_never_a_writer) ... ok
+test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 26.562s
+
+OK

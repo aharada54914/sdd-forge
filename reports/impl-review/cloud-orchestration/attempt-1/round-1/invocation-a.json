@@ -1,0 +1,57 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "cloud-orchestration",
+  "run_id": "01a14d2d-6986-73f0-9fd7-c7b1180012aa",
+  "host_session_id": "01a14d2d-6986-73f0-9fd7-c7b1180012aa",
+  "sequence": 1201,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "e272daf2a01a81648f6ddb5acb5bfacb97c93fe6ca1f8da340510d1986efad95",
+  "previous_record_sha256": "40238694b58f4c77502f17e13513c8a0bf3e3dab4ea903f686b1cdec534910c7",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "a6961460c29e6612aff917f7aaf2ba5a58fbed1636c0745312a0045e04933a13"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "94dc8ef93766bce1cabcf08913f1830398e531f825166adc852dacfba2f98ec0"
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+    },
+    {
+      "path": "reports/impl-review/cloud-orchestration/attempt-1/round-1/precheck-result.json",
+      "sha256": "77f1e30387cfc98a7bbbf5a3861f68f7aed5d72e44cadb416d845f0a5fbba79a"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "b45b4d44ac1bb610998a0827179cfe8da7fbc4dc699ebc6a09430d559101f32f"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    }
+  ]
+}

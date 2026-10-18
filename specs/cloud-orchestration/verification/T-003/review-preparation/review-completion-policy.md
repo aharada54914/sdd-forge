@@ -1,0 +1,3 @@
+# Independent review completion boundary
+
+The implementation report is a pre-review snapshot. The current fresh reserved evaluator supplies the named independent reviewer verdict. Root separately executes deterministic quality gates and evidence-bundle validation. After delivery, the canonical gate report and verification completion record bind the actual run/session, exact inputs and verdict; the frozen implementation report is not retroactively rewritten. No future PASS is asserted here. This is the same boundary documented for T-002 and follows the root AGENTS.md freeze/addendum rule. A successful local review does not resolve live OQ-001; T-003 remains short of Done.

@@ -1,0 +1,19 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py WorkloadRangeCases
+OFFLINE_GUARD_INSTALLED
+test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) ... 
+  test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=0, maximum=1) ... FAIL
+
+======================================================================
+FAIL: test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) (provider='aws', minimum=0, maximum=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 2927, in test_native_bucket_minimum_and_maximum
+    self.assertEqual(
+AssertionError: True != False
+
+----------------------------------------------------------------------
+Ran 1 test in 0.031s
+
+FAILED (failures=1)
+
+Exit code: 1

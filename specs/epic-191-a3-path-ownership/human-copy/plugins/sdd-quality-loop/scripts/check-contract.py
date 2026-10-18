@@ -454,6 +454,20 @@ def run(contract_path, root):
     except json.JSONDecodeError as exc:
         return "?", [f"contract JSON parse error: {exc}"]
 
+    # Cloud runtime is deliberately lazy: the legacy entry remains stdlib 3.6+.
+    if isinstance(contract, dict) and contract.get("schema") == "verification-contract/v3":
+        if sys.version_info < (3, 10):
+            return contract.get("task_id", "?"), ["cloud profile requires Python 3.10+"]
+        try:
+            from cloud_verification import saved_profile_plan
+            with open(contract_path, "rb") as stream:
+                saved_profile_plan(stream.read(), _discover_project_root(contract_path, root))
+        except (ImportError, OSError, ValueError, TypeError, KeyError) as exc:
+            return contract.get("task_id", "?"), ["cloud profile invalid: " + str(exc)]
+        return contract.get("task_id", "?"), ["cloud profile requires fresh authenticated collection; saved evidence is not provenance"]
+    if isinstance(contract, dict) and "profile" in contract:
+        return contract.get("task_id", "?"), ["cloud profile requires verification-contract/v3"]
+
     checks_raw = contract.get("checks", [])
     failures = []
 

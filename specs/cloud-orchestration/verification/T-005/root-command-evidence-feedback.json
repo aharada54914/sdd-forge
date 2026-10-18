@@ -1,0 +1,17 @@
+{
+  "request": {
+    "id": 900008,
+    "method": "turn/steer",
+    "params": {
+      "threadId": "01a14dcb-540f-74f1-ac06-0cb8ccbe95f8",
+      "expectedTurnId": "01a14dcb-545b-7b71-ad36-451a5da58c61",
+      "input": [
+        {
+          "type": "text",
+          "text": "Evidence correction before handoff: evidence/verify-local.py writes native-execution.json command as [python, -B, tests/...py, \"AwsNativePreparation (fixture setup + real plan/validate subprocesses)\"]. That final label is not an actual executable argv you ran. Record the actual verify-local.py invocation as command and put fixture/harness description in a separate field. Preserve the initial metadata, and document the correction against the actual native command event (or capture in a fresh output location if rerunning). Do not claim the pseudo-argument was a real CLI call. No need to rerun the whole routing suite for this metadata correction. Keep ignored __pycache__ and raw native events/stderr out of report Outputs/publication."
+        }
+      ]
+    }
+  },
+  "scope": "before-review evidence correction; not a gate verdict"
+}

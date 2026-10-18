@@ -1,0 +1,65 @@
+{
+  "base_revision": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+  "checkout": "/tmp/cloud-t001-01a14d52/rollback",
+  "snapshot": "/tmp/cloud-t001-01a14d52/inputs",
+  "note": "Restore initial candidate bytes, not HEAD: repair predates this task. No identity ledger, approval, historical evidence or original worktree was restored.",
+  "before": {
+    "tests/sdd-domain-multitarget-foundation.tests.py": "42c7cf69f07e3d0e7c8187a48c5b055dbeb169d63810510ef29f6628e49b225f",
+    "specs/sdd-domain-multitarget/verification/T-001/current-consumer-inventory.json": "a68bc71819ca523c005df8108ab4876a6925fd7632c09d7702c3f11734529459",
+    "tests/run-all.sh": "6b5982e518343880576848ff1a9ee8356bfa1ad316319209bd2368639161c904",
+    "tests/run-all.ps1": "e5d6afc5a8b0f711529d6ba8c39dd88d95a4e48d40309bab67ea9f512c124ef8",
+    "tests/run-all-python.tests.ps1": "4e11b5e802d8c47d0c03b198348cdbe04bc705291095c10b1f35e2e93f725bab",
+    ".github/workflows/test.yml": "e53202328828e113ab37d9e56b17706b9f22c78d8a905647a8f44bfad24a3182"
+  },
+  "mutated": {
+    "tests/sdd-domain-multitarget-foundation.tests.py": "42c7cf69f07e3d0e7c8187a48c5b055dbeb169d63810510ef29f6628e49b225f",
+    "specs/sdd-domain-multitarget/verification/T-001/current-consumer-inventory.json": "9b2885f1e61c4003a882acdb502aa4e6c2777c450f6541499de2543914944f92",
+    "tests/run-all.sh": "6b5982e518343880576848ff1a9ee8356bfa1ad316319209bd2368639161c904",
+    "tests/run-all.ps1": "e5d6afc5a8b0f711529d6ba8c39dd88d95a4e48d40309bab67ea9f512c124ef8",
+    "tests/run-all-python.tests.ps1": "4e11b5e802d8c47d0c03b198348cdbe04bc705291095c10b1f35e2e93f725bab",
+    ".github/workflows/test.yml": "e53202328828e113ab37d9e56b17706b9f22c78d8a905647a8f44bfad24a3182"
+  },
+  "restored": {
+    "tests/sdd-domain-multitarget-foundation.tests.py": "42c7cf69f07e3d0e7c8187a48c5b055dbeb169d63810510ef29f6628e49b225f",
+    "specs/sdd-domain-multitarget/verification/T-001/current-consumer-inventory.json": "a68bc71819ca523c005df8108ab4876a6925fd7632c09d7702c3f11734529459",
+    "tests/run-all.sh": "6b5982e518343880576848ff1a9ee8356bfa1ad316319209bd2368639161c904",
+    "tests/run-all.ps1": "e5d6afc5a8b0f711529d6ba8c39dd88d95a4e48d40309bab67ea9f512c124ef8",
+    "tests/run-all-python.tests.ps1": "4e11b5e802d8c47d0c03b198348cdbe04bc705291095c10b1f35e2e93f725bab",
+    ".github/workflows/test.yml": "e53202328828e113ab37d9e56b17706b9f22c78d8a905647a8f44bfad24a3182"
+  },
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/sdd-domain-multitarget-foundation.tests.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/sdd-domain-multitarget-foundation.tests.py"
+      ],
+      "exit_code": 1
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/sdd-domain-multitarget-foundation.tests.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/run-all-python.tests.ps1"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

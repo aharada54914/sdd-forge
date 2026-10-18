@@ -1,0 +1,14 @@
+{
+  "id": 900091,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14ed8-ab42-7832-8945-e75ca77b0d2e",
+    "expectedTurnId": "01a14ed8-ab82-7e80-ab82-8a651f31ebec",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root resolved your provenance question using local pstack-architect and the approved existing trust boundary. Read specs/cloud-orchestration/verification/T-009/root-provenance-design.md and admit it as supplemental input before using it. Prefer deterministic protected selection integrated into the EXISTING in-process fresh authenticated collector positive path; saved-file CLI cannot claim overall cloud PASS without provenance. No new issuer/signature system or public trust flag. Minimal cloud_verification/provider-call selection seam is authorized within T009; do not implement T010 receipt scheduling. Distinguish positive selection from authoritative health, preserve synthetic BLOCKED. If genuinely infeasible, report exact callable conflict while continuing safe inventory/tests."
+      }
+    ]
+  }
+}

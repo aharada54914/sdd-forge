@@ -1,0 +1,12 @@
+{
+  "run_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "session_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "agent_instance_id": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "model_tier": "strong",
+  "identity_source": "caller native allocation and stable allocation response; not CODEX_THREAD_ID",
+  "allocation_sha256": "6fab4f7242c4404119dbc9d255a54ba0f9834dbada87f3c519bbb24dcdd045ea",
+  "live_cloud_execution": false
+}

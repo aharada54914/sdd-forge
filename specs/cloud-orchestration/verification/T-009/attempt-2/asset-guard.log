@@ -1,0 +1,15 @@
+test_executed_preview_requires_actual_asset_readback (__main__.ProfileAwsReadbackCases.test_executed_preview_requires_actual_asset_readback) ... FAIL
+
+======================================================================
+FAIL: test_executed_preview_requires_actual_asset_readback (__main__.ProfileAwsReadbackCases.test_executed_preview_requires_actual_asset_readback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 3964, in test_executed_preview_requires_actual_asset_readback
+    with self.assertRaisesRegex(ValueError, "S3_SUBSTITUTION"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.528s
+
+FAILED (failures=1)

@@ -1,0 +1,11 @@
+{
+  "task_id": "T-004",
+  "review_run_id": "01a14dbe-2a3a-7221-819e-f459ecb038a2",
+  "implementation_run_id": "01a14d9e-7a63-71c2-a07c-aa71d275b9de",
+  "verdict": "NEEDS_WORK",
+  "manifest_sha256": "144da457b2790b023da45d9581714185363a82cd5d4e3dc580bfba66880a7007",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261018-cloud-orchestration-T-004-cycle-1.md",
+  "completion_scope": "NEEDS_WORK preserves the actual cycle-1 findings. Retain Implementation Complete pending fresh independent evaluation and bundle validation."
+}

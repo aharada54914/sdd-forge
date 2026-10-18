@@ -1,0 +1,3 @@
+113 historical evidence artifacts unchanged; original manifest and first handoff preserved
+21 of 22 rollback candidate files unchanged; only tests/install-cloud.tests.py strengthened
+Separate in-process authenticated-deadline probe unchanged

@@ -1,0 +1,30 @@
+$ python3 -B -c 'import runpy,sys; from unittest.mock import patch; path=sys.argv.pop(1); guard=patch('"'"'urllib.request.OpenerDirector.open'"'"', side_effect=AssertionError('"'"'LIVE_NETWORK_FORBIDDEN_IN_ROLLBACK'"'"')); guard.start(); print('"'"'OFFLINE_GUARD_INSTALLED'"'"',flush=True); runpy.run_path(path,run_name='"'"'__main__'"'"')' tests/cloud-orchestration-verification.tests.py AzureClosureAndDcrCases.test_permission_closure_mismatches
+OFFLINE_GUARD_INSTALLED
+test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) ... 
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='principal') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='principal') ... FAIL
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='principal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 1108, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='principal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/cloud-orchestration-verification.tests.py", line 1108, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.043s
+
+FAILED (failures=2)
+
+Exit code: 1

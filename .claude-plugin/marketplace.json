@@ -21,7 +21,7 @@
     {
       "name": "sdd-ship",
       "source": "./plugins/sdd-ship",
-      "description": "Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow.",
+      "description": "Implement approved SDD tasks through the quality gate to Done \u2014 the second of the two-command workflow.",
       "version": "1.18.0",
       "author": {
         "name": "Harada"
@@ -68,6 +68,24 @@
       "source": "./plugins/sdd-domain",
       "description": "Domain-Driven Design upstream lane producing a human-approved domain model ahead of sdd-forge Phase 1.",
       "version": "1.18.0",
+      "author": {
+        "name": "Harada"
+      }
+    },
+    {
+      "name": "sdd-azure-cloud",
+      "version": "1.18.0",
+      "source": "./plugins/sdd-azure-cloud",
+      "description": "Explicit opt-in Azure orchestration: local planning and validation, protected CI execution, and read-only verification.",
+      "author": {
+        "name": "Harada"
+      }
+    },
+    {
+      "name": "sdd-aws-cloud",
+      "version": "1.18.0",
+      "source": "./plugins/sdd-aws-cloud",
+      "description": "Explicit opt-in AWS orchestration: local planning and validation, protected CI execution, and read-only verification.",
       "author": {
         "name": "Harada"
       }

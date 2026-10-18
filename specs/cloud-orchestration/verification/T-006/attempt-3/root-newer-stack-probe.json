@@ -1,0 +1,104 @@
+{
+  "recorded_at": "2026-10-18T10:48:38.162514+00:00",
+  "classification": "actual production observe over explicitly synthetic local transports; not live cloud or independent review",
+  "sources": {
+    "tests/cloud-orchestration-verification.tests.py": "3454273a546e213a0e23b9ed742859f965518f7cdf741a760698bb0eb1fd761f",
+    "tests/cloud-orchestration-execution.tests.py": "3ded22c4377536bfa7925555935d4e14a614263674c1d3acf2a973570cb14703",
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py": "56759940ccd05651c66e8458e7987d61f3eef845bce52bbf8db4e4bd39516d36",
+    "plugins/sdd-aws-cloud/scripts/aws_execution.py": "69ba7b8b9fe43c1ddcb0a7af0b38f2c5f60affc7e86d02c3710e8a168b5974f7",
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py": "76388e9f22feee45ed34a72e6b65cd45869fef38cc8bcb493b4abf0a525caf55"
+  },
+  "scenario": "Original UPDATE succeeded; current stack history has a newer other-token UPDATE_COMPLETE; current stack resource lookup resolves a different valid EC2 physical ID; all current read-only health fixture responses are healthy",
+  "old_instance_id": "i-0123456789abcdef0",
+  "current_instance_id": "i-fedcba98765432100",
+  "verification": {
+    "checks": [
+      {
+        "check_id": "resource",
+        "observation": {
+          "path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/newer-stack-probe.json.resource.json",
+          "sha256": "c4e7e88bb9f59b0d482157c87cfd1bf29d4b48482fc60e53db9dd9e08ae04deb"
+        },
+        "result": "PASS"
+      },
+      {
+        "check_id": "network",
+        "observation": {
+          "path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/newer-stack-probe.json.network.json",
+          "sha256": "44938af34fab60721ce2ef10d3104b278ec18c3bcff34ef73aafc12677c0963d"
+        },
+        "result": "PASS"
+      },
+      {
+        "check_id": "identity",
+        "observation": {
+          "path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/newer-stack-probe.json.identity.json",
+          "sha256": "55d14632a76826d26f69083a116b63db2cb756000f0d1fba06aa1fdc28083307"
+        },
+        "result": "PASS"
+      },
+      {
+        "check_id": "monitoring",
+        "observation": {
+          "path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/newer-stack-probe.json.monitoring.json",
+          "sha256": "78e4dc2adf7366b8482215c844d749837095ed17d75ca105a34c636c8c246561"
+        },
+        "result": "PASS"
+      },
+      {
+        "check_id": "workload",
+        "observation": {
+          "path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/newer-stack-probe.json.workload.json",
+          "sha256": "a65ac20eb16b2af4dd5697d54ff5ce54880fdfa3f0fbe60bd9665918e966f160"
+        },
+        "result": "PASS"
+      },
+      {
+        "check_id": "backup",
+        "observation": {
+          "path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/newer-stack-probe.json.backup.json",
+          "sha256": "0bb8326df71069e33740567c5989235ee3b560ba6c42a3413250c49524121bc3"
+        },
+        "result": "PASS"
+      }
+    ],
+    "evidence_complete": false,
+    "overall_result": "PASS",
+    "profile": {
+      "id": "synthetic-profile",
+      "path": "bundle/profile.json",
+      "sha256": "4ec5f27f718f26f6086dad4216fc8e1a909aba5fed9ba971575c7d57c69747d4",
+      "version": "1"
+    },
+    "provider": "aws",
+    "required_check_ids": [
+      "resource",
+      "network",
+      "identity",
+      "monitoring",
+      "workload",
+      "backup"
+    ],
+    "run_id": "synthetic-run",
+    "schema": "cloud-verification/v1",
+    "unit_id": "synthetic-unit"
+  },
+  "public_operation": {
+    "schema": "cloud-operation-result/v1",
+    "run_id": "synthetic-run",
+    "unit_id": "synthetic-unit",
+    "provider": "aws",
+    "operation": "verify",
+    "state": "BLOCKED",
+    "result": "BLOCKED",
+    "error_code": "EVIDENCE_INCOMPLETE",
+    "message": "Fresh read-only checks; consult the bound evidence manifest.",
+    "input_manifest_sha256": "adc17808537ff7f96ca44629f655fdf2793ce55687a29981855601f875b35440",
+    "evidence_manifest_path": "specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/newer-stack-probe.json.manifest.json",
+    "native_operation_id": "arn:aws:cloudformation:us-east-1:111111111111:changeSet/sdd-adc17808537ff7f96ca44629f655fdf2793ce55687a29981855601f875b35440/native-id"
+  },
+  "context_resource_ids": [
+    "arn:aws:ec2:us-east-1:111111111111:instance/i-fedcba98765432100"
+  ],
+  "native_write_count_unchanged": true
+}

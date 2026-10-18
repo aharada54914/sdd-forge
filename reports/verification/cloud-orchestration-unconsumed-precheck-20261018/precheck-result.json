@@ -1,0 +1,16 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "cloud-orchestration",
+  "attempt": 2,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "cfe74e147ed7e99955e0bf5ab6c9117c0670de0bf3c9d2da4bd4f6f77c5deef5",
+  "acceptance_sha256": "b5291026cd07b153f2385822b76ab9c050061b3ced4cffd049492d4127fe3a2f",
+  "investigation_sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "405fdab2df695c916a32cd804c44f64f2cb09bce16ed5354aa65c0ca7cfdc97e",
+  "edit_summary": "",
+  "reset": true,
+  "generated_at": "2026-10-18T04:13:52Z"
+}

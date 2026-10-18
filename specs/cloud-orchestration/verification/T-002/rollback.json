@@ -1,0 +1,87 @@
+{
+  "classification": "local disposable checkout; no cloud resources",
+  "base_revision": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+  "before": {
+    "contracts/cloud-authorization-receipt.schema.json": null,
+    "contracts/cloud-dependency-lock.schema.json": null,
+    "contracts/cloud-input-error.schema.json": null,
+    "contracts/cloud-observation.schema.json": null,
+    "contracts/cloud-operation-result.schema.json": null,
+    "contracts/cloud-preview.schema.json": null,
+    "contracts/cloud-run-request.schema.json": null,
+    "contracts/cloud-verification.schema.json": null,
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": null,
+    "tests/cloud-orchestration-contracts.tests.py": null
+  },
+  "candidate": {
+    "contracts/cloud-authorization-receipt.schema.json": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8",
+    "contracts/cloud-dependency-lock.schema.json": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec",
+    "contracts/cloud-input-error.schema.json": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77",
+    "contracts/cloud-observation.schema.json": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826",
+    "contracts/cloud-operation-result.schema.json": "78c63243cfe6abea7bb4cc2bb190fd617879248311bde065bf35a69c567368ac",
+    "contracts/cloud-preview.schema.json": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99",
+    "contracts/cloud-run-request.schema.json": "c7492ec7c790db1f5449070817f7e52b19707aa72bd04cba2089410c0e6ca125",
+    "contracts/cloud-verification.schema.json": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e",
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": "284d6189da9279327973a757104c15a650827968d9849f76639dfa0b20a0fd5a",
+    "tests/cloud-orchestration-contracts.tests.py": "5bce4bd58638266eac92bdea3a8e394324ce74fdb3c8676158b2285a47256c72"
+  },
+  "restored": {
+    "contracts/cloud-authorization-receipt.schema.json": null,
+    "contracts/cloud-dependency-lock.schema.json": null,
+    "contracts/cloud-input-error.schema.json": null,
+    "contracts/cloud-observation.schema.json": null,
+    "contracts/cloud-operation-result.schema.json": null,
+    "contracts/cloud-preview.schema.json": null,
+    "contracts/cloud-run-request.schema.json": null,
+    "contracts/cloud-verification.schema.json": null,
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py": null,
+    "tests/cloud-orchestration-contracts.tests.py": null
+  },
+  "commands": [
+    {
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "/tmp/cloud-T-002-01a14d58/rollback-checkout",
+        "ebf77988270b848b4c58c65721a10c135fc6db0d"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "rollback-checkout.log"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/project-context-schema.tests.sh"
+      ],
+      "cwd": "/tmp/cloud-T-002-01a14d58/rollback-checkout",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "rollback-baseline-before.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-contracts.tests.py"
+      ],
+      "cwd": "/tmp/cloud-T-002-01a14d58/rollback-checkout",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "rollback-candidate-green.log"
+    },
+    {
+      "command": [
+        "bash",
+        "tests/project-context-schema.tests.sh"
+      ],
+      "cwd": "/tmp/cloud-T-002-01a14d58/rollback-checkout",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "rollback-baseline-after.log"
+    }
+  ]
+}

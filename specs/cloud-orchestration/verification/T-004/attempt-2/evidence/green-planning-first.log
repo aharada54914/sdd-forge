@@ -1,0 +1,223 @@
+test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) ... ok
+test_input_output_alias_is_not_overwritten (__main__.AzureCliContract.test_input_output_alias_is_not_overwritten) ... ok
+test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) ... ok
+test_unknown_operation_and_flag_are_typed_rejections (__main__.AzureCliContract.test_unknown_operation_and_flag_are_typed_rejections) ... ok
+test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureNativePreparation.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) ... ok
+test_explicit_unsupported_inventory_and_provider_mismatch (__main__.AzureNativePreparation.test_explicit_unsupported_inventory_and_provider_mismatch) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AzureNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_compiler_and_transitive_source_rejected (__main__.AzureNativePreparation.test_missing_compiler_and_transitive_source_rejected) ... FAIL
+test_missing_owner_import_and_metadata_id_preservation (__main__.AzureNativePreparation.test_missing_owner_import_and_metadata_id_preservation) ... ok
+test_mutated_input_output_escape_alias_and_no_overwrite (__main__.AzureNativePreparation.test_mutated_input_output_escape_alias_and_no_overwrite) ... ok
+test_one_explicit_bicep_owner_routes_with_stable_apply_intent (__main__.AzureNativePreparation.test_one_explicit_bicep_owner_routes_with_stable_apply_intent) ... ok
+test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) ... 
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=0) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=1) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=2) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=3) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=4) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=5) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=6) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=7) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=8) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=9) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=10) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=11) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=12) ... FAIL
+  test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=13) ... FAIL
+test_real_compile_locked_plan_and_validate_exact_bytes (__main__.AzureNativePreparation.test_real_compile_locked_plan_and_validate_exact_bytes) ... FAIL
+test_shared_policy_profile_and_root_mismatches (__main__.AzureNativePreparation.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AzureNativePreparation.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unlocked_and_mutated_upstream_and_tool_pin (__main__.AzureNativePreparation.test_unlocked_and_mutated_upstream_and_tool_pin) ... ok
+test_unsupported_filesystem_subprocess (__main__.AzureNativePreparation.test_unsupported_filesystem_subprocess) ... ok
+test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) ... ok
+test_explicit_unsupported_inventory_and_provider_mismatch (__main__.AzureRouting.test_explicit_unsupported_inventory_and_provider_mismatch) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AzureRouting.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_owner_import_and_metadata_id_preservation (__main__.AzureRouting.test_missing_owner_import_and_metadata_id_preservation) ... ok
+test_mutated_input_output_escape_alias_and_no_overwrite (__main__.AzureRouting.test_mutated_input_output_escape_alias_and_no_overwrite) ... ok
+test_one_explicit_bicep_owner_routes_with_stable_apply_intent (__main__.AzureRouting.test_one_explicit_bicep_owner_routes_with_stable_apply_intent) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AzureRouting.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AzureRouting.test_symlink_root_input_and_output_fail_closed) ... ok
+
+======================================================================
+FAIL: test_missing_compiler_and_transitive_source_rejected (__main__.AzureNativePreparation.test_missing_compiler_and_transitive_source_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 378, in test_missing_compiler_and_transitive_source_rejected
+    self.assertEqual(self.invoke("plan", expected=2, env_extra={"CLOUD_BICEP_BIN": "/missing/bicep"})["error_code"], "BICEP_UNAVAILABLE")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'BICEP_UNAVAILABLE'
+- LOCAL_INPUT_UNAVAILABLE
++ BICEP_UNAVAILABLE
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=9)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=12)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) (case=13)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 374, in test_policy_config_mismatch_matrix_before_compiler
+    self.assertEqual(result["error_code"], "LOCAL_POLICY_DENIED")
+AssertionError: 'LOCAL_INPUT_UNAVAILABLE' != 'LOCAL_POLICY_DENIED'
+- LOCAL_INPUT_UNAVAILABLE
++ LOCAL_POLICY_DENIED
+
+
+======================================================================
+FAIL: test_real_compile_locked_plan_and_validate_exact_bytes (__main__.AzureNativePreparation.test_real_compile_locked_plan_and_validate_exact_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 334, in test_real_compile_locked_plan_and_validate_exact_bytes
+    result = self.invoke("plan")
+             ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 326, in invoke
+    return super().invoke(phase, expected, output, {**self.env, **(env_extra or {})})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-routing.tests.py", line 171, in invoke
+    self.assertEqual(proc.returncode, expected, proc.stderr.decode(errors="replace"))
+AssertionError: 2 != 0 : 
+
+----------------------------------------------------------------------
+Ran 25 tests in 7.173s
+
+FAILED (failures=16)

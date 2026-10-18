@@ -1,0 +1,49 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected
+test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) ... 
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-stack') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-resource') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='missing-token') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='same-time') ... FAIL
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-stack')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 1832, in test_newer_or_ambiguous_stack_operation_rejected
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-resource')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 1832, in test_newer_or_ambiguous_stack_operation_rejected
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='missing-token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 1832, in test_newer_or_ambiguous_stack_operation_rejected
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='same-time')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T006-01a14e9b/rollback/tests/cloud-orchestration-verification.tests.py", line 1832, in test_newer_or_ambiguous_stack_operation_rejected
+    self.assertRaises(ValueError),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 2.028s
+
+FAILED (failures=4)
+
+Exit code: 1

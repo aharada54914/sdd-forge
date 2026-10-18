@@ -1,0 +1,14 @@
+{
+  "id": 900301,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14fbf-f5c9-7882-9812-3f4c3010db2f",
+    "expectedTurnId": "01a14fbf-f611-7551-bffb-7f2fc3c24fd4",
+    "input": [
+      {
+        "type": "text",
+        "text": "One concrete retained-payload edge in the current minimal fix: the retained-provider branch creates STAGING_ROOT/plugins/<prior>/runtime even if the new exported source no longer contains that provider entry (its cloud.py/manifests/skill). REQUIRED_PATHS currently checks only the newly selected providers, so a default/non-cloud update can succeed with a runtime-only prior provider and still break its existing registration/CLI. Include a representative canonical-source/export omission of the prior provider entry in failure-preservation tests, both shells, and require its necessary staged entry payload before replacement (reuse existing required-path/export validation; no new state engine or copying old executable bytes). A missing prior provider must either remain fully usable or the update must fail with the old install intact. Preserve the current successful sequential/runtime-tamper tests and opt-in registration semantics. This is the same Critical retention defect and authorized fix scope."
+      }
+    ]
+  }
+}

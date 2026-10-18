@@ -1,0 +1,5 @@
+{
+  "kind": "root-implementation-feedback-correction",
+  "corrects": 900012,
+  "message": "Correction to root feedback 900012: the ACTUAL official DeploymentProperties.template schema description explicitly says 'It can be a JObject or well-formed JSON string' and has no type:object restriction. My claim that your string payload is invalid was wrong. Do NOT introduce an unnecessary change merely for that claim. Preserve the supported string/object representation you validate; record this correction alongside earlier feedback. The separate final-admission-deadline observation still needs inspection/test; no claim about its outcome yet."
+}

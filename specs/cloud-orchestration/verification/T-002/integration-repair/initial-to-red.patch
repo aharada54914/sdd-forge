@@ -1,0 +1,342 @@
+--- pre-repair/tests/cloud-orchestration-contracts.tests.py
++++ committed-red/tests/cloud-orchestration-contracts.tests.py
+@@ -180,6 +180,58 @@
+     }
+ 
+ 
++def local_bodies(scope=None, owner="cdk"):
++    """Strict synthetic local data; never credentials or executable policy."""
++    scope = scope or fixtures()["cloud-run-request/v1"]["scope"]
++    return {
++        "cloud-ownership/v1": dict(schema="cloud-ownership/v1",
++            owners=[dict(owner=owner, root="bundle/unit")],
++            existing_resources=[dict(resource_id="synthetic-resource", owner="terraform",
++                attachments=[dict(resource_type="synthetic/attachment", name="monitor")])]),
++        "cloud-deployment-policy/v1": dict(schema="cloud-deployment-policy/v1",
++            allowed_scopes=[scope], allowed_resource_types=["synthetic/compute"],
++            backup_required=True, private_networking=True,
++            budget=dict(ceiling_minor_units=10000, currency="USD"),
++            evidence=dict(residency="owner-selected", retention_days=30, access="restricted")),
++        "cloud-verification-profile/v1": dict(schema="cloud-verification-profile/v1",
++            id="health", version="1", required_check_ids=["resource", "network", "identity",
++            "monitoring", "workload", "backup"], max_age_seconds=300),
++    }
++
++
++def install_local_context(root, request):
++    """Upgrade an integrity fixture; move inputs, not request/preview evidence."""
++    def put(path, value):
++        data = value if isinstance(value, bytes) else encode(value)
++        dest = root / path
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        dest.write_bytes(data)
++        return ref(path, data)
++    bodies = local_bodies(request["scope"], request["owner"])
++    for item in request["input_artifacts"]:
++        item.update(put("bundle/unit/" + Path(item["path"]).name, b"fixture"))
++    lock = fixtures()["cloud-dependency-lock/v1"]
++    for upstream in lock["upstream"]:
++        upstream["root"] = "bundle/" + upstream["root"]
++        for item in upstream["files"]:
++            item.update(put("bundle/" + item["path"], b"fixture"))
++            item["references"] = ["bundle/" + r for r in item["references"]]
++    for endpoint in lock["managed_endpoints"]:
++        endpoint["tool_schema"] = put("bundle/tool.json", b"fixture")
++    request["dependency_lock"] = put("bundle/lock.json", lock)
++    request["policy"] = put("bundle/policy.json", bodies["cloud-deployment-policy/v1"])
++    request["verification_profile"] = dict(id="health", version="1",
++        **put("bundle/profile.json", bodies["cloud-verification-profile/v1"]))
++    evidence = f"specs/cloud-orchestration/verification/T-002/cloud/{request['run_id']}/{request['unit_id']}"
++    request["local_context"] = dict(workspace_anchor="CLOUD_WORKSPACE_ROOT",
++        artifact_root="bundle", unit_roots=["bundle/unit"], evidence_directory=evidence,
++        feature="cloud-orchestration", task_id="T-002",
++        ownership=put("bundle/ownership.json", bodies["cloud-ownership/v1"]),
++        provider_config=put("bundle/provider.json", b'{"synthetic":true}'))
++    (root / evidence).mkdir(parents=True, exist_ok=True)
++    return request
++
++
+ def nodes(value, path=()):
+     yield path, value
+     if isinstance(value, dict):
+@@ -206,7 +258,7 @@
+             ROOT / "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+             "schema_oracle",
+         )
+-        self.f = fixtures()
++        self.f = {**fixtures(), **local_bodies()}
+         self.temp = tempfile.TemporaryDirectory(prefix="cloud-contracts-")
+         self.addCleanup(self.temp.cleanup)
+         self.root = Path(self.temp.name)
+@@ -782,6 +834,7 @@
+                     optional = (
+                         {"native_operation_id"}
+                         if kind == "cloud-operation-result/v1" and not path
++                        else {"local_context"} if kind == "cloud-run-request/v1" and not path
+                         else set()
+                     )
+                     self.assertEqual(
+@@ -839,5 +892,95 @@
+         self.assertEqual(self.c.read_verified(self.root, original), data)
+ 
+ 
++    def test_repair_local_context_schema_and_each_field(self):
++        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
++        self.both(request, True)
++        for path, node in nodes(request["local_context"]):
++            full = ("local_context",) + path
++            if isinstance(node, dict):
++                for key in list(node) + ["unknown"]:
++                    bad = copy.deepcopy(request)
++                    if key == "unknown":
++                        at(bad, full)[key] = True
++                    else:
++                        del at(bad, full)[key]
++                    self.both(bad, False)
++            elif not isinstance(node, list):
++                bad = copy.deepcopy(request)
++                at(bad, full[:-1])[full[-1]] = {}
++                self.both(bad, False)
++        for field, value in [("workspace_anchor", "HOME"), ("task_id", "T-2"),
++                             ("artifact_root", "../escape"), ("feature", "a/b"),
++                             ("unit_roots", []), ("unit_roots", ["bundle/unit"] * 2)]:
++            bad = copy.deepcopy(request)
++            bad["local_context"][field] = value
++            self.both(bad, False)
++
++    def test_repair_discovery_and_honest_unpublished_errors(self):
++        for owner in (None, "terraform", "sam", "cloudformation", "azd", "bicep", "cdk"):
++            request = dict(fixtures()["cloud-run-request/v1"], operation="route", owner=owner, route=None)
++            self.both(request, True)
++            self.both(dict(request, operation="apply"), False)
++        original = self.f["cloud-operation-result/v1"]
++        for result, state in [("BLOCKED", "BLOCKED"), ("FAIL", "FAILED")]:
++            good = dict(original, result=result, state=state, evidence_manifest_path=None)
++            self.both(good, True)
++            self.both(dict(good, native_operation_id="submitted"), False)
++        for result, state in [("PASS", "PLANNED"), ("NO_CHANGE", "NO_CHANGE"), ("UNKNOWN", "UNKNOWN")]:
++            self.both(dict(original, result=result, state=state,
++                error_code="UNCERTAIN" if result == "UNKNOWN" else None, evidence_manifest_path=None), False)
++
++    def test_repair_explicit_phase_preserves_legacy_integrity_api(self):
++        from unittest.mock import patch
++        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
++        rr = self.put("request.json", request)
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
++            self.c.verify_binding(self.root, rr, None, now=NOW, operation="prepare")
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_binding(self.root, rr, None, now=NOW, operation="apply")
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_binding(self.root, rr, None, now=NOW, operation="route")
++
++    def test_repair_physical_workspace_and_declared_boundary(self):
++        from unittest.mock import patch
++        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
++            self.assertEqual(self.c.workspace_root(), self.root)
++            files = self.c.verify_local_context(self.root, request, execution=True)
++            self.assertIn("bundle/unit/source.bin", files)
++            # A real recursive scan must expose undeclared conflicting metadata to the router.
++            (self.root / "bundle/unit/nested").mkdir()
++            (self.root / "bundle/unit/nested/main.tf").write_text("synthetic")
++            self.assertIn("bundle/unit/nested/main.tf", self.c.verify_local_context(self.root, request))
++            for field, value in [("artifact_root", "other"), ("unit_roots", ["outside"]),
++                                 ("evidence_directory", "bundle/unit"),
++                                 ("evidence_directory", "specs/wrong/verification/T-002/cloud/run-1/unit-1")]:
++                bad = copy.deepcopy(request)
++                bad["local_context"][field] = value
++                with self.assertRaises(self.c.ContractError):
++                    self.c.verify_local_context(self.root, bad)
++            link = self.root / "bundle/unit/link"
++            link.symlink_to(self.root / "bundle/unit/source.bin")
++            with self.assertRaises(self.c.ContractError):
++                self.c.verify_local_context(self.root, request)
++            link.unlink()
++            for field in ("ownership", "provider_config"):
++                dest = self.root / request["local_context"][field]["path"]
++                data = dest.read_bytes()
++                dest.write_bytes(data + b" ")
++                with self.assertRaises(self.c.ContractError):
++                    self.c.verify_local_context(self.root, request)
++                dest.write_bytes(data)
++        for value in ("", "relative", str(self.root / "..")):
++            with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": value}):
++                with self.assertRaises(self.c.ContractError):
++                    self.c.workspace_root()
++        link = self.root / "workspace-link"
++        link.symlink_to(self.root, target_is_directory=True)
++        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(link)}):
++            with self.assertRaises(self.c.ContractError):
++                self.c.workspace_root()
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)
+--- pre-repair/tests/cloud-orchestration-execution.tests.py
++++ committed-red/tests/cloud-orchestration-execution.tests.py
+@@ -201,8 +201,19 @@
+         self.evidence = self.root / "evidence"
+         self.evidence.mkdir()
+         self.writes = []
++        self.local_mode = False
++        self.anchor = patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)})
++        self.anchor.start()
++        self.addCleanup(self.anchor.stop)
+ 
+     def put(self, path, value):
++        if self.local_mode:
++            if path in ("source.bin", "compiled.bin", "asset.bin", "parameters.bin", "module.bin"):
++                path = "bundle/unit/" + path
++            elif path in ("policy.json", "profile.json", "lock.json", "tool.json") or path.startswith("upstream/"):
++                path = "bundle/" + path
++            elif path in ("preview.json", "changes.json"):
++                path = self.request["local_context"]["evidence_directory"] + "/" + path
+         data = value if isinstance(value, bytes) else encode(value)
+         dest = self.root / path
+         dest.parent.mkdir(parents=True, exist_ok=True)
+@@ -210,6 +221,7 @@
+         return dict(path=path, sha256=hashlib.sha256(data).hexdigest())
+ 
+     def setup_case(self, provider="aws", stage="prepare"):
++        self.local_mode = False
+         spec = importlib.util.spec_from_file_location(
+             "contract_fixtures", ROOT / "tests/cloud-orchestration-contracts.tests.py"
+         )
+@@ -226,8 +238,8 @@
+         profile_ref = self.put("profile.json", b"synthetic-profile")
+         request = fixtures["cloud-run-request/v1"]
+         request.update(
+-            operation=stage,
+-            environment="sandbox-" + stage,
++            operation="apply",
++            environment="sandbox",
+             provider=provider,
+             dependency_lock=lock_ref,
+             policy=policy_ref,
+@@ -238,6 +250,12 @@
+             request["scope"].update(account_id=SUBSCRIPTION, region="eastus", deployment_scope="group-1")
+         for item in request["input_artifacts"]:
+             self.put(item["path"], b"fixture")
++        module.install_local_context(self.root, request)
++        self.local_mode = True
++        self.evidence = self.root / request["local_context"]["evidence_directory"]
++        policy_ref = request["policy"]
++        lock_ref = request["dependency_lock"]
++        profile_ref = {k: request["verification_profile"][k] for k in ("path", "sha256")}
+         self.request = request
+         self.request_ref = self.put("request.json", request)
+         self.preview_ref = None
+@@ -271,6 +289,7 @@
+             ref="refs/heads/main",
+             operation=stage,
+             environment="sandbox-" + stage,
++            target_environment="sandbox",
+             environment_id=99,
+             account_id=request["scope"]["account_id"],
+             region=request["scope"]["region"],
+@@ -314,7 +333,7 @@
+                     for p in self.evidence.iterdir():
+                         p.unlink()
+                     ref, _ = self.write()
+-                    receipt = contracts.parse_artifact(contracts.read_verified(self.evidence, ref))
++                    receipt = contracts.parse_artifact(contracts.read_verified(self.root, ref))
+                     self.assertEqual(receipt["schema"], "cloud-authorization-receipt/v1")
+                     for field in ("run_id", "unit_id", "provider", "scope", "dependency_lock", "policy"):
+                         self.assertEqual(receipt[field], self.request[field])
+@@ -490,7 +509,7 @@
+             self.request_ref = self.put("request.json", self.request)
+             self.denied()
+         for field, value in [
+-            ("operation", "apply"),
++            ("operation", "prepare"),
+             ("environment", "other"),
+             ("run_id", "other"),
+             ("unit_id", "other"),
+@@ -520,8 +539,8 @@
+         with self.assertRaises(self.a.AdmissionDenied):
+             self.write(other)
+         self.assertEqual(self.writes, ["write"])
+-        data = contracts.read_verified(self.evidence, ref)
+-        (self.evidence / ref["path"]).write_bytes(data.replace(b'"prepare"', b'"apply"'))
++        data = contracts.read_verified(self.root, ref)
++        (self.root / ref["path"]).write_bytes(data.replace(b'"prepare"', b'"apply"'))
+         with self.assertRaises(self.a.AdmissionDenied):
+             self.write(other)
+         self.assertEqual(self.writes, ["write"])
+@@ -673,7 +692,7 @@
+                 self.put(path, b"changed")
+                 self.denied()
+         self.setup_case(stage="apply")
+-        preview = json.loads((self.root / "preview.json").read_bytes())
++        preview = json.loads((self.root / self.preview_ref["path"]).read_bytes())
+         preview["preview_identity"] = "other-native-preview"
+         self.preview_ref = self.put("preview.json", preview)
+         self.denied()
+@@ -783,5 +802,67 @@
+             self.assertNotIn("*", role["Actions"])
+ 
+ 
++    def test_repair_same_request_prepare_preview_apply_separate_policies(self):
++        for provider in ("aws", "azure"):
++            self.setup_case(provider, "prepare")
++            for file in self.evidence.iterdir():
++                file.unlink()
++            request_bytes = (self.root / self.request_ref["path"]).read_bytes()
++            request_ref = dict(self.request_ref)
++            prepare_policy = self.policy
++            prepare_ref, _ = self.write(mutation="prepare-preview")
++            prepare_receipt = contracts.read_artifact(self.root, prepare_ref)
++            self.assertEqual(prepare_receipt["operation"], "prepare")
++            # Separate protected apply identity; never rewrite the frozen request.
++            self.policy = replace(self.policy, operation="apply", environment="sandbox-apply",
++                aws_role_arn="arn:aws:iam::123456789012:role/cloud-apply")
++            self.transport = DeterministicTransport(provider, "apply")
++            changes = self.put("changes.json", b"synthetic-preview")
++            preview = dict(schema="cloud-preview/v1",
++                **{k: self.request[k] for k in ("run_id", "unit_id", "provider", "scope", "policy", "dependency_lock")},
++                request=self.request_ref, verification_profile={k: self.request["verification_profile"][k] for k in ("path", "sha256")},
++                preview_identity="synthetic-preview", changes=changes, semantic_sha256=changes["sha256"],
++                replacements=[], deletes=[], created_at=utc(NOW), expires_at=utc(NOW + 300))
++            self.preview_ref = self.put("preview.json", preview)
++            self.transport.run["display_title"] = f"cloud:{request_ref['sha256']}:{self.preview_ref['sha256']}"
++            self.boundary = self.a.WriteBoundary(self.policy, self.runtime, self.evidence,
++                transport=self.transport, clock=lambda: NOW)
++            apply_ref, _ = self.write(mutation="apply-exact-preview")
++            apply_receipt = contracts.read_artifact(self.root, apply_ref)
++            self.assertEqual(apply_receipt["operation"], "apply")
++            self.assertNotEqual(prepare_receipt["ci"]["environment"], apply_receipt["ci"]["environment"])
++            self.assertEqual(prepare_policy.policy_sha256, self.policy.policy_sha256)
++            self.assertEqual(prepare_receipt["request"], apply_receipt["request"])
++            self.assertEqual(request_bytes, (self.root / request_ref["path"]).read_bytes())
++            contracts.verify_binding(self.root, request_ref, self.preview_ref, apply_ref,
++                now=utc(NOW), operation="apply")
++        self.assertEqual(len(self.writes), 4)
++
++    def test_repair_stage_target_context_and_digest_controls_zero_submissions(self):
++        for case in ("phase", "target", "protected", "digest", "missing-context", "missing-anchor", "evidence-root", "preview"):
++            with self.subTest(case=case):
++                self.setup_case(stage="apply")
++                if case == "phase":
++                    self.policy = replace(self.policy, operation="prepare")
++                elif case == "target":
++                    self.policy = replace(self.policy, target_environment="production")
++                elif case == "protected":
++                    self.transport.claims["environment"] = "sandbox-prepare"
++                elif case == "digest":
++                    self.policy = replace(self.policy, policy_sha256="b" * 64)
++                elif case == "missing-context":
++                    del self.request["local_context"]
++                    self.request_ref = self.put("request.json", self.request)
++                elif case == "missing-anchor":
++                    os.environ.pop("CLOUD_WORKSPACE_ROOT", None)
++                elif case == "evidence-root":
++                    self.evidence = self.root
++                else:
++                    self.preview_ref = None
++                self.boundary = self.a.WriteBoundary(self.policy, self.runtime, self.evidence,
++                    transport=self.transport, clock=lambda: NOW)
++                self.denied()
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)

@@ -1,0 +1,14 @@
+{
+  "id": 900104,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a14f3e-b525-78c0-9d78-d79635e2a5de",
+    "expectedTurnId": "01a14f3e-b57c-7a41-966b-885034bf442b",
+    "input": [
+      {
+        "type": "text",
+        "text": "One final integration coverage point for the requested Azure/AWS orchestration: current matched fixture loops provider but appears to use the same provider for predecessor and consumer. Before final delivery, exercise an authenticated AWS predecessor admitted at an Azure shared write boundary and Azure predecessor at AWS, plus a mismatched foreign-scope/provenance denial. Reuse existing protocol fixture separation; no extra abstraction or live API. This proves the cross-provider dependency boundary and standalone-provider packaging design, not just two independent same-provider cases. Preserve the A/B/C real-adapter partial-failure test already passing. Then finish scoped regressions/static/rollback/report; root owns further gate and next tasks."
+      }
+    ]
+  }
+}

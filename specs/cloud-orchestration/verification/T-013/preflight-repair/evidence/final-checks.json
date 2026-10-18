@@ -1,0 +1,90 @@
+[
+  {
+    "check": "execution",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/cloud-orchestration-execution.tests.py"
+    ],
+    "started_at": "2026-10-18T09:18:14Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/after-execution.log",
+    "MYPYPATH": null
+  },
+  {
+    "check": "contracts",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/cloud-orchestration-contracts.tests.py"
+    ],
+    "started_at": "2026-10-18T09:18:25Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/after-contracts.log",
+    "MYPYPATH": null
+  },
+  {
+    "check": "ruff",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "specs/cloud-orchestration/verification/T-013/preflight-repair/probes.py",
+      "specs/cloud-orchestration/verification/T-013/preflight-repair/run-mutations.py",
+      "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback.py"
+    ],
+    "started_at": "2026-10-18T09:18:25Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/after-ruff.log",
+    "MYPYPATH": null
+  },
+  {
+    "check": "mypy",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "specs/cloud-orchestration/verification/T-013/preflight-repair/probes.py",
+      "specs/cloud-orchestration/verification/T-013/preflight-repair/run-mutations.py",
+      "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/rollback.py"
+    ],
+    "started_at": "2026-10-18T09:18:25Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/after-mypy.log",
+    "MYPYPATH": "plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts"
+  },
+  {
+    "check": "manifest",
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "specs/cloud-orchestration/verification/T-013/preflight-repair/task-input-manifest.json",
+      "--snapshot-root",
+      "/tmp/cloud-t013-preflight-01a14e44/snapshot",
+      "--expected-task",
+      "T-013"
+    ],
+    "started_at": "2026-10-18T09:18:26Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/after-manifest.log",
+    "MYPYPATH": null
+  },
+  {
+    "check": "report",
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "reports/implementation/cloud-orchestration/T-013-preflight-repair.md"
+    ],
+    "started_at": "2026-10-18T09:18:26Z",
+    "exit_code": 0,
+    "log": "specs/cloud-orchestration/verification/T-013/preflight-repair/evidence/after-report.log",
+    "MYPYPATH": null
+  }
+]

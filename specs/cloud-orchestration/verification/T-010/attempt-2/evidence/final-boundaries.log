@@ -1,0 +1,8 @@
+test_consumer_revocation_during_second_predecessor_acquisition (__main__.DependencyFinalBoundaryCases.test_consumer_revocation_during_second_predecessor_acquisition) ... ok
+test_guards_are_sensitive_not_blanket_denial (__main__.DependencyFinalBoundaryCases.test_guards_are_sensitive_not_blanket_denial) ... ok
+test_standalone_provider_install_does_not_import_other_provider (__main__.DependencyFinalBoundaryCases.test_standalone_provider_install_does_not_import_other_provider) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.445s
+
+OK

@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R3.header-x-amz-server-side-encryption",
+      "row": 3,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "S3_OBJECT_DENIED",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:S3_OBJECT_DENIED",
+      "guards": []
+    }
+  ]
+}

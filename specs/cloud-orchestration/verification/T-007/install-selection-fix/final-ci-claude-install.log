@@ -1,0 +1,7 @@
+ok: lane 0: install=0, startup=0
+ok: lane 0: install=17, startup=0
+ok: lane 0: install=0, startup=19
+ok: lane 1: install=0, startup=0
+ok: lane 1: install=17, startup=0
+ok: lane 1: install=0, startup=19
+Claude installation workflow: 6 passed

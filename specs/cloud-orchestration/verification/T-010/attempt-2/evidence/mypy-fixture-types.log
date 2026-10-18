@@ -1,0 +1,3 @@
+plugins/sdd-quality-loop/scripts/cloud_dependencies.py:608: error: Return value expected  [return-value]
+tests/cloud-orchestration-verification.tests.py:5066: error: Need type annotation for "accepted" (hint: "accepted: list[<type>] = ...")  [var-annotated]
+Found 2 errors in 2 files (checked 6 source files)

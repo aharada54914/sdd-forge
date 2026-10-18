@@ -1,0 +1,34 @@
+[
+  {
+    "id": "fix-lint",
+    "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_contracts.py tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T05:25:34Z",
+    "finished_at": "2026-10-18T05:25:34Z",
+    "evidence": "specs/cloud-orchestration/verification/T-002/quality-cycle-1/fix-lint-final.log"
+  },
+  {
+    "id": "fix-typecheck",
+    "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/cloud_contracts.py tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T05:25:34Z",
+    "finished_at": "2026-10-18T05:25:35Z",
+    "evidence": "specs/cloud-orchestration/verification/T-002/quality-cycle-1/fix-typecheck-final.log"
+  },
+  {
+    "id": "fix-tests",
+    "command": "python3 -B tests/cloud-orchestration-contracts.tests.py",
+    "exit_code": 0,
+    "started_at": "2026-10-18T05:25:35Z",
+    "finished_at": "2026-10-18T05:25:35Z",
+    "evidence": "specs/cloud-orchestration/verification/T-002/quality-cycle-1/fix-tests-final.log"
+  },
+  {
+    "id": "fix-regression",
+    "command": "bash tests/project-context-schema.tests.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-18T05:25:35Z",
+    "finished_at": "2026-10-18T05:25:36Z",
+    "evidence": "specs/cloud-orchestration/verification/T-002/quality-cycle-1/fix-regression-final.log"
+  }
+]

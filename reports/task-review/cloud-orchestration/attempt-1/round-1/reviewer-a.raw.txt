@@ -1,0 +1,112 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "cloud-orchestration",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "01a14d43-acc9-78b2-ac67-73ffaa15ba03",
+  "host_session_id": "01a14d43-acc9-78b2-ac67-73ffaa15ba03",
+  "manifest": [
+    {"path":"specs/cloud-orchestration/requirements.md","sha256":"31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"},
+    {"path":"specs/cloud-orchestration/acceptance-tests.md","sha256":"4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"},
+    {"path":"reports/task-review/cloud-orchestration/attempt-1/round-1/precheck-result.json","sha256":"9da8f27f3f3c797acb9ffee3dcc9f2f47159ebebf01e0e290886fcbb4a2f7d5d"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"},
+    {"path":"specs/cloud-orchestration/design.md","sha256":"f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"},
+    {"path":"specs/cloud-orchestration/tasks.md","sha256":"10059b70a699a5b36810122e4dadce0cca1c0440f64fc4e5babfc059d9c03967"},
+    {"path":"specs/cloud-orchestration/traceability.md","sha256":"3aa1636c38c9bb41ff96da6aba58eb371ffba69b2ed47a979bc173ea657c39fa"},
+    {"path":"specs/cloud-orchestration/ux-spec.md","sha256":"d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"},
+    {"path":"specs/cloud-orchestration/frontend-spec.md","sha256":"586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"},
+    {"path":"specs/cloud-orchestration/infra-spec.md","sha256":"9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"},
+    {"path":"specs/cloud-orchestration/security-spec.md","sha256":"fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"},
+    {"path":"reports/task-review/cloud-orchestration/attempt-1/round-1/dependency-graph.json","sha256":"a90d89b1d909ed5e4c25604cb440dbab523cbbbb9c90de711cee14264e6082ab"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All task AC references resolve to AC-001 through AC-014 in acceptance-tests.md; no dangling identifiers."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid=true. T-001 and T-002 declare None; T-003 through T-008 use comma-separated canonical task IDs."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Requirements fields cover every REQ-001 through REQ-014 across T-001 through T-008; traceability.md records the corresponding assignments."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Done When test clauses explicitly cover AC-001 through AC-014 with TEST-001 through TEST-014, including provider-specific and dependency-failure cases."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each of T-001 through T-008 has a Requirements field containing at least one existing REQ identifier."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No exclusively test-scoped task is present. All eight tasks nevertheless explicitly associate their planned verification with AC identifiers."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All eight tasks declare Approval: Draft and Status: Planned, satisfying attempt-1 round-1 lifecycle requirements."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 and T-008 pair medium with acceptance-first; T-002 through T-007 pair high with tdd. All required fields exist, consistent with workflow_match_precheck=PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Shared AC claims differentiate contract, admission, Azure, AWS, observation and dependency scopes in task titles, goals and test clauses; no undifferentiated duplicate primary test target was found."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every blocker resolves to a declared task and to dependency-graph.json nodes T-001 through T-008; graph edges match the task blocker lists."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Following every graph edge strictly decreases the numeric task ID, so no directed cycle exists. Dependency completeness and blocker formatting passed."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Tasks separate foundation repair, contracts, admission, each provider path, verification, packaging and release delivery. Associated tests and rollback evidence remain tied to their task's concern."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All tasks name inspectable test outcomes, commands or evidence artifacts. T-001 through T-007 identify deterministic suites or native invocation evidence; T-008 identifies exact-commit CI, remote tag comparison and reports/verification/cloud-orchestration-release.md. Shared lifecycle rules place execution evidence in non-frozen addenda. precheck frozen_artifact_done_when is empty, so no flagged items require individual disposition."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md includes every task T-001 through T-008 and only existing requirements REQ-001 through REQ-014. Every requirement row cites an existing canonical anchor in the bound UX, infrastructure or security specification; the layer coverage table also cites frontend-spec.md#testing."
+    }
+  ],
+  "findings": []
+}

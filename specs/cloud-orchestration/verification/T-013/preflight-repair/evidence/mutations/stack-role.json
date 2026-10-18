@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R4.stack-role",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "STACK_AUTHORITY_MISMATCH",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:STACK_AUTHORITY_MISMATCH",
+      "guards": []
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+[work f1e8bf62] test(cloud): record T-010 dependency admission Red and field preflight
+ 3 files changed, 1013 insertions(+), 3 deletions(-)
+ create mode 100644 specs/cloud-orchestration/verification/T-010/attempt-2/evidence/preflight.md
+ create mode 100644 specs/cloud-orchestration/verification/T-010/attempt-2/evidence/red.log

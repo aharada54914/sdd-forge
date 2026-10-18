@@ -1,0 +1,63 @@
+{
+  "classification": "deterministic synthetic GitHub/OIDC/identity/ARM transports; NO live cloud",
+  "manifest_bytes_identical": true,
+  "deployment_submissions": 1,
+  "checks": [
+    {
+      "path": "bundle/profile.json",
+      "schema": "cloud-verification-profile/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "bundle/ownership.json",
+      "schema": "cloud-ownership/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "bundle/lock.json",
+      "schema": "cloud-dependency-lock/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "bundle/policy.json",
+      "schema": "cloud-deployment-policy/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/apply.json",
+      "schema": "cloud-operation-result/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/synthetic-unit.apply.deploy.authorization.json",
+      "schema": "cloud-authorization-receipt/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/synthetic-unit.apply.apply-what-if.authorization.json",
+      "schema": "cloud-authorization-receipt/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/prepare.json",
+      "schema": "cloud-operation-result/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/preview.json",
+      "schema": "cloud-preview/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/synthetic-unit.prepare.prepare-what-if.authorization.json",
+      "schema": "cloud-authorization-receipt/v1",
+      "status": "PASS"
+    },
+    {
+      "path": "bundle/generated/2171d811234c76745844acbc612901606f70bbbf00cace71420a7e4467b8972a.request.json",
+      "schema": "cloud-run-request/v1",
+      "status": "PASS"
+    }
+  ],
+  "health_verified": false
+}

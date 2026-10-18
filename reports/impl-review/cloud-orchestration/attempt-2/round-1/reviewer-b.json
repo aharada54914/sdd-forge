@@ -1,0 +1,126 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "01a14d35-a4a2-7860-a6a6-f30f85547239",
+  "host_session_id": "01a14d35-a4a2-7860-a6a6-f30f85547239",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "a6961460c29e6612aff917f7aaf2ba5a58fbed1636c0745312a0045e04933a13"
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "94dc8ef93766bce1cabcf08913f1830398e531f825166adc852dacfba2f98ec0"
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c"
+    },
+    {
+      "path": "reports/impl-review/cloud-orchestration/attempt-2/round-1/precheck-result.json",
+      "sha256": "ea4a2ef9a4de9cbe642b3122b31b0c9359c46e87a7a7bf000eea5b8d7c763e21"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "b61f7785afe6f75e592d493eeb9fb49bfc60dd9b522875679c76929833fc827e"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "docs/adr/0036-thin-cloud-orchestration.md",
+      "sha256": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc"
+    },
+    {
+      "path": "reports/impl-review/cloud-orchestration/attempt-2/round-1/integrated-summary.json",
+      "sha256": "0ee95f8c43fc3604864079311f6a6eb9b8a51c01d50f31faf243e2c285275e1a"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Architecture and normative execution sections justify provider-owned state, separate cloud lifecycle, exact AWS Change Set execution and Azure preview revalidation. ADR 0036 Alternatives explains rejection of a generic engine and prompt-based authorization."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md OQ-001 and OQ-002 identify environment-owner roles and implementation blocking status. Resolution actions are stated in prose: supply live configuration and complete required repository reviews. Advisory: format these actions explicitly as Resolution Path fields."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Assumptions adopts GitHub Actions, matching requirements.md Assumptions. Protected environments and exclusive ownership are explicitly required external configuration, not assumed verified facts; infra-spec.md CI/CD Sequence documents the cross-repository concurrency limitation."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Constraint Compliance addresses thin integration, ownership, legacy compatibility, write authorization, genuine verification, historical preservation, account/region allowlists, evidence residency/retention and backup/budget prerequisites. Lifecycle and Risks preserve the required timeout and Azure race limitations."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. infra-spec.md Service Level Objectives nevertheless requires bounded polling deadlines and deterministic termination tests."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Deployment / CI Plan specifies packaged plugins, reviewable workflow/IAM templates, credential-free deterministic CI and opt-in protected sandbox jobs. infra-spec.md CI/CD Sequence defines preparation, approval, locking, execution and observation order. No database deployment or incremental feature-flag rollout is proposed."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Data Plan introduces file-based artifacts and explicit cloud verification version/profile dispatch, retaining unchanged legacy dispatch. It declares no database table or column changes; database migration naming, execution order and volume analysis are therefore inapplicable."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md External Integration Inventory identifies GitHub approval APIs, ARM, CloudFormation, authoring toolchains, pinned upstream skills and optional managed MCP, with supported contracts and fail-closed unavailable/drift behavior."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md Documentation and Release Delivery requires selecting a new semantic version, updating release manifests, creating an annotated tag and publishing it to the configured repository. requirements.md Goals REQ-001\u2013012 and User Stories contain no version/tag publication requirement. The design cites an additional user instruction, but that scope extension is not represented in the governing requirements or acceptance criteria. This leaves downstream implementation and release completion obligations inconsistent with the reviewed requirement baseline. Add the authorized release requirement and acceptance coverage, or remove/defer tag publication from this design."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Test Strategy and Unit and Integration Boundaries name four deterministic test entry points, TEST-004\u2013010 adversarial authorization/integrity/recovery checks, isolated verify-codex evidence and separately authorized live trials. security-spec.md Security Tests maps the high-risk boundaries to expected denial and evidence outcomes."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory, as supplied by the host and corroborated by investigation.md. Round 1: no prior-round summary; current summary was not used as substantive review evidence."
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+test_public_verify_uses_original_operation_and_received_signal (__main__.AzureObservationOrchestration.test_public_verify_uses_original_operation_and_received_signal) ... ERROR
+
+======================================================================
+ERROR: test_public_verify_uses_original_operation_and_received_signal (__main__.AzureObservationOrchestration.test_public_verify_uses_original_operation_and_received_signal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1553, in test_public_verify_uses_original_operation_and_received_signal
+    result=case.executor.observe(case.directory+'/observed.json','verify')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_execution.py", line 712, in observe
+    return observe(self, output, phase)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 755, in observe
+    read_bytes(root, receipt_path), "cloud-authorization-receipt/v1"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/cloud.py", line 78, in read_bytes
+    with c._parent(root, path) as (fd, name):
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 390, in _parent
+    raise ContractError('UNSAFE_OR_UNAVAILABLE_FILE') from None
+cloud_contracts.ContractError: UNSAFE_OR_UNAVAILABLE_FILE
+
+----------------------------------------------------------------------
+Ran 1 test in 0.189s
+
+FAILED (errors=1)
