@@ -1,0 +1,168 @@
+test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) ... 
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-stack') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-resource') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='missing-token') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='unordered') ... FAIL
+  test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='same-time') ... FAIL
+test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) ... 
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='newer-deployment') ... FAIL
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='active-deployment') ... FAIL
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='same-time-deployment') ... FAIL
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='deployment-pagination') ... FAIL
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='deployment-denied') ... FAIL
+test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) ... 
+  test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='namespace') ... FAIL
+  test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='resourceregion') ... FAIL
+  test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='interval') ... FAIL
+  test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='timespan') ... FAIL
+  test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='id') ... FAIL
+  test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='metadata-duplicate') ... FAIL
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-stack')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1532, in test_newer_or_ambiguous_stack_operation_rejected
+    with patch.object(wire, "request", side_effect=response), self.assertRaises(ValueError):
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='newer-resource')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1532, in test_newer_or_ambiguous_stack_operation_rejected
+    with patch.object(wire, "request", side_effect=response), self.assertRaises(ValueError):
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='missing-token')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1532, in test_newer_or_ambiguous_stack_operation_rejected
+    with patch.object(wire, "request", side_effect=response), self.assertRaises(ValueError):
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='unordered')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1532, in test_newer_or_ambiguous_stack_operation_rejected
+    with patch.object(wire, "request", side_effect=response), self.assertRaises(ValueError):
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) (variant='same-time')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1532, in test_newer_or_ambiguous_stack_operation_rejected
+    with patch.object(wire, "request", side_effect=response), self.assertRaises(ValueError):
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='newer-deployment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1895, in test_compiled_and_original_operation_membership
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='active-deployment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1895, in test_compiled_and_original_operation_membership
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='same-time-deployment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1895, in test_compiled_and_original_operation_membership
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='deployment-pagination')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1895, in test_compiled_and_original_operation_membership
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='deployment-denied')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1895, in test_compiled_and_original_operation_membership
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='namespace')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 992, in test_metric_context_counterparts
+    with self.subTest(field=field), patch.object(fixture, "request", side_effect=wire), self.assertRaises(ValueError):
+                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='resourceregion')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 992, in test_metric_context_counterparts
+    with self.subTest(field=field), patch.object(fixture, "request", side_effect=wire), self.assertRaises(ValueError):
+                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='interval')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 992, in test_metric_context_counterparts
+    with self.subTest(field=field), patch.object(fixture, "request", side_effect=wire), self.assertRaises(ValueError):
+                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='timespan')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 992, in test_metric_context_counterparts
+    with self.subTest(field=field), patch.object(fixture, "request", side_effect=wire), self.assertRaises(ValueError):
+                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 992, in test_metric_context_counterparts
+    with self.subTest(field=field), patch.object(fixture, "request", side_effect=wire), self.assertRaises(ValueError):
+                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) (field='metadata-duplicate')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 992, in test_metric_context_counterparts
+    with self.subTest(field=field), patch.object(fixture, "request", side_effect=wire), self.assertRaises(ValueError):
+                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.081s
+
+FAILED (failures=16)

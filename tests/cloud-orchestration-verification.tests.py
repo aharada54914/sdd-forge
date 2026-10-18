@@ -752,6 +752,7 @@ class NativeCollectorCases(unittest.TestCase):
             fixture = NativeFixture(provider, "all", "healthy")
             config = copy.deepcopy(fixture.cfg)
             del config["backup"]
+            fixture.cfg = config
             collector = module.Collector(
                 fixture.scope,
                 config,
@@ -973,6 +974,25 @@ class AzureClosureAndDcrCases(unittest.TestCase):
                         self.assertFalse(healthy)
                 self.assertTrue(any(url.split("?")[0].endswith(fixture.cfg["data_collection_rule_id"]) for _, url, _ in fixture.calls))
 
+class AzureMetricContextCases(unittest.TestCase):
+    collector = AzureClosureAndDcrCases.collector
+
+    def test_metric_context_counterparts(self):
+        for field in ("namespace", "resourceregion", "interval", "timespan", "id", "metadata-duplicate"):
+            collector, fixture = self.collector()
+            original = fixture.request
+            def wire(method, url, headers, body=None):
+                response = original(method, url, headers, body)
+                value = json.loads(response.body)
+                if field == "id": value["value"][0]["id"] += "wrong"
+                elif field == "metadata-duplicate": value["value"][0]["timeseries"][0]["metadatavalues"].append(dict(name=dict(value="RunId"), value="synthetic-run"))
+                else: value[field] = "wrong"
+                response.body = encode(value)
+                return response
+            with self.subTest(field=field), patch.object(fixture, "request", side_effect=wire), self.assertRaises(ValueError):
+                collector.workload()
+
+
 class NativeFixture:
     """Native response transport double; NEVER native evidence provenance."""
 
@@ -1150,6 +1170,7 @@ class NativeFixture:
                 else []
             )
             return dict(
+                namespace=query["metricnamespace"][0], resourceregion=self.scope["region"], interval="PT1M", timespan=query["timespan"][0],
                 value=[
                     dict(
                         id=path + "/" + name,
@@ -1410,7 +1431,7 @@ def native_xml(action, values, namespace, ec2=False):
 class AwsObservationOrchestration(unittest.TestCase):
     """Production prepare/apply/observe code over explicitly synthetic transports."""
 
-    def setup_execution(self, *, selectors=True):
+    def setup_execution(self, *, selectors=True, update=False):
         spec = importlib.util.spec_from_file_location(
             "observation_execution_fixtures",
             ROOT / "tests/cloud-orchestration-execution.tests.py",
@@ -1422,6 +1443,10 @@ class AwsObservationOrchestration(unittest.TestCase):
             "test_exact_async_assets_native_role_failure_settings_and_single_execution"
         )
         case.setUp()
+        if update:
+            from dataclasses import replace
+            case.native.existing = True
+            case.native.control = replace(case.native.control, existing_stack_id=case.native.stack)
         self.addCleanup(case.doCleanups)
         sys.modules.pop("aws_observation", None)
         cfg = observation_config("aws")
@@ -1479,6 +1504,34 @@ class AwsObservationOrchestration(unittest.TestCase):
         self.assertEqual(
             set(wire.resolved), {"Workload", "PrivateGroup", "Health", "Protection"}
         )
+
+    def test_newer_or_ambiguous_stack_operation_rejected(self):
+        from dataclasses import replace
+        from urllib.parse import parse_qs
+        import xml.etree.ElementTree as ET
+        for variant in ("newer-stack", "newer-resource", "missing-token", "unordered", "same-time"):
+            with self.subTest(variant=variant):
+                case, wire = self.setup_execution(update=True)
+                self.assertEqual(wire.native.create["ChangeSetType"], "UPDATE")
+                wire.health.cfg["instance_id"] = "i-fedcba98765432100"
+                original = wire.request
+                def response(method, url, headers, body=None):
+                    value = original(method, url, headers, body)
+                    if "cloudformation." in url and parse_qs(body.decode()).get("Action") == ["DescribeStackEvents"]:
+                        tree = ET.fromstring(value.body)
+                        events = next(n for n in tree.iter() if n.tag.endswith("}StackEvents"))
+                        other = copy.deepcopy(list(events)[0])
+                        for node in other:
+                            if node.tag.endswith("}ClientRequestToken"): node.text = "" if variant == "missing-token" else "other-operation"
+                            if node.tag.endswith("}Timestamp"): node.text = "2026-10-18T06:00:00Z" if variant == "same-time" else "2026-10-18T06:00:30Z"
+                            if node.tag.endswith("}ResourceType") and variant == "newer-resource": node.text = "AWS::EC2::Instance"
+                        events.insert(len(events) if variant == "unordered" else 0, other)
+                        value = replace(value, body=ET.tostring(tree))
+                    return value
+                writes = list(wire.writes)
+                with patch.object(wire, "request", side_effect=response), self.assertRaises(ValueError):
+                    case.executor.observe(case.directory + "/newer.json", "verify")
+                self.assertEqual(wire.writes, writes)
 
     def test_legacy_physical_config_rejected_before_admission(self):
         sys.path.insert(0, str(ROOT / "plugins/sdd-aws-cloud/scripts"))
@@ -1782,7 +1835,7 @@ class AzureResourceBindingCases(unittest.TestCase):
             "native-substitute",
             "type",
             "state",
-            "pagination",
+            "pagination", "newer-deployment", "active-deployment", "same-time-deployment", "deployment-pagination", "deployment-denied",
         ):
             current = copy.deepcopy(cfg)
             current.pop("backup")
@@ -1819,6 +1872,12 @@ class AzureResourceBindingCases(unittest.TestCase):
 
                 def call(self, method, url, credentials, request_id):
                     self.last = (method, url)
+                    if "/deployments?" in url:
+                        value = dict(value=[dict(id=native_id, properties=dict(timestamp="2026-10-18T06:00:00Z", provisioningState="Succeeded"))])
+                        if variant in ("newer-deployment", "active-deployment", "same-time-deployment"):
+                            value["value"].append(dict(id=native_id + "-other", properties=dict(timestamp="2026-10-18T05:00:00Z" if variant == "active-deployment" else "2026-10-18T06:00:00Z" if variant == "same-time-deployment" else "2026-10-18T06:00:30Z", provisioningState="Running" if variant == "active-deployment" else "Succeeded")))
+                        if variant == "deployment-pagination": value["nextLink"] = "https://untrusted.example"
+                        return SimpleNamespace(status=403 if variant == "deployment-denied" else 200, body=encode(value))
                     return SimpleNamespace(status=200, body=encode(operations))
 
             client = Client()
@@ -1844,7 +1903,7 @@ class AzureObservationOrchestration(unittest.TestCase):
     o: ModuleType
     g: ModuleType
 
-    def test_public_verify_uses_original_operation_and_received_signal(self):
+    def setup_execution(self):
         import base64
         from types import SimpleNamespace
         from urllib.parse import urlsplit
@@ -1915,6 +1974,8 @@ class AzureObservationOrchestration(unittest.TestCase):
 
         def wire(method, url, headers, body=None):
             path = urlsplit(url).path
+            if path.endswith("/providers/Microsoft.Resources/deployments"):
+                return SimpleNamespace(status=200, headers={}, body=encode(dict(value=[dict(id=native_id, properties=dict(timestamp="2026-10-18T06:00:00Z", provisioningState="Succeeded"))])))
             if path == native_id + "/operations":
                 return SimpleNamespace(
                     status=200,
@@ -2003,13 +2064,17 @@ class AzureObservationOrchestration(unittest.TestCase):
             return original_auth(method, url, headers, body)
 
         case.executor.clock = lambda: 1792303320
+        for target, method in ((case.arm, wire), (auth, metadata)):
+            patched = patch.object(target, "request", side_effect=method)
+            patched.start()
+            self.addCleanup(patched.stop)
+        return case, health
+
+    def test_public_verify_uses_original_operation_and_received_signal(self):
+        case, health = self.setup_execution()
         before = (case.root / case.request_ref["path"]).read_bytes()
         writes = case.arm.submissions
-        with (
-            patch.object(case.arm, "request", side_effect=wire),
-            patch.object(auth, "request", side_effect=metadata),
-        ):
-            result = case.executor.observe(case.directory + "/observed.json", "verify")
+        result = case.executor.observe(case.directory + "/observed.json", "verify")
         verification = json.loads(
             (
                 case.root / (case.directory + "/observed.json.verification.json")

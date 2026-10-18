@@ -53,3 +53,19 @@ variants are currently masked by that quarantine, not proof of replacement guard
 After implementation both native-class mocked I/O and synthetic transports must
 execute each body, with a positive control and targeted guard-removal sensitivity.
 No live/native production evidence follows from these protocol fixtures.
+
+## Current/original operation and metric context correction (before product edits)
+
+context.native_operation_id/resource_ids and observation counterparts join the
+original operation, not a later operation's current resource selector. Actual
+native current stack history / complete Azure resource-group deployment list
+must still identify the original as latest with no active/ambiguous competitor.
+AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected and
+AzureResourceBindingCases.test_compiled_and_original_operation_membership feed
+newer/ambiguous/active/paginated/denied native responses to existing observe/bind
+boundaries. The root probe is synthetic and does not establish a public native
+exploit. AzureMetricContextCases.test_metric_context_counterparts mismatches
+actual metric ID/namespace/region/interval/window and duplicate dimensions against
+the fixed query/configuration (payload status/trace and verification counterparts).
+The first explicit-workspace config Red fails admission (44 errors), not DCR guard
+execution; subsequent green-closure-dcr.log executes all closure/DCR guard bodies.
