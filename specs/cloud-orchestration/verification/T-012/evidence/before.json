@@ -1,0 +1,8 @@
+{
+  "base_revision": "c5b5d7e6e5b746008f7d874c8d55c058f8549203",
+  "task_owned_before": {
+    "plugins/sdd-azure-cloud/scripts/cloud.py": "74d83e53df2776de9b92a6fbdd6a1fa81e189a46173278d67bc11b1de8cae674",
+    "tests/cloud-orchestration-execution.tests.py": "627399f865775a29d6a253779a12eb5a1bf51ed401f5f7034fca48fbe14a2fad"
+  },
+  "path_map": "specs/cloud-orchestration/verification/T-012/inputs/path-map.json"
+}

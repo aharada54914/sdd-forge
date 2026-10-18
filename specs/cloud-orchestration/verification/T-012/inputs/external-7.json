@@ -1,0 +1,7 @@
+{
+  "url": "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/resources/resource-manager/Microsoft.Resources/deployments/stable/2025-04-01/deployments.json",
+  "retrieved_at": "2026-10-18T07:18:21.306600+00:00",
+  "sha256": "65ab0762e17c23943f8247bfac9d62b1a80d526bbdf64fc24700a7599abc78aa",
+  "path": "/tmp/cloud-api-reference/azure-deployments-2025-04-01.json",
+  "purpose": "official API contract read-only research; mutable source URL snapshotted by hash"
+}

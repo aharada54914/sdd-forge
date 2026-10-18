@@ -937,5 +937,305 @@ class Admission(unittest.TestCase):
                 self.denied()
 
 
+# T-012: native ARM request shapes, deterministic transports only; never live IAM.
+class AzureExecution(unittest.TestCase):
+    def setUp(self):
+        import shutil
+        sys.path.insert(0, str(ROOT / "plugins/sdd-azure-cloud/scripts"))
+        self.assertTrue((ROOT / "plugins/sdd-azure-cloud/scripts/azure_execution.py").is_file(),
+                        "T-012 governed Azure executor is absent")
+        import azure_execution as execution
+        import cloud_authorization as auth
+        self.e, self.a = execution, auth
+        self.tmp = tempfile.TemporaryDirectory(prefix="cloud-T012-synthetic-")
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        source = ROOT / "specs/cloud-orchestration/verification/T-012/inputs/native-workspace/bundle"
+        shutil.copytree(source, self.root / "bundle")
+        locked = next((self.root / "bundle/generated").glob("*.request.json"))
+        self.req = json.loads(locked.read_bytes())
+        self.request_bytes = locked.read_bytes()
+        self.request_ref = dict(path=str(locked.relative_to(self.root)),
+                                sha256=hashlib.sha256(self.request_bytes).hexdigest())
+        self.directory = self.req["local_context"]["evidence_directory"]
+        (self.root / self.directory).mkdir(parents=True)
+        self.anchor = patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)})
+        self.anchor.start()
+        self.addCleanup(self.anchor.stop)
+        self.arm = ArmFixture(execution, self.req)
+        self.auths = []
+        self.executor = self.stage("prepare")
+
+    def stage(self, stage, preview=None):
+        transport = AzureAuthFixture(stage, self.req["scope"]["account_id"])
+        transport.run["display_title"] = "cloud:" + self.request_ref["sha256"] + ":" + (
+            preview["sha256"] if preview else "none")
+        self.auths.append(transport)
+        scope = self.req["scope"]
+        policy = self.a.Policy(provider="azure", repository=REPO, repository_id=42,
+            workflow=WORKFLOW, workflow_revision=REV, ref="refs/heads/main", operation=stage,
+            environment="sandbox-" + stage, target_environment=self.req["environment"], environment_id=99,
+            **scope, policy_sha256=self.req["policy"]["sha256"], actors=((7,"operator"),),
+            reviewers=((8,"reviewer"),), exclusive_repository=REPO, ttl_seconds=120,
+            azure_tenant=TENANT, azure_client=CLIENT if stage=="prepare" else APPLY_CLIENT,
+            azure_principal=OBJECT if stage=="prepare" else APPLY_OBJECT)
+        boundary = self.a.WriteBoundary(policy,
+            self.a.Runtime("synthetic-github-bearer", OIDC_URL, "synthetic-oidc-bearer"),
+            self.root / self.directory, transport=transport, clock=lambda: NOW)
+        return self.e.AzureExecutor(self.root, self.request_ref, boundary, arm=self.arm, clock=lambda: NOW,
+                                    sleep=lambda _: None)
+
+    def prepare(self):
+        result = self.executor.prepare(self.directory + "/prepare.json")
+        self.assertEqual(result["result"], "PASS", result)
+        self.preview_ref = json.loads((self.root / result["evidence_manifest_path"]).read_bytes())["preview"]
+        self.executor = self.stage("apply", self.preview_ref)
+        return result
+
+    def apply(self, output="apply.json"):
+        return self.executor.apply(self.preview_ref, self.directory + "/" + output)
+
+    def test_exact_manifest_native_incremental_single_submission_no_compiler(self):
+        with patch("subprocess.run", side_effect=AssertionError("Credentialed compiler execution")):
+            self.prepare()
+            result = self.apply()
+        self.assertEqual((result["state"], result["result"]), ("OBSERVED", "PASS"))
+        self.assertNotIn(result["state"], ("VERIFIED", "EVIDENCE_COMPLETE"))
+        self.assertEqual(self.arm.submissions, 1)
+        self.assertEqual((self.root / self.request_ref["path"]).read_bytes(), self.request_bytes)
+        posts = [json.loads(body) for method, _, body in self.arm.calls if method == "POST"]
+        puts = [json.loads(body) for method, _, body in self.arm.calls if method == "PUT"]
+        self.assertEqual(len(posts), 2)
+        self.assertEqual(posts[0], posts[1])
+        self.assertEqual(posts[0]["properties"]["validationLevel"], "ProviderNoRbac")
+        self.assertEqual(puts[0]["properties"]["mode"], "Incremental")
+        for body in posts + puts:
+            self.assertEqual(body["properties"]["template"], self.arm.template.decode())
+            self.assertEqual(body["properties"]["parameters"], self.arm.parameters["parameters"])
+        self.assertEqual(self.auths[0].azure_claims["oid"], OBJECT)
+        self.assertEqual(self.auths[1].azure_claims["oid"], APPLY_OBJECT)
+        self.assertTrue(all("api-version=2025-04-01" in url for _, url, _ in self.arm.calls))
+
+    def test_bound_field_mismatch_matrix_zero_deployments(self):
+        self.prepare()
+        targets = [self.request_ref, self.req["policy"], self.req["verification_profile"],
+                   self.req["dependency_lock"], self.req["local_context"]["ownership"],
+                   self.req["local_context"]["provider_config"], *self.req["input_artifacts"], self.preview_ref]
+        for n, ref in enumerate(targets):
+            with self.subTest(path=ref["path"]):
+                p = self.root / ref["path"]; original = p.read_bytes()
+                p.write_bytes(original + b" ")
+                self.assertEqual(self.apply("mismatch-"+str(n)+".json")["result"], "BLOCKED")
+                self.assertEqual(self.arm.submissions, 0)
+                p.write_bytes(original)
+        for field, value in (("scope", {**self.req["scope"], "region":"westus"}),
+                             ("owner", "terraform"), ("run_id", "changed")):
+            altered = {**self.req, field:value}
+            p = self.root / self.request_ref["path"]; p.write_bytes(encode(altered))
+            self.assertEqual(self.apply("field-"+field+".json")["result"], "BLOCKED")
+            p.write_bytes(self.request_bytes)
+        self.assertEqual(self.arm.submissions, 0)
+
+    def test_owner_conflict_added_after_preview_zero_submissions(self):
+        self.prepare()
+        (self.root / "bundle/unit/hidden.tf").write_text("")
+        self.assertEqual(self.apply()["result"], "BLOCKED")
+        self.assertEqual(self.arm.submissions, 0)
+
+    def test_owner_race_during_final_admission_zero_submissions(self):
+        self.prepare()
+        original = self.auths[-1].request
+        def mutate(method, url, headers, body=None):
+            if "/approvals" in url and len([x for x in self.arm.calls if x[0]=="POST"]) == 2:
+                (self.root / "bundle/unit/race.tf").write_text("")
+            return original(method,url,headers,body)
+        self.auths[-1].request = mutate
+        self.assertEqual(self.apply()["result"], "BLOCKED")
+        self.assertEqual(self.arm.submissions, 0)
+
+    def test_semantic_drift_zero_submissions(self):
+        self.prepare()
+        self.arm.changes[0]["after"]["tags"] = {"changed":"yes"}
+        self.assertEqual(self.apply()["result"], "BLOCKED")
+        self.assertEqual(self.arm.submissions, 0)
+
+    def test_reordered_semantics_still_one_submission(self):
+        self.prepare()
+        self.arm.changes.reverse()
+        self.assertEqual(self.apply()["result"], "PASS")
+        self.assertEqual(self.arm.submissions, 1)
+
+    def test_unknown_destructive_potential_diagnostics_are_not_dropped(self):
+        for change in ("Delete", "Deploy", "Ignore", "Unsupported", "Replace", "unknown"):
+            with self.subTest(change=change):
+                value = copy.deepcopy(self.arm.preview())
+                value["properties"]["changes"][0]["changeType"] = change
+                with self.assertRaises(ValueError):
+                    self.e.normalize_preview(value, self.req, self.arm.resources, self.arm.ownership)
+        for field, value in (("potentialChanges", [self.arm.changes[0]]),
+                             ("diagnostics", [{"level":"Error", "message":"synthetic"}]),
+                             ("unrecognized", [])):
+            body = self.arm.preview(); body["properties"][field] = value
+            with self.assertRaises(ValueError):
+                self.e.normalize_preview(body, self.req, self.arm.resources, self.arm.ownership)
+        for kind in ("Delete", "unknown", "Array"):
+            body = self.arm.preview(); body["properties"]["changes"][0]["delta"] = [
+                dict(path="properties.unsafe", propertyChangeType=kind)]
+            with self.assertRaises(ValueError):
+                self.e.normalize_preview(body, self.req, self.arm.resources, self.arm.ownership)
+        self.assertEqual(self.arm.submissions, 0)
+
+    def test_referenced_resources_only_explicit_additive_attachments(self):
+        for rid in [x["resource_id"] for x in self.arm.ownership["existing_resources"]]:
+            body=self.arm.preview(); body["properties"]["changes"].append(
+                dict(resourceId=rid, changeType="Modify", before={}, after={"changed":True},
+                     delta=[dict(path="changed",propertyChangeType="Create",after=True)]))
+            with self.assertRaises(ValueError):
+                self.e.normalize_preview(body,self.req,self.arm.resources,self.arm.ownership)
+        body=self.arm.preview(); body["properties"]["changes"][0]["resourceId"] += "/unauthorized/child"
+        with self.assertRaises(ValueError):
+            self.e.normalize_preview(body,self.req,self.arm.resources,self.arm.ownership)
+        self.prepare(); self.assertEqual(self.apply()["result"], "PASS")
+
+    def test_missing_revoked_expired_approvals_zero_submissions(self):
+        self.prepare()
+        auth=self.auths[-1]; original=copy.deepcopy(auth.approvals)
+        for n, history in enumerate(([], [{**original[0],"state":"rejected"}], original*2)):
+            auth.approvals=history
+            self.assertEqual(self.apply("denied-"+str(n)+".json")["result"], "BLOCKED")
+        auth.approvals=original; auth.claims["exp"]=NOW
+        self.assertEqual(self.apply("expired.json")["result"], "BLOCKED")
+        self.assertEqual(self.arm.submissions, 0)
+
+    def test_empty_authentic_preview_no_change_no_fabricated_apply_id(self):
+        self.arm.changes=[]
+        result=self.executor.prepare(self.directory+"/prepare.json")
+        self.assertEqual(result["result"],"NO_CHANGE")
+        self.assertNotIn("native_operation_id",result)
+        self.preview_ref=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())["preview"]
+        self.executor=self.stage("apply",self.preview_ref)
+        result=self.apply()
+        self.assertEqual(result["result"],"NO_CHANGE")
+        self.assertNotIn("native_operation_id",result)
+        self.assertEqual(self.arm.submissions,0)
+        self.assertEqual(len([x for x in self.arm.calls if x[0]=="POST"]),2)
+
+    def test_timeout_durable_original_id_reconcile_no_second_mutation(self):
+        self.prepare(); self.arm.timeout=True
+        result=self.apply()
+        self.assertEqual(result["result"],"UNKNOWN")
+        journal=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
+        operation=journal["submission"]
+        self.assertEqual(json.loads((self.root/operation["path"]).read_bytes())["native_operation_id"],
+                         result["native_operation_id"])
+        self.assertEqual(self.apply("retry.json")["result"],"BLOCKED")
+        calls=len(self.arm.calls); self.arm.timeout=False; self.arm.existing=True
+        recovered=self.executor.reconcile(operation,self.directory+"/reconcile.json")
+        self.assertEqual(recovered["native_operation_id"],result["native_operation_id"])
+        self.assertEqual(recovered["state"],"OBSERVED")
+        self.assertTrue(all(x[0]=="GET" for x in self.arm.calls[calls:]))
+        self.assertEqual(self.arm.submissions,1)
+
+    def test_async_location_and_status_headers_real_shapes(self):
+        self.arm.asynchronous=True
+        self.prepare(); result=self.apply()
+        self.assertEqual(result["result"],"PASS", result)
+        self.assertGreaterEqual(len([x for x in self.arm.calls if x[0]=="GET"]),4)
+        self.assertEqual(self.arm.submissions,1)
+
+    def test_async_bad_or_missing_header_is_unknown_after_submission(self):
+        for n, header in enumerate(({}, {"Location":"https://evil.invalid/poll"},
+            {"Location":"https://management.azure.com/subscriptions/other/operations/1?api-version=2025-04-01"},
+            {"Location":"https://management.azure.com/a/../b?api-version=2025-04-01"})):
+            with self.subTest(header=header):
+                # Each independent prepare has an exclusive stable marker: new fixture.
+                self.setUp(); self.arm.asynchronous=True; self.arm.bad_headers=header
+                result=self.executor.prepare(self.directory+"/bad.json")
+                self.assertEqual(result["result"],"UNKNOWN")
+                self.assertTrue(result["evidence_manifest_path"])
+                self.assertEqual(self.arm.submissions,0)
+
+    def test_bounded_async_poll_and_failed_native_state_not_health(self):
+        self.prepare(); self.arm.asynchronous=True; self.arm.pending=True
+        result=self.apply()
+        self.assertEqual(result["result"],"UNKNOWN")
+        self.assertLessEqual(len(self.arm.calls),40)
+        submission=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())["submission"]
+        self.arm.pending=False; self.arm.state="Failed"; self.arm.existing=True
+        result=self.executor.reconcile(submission,self.directory+"/failed-reconcile.json")
+        self.assertEqual(result["result"],"FAIL")
+        self.assertEqual(self.arm.submissions,1)
+
+    def test_prepare_admission_missing_is_zero_native_posts(self):
+        self.auths[-1].approvals=[]
+        result=self.executor.prepare(self.directory+"/blocked.json")
+        self.assertEqual(result["result"],"BLOCKED")
+        self.assertFalse(any(x[0] in ("POST","PUT") for x in self.arm.calls))
+
+
+class AzureAuthFixture(DeterministicTransport):
+    def __init__(self,stage,subscription):
+        super().__init__("azure",stage)
+        self.subscription["subscriptionId"]=subscription
+
+    def request(self,method,url,headers,body=None):
+        if url == f"https://management.azure.com/subscriptions/{self.subscription['subscriptionId']}?api-version=2022-12-01":
+            self.calls.append((method,url,headers,body))
+            assert method=="GET" and headers["Authorization"]=="Bearer "+jwt(self.azure_claims)
+            return encode(self.subscription)
+        return super().request(method,url,headers,body)
+
+
+class ArmFixture:
+    """Labeled synthetic ARM HTTPS response/status/headers double; no network."""
+    def __init__(self,e,request):
+        import azure_graph
+        self.e=e; self.calls=[]; self.submissions=0
+        self.timeout=False; self.asynchronous=False; self.pending=False; self.bad_headers=None
+        self.existing=False; self.state="Succeeded"
+        root=Path(os.environ["CLOUD_WORKSPACE_ROOT"])
+        ref=next(a for a in request["input_artifacts"] if a["kind"]=="compiled")
+        self.template=(root/ref["path"]).read_bytes()
+        cfg=json.loads((root/request["local_context"]["provider_config"]["path"]).read_bytes())
+        self.parameters=json.loads((root/cfg["parameters"]).read_bytes())
+        params={k:v["value"] for k,v in self.parameters["parameters"].items()}
+        self.resources=azure_graph.flatten(json.loads(self.template),params,request["scope"],
+                        set(json.loads((root/request["policy"]["path"]).read_bytes())["allowed_resource_types"]))
+        self.ownership=json.loads((root/request["local_context"]["ownership"]["path"]).read_bytes())
+        self.changes=[dict(resourceId=r.get("scope","")+"/providers/"+r["type"]+"/"+r["name"]
+                         if "scope" in r else azure_graph.resource_id(request["scope"],r["type"],r["name"]),
+                          changeType="Create",after=r) for r in self.resources]
+
+    def preview(self):
+        return dict(status="Succeeded",properties=dict(changes=copy.deepcopy(self.changes),
+                    potentialChanges=[],diagnostics=[]))
+
+    def request(self,method,url,headers,body=None):
+        self.calls.append((method,url,body))
+        assert headers["Authorization"].startswith("Bearer synthetic.")
+        assert url.startswith("https://management.azure.com/") and url.endswith("api-version=2025-04-01")
+        if method=="POST":
+            self.preview_url=url.replace("/whatIf?", "/operations/preview?")
+            if self.asynchronous:
+                return self.e.Response(202,self.bad_headers if self.bad_headers is not None else
+                    {"Location":self.preview_url,"Retry-After":"0"},b"")
+            return self.e.Response(200,{},encode(self.preview()))
+        if method=="PUT":
+            self.submissions+=1; self.existing=True; self.deployment_url=url
+            if self.timeout: raise TimeoutError("synthetic uncertain delivery")
+            if self.asynchronous:
+                self.status_url=url.replace("?", "/operations/status?")
+                return self.e.Response(202,{"Azure-AsyncOperation":self.status_url,
+                    "Location":url,"Retry-After":"0"},b"")
+        if method=="GET" and url==getattr(self,"preview_url",None):
+            return self.e.Response(200,{},encode(self.preview()))
+        if method=="GET" and url==getattr(self,"status_url",None):
+            return self.e.Response(200,{},encode(dict(status="Running" if self.pending else self.state)))
+        if method=="GET" and not self.existing:
+            return self.e.Response(404,{},b"")
+        return self.e.Response(200,{},encode(dict(id=url.split("?")[0].removeprefix("https://management.azure.com"),
+                    properties=dict(provisioningState="Running" if self.pending else self.state))))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
