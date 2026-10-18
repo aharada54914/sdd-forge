@@ -679,6 +679,43 @@ class Admission(unittest.TestCase):
                         self.assertEqual(len(calls), 3)
                         self.assertEqual(len(list(self.evidence.glob("*.authorization.json"))), 1)
 
+    def test_preview_expiry_after_final_binding_denies_and_retains_receipt(self):
+        for provider in ("aws", "azure"):
+            for elapsed in (0, 1, 2):
+                with self.subTest(provider=provider, elapsed=elapsed):
+                    self.setup_case(provider, "apply")
+                    self.writes.clear()
+                    for receipt in self.evidence.glob("*.authorization.json"):
+                        receipt.unlink()
+                    preview = contracts.read_artifact(self.root, self.preview_ref, "cloud-preview/v1")
+                    preview["expires_at"] = utc(NOW + 1)
+                    self.preview_ref = self.put("preview.json", preview)
+                    self.transport.run["display_title"] = (
+                        "cloud:" + self.request_ref["sha256"] + ":" + self.preview_ref["sha256"]
+                    )
+                    original = contracts.verify_binding
+                    calls = []
+
+                    def verify(*args, **kwargs):
+                        result = original(*args, **kwargs)
+                        calls.append(True)
+                        if len(calls) == 3:
+                            self.boundary.clock = lambda: NOW + elapsed
+                        return result
+
+                    with patch.object(contracts, "verify_binding", side_effect=verify):
+                        if elapsed == 0:
+                            ref, _ = self.write()
+                            self.assertEqual(self.writes, ["write"])
+                        else:
+                            with self.assertRaises(self.a.AdmissionDenied):
+                                self.write()
+                            self.assertEqual(self.writes, [])
+                    self.assertEqual(len(calls), 3)
+                    receipts = list(self.evidence.glob("*.authorization.json"))
+                    self.assertEqual(len(receipts), 1)
+                    self.assertEqual(json.loads(receipts[0].read_bytes())["expires_at"], utc(NOW + 1))
+
     def test_expiry_or_artifact_swap_during_scan_denies_before_submit(self):
         for case in ("expiry", "swap", "revoked"):
             with self.subTest(case=case):
