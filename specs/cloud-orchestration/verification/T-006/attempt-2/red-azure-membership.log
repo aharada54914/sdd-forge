@@ -1,0 +1,66 @@
+test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) ... 
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='matched') ... ERROR
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='compiled-substitute') ... ERROR
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='native-substitute') ... ERROR
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='type') ... ERROR
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='state') ... ERROR
+  test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='pagination') ... ERROR
+
+======================================================================
+ERROR: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='matched')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1325, in test_compiled_and_original_operation_membership
+    self.o.bind_original_resources(executor, current, compiled, {}, [])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'bind_original_resources'
+
+======================================================================
+ERROR: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='compiled-substitute')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1329, in test_compiled_and_original_operation_membership
+    self.o.bind_original_resources(executor, current, compiled, {}, [])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'bind_original_resources'
+
+======================================================================
+ERROR: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='native-substitute')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1329, in test_compiled_and_original_operation_membership
+    self.o.bind_original_resources(executor, current, compiled, {}, [])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'bind_original_resources'
+
+======================================================================
+ERROR: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='type')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1329, in test_compiled_and_original_operation_membership
+    self.o.bind_original_resources(executor, current, compiled, {}, [])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'bind_original_resources'
+
+======================================================================
+ERROR: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='state')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1329, in test_compiled_and_original_operation_membership
+    self.o.bind_original_resources(executor, current, compiled, {}, [])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'bind_original_resources'
+
+======================================================================
+ERROR: test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) (variant='pagination')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1329, in test_compiled_and_original_operation_membership
+    self.o.bind_original_resources(executor, current, compiled, {}, [])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'bind_original_resources'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.040s
+
+FAILED (errors=6)

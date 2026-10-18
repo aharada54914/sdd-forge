@@ -1287,6 +1287,48 @@ class AzureCompletionCases(unittest.TestCase):
                 self.completion(mutation)
 
 
+class AzureResourceBindingCases(unittest.TestCase):
+    setUp = AzureCompletionCases.setUp
+
+    def test_compiled_and_original_operation_membership(self):
+        from types import SimpleNamespace
+        scope = dict(account_id='00000000-0000-0000-0000-000000000001', region='eastus', deployment_scope='sandbox')
+        cfg = observation_config('azure')
+        vm = dict(type='Microsoft.Compute/virtualMachines', name='workload', properties={})
+        nic = dict(type='Microsoft.Network/networkInterfaces', name='workload-nic', properties={})
+        association = dict(type='Microsoft.Insights/dataCollectionRuleAssociations', name='monitor', scope=cfg['vm_id'], properties={})
+        native_id = '/subscriptions/'+scope['account_id']+'/resourceGroups/sandbox/providers/Microsoft.Resources/deployments/sdd-original'
+        targets = [('vm_id','Microsoft.Compute/virtualMachines'), ('nic_id','Microsoft.Network/networkInterfaces'),
+                   ('association_id','Microsoft.Insights/dataCollectionRuleAssociations')]
+        for variant in ('matched', 'compiled-substitute', 'native-substitute', 'type', 'state', 'pagination'):
+            current = copy.deepcopy(cfg)
+            current.pop('backup')
+            compiled = [vm, nic, association]
+            if variant == 'compiled-substitute':
+                compiled = [dict(vm, name='other'), nic, association]
+            operations = dict(value=[dict(id=native_id+'/operations/'+str(i), operationId=str(i),
+                properties=dict(provisioningState='Succeeded', provisioningOperation='Create',
+                    targetResource=dict(id=cfg[key],resourceType=typ))) for i,(key,typ) in enumerate(targets)])
+            if variant == 'native-substitute': operations['value'][0]['properties']['targetResource']['id'] += '-other'
+            if variant == 'type': operations['value'][0]['properties']['targetResource']['resourceType'] = 'Microsoft.Compute/disks'
+            if variant == 'state': operations['value'][0]['properties']['provisioningState'] = 'Failed'
+            if variant == 'pagination': operations['nextLink'] = 'https://untrusted.example/next'
+            class Client:
+                def call(self, method, url, credentials, request_id):
+                    self.last = (method,url)
+                    return SimpleNamespace(status=200,body=encode(operations))
+            client = Client()
+            client.native_id = native_id
+            executor = SimpleNamespace(request=dict(scope=scope), client=client, request_id='synthetic-request-id')
+            with self.subTest(variant=variant):
+                if variant == 'matched':
+                    self.o.bind_original_resources(executor, current, compiled, {}, [])
+                    self.assertEqual(client.last[0], 'GET')
+                else:
+                    with self.assertRaises(ValueError):
+                        self.o.bind_original_resources(executor, current, compiled, {}, [])
+
+
 class ObservationWire:
     """Existing CFN executor fixture plus independent service response fixture."""
 
