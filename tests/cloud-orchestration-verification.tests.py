@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import shutil
 import sys
 import tempfile
 import unittest
@@ -1782,6 +1783,8 @@ class AwsObservationOrchestration(unittest.TestCase):
         case.executor = case.stage("prepare")
         case.prepare()
         self.assertEqual(case.apply()["result"], "PASS")
+        if protected:
+            wire.profile_executed = True
         case.executor.clock = lambda: 1792303260
         return case, wire
 
@@ -2516,6 +2519,7 @@ class ObservationWire:
         self.health.cfg["backup"]["plan_id"] = "synthetic-plan"
         self.resolved = []
         self.membership_override = {}
+        self.profile_executed = False
 
     def __getattr__(self, name):
         return getattr(self.native, name)
@@ -2561,6 +2565,9 @@ class ObservationWire:
                 "DescribeStackResource", dict(StackResourceDetail=detail)
             )
         response = self.native.request(method, url, headers, body)
+        if args["Action"] == ["DescribeChangeSet"] and self.__dict__.get("profile_executed", False):
+            from dataclasses import replace
+            response = replace(response, body=response.body.replace(b"<ExecutionStatus>AVAILABLE</ExecutionStatus>", b"<ExecutionStatus>EXECUTE_COMPLETE</ExecutionStatus>"))
         if args["Action"] == ["DescribeStackEvents"]:
             from dataclasses import replace
 
@@ -3412,13 +3419,26 @@ class ProfileSavedConsumers(unittest.TestCase):
         commands = [
             [sys.executable, "-B", str(SHARED / "check-contract.py"), str(path), str(case.root)],
             ["sh", str(SHARED / "check-contract.sh"), str(path), str(case.root)],
-            ["/workspace/.tools/sdd-forge-dev/bin/pwsh", "-NoProfile", "-File", str(SHARED / "check-contract.ps1"), "-ContractPath", str(path), "-RepoRoot", str(case.root)],
         ]
+        powershell = shutil.which("pwsh") or shutil.which("powershell")
+        if powershell:
+            commands.append([powershell, "-NoProfile", "-File", str(SHARED / "check-contract.ps1"), "-ContractPath", str(path), "-RepoRoot", str(case.root)])
+        else:
+            with self.subTest(consumer="PowerShell"):
+                self.skipTest("PowerShell unavailable; native PowerShell consumer coverage not executed")
         for command in commands:
             with self.subTest(consumer=command[0]):
                 proc = subprocess.run(command, capture_output=True, text=True, timeout=30)
                 self.assertEqual(proc.returncode, 1, proc.stderr)
                 self.assertIn("fresh authenticated collection", proc.stdout)
+                # Separate operator/value and JSON-property case-negative fixtures.
+                for changed in (dict(contract, profile="Cloud"), dict(contract, schema="Verification-contract/v3"),
+                                {("Profile" if k == "profile" else k): v for k, v in contract.items()}):
+                    path.write_text(json.dumps(changed))
+                    denied = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                    self.assertNotEqual(denied.returncode, 0, denied.stdout)
+                    self.assertNotIn("fresh authenticated collection", denied.stdout)
+                path.write_text(json.dumps(contract))
         spec = importlib.util.spec_from_file_location("profile_selected_fixture", ROOT / "tests/sdd-domain-multitarget-T-003.tests.py")
         assert spec and spec.loader
         fixture_module = importlib.util.module_from_spec(spec)
@@ -3534,7 +3554,7 @@ class ProfileSavedConsumers(unittest.TestCase):
 
         registry = ROOT / "plugins/sdd-quality-loop/references/cloud-verification-registry.json"
         raw = registry.read_bytes()
-        profile = dict(schema="cloud-verification-profile/v1", id="cloud-compute", version="2", required_check_ids=sorted(v.CHECKS), max_age_seconds=300)
+        profile: dict = dict(schema="cloud-verification-profile/v1", id="cloud-compute", version="2", required_check_ids=sorted(v.CHECKS), max_age_seconds=300)
         chosen, _ = v.protected_selection(profile, dict(backup_required=True))
         self.assertEqual(set(chosen), set(v.CHECKS) | set(v.PREFLIGHT_IDS))
         for field in ("id", "version", "required_check_ids", "conditional_check_ids", "preflight_check_ids"):
@@ -3587,7 +3607,11 @@ class ProfilePreviewProvenance(unittest.TestCase):
                       patch.object(case.executor.boundary, "transport", admission)):
                     control = harness.run_public(case, module, "before-substitution")
                     self.assertEqual(control["result"], "PASS", control)
-                    changes["changes"] = []
+                    if provider == "aws":
+                        changes["changes"][0]["ResourceChange"]["LogicalResourceId"] = "PrivateGroup"
+                        changes["changes"][0]["ResourceChange"]["ResourceType"] = "AWS::EC2::SecurityGroup"
+                    else:
+                        changes["changes"] = []
                     changes_path.write_bytes(encode(changes))
                     preview["changes"]["sha256"] = hashlib.sha256(encode(changes)).hexdigest()
                     preview["semantic_sha256"] = preview["changes"]["sha256"]
@@ -3601,7 +3625,656 @@ class ProfilePreviewProvenance(unittest.TestCase):
                         receipt_path.write_bytes(encode(receipt))
                     result = harness.run_public(case, module, "after-substitution")
                 self.assertNotEqual(result["result"], "PASS", result)
+                if provider == "aws":
+                    self.assertEqual(result["error_code"], "PROFILE_PREVIEW_SEMANTICS_MISMATCH")
+                else:
+                    self.assertEqual(result["error_code"], "ORIGINAL_RUN_MISMATCH")
                 self.assertFalse((case.root / (case.directory + "/after-substitution.json.selected-plan.json")).exists())
+                self.doCleanups()
+
+
+
+class ProfileGuardSensitivity(unittest.TestCase):
+    def test_bound_preview_guard_sensitivity_with_valid_rehashed_counterpart(self):
+        import cloud_verification as v
+
+        helper = ProfileSavedConsumers()
+        self.addCleanup(helper.doCleanups)
+        case, _, baseline = helper.fixture()
+        preview_path = case.root / baseline["preview"]["path"]
+        preview = json.loads(preview_path.read_bytes())
+        control = v.saved_profile_plan(encode(baseline), case.root)
+        self.assertEqual(control["selection_result"], "PASS")
+        preview["unit_id"] = "other-unit"
+        preview_path.write_bytes(encode(preview))
+        changed = copy.deepcopy(baseline)
+        changed["preview"]["sha256"] = hashlib.sha256(encode(preview)).hexdigest()
+        with self.assertRaisesRegex(ValueError, "PROFILE_PREVIEW_BINDING_MISMATCH"):
+            v.saved_profile_plan(encode(changed), case.root)
+        original = c._require
+
+        def bypass_only_preview(condition, reason="INVALID_ARTIFACT"):
+            if reason != "PROFILE_PREVIEW_BINDING_MISMATCH":
+                original(condition, reason)
+
+        with patch.object(c, "_require", side_effect=bypass_only_preview):
+            self.assertEqual(v.saved_profile_plan(encode(changed), case.root)["selection_result"], "PASS")
+
+    def test_profile_allowlist_and_required_check_guard_sensitivity(self):
+        import cloud_verification as v
+
+        profile: dict = dict(schema="cloud-verification-profile/v1", id="cloud-compute", version="2", required_check_ids=sorted(v.CHECKS), max_age_seconds=300)
+        self.assertEqual(len(v.protected_selection(profile, dict(backup_required=True))[0]), 9)
+        original = c._require
+        for message, changed in [
+            ("PROFILE_UNSUPPORTED", dict(profile, version="999")),
+            ("PROFILE_CHECK_SET_MISMATCH", dict(profile, required_check_ids=["resource"])),
+        ]:
+            with self.subTest(guard=message):
+                with self.assertRaisesRegex(ValueError, message):
+                    v.protected_selection(changed, dict(backup_required=True))
+
+                def bypass(condition, reason="INVALID_ARTIFACT"):
+                    if reason != message:
+                        original(condition, reason)
+
+                with patch.object(c, "_require", side_effect=bypass):
+                    v.protected_selection(changed, dict(backup_required=True))
+
+    def test_aws_native_preview_guard_is_necessary_not_a_saved_hash_check(self):
+        import cloud_authorization as auth
+        from contextlib import ExitStack
+
+        helper = ProfileDispatchIntegration()
+        self.addCleanup(helper.doCleanups)
+        harness, case, _, _, module = helper.fixture("aws")
+        holder = case.executor.native
+        transport_type = sys.modules["aws_native"].HttpsTransport
+        transport, admission = transport_type(), auth.HttpsTransport()
+        old_transport, old_admission = holder.transport, case.executor.boundary.transport
+        with ExitStack() as stack:
+            stack.enter_context(patch.object(transport, "request", side_effect=old_transport.request))
+            stack.enter_context(patch.object(admission, "request", side_effect=old_admission.request))
+            stack.enter_context(patch.object(holder, "transport", transport))
+            stack.enter_context(patch.object(case.executor.boundary, "transport", admission))
+            self.assertEqual(harness.run_public(case, module, "control")["result"], "PASS")
+            journal_path = case.root / (case.directory + "/execute-submission.json")
+            journal = json.loads(journal_path.read_bytes())
+            path = case.root / journal["preview"]["path"]
+            preview = json.loads(path.read_bytes())
+            semantic_path = case.root / preview["changes"]["path"]
+            semantic = json.loads(semantic_path.read_bytes())
+            semantic["changes"][0]["ResourceChange"]["LogicalResourceId"] = "PrivateGroup"
+            semantic["changes"][0]["ResourceChange"]["ResourceType"] = "AWS::EC2::SecurityGroup"
+            semantic_path.write_bytes(encode(semantic))
+            preview["changes"]["sha256"] = hashlib.sha256(encode(semantic)).hexdigest()
+            preview["semantic_sha256"] = preview["changes"]["sha256"]
+            path.write_bytes(encode(preview))
+            journal["preview"]["sha256"] = hashlib.sha256(encode(preview)).hexdigest()
+            journal_path.write_bytes(encode(journal))
+            self.assertEqual(harness.run_public(case, module, "denied")["error_code"], "PROFILE_PREVIEW_SEMANTICS_MISMATCH")
+            with patch.object(sys.modules["aws_observation"], "profile_preview_readback", return_value=None):
+                self.assertEqual(harness.run_public(case, module, "bypassed")["result"], "PASS")
+
+
+
+class ProfileCompletionCases(unittest.TestCase):
+    def test_protected_mandatory_checks_never_become_optional(self):
+        import cloud_authorization as auth
+        from contextlib import ExitStack
+
+        for provider in ("aws", "azure"):
+            for check in ("resource", "network", "identity", "monitoring", "workload", "backup"):
+                for variant in ("unhealthy", "denied"):
+                    with self.subTest(provider=provider, check=check, variant=variant):
+                        helper = ProfileDispatchIntegration()
+                        self.addCleanup(helper.doCleanups)
+                        harness, case, _, health, module = helper.fixture(provider)
+                        original = health.request
+                        hits = []
+
+                        def response(method, url, headers, body=None):
+                            target = harness.target(provider, check, url, body)
+                            health.variant, health.check = (variant if target else "healthy"), check
+                            if target:
+                                hits.append(url)
+                            return original(method, url, headers, body)
+
+                        holder = case.executor.client if provider == "azure" else case.executor.native
+                        transport_type = sys.modules[provider + ("_arm" if provider == "azure" else "_native")].HttpsTransport
+                        transport, admission = transport_type(), auth.HttpsTransport()
+                        original_transport, original_admission = holder.transport, case.executor.boundary.transport
+                        with ExitStack() as stack:
+                            stack.enter_context(patch.object(health, "request", side_effect=response))
+                            stack.enter_context(patch.object(transport, "request", side_effect=original_transport.request))
+                            stack.enter_context(patch.object(admission, "request", side_effect=original_admission.request))
+                            stack.enter_context(patch.object(holder, "transport", transport))
+                            stack.enter_context(patch.object(case.executor.boundary, "transport", admission))
+                            result = harness.run_public(case, module, "mandatory")
+                        self.assertTrue(hits)
+                        expected = "FAIL" if variant == "unhealthy" else "BLOCKED"
+                        self.assertEqual(result["result"], expected, result)
+                        plan = json.loads((case.root / (case.directory + "/mandatory.json.selected-plan.json")).read_bytes())
+                        observed = next(item for item in plan["checks"] if item["id"] == check)
+                        self.assertTrue(observed["required"])
+                        self.assertEqual(observed["result"], expected)
+                        self.assertEqual(plan["verdict"], "NEEDS_WORK" if variant == "unhealthy" else "BLOCKED")
+                        self.doCleanups()
+
+    def test_every_plan_leaf_and_closed_object(self):
+        helper = ProfileSavedConsumers()
+        self.addCleanup(helper.doCleanups)
+        case, _, contract = helper.fixture()
+        import cloud_verification as v
+
+        spec = importlib.util.spec_from_file_location("profile_leaf_evaluator", SHARED / "evaluate-selected-plan.py")
+        assert spec and spec.loader
+        evaluator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(evaluator)
+        expected = v.saved_profile_plan(encode(contract), case.root)
+        self.assertEqual(evaluator.validate_plan(expected, expected), [])
+
+        def walk(value, path=()):
+            if isinstance(value, dict):
+                yield path, value
+                for k, child in value.items():
+                    yield from walk(child, (*path, k))
+            elif isinstance(value, list):
+                for k, child in enumerate(value):
+                    yield from walk(child, (*path, k))
+            else:
+                yield path, value
+
+        for path, value in walk(expected):
+            changed = copy.deepcopy(expected)
+            parent = changed
+            for key in path[:-1]:
+                parent = parent[key]
+            if isinstance(value, dict):
+                node = changed
+                for key in path:
+                    node = node[key]
+                node["unexpected"] = True
+            else:
+                parent[path[-1]] = False if value is True else (
+                    "PASS" if value == "BLOCKED" else "0" * 64 if path[-1] in ("sha256", "request_sha256", "verification_sha256", "registry_sha256") else
+                    "T-999" if path[-1] == "task_id" else "999" if path[-1] == "version" else "other")
+            with self.subTest(path=path):
+                errors = evaluator.validate_plan(changed, expected)
+                self.assertIn("selected-plan-input-mismatch", errors)
+                # Schema-valid substitutions become valid ONLY with the changed counterpart.
+                # Schema-invalid values remain rejected even with matching expected bytes.
+                schema_errors = evaluator.facets.validate_against_schema(changed, evaluator.schema("selected-verification-plan-v2.schema.json"))
+                if schema_errors:
+                    self.assertTrue(evaluator.validate_plan(changed, changed))
+                else:
+                    self.assertEqual(evaluator.validate_plan(changed, changed), [])
+        self.assertEqual(evaluator.validate_plan(expected, expected), [])
+
+    def test_saved_observation_mismatch_sensitivity(self):
+        helper = ProfileSavedConsumers()
+        self.addCleanup(helper.doCleanups)
+        case, _, baseline = helper.fixture()
+        import cloud_verification as v
+
+        self.assertEqual(v.saved_profile_plan(encode(baseline), case.root)["selection_result"], "PASS")
+        vp = case.root / baseline["verification"]["path"]
+        original_v = vp.read_bytes()
+        original_require = c._require
+        for field in ("run_id", "unit_id", "provider", "query"):
+            verification = json.loads(original_v)
+            observation_ref = verification["checks"][0]["observation"]
+            op = case.root / observation_ref["path"]
+            original_o = op.read_bytes()
+            observation = json.loads(original_o)
+            observation[field] = "azure" if field == "provider" else "other"
+            op.write_bytes(encode(observation))
+            observation_ref["sha256"] = hashlib.sha256(encode(observation)).hexdigest()
+            vp.write_bytes(encode(verification))
+            changed = copy.deepcopy(baseline)
+            changed["verification"]["sha256"] = hashlib.sha256(encode(verification)).hexdigest()
+            try:
+                with self.subTest(field=field), self.assertRaisesRegex(ValueError, "PROFILE_OBSERVATION_MISMATCH"):
+                    v.saved_profile_plan(encode(changed), case.root)
+
+                def bypass(condition, reason="INVALID_ARTIFACT"):
+                    if reason != "PROFILE_OBSERVATION_MISMATCH":
+                        original_require(condition, reason)
+
+                with patch.object(c, "_require", side_effect=bypass):
+                    self.assertEqual(v.saved_profile_plan(encode(changed), case.root)["selection_result"], "PASS")
+            finally:
+                vp.write_bytes(original_v)
+                op.write_bytes(original_o)
+        self.assertEqual(v.saved_profile_plan(encode(baseline), case.root)["selection_result"], "PASS")
+
+    def test_preview_guard_matrix(self):
+        helper = ProfileSavedConsumers()
+        self.addCleanup(helper.doCleanups)
+        case, _, baseline = helper.fixture()
+        import cloud_verification as v
+
+        path = case.root / baseline["preview"]["path"]
+        original = path.read_bytes()
+        original_require = c._require
+        for field, value, reason in [
+            ("deletes", ["resource"], "PROFILE_DESTRUCTIVE_PREVIEW"),
+            ("replacements", ["resource"], "PROFILE_DESTRUCTIVE_PREVIEW"),
+            ("semantic_sha256", "0" * 64, "PROFILE_PREVIEW_DIGEST_MISMATCH"),
+        ]:
+            changed = dict(json.loads(original), **{field: value})
+            path.write_bytes(encode(changed))
+            reference = dict(baseline["preview"], sha256=hashlib.sha256(encode(changed)).hexdigest())
+            try:
+                with self.subTest(field=field), self.assertRaisesRegex(ValueError, reason):
+                    v._bound_preview(case.root, case.req, case.request_ref, reference)
+
+                def bypass(condition, message="INVALID_ARTIFACT"):
+                    if message != reason:
+                        original_require(condition, message)
+
+                with patch.object(c, "_require", side_effect=bypass):
+                    self.assertEqual(v._bound_preview(case.root, case.req, case.request_ref, reference), changed)
+            finally:
+                path.write_bytes(original)
+        v._bound_preview(case.root, case.req, case.request_ref, baseline["preview"])
+
+    def test_iac_required_and_preview_window_at_publication(self):
+        import cloud_verification as v
+
+        helper = ProfileSavedConsumers()
+        self.addCleanup(helper.doCleanups)
+        case, _, contract = helper.fixture()
+        verification = c.read_artifact(case.root, contract["verification"], "cloud-verification/v1")
+        profile = c.read_artifact(case.root, c._file_ref(case.req["verification_profile"]), "cloud-verification-profile/v1")
+        policy = c.read_artifact(case.root, case.req["policy"], "cloud-deployment-policy/v1")
+        selection = v.protected_selection(profile, policy)
+        v._profile_plan(case.req, case.request_ref, verification, contract["verification"], contract["preview"], selection, fresh=False)
+        changed = copy.deepcopy(case.req)
+        changed["input_artifacts"] = [a for a in changed["input_artifacts"] if a["kind"] != "compiled"]
+        with self.assertRaisesRegex(ValueError, "PROFILE_IAC_REQUIRED"):
+            v._profile_plan(changed, case.request_ref, verification, contract["verification"], contract["preview"], selection, fresh=False)
+        preview_path = case.root / contract["preview"]["path"]
+        preview = json.loads(preview_path.read_bytes())
+        # Existing serialized creation may equal completion; move completion back to
+        # isolate the publication window guard without an earlier readback denial.
+        from datetime import datetime
+        completed = v.utc(datetime.fromisoformat(preview["created_at"].replace("Z", "+00:00")).timestamp() - 1)
+        kwargs = dict(principal="synthetic", native_id=case.executor.native_id, resources=["synthetic"],
+                      completed=completed, native=False, publish_json=lambda *args: None,
+                      publish_bytes=lambda *args: None, scan=lambda *args: None,
+                      recheck=lambda: [], preview_ref=contract["preview"])
+        with self.assertRaisesRegex(ValueError, "PROFILE_PREVIEW_WINDOW"):
+            v.publish_collection(case.executor, case.directory + "/window.json", "verify", None, **kwargs)
+        # Guard-specific bypass proves the call advanced to collection, not a setup failure.
+        original = c._require
+
+        def bypass(condition, reason="INVALID_ARTIFACT"):
+            if reason != "PROFILE_PREVIEW_WINDOW":
+                original(condition, reason)
+
+        with patch.object(c, "_require", side_effect=bypass), patch.object(v, "collect_checks", side_effect=RuntimeError("collection-reached")):
+            with self.assertRaisesRegex(RuntimeError, "collection-reached"):
+                v.publish_collection(case.executor, case.directory + "/window.json", "verify", None, **kwargs)
+        kwargs["completed"] = preview["created_at"]
+        with patch.object(v, "collect_checks", side_effect=RuntimeError("collection-reached")):
+            with self.assertRaisesRegex(RuntimeError, "collection-reached"):
+                v.publish_collection(case.executor, case.directory + "/window.json", "verify", None, **kwargs)
+
+    def test_original_profile_version_and_conditional_backup(self):
+        import cloud_verification as v
+
+        for version in ("1", "2"):
+            case = reducer_case()
+            req, request_ref, profile, policy, context, records = case
+            profile.update(id="cloud-compute", version=version)
+            req["verification_profile"] = dict(id=profile["id"], version=version, **ref("profile.json", profile))
+            request_ref.update(ref("request.json", req))
+            context.update(verification_profile=req["verification_profile"], request=request_ref)
+            for item in records:
+                payload = json.loads(item["payload_bytes"])
+                payload["context_sha256"] = ref("context.json", context)["sha256"]
+                item["payload_bytes"] = encode(payload)
+                obs = json.loads(item["observation_bytes"])
+                obs["result"]["sha256"] = hashlib.sha256(item["payload_bytes"]).hexdigest()
+                item["observation_bytes"] = encode(obs)
+            with self.subTest(version=version):
+                self.assertEqual(v.reduce(*case, now="2026-10-18T06:01:01Z")["overall_result"], "PASS")
+        profile["required_check_ids"].remove("backup")
+        self.assertNotIn("backup", v.protected_selection(profile, dict(backup_required=False))[0])
+        with self.assertRaisesRegex(ValueError, "PROFILE_CHECK_SET_MISMATCH"):
+            v.protected_selection(profile, dict(backup_required=True))
+
+
+class ProfileAwsReadbackCases(unittest.TestCase):
+    def test_executed_preview_requires_actual_asset_readback(self):
+        helper = ProfileDispatchIntegration()
+        self.addCleanup(helper.doCleanups)
+        harness, case, _, _, module = helper.fixture("aws")
+        self.assertEqual(harness.run_public(case, module, "asset-control")["result"], "BLOCKED")
+        observation = sys.modules["aws_observation"]
+        executor = case.executor
+        journal = json.loads((case.root / (case.directory + "/execute-submission.json")).read_bytes())
+        observation.profile_preview_readback(executor, journal["preview"])
+        original = case.native.native.object_bytes
+        # Keep native template readback matched: only S3 object bytes disagree.
+        case.native.native.template_override = original
+        case.native.native.object_bytes = b"substituted asset"
+        try:
+            with self.assertRaisesRegex(ValueError, "S3_SUBSTITUTION"):
+                observation.profile_preview_readback(executor, journal["preview"])
+            with patch.object(executor.native, "read_object", return_value=None):
+                observation.profile_preview_readback(executor, journal["preview"])
+        finally:
+            case.native.native.object_bytes = original
+            case.native.native.template_override = None
+        observation.profile_preview_readback(executor, journal["preview"])
+
+    def test_semantic_native_and_policy_guards(self):
+        helper = ProfileDispatchIntegration()
+        self.addCleanup(helper.doCleanups)
+        harness, case, _, _, module = helper.fixture("aws")
+        result = harness.run_public(case, module, "readback-control")
+        self.assertEqual(result["result"], "BLOCKED")  # synthetic transport, not live
+        observation = sys.modules["aws_observation"]
+        executor = case.executor
+        journal = json.loads((case.root / (case.directory + "/execute-submission.json")).read_bytes())
+        preview_ref = journal["preview"]
+        preview_path = case.root / preview_ref["path"]
+        preview_raw = preview_path.read_bytes()
+        preview = json.loads(preview_raw)
+        semantic_path = case.root / preview["changes"]["path"]
+        semantic_raw = semantic_path.read_bytes()
+        semantic = json.loads(semantic_raw)
+        native = executor.describe()
+        template = executor.read("GetTemplate", dict(StackName=executor.stack_id, ChangeSetName=executor.native_id, TemplateStage="Original"))
+        original_read, original_require = executor.read, observation.c._require
+        observation.profile_preview_readback(executor, preview_ref)
+        variants: list[tuple[str, dict, dict, dict, str | None]] = []
+        for field in ("request", "scope", "template_sha256", "change_set_arn", "stack_id", "no_change", "create"):
+            changed = copy.deepcopy(semantic)
+            if field == "request":
+                changed[field]["sha256"] = "0" * 64
+            elif field == "scope":
+                changed[field]["region"] = "other"
+            elif field == "create":
+                changed[field]["Description"] = "other"
+            else:
+                changed[field] = True if field == "no_change" else "0" * 64 if field == "template_sha256" else "other"
+            variants.append(("semantic." + field, changed, native, template, "PROFILE_PREVIEW_NATIVE_BINDING"))
+        for field in ("ChangeSetId", "StackId", "ChangeSetName", "StackName", "Description", "Capabilities", "Parameters", "Status", "ExecutionStatus", "Tags"):
+            changed = copy.deepcopy(native)
+            changed[field] = [] if isinstance(changed[field], list) else "other"
+            if changed[field] == native[field]:
+                changed[field] = [{"Key": "other", "Value": "other"}]
+            variants.append(("native." + field, semantic, changed, template, "PROFILE_PREVIEW_NATIVE_BINDING"))
+        variants.append(("template", semantic, native, dict(TemplateBody="{}"), "PROFILE_PREVIEW_NATIVE_BINDING"))
+        for field in ("IncludeNestedStacks", "ImportExistingResources", "ParentChangeSetId", "RootChangeSetId", "OnStackFailure", "NotificationARNs", "DeploymentConfig", "RollbackConfiguration", "DeploymentMode"):
+            changed = copy.deepcopy(native)
+            changed[field] = {"RollbackTriggers": ["other"]} if field == "RollbackConfiguration" else "other"
+            variants.append(("native." + field, semantic, changed, template, "PROFILE_PREVIEW_NATIVE_BINDING"))
+        changed = copy.deepcopy(native)
+        changed["Changes"] = []
+        variants.append(("native.Changes", semantic, changed, template, "PROFILE_PREVIEW_SEMANTICS_MISMATCH"))
+        # Match local/native changes to reach each policy predicate rather than hash/semantic guards.
+        for field, value in (("Action", "Remove"), ("Replacement", "True"), ("LogicalResourceId", "Unknown"),
+                             ("ResourceType", "AWS::Unknown::Type"), ("ChangeSetId", "nested"), ("ModuleInfo", {"x": 1}),
+                             ("PolicyAction", "Delete")):
+            changed_s, changed_n = copy.deepcopy(semantic), copy.deepcopy(native)
+            changed_s["changes"][0]["ResourceChange"][field] = value
+            changed_n["Changes"] = changed_s["changes"]
+            variants.append(("policy." + field, changed_s, changed_n, template, "PROFILE_PREVIEW_POLICY_DENIED"))
+        # Exercise Modify's static/non-recreating property branch with its own matched control.
+        modify = copy.deepcopy(semantic)
+        change = modify["changes"][0]["ResourceChange"]
+        change.update(Action="Modify", Scope=["Properties"], Details=[dict(
+            Evaluation="Static", ChangeSource="DirectModification",
+            Target=dict(Attribute="Properties", RequiresRecreation="Never"))])
+        matched_modify = copy.deepcopy(native)
+        matched_modify["Changes"] = modify["changes"]
+        variants.append(("modify.control", modify, matched_modify, template, None))
+        for field in ("Details", "Scope", "Evaluation", "ChangeSource", "Attribute", "RequiresRecreation"):
+            changed_s, changed_n = copy.deepcopy(modify), copy.deepcopy(native)
+            change = changed_s["changes"][0]["ResourceChange"]
+            if field in ("Details", "Scope"):
+                change[field] = []
+            elif field in ("Attribute", "RequiresRecreation"):
+                change["Details"][0]["Target"][field] = "other"
+            else:
+                change["Details"][0][field] = "other"
+            changed_n["Changes"] = changed_s["changes"]
+            variants.append(("modify." + field, changed_s, changed_n, template, "PROFILE_PREVIEW_POLICY_DENIED"))
+        for label, changed_s, changed_n, changed_t, reason in variants:
+            with self.subTest(field=label):
+                semantic_path.write_bytes(encode(changed_s))
+                changed_p = copy.deepcopy(preview)
+                changed_p["changes"]["sha256"] = hashlib.sha256(encode(changed_s)).hexdigest()
+                changed_p["semantic_sha256"] = changed_p["changes"]["sha256"]
+                preview_path.write_bytes(encode(changed_p))
+                changed_ref = dict(preview_ref, sha256=hashlib.sha256(encode(changed_p)).hexdigest())
+
+                def read(action, params):
+                    return changed_t if action == "GetTemplate" else original_read(action, params)
+
+                def bypass(condition, message="INVALID_ARTIFACT"):
+                    if message != reason:
+                        original_require(condition, message)
+
+                try:
+                    with patch.object(executor, "describe", return_value=changed_n), patch.object(executor, "read", side_effect=read):
+                        if reason is None:
+                            observation.profile_preview_readback(executor, changed_ref)
+                            continue
+                        with self.assertRaisesRegex(ValueError, reason):
+                            observation.profile_preview_readback(executor, changed_ref)
+                        with patch.object(observation.c, "_require", side_effect=bypass):
+                            observation.profile_preview_readback(executor, changed_ref)
+                finally:
+                    semantic_path.write_bytes(semantic_raw)
+                    preview_path.write_bytes(preview_raw)
+        observation.profile_preview_readback(executor, preview_ref)
+
+
+
+class DependencyReceiptCases(unittest.TestCase):
+    """T-010: actual collector output + authenticated-protocol doubles, never live."""
+
+    def fixture(self, provider="azure", stage="prepare"):
+        import base64
+        from contextlib import ExitStack
+        from types import SimpleNamespace
+        import cloud_authorization as auth
+
+        stack = ExitStack()
+        self.addCleanup(stack.close)
+        harness = PublicObservationCases()
+        self.addCleanup(harness.doCleanups)
+        producer, _, _, module = harness.setup_execution(provider, protected=True)
+        holder = producer.executor.client if provider == "azure" else producer.executor.native
+        native_type = sys.modules[provider + ("_arm" if provider == "azure" else "_native")].HttpsTransport
+        native, admission = native_type(), auth.HttpsTransport()
+        stack.enter_context(patch.object(native, "request", side_effect=holder.transport.request))
+        stack.enter_context(patch.object(admission, "request", side_effect=producer.executor.boundary.transport.request))
+        stack.enter_context(patch.object(holder, "transport", native))
+        stack.enter_context(patch.object(producer.executor.boundary, "transport", admission))
+        result = harness.run_public(producer, module, "dependency")
+        self.assertEqual(result["result"], "PASS", result)
+        output = producer.directory + "/dependency.json"
+        receipt_path = output + ".verification.json"
+        receipt_raw = (producer.root / receipt_path).read_bytes()
+        receipt = json.loads(receipt_raw)
+        contract = json.loads((producer.root / (output + ".contract.json")).read_bytes())
+        spec = importlib.util.spec_from_file_location("dependency_execution", ROOT / "tests/cloud-orchestration-execution.tests.py")
+        assert spec and spec.loader
+        execution = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(execution)
+        target = execution.Admission()
+        target.setUp()
+        self.addCleanup(target.doCleanups)
+        target.setup_case(provider, stage)
+        # Same feature is required by the existing path contract; unit/run remain distinct.
+        ref = target.put(receipt_path, receipt_raw)
+        target.request["predecessor_receipts"] = [dict(unit_id=receipt["unit_id"], **ref)]
+        target.request_ref = target.put("request.json", target.request)
+        if stage == "apply":
+            preview = json.loads((target.root / target.preview_ref["path"]).read_bytes())
+            preview["request"] = target.request_ref
+            target.preview_ref = target.put(target.preview_ref["path"], preview)
+        target.transport.run["display_title"] = "cloud:" + target.request_ref["sha256"] + ":" + (target.preview_ref["sha256"] if target.preview_ref else "none")
+        # Consumer lease and producer completion are both fresh at this synthetic time.
+        now = int(producer.executor.clock()) + 5
+        target.boundary.clock = lambda: now
+        target.transport.claims.update(iat=now-10, nbf=now-10, exp=now+600)
+        target.transport.lease_end = now+300
+        target.transport.azure_claims.update(iat=now-10, nbf=now-10, exp=now+300)
+        governed = __import__(provider + "_governed")
+        kwargs = dict(executor_repository="synthetic/executor", executor_revision="d" * 40,
+                      input_repository="synthetic/plans", region=producer.executor.request["scope"]["region"])
+        kwargs["subscription" if provider == "azure" else "account"] = producer.executor.request["scope"]["account_id"]
+        workflow = governed.workflow_template(**kwargs)
+        pin = dict(unit_id=receipt["unit_id"], run_id=receipt["run_id"], provider=provider,
+                   request=producer.request_ref.copy(), verification=ref,
+                   scope=copy.deepcopy(producer.executor.request["scope"]), profile=copy.deepcopy(receipt["profile"]),
+                   repository="synthetic/producer", repository_id=77, workflow=".github/workflows/cloud.yml",
+                   workflow_revision="a" * 40, ref="refs/heads/main", workflow_sha256=hashlib.sha256(encode(workflow)).hexdigest(),
+                   executor_repository="synthetic/executor", executor_revision="d" * 40,
+                   producer_run_id=789, artifact_id=17, environment_id=88,
+                   actors=[[7,"operator"]], reviewers=[[8,"reviewer"]])
+        object.__setattr__(target.policy, "predecessor_trust", (pin,))
+        object.__setattr__(target.policy, "dependency_request_sha256", target.request_ref["sha256"])
+        run = dict(id=789, run_attempt=1, status="completed", conclusion="success", event="workflow_dispatch",
+                   head_sha=pin["workflow_revision"], head_branch="main", path=pin["workflow"],
+                   display_title="cloud:" + pin["request"]["sha256"] + ":" + contract["preview"]["sha256"],
+                   repository=dict(id=77,full_name=pin["repository"]), head_repository=dict(id=77,full_name=pin["repository"]),
+                   actor=dict(id=7,login="operator"), triggering_actor=dict(id=7,login="operator"))
+        steps = [dict(name=s["name"], status="completed", conclusion="success", started_at=auth.utc(now-5), completed_at=auth.utc(now-3)) for s in workflow["jobs"]["verify"]["steps"]]
+        job = dict(id=456,run_id=789,run_attempt=1,head_sha=pin["workflow_revision"],name="verify",
+                   status="completed",conclusion="success",started_at=auth.utc(now-6),completed_at=auth.utc(now-2),steps=steps)
+        state = SimpleNamespace(target=target,producer=producer,pin=pin,run=run,job=job,workflow=workflow,
+                                output=output,receipt=receipt,ref=ref,now=now,contract=contract,
+                                artifact_calls=[], api_calls=[], archive_override=None,
+                                metadata=dict(id=17, expired=False, name=provider+"-verify-789", workflow_run=dict(id=789,head_sha=pin["workflow_revision"],repository_id=77,head_repository_id=77)))
+        old = target.transport.request
+        def metadata(method, url, headers, body=None):
+            if "/repos/synthetic/producer/" not in url:
+                return old(method,url,headers,body)
+            state.api_calls.append(url)
+            self.assertEqual(headers["Authorization"], "Bearer synthetic-github-bearer")
+            if "/contents/" in url:
+                return encode(dict(type="file",path=pin["workflow"],encoding="base64",content=base64.b64encode(encode(workflow)).decode()))
+            if "/jobs?" in url:
+                return encode(dict(total_count=1,jobs=[job]))
+            if url.endswith("/approvals"):
+                return encode([dict(state="approved",user=dict(id=8,login="reviewer"),environments=[dict(id=88,name="sandbox-verify")])])
+            if "/environments/" in url:
+                return encode(dict(target.transport.environment_response,id=88,name="sandbox-verify"))
+            return encode(run)
+        stack.enter_context(patch.object(target.transport,"request",side_effect=metadata))
+        def artifact(method,url,headers,body=None):
+            from types import SimpleNamespace
+            import io
+            import zipfile
+            state.artifact_calls.append((url,headers.copy()))
+            buffer=io.BytesIO()
+            with zipfile.ZipFile(buffer,"w") as archive:
+                for path in sorted(producer.root.rglob("*")):
+                    if path.is_file():
+                        archive.writestr(str(path.relative_to(producer.root)),path.read_bytes())
+            raw = buffer.getvalue() if state.archive_override is None else state.archive_override
+            meta = dict(digest="sha256:"+hashlib.sha256(raw).hexdigest(),**state.metadata)
+            if url.endswith("/artifacts/17"):
+                return SimpleNamespace(status=200,headers={},body=encode(meta))
+            if url.endswith("/zip"):
+                return SimpleNamespace(status=302,headers={"Location":"https://synthetic.blob.core.windows.net/artifact"},body=b"")
+            self.assertEqual(headers,{})
+            return SimpleNamespace(status=200,headers={},body=raw)
+        # Before implementation the existing callable must execute, not fail at import/setup.
+        if importlib.util.find_spec("cloud_dependencies"):
+            import cloud_dependencies as dependencies
+            stack.enter_context(patch.object(dependencies.ArtifactHttps,"request",side_effect=artifact))
+        return state
+
+    def failure(self, state, expected):
+        seen=[]
+        original=c._require
+        def require(condition, code="INVALID_ARTIFACT"):
+            if not condition:
+                seen.append(code)
+            original(condition,code)
+        original_auth = state.target.a.require
+        def auth_require(condition, code="ADMISSION_DENIED"):
+            if not condition:
+                seen.append(code)
+            original_auth(condition,code)
+        with patch.object(c,"_require",side_effect=require), patch.object(state.target.a,"require",side_effect=auth_require):
+            with self.assertRaises(state.target.a.AdmissionDenied):
+                state.target.write()
+        self.assertEqual(state.target.writes,[])
+        self.assertIn(expected,seen, "Mismatch reached existing boundary; blanket denial is not this field guard")
+
+    def test_dependency_matched_control_at_both_shared_stages(self):
+        for provider in ("azure","aws"):
+            for stage in ("prepare","apply"):
+                with self.subTest(provider=provider,stage=stage):
+                    state=self.fixture(provider,stage)
+                    state.target.write()
+                    self.assertEqual(state.target.writes,["write"])
+                    self.assertGreaterEqual(len(state.artifact_calls),6)
+                    self.doCleanups()
+
+    def test_dependency_per_field_red_mismatches(self):
+        variants = {
+            "run_id": ("wrong-run", "DEPENDENCY_REQUEST_BINDING"),
+            "unit_id": ("wrong-unit", "DEPENDENCY_SET_MISMATCH"),
+            "provider": ("aws", "DEPENDENCY_REQUEST_BINDING"),
+            "scope": (dict(account_id="wrong",region="wrong",deployment_scope="wrong"), "DEPENDENCY_REQUEST_BINDING"),
+            "profile": (dict(id="cloud-compute",version="999",path="bundle/profile.json",sha256="b"*64), "DEPENDENCY_REQUEST_BINDING"),
+            "workflow_sha256": ("b"*64, "DEPENDENCY_WORKFLOW_MISMATCH"),
+            "executor_revision": ("b"*40, "DEPENDENCY_EXECUTOR_MISMATCH"),
+            "producer_run_id": (790, "DEPENDENCY_RUN_MISMATCH"),
+            "repository_id": (78, "DEPENDENCY_RUN_MISMATCH"),
+            "environment_id": (89, "DEPENDENCY_ENVIRONMENT_MISMATCH"),
+        }
+        for field,(value,guard) in variants.items():
+            with self.subTest(field=field):
+                state=self.fixture()
+                state.pin[field]=value
+                self.failure(state,guard)
+                self.doCleanups()
+
+    def test_dependency_producer_and_evidence_red_mismatches(self):
+        variants = ["job", "run", "artifact", "classification", "context", "observation", "payload", "verification", "plan", "operation", "stale"]
+        for variant in variants:
+            with self.subTest(field=variant):
+                state=self.fixture()
+                guard="DEPENDENCY_PRODUCER_OUTPUT_MISMATCH"
+                if variant=="job":
+                    state.job["conclusion"]="failure"; guard="DEPENDENCY_VERIFY_JOB_REQUIRED"
+                elif variant=="run":
+                    state.run["conclusion"]="failure"; guard="DEPENDENCY_RUN_MISMATCH"
+                elif variant=="artifact":
+                    state.metadata["expired"]=True; guard="ARTIFACT_IDENTITY_CHANGED"
+                elif variant=="stale":
+                    state.target.boundary.clock=lambda: state.now+10000; guard="DEPENDENCY_NOT_VERIFIED"
+                else:
+                    suffix={"classification":".manifest.json", "context":".context.json", "observation":".manifest.json", "payload":".manifest.json", "verification":".verification.json", "plan":".selected-plan.json", "operation":""}[variant]
+                    path=state.producer.root/(state.output+suffix)
+                    value=json.loads(path.read_bytes())
+                    if variant=="classification": value["classification"]="synthetic"
+                    elif variant=="context": value["principal"]="wrong-principal"
+                    elif variant in ("observation","payload"):
+                        row=value["observations"][0]
+                        ref=row["observation" if variant=="observation" else "result"]
+                        path=state.producer.root/ref["path"]
+                        value=json.loads(path.read_bytes())
+                        value["principal" if variant=="observation" else "context_sha256"]="wrong" if variant=="observation" else "b"*64
+                    elif variant=="verification": value["evidence_complete"]=False
+                    elif variant=="plan": value["verdict"]="BLOCKED"
+                    else: value.update(result="BLOCKED",state="BLOCKED",error_code="EVIDENCE_INCOMPLETE")
+                    path.write_bytes(encode(value))
+                    if variant in ("context","observation","payload","verification"):
+                        guard="DIGEST_MISMATCH"
+                self.failure(state,guard)
                 self.doCleanups()
 
 
