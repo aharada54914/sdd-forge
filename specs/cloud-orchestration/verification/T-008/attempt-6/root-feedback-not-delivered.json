@@ -1,0 +1,5 @@
+{
+  "feedback_id": 901201,
+  "delivered": false,
+  "reason": "Attempt6 native worker had already exited successfully before the root send; no turn/steer sent or acknowledged. Report remains frozen; separate fresh attempt7 handles remaining Python harness guard."
+}

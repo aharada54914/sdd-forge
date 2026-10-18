@@ -1,0 +1,10 @@
+{
+  "source": "caller-supplied fresh native host allocation",
+  "run_id": "01a15092-c4b8-7230-9fcb-d3691160073b",
+  "session_id": "01a15092-c4b8-7230-9fcb-d3691160073b",
+  "agent_instance_id": "01a15092-c4b8-7230-9fcb-d3691160073b",
+  "model": "openai/gpt-6-astra",
+  "effort": "medium",
+  "isolation_mode": "fresh-agent",
+  "scratch_root": "/tmp/cloud-T008-attempt6-01a15092"
+}

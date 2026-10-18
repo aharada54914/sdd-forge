@@ -1,0 +1,18 @@
+test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) ... ok
+test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... ok
+test_aws_backup_native_recent_query_window (__main__.FreshnessCases.test_aws_backup_native_recent_query_window) ... ok
+test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) ... ok
+test_native_selected_window_never_chooses_only_healthy_point (__main__.FreshnessCases.test_native_selected_window_never_chooses_only_healthy_point) ... ok
+test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) ... ok
+test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... ok
+AlarmNumericThresholdCases (unittest.loader._FailedTest.AlarmNumericThresholdCases) ... ERROR
+
+======================================================================
+ERROR: AlarmNumericThresholdCases (unittest.loader._FailedTest.AlarmNumericThresholdCases)
+----------------------------------------------------------------------
+AttributeError: module '__main__' has no attribute 'AlarmNumericThresholdCases'
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.618s
+
+FAILED (errors=1)

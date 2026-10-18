@@ -1,0 +1,30 @@
+{
+  "tracked_changes": [
+    "mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts"
+  ],
+  "unchanged_mcp_files": 86,
+  "dist_sha256": "31f357cd5de8d7d1d404cc1259ca12a60ffd19ef6de406823d3e361aec6516f2",
+  "before_test_sha256": "d95991e9f53c9799d04ddbdefac8bf9af3a83c1f9f6edd5171bee36237abf9a9",
+  "after_test_sha256": "229538fd54b8adbed6b616387f19df0bf71ca645efa63ebd2a70201d3aef5351",
+  "path_equality_sweep": [
+    {
+      "line": 96,
+      "text": "    if (String(args[0]) === denied) throw new Error(\"fixture read denied\");"
+    },
+    {
+      "line": 100,
+      "text": "    if (String(args[0]) === join(fixture.root.path, qualityDir, \"nested\")) throw new Error(\"fixture listing denied\");"
+    },
+    {
+      "line": 170,
+      "text": "    if (String(args[0]) === report) reads++;"
+    },
+    {
+      "line": 225,
+      "text": "    if (String(args[0]) === report) throw new Error(\"fixture permission revoked\");"
+    }
+  ],
+  "node": "v24.19.0",
+  "npm": "11.9.0",
+  "classification": "Linux real symlinked TMPDIR and scoped fs mocks; not native macOS"
+}

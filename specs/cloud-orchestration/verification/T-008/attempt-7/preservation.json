@@ -1,0 +1,411 @@
+{
+  "single_decorator_only": true,
+  "before_sha256": "12efb15e4a595c0507abce45556aeced8344564e0d5105d989c5b1649928385a",
+  "after_sha256": "b3456601eab14ab9bd4b634d4fd801aa1fa56dfe79b75db4276c782fee0ce4e5",
+  "test_definitions_before": 100,
+  "test_definitions_after": 100,
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "before": "be21577343b8b2cc488c47b373ed68130ded00d994f58f1f81b7b69bddd6d537",
+      "after": "be21577343b8b2cc488c47b373ed68130ded00d994f58f1f81b7b69bddd6d537",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-authorization-receipt.schema.json",
+      "before": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8",
+      "after": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-check-result.schema.json",
+      "before": "992b8f4d530d4aab0fe5bca1a28b459a6c9cd9bec7e6ed68b648f489127617c0",
+      "after": "992b8f4d530d4aab0fe5bca1a28b459a6c9cd9bec7e6ed68b648f489127617c0",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-collection-context.schema.json",
+      "before": "7706241bf1a949a64b18212ba09bd8a4aa66896df668084056ee6979fdb84272",
+      "after": "7706241bf1a949a64b18212ba09bd8a4aa66896df668084056ee6979fdb84272",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-dependency-lock.schema.json",
+      "before": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec",
+      "after": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-deployment-policy.schema.json",
+      "before": "a064217e4a68838a3d719749fb751ba63ffabb2094d16cf13090afeaed080eb8",
+      "after": "a064217e4a68838a3d719749fb751ba63ffabb2094d16cf13090afeaed080eb8",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-input-error.schema.json",
+      "before": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77",
+      "after": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-observation-evidence.schema.json",
+      "before": "0d0dfccf3bd5982a2948a9db75fd459197b6bb683f19a993b5bfdce72df1d99e",
+      "after": "0d0dfccf3bd5982a2948a9db75fd459197b6bb683f19a993b5bfdce72df1d99e",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-observation.schema.json",
+      "before": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826",
+      "after": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-operation-result.schema.json",
+      "before": "a92bdac86499052256112babe5ff559c2e071adba411f4a2e92ec38b6b5b2aa6",
+      "after": "a92bdac86499052256112babe5ff559c2e071adba411f4a2e92ec38b6b5b2aa6",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-ownership.schema.json",
+      "before": "71079e7320c968bce57fba67bd105d59ab57c00a51165a3598d522919141f25d",
+      "after": "71079e7320c968bce57fba67bd105d59ab57c00a51165a3598d522919141f25d",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-preview.schema.json",
+      "before": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99",
+      "after": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-run-request.schema.json",
+      "before": "781d83fad3d8e883e2c4aa886c5356da12f93d5ef5e35f16a5d83e9c024c9d81",
+      "after": "781d83fad3d8e883e2c4aa886c5356da12f93d5ef5e35f16a5d83e9c024c9d81",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-verification-profile.schema.json",
+      "before": "b25112c7e73583b180941639cb8f137a89fcb7daa82b1afd7ec8eec66c9353bf",
+      "after": "b25112c7e73583b180941639cb8f137a89fcb7daa82b1afd7ec8eec66c9353bf",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-verification-registry.schema.json",
+      "before": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392",
+      "after": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/cloud-verification.schema.json",
+      "before": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e",
+      "after": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "before": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749",
+      "after": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749",
+      "unchanged": true
+    },
+    {
+      "path": "docs/adr/0036-thin-cloud-orchestration.md",
+      "before": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc",
+      "after": "d67248086011bcabfe482073b33d25bc39f066fd0f3763ee88bd70ee902656fc",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_control.py",
+      "before": "92842d7174dbb0bc8ba3ad796fd8a3bd7f46ed91178dfa80bbc6558762523d67",
+      "after": "92842d7174dbb0bc8ba3ad796fd8a3bd7f46ed91178dfa80bbc6558762523d67",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_execution.py",
+      "before": "69ba7b8b9fe43c1ddcb0a7af0b38f2c5f60affc7e86d02c3710e8a168b5974f7",
+      "after": "69ba7b8b9fe43c1ddcb0a7af0b38f2c5f60affc7e86d02c3710e8a168b5974f7",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "before": "94f9f9c07aee2de6bb1e7229c0244cde7423441d59b813cc8c426e2a71943ff0",
+      "after": "94f9f9c07aee2de6bb1e7229c0244cde7423441d59b813cc8c426e2a71943ff0",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_graph.py",
+      "before": "21896c758e64f5db7571c2c5209a4ab122cac8347dc18096c29e79f7396a42fd",
+      "after": "21896c758e64f5db7571c2c5209a4ab122cac8347dc18096c29e79f7396a42fd",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_local.py",
+      "before": "82bbf762e80d62abdc77b56f850729c72d4ae83c3e59f4de09751867f16e4b31",
+      "after": "82bbf762e80d62abdc77b56f850729c72d4ae83c3e59f4de09751867f16e4b31",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_native.py",
+      "before": "1e2ea86be1852796c55c3858d40bef1afbcdc0594a95b0b160d88d1e5c817855",
+      "after": "1e2ea86be1852796c55c3858d40bef1afbcdc0594a95b0b160d88d1e5c817855",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+      "before": "6c42f914d8c1b959542da30d614c673f50a78987b7dea95dd6638ac476420c81",
+      "after": "6c42f914d8c1b959542da30d614c673f50a78987b7dea95dd6638ac476420c81",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/cloud.py",
+      "before": "167b3e37e88a5ab1c32344e226823ae0e9d1518d7927a7ab4221422a011cc933",
+      "after": "167b3e37e88a5ab1c32344e226823ae0e9d1518d7927a7ab4221422a011cc933",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_arm.py",
+      "before": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86",
+      "after": "5ee98cf0fde60b1d8e9959cf17e7eb6e53fbaf179104ad0e080b849f936cff86",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_execution.py",
+      "before": "cb8b14a85e305431aaf80eb568620aeb42b724aa13f485251338f9bde70c360a",
+      "after": "cb8b14a85e305431aaf80eb568620aeb42b724aa13f485251338f9bde70c360a",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "before": "c919c2fe44f462db08ccfd5f766b7635ae3e9eb4bf416bac96e2c9ded1509bc8",
+      "after": "c919c2fe44f462db08ccfd5f766b7635ae3e9eb4bf416bac96e2c9ded1509bc8",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_graph.py",
+      "before": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f",
+      "after": "f46bdc77c12449d0f4befd0221b29687e7b4f48685cc6106080de62b3a4d075f",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_local.py",
+      "before": "43d37a2ec9ae8e5bfc60690480c7ec607237b03b4c3d6fbb7f1e8d2ee7792f10",
+      "after": "43d37a2ec9ae8e5bfc60690480c7ec607237b03b4c3d6fbb7f1e8d2ee7792f10",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+      "before": "4b56fcba4f3017eebea8e97c565e2df8a3b2691f8cce21478dc7bdf7819bc8b8",
+      "after": "4b56fcba4f3017eebea8e97c565e2df8a3b2691f8cce21478dc7bdf7819bc8b8",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "before": "019e77164d35afc20663c9d6d98ccbca64ddd558bd23a2b3982dccfd8197da4d",
+      "after": "019e77164d35afc20663c9d6d98ccbca64ddd558bd23a2b3982dccfd8197da4d",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "before": "430e0e45c6bb417cd65f7f7f228bb59280d6d0817c8b34236223b8fbd4702029",
+      "after": "430e0e45c6bb417cd65f7f7f228bb59280d6d0817c8b34236223b8fbd4702029",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "before": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73",
+      "after": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "before": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+      "after": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "before": "ec5a392cea7190660b8517317977584d36179e718856061acf968b36ef6bd23f",
+      "after": "ec5a392cea7190660b8517317977584d36179e718856061acf968b36ef6bd23f",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "before": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+      "after": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "before": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+      "after": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "before": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75",
+      "after": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_authorization.py",
+      "before": "17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658",
+      "after": "17f5ffd041fe2d32657452093c76f4eda87b37fc5bf5d8504a1c6352eaac9658",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+      "before": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d",
+      "after": "c11225de15d8944a4183085b3df98f7b4da2d87227c473ad4eedde377b51164d",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_dependencies.py",
+      "before": "7974e7e9a8d7da0c60b219a58db54c4747f0250653fda3af0146091f1f4fb475",
+      "after": "7974e7e9a8d7da0c60b219a58db54c4747f0250653fda3af0146091f1f4fb475",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+      "before": "b2488aa48d32716b270fd920fbf4b13f43cf19440e975b48721d91e38de62a68",
+      "after": "b2488aa48d32716b270fd920fbf4b13f43cf19440e975b48721d91e38de62a68",
+      "unchanged": true
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-008-ci-time-budget.md",
+      "before": "9189afa9ea4cac5864ce73be807ae4cab6617ef48c37ab3cc45e9fbebe0d4760",
+      "after": "9189afa9ea4cac5864ce73be807ae4cab6617ef48c37ab3cc45e9fbebe0d4760",
+      "unchanged": true
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-008-mcp-fixture-path-fix.md",
+      "before": "15afb884381d9a768ee550af67555fbd637fc15081d76b6329d97f3d71c45351",
+      "after": "15afb884381d9a768ee550af67555fbd637fc15081d76b6329d97f3d71c45351",
+      "unchanged": true
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-008-mcp-report-scan-fix.md",
+      "before": "30d57c67c9acf9921e77f0a945533f6ed8ed163ba10dabd8d90db5786f7abfa7",
+      "after": "30d57c67c9acf9921e77f0a945533f6ed8ed163ba10dabd8d90db5786f7abfa7",
+      "unchanged": true
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-008-platform-test-fixes.md",
+      "before": "39fd1f94e7b0a3bd694ee85bd8943d30025e3603de139e14f21af303ecf37049",
+      "after": "39fd1f94e7b0a3bd694ee85bd8943d30025e3603de139e14f21af303ecf37049",
+      "unchanged": true
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-008-release-fixes.md",
+      "before": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+      "after": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+      "unchanged": true
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-008.md",
+      "before": "a1efa08a83d5a603790916675d44a74488e557c1502b39afe2db72f4ee6ee195",
+      "after": "a1efa08a83d5a603790916675d44a74488e557c1502b39afe2db72f4ee6ee195",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "before": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+      "after": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "before": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+      "after": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "before": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+      "after": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "before": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+      "after": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "before": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c",
+      "after": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "before": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+      "after": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "before": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+      "after": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/tasks.md",
+      "before": "7a9aca7ff38c3dcb420c92606d6dcf492a16dc716c28978f9e7d18b439bcbe71",
+      "after": "7a9aca7ff38c3dcb420c92606d6dcf492a16dc716c28978f9e7d18b439bcbe71",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "before": "5d6ed8d89b688ee11406b5059323b537d37dcbc8d4ae8d32c43c1dece6809b43",
+      "after": "5d6ed8d89b688ee11406b5059323b537d37dcbc8d4ae8d32c43c1dece6809b43",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "before": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+      "after": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/attempt-6/task-input-manifest.json",
+      "before": "7ef390c281b82c4513270fb4e3cfaa40cd6101aa052b43146f872899afbb704b",
+      "after": "7ef390c281b82c4513270fb4e3cfaa40cd6101aa052b43146f872899afbb704b",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/attempt-7/native-allocation.json",
+      "before": "e60a0f36af9ac39447a84e4be1bbf26489ab147eb07c8bfe16410b4fc1b76902",
+      "after": "e60a0f36af9ac39447a84e4be1bbf26489ab147eb07c8bfe16410b4fc1b76902",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-attempt-3/windows-remaining-posix-harness-failure.log",
+      "before": "d10764c3cbfaad29d53f3de612f04183fd06f8a340b276a0438f3c5ddefa3a58",
+      "after": "d10764c3cbfaad29d53f3de612f04183fd06f8a340b276a0438f3c5ddefa3a58",
+      "unchanged": true
+    },
+    {
+      "path": "tests/cloud-orchestration-contracts.tests.py",
+      "before": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+      "after": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+      "unchanged": true
+    },
+    {
+      "path": "tests/cloud-orchestration-execution.tests.py",
+      "before": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+      "after": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+      "unchanged": true
+    },
+    {
+      "path": "tests/cloud-orchestration-routing.tests.py",
+      "before": "b96a66910c6af9f648c79635e300b814529c24cd26b78e9c3261ebcd68f7d263",
+      "after": "b96a66910c6af9f648c79635e300b814529c24cd26b78e9c3261ebcd68f7d263",
+      "unchanged": true
+    },
+    {
+      "path": "tests/shared-launch-python/pyproject.toml",
+      "before": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12",
+      "after": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12",
+      "unchanged": true
+    }
+  ]
+}

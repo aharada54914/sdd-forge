@@ -1,0 +1,10 @@
+Implemented the three-reference, test-only path fix.
+
+- Alias reproduction: 3 failures before; 10/10 pass after.
+- MCP suite: 307/307 pass; typecheck/build pass; dist unchanged.
+- Rollback/reapply verified; manifest/report validators pass.
+- Five prior reports preserved; no commits or status changes.
+
+Report: `reports/implementation/cloud-orchestration/T-008-mcp-fixture-path-fix.md`
+
+Native macOS CI and final full-suite/release verification remain root-owned.

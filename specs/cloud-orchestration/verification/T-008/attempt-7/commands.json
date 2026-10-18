@@ -1,0 +1,36 @@
+[
+  {
+    "command": "python3 -B tests/cloud-orchestration-verification.tests.py NativeAdversarialCases FreshnessCases -v",
+    "exit_code": 0,
+    "output": "test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) ... ok\ntest_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... ok\ntest_aws_backup_native_recent_query_window (__main__.FreshnessCases.test_aws_backup_native_recent_query_window) ... ok\ntest_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) ... ok\ntest_native_selected_window_never_chooses_only_healthy_point (__main__.FreshnessCases.test_native_selected_window_never_chooses_only_healthy_point) ... ok\ntest_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) ... ok\ntest_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.665s\n\nOK\n"
+  },
+  {
+    "command": "python3 -B tests/cloud-orchestration-verification.tests.py NativeAdversarialCases FreshnessCases -v",
+    "exit_code": 0,
+    "output": "test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) ... ok\ntest_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... ok\ntest_aws_backup_native_recent_query_window (__main__.FreshnessCases.test_aws_backup_native_recent_query_window) ... ok\ntest_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) ... ok\ntest_native_selected_window_never_chooses_only_healthy_point (__main__.FreshnessCases.test_native_selected_window_never_chooses_only_healthy_point) ... ok\ntest_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) ... ok\ntest_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.583s\n\nOK\n"
+  },
+  {
+    "command": "python3 -B /tmp/cloud-T008-attempt7-01a15096/rollback/tests/cloud-orchestration-verification.tests.py NativeAdversarialCases FreshnessCases -v",
+    "exit_code": 0,
+    "output": "test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) ... ok\ntest_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... ok\ntest_aws_backup_native_recent_query_window (__main__.FreshnessCases.test_aws_backup_native_recent_query_window) ... ok\ntest_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) ... ok\ntest_native_selected_window_never_chooses_only_healthy_point (__main__.FreshnessCases.test_native_selected_window_never_chooses_only_healthy_point) ... ok\ntest_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) ... ok\ntest_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.606s\n\nOK\n",
+    "phase": "rollback",
+    "sha256": "12efb15e4a595c0507abce45556aeced8344564e0d5105d989c5b1649928385a"
+  },
+  {
+    "command": "python3 -B /tmp/cloud-T008-attempt7-01a15096/rollback/tests/cloud-orchestration-verification.tests.py NativeAdversarialCases FreshnessCases -v",
+    "exit_code": 0,
+    "output": "test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) ... ok\ntest_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... ok\ntest_aws_backup_native_recent_query_window (__main__.FreshnessCases.test_aws_backup_native_recent_query_window) ... ok\ntest_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) ... ok\ntest_native_selected_window_never_chooses_only_healthy_point (__main__.FreshnessCases.test_native_selected_window_never_chooses_only_healthy_point) ... ok\ntest_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) ... ok\ntest_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.607s\n\nOK\n",
+    "phase": "reapply",
+    "sha256": "b3456601eab14ab9bd4b634d4fd801aa1fa56dfe79b75db4276c782fee0ce4e5"
+  },
+  {
+    "command": "MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts /tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml tests/cloud-orchestration-verification.tests.py",
+    "exit_code": 0,
+    "output": "All checks passed!\n"
+  },
+  {
+    "command": "MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml tests/cloud-orchestration-verification.tests.py",
+    "exit_code": 0,
+    "output": "Success: no issues found in 1 source file\n"
+  }
+]

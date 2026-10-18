@@ -1,0 +1,62 @@
+{
+  "at": "2026-10-18T19:54:41.544256+00:00",
+  "scope": "Remove only task-created, stopped shared clones of obsolete candidates1/2. Their source revisions remain committed; all external logs/cancellation evidence retained. Current candidate3 and root/native-tool caches untouched.",
+  "clones": [
+    {
+      "clone": "/workspace/cloud-release-v119-1/local-posix-0",
+      "revision": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7",
+      "origin": "/workspace/sdd-forge",
+      "disposable_test_status": "",
+      "outside_log_preserved": "/workspace/cloud-release-v119-1/local-posix-0.log"
+    },
+    {
+      "clone": "/workspace/cloud-release-v119-1/local-posix-1",
+      "revision": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7",
+      "origin": "/workspace/sdd-forge",
+      "disposable_test_status": "",
+      "outside_log_preserved": "/workspace/cloud-release-v119-1/local-posix-1.log"
+    },
+    {
+      "clone": "/workspace/cloud-release-v119-1/local-powershell-0",
+      "revision": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7",
+      "origin": "/workspace/sdd-forge",
+      "disposable_test_status": "",
+      "outside_log_preserved": "/workspace/cloud-release-v119-1/local-powershell-0.log"
+    },
+    {
+      "clone": "/workspace/cloud-release-v119-1/local-powershell-1",
+      "revision": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7",
+      "origin": "/workspace/sdd-forge",
+      "disposable_test_status": "",
+      "outside_log_preserved": "/workspace/cloud-release-v119-1/local-powershell-1.log"
+    },
+    {
+      "clone": "/workspace/cloud-release-v119-2/local-posix-0",
+      "revision": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+      "origin": "/workspace/sdd-forge",
+      "disposable_test_status": "",
+      "outside_log_preserved": "/workspace/cloud-release-v119-2/local-posix-0.log"
+    },
+    {
+      "clone": "/workspace/cloud-release-v119-2/local-posix-1",
+      "revision": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+      "origin": "/workspace/sdd-forge",
+      "disposable_test_status": "",
+      "outside_log_preserved": "/workspace/cloud-release-v119-2/local-posix-1.log"
+    },
+    {
+      "clone": "/workspace/cloud-release-v119-2/local-powershell-0",
+      "revision": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+      "origin": "/workspace/sdd-forge",
+      "disposable_test_status": "",
+      "outside_log_preserved": "/workspace/cloud-release-v119-2/local-powershell-0.log"
+    },
+    {
+      "clone": "/workspace/cloud-release-v119-2/local-powershell-1",
+      "revision": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+      "origin": "/workspace/sdd-forge",
+      "disposable_test_status": "",
+      "outside_log_preserved": "/workspace/cloud-release-v119-2/local-powershell-1.log"
+    }
+  ]
+}

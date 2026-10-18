@@ -1,0 +1,10 @@
+$ python3 -B tests/cloud-orchestration-verification.tests.py AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid AlarmNumericCases.test_other_alarm_field_semantics_remain_exact -v
+test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) ... ok
+test_other_alarm_field_semantics_remain_exact (__main__.AlarmNumericCases.test_other_alarm_field_semantics_remain_exact) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.034s
+
+OK
+
+exit_code: 0

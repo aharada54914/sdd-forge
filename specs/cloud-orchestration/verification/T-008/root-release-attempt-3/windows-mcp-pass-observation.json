@@ -1,0 +1,82 @@
+{
+  "revision": "7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61",
+  "run_id": 39160496110,
+  "job": {
+    "completedAt": "2026-10-18T19:51:09Z",
+    "conclusion": "success",
+    "databaseId": 117772599601,
+    "name": "mcp-tests (windows-latest)",
+    "startedAt": "2026-10-18T19:49:55Z",
+    "status": "completed",
+    "steps": [
+      {
+        "conclusion": "success",
+        "name": "Set up job",
+        "number": 1,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 2,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Set up Node.js",
+        "number": 3,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Install dependencies",
+        "number": 4,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Type check",
+        "number": 5,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Run tests",
+        "number": 6,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Rebuild dist and verify parity",
+        "number": 7,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Audit production dependencies",
+        "number": 8,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Post Set up Node.js",
+        "number": 15,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 16,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Complete job",
+        "number": 17,
+        "status": "completed"
+      }
+    ],
+    "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39160496110/job/117772599601"
+  },
+  "scope": "Actual native Windows MCP job success including unchanged real-repository Inspector smoke. Candidate3 overall CI still fails test fixture portability elsewhere; this is not final release acceptance."
+}

@@ -1,0 +1,48 @@
+{
+  "at": "2026-10-18T19:52:54.510769+00:00",
+  "revision": "7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61",
+  "outcome": "CANCELLED_INCOMPLETE",
+  "reason": "Actual new macOS MCP fixture failure needs corrected candidate; preserve partial logs and rerun full profiles on final exact commit. No full PASS claimed. Hosted CI continues for additional diagnostics.",
+  "targets": [
+    {
+      "pid": 3463182,
+      "pgid": 3463182,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61 local-posix 1 /workspace/cloud-release-v119-3"
+    },
+    {
+      "pid": 3463183,
+      "pgid": 3463183,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61 local-posix 2 /workspace/cloud-release-v119-3"
+    },
+    {
+      "pid": 3463186,
+      "pgid": 3463186,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61 local-powershell 1 /workspace/cloud-release-v119-3"
+    },
+    {
+      "pid": 3463189,
+      "pgid": 3463189,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61 local-posix 3 /workspace/cloud-release-v119-3"
+    },
+    {
+      "pid": 3463192,
+      "pgid": 3463192,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61 local-posix 0 /workspace/cloud-release-v119-3"
+    },
+    {
+      "pid": 3463196,
+      "pgid": 3463196,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61 local-powershell 0 /workspace/cloud-release-v119-3"
+    },
+    {
+      "pid": 3463202,
+      "pgid": 3463202,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61 local-powershell 2 /workspace/cloud-release-v119-3"
+    },
+    {
+      "pid": 3463215,
+      "pgid": 3463215,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61 local-powershell 3 /workspace/cloud-release-v119-3"
+    }
+  ]
+}

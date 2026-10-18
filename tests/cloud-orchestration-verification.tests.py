@@ -3168,6 +3168,7 @@ class NativeAdversarialCases(unittest.TestCase):
                         ):
                             getattr(collector, check)()
 
+    @unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
     def test_postcollection_lease_expiry_prevents_publication(self):
         for provider in ("aws", "azure"):
             harness = PublicObservationCases()

@@ -1,0 +1,6 @@
+{
+  "report": "reports/implementation/cloud-orchestration/T-008-posix-harness-boundary-fix.md",
+  "sha256": "ef7f4e485bd4620daa4ce0f799198a3e4ea6bdc899780e12b0dad513cc9892fa",
+  "outputs": 60,
+  "mismatches": []
+}

@@ -1,0 +1,31 @@
+diff --git a/mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts b/mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts
+index 5f780b42..fbd2b94d 100644
+--- a/mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts
++++ b/mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts
+@@ -89,7 +89,7 @@ test("partial listing and file-read failures keep legacy diagnostics and readabl
+   const fixture = makeTempSddRoot("report-errors");
+   t.after(fixture.cleanup);
+   writeFile(fixture.dir, `${qualityDir}/good.md`, "T-001\nVERDICT: FAIL");
+-  const denied = writeFile(fixture.dir, `${qualityDir}/unreadable.md`, "T-001\nVERDICT: PASS");
++  const denied = writeFile(fixture.root.path, `${qualityDir}/unreadable.md`, "T-001\nVERDICT: PASS");
+   writeFile(fixture.dir, `${qualityDir}/nested/hidden.md`, "T-002\nVERDICT: PASS");
+   const read = fs.readFileSync, list = fs.readdirSync;
+   t.mock.method(fs, "readFileSync", (...args: Parameters<typeof fs.readFileSync>) => {
+@@ -164,7 +164,7 @@ test("new listActiveSpecs requests rescan reports and still validate Done tasks"
+   t.after(fixture.cleanup);
+   writeFile(fixture.dir, "AGENTS.md", "## Active Spec Directories\n\n- `specs/one/`\n");
+   writeFile(fixture.dir, "specs/one/tasks.md", tasks());
+-  const report = writeFile(fixture.dir, `${qualityDir}/report.md`, "T-001 T-002\nVERDICT: PASS");
++  const report = writeFile(fixture.root.path, `${qualityDir}/report.md`, "T-001 T-002\nVERDICT: PASS");
+   const original = fs.readFileSync; let reads = 0;
+   t.mock.method(fs, "readFileSync", (...args: Parameters<typeof fs.readFileSync>) => {
+     if (String(args[0]) === report) reads++;
+@@ -213,7 +213,7 @@ test("read permission failure after a successful request cannot retain PASS", (t
+   const fixture = makeTempSddRoot("report-revoked");
+   t.after(fixture.cleanup);
+   writeFile(fixture.dir, "specs/one/tasks.md", tasks());
+-  const report = writeFile(fixture.dir, `${qualityDir}/report.md`, "T-001 T-002\nVERDICT: PASS");
++  const report = writeFile(fixture.root.path, `${qualityDir}/report.md`, "T-001 T-002\nVERDICT: PASS");
+   const read = () => {
+     const result = parseTaskState(fixture.root, "one", "specs/one/tasks.md");
+     assert.ok(result.ok);

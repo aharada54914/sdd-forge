@@ -1,0 +1,7 @@
+{
+  "job_id": 117772599597,
+  "run_id": 39160496110,
+  "revision": "7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61",
+  "source_url": "https://github.com/aharada54914/sdd-forge/actions/runs/39160496110",
+  "scope": "Three new mock path comparisons use uncanonical fixture.dir while guardedRead uses realpath fixture.root.path; actual macOS failures. Full decoded log retained privately under/tmp."
+}

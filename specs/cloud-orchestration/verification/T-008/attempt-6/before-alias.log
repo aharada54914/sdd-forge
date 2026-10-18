@@ -1,0 +1,99 @@
+✔ parseTaskState: report reads are bounded by files, not completed tasks (5.982572ms)
+✔ listActiveSpecs: report reads are bounded by files, not completed tasks (2.800093ms)
+✔ snapshot matches legacy whole words, all matching reports, order and diagnostics (12.610519ms)
+✖ partial listing and file-read failures keep legacy diagnostics and readable matches (2.700123ms)
+✔ root identity isolates snapshots even when directory names and task IDs coincide (1.060179ms)
+✔ new parser requests see changed, replaced, deleted and denied reports, never stale PASS (6.434795ms)
+✖ new listActiveSpecs requests rescan reports and still validate Done tasks (1.311558ms)
+✔ directory symlink escape is denied identically, including replacement between requests (0.992377ms)
+✔ planned-only parses are lazy and perform no report scans (0.732725ms)
+✖ read permission failure after a successful request cannot retain PASS (1.588025ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 7
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103.13657
+
+✖ failing tests:
+
+test at dist-test/tests/parsers-state/report-reuse.test.js:81:1
+✖ partial listing and file-read failures keep legacy diagnostics and readable matches (2.700123ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      errors: [
+        {
+          path: 'reports/quality-gate/nested',
+          reason: 'fixture listing denied'
+  ...
+        'reports/quality-gate/good.md',
+  +     'reports/quality-gate/unreadable.md'
+      ]
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:102:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { matches: [ 'reports/quality-gate/good.md', 'reports/quality-gate/unreadable.md' ], errors: [ [Object] ] },
+    expected: { matches: [ 'reports/quality-gate/good.md' ], errors: [ [Object] ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/parsers-state/report-reuse.test.js:156:1
+✖ new listActiveSpecs requests rescan reports and still validate Done tasks (1.311558ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:172:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/parsers-state/report-reuse.test.js:207:1
+✖ read permission failure after a successful request cannot retain PASS (1.588025ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   'done-quality-gate-report-missing',
+  -   'done-quality-gate-report-missing'
+  - ]
+  
+      at TestContext.<anonymous> (file:///workspace/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:226:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'done-quality-gate-report-missing', 'done-quality-gate-report-missing' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

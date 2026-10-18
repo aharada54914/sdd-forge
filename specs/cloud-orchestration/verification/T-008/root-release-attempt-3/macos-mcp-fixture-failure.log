@@ -1,0 +1,140 @@
+2026-10-18T19:50:07.9329100Z # Subtest: snapshot matches legacy whole words, all matching reports, order and diagnostics
+2026-10-18T19:50:07.9329710Z ok 175 - snapshot matches legacy whole words, all matching reports, order and diagnostics
+2026-10-18T19:50:07.9330030Z   ---
+2026-10-18T19:50:07.9330170Z   duration_ms: 24.49125
+2026-10-18T19:50:07.9330340Z   type: 'test'
+2026-10-18T19:50:07.9330480Z   ...
+2026-10-18T19:50:07.9330890Z # Subtest: partial listing and file-read failures keep legacy diagnostics and readable matches
+2026-10-18T19:50:07.9331520Z not ok 176 - partial listing and file-read failures keep legacy diagnostics and readable matches
+2026-10-18T19:50:07.9331870Z   ---
+2026-10-18T19:50:07.9332010Z   duration_ms: 5.088875
+2026-10-18T19:50:07.9332170Z   type: 'test'
+2026-10-18T19:50:07.9332660Z   location: '/Users/runner/work/sdd-forge/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:81:1'
+2026-10-18T19:50:07.9333170Z   failureType: 'testCodeFailure'
+2026-10-18T19:50:07.9333370Z   error: |-
+2026-10-18T19:50:07.9333580Z     Expected values to be strictly deep-equal:
+2026-10-18T19:50:07.9333810Z     + actual - expected
+2026-10-18T19:50:07.9333980Z     ... Skipped lines
+2026-10-18T19:50:07.9334150Z     
+2026-10-18T19:50:07.9334270Z       {
+2026-10-18T19:50:07.9334410Z         errors: [
+2026-10-18T19:50:07.9334550Z           {
+2026-10-18T19:50:07.9334760Z             path: 'reports/quality-gate/nested',
+2026-10-18T19:50:07.9335040Z             reason: 'fixture listing denied'
+2026-10-18T19:50:07.9335240Z     ...
+2026-10-18T19:50:07.9335430Z           'reports/quality-gate/good.md',
+2026-10-18T19:50:07.9335700Z     +     'reports/quality-gate/unreadable.md'
+2026-10-18T19:50:07.9335910Z         ]
+2026-10-18T19:50:07.9336040Z       }
+2026-10-18T19:50:07.9336170Z     
+2026-10-18T19:50:07.9336310Z   code: 'ERR_ASSERTION'
+2026-10-18T19:50:07.9336480Z   name: 'AssertionError'
+2026-10-18T19:50:07.9336710Z   expected:
+2026-10-18T19:50:07.9336850Z     matches:
+2026-10-18T19:50:07.9337040Z       0: 'reports/quality-gate/good.md'
+2026-10-18T19:50:07.9337250Z     errors:
+2026-10-18T19:50:07.9337380Z       0:
+2026-10-18T19:50:07.9337570Z         path: 'reports/quality-gate/nested'
+2026-10-18T19:50:07.9337830Z         reason: 'fixture listing denied'
+2026-10-18T19:50:07.9338040Z   actual:
+2026-10-18T19:50:07.9338170Z     matches:
+2026-10-18T19:50:07.9338350Z       0: 'reports/quality-gate/good.md'
+2026-10-18T19:50:07.9338620Z       1: 'reports/quality-gate/unreadable.md'
+2026-10-18T19:50:07.9338840Z     errors:
+2026-10-18T19:50:07.9338970Z       0:
+2026-10-18T19:50:07.9339160Z         path: 'reports/quality-gate/nested'
+2026-10-18T19:50:07.9339420Z         reason: 'fixture listing denied'
+2026-10-18T19:50:07.9339640Z   operator: 'deepStrictEqual'
+2026-10-18T19:50:07.9339820Z   stack: |-
+2026-10-18T19:50:07.9340400Z     TestContext.<anonymous> (file:///Users/runner/work/sdd-forge/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:102:12)
+2026-10-18T19:50:07.9341010Z     Test.runInAsyncScope (node:async_hooks:214:14)
+2026-10-18T19:50:07.9341330Z     Test.run (node:internal/test_runner/test:1047:25)
+2026-10-18T19:50:07.9341770Z     Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+2026-10-18T19:50:07.9342170Z     Test.postRun (node:internal/test_runner/test:1173:19)
+2026-10-18T19:50:07.9342500Z     Test.run (node:internal/test_runner/test:1101:12)
+2026-10-18T19:50:07.9342910Z     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+2026-10-18T19:50:07.9343210Z   ...
+2026-10-18T19:50:07.9343630Z # Subtest: root identity isolates snapshots even when directory names and task IDs coincide
+2026-10-18T19:50:07.9344230Z ok 177 - root identity isolates snapshots even when directory names and task IDs coincide
+2026-10-18T19:50:07.9344570Z   ---
+2026-10-18T19:50:07.9344710Z   duration_ms: 3.428625
+2026-10-18T19:50:07.9344890Z   type: 'test'
+2026-10-18T19:50:07.9345030Z   ...
+2026-10-18T19:50:07.9345460Z # Subtest: new parser requests see changed, replaced, deleted and denied reports, never stale PASS
+2026-10-18T19:50:07.9346110Z ok 178 - new parser requests see changed, replaced, deleted and denied reports, never stale PASS
+2026-10-18T19:50:07.9346460Z   ---
+2026-10-18T19:50:07.9346600Z   duration_ms: 18.456333
+2026-10-18T19:50:07.9346780Z   type: 'test'
+2026-10-18T19:50:07.9346920Z   ...
+2026-10-18T19:50:07.9347300Z # Subtest: new listActiveSpecs requests rescan reports and still validate Done tasks
+2026-10-18T19:50:07.9347880Z not ok 179 - new listActiveSpecs requests rescan reports and still validate Done tasks
+2026-10-18T19:50:07.9348200Z   ---
+2026-10-18T19:50:07.9348340Z   duration_ms: 4.797208
+2026-10-18T19:50:07.9348510Z   type: 'test'
+2026-10-18T19:50:07.9349010Z   location: '/Users/runner/work/sdd-forge/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:156:1'
+2026-10-18T19:50:07.9349520Z   failureType: 'testCodeFailure'
+2026-10-18T19:50:07.9349710Z   error: |-
+2026-10-18T19:50:07.9349910Z     Expected values to be strictly equal:
+2026-10-18T19:50:07.9350120Z     
+2026-10-18T19:50:07.9350240Z     0 !== 1
+2026-10-18T19:50:07.9350370Z     
+2026-10-18T19:50:07.9350510Z   code: 'ERR_ASSERTION'
+2026-10-18T19:50:07.9350690Z   name: 'AssertionError'
+2026-10-18T19:50:07.9350950Z   expected: 1
+2026-10-18T19:50:07.9351130Z   actual: 0
+2026-10-18T19:50:07.9351310Z   operator: 'strictEqual'
+2026-10-18T19:50:07.9351480Z   stack: |-
+2026-10-18T19:50:07.9352050Z     TestContext.<anonymous> (file:///Users/runner/work/sdd-forge/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:172:12)
+2026-10-18T19:50:07.9352640Z     Test.runInAsyncScope (node:async_hooks:214:14)
+2026-10-18T19:50:07.9352960Z     Test.run (node:internal/test_runner/test:1047:25)
+2026-10-18T19:50:07.9353350Z     Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+2026-10-18T19:50:07.9353740Z     Test.postRun (node:internal/test_runner/test:1173:19)
+2026-10-18T19:50:07.9354120Z     Test.run (node:internal/test_runner/test:1101:12)
+2026-10-18T19:50:07.9354510Z     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+2026-10-18T19:50:07.9354820Z   ...
+2026-10-18T19:50:07.9355250Z # Subtest: directory symlink escape is denied identically, including replacement between requests
+2026-10-18T19:50:07.9355900Z ok 180 - directory symlink escape is denied identically, including replacement between requests
+2026-10-18T19:50:07.9356250Z   ---
+2026-10-18T19:50:07.9360920Z   duration_ms: 6.933125
+2026-10-18T19:50:07.9361090Z   type: 'test'
+2026-10-18T19:50:07.9361230Z   ...
+2026-10-18T19:50:07.9361550Z # Subtest: planned-only parses are lazy and perform no report scans
+2026-10-18T19:50:07.9362060Z ok 181 - planned-only parses are lazy and perform no report scans
+2026-10-18T19:50:07.9362370Z   ---
+2026-10-18T19:50:07.9362500Z   duration_ms: 2.530625
+2026-10-18T19:50:07.9362670Z   type: 'test'
+2026-10-18T19:50:07.9362820Z   ...
+2026-10-18T19:50:07.9363240Z # Subtest: read permission failure after a successful request cannot retain PASS
+2026-10-18T19:50:07.9363970Z not ok 182 - read permission failure after a successful request cannot retain PASS
+2026-10-18T19:50:07.9364280Z   ---
+2026-10-18T19:50:07.9364510Z   duration_ms: 3.452709
+2026-10-18T19:50:07.9364680Z   type: 'test'
+2026-10-18T19:50:07.9365170Z   location: '/Users/runner/work/sdd-forge/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:207:1'
+2026-10-18T19:50:07.9365670Z   failureType: 'testCodeFailure'
+2026-10-18T19:50:07.9365860Z   error: |-
+2026-10-18T19:50:07.9366060Z     Expected values to be strictly deep-equal:
+2026-10-18T19:50:07.9366290Z     + actual - expected
+2026-10-18T19:50:07.9366450Z     
+2026-10-18T19:50:07.9366580Z     + []
+2026-10-18T19:50:07.9366710Z     - [
+2026-10-18T19:50:07.9366910Z     -   'done-quality-gate-report-missing',
+2026-10-18T19:50:07.9367190Z     -   'done-quality-gate-report-missing'
+2026-10-18T19:50:07.9367400Z     - ]
+2026-10-18T19:50:07.9367530Z     
+2026-10-18T19:50:07.9367660Z   code: 'ERR_ASSERTION'
+2026-10-18T19:50:07.9367840Z   name: 'AssertionError'
+2026-10-18T19:50:07.9368010Z   expected:
+2026-10-18T19:50:07.9368200Z     0: 'done-quality-gate-report-missing'
+2026-10-18T19:50:07.9368470Z     1: 'done-quality-gate-report-missing'
+2026-10-18T19:50:07.9368670Z   actual:
+2026-10-18T19:50:07.9368820Z   operator: 'deepStrictEqual'
+2026-10-18T19:50:07.9369000Z   stack: |-
+2026-10-18T19:50:07.9369670Z     TestContext.<anonymous> (file:///Users/runner/work/sdd-forge/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:226:12)
+2026-10-18T19:50:07.9370250Z     Test.runInAsyncScope (node:async_hooks:214:14)
+2026-10-18T19:50:07.9370570Z     Test.run (node:internal/test_runner/test:1047:25)
+2026-10-18T19:50:07.9370950Z     Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+2026-10-18T19:50:07.9371340Z     Test.postRun (node:internal/test_runner/test:1173:19)
+2026-10-18T19:50:07.9371670Z     Test.run (node:internal/test_runner/test:1101:12)
+2026-10-18T19:50:07.9372070Z     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+2026-10-18T19:50:07.9372370Z   ...
+2026-10-18T19:50:07.9372750Z # Subtest: real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape

@@ -1,0 +1,14 @@
+from pathlib import Path
+import shutil,subprocess,hashlib,json
+root=Path('/workspace/sdd-forge'); scratch=Path('/tmp/cloud-T008-attempt6-01a15092'); mcp=root/'mcp/sdd-forge-mcp'; dest=scratch/'disposable'; ev=root/'specs/cloud-orchestration/verification/T-008/attempt-6'; rel=Path('tests/parsers-state/report-reuse.test.ts')
+for d in ['src','tests','scripts']:shutil.copytree(mcp/d,dest/d)
+for f in ['package.json','tsconfig.test.json']:shutil.copyfile(mcp/f,dest/f)
+(dest/'node_modules').symlink_to(mcp/'node_modules',target_is_directory=True)
+h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+records=[]
+for phase,source in [('rollback',scratch/'snapshot/initial/mcp/sdd-forge-mcp'/rel),('reapply',mcp/rel)]:
+ shutil.copyfile(source,dest/rel)
+ records.append({'phase':phase,'source_sha256':h(source),'disposable_sha256':h(dest/rel)})
+ subprocess.run(['python3',str(scratch/'run.py'),phase+'-compile','node',str(mcp/'node_modules/typescript/bin/tsc'),'-p',str(dest/'tsconfig.test.json')],check=True)
+ subprocess.run(['python3',str(scratch/'run.py'),phase+'-alias','node','--test',str(dest/'dist-test/tests/parsers-state/report-reuse.test.js')],check=True)
+(ev/'rollback-hashes.json').write_text(json.dumps(records,indent=2)+'\n')

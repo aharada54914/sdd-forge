@@ -1,0 +1,10 @@
+from pathlib import Path
+import subprocess,os,json,sys,time
+root=Path('/workspace/sdd-forge'); ev=root/'specs/cloud-orchestration/verification/T-008/attempt-6'; scratch=Path('/tmp/cloud-T008-attempt6-01a15092')
+name=sys.argv[1]; cmd=sys.argv[2:]; env=os.environ.copy()
+if name.endswith('alias') or name=='alias-proof': env['TMPDIR']=str(scratch/'alias')
+start=time.monotonic(); p=subprocess.run(cmd,cwd=root/'mcp/sdd-forge-mcp',env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+(ev/(name+'.log')).write_text(p.stdout)
+record={'name':name,'cwd':'mcp/sdd-forge-mcp','argv':cmd,'TMPDIR':env.get('TMPDIR'),'exit_code':p.returncode,'seconds':round(time.monotonic()-start,3)}
+with (ev/'commands.jsonl').open('a') as f:f.write(json.dumps(record)+'\n')
+print(json.dumps(record));print(p.stdout[-1400:])

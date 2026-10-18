@@ -1,0 +1,14 @@
+{
+  "id": 901201,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a15092-c4b8-7230-9fcb-d3691160073b",
+    "expectedTurnId": "01a15092-c715-7990-8edd-e93cfcdccb9c",
+    "input": [
+      {
+        "type": "text",
+        "text": "Additional actualWindowsCI3failure beforehandoff: job117772599442 nowINSTALL-CLOUD PASSED14tests/238s, but NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication manuallyinstantiatesPublicObservationCases andbypassesitsclassPOSIXskip, same UNSAFE_PATH aspreviousalarmcase. Root missed thissecondentry in candidate2longfailurelog; it is NOT newproductionregression. Evidence root-release-attempt-3/windows-remaining-posix-harness-failure.log, full/tmp/cloud-CI-3-117772599442.log. Authorize only one additional PythonTESTmethod platformguard matchingunderlyingPOSIXharness, whileallotherNativeAdversarialpuretests remainWindowsenabled. Beforeedit supplemental snapshot/manifest for tests/cloud-orchestration-verification.tests.py andconsumeddependencies; do not rewritealreadyfrozeninitialmanifest. Sweep ALLmanual instantiatedPOSIX-onlyharness/case setup_execution callers incloudverification/execution testfiles and showeverycallsite isclass-ormethod-guarded; avoid anotherone-at-a-timegap. Do not skipwholeclass/suite or weakenpaths/leaseexpiryassertions. PreserveactualLinux/macos lease-expiry bodiesbothproviders andcapturetargetedpositiveLinuxexecutionplusstaticchecks; existingcomplete109suiteafterthisoneguardmayrunonce ifrequired; nofullreposuite. Include sameattempt6testportabilityreport with explicitadditionalcallerfeedback andscope, preservingallpriorreports. RootWindowsnativejunctionstillpendingbecausecloudstepblocksnextstep; finalcandidatewillvalidate. Ifreportalreadydelivered/frozenstopandreportgapratherthanrewriteit."
+      }
+    ]
+  }
+}

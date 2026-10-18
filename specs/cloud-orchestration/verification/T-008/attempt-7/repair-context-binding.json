@@ -1,0 +1,9 @@
+{
+  "schema": "repair-context-binding/v1",
+  "original_run_id": "01a15048-20ef-7b60-acc6-4df3973ddc6f",
+  "repair_run_id": "01a15096-b78e-7890-beea-25aba1ad0384",
+  "report": "reports/implementation/cloud-orchestration/T-008-posix-harness-boundary-fix.md",
+  "sha256": "ef7f4e485bd4620daa4ce0f799198a3e4ea6bdc899780e12b0dad513cc9892fa",
+  "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-7/implementation-report-snapshot.md",
+  "scope": "One method-level Windows POSIX-harness guard; actual targeted Linux before/after and rollback pass; native Windows and exact full verification pending."
+}

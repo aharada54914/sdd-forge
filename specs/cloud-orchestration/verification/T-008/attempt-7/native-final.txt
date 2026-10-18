@@ -1,0 +1,8 @@
+Added only the requested method-level Windows guard.
+
+- Targeted Linux tests, rollback/reapply, configured Ruff/mypy, and both validators passed.
+- Prior reports preserved.
+- Evidence: `specs/cloud-orchestration/verification/T-008/attempt-7/`
+- Report: `reports/implementation/cloud-orchestration/T-008-posix-harness-boundary-fix.md`
+
+No commits or status changes. Native Windows confirmation and full-suite verification remain root-owned.

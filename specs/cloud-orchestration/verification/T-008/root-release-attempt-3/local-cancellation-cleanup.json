@@ -1,0 +1,74 @@
+{
+  "at": "2026-10-18T19:53:33.812754+00:00",
+  "process_exit_codes": [
+    130,
+    130,
+    130,
+    130,
+    130,
+    130,
+    130,
+    130
+  ],
+  "remaining_before_cleanup": [
+    {
+      "pid": 3463887,
+      "pgid": 3463192,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3478026,
+      "pgid": 3463202,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3478856,
+      "pgid": 3463202,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3508635,
+      "pgid": 3463192,
+      "state": "Z",
+      "command": "[pwsh] <defunct>"
+    }
+  ],
+  "partial_logs": [
+    {
+      "path": "/workspace/cloud-release-v119-3/local-powershell-1.log",
+      "sha256": "a8b7ae543951a962e6f87d9da6e1e8157b1f88fc29e5dd27fe8495e3f640e3a0"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-3/local-powershell-0.log",
+      "sha256": "c8f9f810629bef5929a68e063b3b882f3fa99d9c0f09dc315266852046ccb93f"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-3/local-powershell-3.log",
+      "sha256": "2a9616f5117dda2c196945fcf33354a47cdafb349872559ba38fcc7c39c7d2f4"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-3/local-posix-0.log",
+      "sha256": "e7fb2f2551cb730f715749ccdc6905424c64a02b2031e346b7bc00b071a4253d"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-3/local-posix-2.log",
+      "sha256": "2a3ebb8ad68ddeff36fccf6f310797f7f14dc85cdf2f920bad5cd3784bd9e2c7"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-3/local-powershell-2.log",
+      "sha256": "3274027551f4ff071a95e0e81698b9ef6cb125bbe3ef4d4a0cfed5888d338633"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-3/local-posix-1.log",
+      "sha256": "ce06a090e02377e71f34590006a17dcba7ec3955746a2f74a3dcca581823c2cb"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-3/local-posix-3.log",
+      "sha256": "a21fa84ea5f7b2cd1bbaf4b179d552da6a3c86998f2dcf4e68de6aaed82f5cc7"
+    }
+  ],
+  "outcome": "CANCELLED_INCOMPLETE; no full profile receipts/PASS"
+}
