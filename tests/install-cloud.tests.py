@@ -475,6 +475,10 @@ class InstalledLifecycle(unittest.TestCase):
             ('plugins/sdd-quality-loop/references/cloud-verification-registry.json',),
             ('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',),
             tuple(str(p.relative_to(ROOT)) for p in (ROOT / 'contracts').glob('cloud-*.schema.json')),
+            ('plugins/sdd-azure-cloud/scripts/cloud.py',),
+            ('plugins/sdd-azure-cloud/scripts/azure_local.py',),
+            ('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',),
+            ('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',),
         )
         for shell in ('bash', 'pwsh'):
             for missing in groups:
@@ -494,7 +498,12 @@ class InstalledLifecycle(unittest.TestCase):
                     after = {str(p.relative_to(dest)): hashlib.sha256(p.read_bytes()).hexdigest()
                              for p in dest.rglob('*') if p.is_file()}
                     print(f'prior rebuild {shell}: missing={missing}, exit={p.returncode}, preserved={before == after}', flush=True)
+                    print(p.stdout + p.stderr, flush=True)
                     self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+                    if len(missing) == 1:
+                        self.assertIn(Path(missing[0]).name, p.stdout + p.stderr)
+                    else:
+                        self.assertIn('cloud-' if shell == 'bash' else 'Cloud schemas are missing', p.stdout + p.stderr)
                     self.assertEqual(after, before)
                     self.check_runtime_and_cli(dest / 'plugins/sdd-azure-cloud', 'azure', Path(temp))
 

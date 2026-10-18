@@ -1,0 +1,159 @@
+test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) ... prior rebuild bash: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-su1yep7i/tmptm29fqa3/sdd-plugins-staging-1uIKl2/plugins/sdd-quality-loop/scripts/cloud_dependencies.py': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-su1yep7i/tmpnx8newl1/sdd-plugins-staging-EHe0W8/plugins/sdd-quality-loop/references/cloud-verification-registry.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-su1yep7i/tmp38fzynr7/sdd-plugins-staging-b5xn2z/plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'), exit=1, preserved=True
+cp: cannot stat '/tmp/cloud-install-lifecycle-su1yep7i/tmpwc5uy0oz/sdd-plugins-staging-a1OBvq/contracts/cloud-*.schema.json': No such file or directory
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/scripts/cloud.py',), exit=0, preserved=False
+
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmp8y0y7uvy/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-azure-cloud/scripts/cloud.py',)) ... FAIL
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',), exit=0, preserved=False
+
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmp54c5407c/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',)) ... FAIL
+prior rebuild bash: missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',), exit=0, preserved=False
+
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmp7ngv90fn/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',)) ... FAIL
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/scripts/cloud_dependencies.py',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/workspace/sdd-forge/install.ps1:811[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 811 | [0m             [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/s[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-su1yep7i/tmpv7izal_n/sdd-plugins-staging-4a1ad410-6f41-46c8-aaeb-72b40b515657/plugins/sdd-quality-loop/scripts/cloud_dependencies.py' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/references/cloud-verification-registry.json',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/workspace/sdd-forge/install.ps1:813[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 813 | [0m         [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/sdd-q[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-su1yep7i/tmpd3nu9w2h/sdd-plugins-staging-84e7a2ff-a3d2-4fb5-9cda-11900d4a1307/plugins/sdd-quality-loop/references/cloud-verification-registry.json' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',), exit=1, preserved=True
+[31;1mCopy-Item: [0m/workspace/sdd-forge/install.ps1:821[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 821 | [0m             [36;1mCopy-Item -LiteralPath (Join-Path $stagingRoot "plugins/s[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/tmp/cloud-install-lifecycle-su1yep7i/tmpvx2f_b16/sdd-plugins-staging-8b0ead46-cedb-44eb-b9e2-b2da305b268e/plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json' because it does not exist.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('contracts/cloud-check-result.schema.json', 'contracts/cloud-operation-result.schema.json', 'contracts/cloud-verification-registry.schema.json', 'contracts/cloud-dependency-lock.schema.json', 'contracts/cloud-collection-context.schema.json', 'contracts/cloud-run-request.schema.json', 'contracts/cloud-input-error.schema.json', 'contracts/cloud-deployment-policy.schema.json', 'contracts/cloud-verification-profile.schema.json', 'contracts/cloud-ownership.schema.json', 'contracts/cloud-preview.schema.json', 'contracts/cloud-observation.schema.json', 'contracts/cloud-authorization-receipt.schema.json', 'contracts/cloud-verification.schema.json', 'contracts/cloud-observation-evidence.schema.json'), exit=1, preserved=True
+[31;1mException: [0m/workspace/sdd-forge/install.ps1:816[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 816 | [0m … unt -eq 0) { [36;1mthrow "Cloud schemas are missing from staged payload."[0m }[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCloud schemas are missing from staged payload.[0m
+
+installed azure: canonical predecessor route matched/restored PASS; missing UNSAFE_OR_UNAVAILABLE_FILE; invalid CHECK_SET_MISMATCH
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/scripts/cloud.py',), exit=0, preserved=False
+
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmpzb9dkz1m/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-azure-cloud/scripts/cloud.py',)) ... FAIL
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',), exit=0, preserved=False
+
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmpapziky1x/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',)) ... FAIL
+prior rebuild pwsh: missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',), exit=0, preserved=False
+
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmpelyk7h6s/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+  test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',)) ... FAIL
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-azure-cloud/scripts/cloud.py',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 501, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmp8y0y7uvy/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 501, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmp54c5407c/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='bash', missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 501, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmp7ngv90fn/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-azure-cloud/scripts/cloud.py',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 501, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmpzb9dkz1m/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-azure-cloud/.codex-plugin/plugin.json',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 501, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmpapziky1x/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+
+======================================================================
+FAIL: test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 501, in test_prior_runtime_rebuild_failure_preserves_installation
+    self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 0 == 0 : 
+SDD plugins installed at: /tmp/cloud-install-lifecycle-su1yep7i/tmpelyk7h6s/installed
+Plugin registration was skipped because Target=FilesOnly.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 16.777s
+
+FAILED (failures=6)
