@@ -1,0 +1,32 @@
+test_acyclic_render_order_external_policy_and_inert_placeholders (__main__.AzureCallerIntegration.test_acyclic_render_order_external_policy_and_inert_placeholders) ... FAIL
+test_archive_acquisition_is_immutable_digest_checked_and_data_only (__main__.AzureCallerIntegration.test_archive_acquisition_is_immutable_digest_checked_and_data_only) ... FAIL
+test_role_setup_actions_are_concrete_and_stage_separated (__main__.AzureCallerIntegration.test_role_setup_actions_are_concrete_and_stage_separated) ... FAIL
+
+======================================================================
+FAIL: test_acyclic_render_order_external_policy_and_inert_placeholders (__main__.AzureCallerIntegration.test_acyclic_render_order_external_policy_and_inert_placeholders)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1243, in setUp
+    self.assertTrue((ROOT / "plugins/sdd-azure-cloud/scripts/azure_governed.py").is_file(),
+AssertionError: False is not true : T-012 trusted caller integration is absent
+
+======================================================================
+FAIL: test_archive_acquisition_is_immutable_digest_checked_and_data_only (__main__.AzureCallerIntegration.test_archive_acquisition_is_immutable_digest_checked_and_data_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1243, in setUp
+    self.assertTrue((ROOT / "plugins/sdd-azure-cloud/scripts/azure_governed.py").is_file(),
+AssertionError: False is not true : T-012 trusted caller integration is absent
+
+======================================================================
+FAIL: test_role_setup_actions_are_concrete_and_stage_separated (__main__.AzureCallerIntegration.test_role_setup_actions_are_concrete_and_stage_separated)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1243, in setUp
+    self.assertTrue((ROOT / "plugins/sdd-azure-cloud/scripts/azure_governed.py").is_file(),
+AssertionError: False is not true : T-012 trusted caller integration is absent
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (failures=3)

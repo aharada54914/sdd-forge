@@ -1237,5 +1237,106 @@ class ArmFixture:
                     properties=dict(provisioningState="Running" if self.pending else self.state))))
 
 
+class AzureCallerIntegration(unittest.TestCase):
+    def setUp(self):
+        sys.path.insert(0,str(ROOT / "plugins/sdd-azure-cloud/scripts"))
+        self.assertTrue((ROOT / "plugins/sdd-azure-cloud/scripts/azure_governed.py").is_file(),
+                        "T-012 trusted caller integration is absent")
+        import azure_governed
+        self.g=azure_governed
+
+    def test_acyclic_render_order_external_policy_and_inert_placeholders(self):
+        inert=self.g.workflow_template()
+        self.assertIn("REPLACE_REVIEWED_EXECUTOR_COMMIT",json.dumps(inert))
+        # E is reviewed first, W is created using E, then protected policy pins W.
+        workflow=self.g.workflow_template(executor_repository="synthetic/executor",
+            executor_revision="b"*40,subscription=SUBSCRIPTION,region="eastus",
+            input_repository="synthetic/plans")
+        workflow_revision=hashlib.sha1(encode(workflow)).hexdigest()  # synthetic Git identity only
+        self.assertNotIn(workflow_revision,json.dumps(workflow))
+        for stage,job in workflow["jobs"].items():
+            self.assertEqual(job["environment"],"sandbox-"+stage)
+            self.assertEqual(job["steps"][0]["with"]["ref"],"b"*40)
+            self.assertEqual(job["steps"][1]["env"]["AZURE_CONTROL_POLICY"],
+                "${{ vars.AZURE_"+stage.upper()+"_POLICY }}")
+            command=job["steps"][1]["run"]
+            self.assertIn("python3 -I",command)
+            self.assertNotIn("CLOUD_POLICY_PATH",command)
+            self.assertNotIn("pip ",command)
+            self.assertNotIn("bicep ",command)
+            self.assertEqual(job["steps"][2]["if"],"${{ always() }}")
+        self.assertEqual(workflow["concurrency"],dict(group="cloud-azure-"+SUBSCRIPTION+"-eastus",
+                                                      **{"cancel-in-progress":False}))
+        for invalid in ("main","REPLACE_REVIEWED_EXECUTOR_COMMIT"):
+            with self.assertRaises(ValueError):
+                self.g.workflow_template(executor_repository="synthetic/executor",executor_revision=invalid,
+                    subscription=SUBSCRIPTION,region="eastus",input_repository="synthetic/plans")
+
+    def test_archive_acquisition_is_immutable_digest_checked_and_data_only(self):
+        import io
+        import zipfile
+        payload=io.BytesIO()
+        with zipfile.ZipFile(payload,"w") as z:
+            z.writestr("request.json",b'{ "immutable" : true }\n')
+            z.writestr("bundle/unit/main.bicep",b"// synthetic source; never executed\n")
+        archive=payload.getvalue()
+        transport=ArtifactFixture(self.g,archive)
+        with tempfile.TemporaryDirectory(prefix="cloud-T012-download-") as t:
+            root=Path(t)/"data"
+            self.g.acquire_bundle(root,"synthetic/plans",11,12,"synthetic-read-token",transport=transport)
+            self.assertEqual((root/"request.json").read_bytes(),b'{ "immutable" : true }\n')
+            self.assertEqual([x[0] for x in transport.calls],["GET"]*3)
+            self.assertNotIn("Authorization",transport.calls[-1][2])
+            with self.assertRaises(ValueError):
+                self.g.acquire_bundle(root,"synthetic/plans",11,12,"synthetic-read-token",transport=transport)
+        for field,value in (("digest","sha256:"+"0"*64),("expired",True),("id",13),
+                            ("workflow_run",dict(id=13))):
+            transport=ArtifactFixture(self.g,archive); transport.metadata[field]=value
+            with tempfile.TemporaryDirectory(prefix="cloud-T012-denied-download-") as t:
+                with self.assertRaises(ValueError):
+                    self.g.acquire_bundle(Path(t)/"data","synthetic/plans",11,12,"synthetic-read-token",transport=transport)
+                self.assertFalse((Path(t)/"data/request.json").exists())
+        for filename in ("../escape.json","/absolute.json","bundle/../alias","bundle\\\\escape"):
+            payload=io.BytesIO()
+            with zipfile.ZipFile(payload,"w") as z:
+                z.writestr(filename,b"synthetic")
+            with tempfile.TemporaryDirectory(prefix="cloud-T012-unsafe-archive-") as t:
+                with self.assertRaises(ValueError):
+                    self.g.acquire_bundle(Path(t)/"data","synthetic/plans",11,12,"synthetic-read-token",
+                        transport=ArtifactFixture(self.g,payload.getvalue()))
+
+    def test_role_setup_actions_are_concrete_and_stage_separated(self):
+        assignments=self.g.role_setup(SUBSCRIPTION,"synthetic-group")
+        prepare=assignments["prepare"]["Actions"]
+        apply=assignments["apply"]["Actions"]
+        self.assertNotIn("Microsoft.Resources/deployments/write",prepare)
+        for action in ("Microsoft.Compute/virtualMachines/write","Microsoft.Network/networkInterfaces/write",
+            "Microsoft.Compute/disks/write","Microsoft.Compute/virtualMachines/extensions/write",
+            "Microsoft.Insights/dataCollectionRuleAssociations/write",
+            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/write"):
+            self.assertIn(action,apply)
+            self.assertNotIn(action,prepare)
+        for role in assignments.values():
+            self.assertFalse(any("*" in action or "roleAssignments" in action or action.endswith("/delete")
+                                 for action in role["Actions"]))
+
+
+class ArtifactFixture:
+    """Authenticated GitHub metadata/archive deterministic transport, not provenance."""
+    def __init__(self,g,archive):
+        self.g=g; self.archive=archive; self.calls=[]
+        self.metadata=dict(id=11,expired=False,digest="sha256:"+hashlib.sha256(archive).hexdigest(),
+                           workflow_run=dict(id=12))
+    def request(self,method,url,headers,body=None):
+        self.calls.append((method,url,headers))
+        if url=="https://api.github.com/repos/synthetic/plans/actions/artifacts/11":
+            return self.g.Response(200,{},encode(self.metadata))
+        if url=="https://api.github.com/repos/synthetic/plans/actions/artifacts/11/zip":
+            return self.g.Response(302,{"Location":"https://productionresultssa0.blob.core.windows.net/artifact/synthetic"},b"")
+        if url=="https://productionresultssa0.blob.core.windows.net/artifact/synthetic":
+            return self.g.Response(200,{},self.archive)
+        raise AssertionError("Unexpected artifact URL")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
