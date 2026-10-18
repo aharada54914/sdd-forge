@@ -1,0 +1,296 @@
+test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) ... 
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='matched') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='id') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='location') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='kind') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='state') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='source') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='counter') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='interval') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='stream') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='destination') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='flow') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='transform') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='denied') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='missing') ... FAIL
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='pagination') ... FAIL
+test_native_positive_permission_closure_protocol (__main__.AzureClosureAndDcrCases.test_native_positive_permission_closure_protocol) ... ERROR
+test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) ... 
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='principal') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='group') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='scope') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='condition') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='wildcard') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='data') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='notActions') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='role-id') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='assignment-id') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='pagination') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='denied') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='empty') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='caller-disagrees') ... FAIL
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='drift') ... FAIL
+
+======================================================================
+ERROR: test_native_positive_permission_closure_protocol (__main__.AzureClosureAndDcrCases.test_native_positive_permission_closure_protocol)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 898, in test_native_positive_permission_closure_protocol
+    self.assertTrue(collector.identity()[0])
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 359, in identity
+    c._require(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: PERMISSION_CONTEXT_UNSUPPORTED
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='matched')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 973, in test_dcr_readback_and_mismatches
+    self.assertTrue(any(url.split("?")[0].endswith(fixture.cfg["data_collection_rule_id"]) for _, url, _ in fixture.calls))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='location')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='kind')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='state')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='counter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='interval')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='stream')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='destination')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='flow')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='transform')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='denied')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='pagination')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 972, in test_dcr_readback_and_mismatches
+    self.assertFalse(healthy)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='principal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='group')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='condition')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='wildcard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='data')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='notActions')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='role-id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='assignment-id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='pagination')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='denied')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='empty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='caller-disagrees')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='drift')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 939, in test_permission_closure_mismatches
+    with self.assertRaises(ValueError): collector.identity()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.034s
+
+FAILED (failures=29, errors=1)

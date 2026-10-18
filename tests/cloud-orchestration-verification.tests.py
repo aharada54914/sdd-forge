@@ -660,10 +660,14 @@ class NativeCollectorCases(unittest.TestCase):
         )
         # The actual native transport class is used, but its I/O is explicitly
         # mocked with synthetic bytes. No network/provenance claim is made.
-        with patch.object(native, "request", side_effect=fixture.request):
-            with self.assertRaisesRegex(
-                c.ContractError, "PERMISSION_CONTEXT_UNSUPPORTED"
-            ):
+        original = fixture.request
+        def incomplete(method, url, headers, body=None):
+            response = original(method, url, headers, body)
+            if "/roleAssignments?" in url:
+                response.body = encode(dict(value=[], nextLink="https://untrusted.example"))
+            return response
+        with patch.object(native, "request", side_effect=incomplete):
+            with self.assertRaises(ValueError):
                 collector.identity()
 
     def test_backup_discovery_without_future_identifier(self):
@@ -838,6 +842,136 @@ def observation_config(provider: str) -> dict:
     )
 
 
+
+def azure_actions(resource: str, cfg: dict) -> set[str]:
+    """Independent fixture oracle for the supported VM policy, not implementation output."""
+    actions = {"Microsoft.Authorization/permissions/read",
+               "Microsoft.Authorization/roleAssignments/read",
+               "Microsoft.Authorization/roleDefinitions/read"}
+    mapping = {
+        cfg["vm_id"]: {"Microsoft.Compute/virtualMachines/read", "Microsoft.Compute/virtualMachines/instanceView/read", "Microsoft.Insights/metrics/read", "Microsoft.Insights/metrics/write"},
+        cfg["nic_id"]: {"Microsoft.Network/networkInterfaces/read", "Microsoft.Network/networkInterfaces/effectiveNetworkSecurityGroups/action"},
+        cfg["identity_id"]: {"Microsoft.ManagedIdentity/userAssignedIdentities/read"},
+        cfg["association_id"]: {"Microsoft.Insights/dataCollectionRuleAssociations/read"},
+        cfg["data_collection_rule_id"]: {"Microsoft.Insights/dataCollectionRules/read"},
+    }
+    if "backup" in cfg:
+        item = cfg["backup"]["protected_item_id"]
+        mapping[item] = {"Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/read", "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/recoveryPoints/read"}
+        if resource.startswith(item + "/recoveryPoints/"):
+            return actions | mapping[item]
+    return actions | mapping[resource]
+
+
+def azure_role_records(fixture):
+    cfg = fixture.cfg
+    subscription = "/subscriptions/" + fixture.scope["account_id"]
+    targets = [cfg[k] for k in ("vm_id", "nic_id", "identity_id", "association_id", "data_collection_rule_id")]
+    if "backup" in cfg:
+        targets.append(cfg["backup"]["protected_item_id"])
+    audit = {"Microsoft.Authorization/roleAssignments/read", "Microsoft.Authorization/roleDefinitions/read"}
+    assignments, definitions = [], {}
+    for i, target in enumerate([subscription, *targets]):
+        guid = "00000000-0000-0000-0000-" + str(i + 10).zfill(12)
+        role_id = subscription + "/providers/Microsoft.Authorization/roleDefinitions/" + guid
+        assignment_id = target + "/providers/Microsoft.Authorization/roleAssignments/" + guid
+        actions = audit if target == subscription else azure_actions(target, cfg) - audit
+        assignments.append(dict(id=assignment_id, name=guid, type="Microsoft.Authorization/roleAssignments", properties=dict(scope=target, principalId=fixture.principal, principalType="ServicePrincipal", roleDefinitionId=role_id, condition=None, conditionVersion=None, delegatedManagedIdentityResourceId=None)))
+        definitions[role_id] = dict(id=role_id, name=guid, type="Microsoft.Authorization/roleDefinitions", properties=dict(roleName="Untrusted display name", type="CustomRole", assignableScopes=[subscription], permissions=[dict(actions=sorted(actions), notActions=[], dataActions=[], notDataActions=[])]))
+    return assignments, definitions
+
+
+class AzureClosureAndDcrCases(unittest.TestCase):
+    def collector(self, native=False):
+        sys.path.insert(0, str(ROOT / "plugins/sdd-azure-cloud/scripts"))
+        import azure_observation as module
+        fixture = NativeFixture("azure", "all", "healthy")
+        transport = module.HttpsTransport() if native else fixture
+        collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+            principal=fixture.principal, completed="2026-10-18T06:00:00Z", age=300,
+            clock=lambda: 1792303260, transport=transport, run_id="synthetic-run", unit_id="synthetic-unit")
+        return collector, fixture
+
+    def test_native_positive_permission_closure_protocol(self):
+        collector, fixture = self.collector(native=True)
+        with patch.object(collector.transport, "request", side_effect=fixture.request):
+            self.assertTrue(collector.identity()[0])
+        self.assertTrue(any("assignedTo" in url for _, url, _ in fixture.calls))
+        self.assertTrue(any("/roleDefinitions/" in url for _, url, _ in fixture.calls))
+        self.assertTrue(any("/permissions?" in url for _, url, _ in fixture.calls))
+
+    def test_permission_closure_mismatches(self):
+        # Native and injected paths must enforce the identical guard. Native I/O is
+        # mocked explicitly; no EVIDENCE_COMPLETE or live IAM claim is made.
+        for native in (False, True):
+            for variant in ("principal", "group", "scope", "condition", "wildcard", "data", "notActions", "role-id", "assignment-id", "pagination", "denied", "empty", "caller-disagrees", "drift"):
+                with self.subTest(native=native, variant=variant):
+                    collector, fixture = self.collector(native=native)
+                    original = fixture.request
+                    assignment_reads = 0
+                    def wire(method, url, headers, body=None):
+                        nonlocal assignment_reads
+                        response = original(method, url, headers, body)
+                        value = json.loads(response.body)
+                        if "/roleAssignments?" in url:
+                            assignment_reads += 1
+                            row = value["value"][-1]
+                            prop = row["properties"]
+                            if variant == "principal": prop["principalId"] = "00000000-0000-0000-0000-000000000099"
+                            if variant == "group": prop["principalType"] = "Group"
+                            if variant == "scope": prop["scope"] += "/unrelated/child"
+                            if variant == "condition": prop["condition"] = "unsupported"
+                            if variant == "assignment-id": row["id"] += "wrong"
+                            if variant == "pagination": value["nextLink"] = "https://untrusted.example"
+                            if variant == "denied": response.status = 403
+                            if variant == "empty": value["value"] = []
+                            if variant == "drift" and assignment_reads > 1: value["value"] = value["value"][:-1]
+                        if "/roleDefinitions/" in url:
+                            perm = value["properties"]["permissions"][0]
+                            if variant == "wildcard": perm["actions"] = ["*"]
+                            if variant == "data": perm["dataActions"] = ["Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"]
+                            if variant == "notActions": perm["notActions"] = ["Microsoft.Compute/virtualMachines/read"]
+                            if variant == "role-id": value["id"] += "wrong"
+                        if "/permissions?" in url and variant == "caller-disagrees": value["value"][0]["actions"] = []
+                        response.body = encode(value)
+                        return response
+                    with patch.object(collector.transport, "request", side_effect=wire):
+                        with self.assertRaises(ValueError): collector.identity()
+
+    def test_dcr_readback_and_mismatches(self):
+        for variant in ("matched", "id", "location", "kind", "state", "source", "counter", "interval", "stream", "destination", "flow", "transform", "denied", "missing", "pagination"):
+            with self.subTest(variant=variant):
+                collector, fixture = self.collector()
+                original = fixture.request
+                def wire(method, url, headers, body=None):
+                    response = original(method, url, headers, body)
+                    if url.split("?")[0].endswith(fixture.cfg["data_collection_rule_id"]):
+                        value = json.loads(response.body)
+                        props = value["properties"]
+                        if variant == "id": value["id"] += "wrong"
+                        if variant == "location": value["location"] = "westus"
+                        if variant == "kind": value["kind"] = "Windows"
+                        if variant == "state": props["provisioningState"] = "Failed"
+                        if variant == "source": props["dataSources"] = {}
+                        if variant == "counter": props["dataSources"]["performanceCounters"][0]["counterSpecifiers"] = ["unrelated"]
+                        if variant == "interval": props["dataSources"]["performanceCounters"][0]["samplingFrequencyInSeconds"] = 600
+                        if variant == "stream": props["dataSources"]["performanceCounters"][0]["streams"] = ["Microsoft-Syslog"]
+                        if variant == "destination": props["destinations"]["logAnalytics"][0]["workspaceResourceId"] += "wrong"
+                        if variant == "flow": props["dataFlows"][0]["destinations"] = ["other"]
+                        if variant == "transform": props["dataFlows"][0]["transformKql"] = "source | where false"
+                        if variant == "denied": response.status = 403
+                        if variant == "missing": value = {}
+                        if variant == "pagination": value["nextLink"] = "https://untrusted.example"
+                        response.body = encode(value)
+                    return response
+                with patch.object(fixture, "request", side_effect=wire):
+                    if variant == "matched": self.assertTrue(collector.monitoring()[0])
+                    else:
+                        try: healthy = collector.monitoring()[0]
+                        except (ValueError, KeyError): healthy = False
+                        self.assertFalse(healthy)
+                self.assertTrue(any(url.split("?")[0].endswith(fixture.cfg["data_collection_rule_id"]) for _, url, _ in fixture.calls))
+
 class NativeFixture:
     """Native response transport double; NEVER native evidence provenance."""
 
@@ -900,12 +1034,24 @@ class NativeFixture:
         cfg = self.cfg
         bad = self.variant == "unhealthy"
         self.assert_read(method, path)
+        if path.endswith("/roleAssignments"):
+            assignments, _ = azure_role_records(self)
+            assert query["$filter"] == ["assignedTo('" + self.principal + "')"]
+            return dict(value=assignments)
+        if "/roleDefinitions/" in path:
+            _, definitions = azure_role_records(self)
+            return definitions[path]
+        if path == cfg["data_collection_rule_id"]:
+            return dict(id=path, location=self.scope["region"], kind="Linux", properties=dict(
+                provisioningState="Succeeded",
+                dataSources=dict(performanceCounters=[dict(name="cpu", streams=["Microsoft-Perf"], samplingFrequencyInSeconds=60, counterSpecifiers=["\\Processor(_Total)\\% Processor Time"])]),
+                destinations=dict(logAnalytics=[dict(name="workspace", workspaceResourceId=cfg["vm_id"].split("/providers/")[0] + "/providers/Microsoft.OperationalInsights/workspaces/monitor")]),
+                dataFlows=[dict(streams=["Microsoft-Perf"], destinations=["workspace"])]))
         if path.endswith("/permissions"):
             resource = path.removesuffix(
                 "/providers/Microsoft.Authorization/permissions"
             )
-            module = __import__("azure_observation")
-            actions = sorted(module.permission_ceiling(resource, cfg))
+            actions = sorted(azure_actions(resource, cfg))
             if bad and self.check == "identity":
                 actions.append("Microsoft.Authorization/roleAssignments/write")
             return dict(
