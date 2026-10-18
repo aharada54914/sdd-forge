@@ -320,5 +320,87 @@ class Contracts(unittest.TestCase):
         self.rejects(dict(original,overall_result='FAIL',evidence_complete=True))
 
 
+    def test_read_artifact_checks_observation_and_verification_references(self):
+        observation = self.f['cloud-observation/v1']
+        (self.root/'query.json').write_bytes(b'fixture')
+        observation_ref = self.put('observation.json', observation)
+        self.assertEqual(self.c.read_artifact(self.root, observation_ref), observation)
+        (self.root/'query.json').write_bytes(b'drift')
+        with self.assertRaises(self.c.ContractError):
+            self.c.read_artifact(self.root, observation_ref)
+        (self.root/'query.json').write_bytes(b'fixture')
+        verification = self.f['cloud-verification/v1']
+        verification['checks'][0]['observation'] = observation_ref
+        (self.root/'profile.json').write_bytes(b'fixture')
+        verification_ref = self.put('verification.json', verification)
+        self.assertEqual(self.c.read_artifact(self.root, verification_ref), verification)
+        (self.root/'observation.json').write_bytes(b'drift')
+        with self.assertRaises(self.c.ContractError):
+            self.c.read_artifact(self.root, verification_ref)
+
+    def test_prepare_binding_does_not_invent_preview(self):
+        refs = self.make_bundle()
+        request = json.loads((self.root/'request.json').read_bytes())
+        request['operation'] = 'prepare'
+        request_ref = self.put('request.json', request)
+        receipt = json.loads((self.root/'receipt.json').read_bytes())
+        receipt.update(operation='prepare', request=request_ref, preview=None)
+        receipt_ref = self.put('receipt.json', receipt)
+        self.c.verify_binding(self.root, request_ref, None, receipt_ref, now=NOW)
+        receipt['ci']['environment'] = 'other'
+        receipt_ref = self.put('receipt.json', receipt)
+        with self.assertRaises(self.c.ContractError):
+            self.c.verify_binding(self.root, request_ref, None, receipt_ref, now=NOW)
+
+    def test_large_numbers_bounded_payloads_and_unpaired_unicode(self):
+        for raw in (b'{"n":'+b'9'*5000+b'}', b' '* (self.c.MAX_BYTES+1),
+                    encode(dict(self.f['cloud-input-error/v1'],message=chr(0xd800)))):
+            with self.assertRaises(self.c.ContractError):
+                self.c.parse_artifact(raw)
+        bad=copy.deepcopy(self.f['cloud-dependency-lock/v1'])
+        with self.assertRaises(self.c.ContractError):
+            self.c.verify_lock(self.root,bad,consumed_paths=['upstream/main.md','upstream/child.md'],
+                               tools=[{}],adapter_version='1.0.0',tool_schemas={})
+
+    def test_scanner_receives_exact_bytes_and_no_secret_publication(self):
+        canary = 'synthetic-' + 'secret-canary-924'
+        safe = encode(self.f['cloud-input-error/v1'])
+        unsafe = encode(dict(self.f['cloud-input-error/v1'],message=canary))
+        seen=[]
+        def scan(data):
+            seen.append(data)
+            return canary.encode() not in data
+        self.c.publish_artifact(self.root,'safe.json',safe,scan=scan)
+        with self.assertRaises(self.c.ContractError):
+            self.c.publish_artifact(self.root,'unsafe.json',unsafe,scan=scan)
+        self.assertEqual(seen,[safe,unsafe])
+        self.assertFalse((self.root/'unsafe.json').exists())
+        self.assertNotIn(canary.encode(),(self.root/'safe.json').read_bytes())
+
+    def test_concurrent_publication_has_one_complete_winner(self):
+        from concurrent.futures import ThreadPoolExecutor
+        values=[encode(dict(self.f['cloud-input-error/v1'],message='writer-'+str(i))) for i in range(8)]
+        def publish(data):
+            try:
+                self.c.publish_artifact(self.root,'winner.json',data,scan=lambda b:True)
+                return data
+            except self.c.ContractError:
+                return None
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            winners=[data for data in pool.map(publish,values) if data is not None]
+        self.assertEqual(len(winners),1)
+        self.assertEqual((self.root/'winner.json').read_bytes(),winners[0])
+        self.assertEqual([p.name for p in self.root.iterdir()],['winner.json'])
+
+    def test_unavailable_safe_filesystem_primitives_fail_closed(self):
+        from unittest.mock import patch
+        with patch.object(os,'supports_dir_fd',set()):
+            with self.assertRaises(self.c.ContractError):
+                self.c.read_verified(self.root,ref('x'))
+            with self.assertRaises(self.c.ContractError):
+                self.c.publish_artifact(self.root,'x',encode(self.f['cloud-input-error/v1']),scan=lambda b:True)
+        self.assertEqual(list(self.root.iterdir()),[])
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

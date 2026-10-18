@@ -1,0 +1,74 @@
+test_all_object_boundaries_unknown_and_missing_fields (__main__.Contracts.test_all_object_boundaries_unknown_and_missing_fields) ... ok
+test_all_scalar_types_and_schema_versions (__main__.Contracts.test_all_scalar_types_and_schema_versions) ... ok
+test_bound_scope_owner_profile_policy_identity_and_preview_drift (__main__.Contracts.test_bound_scope_owner_profile_policy_identity_and_preview_drift) ... ok
+test_concurrent_publication_has_one_complete_winner (__main__.Contracts.test_concurrent_publication_has_one_complete_winner) ... ok
+test_digests_utc_paths_and_scalar_edge_cases (__main__.Contracts.test_digests_utc_paths_and_scalar_edge_cases) ... ok
+test_every_bound_file_mutation_is_rejected (__main__.Contracts.test_every_bound_file_mutation_is_rejected) ... ok
+test_large_numbers_bounded_payloads_and_unpaired_unicode (__main__.Contracts.test_large_numbers_bounded_payloads_and_unpaired_unicode) ... ERROR
+test_lock_closure_versions_packages_schemas_and_adapter (__main__.Contracts.test_lock_closure_versions_packages_schemas_and_adapter) ... ok
+test_parser_rejects_ambiguous_json_without_echo (__main__.Contracts.test_parser_rejects_ambiguous_json_without_echo) ... ok
+test_positive_all_families_and_both_providers (__main__.Contracts.test_positive_all_families_and_both_providers) ... ok
+test_prepare_binding_does_not_invent_preview (__main__.Contracts.test_prepare_binding_does_not_invent_preview) ... ERROR
+test_publication_atomic_no_overwrite_containment_and_scan_failure (__main__.Contracts.test_publication_atomic_no_overwrite_containment_and_scan_failure) ... ok
+test_read_artifact_checks_observation_and_verification_references (__main__.Contracts.test_read_artifact_checks_observation_and_verification_references) ... ERROR
+test_result_exit_mapping_and_invalid_identity (__main__.Contracts.test_result_exit_mapping_and_invalid_identity) ... ok
+test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles (__main__.Contracts.test_safe_reader_rejects_symlinks_hardlinks_and_nonfiles) ... ok
+test_scanner_receives_exact_bytes_and_no_secret_publication (__main__.Contracts.test_scanner_receives_exact_bytes_and_no_secret_publication) ... ok
+test_unavailable_safe_filesystem_primitives_fail_closed (__main__.Contracts.test_unavailable_safe_filesystem_primitives_fail_closed) ... ok
+test_verification_inconsistent_claims_and_duplicate_checks (__main__.Contracts.test_verification_inconsistent_claims_and_duplicate_checks) ... ok
+
+======================================================================
+ERROR: test_large_numbers_bounded_payloads_and_unpaired_unicode (__main__.Contracts.test_large_numbers_bounded_payloads_and_unpaired_unicode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 359, in test_large_numbers_bounded_payloads_and_unpaired_unicode
+    self.c.parse_artifact(raw)
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 299, in parse_artifact
+    value = json.loads(data.decode('utf-8'), object_pairs_hook=pairs,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py", line 359, in loads
+    return cls(**kw).decode(s)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 354, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Exceeds the limit (4300 digits) for integer string conversion: value has 5000 digits; use sys.set_int_max_str_digits() to increase the limit
+
+======================================================================
+ERROR: test_prepare_binding_does_not_invent_preview (__main__.Contracts.test_prepare_binding_does_not_invent_preview)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 349, in test_prepare_binding_does_not_invent_preview
+    self.c.verify_binding(self.root, request_ref, None, receipt_ref, now=NOW)
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 394, in verify_binding
+    preview = _read_artifact(root, preview_ref, 'cloud-preview/v1')
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 355, in _read_artifact
+    return parse_artifact(read_verified(root, reference), schema)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 335, in read_verified
+    _ref(reference)
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 128, in _ref
+    _record(value, {'path': _path, 'sha256': _sha})
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 105, in _record
+    _require(type(value) is dict)
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 40, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_read_artifact_checks_observation_and_verification_references (__main__.Contracts.test_read_artifact_checks_observation_and_verification_references)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-contracts.tests.py", line 327, in test_read_artifact_checks_observation_and_verification_references
+    self.assertEqual(self.c.read_artifact(self.root, observation_ref), observation)
+                     ^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cloud_contracts' has no attribute 'read_artifact'. Did you mean: '_read_artifact'?
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.235s
+
+FAILED (errors=3)
