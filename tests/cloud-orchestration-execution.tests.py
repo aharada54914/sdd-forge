@@ -1543,6 +1543,64 @@ class AzureExecution(unittest.TestCase):
         self.assertEqual(self.arm.submissions, 1)
         self.assertTrue((self.root / result["evidence_manifest_path"]).is_file())
 
+    def test_cross_job_original_prepare_archive_cannot_repeat_unknown_put(self):
+        import shutil
+        self.prepare()
+        fresh = tempfile.TemporaryDirectory(prefix="cloud-T012-fresh-job-")
+        self.addCleanup(fresh.cleanup)
+        restored = Path(fresh.name) / "data"
+        # Preserve the original immutable PREPARE output, before any apply marker.
+        shutil.copytree(self.root, restored)
+        prior_run = copy.deepcopy(self.auths[-1].run)
+        self.arm.timeout = True
+        first = self.apply()
+        self.assertEqual(first["result"], "UNKNOWN")
+        self.assertEqual(self.arm.submissions, 1)
+        self.root = restored
+        os.environ["CLOUD_WORKSPACE_ROOT"] = str(restored)
+        self.executor = self.stage("apply", self.preview_ref)
+        auth = self.auths[-1]
+        auth.claims["run_id"] = "456"
+        auth.run["id"] = 456
+        prior_run.update(status="completed", conclusion="failure")
+        auth.history = [prior_run, copy.deepcopy(auth.run)]
+        self.arm.timeout = False
+        self.arm.existing = False  # missing native history is NOT absence of a prior PUT
+        second = self.apply("cross-job.json")
+        self.assertEqual(second["result"], "UNKNOWN")
+        self.assertEqual(second["native_operation_id"], first["native_operation_id"])
+        self.assertEqual(self.arm.submissions, 1)
+        manifest = json.loads((self.root / second["evidence_manifest_path"]).read_bytes())
+        fence = manifest["submission"]
+        self.assertEqual(json.loads((self.root / fence["path"]).read_bytes())["schema"], "azure-intent-fence/v1")
+        self.arm.existing = True
+        before = len(self.arm.calls)
+        result = self.executor.reconcile(fence, self.directory + "/history-reconcile.json")
+        self.assertEqual(result["native_operation_id"], first["native_operation_id"])
+        self.assertEqual(result["result"], "PASS")
+        self.assertTrue(all(x[0] == "GET" for x in self.arm.calls[before:]))
+        self.assertEqual(self.arm.submissions, 1)
+
+    def test_unavailable_incomplete_or_excessive_intent_history_blocks_without_put(self):
+        self.prepare()
+        auth = self.auths[-1]
+        for n, value in enumerate((dict(total_count=0,workflow_runs=[]),
+            dict(total_count=2,workflow_runs=[auth.run]),
+            dict(total_count=1001,workflow_runs=[auth.run]),
+            dict(total_count=1,workflow_runs=[{**auth.run,"id":789}]))):
+            auth.history_response = value
+            result = self.apply("history-denied-"+str(n)+".json")
+            self.assertEqual(result["result"], "BLOCKED")
+            self.assertEqual(self.arm.submissions, 0)
+            # Fresh independent job for the next failure: a denied boundary stays consumed.
+            self.executor = self.stage("apply", self.preview_ref)
+            auth = self.auths[-1]
+            for marker in (self.root / self.directory).glob("*.apply.*.authorization.json"):
+                marker.unlink()
+        auth.history_error = True
+        self.assertEqual(self.apply("history-unavailable.json")["result"], "BLOCKED")
+        self.assertEqual(self.arm.submissions, 0)
+
     def test_prepare_admission_missing_is_zero_native_posts(self):
         self.auths[-1].approvals = []
         result = self.executor.prepare(self.directory + "/blocked.json")
@@ -1554,8 +1612,23 @@ class AzureAuthFixture(DeterministicTransport):
     def __init__(self, stage, subscription):
         super().__init__("azure", stage)
         self.subscription["subscriptionId"] = subscription
+        self.history = None
+        self.history_response = None
+        self.history_error = False
 
     def request(self, method, url, headers, body=None):
+        if url == f"https://api.github.com/repos/{REPO}/actions/runs?event=workflow_dispatch&per_page=100&page=1":
+            self.calls.append((method, url, headers, body))
+            assert method == "GET" and body is None
+            assert headers["Authorization"] == "Bearer synthetic-github-bearer"
+            if self.history_error:
+                raise OSError("synthetic unavailable authenticated history")
+            history = self.history if self.history is not None else [self.run]
+            return encode(self.history_response if self.history_response is not None else
+                          dict(total_count=len(history), workflow_runs=history))
+        current = self.claims["run_id"]
+        if current != "123" and f"/actions/runs/{current}" in url:
+            url = url.replace(f"/actions/runs/{current}", "/actions/runs/123")
         if (
             url
             == f"https://management.azure.com/subscriptions/{self.subscription['subscriptionId']}?api-version=2022-12-01"

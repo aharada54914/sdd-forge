@@ -1,0 +1,29 @@
+test_cross_job_original_prepare_archive_cannot_repeat_unknown_put (__main__.AzureExecution.test_cross_job_original_prepare_archive_cannot_repeat_unknown_put) ... FAIL
+test_unavailable_incomplete_or_excessive_intent_history_blocks_without_put (__main__.AzureExecution.test_unavailable_incomplete_or_excessive_intent_history_blocks_without_put) ... FAIL
+
+======================================================================
+FAIL: test_cross_job_original_prepare_archive_cannot_repeat_unknown_put (__main__.AzureExecution.test_cross_job_original_prepare_archive_cannot_repeat_unknown_put)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1570, in test_cross_job_original_prepare_archive_cannot_repeat_unknown_put
+    self.assertEqual(second["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+======================================================================
+FAIL: test_unavailable_incomplete_or_excessive_intent_history_blocks_without_put (__main__.AzureExecution.test_unavailable_incomplete_or_excessive_intent_history_blocks_without_put)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1593, in test_unavailable_incomplete_or_excessive_intent_history_blocks_without_put
+    self.assertEqual(result["result"], "BLOCKED")
+AssertionError: 'PASS' != 'BLOCKED'
+- PASS
++ BLOCKED
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.346s
+
+FAILED (failures=2)
