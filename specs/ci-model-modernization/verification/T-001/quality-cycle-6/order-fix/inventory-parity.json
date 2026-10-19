@@ -1,0 +1,9 @@
+{
+  "baseline": "specs/ci-model-modernization/verification/T-001/attempt-1/after-obligation-inventory.json",
+  "baseline_sha256": "0c46f63f0178855ddc14c38717bef1a7abb344a332e34598850c8fed66ed9d13",
+  "current_workload_obligations": 415,
+  "exact_obligation_array_equal": true,
+  "control_disposition_count": 1,
+  "catalog_unchanged": true,
+  "workflow_unchanged": true
+}

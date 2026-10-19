@@ -1,0 +1,7 @@
+{
+  "red_commit": "4dd78e5c",
+  "change": "Sort activation-evidence iteration by category ID; no change to selection, proof validation, schema or fallback.",
+  "source_before_sha256": "7f6e321443919bf07723af75ab942767c228ff53e4d8b31f3f6d4e89fefaf383",
+  "source_after_sha256": "8fa47f5979755e6b1ad8fd9e13c0fa454bf2c002280f5b6d3cfc881dabe6ae2c",
+  "test_after_sha256": "c8ff99a3048baed2091edb26147398b01d3f9f6de47f9f95b86e5c8ee7ade048"
+}

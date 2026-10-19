@@ -637,8 +637,8 @@ def classify(paths, catalog, workflow, obligations, root, revision):
         categories.update((c['id'], c) for c in matches)
     try:
         rule = rule_digest(catalog, workflow)
-        evidence = [validate_activation(c, rule, root, revision, catalog, workflow, obligations)
-                    for c in categories.values()]
+        evidence = [validate_activation(categories[name], rule, root, revision, catalog, workflow, obligations)
+                    for name in sorted(categories)]
     except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError):
         return obligations, [], 'unproven-category'
     selected = selected_obligations(categories.values(), catalog, workflow, obligations)
