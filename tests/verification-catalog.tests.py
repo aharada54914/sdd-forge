@@ -10,7 +10,7 @@ import shutil
 from unittest.mock import patch
 import tempfile
 import unittest
-from typing import Any
+from typing import Any, Callable
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('verification', ROOT / 'tests/verification.py')
@@ -737,6 +737,141 @@ class WorkflowIntegrationTests(unittest.TestCase):
                         self.test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped()
         finally:
             self.workflow = original
+
+    # T-005 identity suite: additive registration/native-obligation checks; the T-004 checks above stay unchanged.
+    IDENTITY_SUITE = 'tests/model-identity.tests.py'
+    IDENTITY_PROFILES = ('local-posix', 'local-powershell', 'ci-portable-prechecks')
+    IDENTITY_EXCLUDED_PROFILES = ('ci-posix-fallback', 'ci-shared-python')
+    IDENTITY_DEPENDENCIES = ('tests/model-observation.tests.py', 'tests/verification-catalog.tests.py')
+
+    def identity_registration_errors(self, catalog):
+        """Raw-catalog counterparts for the identity suite row, profiles and impact dependencies."""
+        errors = []
+        rows = [s for s in catalog['suites'] if s.get('path') == self.IDENTITY_SUITE]
+        if len(rows) != 1:
+            errors.append('identity suite must be registered exactly once, found %d' % len(rows))
+        for row in rows:
+            if {k: v for k, v in row.items() if k != 'ci_jobs'} != {'path': self.IDENTITY_SUITE, 'runtime': 'python'}:
+                errors.append('identity suite must be a plain python runner row: ' + repr(row))
+            jobs = row.get('ci_jobs')
+            if not isinstance(jobs, list) or sorted(jobs) != ['test', 'test-windows-heavy']:
+                errors.append('identity ci_jobs must be exactly test and test-windows-heavy: ' + repr(jobs))
+        for profile in self.IDENTITY_PROFILES:
+            count = catalog['profiles'].get(profile, []).count(self.IDENTITY_SUITE)
+            if count != 1:
+                errors.append('%s must list the identity suite exactly once, found %d' % (profile, count))
+        for profile in self.IDENTITY_EXCLUDED_PROFILES:
+            if self.IDENTITY_SUITE in catalog['profiles'].get(profile, []):
+                errors.append(profile + ' must not carry the identity suite')
+        deps = catalog.get('impact', {}).get('dependencies', {}).get(self.IDENTITY_SUITE)
+        if (not isinstance(deps, list) or len(deps) != len(set(deps))
+                or set(deps) != set(self.IDENTITY_DEPENDENCIES)):
+            errors.append('identity dependencies must be exactly observation and catalog tests: ' + repr(deps))
+        return errors
+
+    def suite_native_errors(self, obligations, suite):
+        from collections import Counter
+        carriers = [o for o in obligations if suite in o['suites']]
+        errors = []
+        if Counter(o['runner'] for o in carriers) != Counter(self.NATIVE_RUNNERS):
+            errors.append('expected exactly one obligation per native OS: ' + repr(sorted(o['runner'] for o in carriers)))
+        if not all(o['receipt_required'] for o in carriers):
+            errors.append('every carrier must be a receipt-producing shared runner')
+        return errors
+
+    def test_T005_catalog_counterparts(self):
+        import copy
+        catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+        self.assertIn(self.IDENTITY_SUITE, catalog['_suites'], 'model identity suite is not registered')
+        self.assertEqual(self.identity_registration_errors(self.catalog), [])
+        self.assertEqual([e for e in self.w.coverage_errors(self.workflow, catalog) if e.startswith(self.IDENTITY_SUITE)], [])
+        self.assertEqual(catalog['impact']['dependencies'].get(self.MODEL_SUITE), ['tests/verification-catalog.tests.py'])
+
+        def row(data):
+            return next(s for s in data['suites'] if s['path'] == self.IDENTITY_SUITE)
+
+        mutations: dict[str, Callable[..., Any]] = {
+            'unregistered': lambda c: c['suites'].remove(row(c)),
+            'duplicate-row': lambda c: c['suites'].append(copy.deepcopy(row(c))),
+            'runtime': lambda c: row(c).update(runtime='bash'),
+            'delegated': lambda c: row(c).update(delegated_to=self.MODEL_SUITE),
+            'excluded': lambda c: row(c).update(excluded='fixture'),
+            'extra-ci-job': lambda c: row(c)['ci_jobs'].append('posix-regression'),
+            'dependencies-missing': lambda c: c['impact']['dependencies'].pop(self.IDENTITY_SUITE),
+            'dependency-duplicated': lambda c: c['impact']['dependencies'][self.IDENTITY_SUITE].append(
+                c['impact']['dependencies'][self.IDENTITY_SUITE][0]),
+            'dependency-extra': lambda c: c['impact']['dependencies'][self.IDENTITY_SUITE].append(
+                'tests/verification-ci.tests.py'),
+        }
+        for job in ('test', 'test-windows-heavy'):
+            mutations['drop-ci-job-' + job] = lambda c, job=job: row(c)['ci_jobs'].remove(job)
+        for dependency in self.IDENTITY_DEPENDENCIES:
+            mutations['drop-dependency-' + dependency] = (
+                lambda c, dependency=dependency: c['impact']['dependencies'][self.IDENTITY_SUITE].remove(dependency))
+        for profile in self.IDENTITY_PROFILES:
+            mutations['remove-from-' + profile] = lambda c, profile=profile: c['profiles'][profile].remove(self.IDENTITY_SUITE)
+            mutations['duplicate-in-' + profile] = lambda c, profile=profile: c['profiles'][profile].append(self.IDENTITY_SUITE)
+        for profile in self.IDENTITY_EXCLUDED_PROFILES:
+            mutations['added-to-' + profile] = lambda c, profile=profile: c['profiles'][profile].append(self.IDENTITY_SUITE)
+        for name, mutate in mutations.items():
+            with self.subTest(mutation=name):
+                bad = copy.deepcopy(self.catalog)
+                mutate(bad)
+                self.assertNotEqual(self.identity_registration_errors(bad), [])
+
+    def test_T005_identity_suite_runs_once_on_each_native_os(self):
+        obligations = self.w.plan_obligations(self.workflow, self.catalog)
+        self.assertEqual(self.suite_native_errors(obligations, self.IDENTITY_SUITE), [])
+        self.assertEqual(self.model_suite_native_errors(obligations), [], 'T-004 observation carriers must remain intact')
+
+    def test_T005_native_coverage_mutations(self):
+        import copy
+        base = [{'id': 'fixture-' + r, 'job': 'test', 'matrix': {'os': r}, 'runner': r, 'step': 'fixture',
+                 'command_sha256': '0' * 64, 'suites': [self.IDENTITY_SUITE], 'receipt_required': True}
+                for r in self.NATIVE_RUNNERS]
+        self.assertEqual(self.suite_native_errors(base, self.IDENTITY_SUITE), [])
+        mutations = {}
+        for index, runner in enumerate(self.NATIVE_RUNNERS):
+            mutations['missing-' + runner] = [o for i, o in enumerate(base) if i != index]
+            mutations['duplicate-' + runner] = base + [copy.deepcopy(base[index])]
+            moved = copy.deepcopy(base)
+            moved[index]['runner'] = self.NATIVE_RUNNERS[index - 1]
+            mutations['wrong-os-' + runner] = moved
+            dropped = copy.deepcopy(base)
+            dropped[index]['suites'] = [self.MODEL_SUITE]
+            mutations['dropped-suite-' + runner] = dropped
+            unreceipted = copy.deepcopy(base)
+            unreceipted[index]['receipt_required'] = False
+            mutations['receipt-disabled-' + runner] = unreceipted
+        for name, mutated in mutations.items():
+            with self.subTest(mutation=name):
+                self.assertNotEqual(self.suite_native_errors(mutated, self.IDENTITY_SUITE), [])
+        actual = self.w.plan_obligations(self.workflow, self.catalog)
+        self.assertEqual(self.suite_native_errors(actual, self.IDENTITY_SUITE), [])
+        bad = copy.deepcopy(self.catalog)
+        bad['profiles']['ci-portable-prechecks'].remove(self.IDENTITY_SUITE)
+        try:
+            errors = self.suite_native_errors(self.w.plan_obligations(self.workflow, bad), self.IDENTITY_SUITE)
+        except ValueError as error:
+            errors = [str(error)]
+        self.assertNotEqual(errors, [], 'dropping the portable carrier must lose native identity coverage')
+
+    def test_T005_identity_registration_projects_away_from_historical_inventory(self):
+        import copy
+        historical = {s for o in self.t003_before()['obligations'] for s in o['suites']}
+        self.assertNotIn(self.IDENTITY_SUITE, historical)
+        obligations = self.w.plan_obligations(self.workflow, self.catalog)
+        baseline = self.t003_inventory(self.workflow, obligations, historical)
+        carriers = [o for o in obligations if self.IDENTITY_SUITE in o['suites']]
+        self.assertEqual(len(carriers), len(self.NATIVE_RUNNERS))
+        stripped = copy.deepcopy(obligations)
+        for item in stripped:
+            item['suites'] = [s for s in item['suites'] if s != self.IDENTITY_SUITE]
+        self.assertEqual(self.t003_inventory(self.workflow, stripped, historical), baseline,
+                         'identity registration must not alter historical invocations')
+        extra = copy.deepcopy(obligations) + [{**copy.deepcopy(carriers[0]), 'suites': [self.IDENTITY_SUITE]}]
+        self.assertNotEqual(self.t003_inventory(self.workflow, extra, historical), baseline,
+                            'a new identity-only obligation must remain visible to the projection')
 
 
 if __name__ == '__main__':
