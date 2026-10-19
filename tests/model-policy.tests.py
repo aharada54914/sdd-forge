@@ -775,6 +775,25 @@ class PolicySelection(unittest.TestCase):
         finally:
             os.chdir(previous)
 
+    def test_supported_policy_options_always_fail_with_one_typed_error(self):
+        cases = [
+            ('required-tier', 'RequiredTier', 'bogus'),
+            ('minimum-tier', 'MinimumTier', 'bogus'),
+            ('previous-tier', 'PreviousTier', 'bogus'),
+            ('failure-class', 'FailureClass', 'bogus'),
+            ('failure-history', 'FailureHistory', 'bogus,bogus'),
+            ('attempt-number', 'AttemptNumber', 'not-an-integer'),
+            ('consecutive-failures', 'ConsecutiveFailures', 'not-an-integer'),
+            ('effort-policy', 'EffortPolicy', 'MATRIX'),
+            ('deterministic-runtime-command', 'DeterministicRuntimeCommand', 'missing-t006-runtime'),
+        ]
+        for shell_name, ps_name, value in cases:
+            for backend, args in [('bash', ['--' + shell_name, value]),
+                                  ('powershell', ['-' + ps_name, value])]:
+                with self.subTest(option=shell_name, backend=backend):
+                    self.blocked(self.invoke(backend, extra=args),
+                                 {'config-invalid', 'config-conflict', 'input-invalid'})
+
     def test_python_api_rejects_fabricated_active_capture(self):
         helper = load_helper()
         prepare = getattr(helper, 'prepare_policy', None)
