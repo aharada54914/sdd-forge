@@ -23,7 +23,7 @@ The Test Ownership table assigns each TEST exactly one final owner. Shared REQ/A
 ## T-001 Revision-bound CI plans and obligations
 
 Approval: Approved (user-recorded 2026-10-18T20:33:18Z)
-Status: In Progress
+Status: Implementation Complete
 Risk: high
 Risk Rationale: Changes externally visible CI selection or execution-evidence contracts.
 Required Workflow: tdd

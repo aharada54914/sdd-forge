@@ -325,6 +325,50 @@ class PlanningTests(GitFixture):
         self.assertNotEqual(rows[0]['command_sha256'], other[0]['command_sha256'])
         self.assertEqual(other[0]['suites'], [])
 
+    def test_continue_on_error_rejects_unproven_workload_exemptions(self):
+        value: Any
+        for level in ('job', 'step'):
+            for value in ('${{ false }}', '${{ true }}', '${{ matrix.experimental }}',
+                          'false', 'true', None, 0, 1, {}, []):
+                with self.subTest(level=level, value=value):
+                    workflow = copy.deepcopy(self.workflow)
+                    job = workflow['jobs']['optional']
+                    target = job if level == 'job' else job['steps'][0]
+                    target['continue-on-error'] = value
+                    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+                        W.plan_obligations(workflow, self.catalog)
+        for job_value, step_value in ((False, False), (True, False),
+                                      (False, True), (True, True)):
+            workflow = copy.deepcopy(self.workflow)
+            job = workflow['jobs']['optional']
+            job['continue-on-error'] = job_value
+            job['steps'][0]['continue-on-error'] = step_value
+            rows = W.plan_obligations(workflow, self.catalog)
+            self.assertEqual(any(row['step'] == 'build' for row in rows),
+                             not (job_value or step_value))
+        # A proven optional job must not mask an unsupported step value.
+        workflow['jobs']['optional']['steps'][0]['continue-on-error'] = '${{ false }}'
+        with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+            W.plan_obligations(workflow, self.catalog)
+
+    def test_continue_on_error_cli_fails_without_partial_outputs(self):
+        self.workflow['jobs']['optional']['steps'][0]['continue-on-error'] = '${{ false }}'
+        self.write('.github/workflows/test.yml', json.dumps(self.workflow))
+        revision = self.commit('unsupported continue-on-error')
+        output = Path(self.temp.name) / 'plan.json'
+        github_output = Path(self.temp.name) / 'github-output'
+        command = [sys.executable, '-B', str(ROOT / 'tests/verification-impact.py'), '--plan',
+                   '--root', str(self.root), '--trusted-root', str(self.trusted),
+                   '--event', 'push', '--run-id', '123', '--run-attempt', '1',
+                   '--api-head-sha', revision, '--tested-revision', revision,
+                   '--output', str(output), '--github-output', str(github_output)]
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(result.stdout, '')
+        self.assertEqual(json.loads(result.stderr)['reason'], 'input-invalid')
+        self.assertFalse(output.exists())
+        self.assertFalse(github_output.exists())
+
     def test_control_verifier_is_not_its_own_completed_workload(self):
         live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
         catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())

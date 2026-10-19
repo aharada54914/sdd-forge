@@ -1,0 +1,26 @@
+ticket_id: RT-20261019-001
+status: resolved
+type: validation-and-evaluator-admission
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-001
+summary: Affected-mode reason validation and admitted task diff were incomplete
+problem: >-
+  Independent quality cycle 1 found two Major issues: standalone runtime validation
+  accepted an affected plan with another reason despite the schema constraint;
+  and the evaluator could not inspect a hash-bound task change diff.
+expected_fix:
+  - Enforce classified-change for affected mode, including standalone mutation tests.
+  - Admit the exact before/after task diff and its source hash inventory.
+  - Preserve the frozen implementation report and actual failed cycle; rerun independent review.
+approval: Existing user-approved implementation scope covers these bounded contract and review-input corrections.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 2
+evidence: specs/ci-model-modernization/verification/T-001/quality-cycle-1/review/evaluator.txt
+
+resolution: >-
+  Actual independent cycle 2 returned PASS and accepted the reason guard and admitted
+  task diff. Separate root finding RT-20261019-002 keeps the overall gate NEEDS_WORK;
+  resolving this ticket does not claim task Done.

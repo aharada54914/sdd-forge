@@ -1,0 +1,33 @@
+$ PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH python3 -B tests/verification-catalog.tests.py
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/a.tests.py
+SKIPPED: tests/a.tests.py
+==> tests/native-a.tests.ps1
+FAILED: tests/native-a.tests.ps1
+==> tests/native-b.tests.ps1
+PASSED: tests/native-b.tests.ps1
+==> tests/a.tests.py
+fixture
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+changed
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+................
+----------------------------------------------------------------------
+Ran 16 tests in 1.562s
+
+OK
+
+exit_code=0

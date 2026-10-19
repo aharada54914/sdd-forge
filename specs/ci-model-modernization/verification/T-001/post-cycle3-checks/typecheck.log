@@ -1,0 +1,2 @@
+tests/verification-ci-plan.tests.py:330: error: Need type annotation for "value"  [var-annotated]
+Found 1 error in 1 file (checked 4 source files)

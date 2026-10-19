@@ -9,9 +9,11 @@ import shutil
 from unittest.mock import patch
 import tempfile
 import unittest
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('verification', ROOT / 'tests/verification.py')
+assert SPEC and SPEC.loader
 V = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(V)
 
@@ -25,7 +27,7 @@ class CatalogTests(unittest.TestCase):
         self.paths = ['tests/a.tests.py', 'tests/b.tests.py']
         for path in self.paths:
             (self.root / path).write_text('print("fixture")\n')
-        self.catalog = {
+        self.catalog: dict[str, Any] = {
             'schema': 'verification-catalog/v1',
             'suites': [{'path': p, 'runtime': 'python'} for p in self.paths],
             'profiles': {'test': self.paths.copy()},
@@ -177,6 +179,22 @@ class CatalogTests(unittest.TestCase):
         result = subprocess.run(['bash', str(ROOT / 'tests/run-ci-unwired.sh'), '--shard-index', '4',
                                  '--shard-count', '4', '--list'], text=True, capture_output=True)
         self.assertNotEqual(result.returncode, 0)
+
+    def test_planner_is_registered_and_live_categories_are_inactive(self):
+        catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+        suite = 'tests/verification-ci-plan.tests.py'
+        self.assertIn(suite, catalog['profiles']['local-posix'])
+        self.assertIn(suite, catalog['profiles']['ci-posix-fallback'])
+        self.assertTrue(catalog['impact']['categories'])
+        for category in catalog['impact']['categories']:
+            self.assertIs(category['active'], False)
+            self.assertIsNone(category['evidence'])
+        spec = importlib.util.spec_from_file_location('planner', ROOT / 'tests/verification-impact.py')
+        assert spec and spec.loader
+        planner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(planner)
+        workflow = planner.read_workflow(ROOT / '.github/workflows/test.yml')
+        planner.rules(catalog, workflow)
 
     def test_real_catalog_and_wrappers_list_exact_same_suites(self):
         catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)

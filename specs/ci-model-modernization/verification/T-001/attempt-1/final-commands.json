@@ -1,0 +1,103 @@
+{
+  "recorded_at": "2026-10-19T00:33:53Z",
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py"
+      ],
+      "environment_override": {
+        "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+      },
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-1.txt"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-impact.tests.py"
+      ],
+      "environment_override": {
+        "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+      },
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-2.txt"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "environment_override": {
+        "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+      },
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-3.txt"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/required-checks-posix.tests.py"
+      ],
+      "environment_override": {
+        "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+      },
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-4.txt"
+    },
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/verification-impact.py",
+        "tests/verification-workflow.py",
+        "tests/verification-ci-plan.tests.py",
+        "tests/verification-catalog.tests.py"
+      ],
+      "environment_override": {
+        "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+      },
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-5.txt"
+    },
+    {
+      "command": [
+        "/tmp/cloud-quality-python/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/verification-impact.py",
+        "tests/verification-workflow.py",
+        "tests/verification-ci-plan.tests.py",
+        "tests/verification-catalog.tests.py"
+      ],
+      "environment_override": {
+        "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+      },
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-6.txt"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "environment_override": {
+        "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+      },
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-7.txt"
+    }
+  ],
+  "whole_repository_suite_run": false
+}

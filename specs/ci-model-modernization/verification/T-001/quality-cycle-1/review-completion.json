@@ -1,0 +1,11 @@
+{
+  "task_id": "T-001",
+  "review_run_id": "01a15197-f4e5-7fc2-8069-4f5112a924b4",
+  "implementation_run_id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+  "verdict": "NEEDS_WORK",
+  "manifest_sha256": "b617ae4ccc1fcf1dd12a4e570babe6b36aa439a5b2f8f88d9e693f6d1a141d53",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261019-ci-model-modernization-T-001-cycle-1.md",
+  "completion_scope": "Retain Implementation Complete. Current code and exact task diff are declared below for cycle 2; this report records cycle 1 NEEDS_WORK and does not bless the correction. No hosted activation or final full suite claimed."
+}

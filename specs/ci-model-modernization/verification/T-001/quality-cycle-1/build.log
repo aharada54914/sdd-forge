@@ -1,0 +1,1 @@
+{"command": ["python3", "-m", "py_compile", "tests/verification-impact.py", "tests/verification-workflow.py", "tests/verification-ci-plan.tests.py", "tests/verification-catalog.tests.py"], "exit_code": 0, "stdout": "", "stderr": ""}

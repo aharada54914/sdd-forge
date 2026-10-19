@@ -1,0 +1,4 @@
+$ PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH /tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml tests/verification-impact.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py
+All checks passed!
+
+exit_code=0

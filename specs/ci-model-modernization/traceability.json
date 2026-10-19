@@ -1,0 +1,127 @@
+{
+  "feature": "ci-model-modernization",
+  "scope": "Incremental task-scoped evidence addendum; no claim that all feature acceptance is complete. Frozen traceability.md retains canonical assignment.",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": [
+        "AC-001"
+      ],
+      "tests": [
+        "TEST-001: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-002: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-003: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-004: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-005: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-006: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-039: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-040: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-041: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-042: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-043: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-078: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-1.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-2.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/inventory-parity.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/contract-addendum.md",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/regression.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/inventory-parity.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json"
+      ],
+      "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-002"
+      ],
+      "tests": [
+        "TEST-007: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-008: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-009: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-010: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-044: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-045: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-046: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-047: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-048: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-049: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-050: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-1.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-2.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/inventory-parity.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/contract-addendum.md",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/regression.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/inventory-parity.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json"
+      ],
+      "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
+    },
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-003"
+      ],
+      "tests": [
+        "TEST-011: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-012: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-013: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-014: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-015: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-051: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-052: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-053: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-054: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-1.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-2.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/inventory-parity.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/contract-addendum.md",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/regression.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/inventory-parity.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json"
+      ],
+      "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
+    },
+    {
+      "req": "REQ-006",
+      "acs": [
+        "AC-006"
+      ],
+      "tests": [
+        "TEST-025: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-026: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-064: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-065: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-066: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-1.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-2.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/inventory-parity.txt",
+        "specs/ci-model-modernization/verification/T-001/attempt-1/contract-addendum.md",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/regression.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/inventory-parity.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json"
+      ],
+      "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
+    }
+  ]
+}

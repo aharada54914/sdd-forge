@@ -1,0 +1,202 @@
+FFFFFFFFFFFFFFFFFFFFFF
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value='${{ false }}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value='${{ true }}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value='${{ matrix.experimental }}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value='false')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value='true')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='job', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value='${{ false }}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value='${{ true }}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value='${{ matrix.experimental }}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value='false')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value='true')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions) (level='step', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 337, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_rejects_unproven_workload_exemptions (__main__.PlanningTests.test_continue_on_error_rejects_unproven_workload_exemptions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 350, in test_continue_on_error_rejects_unproven_workload_exemptions
+    with self.assertRaisesRegex(ValueError, 'continue-on-error'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_continue_on_error_cli_fails_without_partial_outputs (__main__.PlanningTests.test_continue_on_error_cli_fails_without_partial_outputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 365, in test_continue_on_error_cli_fails_without_partial_outputs
+    self.assertEqual(result.returncode, 2, result.stderr)
+AssertionError: 0 != 2 : 
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.142s
+
+FAILED (failures=22)

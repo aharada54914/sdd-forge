@@ -1,0 +1,12 @@
+{
+  "task_id": "T-001",
+  "review_run_id": "01a151af-b797-7c90-a5da-2b7b32ae8f25",
+  "implementation_run_id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+  "verdict": "NEEDS_WORK",
+  "evaluator_verdict": "NEEDS_WORK",
+  "manifest_sha256": "dfa229078cc598a2de84b79e0d99183a5a98730b55753437dc66563c351534eb",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261019-ci-model-modernization-T-001-cycle-3.md",
+  "completion_scope": "Retain Implementation Complete and NEEDS_WORK. Bounded fixes and local checks are complete. A task-specific human exception to the three-cycle maximum is required before a fourth independent review; no such exception has yet been received. T009-only prior authorization is not extended to T-001. Do not begin dependent tasks or release this feature before actual quality acceptance."
+}

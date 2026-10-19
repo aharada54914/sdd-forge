@@ -1,5 +1,32 @@
 {
   "schema": "verification-catalog/v1",
+  "impact": {
+    "schema": "verification-impact-rules/v1",
+    "categories": [
+      {
+        "id": "readme-contract",
+        "paths": [
+          "README.md"
+        ],
+        "prefixes": [],
+        "suites": [
+          "tests/workflow-documentation.tests.sh",
+          "tests/design-system-contract.tests.sh",
+          "tests/repository-release-validation.tests.sh",
+          "tests/bump-version-gate.tests.sh",
+          "tests/spec-review-loop.tests.sh"
+        ],
+        "groups": [
+          "test",
+          "posix-regression"
+        ],
+        "active": false,
+        "evidence": null
+      }
+    ],
+    "dependencies": {},
+    "non_suite_steps": []
+  },
   "suites": [
     {"path": "tests/cloud-orchestration-contracts.tests.py", "runtime": "python", "ci_jobs": ["test"]},
     {"path": "tests/cloud-orchestration-routing.tests.py", "runtime": "python", "ci_jobs": ["test"]},
@@ -349,6 +376,7 @@
     {"path": "tests/validate-resolver-evidence.tests.sh", "runtime": "bash"},
     {"path": "tests/verification-catalog.tests.py", "runtime": "python", "delegated_to": "tests/ci-suite-wiring.tests.sh", "ci_jobs": ["posix-regression"]},
     {"path": "tests/verification-impact.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/verification-ci-plan.tests.py", "runtime": "python"},
     {"path": "tests/wfi-034-scratch-metric.tests.sh", "runtime": "bash"},
     {"path": "tests/wfi-058-outputs-anchor.tests.ps1", "runtime": "powershell"},
     {"path": "tests/wfi-058-outputs-anchor.tests.sh", "runtime": "bash"},
@@ -565,7 +593,8 @@
       "tests/task-structured-output.tests.py",
       "tests/supplemental-delivery-declaration.tests.py",
       "tests/t001-evaluation-preparation.tests.py",
-      "tests/verification-impact.tests.py"
+      "tests/verification-impact.tests.py",
+      "tests/verification-ci-plan.tests.py"
     ],
     "local-powershell": [
       "tests/cloud-orchestration-contracts.tests.py",
@@ -701,6 +730,7 @@
       "tests/verification-impact.tests.py"
     ],
     "ci-posix-fallback": [
+      "tests/verification-ci-plan.tests.py",
       "tests/ci-suite-wiring.tests.sh",
       "tests/ci-claude-install.tests.sh",
       "tests/wfi-034-scratch-metric.tests.sh",

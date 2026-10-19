@@ -1,0 +1,18 @@
+$ python3 /tmp/ci-model-T001-01a1517b/schema-check.py
+
+Executed script:
+import importlib.util,json
+from pathlib import Path
+import jsonschema
+root=Path.cwd()
+spec=importlib.util.spec_from_file_location('ci_tests',root/'tests/verification-ci-plan.tests.py'); m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+schema=json.loads((root/'contracts/verification-ci-plan.schema.json').read_text())
+jsonschema.Draft202012Validator.check_schema(schema)
+t=m.ProofTests();t.setUp()
+try:
+    for label,value,key in [('full',t.full,None),('affected',t.plan(),None),('proof',t.proof,'activationProof'),('result',t.full_result,'comparisonResult'),('rules',t.catalog['impact'],'impactRules'),('consumers',json.loads((t.root/'proof/consumers.json').read_text()),'consumerInventory'),('mutations',json.loads((t.root/'proof/mutations.json').read_text()),'mutationEvidence')]:
+        sub=schema if key is None else {'$schema':schema['$schema'],'$defs':schema['$defs'],'$ref':'#/$defs/'+key}
+        jsonschema.Draft202012Validator(sub).validate(value)
+        print(label+': schema valid (synthetic local fixture)')
+finally:
+    t.doCleanups()

@@ -1,0 +1,15 @@
+RUN_ID: 01a1519f-721e-75f0-9856-56a91b08f622
+HOST_SESSION_ID: 01a1519f-721e-75f0-9856-56a91b08f622
+ALLOWED_INPUT_MANIFEST: specs/ci-model-modernization/verification/T-001/quality-cycle-2/review/invocation.json SHA-256 e3e25cb48589babdff47600c63237d4ca5e6a7c75195b0079af86f1e3eee2336
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Verified invocation digest, reservation receipt arithmetic, sequence linkage, implementation/evaluator identity separation, and supplemental authorization. All 52 inspected manifest inputs matched their pins.
+- Inspected T-001 scope, assigned acceptance branches, requirements, design, layer specifications, ADRs, and plan schema.
+- Line-inspected tests/verification-impact.py:206–813 and tests/verification-workflow.py:259–452: strict validation, trusted-base execution, revision binding, conservative fallback, dependency closure, obligation inventory, and sanitized errors.
+- Inspected planner tests and saved cycle-2 command outputs: 25 planner, 6 impact, 16 catalog, and 18 required-checks tests passed without suite-level skips. Saved lint and typecheck outputs passed.
+- Verified all seven patch targets against their declared before/after hashes. Legacy shadow behavior remains unchanged apart from typing annotations.
+- Independently compared saved baseline/current inventories: 415 workload obligations retained, command projections unchanged, no suite/OS obligations removed, and one Ubuntu planner-suite obligation added.
+- Inspected Red→Green evidence, schema-validation output, and rollback records; restored impact/catalog suites passed and restored hashes matched baseline.
+- Evaluation is limited to deterministic T-001 acceptance. Tests were not rerun in this read-only context. Categories remain inactive; whole-repository, hosted rollout, execution aggregation, and release validation are not claimed.

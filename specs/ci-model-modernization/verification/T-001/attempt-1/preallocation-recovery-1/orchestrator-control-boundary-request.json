@@ -1,0 +1,14 @@
+{
+  "id": 9002,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a1517b-38f6-7143-8bec-e35f0e425903",
+    "expectedTurnId": "01a1517b-3932-7af3-afa5-9ac018298a38",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root scoped self-review found a concrete integration hazard to address before handoff: current plan_obligations inventories required-checks itself (.github/workflows/test.yml:1553+). T-003 will execute the aggregate inside that still-running required-checks job, so requiring its own completed job/step observation creates an impossible self-dependency. Distinguish the specifically identified orchestration verifier from workload obligations; retain an explicit inventory/disposition and tests rather than blanket omission of arbitrary jobs. Preserve every workload command, native wrapper and all four required status contexts. The verifier status is established by GitHub after its result, not by self-certified completed evidence. Define and test the exact narrow control boundary as a non-frozen implementation addendum for T-002/T-003, including a mutation placing real test work into a supposed control job so it cannot be silently dropped. This implements the approved aggregate topology without changing requirements; do not edit frozen artifacts or allow a generic exemption. Root will independently inspect the resulting inventory before the quality gate."
+      }
+    ]
+  }
+}

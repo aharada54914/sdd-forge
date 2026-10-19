@@ -1,0 +1,7 @@
+full: schema valid (synthetic local fixture)
+affected: schema valid (synthetic local fixture)
+proof: schema valid (synthetic local fixture)
+result: schema valid (synthetic local fixture)
+rules: schema valid (synthetic local fixture)
+consumers: schema valid (synthetic local fixture)
+mutations: schema valid (synthetic local fixture)

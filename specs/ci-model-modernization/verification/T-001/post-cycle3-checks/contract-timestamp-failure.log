@@ -1,0 +1,7 @@
+Verification contract FAILED for task T-001:
+ - check 'lint' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'lint' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'typecheck' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'typecheck' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'build' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'build' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)

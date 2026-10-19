@@ -1,0 +1,21 @@
+E
+======================================================================
+ERROR: test_all_proof_payload_fields_and_sensitivity (__main__.ProofTests.test_all_proof_payload_fields_and_sensitivity) (path='proof/consumers.json', field=('consumers', 0, 'sources', 0, 'path'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 527, in test_all_proof_payload_fields_and_sensitivity
+    IMPACT.validate_activation(*arguments)
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 506, in validate_activation
+    or sha(git(root, 'show', baseline + ':' + source['path'])) != source['sha256']):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 565, in git
+    return subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True).stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/tmp/tmpdc0vohjm/subject', 'show', '95b57c02165f8f90fe29802dfd35b775eb201de1:mismatch']' returned non-zero exit status 128.
+
+----------------------------------------------------------------------
+Ran 1 test in 2.699s
+
+FAILED (errors=1)

@@ -1,0 +1,12 @@
+{
+  "task_id": "T-001",
+  "review_run_id": "01a1519f-721e-75f0-9856-56a91b08f622",
+  "implementation_run_id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+  "verdict": "NEEDS_WORK",
+  "evaluator_verdict": "PASS",
+  "manifest_sha256": "e3e25cb48589babdff47600c63237d4ca5e6a7c75195b0079af86f1e3eee2336",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261019-ci-model-modernization-T-001-cycle-2.md",
+  "completion_scope": "Retain Implementation Complete. The independent evaluator PASS describes its exact delivered snapshot. Root observed a later reproducible wrong selection, so the overall gate is NEEDS_WORK with Critical 1. The Post-Fix Artifacts are candidates for cycle 3 and are not blessed by this report."
+}

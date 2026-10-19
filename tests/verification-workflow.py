@@ -3,12 +3,15 @@
 Unknown shell syntax contributes no execution evidence. This is an admission
 check for the repository's small command grammar, not a shell interpreter.
 """
+import hashlib
+import importlib.util
 import itertools
 import json
 from pathlib import Path
 import re
 import shlex
 import subprocess
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -114,7 +117,7 @@ def command_suites(command, catalog, shell='bash'):
         return None
     path = args.pop(0).removeprefix('./')
     if path == 'tests/verification.py' and interpreter in ('python', 'python3'):
-        options = {}
+        options: dict[str, Any] = {}
         while args:
             key = args.pop(0)
             if key in options:
@@ -232,7 +235,7 @@ def shard_errors(workflow):
             if len(tokens) < 2 or tokens[0] != 'bash' or tokens[1].removeprefix('./') != 'tests/run-ci-unwired.sh':
                 continue
             tokens = tokens[2:]
-            options = {}
+            options: dict[str, Any] = {}
             while tokens:
                 key = tokens.pop(0)
                 if key not in ('--shard-index', '--shard-count', '--receipt') or key in options or not tokens:
@@ -250,3 +253,203 @@ def shard_errors(workflow):
     if len(counts) != 1 or next(iter(counts)) != len(indices) or sorted(indices) != list(range(len(indices))):
         return ['fallback shard indices must cover 0..count-1 exactly once']
     return []
+
+
+
+def condition_supported(condition):
+    if condition is None or type(condition) is bool:
+        return True
+    if not isinstance(condition, str):
+        return False
+    expression = condition.strip()
+    if expression.startswith('${{') and expression.endswith('}}'):
+        expression = expression[3:-2].strip()
+    return all(term.strip() in ('true', 'false') or re.fullmatch(
+        r"(runner\.os|matrix\.[a-zA-Z_]+)\s*(==|!=)\s*(['\"])([^'\"]+)\3", term.strip())
+        for alternative in expression.split('||') for term in alternative.split('&&'))
+
+
+
+def condition_value(condition, row, runner):
+    if not condition_supported(condition):
+        return None
+    if isinstance(condition, str) and any(key not in row for key in re.findall(r'matrix\.([a-zA-Z_]+)', condition)):
+        return None
+    return enabled(condition, row, runner)
+
+def runner_module():
+    spec = importlib.util.spec_from_file_location('verification_runner', Path(__file__).with_name('verification.py'))
+    assert spec and spec.loader and spec.origin
+    module = importlib.util.module_from_spec(spec)
+    # Execute the verified source bytes, never a mutable bytecode cache.
+    exec(compile(Path(spec.origin).read_bytes(), spec.origin, 'exec'), module.__dict__)
+    return module
+
+
+def shard_members(body, catalog, weights):
+    try:
+        tokens = shlex.split(body)
+    except ValueError:
+        return None
+    if tokens[:2] != ['bash', './tests/run-ci-unwired.sh']:
+        return None
+    tokens = tokens[2:]
+    options = {}
+    while tokens:
+        key = tokens.pop(0)
+        if key not in ('--shard-index', '--shard-count', '--receipt') or key in options or not tokens:
+            return None
+        options[key] = tokens.pop(0)
+    if (set(options) != {'--shard-index', '--shard-count', '--receipt'}
+            or not re.fullmatch('[0-9]+', options['--shard-index'])
+            or not re.fullmatch('[1-9][0-9]*', options['--shard-count'])):
+        return None
+    index, count = int(options['--shard-index']), int(options['--shard-count'])
+    if not 0 <= index < count:
+        raise ValueError('invalid fallback shard')
+    runner = runner_module()
+    if weights is None:
+        weights = runner.load_weights(ROOT / 'tests/verification-timings.json')
+    return set(runner.shard_suites(catalog['profiles']['ci-posix-fallback'], count, weights)[index])
+
+
+
+# Exact baseline verifier command projection, rechecked against the live source
+# in T-001. No other shell body obtains this control-only disposition by name.
+LEGACY_VERIFIER_COMMAND = '6d256d00b814a57e078c113e5edea91380207aa7728e8b5bc07baefc9066f0e7'
+
+
+def verifier_job(workflow):
+    job = workflow['jobs'].get('required-checks')
+    if job is None:
+        return
+    if (job.get('name') != 'required-checks' or job.get('runs-on') != 'ubuntu-latest'
+            or job.get('if') not in ('always()', '${{ always() }}')
+            or job.get('continue-on-error', False) is not False or 'strategy' in job
+            or not isinstance(job.get('needs'), list)
+            or len(job['needs']) != len(set(job['needs']))
+            or set(job['needs']) != set(workflow['jobs']) - {'required-checks'}):
+        raise ValueError('required-checks must remain the exact always-running orchestration verifier')
+    run_steps = [step for step in job.get('steps', []) if 'run' in step]
+    if len(run_steps) != 1:
+        raise ValueError('workload or extra run step in orchestration verifier')
+    step = run_steps[0]
+    if (step.get('name') != 'Check all required tests passed' or step.get('if') is not None
+            or step.get('continue-on-error', False) is not False):
+        raise ValueError('unexpected verifier step identity or condition')
+    for item in job['steps']:
+        if item is not step and (not isinstance(item.get('uses'), str) or not re.fullmatch(
+                'actions/checkout@[0-9a-f]{40}', item['uses'])):
+            raise ValueError('only pinned checkout setup is admitted beside the verifier')
+
+
+def aggregate_command(body):
+    # A single argv invocation, not a shell program or arbitrary job exemption.
+    if any(c in body.strip() for c in '\n;|&<>`') or '$(' in body:
+        return False
+    try:
+        args = shlex.split(body)
+    except ValueError:
+        return False
+    if args[:4] != ['python3', '-B', 'tests/verification-ci.py', 'aggregate']:
+        return False
+    args = args[4:]
+    required = {'--root', '--plan', '--observations', '--run-id', '--api-head-sha'}
+    options = {}
+    while args:
+        key = args.pop(0)
+        if key not in required | {'--output'} or key in options or not args:
+            return False
+        value = args.pop(0)
+        if not re.fullmatch(r'(?:[A-Za-z0-9_./-]+|\$[A-Z_][A-Z0-9_]*(?:/[A-Za-z0-9_./-]+)?)', value):
+            return False
+        options[key] = value
+    return required.issubset(options)
+
+
+def plan_obligations(workflow, catalog, weights=None):
+    return plan_inventory(workflow, catalog, weights)[0]
+
+
+def control_dispositions(workflow, catalog, weights=None):
+    return plan_inventory(workflow, catalog, weights)[1]
+
+def plan_inventory(workflow, catalog, weights=None):
+    """Inventory direct run steps without executing them or inferring unknown shell.
+
+    Unknown commands remain indivisible non-suite obligations, never permission
+    to omit work. A9 activation is separately interpreted by the aggregate.
+    """
+    verifier_job(workflow)
+    obligations, controls = [], []
+    seen = set()
+    targets = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'windows-latest': 'Windows'}
+    for job_id, job in workflow['jobs'].items():
+        rows = matrix_rows(job)
+        if not rows:
+            raise ValueError('unsupported or empty workflow matrix')
+        for row in rows:
+            if any(not isinstance(k, str) or type(v) not in (str, int, float, bool)
+                   for k, v in row.items()):
+                raise ValueError('invalid matrix scalar')
+            target = expand_matrix(job.get('runs-on', ''), row)
+            if target not in targets:
+                raise ValueError('unsupported workflow runner')
+            runner = targets[target]
+            if condition_value(job.get('if'), row, runner) is False:
+                continue
+            defaults = dict(workflow.get('defaults', {}).get('run', {}))
+            defaults.update(job.get('defaults', {}).get('run', {}))
+            names = set()
+            for step in job.get('steps', []):
+                if 'run' not in step:
+                    continue
+                name = step.get('name')
+                if not isinstance(name, str) or not name.strip() or name in names:
+                    raise ValueError('run step needs a unique nonempty name')
+                names.add(name)
+                best_effort = (job.get('continue-on-error', False), step.get('continue-on-error', False))
+                if any(type(value) is not bool for value in best_effort):
+                    raise ValueError('unsupported continue-on-error in workload inventory')
+                # Only proven best-effort work is exempt from required success.
+                if any(best_effort):
+                    continue
+                condition = step.get('if')
+                if condition_value(condition, row, runner) is False:
+                    continue
+                shell = step.get('shell', defaults.get('shell', 'pwsh' if runner == 'Windows' else 'bash'))
+                shell = expand_matrix(shell, row)
+                name = expand_matrix(name, row)
+                body = expand_matrix(step['run'], row).replace('\r\n', '\n')
+                env = {}
+                for source in (workflow, job, step):
+                    for key, value in source.get('env', {}).items():
+                        env[key] = expand_matrix(value, row) if isinstance(value, str) else value
+                command = {'run': body, 'shell': shell, 'env': env}
+                suites = (step_suites(step, catalog, row, shell)
+                          if step.get('working-directory', defaults.get('working-directory', '.')) == '.' else set())
+                shard = shard_members(body, catalog, weights) if shell == 'bash' else None
+                if shard is not None:
+                    suites = shard
+                identity = {'job': job_id, 'matrix': row, 'step': name}
+                def encode(value):
+                    return json.dumps(value, sort_keys=True, separators=(',', ':'),
+                                      ensure_ascii=False, allow_nan=False).encode('utf-8')
+                oid = job_id + ':' + hashlib.sha256(encode(identity)).hexdigest()
+                if oid in seen:
+                    raise ValueError('duplicate expanded obligation identity')
+                seen.add(oid)
+                obligation = dict(id=oid, job=job_id, matrix=row, runner=target,
+                                        step=name, command_sha256=hashlib.sha256(encode(command)).hexdigest(),
+                                        suites=sorted(suites),
+                                        receipt_required=shard is not None or (bool(suites) and 'tests/verification.py' in body))
+                if job_id == 'required-checks':
+                    if (shell != 'bash' or step.get('working-directory', defaults.get('working-directory', '.')) != '.'
+                            or suites or not (obligation['command_sha256'] == LEGACY_VERIFIER_COMMAND or aggregate_command(body))):
+                        raise ValueError('unrecognized work in orchestration verifier')
+                    controls.append({**obligation, 'disposition': 'orchestration-verifier'})
+                else:
+                    obligations.append(obligation)
+    if not obligations:
+        raise ValueError('empty workflow obligation inventory')
+    return obligations, controls

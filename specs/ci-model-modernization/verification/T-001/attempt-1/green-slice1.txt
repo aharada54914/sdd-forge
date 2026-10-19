@@ -1,0 +1,36 @@
+...E.........E
+======================================================================
+ERROR: test_definition_hash_excludes_proof_pointers_not_command_definitions (__main__.PlanningTests.test_definition_hash_excludes_proof_pointers_not_command_definitions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 322, in test_definition_hash_excludes_proof_pointers_not_command_definitions
+    self.assertEqual(I.rule_digest(self.catalog, self.workflow), original)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 351, in rule_digest
+    data = rules(catalog, workflow)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 343, in rules
+    exact_fields(category['evidence'], 'path sha256 rule_sha256 baseline_revision')
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 183, in exact_fields
+    raise ValueError('invalid object fields')
+ValueError: invalid object fields
+
+======================================================================
+ERROR: test_strict_json_schema_and_duplicate_unsafe_inputs (__main__.WireTests.test_strict_json_schema_and_duplicate_unsafe_inputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 154, in test_strict_json_schema_and_duplicate_unsafe_inputs
+    schema = json.loads((ROOT / 'contracts/verification-ci-plan.schema.json').read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/sdd-forge/contracts/verification-ci-plan.schema.json'
+
+----------------------------------------------------------------------
+Ran 14 tests in 1.347s
+
+FAILED (errors=2)

@@ -1,0 +1,4 @@
+$ PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH /tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml tests/verification-impact.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py
+Success: no issues found in 4 source files
+
+exit_code=0

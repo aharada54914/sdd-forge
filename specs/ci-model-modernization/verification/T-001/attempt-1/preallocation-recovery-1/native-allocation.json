@@ -1,0 +1,65 @@
+{
+  "thread": {
+    "id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+    "environments": [
+      {
+        "environmentId": "local",
+        "cwd": "/workspace/sdd-forge",
+        "runtimeWorkspaceRoots": [
+          "/workspace/sdd-forge"
+        ]
+      }
+    ],
+    "extra": null,
+    "sessionId": "01a1517b-38f6-7143-8bec-e35f0e425903",
+    "forkedFromId": null,
+    "parentThreadId": null,
+    "preview": "",
+    "ephemeral": false,
+    "section": null,
+    "sectionEnteredAt": null,
+    "projectId": null,
+    "historyMode": "paginated",
+    "modelProvider": "openai",
+    "model": "gpt-6-astra",
+    "reasoningEffort": "high",
+    "createdAt": 1792368392,
+    "updatedAt": 1792368392,
+    "recencyAt": 1792368392,
+    "status": {
+      "type": "idle"
+    },
+    "path": "/run/codex-environment/codex-home/sessions/2026/10/19/rollout-2026-10-19T00-06-32-01a1517b-38f6-7143-8bec-e35f0e425903.jsonl",
+    "cwd": "/workspace/sdd-forge",
+    "cliVersion": "0.159.2",
+    "originator": "ci-model-task-implementation",
+    "source": "vscode",
+    "canAcceptDirectInput": true,
+    "threadSource": null,
+    "agentNickname": null,
+    "agentRole": null,
+    "gitInfo": null,
+    "name": null,
+    "daybreakEnabled": null,
+    "turns": []
+  },
+  "model": "gpt-6-astra",
+  "modelProvider": "openai",
+  "serviceTier": null,
+  "disabledPluginIds": [],
+  "cwd": "/workspace/sdd-forge",
+  "runtimeWorkspaceRoots": [
+    "/workspace/sdd-forge"
+  ],
+  "instructionSources": [
+    "/workspace/sdd-forge/AGENTS.md"
+  ],
+  "approvalPolicy": "never",
+  "approvalsReviewer": "user",
+  "sandbox": {
+    "type": "dangerFullAccess"
+  },
+  "activePermissionProfile": null,
+  "reasoningEffort": "high",
+  "multiAgentMode": "explicitRequestOnly"
+}

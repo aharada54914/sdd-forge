@@ -1,0 +1,1 @@
+EVALUATOR_DELIVERY_OK inputs=160; reservation=not performed

@@ -1,0 +1,3 @@
+$ PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH git diff --check
+
+exit_code=0

@@ -1,0 +1,71 @@
+{
+  "base_revision": "f9befa7f301cb96664c692903d61b8d121c20619",
+  "disposable_checkout": "/tmp/ci-model-T001-01a1517b/rollback",
+  "commands": [
+    {
+      "phase": "candidate-final",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/rollback-candidate-final-verification-ci-plan.tests.py.txt"
+    },
+    {
+      "phase": "candidate-final",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-impact.tests.py"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/rollback-candidate-final-verification-impact.tests.py.txt"
+    },
+    {
+      "phase": "candidate-final",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/rollback-candidate-final-verification-catalog.tests.py.txt"
+    },
+    {
+      "phase": "restored-final",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-impact.tests.py"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/rollback-restored-final-verification-impact.tests.py.txt"
+    },
+    {
+      "phase": "restored-final",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/attempt-1/rollback-restored-final-verification-catalog.tests.py.txt"
+    }
+  ],
+  "restored_hashes": {
+    "tests/verification-impact.py": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3",
+    "tests/verification-workflow.py": "eb6b9185f7b70be56ca91a834eaa9ac3371be20c385450bf0ab0d0c33986d6b9",
+    "tests/verification-catalog.json": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80",
+    "tests/verification-catalog.tests.py": "94b56dd485f8a590e07f4fdd980158f28ef5d5cecef5ce25fe51fd62fb4b11a9"
+  },
+  "baseline_input_hashes": {
+    "tests/verification-impact.py": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3",
+    "tests/verification-workflow.py": "eb6b9185f7b70be56ca91a834eaa9ac3371be20c385450bf0ab0d0c33986d6b9",
+    "tests/verification-catalog.json": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80",
+    "tests/verification-catalog.tests.py": "94b56dd485f8a590e07f4fdd980158f28ef5d5cecef5ce25fe51fd62fb4b11a9"
+  },
+  "hashes_match": true,
+  "added_files_removed": true,
+  "ordinary_worktree_clean": false
+}

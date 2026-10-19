@@ -1,0 +1,14 @@
+{
+  "id": 9003,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a1517b-38f6-7143-8bec-e35f0e425903",
+    "expectedTurnId": "01a1517b-3932-7af3-afa5-9ac018298a38",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root scoped self-review: check the typed error boundary for subprocess.TimeoutExpired from the trusted planner (timeout=120) and existing workflow YAML subprocess (timeout=20). plan_main currently catches CalledProcessError but not TimeoutExpired; an unhandled timeout would escape as a traceback instead of the approved verification-ci-error/v1 exit-2 contract. Add a genuine failing timeout-boundary test and the smallest in-scope correction; also retain diagnostics without exposing raw command/environment secrets. No new feature or frozen-document change requested. Complete the final regressions after this correction."
+      }
+    ]
+  }
+}

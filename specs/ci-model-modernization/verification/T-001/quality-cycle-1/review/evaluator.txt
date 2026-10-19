@@ -1,0 +1,14 @@
+RUN_ID: 01a15197-f4e5-7fc2-8069-4f5112a924b4
+HOST_SESSION_ID: 01a15197-f4e5-7fc2-8069-4f5112a924b4
+ALLOWED_INPUT_MANIFEST: specs/ci-model-modernization/verification/T-001/quality-cycle-1/review/invocation.json SHA-256 b617ae4ccc1fcf1dd12a4e570babe6b36aa439a5b2f8f88d9e693f6d1a141d53
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] tests/verification-impact.py:276–284 — Runtime validation disagrees with the plan schema. An otherwise valid affected plan with reason `force-full` and a recomputed digest passes `validate_plan` without `expected`; contracts/verification-ci-plan.schema.json:358–370 requires `classified-change`. Add enforcement and a standalone negative test; existing reason mutations use whole-record expected equality and miss this gap.
+- [Major] Allowed-input manifest — No task diff or pre-change source bytes are admitted, preventing the required independent change-scope inspection. `scope-audit.json` provides hashes and unchanged claims, not the implementation diff. Supply a hash-bound task diff or admitted before/after sources.
+CHECKED:
+- Verified invocation identity, task/report binding and receipt chain; independently recomputed the quoted reservation hash successfully.
+- Inspected planner, workflow interpreter, schema and tests line by line against T-001 requirements, acceptance branches and ADR 0037.
+- Inspected saved command output: planner 24 tests, impact 6, catalog 16 and required-checks 18 all passed; lint and typecheck passed. Tests were not rerun under this read-only boundary.
+- Independently compared saved inventories: 415 workload obligations retained, command projections unchanged, no suite/OS losses, one added Ubuntu planner-suite membership; control disposition unchanged.
+- Inspected baseline and rollback evidence: restored hashes match recorded inputs; restored impact/catalog suites passed.
+- Gate limitations: component coverage reports `not-applicable (disabled-legacy)`. No full-repository or hosted execution was independently verified; downstream activation remains outside T-001.

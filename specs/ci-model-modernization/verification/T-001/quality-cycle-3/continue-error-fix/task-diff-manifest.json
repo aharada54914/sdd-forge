@@ -1,0 +1,47 @@
+{
+  "base_revision": "f9befa7f301cb96664c692903d61b8d121c20619",
+  "files": [
+    {
+      "path": "tests/verification-impact.py",
+      "base_exists": true,
+      "before_sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3",
+      "after_sha256": "7f6e321443919bf07723af75ab942767c228ff53e4d8b31f3f6d4e89fefaf383"
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "base_exists": true,
+      "before_sha256": "eb6b9185f7b70be56ca91a834eaa9ac3371be20c385450bf0ab0d0c33986d6b9",
+      "after_sha256": "c92787f1f6e926cae0f220e4f1d4cc0f32fb7a31ac304a9e2a883a4ecb605b97"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "base_exists": true,
+      "before_sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80",
+      "after_sha256": "9a6cf7df7aa63361ab0403efb67b70f80d584efd92a578fa3637c7c7b9dd7e1b"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "base_exists": true,
+      "before_sha256": "94b56dd485f8a590e07f4fdd980158f28ef5d5cecef5ce25fe51fd62fb4b11a9",
+      "after_sha256": "48193a5232240120465c962551de082c03fa538a9e535529b65b5a455b4954a4"
+    },
+    {
+      "path": "tests/verification-ci-plan.tests.py",
+      "base_exists": false,
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "a5f54d3e49824d126c6fe259448d3160428fac2a8051fb2b101f722d39819d22"
+    },
+    {
+      "path": "contracts/verification-ci-plan.schema.json",
+      "base_exists": false,
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "95a665da23b690c863215082c79d45710d376949252d2741aba40412454c2f57"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-001/attempt-1/contract-addendum.md",
+      "base_exists": false,
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "fe73dcb2d083a72a4ed0d4496746c4bd835c1841fe059348d0e29f97b0d9feab"
+    }
+  ]
+}

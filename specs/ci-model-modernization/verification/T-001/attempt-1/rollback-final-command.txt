@@ -1,0 +1,26 @@
+$ python3 /tmp/ci-model-T001-01a1517b/rollback-final.py
+
+Executed script:
+from pathlib import Path
+import hashlib,json,subprocess,os,shutil
+root=Path.cwd();scratch=Path('/tmp/ci-model-T001-01a1517b');e=root/'specs/ci-model-modernization/verification/T-001/attempt-1'; w=scratch/'rollback'
+base='f9befa7f301cb96664c692903d61b8d121c20619'
+existing=['tests/verification-impact.py','tests/verification-workflow.py','tests/verification-catalog.json','tests/verification-catalog.tests.py']
+added=['tests/verification-ci-plan.tests.py','contracts/verification-ci-plan.schema.json'];paths=existing+added
+for p in paths:(w/p).write_bytes((root/p).read_bytes())
+deps='mcp/sdd-forge-mcp/node_modules/js-yaml';shutil.copytree(root/deps,w/deps,dirs_exist_ok=True)
+env=os.environ.copy();env['PATH']='/workspace/.tools/sdd-forge-dev/bin:'+env['PATH'];commands=[]
+for phase in ('candidate-final','restored-final'):
+ if phase=='restored-final':
+  subprocess.run(['git','-C',str(w),'restore','--source='+base,'--',*existing],check=True)
+  for p in added:(w/p).unlink()
+ suites=['tests/verification-impact.tests.py','tests/verification-catalog.tests.py']
+ if phase=='candidate-final':suites.insert(0,'tests/verification-ci-plan.tests.py')
+ for suite in suites:
+  cmd=['python3','-B',suite];r=subprocess.run(cmd,cwd=w,env=env,capture_output=True,text=True)
+  name='rollback-'+phase+'-'+Path(suite).name+'.txt';(e/name).write_text('$ PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH '+' '.join(cmd)+'\n'+r.stdout+r.stderr+'\nexit_code='+str(r.returncode)+'\n')
+  commands.append(dict(phase=phase,command=cmd,exit_code=r.returncode,evidence=str((e/name).relative_to(root))))
+restored={p:hashlib.sha256((w/p).read_bytes()).hexdigest() for p in existing}
+expected={p:hashlib.sha256((scratch/'inputs'/p).read_bytes()).hexdigest() for p in existing};assert restored==expected
+result=dict(base_revision=base,disposable_checkout=str(w),commands=commands,restored_hashes=restored,baseline_input_hashes=expected,hashes_match=True,added_files_removed=all(not (w/p).exists() for p in added),ordinary_worktree_clean=False)
+(e/'rollback-final.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(commands,indent=2));assert all(c['exit_code']==0 for c in commands)

@@ -1,0 +1,16 @@
+$ python3 /tmp/ci-model-T001-01a1517b/final-checks.py
+
+Executed script:
+from pathlib import Path
+import json,os,subprocess,datetime
+root=Path.cwd();e=root/'specs/ci-model-modernization/verification/T-001/attempt-1'
+files=['tests/verification-impact.py','tests/verification-workflow.py','tests/verification-ci-plan.tests.py','tests/verification-catalog.tests.py']
+commands=[['python3','-B','tests/verification-ci-plan.tests.py'],['python3','-B','tests/verification-impact.tests.py'],['python3','-B','tests/verification-catalog.tests.py'],['python3','-B','tests/required-checks-posix.tests.py'],['/tmp/cloud-quality-python/bin/python','-m','ruff','check','--config','tests/shared-launch-python/pyproject.toml',*files],['/tmp/cloud-quality-python/bin/python','-m','mypy','--config-file','tests/shared-launch-python/pyproject.toml',*files],['git','diff','--check']]
+env=os.environ.copy();env['PATH']='/workspace/.tools/sdd-forge-dev/bin:'+env['PATH'];results=[]
+for n,command in enumerate(commands,1):
+ result=subprocess.run(command,cwd=root,env=env,text=True,capture_output=True)
+ path=e/f'final-command-{n}.txt';path.write_text('$ PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH '+' '.join(command)+'\n'+result.stdout+result.stderr+'\nexit_code='+str(result.returncode)+'\n')
+ results.append(dict(command=command,environment_override={'PATH_prefix':'/workspace/.tools/sdd-forge-dev/bin'},exit_code=result.returncode,evidence=path.relative_to(root).as_posix()))
+ print(n,result.returncode,command)
+(e/'final-commands.json').write_text(json.dumps(dict(recorded_at=datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),commands=results,whole_repository_suite_run=False),indent=2)+'\n')
+assert all(r['exit_code']==0 for r in results)

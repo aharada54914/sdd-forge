@@ -1,0 +1,42 @@
+{
+  "baseline_commit": "f9befa7f301cb96664c692903d61b8d121c20619",
+  "scope": "All T-001 product/test/schema and public addendum changes, including the post-review freshness correction. Metadata/evidence separately admitted.",
+  "files": [
+    {
+      "path": "tests/verification-impact.py",
+      "before_sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3",
+      "after_sha256": "7f6e321443919bf07723af75ab942767c228ff53e4d8b31f3f6d4e89fefaf383"
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "before_sha256": "eb6b9185f7b70be56ca91a834eaa9ac3371be20c385450bf0ab0d0c33986d6b9",
+      "after_sha256": "9f1b03f00a35a57586f35dd028cd1eff305049af6bdd83161c4aaf8b6f0ceeca"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "before_sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80",
+      "after_sha256": "9a6cf7df7aa63361ab0403efb67b70f80d584efd92a578fa3637c7c7b9dd7e1b"
+    },
+    {
+      "path": "tests/verification-ci-plan.tests.py",
+      "before_sha256": null,
+      "after_sha256": "b9b9f796976d69a826b975015342b8387c7a0f3d2180f394c3ae1fec60a2025d"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "before_sha256": "94b56dd485f8a590e07f4fdd980158f28ef5d5cecef5ce25fe51fd62fb4b11a9",
+      "after_sha256": "48193a5232240120465c962551de082c03fa538a9e535529b65b5a455b4954a4"
+    },
+    {
+      "path": "contracts/verification-ci-plan.schema.json",
+      "before_sha256": null,
+      "after_sha256": "95a665da23b690c863215082c79d45710d376949252d2741aba40412454c2f57"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-001/attempt-1/contract-addendum.md",
+      "before_sha256": null,
+      "after_sha256": "000b435b599307c74c06065730c00b08bc1f5cbb17dae66f9dc625aed14f9087"
+    }
+  ],
+  "patch_sha256": "6ee47468007eb21c76b0f7f23d23cbedd6d1d94a5f658c4312051420b6c5f205"
+}

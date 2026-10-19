@@ -1,0 +1,17 @@
+T-001 implementation is ready for root review.
+
+Changed product/test paths:
+- `tests/verification-impact.py`
+- `tests/verification-workflow.py`
+- `tests/verification-catalog.json`
+- `tests/verification-ci-plan.tests.py`
+- `tests/verification-catalog.tests.py`
+- `contracts/verification-ci-plan.schema.json`
+
+**Verification:** 64 scoped tests passed; configured Ruff/mypy, manifest/report validators and rollback checks passed. All 108 report output hashes verified.
+
+Initial Red commit: `65e10a4b`. Timeout diagnostic Red: `befcc5c5`. Both subprocess timeout boundaries now return sanitized exit-2 diagnostics.
+
+[Implementation report](reports/implementation/ci-model-modernization/T-001.md) contains exact commands, results, hashes, preflight and limitations. Evidence/addendum: `specs/ci-model-modernization/verification/T-001/attempt-1/`.
+
+Preserved 415 workload obligations plus one explicit verifier disposition. Categories remain inactive. Working tree remains dirty; final product changes are uncommitted. No full suite, hosted actions, task-status changes or gate verdict claimed.

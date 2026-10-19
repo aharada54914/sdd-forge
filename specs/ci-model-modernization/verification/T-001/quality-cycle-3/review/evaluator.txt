@@ -1,0 +1,13 @@
+RUN_ID: 01a151af-b797-7c90-a5da-2b7b32ae8f25
+HOST_SESSION_ID: 01a151af-b797-7c90-a5da-2b7b32ae8f25
+ALLOWED_INPUT_MANIFEST: specs/ci-model-modernization/verification/T-001/quality-cycle-3/review/invocation.json SHA-256 dfa229078cc598a2de84b79e0d99183a5a98730b55753437dc66563c351534eb
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Critical] tests/verification-workflow.py:411–413 — Required work can disappear from the full obligation inventory. Any `continue-on-error` value other than literal Boolean false is discarded, including `${{ false }}` and unresolved expressions. Thus a non-suite build step can vanish without rejection or an omission record. This violates T-001’s complete-full-inventory and unknown-syntax requirements. The inspected tests cover literal true only on the orchestration verifier, not this workload boundary.
+CHECKED:
+- Verified invocation digest, reservation-chain hash and sequence, role/task binding, supplemental declaration, and distinct implementation context.
+- Inspected T-001 requirements, acceptance branches, design, ADRs, schema, implementation diff, planner/interpreter source and tests.
+- Read saved cycle-3 command output: planner 28 tests, impact 6, catalog 16 and required-checks 18 all passed; lint, typecheck and compilation passed.
+- Compared saved before/after inventories: 415 workload obligations and unchanged command projections/control disposition; no suite/OS membership removed; one planner-suite membership added.
+- Inspected freshness regression Red/Green and rollback evidence; restored source hashes match baseline.
+- Tests were not rerun in this read-only evaluation. Saved passing gates do not cover the identified expression boundary. Hosted execution, activation and downstream wiring remain outside T-001 scope.

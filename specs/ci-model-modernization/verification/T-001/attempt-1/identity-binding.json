@@ -1,0 +1,17 @@
+{
+  "schema": "implementation-identity-binding/v1",
+  "task_id": "T-001",
+  "task_attempt_count": 1,
+  "run_id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+  "session_id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+  "agent_instance_id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+  "provider": "openai",
+  "configured_model": "gpt-6-astra",
+  "configured_effort": "high",
+  "model_tier": "strong",
+  "isolation_mode": "fresh-agent",
+  "source": "caller-supplied identities checked against stable native allocation",
+  "allocation_sha256": "27ccb2414021f7642a41e2f33649b40e61d4ab5953c7ee4c130a87e11081a33c",
+  "actual_backend_model_id": null,
+  "proof_scope": "configured host allocation, not per-turn backend-model attestation"
+}

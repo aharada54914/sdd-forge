@@ -1,0 +1,22 @@
+$ python3 /tmp/ci-model-T001-01a1517b/inventory.py
+
+Executed script:
+from pathlib import Path
+import collections,hashlib,importlib.util,json,sys
+root=Path.cwd();scratch=Path('/tmp/ci-model-T001-01a1517b');e=root/'specs/ci-model-modernization/verification/T-001/attempt-1'
+spec=importlib.util.spec_from_file_location('workflow',root/'tests/verification-workflow.py');wf=importlib.util.module_from_spec(spec);spec.loader.exec_module(wf)
+results={}
+for phase,directory in [('before',scratch/'inputs'),('after',root)]:
+ cbytes=(directory/'tests/verification-catalog.json').read_bytes();c=json.loads(cbytes)
+ w=wf.load_workflow(directory/'.github/workflows/test.yml',root)
+ weights=wf.runner_module().load_weights(directory/'tests/verification-timings.json')
+ rows=wf.plan_obligations(w,c,weights)
+ controls=wf.control_dispositions(w,c,weights)
+ data=dict(control_dispositions=controls,meaning='Current-source structural obligation inventory, not execution evidence',catalog_sha256=hashlib.sha256(cbytes).hexdigest(),workflow_sha256=hashlib.sha256((directory/'.github/workflows/test.yml').read_bytes()).hexdigest(),obligations=rows,coverage_errors=wf.coverage_errors(w,c),suite_count=len(c['suites']))
+ (e/(phase+'-obligation-inventory.json')).write_text(json.dumps(data,indent=2)+'\n');results[phase]=data
+before,after=results['before'],results['after']
+assert before['workflow_sha256']==after['workflow_sha256']
+assert [(o['id'],o['command_sha256'],o['runner']) for o in before['obligations']]==[(o['id'],o['command_sha256'],o['runner']) for o in after['obligations']]
+a=collections.Counter((s,o['runner']) for o in before['obligations'] for s in o['suites']);b=collections.Counter((s,o['runner']) for o in after['obligations'] for s in o['suites']);assert not a-b
+added=[dict(suite=s,runner=r,count=n) for (s,r),n in (b-a).items()]
+print(json.dumps(dict(before_obligations=len(before['obligations']),after_obligations=len(after['obligations']),before_suites=before['suite_count'],after_suites=after['suite_count'],added_suite_obligations=added,commands_arguments_shell_environment_os_unchanged=True,legacy_coverage_errors=after['coverage_errors']),indent=2))

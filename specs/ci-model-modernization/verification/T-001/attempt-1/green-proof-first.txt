@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 26, in <module>
+    IMPACT = module('impact', 'verification-impact.py')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 22, in module
+    spec.loader.exec_module(result)
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1133, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1063, in source_to_code
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 553
+    '''
+    ^
+SyntaxError: unterminated triple-quoted string literal (detected at line 713)

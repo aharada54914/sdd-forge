@@ -1,0 +1,18 @@
+ticket_id: RT-20261019-003
+status: open
+type: incomplete-workload-inventory
+severity: critical
+target:
+  feature: ci-model-modernization
+  task: T-001
+summary: Non-Boolean continue-on-error silently removes required work
+expected_fix:
+  - Reject unsupported job and step continue-on-error values before constructing obligations.
+  - Preserve literal false required work and literal true best-effort behavior.
+  - Verify structured CLI failure without publishing partial outputs.
+  - Obtain independent quality acceptance before Done.
+approval: Existing user approval covers conservative CI selection and necessary bounded fixes.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 3
+evidence: specs/ci-model-modernization/verification/T-001/quality-cycle-3/review/evaluator.txt

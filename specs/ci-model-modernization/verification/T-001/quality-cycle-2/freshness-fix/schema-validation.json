@@ -1,0 +1,10 @@
+{
+  "schema_sha256": "95a665da23b690c863215082c79d45710d376949252d2741aba40412454c2f57",
+  "checks": [
+    "Draft202012 schema valid",
+    "legacy proof without optional field valid",
+    "bound passive supporting record proof valid",
+    "actual affected plan conforms to plan schema"
+  ],
+  "native_claim": false
+}

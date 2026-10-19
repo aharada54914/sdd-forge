@@ -1,0 +1,38 @@
+FE.
+======================================================================
+ERROR: test_proof_fields_and_references_must_match (__main__.ProofTests.test_proof_fields_and_references_must_match) (reference='path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 436, in test_proof_fields_and_references_must_match
+    IMPACT.validate_activation(bad_category, self.rule, self.root, self.base,
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 456, in validate_activation
+    proof = read_reference(root, revision, {k: reference[k] for k in ('path', 'sha256')})
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 401, in read_reference
+    payload = bound_file(root, revision, reference['path'])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 562, in bound_file
+    blob = git(root, 'show', revision + ':' + path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 555, in git
+    return subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True).stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/tmp/tmpah1ekqif/subject', 'show', 'cc11e21891e8feda1cbdebb0941ea12eb5ecf330:wrong']' returned non-zero exit status 128.
+
+======================================================================
+FAIL: test_positive_affected_dependency_partition_and_bound_proof (__main__.ProofTests.test_positive_affected_dependency_partition_and_bound_proof)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 410, in test_positive_affected_dependency_partition_and_bound_proof
+    self.assertEqual(p['mode'], 'affected')
+AssertionError: 'full' != 'affected'
+- full
++ affected
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.433s
+
+FAILED (failures=1, errors=1)

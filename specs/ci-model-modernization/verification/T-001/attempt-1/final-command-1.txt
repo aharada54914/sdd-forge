@@ -1,0 +1,8 @@
+$ PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH python3 -B tests/verification-ci-plan.tests.py
+........................
+----------------------------------------------------------------------
+Ran 24 tests in 8.381s
+
+OK
+
+exit_code=0

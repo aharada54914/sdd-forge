@@ -1,0 +1,8 @@
+{
+  "recorded_at": "2026-10-19T00:06:32.279630+00:00",
+  "stage": "thread/start before native allocation and substantive turn",
+  "error": "failed to load configuration: invalid transport in mcp_servers.chrome-devtools",
+  "cause": "Caller supplied disabled override for an undefined MCP transport",
+  "recovery": "Remove unnecessary caller override; retain existing global host configuration; new fresh allocation in preallocation-recovery-1",
+  "implementation_started": false
+}

@@ -1,0 +1,15 @@
+{
+  "before_obligations": 416,
+  "after_obligations": 416,
+  "before_suites": 363,
+  "after_suites": 364,
+  "added_suite_obligations": [
+    {
+      "suite": "tests/verification-ci-plan.tests.py",
+      "runner": "ubuntu-latest",
+      "count": 1
+    }
+  ],
+  "commands_arguments_shell_environment_os_unchanged": true,
+  "legacy_coverage_errors": []
+}

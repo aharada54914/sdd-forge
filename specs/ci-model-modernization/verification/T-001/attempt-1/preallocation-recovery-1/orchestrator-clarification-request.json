@@ -1,0 +1,14 @@
+{
+  "id": 9001,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a1517b-38f6-7143-8bec-e35f0e425903",
+    "expectedTurnId": "01a1517b-3932-7af3-afa5-9ac018298a38",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root orchestrator clarification: proceed with the strict activation proof format within T-001. This is an implementation detail of the already approved design.md Data Plan and Test Strategy, not a change to requirements, architecture or authorization. Bind the actual baseline full plan/result, rule-definition digest excluding proof pointers, source-consumer inventory and mutation evidence with contained exact path/hash references; validate these rather than accepting naked success flags. Keep all live categories inactive until T-011 supplies actual hosted/source/mutation evidence. Define the necessary proof payload validation in the existing planned files/schema definitions and document its precise contract in a non-frozen T-001 addendum; do not edit frozen specs. Include positive affected-plan fixtures and rejection/mutation tests. Complete T-001; root owns any final Blocked judgement. No new user approval is needed for this routine schema detail because those precise evidence requirements and implementation scope were already approved. Do not ask the end user to reapprove it."
+      }
+    ]
+  }
+}

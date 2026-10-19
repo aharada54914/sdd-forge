@@ -173,6 +173,18 @@
     {
       "path": "inputs/external/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/tdd-workflow/SKILL.md",
       "sha256": "8887afa786ef30de834e7567115d3df71934b343c3d9d849714f8ea43f979ee0"
+    },
+    {
+      "path": "inputs/tests/verification-timings.json",
+      "sha256": "dc20362834826bd087a00b42243d4436a8266e67d7616346fcde3649952a33fd"
+    },
+    {
+      "path": "inputs/tests/required-checks-posix.tests.py",
+      "sha256": "88d530c5868060c539fce48f0eb9929c946b7d573b94c736bbbda5c7f102b1f5"
+    },
+    {
+      "path": "inputs/tests/ci-suite-wiring.tests.sh",
+      "sha256": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b"
     }
   ],
   "allowed_outputs": [
