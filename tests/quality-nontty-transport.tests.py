@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Unreserved quality transport contract checks; no native launch or ledger write."""
 import hashlib
+import contextlib
+import inspect
+import os
+from typing import Any
 import importlib.util
 import json
 from pathlib import Path
@@ -16,10 +20,14 @@ from types import SimpleNamespace
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py'
 SPEC = importlib.util.spec_from_file_location('quality_transport', SOURCE)
+if SPEC is None or SPEC.loader is None:
+    raise ImportError('Quality transport loader unavailable')
 TRANSPORT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(TRANSPORT)
 LAUNCH_SPEC = importlib.util.spec_from_file_location(
     'quality_launcher', ROOT / 'plugins/sdd-review-loop/scripts/launch-impl-review.py')
+if LAUNCH_SPEC is None or LAUNCH_SPEC.loader is None:
+    raise ImportError('Quality launcher loader unavailable')
 LAUNCH = importlib.util.module_from_spec(LAUNCH_SPEC)
 LAUNCH_SPEC.loader.exec_module(LAUNCH)
 
@@ -56,7 +64,7 @@ class QualityTransport(unittest.TestCase):
                 path.write_text(str(index))
                 entries.append({'path': path.name, 'sha256': TRANSPORT.sha(path)})
             session = str(uuid.uuid4())
-            data = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
+            data: dict[str, Any] = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
                     'sequence': 2, 'run_id': session, 'host_session_id': session,
                     'previous_record_sha256': 'a' * 64,
                     'scratch_root': str(root / 'scratch'), 'allowed_input_manifest': entries}
@@ -132,7 +140,7 @@ class QualityTransport(unittest.TestCase):
                      '--agents --agent --output-format --json-schema')
             for stage, roles in TRANSPORT.STAGE_ROLES.items():
                 for role_name in roles:
-                    data = {'stage': stage, 'host_session_id': session}
+                    data: dict[str, Any] = {'stage': stage, 'host_session_id': session}
                     role = {'model': 'sonnet', 'tools': TRANSPORT.agent_tools(stage),
                             'disallowedTools': ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit']}
                     with mock.patch.object(TRANSPORT, 'manifest', return_value=(data, {})), \
@@ -195,7 +203,7 @@ class QualityTransport(unittest.TestCase):
             guard = root / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
             guard.parent.mkdir(parents=True)
             guard.write_text('// fixture\n')
-            data = {'stage': 'quality', 'host_session_id': session}
+            data: dict[str, Any] = {'stage': 'quality', 'host_session_id': session}
             role = {'model': 'sonnet', 'tools': ['Read', 'Bash'],
                     'disallowedTools': ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit']}
             permissions = ['Read(source.md)', 'Bash(rtk proxy shasum -a 256 source.md)']
@@ -235,7 +243,7 @@ class QualityTransport(unittest.TestCase):
                                                  permissions, settings, invocation,
                                                  receipt, policy)
 
-    def exercise_quality_launch(self, model='sonnet', failure=None):
+    def exercise_quality_launch(self, model='sonnet', failure=None, *, selected=None):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             session = str(uuid.uuid4())
@@ -259,7 +267,7 @@ class QualityTransport(unittest.TestCase):
             transcript = root / '.claude/projects' / (session + '.jsonl')
             transcript.parent.mkdir(parents=True)
             transcript.write_text('{}')
-            data = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
+            data: dict[str, Any] = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
                     'task_id': 'T-001', 'host_session_id': session,
                     'scratch_root': str(root / 'scratch'),
                     'allowed_input_manifest': manifest}
@@ -267,14 +275,54 @@ class QualityTransport(unittest.TestCase):
                        'previous_record_sha256=' + 'a' * 64 +
                        ' pre_append_tip_sequence=1 identity_unique=yes\n')
             events = []
+            # Synthetic boundary fixture tests launcher wiring only. Real selection,
+            # raw closure and paired argv validation live in model-policy-launch.tests.py.
+            observed: dict[str, Any] = {'commands': [], 'gate_calls': 0}
+            controls = root / 'controls.json'
+            controls.write_text('{}')
+            raw_controls = TRANSPORT.sha(controls)
+            binding: dict[str, Any] = {
+                'schema': 'model-launch-validation/v1',
+                'controls': {'path': 'controls.json', 'sha256': raw_controls},
+                'pins': [], 'trusted': [], 'role': 'evaluator',
+                'transport_role': 'sdd-evaluator', 'host': 'claude-code',
+                'run_id': session, 'session_id': session, 'attempt': 1,
+                'require_actual_id': False, 'native_model': 'opus',
+                'effort': 'high', 'effort_control': 'frontmatter',
+                'selection': {'selection_sha256': 'c' * 64},
+            }
+
+            def selected_gate(_root, _data, path, digest):
+                observed['gate_calls'] += 1
+                self.assertEqual(Path(path).resolve(), controls.resolve())
+                self.assertEqual(digest, raw_controls)
+                if selected and selected.get('reject_initial'):
+                    raise ValueError('model controls changed')
+                if TRANSPORT.sha(controls) != raw_controls:
+                    raise ValueError('model controls changed')
+                return binding
+
+            def command_builder(*args, **kwargs):
+                if selected is None:
+                    return ['fake-claude']
+                role_definition = args[3]
+                selected_binding = kwargs.get('model_binding')
+                observed['commands'].append({
+                    'role': dict(role_definition), 'binding': selected_binding,
+                })
+                return ['fake-claude', '--model', role_definition['model'],
+                        '--effort', role_definition.get('effort', 'missing')]
 
             def preflight(*_args):
                 events.append('preflight')
                 return {'status': 'PREFLIGHT_OK', 'session_id': session,
                         'invocation_sha256': TRANSPORT.sha(invocation)}
 
-            def run(_root, command, destination, prompt=None):
+            def run(_root, command, destination, prompt=None, **kwargs):
                 events.append(destination.name)
+                if selected is not None and destination.name == 'wrapper.json':
+                    observed['executed_argv'] = list(command)
+                    observed['executed_env'] = kwargs.get('env')
                 if failure == destination.name:
                     raise ValueError('injected failure')
                 if destination.name == 'native.jsonl':
@@ -289,6 +337,10 @@ class QualityTransport(unittest.TestCase):
                         'ordered_hashes_verified': len(manifest) + 5}
                     if failure and failure.startswith('proof:'):
                         proof.pop(failure.split(':', 1)[1])
+                    if selected and selected.get('mutate_controls'):
+                        controls.write_text('{"changed": true}')
+                    if selected and selected.get('mutate_environment'):
+                        os.environ['CLAUDE_CODE_EFFORT_LEVEL'] = 'low'
                     if failure == 'dependency-drift':
                         executable.write_text('changed binary')
                     return json.dumps(proof)
@@ -322,7 +374,14 @@ class QualityTransport(unittest.TestCase):
                     mock.patch.object(LAUNCH.transport, 'launch_policy', return_value=(b'{}', {})), \
                     mock.patch.object(LAUNCH.transport, 'receipt_control',
                                       return_value={'exact_permission_rules': []}), \
-                    mock.patch.object(LAUNCH.transport, 'claude_command', return_value=['fake-claude']), \
+                    mock.patch.object(LAUNCH.transport, 'claude_command', side_effect=command_builder), \
+                    mock.patch.object(LAUNCH.transport, 'model_launch_binding',
+                                      side_effect=selected_gate, create=True), \
+                    mock.patch.object(LAUNCH.transport, 'record_model_launch',
+                                      return_value='d' * 64, create=True), \
+                    mock.patch.object(LAUNCH.transport, 'verify_model_launch', create=True), \
+                    (mock.patch.dict(os.environ, {'CLAUDE_CODE_EFFORT_LEVEL': 'high'})
+                     if selected is not None else contextlib.nullcontext()), \
                     mock.patch.object(LAUNCH.transport, 'expected_prompt', return_value=b'prompt'), \
                     mock.patch.object(LAUNCH.transport, 'postflight',
                                       return_value={'status': 'DELIVERY_OK'}), \
@@ -330,7 +389,21 @@ class QualityTransport(unittest.TestCase):
                     mock.patch.object(LAUNCH.subprocess, 'run', side_effect=preview), \
                     mock.patch.object(LAUNCH, 'run', side_effect=run), \
                     mock.patch.object(Path, 'home', return_value=root):
-                if model == 'opus':
+                if selected is not None:
+                    # Exercise the old controller on the RED baseline rather than
+                    # making a missing new keyword the only reason for failure.
+                    launch_options = {}
+                    if 'model_binding' in inspect.signature(LAUNCH.launch).parameters:
+                        launch_options['model_binding'] = {
+                            'controls': controls, 'controls_sha256': raw_controls}
+                    if selected.get('reject_initial') or selected.get('mutate_controls'):
+                        with self.assertRaisesRegex(ValueError, 'model controls changed|dependency changed'):
+                            LAUNCH.launch(root, invocation, output, TRANSPORT.sha(invocation),
+                                          **launch_options)
+                    else:
+                        LAUNCH.launch(root, invocation, output, TRANSPORT.sha(invocation),
+                                      **launch_options)
+                elif model == 'opus':
                     with self.assertRaisesRegex(ValueError, 'Sonnet-only'):
                         LAUNCH.launch(root, invocation, output, TRANSPORT.sha(invocation))
                 elif failure:
@@ -343,7 +416,43 @@ class QualityTransport(unittest.TestCase):
                     self.assertEqual(LAUNCH.launch(root, invocation, output, TRANSPORT.sha(invocation)),
                                      {'status': 'DELIVERY_OK'})
             self.assertEqual(ledger.read_text(), 'unchanged')
+            if selected is not None:
+                observed['events'] = events
+                observed['output_exists'] = output.exists()
+                return observed
             return events, output.exists()
+
+    def test_selected_quality_controller_generates_bound_role_and_reserves_once(self):
+        observed = self.exercise_quality_launch(selected={})
+        self.assertGreaterEqual(observed['gate_calls'], 2)
+        self.assertTrue(observed['commands'])
+        for command in observed['commands']:
+            with self.subTest(command=command):
+                self.assertEqual(command['role']['model'], 'opus')
+                self.assertEqual(command['role'].get('effort'), 'high')
+                self.assertIsNotNone(command['binding'])
+        self.assertEqual(observed['executed_argv'],
+                         ['fake-claude', '--model', 'opus', '--effort', 'high'])
+        self.assertEqual(observed['events'].count('reserved.txt'), 1)
+        self.assertLess(observed['events'].index('reserved.txt'),
+                        observed['events'].index('wrapper.json'))
+
+    def test_selected_quality_initial_rejection_never_probes_or_reserves(self):
+        observed = self.exercise_quality_launch(selected={'reject_initial': True})
+        self.assertFalse(observed['output_exists'])
+        for event in ('native.jsonl', 'reserved.txt', 'wrapper.json'):
+            self.assertNotIn(event, observed['events'])
+
+    def test_selected_quality_control_drift_after_probe_never_reserves(self):
+        observed = self.exercise_quality_launch(selected={'mutate_controls': True})
+        self.assertIn('native.jsonl', observed['events'])
+        self.assertNotIn('reserved.txt', observed['events'])
+        self.assertNotIn('wrapper.json', observed['events'])
+
+    def test_selected_quality_executes_captured_environment_despite_parent_drift(self):
+        observed = self.exercise_quality_launch(selected={'mutate_environment': True})
+        self.assertIsInstance(observed['executed_env'], dict)
+        self.assertEqual(observed['executed_env']['CLAUDE_CODE_EFFORT_LEVEL'], 'high')
 
     def test_quality_shared_tail_order_in_synthetic_role(self):
         events, output_exists = self.exercise_quality_launch()
@@ -412,7 +521,7 @@ class QualityTransport(unittest.TestCase):
             good = (header + 'VERDICT: NEEDS_WORK\nFINDINGS:\n'
                     '- [Major] test not rerun — missing execution evidence\n'
                     'CHECKED:\n- source:1 inspected; task tests not rerun\n')
-            data = {'stage': 'quality', 'host_session_id': session}
+            data: dict[str, Any] = {'stage': 'quality', 'host_session_id': session}
             with mock.patch.object(TRANSPORT, 'native_delivery',
                                    return_value=(data, {'result': good}, [])):
                 self.assertEqual(TRANSPORT.postflight(root, invocation, transcript,
@@ -457,7 +566,7 @@ class QualityTransport(unittest.TestCase):
 
     def test_scratch_record_and_read_hash_only_permissions(self):
         session = str(uuid.uuid4())
-        data = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
+        data: dict[str, Any] = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
                 'task_id': 'T-001', 'sequence': 2, 'run_id': session,
                 'host_session_id': session, 'previous_record_sha256': 'a' * 64,
                 'scratch_root': '/tmp/evaluator-example',
@@ -488,7 +597,7 @@ class QualityTransport(unittest.TestCase):
             invocation.parent.mkdir(parents=True)
             invocation.write_text('{"invocation": true}\n')
             relative = invocation.relative_to(root).as_posix()
-            data = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
+            data: dict[str, Any] = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
                     'sequence': 2, 'run_id': str(uuid.uuid4()),
                     'previous_record_sha256': 'a' * 64,
                     'scratch_root': '/tmp/evaluator-example',
@@ -653,7 +762,7 @@ class QualityTransport(unittest.TestCase):
         session = str(uuid.uuid4())
         entries = [{'path': f'specs/example/input-{index:03}.md',
                     'sha256': f'{index:064x}'} for index in range(101)]
-        data = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
+        data: dict[str, Any] = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example',
                 'sequence': 2, 'run_id': session, 'host_session_id': session,
                 'previous_record_sha256': 'a' * 64,
                 'scratch_root': '/tmp/evaluator-example',
@@ -688,7 +797,7 @@ class QualityTransport(unittest.TestCase):
             ledger.write_text(json.dumps({'schema': 'review-identity-ledger/v1',
                                           'records': []}))
             invocation = root / 'invocation.json'
-            data = {'schema': 'review-context-invocation/v2', 'stage': 'quality',
+            data: dict[str, Any] = {'schema': 'review-context-invocation/v2', 'stage': 'quality',
                     'role': 'sdd-evaluator', 'feature': 'example',
                     'run_id': str(uuid.uuid4()), 'read_only': True,
                     'input_mode': 'file-manifest', 'fallback_mode': 'none',
@@ -740,7 +849,7 @@ class QualityTransport(unittest.TestCase):
             entries = [{'path': 'specs/example/tasks.md', 'sha256': normalized_hash},
                        {'path': precheck_path.relative_to(root).as_posix(),
                         'sha256': TRANSPORT.sha(precheck_path)}]
-            data = {'stage': 'task', 'feature': 'example',
+            data: dict[str, Any] = {'stage': 'task', 'feature': 'example',
                     'allowed_input_manifest': entries}
             self.assertEqual(TRANSPORT.admitted_raw_hashes(root, data)[entries[0]['path']],
                              TRANSPORT.sha(tasks))
@@ -765,7 +874,7 @@ class QualityTransport(unittest.TestCase):
             ledger = invocation.parent / 'identity-ledger.json'
             ledger.write_text('unchanged ledger')
             output = root / 'reports/quality-gate' / ('launch-' + session)
-            data = {'feature': 'example', 'task_id': 'T-001', 'host_session_id': session,
+            data: dict[str, Any] = {'feature': 'example', 'task_id': 'T-001', 'host_session_id': session,
                     'allowed_input_manifest': manifest}
             receipt = ('REVIEW_CONTEXT_OK ' + 'b' * 64 + ' sequence=2 '
                        'previous_record_sha256=' + 'a' * 64 +
@@ -805,7 +914,7 @@ class QualityTransport(unittest.TestCase):
             ledger.parent.mkdir(parents=True)
             ledger.write_text('unchanged')
             source = root / manifest[0]['path']
-            data = {'allowed_input_manifest': manifest}
+            data: dict[str, Any] = {'allowed_input_manifest': manifest}
             alias = source.with_name(source.name.capitalize())
             data['allowed_input_manifest'] = [dict(manifest[0], path=
                 alias.relative_to(root).as_posix())] + manifest[1:]
