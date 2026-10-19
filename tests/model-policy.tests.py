@@ -703,6 +703,30 @@ class PolicySelection(unittest.TestCase):
             role['preferences'] = []
         self.blocked(self.invoke(), 'config-invalid')
 
+    def test_genuine_diagnostic_capture_cannot_authorize_selection(self):
+        specification = importlib.util.spec_from_file_location(
+            't006_observation_fixture', ROOT / 'tests/model-observation.tests.py')
+        observation_fixture = importlib.util.module_from_spec(specification)
+        specification.loader.exec_module(observation_fixture)
+        helper = observation_fixture.MP
+        self.assertIsNotNone(helper, observation_fixture.MP_ERROR)
+        pages = [observation_fixture.page([
+            observation_fixture.native_model('fixture-current', 'native-current', EFFORTS)])]
+        observation_fixture.NativeFake(self, pages).start()
+        with helper.CodexClient('t006-purpose-fixture') as client:
+            diagnostic = client.capture(purpose='diagnostic')
+            self.observation = diagnostic.observation
+            self.save()
+            previous = Path.cwd()
+            try:
+                os.chdir(self.work)
+                with self.assertRaises(helper.PolicyError) as caught:
+                    helper.prepare_policy('request.json', 'registry.json',
+                                          options={}, environment={}, capture=diagnostic)
+                self.assertEqual(caught.exception.reason, 'scope-mismatch')
+            finally:
+                os.chdir(previous)
+
     def test_python_api_rejects_fabricated_active_capture(self):
         helper = load_helper()
         prepare = getattr(helper, 'prepare_policy', None)
