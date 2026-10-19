@@ -1,0 +1,1 @@
+Resolve actual round-1 TASK-SIZE Major: split former T-004 into managed launch integration (T-004), existing freshness maintenance (T-005), and controlled adoption evaluation (T-006); renumber final rollout/release to T-007, preserve all 162 acceptance branches with one final owner, update dependency and shared-file/traceability mappings.

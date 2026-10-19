@@ -1,0 +1,26 @@
+{
+  "observed_at": "2026-10-18T23:19:38.656255+00:00",
+  "feature": "ci-model-modernization",
+  "track": "full",
+  "domain_context": "domain-sync skipped: no domain/ directory",
+  "project_context": "absent; no resolver invocation",
+  "development_profile": "/workspace policy; no installed hook activation claim",
+  "agent_sha256_before": "be21577343b8b2cc488c47b373ed68130ded00d994f58f1f81b7b69bddd6d537",
+  "agent_sha256_after": "103528c48dd8c2dd996cbc68908aeccd9d77602a972200c3930c279f70c1a8cf",
+  "adr_paths": [
+    "docs/adr/0037-conservative-ci-selection.md",
+    "docs/adr/0038-current-model-role-policy.md"
+  ],
+  "adr_index_sha256_before": "1a3b54f901355e7ae94dc9791a71acdf031b61233519c38e5217851f8819c754",
+  "adr_index_sha256_after": "84b1b8b2f6fd98f229b58401e2cd268c2e1056397e0a132437c035a9d5f7e2a7",
+  "phase1_hashes": {
+    "requirements.md": "12650a677881fa1fecb27f4ccf6887bcc9d963bdd5de896726131408a1b9e624",
+    "design.md": "8c36e0d265985cd6cbf793d255572616c0dec50e316b7b5fb885abce2ab14311",
+    "acceptance-tests.md": "5064c08f053ace4c8b2d6f1f069688c9fd217991d0f71bccc824c67d5860917b",
+    "investigation.md": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d",
+    "ux-spec.md": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b",
+    "frontend-spec.md": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657",
+    "infra-spec.md": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c",
+    "security-spec.md": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+  }
+}

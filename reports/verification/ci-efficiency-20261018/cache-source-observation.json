@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-10-18T23:03:56.276846+00:00",
+  "status": "read-only source review; not adopted or executed",
+  "action": {
+    "repository": "actions/cache",
+    "tag": "v6.1.0",
+    "commit": "55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+    "published_at": "2026-06-26T19:17:06Z",
+    "url": "https://github.com/actions/cache/releases/tag/v6.1.0",
+    "metadata_sha256": {
+      "ci-efficiency-cache-action.yml": "c04edf35104c16c8944076df01561748bac9cd10941417e467a236e508e52dda",
+      "ci-efficiency-cache-restore-action.yml": "bb552a94cec165255080b7e13fe3d2051c6c79e321e99435b5859dc7de5e9057",
+      "ci-efficiency-cache-save-action.yml": "5da400e1a7551cee617339fd1a5281483d71e6c56d86dd117fbd354f047308ec"
+    }
+  },
+  "cache_mode": {
+    "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#controlling-cache-access-with-cache-mode",
+    "retrieved_document_sha256": "54a5b38503681064998d0eeed6d36e09ab11f04b08020f3e25f4eda7be3a4e9f",
+    "interpretation": "Workflow/job-level scoped cache access; use read for restore-only jobs and write only in the appropriate trusted scope. Native pull_request caches remain merge-ref scoped. This is not a setup-node input.",
+    "syntax_url": "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#cache-mode",
+    "expression_support": "Not established by the consulted syntax reference; do not assume dynamic expression support. Preserve native trigger isolation or use verified literal job settings."
+  },
+  "limits": "No workflow change or cache hit/save measurement occurred. Final rollout must verify supported syntax and actual event scopes; never claim cached PASS evidence."
+}

@@ -1,0 +1,61 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "feature": "ci-model-modernization",
+  "run_id": "01a1515a-f26f-7960-bf7a-bf41fd0fca87",
+  "host_session_id": "01a1515a-f26f-7960-bf7a-bf41fd0fca87",
+  "sequence": 1254,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "a8e3a70796038f43d99dd9781e2096fa6602defd5d1f0fd436b6a8e0608b0d56",
+  "previous_record_sha256": "2c65f9466c7a085ce60ab6f9bbda13b12e0e664d11291b91d16b0c383ad9c76f",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "reports/impl-review/ci-model-modernization/attempt-1/round-1/precheck-result.json",
+      "sha256": "12efa7bfd5608a5be129f0f784b85c93f7db321bcaf5286724b1e72f8f6bfc8c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "a25c97449f4337056cfdd16c951c5187c6cc4c29f6ec5399d51a273ddd17b1f3"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "reports/impl-review/ci-model-modernization/attempt-1/round-1/integrated-summary.json",
+      "sha256": "de36998e08324fecaa13aebec28e8383af6031df8df1d40a7ed45d7c644e357d"
+    }
+  ]
+}

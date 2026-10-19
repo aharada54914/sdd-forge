@@ -1,0 +1,73 @@
+{
+  "schema": "model-host-schema-observation/v1",
+  "observed_at": "2026-10-18T22:47:20.441315+00:00",
+  "cli_version": "codex-cli 0.159.2",
+  "command": [
+    "codex",
+    "app-server",
+    "generate-json-schema",
+    "--out",
+    "/tmp/model-policy-appserver-schema",
+    "--experimental"
+  ],
+  "inference_executed": false,
+  "source": "https://learn.chatgpt.com/docs/app-server",
+  "files": [
+    {
+      "file": "ModelReroutedNotification.json",
+      "sha256": "37cd3c1b3a3560b85b01d4061a07d830fc9ed93b80e4663f975f9197cdb501ef",
+      "top_level_fields": [
+        "fromModel",
+        "reason",
+        "threadId",
+        "toModel",
+        "turnId"
+      ],
+      "required": [
+        "fromModel",
+        "reason",
+        "threadId",
+        "toModel",
+        "turnId"
+      ]
+    },
+    {
+      "file": "ThreadReadResponse.json",
+      "sha256": "2af6b987644cfb23e6f408f3cfb29e73ad6255ba2294366d36d56aeabe3854da",
+      "top_level_fields": [
+        "thread"
+      ],
+      "thread_model_schema": {
+        "description": "Current configured model when loaded, otherwise the latest persisted model. Null when unavailable. This is not per-turn execution telemetry.",
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    {
+      "file": "TurnCompletedNotification.json",
+      "sha256": "016870158603b0f84bd9f8f65f927161c9fd5128e5ec632087616462dc44e085",
+      "top_level_fields": [
+        "threadId",
+        "turn"
+      ]
+    },
+    {
+      "file": "TurnStartResponse.json",
+      "sha256": "12c5151421bb061297c9790ff795a44aa4b9bdb91fbb68012dcf0a08cf4198b1",
+      "top_level_fields": [
+        "turn"
+      ]
+    },
+    {
+      "file": "ModelListResponse.json",
+      "sha256": "bfbb3ee9f6e203e0b767587c17de94b9cb42f712d0d8168afbbbc3fcb4492f30",
+      "top_level_fields": [
+        "data",
+        "nextCursor"
+      ]
+    }
+  ],
+  "conclusion": "Thread.model is configured/persisted state, explicitly not per-turn telemetry. Preserve it as host-resolved/configured evidence. Capture scoped model/rerouted events; absence is not positive backend-model attestation. A gate requiring execution-ID proof must block if its supported host cannot provide that proof. Ordinary managed runs may record actual ID as unverified, as approved; never fill it from a configured field."
+}

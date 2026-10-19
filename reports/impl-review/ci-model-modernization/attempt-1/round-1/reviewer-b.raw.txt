@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "01a1515a-f26f-7960-bf7a-bf41fd0fca87",
+  "host_session_id": "01a1515a-f26f-7960-bf7a-bf41fd0fca87",
+  "allowed_input_manifest": [
+    {"path":"specs/ci-model-modernization/requirements.md","sha256":"afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"},
+    {"path":"specs/ci-model-modernization/acceptance-tests.md","sha256":"c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"},
+    {"path":"specs/ci-model-modernization/investigation.md","sha256":"4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"},
+    {"path":"reports/impl-review/ci-model-modernization/attempt-1/round-1/precheck-result.json","sha256":"12efa7bfd5608a5be129f0f784b85c93f7db321bcaf5286724b1e72f8f6bfc8c"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"},
+    {"path":"specs/ci-model-modernization/design.md","sha256":"a25c97449f4337056cfdd16c951c5187c6cc4c29f6ec5399d51a273ddd17b1f3"},
+    {"path":"specs/ci-model-modernization/ux-spec.md","sha256":"89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"},
+    {"path":"specs/ci-model-modernization/frontend-spec.md","sha256":"5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"},
+    {"path":"specs/ci-model-modernization/infra-spec.md","sha256":"5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"},
+    {"path":"specs/ci-model-modernization/security-spec.md","sha256":"2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"},
+    {"path":"reports/impl-review/ci-model-modernization/attempt-1/round-1/integrated-summary.json","sha256":"de36998e08324fecaa13aebec28e8383af6031df8df1d40a7ed45d7c644e357d"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Technical Summary, Components and API / Contract Plan justify reusing the catalog, bounded interpreter and selector to preserve existing execution and capability contracts. The policy avoids duplicating risk/tier/effort facts; explicit native mappings avoid invalid prefix stripping; step closure preserves indivisible command execution. No unjustified inline architectural choice identified. ADR existence is not assessed here."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Open Questions assigns OQ-001 to the repository administrator and OQ-002 to the integration maintainer. Both specify implementation-blocking scope and concrete Resolution Paths: inspect hosted event availability or validate installed host schemas, preserving explicit unavailable/blocking outcomes."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Assumptions is grounded by investigation.md INV-003/004 for runner validation and receipts, INV-005/009 for bounded interpretation and partitions, INV-006 for native contexts, and INV-010/013 for discovery and configured-versus-actual identity. Host availability is explicitly provisional, not assumed permanent."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "TYPE-D: design.md Constraint Compliance lacks compliance statements for requirements.md REQ-007's security constraints: cache only reproducible dependencies, verify integrity, preserve event trust isolation, and never cache source, authorization, verdicts or cloud state. It also lacks a statement for REQ-016's configured-budget-information constraint. Controls appear elsewhere in Deployment / CI Plan and API / Contract Plan, so this is not a claim that the design contradicts those controls; the required constraint-compliance inventory is incomplete and cannot establish complete constraint coverage. Add explicit rows or section references for these constraints. The local check explicitly classifies missing compliance statements in this section as Critical."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No numeric performance requirements or SLA thresholds found in requirements.md. Its qualitative REQ-008/009 goals are addressed by design.md Deployment / CI Plan and Test Strategy: measured partitions, bounded acquisition retries, category comparisons and actual timing evidence. infra-spec.md distinguishes wall time, job sums and waiting time without invented improvement claims."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Deployment / CI Plan and linked infra-spec.md identify existing GitHub Linux/macOS/Windows jobs and installed host entry points, planning/aggregation changes, unchanged secrets and schedules, category-gated activation, conservative SDD_CI_FORCE_FULL control, and exact-commit immutable release requirements. No database deployment ordering is applicable."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Data Plan introduces no persistent service/database or table/column changes. Its artifact migration preserves v1 shadow output, historical receipts and v1/v2 selector contracts; adoption without a trusted planner remains full, and managed callers migrate coherently. infra-spec.md Rollback specifies force-full recovery and explicit eligible pinned-model selection in a new attempt."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-H: design.md API / Contract Plan / Execution evidence relies on 'paginated actual Actions job/step results' and artifact collection, but no dedicated integration section/table identifies the GitHub API contract/version used for jobs, attempts and artifacts. Components names the internal aggregate CLI rather than this external contract. infra-spec.md CI/CD Sequence repeats pagination and rerun requirements without supplying that contract. Failure behavior is clear, but the implementation must still choose the external protocol governing the security-sensitive evidence collector. Add a dedicated integration inventory specifying purpose, API/protocol version and unavailable behavior, including the host discovery/launch interfaces. This is Major because incompatible collection semantics can reject valid reruns or bind the wrong execution evidence."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Components, Cross-Layer Dependencies and API / Contract Plan cover REQ-001–020 and both workstreams' user stories. The new planner job, aggregate verifier, policy contract and host helper directly support required capabilities. No graphical frontend, database, provider account, gateway service, extra scheduler or automatic delegation is introduced; frontend-spec.md and ds_profile:none agree."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Cross-Layer Dependencies names acceptance-tests.md TEST-001–038 for CI boundaries and TEST-131–137 for model identity/launch paths; API / Contract Plan additionally names TEST-152–162 for precedence. Test Strategy requires persisted-field mismatch mutations, installed-entry tests, fixed-judge adoption comparisons and explicit fixture/native distinctions. security-spec.md maps injection, cache trust, stale execution evidence, role floors and reroutes to concrete negative tests. Round 1: no prior summary; the admitted current-round count-only summary was not used as substantive review evidence."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory, as supplied by the host and corroborated by investigation.md Bootstrap Context; no Approved domain contract applies."
+    }
+  ]
+}

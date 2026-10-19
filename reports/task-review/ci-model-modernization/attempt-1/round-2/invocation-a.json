@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "ci-model-modernization",
+  "run_id": "01a15165-7f77-73d0-95d3-cfb2bbbb8abd",
+  "host_session_id": "01a15165-7f77-73d0-95d3-cfb2bbbb8abd",
+  "sequence": 1259,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "8d57a60fd1fa38aeae2309fe1462d6d1267bd2c49cf548e3aec3c5b863d59432",
+  "previous_record_sha256": "5f30f255a40b5fee25f911746505c96668190d62d6641a65af6fee9bf3ef2f17",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-1/round-2/precheck-result.json",
+      "sha256": "3e342fe4264698247c6f48705aff359a1971cb2d48a31500aa22289769dfba6b"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "sha256": "4a9d2f67eb403c6642531d8b405c05cfabdb8e537a953caf4b642daee3b87ccb"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.md",
+      "sha256": "94053f192f5eab98cc81979418f830365cbce47fa835bcb1421c8b843bd799dc"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-1/round-2/dependency-graph.json",
+      "sha256": "b978eac5ca77241b5d53ed9be8ade889faac370ad62feb3425d878d6a9060bdc"
+    }
+  ]
+}

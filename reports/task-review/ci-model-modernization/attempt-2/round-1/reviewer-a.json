@@ -1,0 +1,155 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "ci-model-modernization",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "01a1516f-49ff-7122-8263-bf2cd85c67bd",
+  "host_session_id": "01a1516f-49ff-7122-8263-bf2cd85c67bd",
+  "manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-2/round-1/precheck-result.json",
+      "sha256": "9a7d9f8bdd5cd4a37af14dc2650c9ad053278556401dfa4f7388aff02e9cf458"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "sha256": "ce376c5d2d40874aceddc9cf1212b3c302615d8bb2254dd91efcc647ad6794c4"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.md",
+      "sha256": "44d0b6e094940d2d8f018e6369238f95646cedeb7964f3d5e43ba49734604313"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-2/round-1/dependency-graph.json",
+      "sha256": "5393a6b56a80db5fde9d300207c28c8f55bde33a6e75623f9a35d137cdf3a70f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Requirements fields contain REQ references only. All AC references in task completion criteria and Test Ownership resolve to AC-001 through AC-020 in acceptance-tests.md."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid=true. Every task has a Blockers section containing literal None or comma-separated T-NNN identifiers; T-009 lists T-007, T-008."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every requirement REQ-001 through REQ-020 appears in at least one task Requirements field; no deferrals are needed."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Test Ownership explicitly maps every AC-001 through AC-020 to tasks and covers all 162 acceptance TEST rows with matching AC identifiers."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each of T-001 through T-009 has at least one valid REQ-NNN in its Requirements field."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title contains test, spec or verify, and no task scope is exclusively test-file changes. Evaluation task T-008 additionally references AC-013 and AC-019 explicitly."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All nine tasks declare Approval: Draft and Status: Planned, valid for attempt 2 pre-implementation review."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 through T-007 pair high with tdd; T-008 and T-009 pair medium with acceptance-first. All required fields are present, consistent with workflow_match_precheck=PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Test Ownership assigns each TEST exactly once. Shared ACs distinguish planner, aggregation, workflow integration, model core, protected transport, installed entry, evaluation and hosted-delivery scopes. Conflicting completion references are addressed under OBSERVABLE-DONE."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every blocker resolves to a task present in tasks.md and dependency-graph.json nodes; graph nodes are exactly T-001 through T-009."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Following all nine dependency-graph.json edges finds no cycle. T-009 joins the T-007 maintenance and T-008 adoption branches."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Task scopes distinguish planning, evidence aggregation, workflow integration, model resolution, protected transport, installed entries, freshness maintenance, adoption evaluation and final delivery. Associated testing, evidence and rollback support each task's concern."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "Completion oracles conflict with acceptance ownership in T-005, T-007 and T-008. T-005 requires all assigned branches to pass, but its assigned TEST-116 requires a real installed Codex invocation while its fourth Done When item explicitly assigns installed-entry proof to successor T-006. T-007 names TEST-112 through TEST-116 under AC-017, although AC-017 is TEST-111 through TEST-115 and TEST-116 belongs to AC-018/T-005. T-008 calls TEST-128 assigned to its evaluation, although TEST-128 is AC-020 documentation owned by successor T-009; its owned native-proof distinction test is TEST-127. These contradictions make independent completion decisions ambiguous or require successor evidence. Other criteria name inspectable tests, contracts, observations or task-local reports. precheck-result.json frozen_artifact_done_when is empty; no flagged frozen-artifact item requires adjudication."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md includes all nine task IDs and only existing REQ-001 through REQ-020. Every requirement row has a canonical layer anchor resolving in the hash-bound UX, infrastructure or security specification; frontend applicability is explicitly documented at frontend-spec.md#technology-stack."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "OBSERVABLE-DONE",
+      "severity": "Major",
+      "task_id": null,
+      "finding": "In specs/ci-model-modernization/tasks.md, reconcile completion criteria with acceptance-tests.md and Test Ownership: T-005's first Done When item requires assigned TEST-116, whose acceptance assertion is a real installed Codex invocation, but its fourth item excludes installed-entry proof until dependent T-006. T-007's first item specifies AC-017 / TEST-112 through TEST-116 instead of AC-017's TEST-111 through TEST-115, importing T-005's installed-host criterion. T-008's first item claims assigned TEST-128, which is AC-020 documentation owned by dependent T-009, rather than its owned TEST-127 native-proof distinction. These are blocking completion-contract inconsistencies: a quality evaluator cannot apply the stated task boundaries and acceptance references simultaneously without choosing which instruction to disregard. Align identifiers and ownership, and place installed-entry acceptance with the task that supplies that evidence."
+    }
+  ]
+}

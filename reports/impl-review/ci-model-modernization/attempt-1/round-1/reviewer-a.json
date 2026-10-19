@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a15158-300f-7823-a680-0482fe09354a",
+  "host_session_id": "01a15158-300f-7823-a680-0482fe09354a",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "reports/impl-review/ci-model-modernization/attempt-1/round-1/precheck-result.json",
+      "sha256": "12efa7bfd5608a5be129f0f784b85c93f7db321bcaf5286724b1e72f8f6bfc8c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "a25c97449f4337056cfdd16c951c5187c6cc4c29f6ec5399d51a273ddd17b1f3"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "repository CI and runtime model policy",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md Architecture diagrams describe planning/execution/aggregation and discovery/selection/launch interactions. Components specifies boundaries and JSON, Python, Bash/PowerShell and GitHub Actions technologies. Layer Specifications and frontend-spec.md explicitly exclude a graphical frontend; Data Plan excludes a persistent database."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. Both Architecture flow diagrams are acyclic."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Data Plan provides Data Entities, Existing Data Affected and Migration Strategy for both workstreams, including additive contracts, full-first rollout, activation-proof invalidation, managed-caller migration and preservation of historical records."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-D: design.md Technical Summary introduces an explicit tests/verification-impact.py planning mode and policy-aware selector mode; Components additionally introduces aggregate-verifier and host-helper interfaces. API / Contract Plan describes their semantics but does not specify concrete new command/subcommand or option names and typed request/response schemas. For example, Plan promises 'explicit argument names' without defining them, while Model workstream describes observation/selection/delivery contents without defining their wire fields and required types. Neither infra-spec.md nor frontend-spec.md supplies these contracts. This leaves independently implemented producers, managed callers and validators free to disagree, a blocking integration gap under REQ-005/018. Define the CLI equivalents of method/path, exact inputs, outputs and error contracts, preserving the stated legacy interfaces."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Security Boundaries identifies PR/planner, cache/dependency, observations/aggregate, configuration/launcher, host/evidence and provider/tool boundaries. security-spec.md supplies scoped token and host authentication, authorization, sanitized metadata classification, injection controls, integrity checks and consent preservation."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is repository CI and runtime model policy, not fullstack. frontend-spec.md explicitly declares no product frontend, routes, frontend state or frontend API integration."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Test Strategy covers deterministic selector/discovery/schema and planning fixtures, protocol fakes, Bash/PowerShell parity, workflow coverage, installed-launch integration and real hosted/native acceptance paths. Cross-Layer Dependencies maps AC groups to TEST cases; API / Contract Plan explicitly names TEST-152\u2013162. acceptance-tests.md supplies inspectable positive, mutation and end-to-end outcomes while distinguishing fixtures from actual execution."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md Components defines the catalog, planner, interpreter, runners, workflow planner, aggregate, cache integration, registry, policy, selector, host helper, managed launch paths and freshness workflow. Existing integration context is corroborated by investigation.md INV-001\u2013009 and INV-010\u2013014."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-D: design.md ADR Change Log references decisions 0037 and 0038 using relative Markdown links, not the required single-backtick canonical declarations `docs/adr/0037-conservative-ci-selection.md` and `docs/adr/0038-current-model-role-policy.md`. The current precheck consequently has adr_inputs: [], and neither ADR is admitted in the manifest. These references cannot satisfy ADR-PRESENT for the new CI selection and runtime-policy integration decisions; their existence and contents were not inspected, and no absence is asserted. Add canonical declarations and regenerate the hash-bound precheck and reserved inputs so the decisions can be verified. This is a blocking architectural-evidence gap, not an invocation/hash failure."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped applicability: design.md Design System Compliance records exactly 'N/A \u2014 ds_profile: none' for both workstreams; frontend-spec.md confirms no graphical application."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped applicability: the host confirms no domain/ directory; investigation.md Bootstrap Context likewise records domain-sync skipped because no domain/ directory exists."
+    }
+  ]
+}

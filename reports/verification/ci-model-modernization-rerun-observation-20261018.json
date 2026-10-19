@@ -1,0 +1,475 @@
+{
+  "observed_at": "2026-10-18T23:39:33.350090+00:00",
+  "requested_attempt": 2,
+  "run_id": 39161543135,
+  "api_version": "2026-03-10",
+  "job_count": 42,
+  "jobs": [
+    {
+      "id": 117785090469,
+      "name": "complete POSIX regression inventory",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785091318,
+      "name": "version-gates-windows-lanes (governance)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785091742,
+      "name": "POSIX unwired shard (1)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785091799,
+      "name": "POSIX unwired shard (0)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785092045,
+      "name": "mcp-tests (ubuntu-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785092110,
+      "name": "mcp-tests (windows-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785092112,
+      "name": "POSIX unwired shard (2)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785092127,
+      "name": "local-env-mcp-tests (ubuntu-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785092139,
+      "name": "capability-mode Gate",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "skipped",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785092223,
+      "name": "installers (macos-latest / all)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "macos-latest"
+      ]
+    },
+    {
+      "id": 117785093135,
+      "name": "installers (ubuntu-latest / all)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785111101,
+      "name": "cli-hook-enforcement (ubuntu-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785111366,
+      "name": "test-windows-heavy (gates)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785111579,
+      "name": "installers (windows-latest / core)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785111654,
+      "name": "loops-routing (windows-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785112029,
+      "name": "cli-hook-enforcement (macos-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "macos-latest"
+      ]
+    },
+    {
+      "id": 117785112490,
+      "name": "POSIX unwired shard (3)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785113190,
+      "name": "mcp-tests (macos-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "macos-latest"
+      ]
+    },
+    {
+      "id": 117785113394,
+      "name": "test (ubuntu-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785113625,
+      "name": "version-gates (macos-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "macos-latest"
+      ]
+    },
+    {
+      "id": 117785114754,
+      "name": "ci-mcp-tests (windows-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785115647,
+      "name": "ci-mcp-tests (ubuntu-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785115727,
+      "name": "A9 advisory activation detection",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785116864,
+      "name": "ci-mcp-tests (macos-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "macos-latest"
+      ]
+    },
+    {
+      "id": 117785117079,
+      "name": "local-env-mcp-tests (windows-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785117362,
+      "name": "loops-routing (ubuntu-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785119136,
+      "name": "version-gates-windows-lanes (capability)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785119572,
+      "name": "cli-hook-enforcement (windows-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785121655,
+      "name": "test (windows-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785121869,
+      "name": "version-gates-windows-bump (bash)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785121935,
+      "name": "test-windows-heavy (compatibility)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785122152,
+      "name": "version-gates (ubuntu-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    },
+    {
+      "id": 117785122316,
+      "name": "version-gates-windows-lanes (ownership)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785123003,
+      "name": "installers (windows-latest / clients)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785123076,
+      "name": "test-windows-heavy (a9)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785123146,
+      "name": "test (macos-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "macos-latest"
+      ]
+    },
+    {
+      "id": 117785123363,
+      "name": "version-gates-windows-lanes (lite)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785123584,
+      "name": "local-env-mcp-tests (macos-latest)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "macos-latest"
+      ]
+    },
+    {
+      "id": 117785123737,
+      "name": "installers (windows-latest / context)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785125164,
+      "name": "installers (windows-latest / mcp)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117785125521,
+      "name": "version-gates-windows-bump (powershell)",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ]
+    },
+    {
+      "id": 117787284951,
+      "name": "required-checks",
+      "run_id": 39161543135,
+      "run_attempt": 2,
+      "head_sha": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "conclusion": "success",
+      "labels": [
+        "ubuntu-latest"
+      ]
+    }
+  ],
+  "limitation": "Prior cloud run read-only observation, not new feature execution proof. API run_attempt is the reported observation attempt, NOT proof of execution origin; compare timestamps/steps and prior-attempt receipts.",
+  "reported_attempt_counts": {
+    "2": 42
+  }
+}

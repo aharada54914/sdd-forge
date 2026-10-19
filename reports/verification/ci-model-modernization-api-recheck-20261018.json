@@ -1,0 +1,100 @@
+{
+  "observed_at": "2026-10-18T23:33:38.887411+00:00",
+  "api_version": "2026-03-10",
+  "requests": [
+    {
+      "endpoint": "actions/runs/39161543135",
+      "exit_code": 0,
+      "keys": [
+        "actor",
+        "artifacts_url",
+        "cancel_url",
+        "check_suite_id",
+        "check_suite_node_id",
+        "check_suite_url",
+        "conclusion",
+        "created_at",
+        "display_title",
+        "event",
+        "head_branch",
+        "head_commit",
+        "head_repository",
+        "head_sha",
+        "html_url",
+        "id",
+        "jobs_url",
+        "logs_url",
+        "name",
+        "node_id",
+        "path",
+        "previous_attempt_url",
+        "pull_requests",
+        "referenced_workflows",
+        "repository",
+        "rerun_url",
+        "run_attempt",
+        "run_number",
+        "run_started_at",
+        "status",
+        "triggering_actor",
+        "updated_at",
+        "url",
+        "workflow_id",
+        "workflow_url"
+      ],
+      "run_id": 39161543135,
+      "sample_job_fields": [],
+      "total_count": null,
+      "stderr": ""
+    },
+    {
+      "endpoint": "actions/runs/39161543135/attempts/2/jobs?per_page=100",
+      "exit_code": 0,
+      "keys": [
+        "jobs",
+        "total_count"
+      ],
+      "run_id": null,
+      "sample_job_fields": [
+        "check_run_url",
+        "completed_at",
+        "conclusion",
+        "created_at",
+        "head_branch",
+        "head_sha",
+        "html_url",
+        "id",
+        "labels",
+        "name",
+        "node_id",
+        "run_attempt",
+        "run_id",
+        "run_url",
+        "runner_group_id",
+        "runner_group_name",
+        "runner_id",
+        "runner_name",
+        "started_at",
+        "status",
+        "steps",
+        "url",
+        "workflow_name"
+      ],
+      "total_count": 42,
+      "stderr": ""
+    },
+    {
+      "endpoint": "actions/runs/39161543135/artifacts?per_page=100",
+      "exit_code": 0,
+      "keys": [
+        "artifacts",
+        "total_count"
+      ],
+      "run_id": null,
+      "sample_job_fields": [],
+      "total_count": 0,
+      "stderr": ""
+    }
+  ],
+  "note": "Read-only schema/availability observation of prior cloud run; not new feature execution proof."
+}

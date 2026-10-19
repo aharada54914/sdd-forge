@@ -1,0 +1,91 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "01a15160-0029-7271-a87b-251211a8f5f7",
+  "host_session_id": "01a15160-0029-7271-a87b-251211a8f5f7",
+  "allowed_input_manifest": [
+    {"path":"specs/ci-model-modernization/requirements.md","sha256":"afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"},
+    {"path":"specs/ci-model-modernization/acceptance-tests.md","sha256":"c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"},
+    {"path":"specs/ci-model-modernization/investigation.md","sha256":"4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"},
+    {"path":"reports/impl-review/ci-model-modernization/attempt-2/round-1/precheck-result.json","sha256":"adb77706264479ffa61c9ce0cd52af0424b97f92c4c862e273555ab68499ed6c"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"},
+    {"path":"specs/ci-model-modernization/design.md","sha256":"c3a6a43c8365e8ee4084955de3c15fdd65bfbaf5bac9e3c16a54da792a7b6029"},
+    {"path":"specs/ci-model-modernization/ux-spec.md","sha256":"89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"},
+    {"path":"specs/ci-model-modernization/frontend-spec.md","sha256":"5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"},
+    {"path":"specs/ci-model-modernization/infra-spec.md","sha256":"5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"},
+    {"path":"specs/ci-model-modernization/security-spec.md","sha256":"2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"},
+    {"path":"docs/adr/0037-conservative-ci-selection.md","sha256":"0832c2296330252ea294090629fe4abee5471b3eb8dcda33e4ca1ed85dbae364"},
+    {"path":"docs/adr/0038-current-model-role-policy.md","sha256":"5641c2262f8b777f15c7724842f671aa97fe44eb75c8adc23194ca074d04241b"},
+    {"path":"reports/impl-review/ci-model-modernization/attempt-2/round-1/integrated-summary.json","sha256":"af736d6537680200e7ef8bc6cd2f4e368e378b3b5761716734b3dfa26d45de37"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Technical Summary, API / Contract Plan and ADR Change Log justify preserving existing execution semantics, one capability selector, explicit native-ID mappings and conservative evidence handling. ADR 0037 and ADR 0038 document alternatives and migration, permission and duplication risks."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Open Questions assigns OQ-001 to the repository administrator and OQ-002 to the integration maintainer. Both state implementation-blocking scope and concrete resolution paths; unavailable native adoption or required event proof remains explicitly blocked rather than fabricated."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Assumptions is grounded by investigation.md INV-003–006/009 for catalog, receipt, interpreter and native workflow behavior, and INV-010–014 for host discovery, identity limitations and managed callers. Observations are baseline-bound and require revalidation; unsupported hosts are not assumed available."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Constraint Compliance includes explicit responses for REQ-001–020 and non-goal/permission constraints. Its configuration precedence, evidence integrity, compatibility, consent and release rules agree with requirements.md and all four layer specifications. Reservation receipt, all input hashes and precheck bindings verified. Round 1: no prior summary; the supplied current-round summary contains counts/check IDs only."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md contains no numeric latency, throughput or SLA threshold. Its REQ-008/009 efficiency and measurement goals are addressed by design.md Deployment / CI Plan and Test Strategy through measured independent partitioning, category comparisons and preserved native obligations; infra-spec.md explicitly accounts for startup/API overhead."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Deployment / CI Plan and referenced infra-spec.md Deployment Topology/CI/CD Sequence identify existing GitHub Linux/macOS/Windows jobs and installed host entry points, planner/aggregate changes, dependency caching and unchanged maintenance schedules. Data Plan specifies full-first category activation and SDD_CI_FORCE_FULL provides recovery. No database migration ordering applies."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Data Plan introduces no database tables or columns. It specifies additive catalog/policy metadata, preservation of historical receipts and v1/v2 inputs, full fallback without a trusted base planner, activation invalidation and coordinated managed-caller migration. infra-spec.md Rollback defines force-full and validated explicit pinning."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md External integration inventory identifies GitHub Actions REST, Codex app-server, Claude Code, Copilot CLI and Gemini CLI with purpose, version or documented protocol/interface, authentication boundaries and failure behavior. Unsupported host versions require verification before adoption; incomplete API evidence and unavailable required execution identity fail explicitly."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Components, Cross-Layer Dependencies and Complete requirement constraint inventory cover requirements.md Goals/User Stories for REQ-001–020. New planner/aggregate and policy/observation helpers directly support those requirements. No unrelated service, database, graphical frontend, provider account or scheduler is introduced; design-system profile is explicitly none."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Test Strategy and Cross-Layer Dependencies name acceptance-tests.md, persisted-field mismatch tests, dependency mutations, installed-host tests and controlled adoption artifacts. Concrete branches include TEST-006/007 for injection/trusted planning, TEST-019–024 for evidence failures, TEST-080–088 for role/consent/discovery boundaries and TEST-131–137 for runtime identity and managed launch integration. Fixture and native evidence remain distinct."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists, as stated by the host and corroborated by investigation.md Bootstrap Context; no Approved domain model applies."
+    }
+  ]
+}

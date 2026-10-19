@@ -1,0 +1,87 @@
+{
+  "thread_id": "01a15153-c68a-7440-a74f-d17549bdb910",
+  "session_id": "01a15153-c68a-7440-a74f-d17549bdb910",
+  "turn": {
+    "id": "01a15153-d669-79e3-83f4-a8ce9fdfc280",
+    "items": [
+      {
+        "type": "agentMessage",
+        "id": "msg_052f4d672b38c4ca016ad55528afb08191aeda3ae21e75fc58",
+        "text": "{\n  \"schema\": \"spec-reviewer-b/v1\",\n  \"stage\": \"spec\",\n  \"role\": \"spec-reviewer-b\",\n  \"run_id\": \"01a15153-c68a-7440-a74f-d17549bdb910\",\n  \"host_session_id\": \"01a15153-c68a-7440-a74f-d17549bdb910\",\n  \"allowed_input_manifest\": [\n    {\n      \"path\": \"specs/ci-model-modernization/requirements.md\",\n      \"sha256\": \"12650a677881fa1fecb27f4ccf6887bcc9d963bdd5de896726131408a1b9e624\"\n    },\n    {\n      \"path\": \"specs/ci-model-modernization/acceptance-tests.md\",\n      \"sha256\": \"5064c08f053ace4c8b2d6f1f069688c9fd217991d0f71bccc824c67d5860917b\"\n    },\n    {\n      \"path\": \"specs/ci-model-modernization/investigation.md\",\n      \"sha256\": \"4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d\"\n    },\n    {\n      \"path\": \"reports/spec-review/ci-model-modernization/attempt-1/round-1/precheck-result.json\",\n      \"sha256\": \"ddfac687a70c8d63503d57542e33e20f6cbbcc4cc49766cb6571787275e65f9f\"\n    },\n    {\n      \"path\": \"plugins/sdd-review-loop/references/spec-review-calibration.md\",\n      \"sha256\": \"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385\"\n    },\n    {\n      \"path\": \"reports/spec-review/ci-model-modernization/attempt-1/round-1/integrated-summary.json\",\n      \"sha256\": \"da9ae3616f6d849c01150893267e3f1fb655d7ff9ae6c78e85e328f842edf086\"\n    }\n  ],\n  \"verdict\": \"NEEDS_WORK\",\n  \"checks\": [\n    {\n      \"id\": \"AMBIGUITY\",\n      \"result\": \"FAIL\",\n      \"severity\": \"Major\",\n      \"finding\": \"requirements.md REQ-014 requires consistent 'CLI/config/environment/agent definition precedence' but does not state that precedence or a conflict-rejection rule. acceptance-tests.md TEST-094 establishes explicit pinned versus ordinary selection, TEST-095 covers role environment delivery, and TEST-096 prevents a generated agent from silently overriding the resolved request; none determines which request wins when CLI, configuration and environment supply different valid IDs or policies. Two implementers can select different models from identical inputs while satisfying these statements. Specify the ordering, including role-specific versus general settings, or explicit conflict rejection. This is Major product-input ambiguity for specification review, not an implementation architecture choice.\"\n    },\n    {\n      \"id\": \"CONTRADICTION\",\n      \"result\": \"PASS\",\n      \"severity\": \"Critical\",\n      \"finding\": \"No direct conflict identified. REQ-001/002 conservative full fallback is distinguished from REQ-005 failure on missing mandatory aggregation evidence. REQ-016 and TEST-131\u2013133 distinguish required actual-ID audit proof from ordinary runs explicitly recording unavailable telemetry. Existing baseline evidence does not assert that this feature's later-phase implementation has already occurred.\"\n    },\n    {\n      \"id\": \"EDGE-CASE-COVERAGE\",\n      \"result\": \"FAIL\",\n      \"severity\": \"Major\",\n      \"finding\": \"REQ-014 and the requirements.md Model Edge Cases explicitly include 'explicit override conflicts', but TEST-094\u2013099 and TEST-147\u2013149 do not exercise simultaneous conflicting valid CLI/config/environment selections. Consequently, a verifier cannot detect an adapter choosing a different winner or ignoring a conflicting policy. Add conflict cases with a specified winning model/policy or rejection outcome, including role-specific versus general inputs. This is Major because it leaves a material user-input boundary without an observable acceptance oracle; the missing behavior and acceptance coverage belong to specification review, not later test implementation.\"\n    },\n    {\n      \"id\": \"ASSUMPTIONS-RESOLVABLE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"requirements.md Assumptions and OQ-001/OQ-002 identify revalidation points and owners for changing rulesets and host interfaces. Unavailable merge_group validation must remain disclosed; unsupported host adoption is blocked rather than assumed successful. investigation.md INV-013 distinguishes configured identity from execution telemetry, and TEST-131\u2013133 define the corresponding evidence limitations.\"\n    },\n    {\n      \"id\": \"APPROVAL-BOUNDARY\",\n      \"result\": \"PASS\",\n      \"severity\": \"Critical\",\n      \"finding\": \"REQ-010/020 and TEST-038/130 require exact-tested-commit immutable release tags. REQ-017 and TEST-115 retain human-reviewed catalog adoption without automatic merge. REQ-011/018, TEST-082 and TEST-121 preserve consent and independent reservation boundaries. Non-goals explicitly exclude external protection changes, new credentials and automatic main merge.\"\n    },\n    {\n      \"id\": \"DOWNSTREAM-READINESS\",\n      \"result\": \"FAIL\",\n      \"severity\": \"Major\",\n      \"finding\": \"REQ-014 leaves configuration-source precedence unresolved, while TEST-094\u2013096 establish only partial precedence constraints. A downstream designer must invent whether conflicting valid CLI, configuration and environment requests select one model or reject launch; that choice changes externally observable behavior across hosts. State the precedence/conflict contract and acceptance outcomes before handoff. This is Major missing product behavior at the specification gate, not a request for implementation details.\"\n    },\n    {\n      \"id\": \"DOMAIN-CONFORMANCE\",\n      \"result\": \"SKIP\",\n      \"severity\": \"Major\",\n      \"finding\": \"The host reports no domain/ directory, consistent with investigation.md Bootstrap Context. The approved-domain-model applicability condition is absent.\"\n    }\n  ]\n}",
+        "phase": "final_answer",
+        "memoryCitation": null,
+        "delivery": null,
+        "questions": null
+      }
+    ],
+    "itemsView": "summary",
+    "status": "completed",
+    "error": null,
+    "startedAt": 1792365811,
+    "completedAt": 1792365885,
+    "durationMs": 74008
+  },
+  "reads": [
+    {
+      "tool": "review_read",
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/requirements.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/investigation.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-1/precheck-result.json",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-1/integrated-summary.json",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "allowed": true
+    }
+  ],
+  "input_hashes_after": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "12650a677881fa1fecb27f4ccf6887bcc9d963bdd5de896726131408a1b9e624"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "5064c08f053ace4c8b2d6f1f069688c9fd217991d0f71bccc824c67d5860917b"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-1/precheck-result.json",
+      "sha256": "ddfac687a70c8d63503d57542e33e20f6cbbcc4cc49766cb6571787275e65f9f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-1/integrated-summary.json",
+      "sha256": "da9ae3616f6d849c01150893267e3f1fb655d7ff9ae6c78e85e328f842edf086"
+    }
+  ]
+}

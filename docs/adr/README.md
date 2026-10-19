@@ -264,6 +264,8 @@ must never rely on a bare legacy number.
 | 0031 | Node Runtime Baseline 22.19.0 | Accepted |
 | 0032 | Concept Design Layer — Phased Introduction | Accepted |
 | 0036 | Thin Azure/AWS orchestration with protected CI authorization | Proposed |
+| 0037 | [Conservative dependency-based CI selection](0037-conservative-ci-selection.md) | Proposed |
+| 0038 | [Role policy with live model availability and immutable run selection](0038-current-model-role-policy.md) | Proposed |
 
 ## Cloud orchestration implementation reference
 

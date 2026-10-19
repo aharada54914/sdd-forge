@@ -1,0 +1,56 @@
+{
+  "observed_at": "2026-10-18T22:30:14.085014+00:00",
+  "purpose": "Read-only existing-selector baseline; not acceptance-first evidence for an implementation task",
+  "availability_source": "reports/verification/model-selection-host-observation-20261018.json",
+  "synthetic_cost": "0 is fixture data only, not measured or quoted pricing",
+  "registry_sha256": "847fe86588ea22dcb0a13b7b61548aa254f22a8244aa5153e63efefe8a4d200e",
+  "model_inference_performed": false,
+  "results": [
+    {
+      "model": "gpt-6.1-sol",
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/select-agent-model.sh",
+        "--risk",
+        "medium",
+        "--registry",
+        "contracts/agent-model-capabilities.v2.json",
+        "--candidates-file",
+        "/tmp/model-selection-baseline/gpt-6.1-sol.json",
+        "--role",
+        "sdd-evaluator",
+        "--requested-effort",
+        "high",
+        "--host",
+        "codex-cli",
+        "--json"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "MODEL_SELECTION_ERROR: invalid capability candidates\n"
+    },
+    {
+      "model": "gpt-6-astra",
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/select-agent-model.sh",
+        "--risk",
+        "medium",
+        "--registry",
+        "contracts/agent-model-capabilities.v2.json",
+        "--candidates-file",
+        "/tmp/model-selection-baseline/gpt-6-astra.json",
+        "--role",
+        "sdd-evaluator",
+        "--requested-effort",
+        "high",
+        "--host",
+        "codex-cli",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"available_candidates\":[\"gpt-6-astra\"],\"canonical_tier\":\"strong\",\"effort\":\"high\",\"effort_control\":\"flag\",\"effort_source\":\"requested\",\"escalation\":null,\"estimated_cost_per_attempt_usd\":\"0\",\"model\":\"gpt-6-astra\",\"xhigh_reason\":null}\n",
+      "stderr": ""
+    }
+  ]
+}

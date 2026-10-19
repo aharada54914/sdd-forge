@@ -1,0 +1,17 @@
+{
+  "tasks": 9,
+  "tests": 162,
+  "every_test_owner_declares_requirement": true,
+  "every_requirement_row_lists_test_owners": true,
+  "blockers": {
+    "T-001": "None",
+    "T-002": "T-001",
+    "T-003": "T-002",
+    "T-004": "T-003",
+    "T-005": "T-004",
+    "T-006": "T-005",
+    "T-007": "T-004",
+    "T-008": "T-006",
+    "T-009": "T-007, T-008"
+  }
+}

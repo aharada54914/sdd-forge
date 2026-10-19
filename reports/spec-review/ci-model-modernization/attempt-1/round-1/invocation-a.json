@@ -1,0 +1,37 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "ci-model-modernization",
+  "run_id": "01a15150-7eb3-70e0-9e72-cf64e0cbb25a",
+  "host_session_id": "01a15150-7eb3-70e0-9e72-cf64e0cbb25a",
+  "sequence": 1249,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "9c6b69002a1a86335ede6c956487ceddb760cd0502e6ac1b56657761e8892569",
+  "previous_record_sha256": "98756453521b2d612d19100d11083f93b421db213a8b70688a5c8efd9c87384f",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "12650a677881fa1fecb27f4ccf6887bcc9d963bdd5de896726131408a1b9e624"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "5064c08f053ace4c8b2d6f1f069688c9fd217991d0f71bccc824c67d5860917b"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-1/precheck-result.json",
+      "sha256": "ddfac687a70c8d63503d57542e33e20f6cbbcc4cc49766cb6571787275e65f9f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ]
+}

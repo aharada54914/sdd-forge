@@ -449,6 +449,10 @@
     {
       "feature": "cloud-orchestration",
       "profile": "full"
+    },
+    {
+      "feature": "ci-model-modernization",
+      "profile": "full"
     }
   ]
 }

@@ -1,0 +1,127 @@
+{
+  "thread_id": "01a1515a-f26f-7960-bf7a-bf41fd0fca87",
+  "session_id": "01a1515a-f26f-7960-bf7a-bf41fd0fca87",
+  "turn": {
+    "id": "01a1515b-0317-7040-af9b-90564076497c",
+    "items": [
+      {
+        "type": "agentMessage",
+        "id": "msg_0ea10d8a9094cf62016ad556fbf2c88191a6dd8a805952c7f1",
+        "text": "{\n  \"schema\": \"impl-reviewer-b/v1\",\n  \"stage\": \"impl\",\n  \"role\": \"impl-reviewer-b\",\n  \"run_id\": \"01a1515a-f26f-7960-bf7a-bf41fd0fca87\",\n  \"host_session_id\": \"01a1515a-f26f-7960-bf7a-bf41fd0fca87\",\n  \"allowed_input_manifest\": [\n    {\"path\":\"specs/ci-model-modernization/requirements.md\",\"sha256\":\"afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd\"},\n    {\"path\":\"specs/ci-model-modernization/acceptance-tests.md\",\"sha256\":\"c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1\"},\n    {\"path\":\"specs/ci-model-modernization/investigation.md\",\"sha256\":\"4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d\"},\n    {\"path\":\"reports/impl-review/ci-model-modernization/attempt-1/round-1/precheck-result.json\",\"sha256\":\"12efa7bfd5608a5be129f0f784b85c93f7db321bcaf5286724b1e72f8f6bfc8c\"},\n    {\"path\":\"plugins/sdd-review-loop/references/reviewer-calibration.md\",\"sha256\":\"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9\"},\n    {\"path\":\"specs/ci-model-modernization/design.md\",\"sha256\":\"a25c97449f4337056cfdd16c951c5187c6cc4c29f6ec5399d51a273ddd17b1f3\"},\n    {\"path\":\"specs/ci-model-modernization/ux-spec.md\",\"sha256\":\"89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b\"},\n    {\"path\":\"specs/ci-model-modernization/frontend-spec.md\",\"sha256\":\"5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657\"},\n    {\"path\":\"specs/ci-model-modernization/infra-spec.md\",\"sha256\":\"5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c\"},\n    {\"path\":\"specs/ci-model-modernization/security-spec.md\",\"sha256\":\"2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48\"},\n    {\"path\":\"reports/impl-review/ci-model-modernization/attempt-1/round-1/integrated-summary.json\",\"sha256\":\"de36998e08324fecaa13aebec28e8383af6031df8df1d40a7ed45d7c644e357d\"}\n  ],\n  \"verdict\": \"BLOCKED\",\n  \"checks\": [\n    {\n      \"id\": \"DECISION-JUSTIFIED\",\n      \"result\": \"PASS\",\n      \"severity\": \"Minor\",\n      \"finding\": \"design.md Technical Summary, Components and API / Contract Plan justify reusing the catalog, bounded interpreter and selector to preserve existing execution and capability contracts. The policy avoids duplicating risk/tier/effort facts; explicit native mappings avoid invalid prefix stripping; step closure preserves indivisible command execution. No unjustified inline architectural choice identified. ADR existence is not assessed here.\"\n    },\n    {\n      \"id\": \"OPEN-QUESTIONS-RESOLVABLE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Minor\",\n      \"finding\": \"design.md Open Questions assigns OQ-001 to the repository administrator and OQ-002 to the integration maintainer. Both specify implementation-blocking scope and concrete Resolution Paths: inspect hosted event availability or validate installed host schemas, preserving explicit unavailable/blocking outcomes.\"\n    },\n    {\n      \"id\": \"ASSUMPTIONS-VALID\",\n      \"result\": \"PASS\",\n      \"severity\": \"Minor\",\n      \"finding\": \"design.md Assumptions is grounded by investigation.md INV-003/004 for runner validation and receipts, INV-005/009 for bounded interpretation and partitions, INV-006 for native contexts, and INV-010/013 for discovery and configured-versus-actual identity. Host availability is explicitly provisional, not assumed permanent.\"\n    },\n    {\n      \"id\": \"NO-REQ-CONTRADICTION\",\n      \"result\": \"FAIL\",\n      \"severity\": \"Critical\",\n      \"finding\": \"TYPE-D: design.md Constraint Compliance lacks compliance statements for requirements.md REQ-007's security constraints: cache only reproducible dependencies, verify integrity, preserve event trust isolation, and never cache source, authorization, verdicts or cloud state. It also lacks a statement for REQ-016's configured-budget-information constraint. Controls appear elsewhere in Deployment / CI Plan and API / Contract Plan, so this is not a claim that the design contradicts those controls; the required constraint-compliance inventory is incomplete and cannot establish complete constraint coverage. Add explicit rows or section references for these constraints. The local check explicitly classifies missing compliance statements in this section as Critical.\"\n    },\n    {\n      \"id\": \"PERF-ADDRESSED\",\n      \"result\": \"PASS\",\n      \"severity\": \"Minor\",\n      \"finding\": \"No numeric performance requirements or SLA thresholds found in requirements.md. Its qualitative REQ-008/009 goals are addressed by design.md Deployment / CI Plan and Test Strategy: measured partitions, bounded acquisition retries, category comparisons and actual timing evidence. infra-spec.md distinguishes wall time, job sums and waiting time without invented improvement claims.\"\n    },\n    {\n      \"id\": \"DEPLOYMENT-CONCRETE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Minor\",\n      \"finding\": \"design.md Deployment / CI Plan and linked infra-spec.md identify existing GitHub Linux/macOS/Windows jobs and installed host entry points, planning/aggregation changes, unchanged secrets and schedules, category-gated activation, conservative SDD_CI_FORCE_FULL control, and exact-commit immutable release requirements. No database deployment ordering is applicable.\"\n    },\n    {\n      \"id\": \"MIGRATION-PLANNED\",\n      \"result\": \"PASS\",\n      \"severity\": \"Minor\",\n      \"finding\": \"design.md Data Plan introduces no persistent service/database or table/column changes. Its artifact migration preserves v1 shadow output, historical receipts and v1/v2 selector contracts; adoption without a trusted planner remains full, and managed callers migrate coherently. infra-spec.md Rollback specifies force-full recovery and explicit eligible pinned-model selection in a new attempt.\"\n    },\n    {\n      \"id\": \"INTEGRATION-IDENTIFIED\",\n      \"result\": \"FAIL\",\n      \"severity\": \"Major\",\n      \"finding\": \"TYPE-H: design.md API / Contract Plan / Execution evidence relies on 'paginated actual Actions job/step results' and artifact collection, but no dedicated integration section/table identifies the GitHub API contract/version used for jobs, attempts and artifacts. Components names the internal aggregate CLI rather than this external contract. infra-spec.md CI/CD Sequence repeats pagination and rerun requirements without supplying that contract. Failure behavior is clear, but the implementation must still choose the external protocol governing the security-sensitive evidence collector. Add a dedicated integration inventory specifying purpose, API/protocol version and unavailable behavior, including the host discovery/launch interfaces. This is Major because incompatible collection semantics can reject valid reruns or bind the wrong execution evidence.\"\n    },\n    {\n      \"id\": \"DESIGN-WITHIN-SCOPE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Minor\",\n      \"finding\": \"design.md Components, Cross-Layer Dependencies and API / Contract Plan cover REQ-001\u2013020 and both workstreams' user stories. The new planner job, aggregate verifier, policy contract and host helper directly support required capabilities. No graphical frontend, database, provider account, gateway service, extra scheduler or automatic delegation is introduced; frontend-spec.md and ds_profile:none agree.\"\n    },\n    {\n      \"id\": \"VERIFICATION-PATH-CONCRETE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Minor\",\n      \"finding\": \"design.md Cross-Layer Dependencies names acceptance-tests.md TEST-001\u2013038 for CI boundaries and TEST-131\u2013137 for model identity/launch paths; API / Contract Plan additionally names TEST-152\u2013162 for precedence. Test Strategy requires persisted-field mismatch mutations, installed-entry tests, fixed-judge adoption comparisons and explicit fixture/native distinctions. security-spec.md maps injection, cache trust, stale execution evidence, role floors and reroutes to concrete negative tests. Round 1: no prior summary; the admitted current-round count-only summary was not used as substantive review evidence.\"\n    },\n    {\n      \"id\": \"DOMAIN-CONFORMANCE\",\n      \"result\": \"SKIP\",\n      \"severity\": \"Minor\",\n      \"finding\": \"SKIP: no domain/ directory, as supplied by the host and corroborated by investigation.md Bootstrap Context; no Approved domain contract applies.\"\n    }\n  ]\n}",
+        "phase": "final_answer",
+        "memoryCitation": null,
+        "delivery": null,
+        "questions": null
+      }
+    ],
+    "itemsView": "summary",
+    "status": "completed",
+    "error": null,
+    "startedAt": 1792366281,
+    "completedAt": 1792366365,
+    "durationMs": 83759
+  },
+  "reads": [
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/requirements.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/investigation.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "reports/impl-review/ci-model-modernization/attempt-1/round-1/precheck-result.json",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/design.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "reports/impl-review/ci-model-modernization/attempt-1/round-1/integrated-summary.json",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "allowed": true
+    }
+  ],
+  "input_hashes_after": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "reports/impl-review/ci-model-modernization/attempt-1/round-1/precheck-result.json",
+      "sha256": "12efa7bfd5608a5be129f0f784b85c93f7db321bcaf5286724b1e72f8f6bfc8c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "a25c97449f4337056cfdd16c951c5187c6cc4c29f6ec5399d51a273ddd17b1f3"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "reports/impl-review/ci-model-modernization/attempt-1/round-1/integrated-summary.json",
+      "sha256": "de36998e08324fecaa13aebec28e8383af6031df8df1d40a7ed45d7c644e357d"
+    }
+  ]
+}

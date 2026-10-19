@@ -1,0 +1,119 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "ci-model-modernization",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "01a15165-7f77-73d0-95d3-cfb2bbbb8abd",
+  "host_session_id": "01a15165-7f77-73d0-95d3-cfb2bbbb8abd",
+  "manifest": [
+    {"path":"specs/ci-model-modernization/requirements.md","sha256":"afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"},
+    {"path":"specs/ci-model-modernization/acceptance-tests.md","sha256":"c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"},
+    {"path":"reports/task-review/ci-model-modernization/attempt-1/round-2/precheck-result.json","sha256":"3e342fe4264698247c6f48705aff359a1971cb2d48a31500aa22289769dfba6b"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"},
+    {"path":"specs/ci-model-modernization/design.md","sha256":"c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"},
+    {"path":"specs/ci-model-modernization/tasks.md","sha256":"4a9d2f67eb403c6642531d8b405c05cfabdb8e537a953caf4b642daee3b87ccb"},
+    {"path":"specs/ci-model-modernization/traceability.md","sha256":"94053f192f5eab98cc81979418f830365cbce47fa835bcb1421c8b843bd799dc"},
+    {"path":"specs/ci-model-modernization/ux-spec.md","sha256":"89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"},
+    {"path":"specs/ci-model-modernization/frontend-spec.md","sha256":"5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"},
+    {"path":"specs/ci-model-modernization/infra-spec.md","sha256":"5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"},
+    {"path":"specs/ci-model-modernization/security-spec.md","sha256":"2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"},
+    {"path":"reports/task-review/ci-model-modernization/attempt-1/round-2/dependency-graph.json","sha256":"b978eac5ca77241b5d53ed9be8ade889faac370ad62feb3425d878d6a9060bdc"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "No Requirements field contains an AC reference. All AC-001–AC-020 references in the Test Ownership table resolve to acceptance-tests.md."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid=true. T-001's Blockers section contains None; T-002–T-007 each contain exactly one valid predecessor ID, with no ranges or prose."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every requirement REQ-001–REQ-020 appears in at least one task's Requirements field. No deferral is needed."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md Test Ownership explicitly maps all 162 acceptance tests and AC-001–AC-020 to planned task verification. Each task's Done When criteria incorporate its assigned acceptance cases."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All seven tasks T-001–T-007 have nonempty Requirements fields referencing existing REQ identifiers."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task has an exclusively test-file scope or a title containing test, spec or verify. Planned verification nevertheless has explicit AC links through Test Ownership; T-006 additionally names AC-013 and AC-019 in Done When."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All seven tasks have Approval: Draft and Status: Planned, valid for this pre-implementation attempt-1 round-2 review."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001–T-005 declare high/tdd; T-006–T-007 declare medium/acceptance-first. All pairings match the risk matrix and precheck workflow_match_precheck=PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each TEST-001–TEST-162 has exactly one final owner. Shared AC coverage distinguishes core fixtures, managed-launch integration, adoption evaluation and hosted delivery; no duplicate undifferentiated primary test ownership was found."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "dependency-graph.json contains all seven task IDs. Every blocker resolves to an existing task and matches its graph edge."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "The graph is the acyclic wait chain T-007 → T-006 → T-005 → T-004 → T-003 → T-002 → T-001."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Tasks separate the CI planning/evidence contract, workflow integration, model-policy core, managed launch integration, freshness maintenance, controlled adoption and final delivery. Shared-file restrictions keep implementation algorithms out of adoption and release tasks."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Done When lists specify acceptance outcomes, contract mutations, inventories, native observations, rubric results, documentation checks or exact release identities. Every task requires retained verification evidence and an implementation report; T-001 and T-003 also name concrete Python commands. Frozen specifications are sources, while outcomes go to non-frozen addenda. precheck frozen_artifact_done_when is empty, so there are no flagged items requiring individual disposition."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "All task and requirement IDs resolve, and layer anchors exist in the bound documents. However, traceability.md assigns REQ-004, including TEST-016 and TEST-017, only to T-002 and its evidence; tasks.md Test Ownership assigns those hosted tests to T-007. Likewise, the REQ-006 row assigns TEST-027 only to T-001, while its final owner is T-007. These rows omit a required completion owner and its evidence, permitting requirement status to advance before hosted acceptance finishes."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TRACEABILITY-SYNC",
+      "severity": "Major",
+      "task_id": "T-007",
+      "finding": "Synchronize traceability.md REQ-004 and REQ-006 Task/Evidence cells with tasks.md Test Ownership: TEST-016/TEST-017 and TEST-027 respectively belong to T-007, but the rows list only T-002 and T-001. Include T-007 and its evidence alongside the existing implementation owners. This is blocking because the traceability completion map currently omits the task that must supply required hosted acceptance, contradicting its rule that all owning tasks must pass before a shared requirement becomes Done."
+    }
+  ]
+}

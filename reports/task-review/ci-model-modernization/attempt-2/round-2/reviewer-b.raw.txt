@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "ci-model-modernization",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "01a15179-05b6-7742-960e-0a1dff1ffc1e",
+  "host_session_id": "01a15179-05b6-7742-960e-0a1dff1ffc1e",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/ci-model-modernization/requirements.md",
+        "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+      },
+      {
+        "path": "specs/ci-model-modernization/acceptance-tests.md",
+        "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-2/round-2/precheck-result.json",
+        "sha256": "32ec23cb4445061cf1322583b3c5d53ec646737f218850cfdbffcb025826f33f"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+      },
+      {
+        "path": "specs/ci-model-modernization/design.md",
+        "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+      },
+      {
+        "path": "specs/ci-model-modernization/tasks.md",
+        "sha256": "44161e295a6ba61a23e33b3eff745bae74a21e606e42d33ad26592047570c1cc"
+      },
+      {
+        "path": "specs/ci-model-modernization/traceability.md",
+        "sha256": "8f58edd9423a602fa99e3a2595a61156348a4a06da176f0e0b4e5e914698eae1"
+      },
+      {
+        "path": "specs/ci-model-modernization/ux-spec.md",
+        "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+      },
+      {
+        "path": "specs/ci-model-modernization/frontend-spec.md",
+        "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+      },
+      {
+        "path": "specs/ci-model-modernization/infra-spec.md",
+        "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+      },
+      {
+        "path": "specs/ci-model-modernization/security-spec.md",
+        "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-2/round-2/integrated-summary.json",
+        "sha256": "ed7e684b0c122e55784b2d07626ad6df108a61d26d83feacbc9d1e6c969894ae"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001–T-009 correctly classify CI evidence contracts, model identity/selection contracts, protected launch integration and notification controls as high risk. T-010 is bounded to controlled evaluation and adoption metadata; T-011 publishes verified activation references, documentation and immutable release metadata without changing the underlying algorithms. Their medium classifications are consistent with these bounded scopes."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every high-risk task, T-001–T-009, explicitly requires in Done When failing tests committed before implementation, captured Red→Green evidence, a named independent reviewer verdict and a formal quality-gate result. No critical-risk task is declared."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md separates planning, aggregation and workflow integration into T-001–T-003; discovery, binding, selection, transport and installed entries into T-004–T-008; and maintenance, adoption and release into T-009–T-011. Each task has six grouped completion criteria and explicit ownership exclusions. Renderer/install/entry work in T-008 forms one integration concern rather than fragmented file edits."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md covers planner invalid identities and omissions through AC-001–AC-003; aggregation failures through AC-005; discovery failures through AC-012; configuration, eligibility and budget rejection through AC-013/AC-014/AC-016; resume/reroute failures through AC-015/AC-016; maintenance failures through AC-017; and stale/comment-only/native-precedence integration through AC-018 and TEST-120/161. tasks.md assigns these branches to their functional owners. T-010 additionally requires failed candidates to remain unadopted with retained results."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md distinguishes component fixtures from integration and native execution: T-003 checks workflow/planner/aggregate integration, T-007 checks selector-to-transport behavior, and T-008 checks renderer/installer/installed-entry integration. T-010's controlled acceptance evaluation cites AC-013/AC-019 and TEST-103/104/127; T-011 separates hosted acceptance from local fixtures. No test scope is incorrectly presented as unit or end-to-end coverage."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001–T-009 each require documented and tested disposable-checkout rollback with before/after hashes and baseline results. tasks.md Shared file ordering and rollback further specifies task-owned restoration, CI force-full recovery, validated model pinning or prior tested release, and preservation of identity ledgers and frozen history; infra-spec.md corroborates these recovery paths."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md serializes shared catalog/helper edits and assigns distinct purposes: T-001 planning, T-002 evidence aggregation, T-003 wiring; T-004 discovery, T-005 binding, T-006 resolution, T-007 transport. T-008 consumes transport rather than reimplementing it. T-010's policy/adoption edits follow T-006 transitively; T-011's activation references follow implementation. Independent T-009/T-010 own different write surfaces."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 consumes T-001 plans; T-003 consumes the passed producer/verifier; T-005 consumes T-004 observations; T-006 consumes binding validators; T-007 consumes selection; T-008 consumes transports; T-009 consumes policy; T-010 consumes installed entries; T-011 joins maintenance and adoption. T-004's ordering after T-003 implements requirements.md Overview's explicit CI-first/model-second constraint. No unnecessary dependency is introduced between T-009 and T-010."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": []
+}

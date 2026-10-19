@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a15155-5c20-74d3-9d00-7ef1cc2c41ff",
+  "host_session_id": "01a15155-5c20-74d3-9d00-7ef1cc2c41ff",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "f626d52c35b2f9212c97c41ccd3ce428a929f0767e994059c957d82f20a35672"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-2/precheck-result.json",
+      "sha256": "fa33ef8bf5b1e99a18dfcd0e184d9465318bf17f09ef5d43f979159f6558b71f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001–REQ-020 define verifiable selection, execution, rejection, provenance and delivery outcomes. AC-001–AC-020 and TEST-001–TEST-162 provide concrete validation branches, including configuration precedence and conflicts in TEST-152–TEST-162."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance Criteria maps every goal REQ-001–REQ-020 to its corresponding AC-001–AC-020. Test rows cover both CI and model workstreams, including expanded role coverage in TEST-138–TEST-146."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Assertions specify inspectable plans, required contexts, aggregation failures, cache behavior, model selection records, launcher behavior and immutable tags. TEST-035, TEST-127 and TEST-133 explicitly distinguish verified execution from fixtures or unavailable telemetry."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly exclude external protection changes, privileged PR execution, new secrets/accounts, live cloud deployment, automatic merges, parent UI model control and historical evidence rewrites. Existing maintenance schedules and consent boundaries remain in scope without expansion."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Roles and Permissions, Security Boundaries, Model configuration precedence and REQ-014–REQ-019 specify trust, authorization, compatibility, native precedence, identity and consent constraints. OQ-001/OQ-002 define unavailable-validation behavior. Investigation contains no amendment declaration, but its historical baseline references do not establish premature later-phase work for this feature."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Dependency omissions, forged execution evidence and cache corruption have mutation/negative validation in TEST-014–TEST-030 and rollout comparisons in TEST-034–TEST-036. Model drift, fallback, privacy and adoption risks have TEST-082, TEST-100–TEST-115, TEST-131–TEST-133 and the pre-output Model Evaluation Boundary."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The host states that the target project has no domain/ directory; investigation.md Bootstrap Context independently records its absence. The Approved-domain applicability condition is not met."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-18T22:37:45.134508+00:00",
+  "run_id": 39122240433,
+  "event": "pull_request",
+  "api_head_sha": "ee976dee2dd1f9a8aed394af6df4e963b3d42027",
+  "run_pull_request_head_sha": "ee976dee2dd1f9a8aed394af6df4e963b3d42027",
+  "run_pull_request_base_sha": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+  "job_id": 117660015131,
+  "job_name": "test (ubuntu-latest)",
+  "job_head_sha": "ee976dee2dd1f9a8aed394af6df4e963b3d42027",
+  "current_pr_merge_commit_sha": "9c1df0ed0d6c2e6346a27dff81e465d42457ceb1",
+  "current_pr_merged": false,
+  "checkout_revision_observed": false,
+  "log_fetch": "Denied at redirected log download; no log bytes or signed URL retained. API metadata cannot establish the actual checked-out revision.",
+  "source_urls": [
+    "https://api.github.com/repos/aharada54914/sdd-forge/actions/runs/39122240433",
+    "https://api.github.com/repos/aharada54914/sdd-forge/actions/runs/39122240433/jobs?per_page=100",
+    "https://api.github.com/repos/aharada54914/sdd-forge/pulls/592"
+  ],
+  "design_implication": "Bind API head separately from actual checkout/receipt revision and verify the tested merge ancestry; do not assume equality."
+}

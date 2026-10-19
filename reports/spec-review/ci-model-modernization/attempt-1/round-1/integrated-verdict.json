@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "ci-model-modernization",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_run_id": "01a15150-7eb3-70e0-9e72-cf64e0cbb25a",
+  "reviewer_b_run_id": "01a15153-c68a-7440-a74f-d17549bdb910",
+  "reviewer_a_host_session_id": "01a15150-7eb3-70e0-9e72-cf64e0cbb25a",
+  "reviewer_b_host_session_id": "01a15153-c68a-7440-a74f-d17549bdb910",
+  "finding_counts": {
+    "critical": 0,
+    "major": 4,
+    "minor": 0
+  },
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

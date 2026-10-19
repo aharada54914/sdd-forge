@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "ci-model-modernization",
+  "run_id": "01a1515e-6391-7fc1-8822-1eca8e2ba3d4",
+  "host_session_id": "01a1515e-6391-7fc1-8822-1eca8e2ba3d4",
+  "sequence": 1255,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "e163401817f3f877dd6431666ace31fa10239a96278aef061919fef6ace70dee",
+  "previous_record_sha256": "0545a656e2e71d6c1c20cfda52f7f58a0aa140baf4277754df14e4ae3aaefdc1",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "reports/impl-review/ci-model-modernization/attempt-2/round-1/precheck-result.json",
+      "sha256": "adb77706264479ffa61c9ce0cd52af0424b97f92c4c862e273555ab68499ed6c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "c3a6a43c8365e8ee4084955de3c15fdd65bfbaf5bac9e3c16a54da792a7b6029"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "docs/adr/0037-conservative-ci-selection.md",
+      "sha256": "0832c2296330252ea294090629fe4abee5471b3eb8dcda33e4ca1ed85dbae364"
+    },
+    {
+      "path": "docs/adr/0038-current-model-role-policy.md",
+      "sha256": "5641c2262f8b777f15c7724842f671aa97fe44eb75c8adc23194ca074d04241b"
+    }
+  ]
+}

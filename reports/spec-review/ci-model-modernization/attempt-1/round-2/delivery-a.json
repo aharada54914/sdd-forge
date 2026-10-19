@@ -1,0 +1,98 @@
+{
+  "thread_id": "01a15155-5c20-74d3-9d00-7ef1cc2c41ff",
+  "session_id": "01a15155-5c20-74d3-9d00-7ef1cc2c41ff",
+  "turn": {
+    "id": "01a15155-6b07-7eb2-bf60-8453218f95ad",
+    "items": [
+      {
+        "type": "agentMessage",
+        "id": "msg_0faec3b03e86055e016ad5557e27ec8191a75f76e3c4a261f2",
+        "text": "{\n  \"schema\": \"spec-reviewer-a/v1\",\n  \"stage\": \"spec\",\n  \"role\": \"spec-reviewer-a\",\n  \"run_id\": \"01a15155-5c20-74d3-9d00-7ef1cc2c41ff\",\n  \"host_session_id\": \"01a15155-5c20-74d3-9d00-7ef1cc2c41ff\",\n  \"allowed_input_manifest\": [\n    {\n      \"path\": \"specs/ci-model-modernization/requirements.md\",\n      \"sha256\": \"f626d52c35b2f9212c97c41ccd3ce428a929f0767e994059c957d82f20a35672\"\n    },\n    {\n      \"path\": \"specs/ci-model-modernization/acceptance-tests.md\",\n      \"sha256\": \"c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1\"\n    },\n    {\n      \"path\": \"specs/ci-model-modernization/investigation.md\",\n      \"sha256\": \"4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d\"\n    },\n    {\n      \"path\": \"reports/spec-review/ci-model-modernization/attempt-1/round-2/precheck-result.json\",\n      \"sha256\": \"fa33ef8bf5b1e99a18dfcd0e184d9465318bf17f09ef5d43f979159f6558b71f\"\n    },\n    {\n      \"path\": \"plugins/sdd-review-loop/references/spec-review-calibration.md\",\n      \"sha256\": \"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385\"\n    }\n  ],\n  \"verdict\": \"PASS\",\n  \"checks\": [\n    {\n      \"id\": \"REQ-TESTABILITY\",\n      \"result\": \"PASS\",\n      \"severity\": \"Critical\",\n      \"finding\": \"REQ-001\u2013REQ-020 define verifiable selection, execution, rejection, provenance and delivery outcomes. AC-001\u2013AC-020 and TEST-001\u2013TEST-162 provide concrete validation branches, including configuration precedence and conflicts in TEST-152\u2013TEST-162.\"\n    },\n    {\n      \"id\": \"GOAL-AC-TRACE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Acceptance Criteria maps every goal REQ-001\u2013REQ-020 to its corresponding AC-001\u2013AC-020. Test rows cover both CI and model workstreams, including expanded role coverage in TEST-138\u2013TEST-146.\"\n    },\n    {\n      \"id\": \"AC-OBSERVABLE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Assertions specify inspectable plans, required contexts, aggregation failures, cache behavior, model selection records, launcher behavior and immutable tags. TEST-035, TEST-127 and TEST-133 explicitly distinguish verified execution from fixtures or unavailable telemetry.\"\n    },\n    {\n      \"id\": \"SCOPE-BOUNDARY\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Non-goals explicitly exclude external protection changes, privileged PR execution, new secrets/accounts, live cloud deployment, automatic merges, parent UI model control and historical evidence rewrites. Existing maintenance schedules and consent boundaries remain in scope without expansion.\"\n    },\n    {\n      \"id\": \"CONSTRAINTS-EXPLICIT\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Roles and Permissions, Security Boundaries, Model configuration precedence and REQ-014\u2013REQ-019 specify trust, authorization, compatibility, native precedence, identity and consent constraints. OQ-001/OQ-002 define unavailable-validation behavior. Investigation contains no amendment declaration, but its historical baseline references do not establish premature later-phase work for this feature.\"\n    },\n    {\n      \"id\": \"RISK-VALIDATION-SURFACE\",\n      \"result\": \"PASS\",\n      \"severity\": \"Major\",\n      \"finding\": \"Dependency omissions, forged execution evidence and cache corruption have mutation/negative validation in TEST-014\u2013TEST-030 and rollout comparisons in TEST-034\u2013TEST-036. Model drift, fallback, privacy and adoption risks have TEST-082, TEST-100\u2013TEST-115, TEST-131\u2013TEST-133 and the pre-output Model Evaluation Boundary.\"\n    },\n    {\n      \"id\": \"DOMAIN-CONFORMANCE\",\n      \"result\": \"SKIP\",\n      \"severity\": \"Major\",\n      \"finding\": \"The host states that the target project has no domain/ directory; investigation.md Bootstrap Context independently records its absence. The Approved-domain applicability condition is not met.\"\n    }\n  ]\n}",
+        "phase": "final_answer",
+        "memoryCitation": null,
+        "delivery": null,
+        "questions": null
+      }
+    ],
+    "itemsView": "summary",
+    "status": "completed",
+    "error": null,
+    "startedAt": 1792365914,
+    "completedAt": 1792365967,
+    "durationMs": 53097
+  },
+  "reads": [
+    {
+      "tool": "review_read",
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/requirements.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/investigation.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-2/precheck-result.json",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/requirements.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "specs/ci-model-modernization/investigation.md",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-2/precheck-result.json",
+      "allowed": true
+    },
+    {
+      "tool": "review_read",
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "allowed": true
+    }
+  ],
+  "input_hashes_after": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "f626d52c35b2f9212c97c41ccd3ce428a929f0767e994059c957d82f20a35672"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-2/precheck-result.json",
+      "sha256": "fa33ef8bf5b1e99a18dfcd0e184d9465318bf17f09ef5d43f979159f6558b71f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "ci-model-modernization",
+  "run_id": "01a15179-05b6-7742-960e-0a1dff1ffc1e",
+  "host_session_id": "01a15179-05b6-7742-960e-0a1dff1ffc1e",
+  "sequence": 1266,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "c7720f970124b110ccf1e988139d5e50db8e7f6fb73a43fe8de3b86b6c77d7fb",
+  "previous_record_sha256": "8053c74621df25496ce205370440212ff9aba643bf93c86b8037097460a2c8f9",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-2/round-2/precheck-result.json",
+      "sha256": "32ec23cb4445061cf1322583b3c5d53ec646737f218850cfdbffcb025826f33f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "sha256": "44161e295a6ba61a23e33b3eff745bae74a21e606e42d33ad26592047570c1cc"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.md",
+      "sha256": "8f58edd9423a602fa99e3a2595a61156348a4a06da176f0e0b4e5e914698eae1"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-2/round-2/integrated-summary.json",
+      "sha256": "ed7e684b0c122e55784b2d07626ad6df108a61d26d83feacbc9d1e6c969894ae"
+    }
+  ]
+}

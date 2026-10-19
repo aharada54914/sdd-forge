@@ -1,0 +1,73 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "ci-model-modernization",
+  "attempt": 1,
+  "round": 2,
+  "requirements_sha256": "f626d52c35b2f9212c97c41ccd3ce428a929f0767e994059c957d82f20a35672",
+  "acceptance_sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1",
+  "investigation_sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "01a15155-5c20-74d3-9d00-7ef1cc2c41ff",
+      "host_session_id": "01a15155-5c20-74d3-9d00-7ef1cc2c41ff",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/ci-model-modernization/requirements.md",
+          "sha256": "f626d52c35b2f9212c97c41ccd3ce428a929f0767e994059c957d82f20a35672"
+        },
+        {
+          "path": "specs/ci-model-modernization/acceptance-tests.md",
+          "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+        },
+        {
+          "path": "specs/ci-model-modernization/investigation.md",
+          "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+        },
+        {
+          "path": "reports/spec-review/ci-model-modernization/attempt-1/round-2/precheck-result.json",
+          "sha256": "fa33ef8bf5b1e99a18dfcd0e184d9465318bf17f09ef5d43f979159f6558b71f"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "01a15156-4d0b-7093-8614-7369c577f8d8",
+      "host_session_id": "01a15156-4d0b-7093-8614-7369c577f8d8",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/ci-model-modernization/requirements.md",
+          "sha256": "f626d52c35b2f9212c97c41ccd3ce428a929f0767e994059c957d82f20a35672"
+        },
+        {
+          "path": "specs/ci-model-modernization/acceptance-tests.md",
+          "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+        },
+        {
+          "path": "specs/ci-model-modernization/investigation.md",
+          "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+        },
+        {
+          "path": "reports/spec-review/ci-model-modernization/attempt-1/round-2/precheck-result.json",
+          "sha256": "fa33ef8bf5b1e99a18dfcd0e184d9465318bf17f09ef5d43f979159f6558b71f"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/ci-model-modernization/attempt-1/round-2/integrated-summary.json",
+          "sha256": "8212a43168a5a1ab4cddad62e0bbe9a7a2fe5ea9812902d2fe95629f1814c2ed"
+        }
+      ]
+    }
+  ],
+  "run_id": "01a14cdd-d51f-75c3-bc6c-96ac92f6e0a6",
+  "verdict": "PASS",
+  "warningCount": 0
+}

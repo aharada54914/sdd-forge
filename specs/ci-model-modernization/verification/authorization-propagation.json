@@ -1,0 +1,53 @@
+{
+  "recorded_at": "2026-10-19T00:05:52.804920+00:00",
+  "basis": "Existing explicit user approvals, propagated after actual passed specification/design/task review. No new approval inferred from elapsed time or reviewer PASS.",
+  "sources": {
+    "T-001": {
+      "path": "reports/verification/ci-efficiency-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T20:33:18Z"
+    },
+    "T-002": {
+      "path": "reports/verification/ci-efficiency-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T20:33:18Z"
+    },
+    "T-003": {
+      "path": "reports/verification/ci-efficiency-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T20:33:18Z"
+    },
+    "T-004": {
+      "path": "reports/verification/model-selection-policy-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T22:19:50Z"
+    },
+    "T-005": {
+      "path": "reports/verification/model-selection-policy-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T22:19:50Z"
+    },
+    "T-006": {
+      "path": "reports/verification/model-selection-policy-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T22:19:50Z"
+    },
+    "T-007": {
+      "path": "reports/verification/model-selection-policy-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T22:19:50Z"
+    },
+    "T-008": {
+      "path": "reports/verification/model-selection-policy-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T22:19:50Z"
+    },
+    "T-009": {
+      "path": "reports/verification/model-selection-policy-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T22:19:50Z"
+    },
+    "T-010": {
+      "path": "reports/verification/model-selection-policy-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T22:19:50Z"
+    },
+    "T-011": {
+      "path": "reports/verification/model-selection-policy-approval-20261018.md",
+      "approval_record_time_utc": "2026-10-18T22:19:50Z"
+    }
+  },
+  "tasks_before_sha256": "561cceb53886442f6a8053bec269e8233d0858e4db937ae1b43e7a8a8fcb991f",
+  "tasks_after_sha256": "3c7b2476e9182d602bf99ec4eb3d6329549e0e105c2e17d7600284c7a1c1e5cd",
+  "started_task": "T-001"
+}

@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-18T22:54:54.433583+00:00",
+  "source": "https://www.powershellgallery.com/api/v2/package/Pester/4.10.1",
+  "purpose": "Read-only research for exact dependency cache integrity; package not installed or executed.",
+  "http_status": 200,
+  "status": "downloaded-not-executed",
+  "bytes": 887295,
+  "sha256": "898210e1a30c52cd46ba317c2278a9324345214213aa2f7d6b7dfa7b98f37ac9",
+  "archive_entry_count": 94,
+  "manifest_sha256": "05bf87f45bf2b6604073a6851d0803917adfa87c134b9dd5867ba93b2e872663",
+  "manifest_module_version": "4.10.1"
+}

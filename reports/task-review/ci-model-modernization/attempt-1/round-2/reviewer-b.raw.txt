@@ -1,0 +1,99 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "ci-model-modernization",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "01a15167-4bea-77f2-bf87-2908b2cb475f",
+  "host_session_id": "01a15167-4bea-77f2-bf87-2908b2cb475f",
+  "manifest": {
+    "allowed_inputs": [
+      {"path":"specs/ci-model-modernization/requirements.md","sha256":"afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"},
+      {"path":"specs/ci-model-modernization/acceptance-tests.md","sha256":"c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"},
+      {"path":"reports/task-review/ci-model-modernization/attempt-1/round-2/precheck-result.json","sha256":"3e342fe4264698247c6f48705aff359a1971cb2d48a31500aa22289769dfba6b"},
+      {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"},
+      {"path":"specs/ci-model-modernization/design.md","sha256":"c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"},
+      {"path":"specs/ci-model-modernization/tasks.md","sha256":"4a9d2f67eb403c6642531d8b405c05cfabdb8e537a953caf4b642daee3b87ccb"},
+      {"path":"specs/ci-model-modernization/traceability.md","sha256":"94053f192f5eab98cc81979418f830365cbce47fa835bcb1421c8b843bd799dc"},
+      {"path":"specs/ci-model-modernization/ux-spec.md","sha256":"89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"},
+      {"path":"specs/ci-model-modernization/frontend-spec.md","sha256":"5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"},
+      {"path":"specs/ci-model-modernization/infra-spec.md","sha256":"5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"},
+      {"path":"specs/ci-model-modernization/security-spec.md","sha256":"2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"},
+      {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"},
+      {"path":"reports/task-review/ci-model-modernization/attempt-1/round-2/integrated-summary.json","sha256":"7cadd71cade568eb42f6c22d096ad468872fa6b7bc6d67a9ba0453a8811d12d7"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md classifies T-001–T-005 high for execution-evidence contracts, trust boundaries, model eligibility, protected launch integration and notification controls. T-006/T-007 are medium with explicit limits to verified adoption/activation metadata, evaluation and release delivery; capability and authorization algorithm changes remain excluded."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Each high-risk task T-001–T-005 explicitly requires committed failing tests before implementation, captured Red→Green evidence and a named independent reviewer verdict in Done When. No critical task is declared."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md T-004 Planned Files and Done When combine renderer/installer migration, protected review launcher/validator migration, run-record and GPT/Gemini transport integration, and role/skill/scheduled-automation migration. They additionally require Bash/PowerShell regressions, a complete maintained-caller sweep and actual installed-host validation. This exceeds a focused-session implementation unit; the six bullets conceal multiple independently verifiable integration areas."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md covers T-003 configuration/discovery/identity failures through AC-012/014/016, T-004 consent and native-precedence failures through AC-011/014/018, and T-005 failed fetches/untrusted text through AC-017. T-006 Done When explicitly retains failed candidates and unavailable-provider limitations. CI tasks also have extensive conservative-fallback and missing-evidence cases."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 separates deterministic unit/integration fixtures; T-002/T-004 name workflow and launcher integration across components. T-006 acceptance evaluation explicitly references AC-013/AC-019 and TEST-127, fixed comparisons and actual artifacts. T-007 distinguishes hosted acceptance from local fixtures. No unit-only claim is used for cross-component or hosted validation."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001–T-005 each require documented and tested rollback in a disposable checkout with hashes and baseline results. Shared file ordering and rollback specifies force-full CI recovery and validated model pin/prior-release recovery without weakening identity, access or consent checks."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md assigns bounded ownership for shared catalog, interpreter, policy and test files. Its T-001→T-007 blocker chain prevents simultaneous edits, while T-006/T-007 explicitly exclude algorithm repairs from adoption/activation metadata scope."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md T-006 declares T-005 as its blocker, but T-005 only updates freshness reporting and explicitly never rewrites registry files. T-006 consumes the T-003 selector/policy and T-004 installed launch path, independently rediscovers availability and uses a pre-existing rubric; it names no T-005-produced input and shares no planned implementation file with T-005. This creates an unnecessary critical-path dependency."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "specs/ci-model-modernization/tasks.md T-004 Planned Files and Done When bundle at least four integration areas: renderer/installers, protected review launch/validation, run-record/panelist transports, and role/skill/self-improvement entry points. Cross-shell regressions, all-caller migration and actual installed-host validation further exceed a single focused session, risking incomplete consumer migration before independent verification. Split into ordered session-sized integration tasks while keeping each protected launcher and its validator together."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-006",
+      "finding": "specs/ci-model-modernization/tasks.md T-006 Blockers names T-005 although its Scope and Done When consume T-003 policy/selector and T-004 launch integration, not freshness-maintenance output. T-005 explicitly cannot rewrite registry files, and the two tasks share no planned implementation file. This spurious blocker unnecessarily delays adoption evaluation; depend on the actual producing tasks or identify a concrete required T-005 artifact."
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "ci-model-modernization",
+  "run_id": "01a14cdd-d51f-75c3-bc6c-96ac92f6e0a6",
+  "verdict": "BLOCKED",
+  "round": 3,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "prior_round_contract_sha256": "6973910f34779aa991e08ce65e7e431ca8c5d23b0bf0684ca09d0419c3d5db23",
+  "workflow_match_precheck": "PASS",
+  "requirements_sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd",
+  "acceptance_sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1",
+  "design_sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b",
+  "tasks_sha256": "a9f86ae44c1920d91c2ebf45f6bfef2731f50e07fbb6905dc7145831af45b82d",
+  "traceability_sha256": "a9462e0c9063f96075e662c1385d9dc818372a1db19935c826fe3d700439ac2d",
+  "layer_sha256": {
+    "ux-spec.md": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b",
+    "frontend-spec.md": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657",
+    "infra-spec.md": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c",
+    "security-spec.md": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "01a1516a-3718-7081-8ef7-077fabdc0875",
+      "host_session_id": "01a1516a-3718-7081-8ef7-077fabdc0875",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/ci-model-modernization/requirements.md",
+          "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+        },
+        {
+          "path": "specs/ci-model-modernization/acceptance-tests.md",
+          "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+        },
+        {
+          "path": "reports/task-review/ci-model-modernization/attempt-1/round-3/precheck-result.json",
+          "sha256": "72c6cd099bc0b9552c60644b6f9935fe380258876639473bd4c53c1a47d00a67"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "specs/ci-model-modernization/design.md",
+          "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+        },
+        {
+          "path": "specs/ci-model-modernization/tasks.md",
+          "sha256": "a9f86ae44c1920d91c2ebf45f6bfef2731f50e07fbb6905dc7145831af45b82d"
+        },
+        {
+          "path": "specs/ci-model-modernization/traceability.md",
+          "sha256": "a9462e0c9063f96075e662c1385d9dc818372a1db19935c826fe3d700439ac2d"
+        },
+        {
+          "path": "specs/ci-model-modernization/ux-spec.md",
+          "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+        },
+        {
+          "path": "specs/ci-model-modernization/frontend-spec.md",
+          "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+        },
+        {
+          "path": "specs/ci-model-modernization/infra-spec.md",
+          "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+        },
+        {
+          "path": "specs/ci-model-modernization/security-spec.md",
+          "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+        },
+        {
+          "path": "reports/task-review/ci-model-modernization/attempt-1/round-3/dependency-graph.json",
+          "sha256": "84a2039979c1accae2e487f0cb32c115a83d412b0dca938847dfd605a4772658"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "01a1516c-19ef-7f83-ac3a-af64a24c40a6",
+      "host_session_id": "01a1516c-19ef-7f83-ac3a-af64a24c40a6",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/ci-model-modernization/requirements.md",
+          "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+        },
+        {
+          "path": "specs/ci-model-modernization/acceptance-tests.md",
+          "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+        },
+        {
+          "path": "reports/task-review/ci-model-modernization/attempt-1/round-3/precheck-result.json",
+          "sha256": "72c6cd099bc0b9552c60644b6f9935fe380258876639473bd4c53c1a47d00a67"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+        },
+        {
+          "path": "specs/ci-model-modernization/design.md",
+          "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+        },
+        {
+          "path": "specs/ci-model-modernization/tasks.md",
+          "sha256": "a9f86ae44c1920d91c2ebf45f6bfef2731f50e07fbb6905dc7145831af45b82d"
+        },
+        {
+          "path": "specs/ci-model-modernization/traceability.md",
+          "sha256": "a9462e0c9063f96075e662c1385d9dc818372a1db19935c826fe3d700439ac2d"
+        },
+        {
+          "path": "specs/ci-model-modernization/ux-spec.md",
+          "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+        },
+        {
+          "path": "specs/ci-model-modernization/frontend-spec.md",
+          "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+        },
+        {
+          "path": "specs/ci-model-modernization/infra-spec.md",
+          "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+        },
+        {
+          "path": "specs/ci-model-modernization/security-spec.md",
+          "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+        },
+        {
+          "path": "reports/task-review/ci-model-modernization/attempt-1/round-3/integrated-summary.json",
+          "sha256": "43ef83d86d4904a028f37f6b7a9fa20341529af4ec3e9f3e13d14554c09b3c40"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Resolve actual round-2 findings: split protected transport/delivery (T-004) from generated installed role entries (T-005); move maintenance to T-006 with actual core dependency T-003, adoption to T-007 with installed-entry dependency T-005, final T-008 joins both. Add final hosted acceptance owners REQ-004/REQ-006 to T-008 and traceability. Mechanically reconcile every one of 162 TEST owners against task Requirements and traceability owners; no acceptance or frozen design change.",
+  "timestamp": "2026-10-18T23:52:28.750465Z"
+}

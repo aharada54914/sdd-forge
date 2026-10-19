@@ -1,0 +1,172 @@
+{
+  "observed_at": "2026-10-18T23:26:07.738495+00:00",
+  "purpose": "Reverify shared assumptions before implementation-policy review",
+  "observations": {
+    "head": {
+      "exit_code": 0,
+      "stdout": "d6b4cfa2048b6a0d5a27d4caf06df117b79fdfe0\n",
+      "stderr": ""
+    },
+    "codex_version": {
+      "exit_code": 0,
+      "stdout": "codex-cli 0.159.2\n",
+      "stderr": ""
+    },
+    "rulesets": {
+      "exit_code": 0,
+      "stdout": "[{\"id\":21562208,\"name\":\"CI and history integrity (no bypass)\",\"target\":\"branch\",\"source_type\":\"Repository\",\"source\":\"aharada54914/sdd-forge\",\"enforcement\":\"active\",\"node_id\":\"RRS_lACqUmVwb3NpdG9yec5LWKr9zgFJA2A\",\"_links\":{\"self\":{\"href\":\"https://api.github.com/repos/aharada54914/sdd-forge/rulesets/21562208\"},\"html\":{\"href\":\"https://github.com/aharada54914/sdd-forge/rules/21562208\"}},\"created_at\":\"2026-08-26T12:53:54.073Z\",\"updated_at\":\"2026-08-26T12:53:54.112Z\"},{\"id\":17651269,\"name\":\"Protect main branch\",\"target\":\"branch\",\"source_type\":\"Repository\",\"source\":\"aharada54914/sdd-forge\",\"enforcement\":\"active\",\"node_id\":\"RRS_lACqUmVwb3NpdG9yec5LWKr9zgENVkU\",\"_links\":{\"self\":{\"href\":\"https://api.github.com/repos/aharada54914/sdd-forge/rulesets/17651269\"},\"html\":{\"href\":\"https://github.com/aharada54914/sdd-forge/rules/17651269\"}},\"created_at\":\"2026-06-14T02:41:57.374Z\",\"updated_at\":\"2026-09-17T13:49:33.845Z\"}]",
+      "stderr": ""
+    }
+  },
+  "source_hashes": {
+    ".github/workflows/test.yml": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b",
+    "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+    "tests/verification-workflow.py": "eb6b9185f7b70be56ca91a834eaa9ac3371be20c385450bf0ab0d0c33986d6b9",
+    "contracts/agent-model-capabilities.v2.json": "847fe86588ea22dcb0a13b7b61548aa254f22a8244aa5153e63efefe8a4d200e",
+    "docs/adr/README.md": "84b1b8b2f6fd98f229b58401e2cd268c2e1056397e0a132437c035a9d5f7e2a7",
+    "docs/adr/0037-conservative-ci-selection.md": "0832c2296330252ea294090629fe4abee5471b3eb8dcda33e4ca1ed85dbae364",
+    "docs/adr/0038-current-model-role-policy.md": "5641c2262f8b777f15c7724842f671aa97fe44eb75c8adc23194ca074d04241b",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "855985841eb0fb8735ba81b88df21de409dea288edca584bf4a59bac69e2aff4",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "c5ba7e73c929b2734a2b4053c22bff3d89a55ea1276cb56ab58507894f4bde45"
+  },
+  "native_host_installed": {
+    "codex": "/opt/codex/bin/codex",
+    "claude": null,
+    "copilot": null,
+    "gemini": null
+  },
+  "ruleset_details": [
+    {
+      "id": 21562208,
+      "exit_code": 0,
+      "data": {
+        "id": 21562208,
+        "name": "CI and history integrity (no bypass)",
+        "target": "branch",
+        "source_type": "Repository",
+        "source": "aharada54914/sdd-forge",
+        "enforcement": "active",
+        "conditions": {
+          "ref_name": {
+            "exclude": [],
+            "include": [
+              "~DEFAULT_BRANCH"
+            ]
+          }
+        },
+        "rules": [
+          {
+            "type": "required_status_checks",
+            "parameters": {
+              "strict_required_status_checks_policy": true,
+              "do_not_enforce_on_create": false,
+              "required_status_checks": [
+                {
+                  "context": "test (windows-latest)"
+                },
+                {
+                  "context": "test (macos-latest)"
+                },
+                {
+                  "context": "test (ubuntu-latest)"
+                },
+                {
+                  "context": "required-checks"
+                }
+              ]
+            }
+          },
+          {
+            "type": "non_fast_forward"
+          },
+          {
+            "type": "deletion"
+          }
+        ],
+        "node_id": "RRS_lACqUmVwb3NpdG9yec5LWKr9zgFJA2A",
+        "created_at": "2026-08-26T12:53:54.073Z",
+        "updated_at": "2026-08-26T12:53:54.112Z",
+        "bypass_actors": [],
+        "current_user_can_bypass": "never",
+        "_links": {
+          "self": {
+            "href": "https://api.github.com/repos/aharada54914/sdd-forge/rulesets/21562208"
+          },
+          "html": {
+            "href": "https://github.com/aharada54914/sdd-forge/rules/21562208"
+          }
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "id": 17651269,
+      "exit_code": 0,
+      "data": {
+        "id": 17651269,
+        "name": "Protect main branch",
+        "target": "branch",
+        "source_type": "Repository",
+        "source": "aharada54914/sdd-forge",
+        "enforcement": "active",
+        "conditions": {
+          "ref_name": {
+            "exclude": [],
+            "include": [
+              "~DEFAULT_BRANCH"
+            ]
+          }
+        },
+        "rules": [
+          {
+            "type": "pull_request",
+            "parameters": {
+              "required_approving_review_count": 1,
+              "dismiss_stale_reviews_on_push": true,
+              "required_reviewers": [],
+              "require_code_owner_review": false,
+              "require_last_push_approval": false,
+              "required_review_thread_resolution": false,
+              "require_extra_approval_for_unattributed_changes": true,
+              "allowed_merge_methods": [
+                "merge",
+                "squash",
+                "rebase"
+              ]
+            }
+          }
+        ],
+        "node_id": "RRS_lACqUmVwb3NpdG9yec5LWKr9zgENVkU",
+        "created_at": "2026-06-14T02:41:57.374Z",
+        "updated_at": "2026-09-17T13:49:33.845Z",
+        "bypass_actors": [
+          {
+            "actor_id": 5,
+            "actor_type": "RepositoryRole",
+            "bypass_mode": "always"
+          },
+          {
+            "actor_id": 1144995,
+            "actor_type": "Integration",
+            "bypass_mode": "always"
+          },
+          {
+            "actor_id": 1236702,
+            "actor_type": "Integration",
+            "bypass_mode": "always"
+          }
+        ],
+        "current_user_can_bypass": "always",
+        "_links": {
+          "self": {
+            "href": "https://api.github.com/repos/aharada54914/sdd-forge/rulesets/17651269"
+          },
+          "html": {
+            "href": "https://github.com/aharada54914/sdd-forge/rules/17651269"
+          }
+        }
+      },
+      "stderr": ""
+    }
+  ]
+}

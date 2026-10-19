@@ -1,0 +1,6 @@
+{
+  "observed_at": "2026-10-18T23:27:54.119315+00:00",
+  "reason": "Canonical workflow state rejected missing feature registration before implementation-policy precheck. Added ordinary full profile; no review bypass.",
+  "before_sha256": "a9b29b95a1b8226c8022732253145f739a63f1a7a3c4b7a4363558dd6b8b23fe",
+  "after_sha256": "61f0dd430daa8938a60a7b66460e81388a872ed91b8830795f1dbcb2c2db7a9b"
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "ci-model-modernization",
+  "attempt": 1,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "a25c97449f4337056cfdd16c951c5187c6cc4c29f6ec5399d51a273ddd17b1f3",
+  "requirements_sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd",
+  "acceptance_sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1",
+  "layer_sha256": {"ux-spec.md":"89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b","frontend-spec.md":"5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657","infra-spec.md":"5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c","security-spec.md":"2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"},
+  "adr_inputs": [],
+  "input_sha256": "9d85c1616c2b3eb64b853c6f35e575a41986302b52e05f34c8624c01ae2fd497",
+  "generated_at": "2026-10-18T23:28:16Z"
+}

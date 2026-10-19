@@ -1,0 +1,52 @@
+{
+  "observed_at": "2026-10-18T23:19:00.237321+00:00",
+  "commit": "d6b4cfa2048b6a0d5a27d4caf06df117b79fdfe0",
+  "parent": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "curated_paths_match": true,
+  "changed_files": 162,
+  "whitespace_check_exit": 2,
+  "whitespace_findings": [
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/unreserved-input-recovery-2/launch-review.py",
+      "reason": "trailing whitespace."
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-2/launch-review.py",
+      "reason": "trailing whitespace."
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/pester-install-failure.log",
+      "reason": "trailing whitespace."
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/pester-install-failure.log",
+      "reason": "trailing whitespace."
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/pester-retry-success.log",
+      "reason": "trailing whitespace."
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-1.log",
+      "reason": "trailing whitespace."
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-1.log",
+      "reason": "trailing whitespace."
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/native-windows-junction.log",
+      "reason": "trailing whitespace."
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/native-windows-junction.log",
+      "reason": "trailing whitespace."
+    }
+  ],
+  "reviewed_evidence_bytes_unchanged": true,
+  "handling": "Whitespace retained in hash-bound evidence/caller snapshots; all findings limited to these exact known paths. Initial shell proceeded to commit despite the check exit; this post-commit audit verifies curation and exact pinned bytes before push. No claim that the raw whitespace check passed.",
+  "tag_not_moved": true,
+  "pushed_at": "2026-10-18T23:19:38.551115+00:00",
+  "branch": "release/cloud-orchestration-v1.19.0-20261018",
+  "push_exit_code": 0
+}

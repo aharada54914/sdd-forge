@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a15150-7eb3-70e0-9e72-cf64e0cbb25a",
+  "host_session_id": "01a15150-7eb3-70e0-9e72-cf64e0cbb25a",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "12650a677881fa1fecb27f4ccf6887bcc9d963bdd5de896726131408a1b9e624"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "5064c08f053ace4c8b2d6f1f069688c9fd217991d0f71bccc824c67d5860917b"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "reports/spec-review/ci-model-modernization/attempt-1/round-1/precheck-result.json",
+      "sha256": "ddfac687a70c8d63503d57542e33e20f6cbbcc4cc49766cb6571787275e65f9f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-014 requires consistent CLI/config/environment/agent-definition precedence, and Model Edge Cases explicitly includes override conflicts, but neither defines which conflicting explicit setting wins or whether conflicts are rejected. TEST-094 establishes explicit pinned versus ordinary selection; TEST-095/096 establish transport and agent non-interference, not precedence among conflicting explicit sources. Implementers and verifiers therefore lack an expected result when CLI, environment and configuration specify different valid models or policies. This is a Phase-1 observable behavior gap, not an architecture or command requirement; Major because divergent host implementations could satisfy the existing tests while selecting different models. State the precedence or conflict-rejection rule and add corresponding acceptance branches."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001\u2013REQ-020 each maps to its corresponding AC-001\u2013AC-020, with expanded TEST branches covering both workstreams and additional role entry points."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The TEST matrix specifies inspectable plans, required contexts, execution receipts, rejection outcomes, model records, launcher behavior and immutable release tags. Hosted execution and fixture evidence are explicitly distinguished."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals exclude external protection changes, privileged PR execution, production cloud execution, new credentials, automatic access changes, automatic delegation, autonomous registry merges and historical-evidence rewriting."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Roles and Permissions, Security Boundaries and REQ-002/005/007/011/015\u2013019 explicitly constrain trust, caching, authorization, consent, identity reservation, run reproduction and compatibility. OQ-001/002 specify unavailable-event and unsupported-host handling without granting additional permissions."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Dependency omission, forged execution evidence, cache corruption, identity mismatch and model regression have planned validation surfaces: TEST-014/015, TEST-019\u2013024, TEST-028\u2013030, TEST-103/104/107/108/131\u2013133, category comparisons and the Model Evaluation Boundary. Unproven categories remain full; unavailable native evidence cannot become a fabricated pass."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The host declares no domain/ directory, corroborated by investigation.md Bootstrap Context; the explicit skip condition applies."
+    }
+  ]
+}
