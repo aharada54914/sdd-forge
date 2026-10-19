@@ -16,6 +16,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from typing import Any
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,6 +62,8 @@ def seal_observation(value):
 
 def load_helper():
     spec = importlib.util.spec_from_file_location('t006_policy', SCRIPTS / 'model-policy.py')
+    if spec is None or spec.loader is None:
+        raise ImportError('Cannot load policy helper: ' + str(SCRIPTS / 'model-policy.py'))
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
@@ -68,6 +71,13 @@ def load_helper():
 
 
 class PolicySelection(unittest.TestCase):
+    # Heterogeneous JSON fixture documents serialized for the selector.
+    registry: dict[str, Any]
+    policy: dict[str, Any]
+    observation: dict[str, Any]
+    request: dict[str, Any]
+    project: dict[str, Any]
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='model-policy-fixture-')
         self.addCleanup(self.temp.cleanup)
@@ -730,6 +740,8 @@ class PolicySelection(unittest.TestCase):
     def test_genuine_diagnostic_capture_cannot_authorize_selection(self):
         specification = importlib.util.spec_from_file_location(
             't006_observation_fixture', ROOT / 'tests/model-observation.tests.py')
+        if specification is None or specification.loader is None:
+            self.fail('Observation fixture module cannot be loaded')
         observation_fixture = importlib.util.module_from_spec(specification)
         specification.loader.exec_module(observation_fixture)
         helper = observation_fixture.MP
@@ -798,6 +810,8 @@ class PolicySelection(unittest.TestCase):
         helper = load_helper()
         prepare = getattr(helper, 'prepare_policy', None)
         self.assertTrue(callable(prepare), 'Policy preparation API is missing')
+        if not callable(prepare):
+            self.fail('Policy preparation API is missing')
         self.observation['source'] = 'live-discovery'
         self.save()
         old_cwd = Path.cwd()
