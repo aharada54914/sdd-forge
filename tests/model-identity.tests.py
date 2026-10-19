@@ -1901,5 +1901,109 @@ class UriOriginalStringTests(IdentityCase):
                 self.assertRejects(INVALID, self.validate, seal(record))
 
 
+class DeliveryTransportContext(IdentityCase):
+    """T005 default behavior remains exact; exec evidence needs trusted caller context."""
+    selection: dict[str, Any]
+    events: dict[str, Any]
+
+    def setUp(self):
+        self.helper = self.mp()
+        self.selection = bound(pinned_selection())
+        self.events = unsupported_events(self.selection)
+
+    def options(self, function, transport):
+        # Red uses the real existing verifier when its new keyword is absent. A
+        # behavioral outcome assertion fails, rather than a missing-keyword error.
+        import inspect
+        return {'transport': transport} if 'transport' in inspect.signature(function).parameters else {}
+
+    def verify(self, selection, events, require=False, transport='codex-exec'):
+        return self.helper.verify_delivery(selection, events, require_actual_id=require,
+                                          **self.options(self.helper.verify_delivery, transport))
+
+    def accepted_exec(self, require=False):
+        expected = expected_delivery(self.selection, self.events, require)
+        expected['source'] = 'codex-exec'
+        try:
+            actual = self.verify(self.selection, self.events, require)
+        except self.helper.PolicyError as error:
+            actual = {'rejected': error.reason}
+        self.assertEqual(actual, expected, 'trusted exec context must preserve explicit unverified identity')
+        return actual
+
+    def consume(self, record, selection, events, require=False, transport='codex-exec'):
+        return self.helper.validate_delivery_record(
+            record, selection=selection, events=events, require_actual_id=require,
+            **self.options(self.helper.validate_delivery_record, transport))
+
+    def test_exec_context_records_configured_identity_without_claiming_actual_id(self):
+        for require in (False, True):
+            with self.subTest(require_actual_id=require):
+                record = self.accepted_exec(require)
+                self.assertIsNone(record['actual_id'])
+                self.assertEqual(record['proof'], 'unverified')
+                self.assertEqual(record['status'], 'blocked' if require else 'accepted')
+                self.assertIsNone(self.consume(record, self.selection, self.events, require))
+
+    def test_exec_context_cannot_relabel_native_dtos_or_reroute_notifications(self):
+        self.accepted_exec()
+        native = codex_events(self.selection)
+        reroute = rerouted(self.selection['resolved']['native_id'], 'other-fixture-model')
+        for field, value in [('thread_read', native['thread_read']), ('turn_start', native['turn_start']),
+                             ('notifications', [reroute])]:
+            with self.subTest(native_field=field):
+                changed = copy.deepcopy(self.events)
+                changed[field] = value
+                with self.assertRaises(self.helper.PolicyError):
+                    self.verify(self.selection, changed)
+        for field in ('host', 'cli_version', 'selection_sha256', 'run_id', 'session_id'):
+            with self.subTest(binding=field):
+                changed = copy.deepcopy(self.events)
+                changed[field] = 'changed-' + str(changed[field])
+                with self.assertRaises(self.helper.PolicyError):
+                    self.verify(self.selection, changed)
+
+    def test_delivery_source_never_authorizes_exec_mode_and_every_leaf_is_recomputed(self):
+        record = self.accepted_exec()
+        with self.assertRaises(self.helper.PolicyError):
+            self.helper.validate_delivery_record(record, selection=self.selection, events=self.events,
+                                                 require_actual_id=False)
+        mutations = {'schema': 'wrong/v1', 'selection_sha256': '0' * 64,
+                     'run_id': OTHER_RUN, 'session_id': OTHER_SESSION, 'turn_id': 'other-turn',
+                     'configured_id': 'other-model', 'actual_id': 'forged-actual-model',
+                     'proof': 'host-reported', 'source': 'unsupported',
+                     'reroutes': [{'thread_id': THREAD, 'turn_id': TURN, 'from_model': NATIVE_ID,
+                                  'to_model': 'other-model', 'reason': REROUTE_REASON}],
+                     'status': 'blocked', 'reason': 'actual-id-unavailable'}
+        self.assertEqual(set(mutations), set(record))
+        for field, value in mutations.items():
+            with self.subTest(delivery_leaf=field):
+                changed_record = copy.deepcopy(record)
+                changed_record[field] = value
+                with self.assertRaises(self.helper.PolicyError):
+                    self.consume(changed_record, self.selection, self.events)
+        native = codex_events(self.selection)
+        native_record = self.helper.verify_delivery(self.selection, native, require_actual_id=False)
+        native_record['source'] = 'codex-exec'
+        with self.assertRaises(self.helper.PolicyError):
+            self.consume(native_record, self.selection, native)
+
+    def test_legacy_native_bytes_remain_exact_and_explicit_transport_choice_is_closed(self):
+        native = codex_events(self.selection)
+        for require in (False, True):
+            expected = expected_delivery(self.selection, native, require)
+            actual = self.helper.verify_delivery(self.selection, native, require_actual_id=require)
+            self.assertEqual(canonical(actual), canonical(expected))
+            self.assertEqual(canonical(self.verify(self.selection, native, require, None)), canonical(expected))
+        modes: tuple[object, ...] = ('Codex-exec', 'claude-print', 'codex-app-server', '', True, 1, {})
+        for mode in modes:
+            with self.subTest(transport=repr(mode)):
+                with self.assertRaises(self.helper.PolicyError):
+                    self.verify(self.selection, native, transport=mode)
+        other = for_host(self.selection, 'claude-code')
+        with self.assertRaises(self.helper.PolicyError):
+            self.verify(other, unsupported_events(other))
+
+
 if __name__ == '__main__':
     unittest.main()
