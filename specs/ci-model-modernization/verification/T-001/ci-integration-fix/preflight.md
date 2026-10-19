@@ -40,3 +40,7 @@ The C AggregateFixture is instantiated as a helper; no C test class or existing 
 ## Scope and next step
 
 Only tests/verification-workflow.py and tests/verification-ci-plan.tests.py may change, plus this task-local evidence. Parent owns statuses/ticket/ledger, checkpoint commits and final scoped self-review. Root must commit the Red checkpoint and send GO before production changes. Final independent full T001 review is cycle10 under existing authorization; this implementer makes no quality verdict.
+
+## Supplementary timeout preflight
+
+Root review identified the existing required-checks timeout-minutes: 5 budget was absent from the initial successor fixture/template. Preserve exactly integer 5; do not drop the budget or admit arbitrary modifiers. The desired fixture now carries this value and four bool/float/string mismatch variants. Against the unchanged first Green candidate, red-timeout.log records three real admission errors, with 230 variants × 2 boundaries and other controls passing. timeout-prechange-source.json binds the candidate source. Initial Red evidence stays unchanged. Root supplementary checkpoint/GO is required before the one-field production template delta. The six checkout cross-type variants were added after main checkpoint and passed the already-strict JSON comparison without product repair; they are supplementary Green checks, not claimed as original Red.

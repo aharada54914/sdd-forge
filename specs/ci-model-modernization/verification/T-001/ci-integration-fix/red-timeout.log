@@ -1,0 +1,64 @@
+fixture execution
+fixture execution
+fixture execution
+RT014 bounded mutation variants: 230 x 2 boundaries
+.EE.E.
+======================================================================
+ERROR: test_exact_preparation_is_control_with_all_projection_counterparts (__main__.PreparedVerifierTests.test_exact_preparation_is_control_with_all_projection_counterparts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1272, in test_exact_preparation_is_control_with_all_projection_counterparts
+    W.verifier_job(self.workflow)
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 441, in verifier_job
+    return prepared_verifier_job(workflow, job)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 424, in prepared_verifier_job
+    raise ValueError('unrecognized preparation in orchestration verifier')
+ValueError: unrecognized preparation in orchestration verifier
+
+======================================================================
+ERROR: test_live_workload_and_a9_inventory_survives_preparation (__main__.PreparedVerifierTests.test_live_workload_and_a9_inventory_survives_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1293, in test_live_workload_and_a9_inventory_survives_preparation
+    after, controls = W.plan_inventory(live, catalog)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 489, in plan_inventory
+    prepared = verifier_job(workflow)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 441, in verifier_job
+    return prepared_verifier_job(workflow, job)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 424, in prepared_verifier_job
+    raise ValueError('unrecognized preparation in orchestration verifier')
+ValueError: unrecognized preparation in orchestration verifier
+
+======================================================================
+ERROR: test_actual_collect_aggregate_has_no_control_completion_cycle (__main__.PreparedVerifierIntegrationTests.test_actual_collect_aggregate_has_no_control_completion_cycle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1427, in test_actual_collect_aggregate_has_no_control_completion_cycle
+    self.exercise_collection(prepared=True)
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1454, in exercise_collection
+    fixture.plan = fixtures.P.make_plan(fixture.root, fixture.root, 'push', '123', 1,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 802, in make_plan
+    obligations = engine.plan_obligations(workflow, catalog, weights=weights)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 477, in plan_obligations
+    return plan_inventory(workflow, catalog, weights)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 489, in plan_inventory
+    prepared = verifier_job(workflow)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 441, in verifier_job
+    return prepared_verifier_job(workflow, job)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 424, in prepared_verifier_job
+    raise ValueError('unrecognized preparation in orchestration verifier')
+ValueError: unrecognized preparation in orchestration verifier
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.378s
+
+FAILED (errors=3)

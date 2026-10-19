@@ -1237,7 +1237,8 @@ class A9ConsumerTests(GitFixture):
 def prepared_verifier(needs):
     """Fixed RT014 caller shape; protocol fixtures, not live workflow wiring."""
     return {'name': 'required-checks', 'runs-on': 'ubuntu-latest', 'if': 'always()',
-            'needs': needs, 'permissions': {'contents': 'read', 'actions': 'read'}, 'steps': [
+            'needs': needs, 'timeout-minutes': 5,
+            'permissions': {'contents': 'read', 'actions': 'read'}, 'steps': [
         {'name': 'Checkout exact tested revision',
          'uses': 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
          'with': {'ref': '${{ github.sha }}', 'fetch-depth': 0, 'persist-credentials': False}},
@@ -1313,11 +1314,22 @@ class PreparedVerifierTests(unittest.TestCase):
         for trail, value in leaves(self.workflow['jobs']['required-checks']):
             replacement = not value if isinstance(value, bool) else 1 if isinstance(value, int) else 'unexpected'
             bad = copy.deepcopy(self.workflow)
-            target = bad['jobs']['required-checks']
+            target: Any = bad['jobs']['required-checks']
             for key in trail[:-1]:
                 target = target[key]
             target[trail[-1]] = replacement
             mutations.append((str(trail), bad))
+        # Supplemental typed-boundary checks after the original Red checkpoint.
+        for field, values in [('fetch-depth', (False, 0.0, '0')),
+                              ('persist-credentials', (0, 0.0, 'false'))]:
+            for value in values:
+                bad = copy.deepcopy(self.workflow)
+                bad['jobs']['required-checks']['steps'][0]['with'][field] = value
+                mutations.append((f'typed-checkout-{field}-{type(value).__name__}', bad))
+        for value in (True, False, 5.0, '5'):
+            bad = copy.deepcopy(self.workflow)
+            bad['jobs']['required-checks']['timeout-minutes'] = value
+            mutations.append((f'typed-timeout-{type(value).__name__}-{value}', bad))
         for index in range(5):
             for key in self.workflow['jobs']['required-checks']['steps'][index]:
                 bad = copy.deepcopy(self.workflow)
