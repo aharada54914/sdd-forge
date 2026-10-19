@@ -547,5 +547,12 @@
       "BoundaryTests.test_corrupt_deflate_is_typed_error_without_partial_files"
     ],
     "red_evidence": "specs/ci-model-modernization/verification/T-002/attempt-1/red-execution-binding.log"
+  },
+  "current_caller_slice": {
+    "stage": "before-production-edit",
+    "field": "receipt.profile",
+    "counterpart": "all 14 current workflow receipt_required obligations, including four bash ./tests/run-ci-unwired.sh invocations",
+    "test": "BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles",
+    "red_evidence": "specs/ci-model-modernization/verification/T-002/attempt-1/red-current-callers.log"
   }
 }

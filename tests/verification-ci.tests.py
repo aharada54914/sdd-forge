@@ -320,6 +320,30 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(observations['properties']['api_version']['const'], self.ci.API_VERSION)
 
 
+    def test_current_workflow_all_receipt_callers_match_existing_profiles(self):
+        workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        catalog = R.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+        weights = R.load_weights(ROOT / 'tests/verification-timings.json')
+        obligations = [o for o in W.plan_obligations(workflow, catalog, weights) if o['receipt_required']]
+        expected = {
+            'Test shared review launch and conditional input contracts': 'ci-shared-python',
+            'Run POSIX inventory shard': 'ci-posix-fallback',
+            '[deterministic] Test cloud suites, installed packages and current multitarget boundaries': 'ci-cloud',
+            '[deterministic] Test portable review-loop prechecks (pwsh)': 'ci-portable-prechecks',
+            '[deterministic] Test portable review-loop prechecks': 'ci-portable-prechecks',
+            '[deterministic] Test Epic A7 compatibility suites (pwsh)': 'ci-a7-native',
+            'Test bump-version loop-gate prerequisite': None,
+        }
+        self.assertEqual(len(obligations), 14)
+        for obligation in obligations:
+            with self.subTest(job=obligation['job'], matrix=obligation['matrix'], step=obligation['step']):
+                self.assertIn(obligation['step'], expected)
+                try:
+                    profile = self.ci.receipt_profile(workflow, obligation)
+                except ValueError as error:
+                    self.fail('existing receipt caller rejected: ' + str(error))
+                self.assertEqual(profile, expected[obligation['step']])
+
     def test_corrupt_deflate_is_typed_error_without_partial_files(self):
         raw = io.BytesIO()
         with zipfile.ZipFile(raw, 'w', compression=zipfile.ZIP_DEFLATED) as archive:

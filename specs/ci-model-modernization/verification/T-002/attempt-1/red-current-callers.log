@@ -1,0 +1,82 @@
+test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) ... 
+  test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) (job='posix-unwired-sharded', matrix={'shard': 0}, step='Run POSIX inventory shard') ... FAIL
+  test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) (job='posix-unwired-sharded', matrix={'shard': 1}, step='Run POSIX inventory shard') ... FAIL
+  test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) (job='posix-unwired-sharded', matrix={'shard': 2}, step='Run POSIX inventory shard') ... FAIL
+  test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) (job='posix-unwired-sharded', matrix={'shard': 3}, step='Run POSIX inventory shard') ... FAIL
+
+======================================================================
+FAIL: test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) (job='posix-unwired-sharded', matrix={'shard': 0}, step='Run POSIX inventory shard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 342, in test_current_workflow_all_receipt_callers_match_existing_profiles
+    profile = self.ci.receipt_profile(workflow, obligation)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.py", line 472, in receipt_profile
+    raise ValueError('ambiguous runner invocation')
+ValueError: ambiguous runner invocation
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 344, in test_current_workflow_all_receipt_callers_match_existing_profiles
+    self.fail('existing receipt caller rejected: ' + str(error))
+AssertionError: existing receipt caller rejected: ambiguous runner invocation
+
+======================================================================
+FAIL: test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) (job='posix-unwired-sharded', matrix={'shard': 1}, step='Run POSIX inventory shard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 342, in test_current_workflow_all_receipt_callers_match_existing_profiles
+    profile = self.ci.receipt_profile(workflow, obligation)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.py", line 472, in receipt_profile
+    raise ValueError('ambiguous runner invocation')
+ValueError: ambiguous runner invocation
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 344, in test_current_workflow_all_receipt_callers_match_existing_profiles
+    self.fail('existing receipt caller rejected: ' + str(error))
+AssertionError: existing receipt caller rejected: ambiguous runner invocation
+
+======================================================================
+FAIL: test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) (job='posix-unwired-sharded', matrix={'shard': 2}, step='Run POSIX inventory shard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 342, in test_current_workflow_all_receipt_callers_match_existing_profiles
+    profile = self.ci.receipt_profile(workflow, obligation)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.py", line 472, in receipt_profile
+    raise ValueError('ambiguous runner invocation')
+ValueError: ambiguous runner invocation
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 344, in test_current_workflow_all_receipt_callers_match_existing_profiles
+    self.fail('existing receipt caller rejected: ' + str(error))
+AssertionError: existing receipt caller rejected: ambiguous runner invocation
+
+======================================================================
+FAIL: test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) (job='posix-unwired-sharded', matrix={'shard': 3}, step='Run POSIX inventory shard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 342, in test_current_workflow_all_receipt_callers_match_existing_profiles
+    profile = self.ci.receipt_profile(workflow, obligation)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.py", line 472, in receipt_profile
+    raise ValueError('ambiguous runner invocation')
+ValueError: ambiguous runner invocation
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 344, in test_current_workflow_all_receipt_callers_match_existing_profiles
+    self.fail('existing receipt caller rejected: ' + str(error))
+AssertionError: existing receipt caller rejected: ambiguous runner invocation
+
+----------------------------------------------------------------------
+Ran 1 test in 0.125s
+
+FAILED (failures=4)
