@@ -1576,5 +1576,407 @@ class PairedClaudeLaunch(LaunchFixture):
         self.assertFalse((legacy['output'] / 'model-launch.json').exists())
 
 
+class ModelRunRecords(unittest.TestCase):
+    """Both shell emitters consume pinned execution records; fixtures claim no native run."""
+    launch: dict[str, Any]
+    delivery_binding: dict[str, Any]
+    selection: dict[str, Any]
+    events: dict[str, Any]
+    delivery: dict[str, Any]
+    context: dict[str, Any]
+
+    def setUp(self):
+        self.fixture = PairedClaudeLaunch(methodName='runTest')
+        self.fixture.setUp()
+        self.addCleanup(self.fixture.doCleanups)
+        self.root = self.fixture.root
+        for name in ('emit-run-record.sh', 'emit-run-record.ps1'):
+            relative = 'plugins/sdd-quality-loop/scripts/' + name
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        (self.root / 'specs/example/tasks.md').write_text('## T-001 Fixture\nStatus: In Progress\n')
+        self.output = self.root / 'reports/model-fixture'
+        self.output.mkdir(parents=True)
+
+    def records(self, role='spec-reviewer-a'):
+        f = self.fixture
+        definition = (self.root / 'plugins/sdd-quality-loop/agents/evaluator.md' if role == 'evaluator' else
+                      self.root / 'plugins/sdd-review-loop/agents' / (role + '.md'))
+        definition.parent.mkdir(parents=True, exist_ok=True)
+        definition.write_text('---\nmodel: opus\neffort: high\n---\nFixture review only.\n')
+        f.run_id = f.session_id  # Protected adapter keeps its canonical alias rule.
+        binding, _ = f.bind(role)
+        command = self.execution_fixture(role, binding, definition)
+        with f.model_env(f.active_env), f.in_root():
+            self.launch_sha = f.transport.record_model_launch(self.output, binding, command, 'matching')
+        self.launch = json.loads((self.output / 'model-launch.json').read_bytes())
+        self.selection = binding['selection']
+        self.events = {'host': self.selection['host'], 'cli_version': self.selection['cli_version'],
+                       'selection_sha256': self.selection['selection_sha256'], 'run_id': f.run_id,
+                       'session_id': f.session_id, 'thread_id': 'local-fixture-correlation',
+                       'turn_id': 'local-fixture-delivery', 'thread_read': None, 'turn_start': None,
+                       'notifications': []}
+        self.delivery = f.helper().verify_delivery(self.selection, self.events, require_actual_id=False)
+        refs = {}
+        for key, value in [('selection', self.selection), ('events', self.events), ('delivery', self.delivery)]:
+            path = 'reports/model-fixture/model-' + key + '.json'
+            f.write(path, value)
+            refs[key] = f.ref(path)
+        self.delivery_binding = {'schema': 'model-delivery-binding/v1', 'launch_sha256': self.launch_sha,
+                                 'transport': 'claude-print', **refs,
+                                 'execution_context': f.ref('reports/model-fixture/model-execution-context.json'),
+                                 'run_id': f.run_id,
+                                 'session_id': f.session_id, 'attempt': 1,
+                                 'selection_sha256': self.selection['selection_sha256']}
+        self.delivery_sha = f.write('reports/model-fixture/model-delivery-binding.json', self.delivery_binding)
+
+    def execution_fixture(self, role, binding, definition):
+        """Real existing manifest/receipt/guard/argv code; only native help is a local fixture."""
+        f = self.fixture
+        transport = f.transport
+        data = f.invocation_data(role)
+        data.update(schema='review-context-invocation/v2', read_only=True, input_mode='file-manifest',
+                    fallback_mode='none', sequence=1, previous_record_sha256='-',
+                    identity_ledger_path='reports/review-context/identity-ledger.json')
+        if data['stage'] == 'quality':
+            data.update(task_id='T-001', scratch_root=str(self.root / 'fixture-scratch'))
+        f.write(data['identity_ledger_path'], {'schema': 'review-identity-ledger/v1', 'records': []})
+        data['identity_ledger_sha256'] = f.ref(data['identity_ledger_path'])['sha256']
+        f.invocation.write_bytes(canonical(data))
+        for relative in (transport.BOUNDARY_PATH, TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()):
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        inputs_hash = sha_bytes('\n'.join(entry['path'] + '\t' + entry['sha256']
+                                          for entry in data['allowed_input_manifest']).encode())
+        record_text = '|'.join(['1', data['stage'], data['role'], f.run_id, f.session_id, '-'])
+        if data['stage'] == 'quality':
+            record_text += '|scratch-declaration-v1|' + sha_bytes(
+                (data['feature'] + '\n' + data['scratch_root']).encode())
+        if transport.inputs_bound(data):
+            record_text += '|allowed-inputs-v1|' + inputs_hash
+        f.receipt.write_text('REVIEW_CONTEXT_OK ' + sha_bytes(record_text.encode()) +
+                             ' sequence=1 previous_record_sha256=- pre_append_tip_sequence=0 identity_unique=yes\n')
+        policy, settings = transport.launch_policy(self.root, f.invocation, f.receipt, f.launch_policy_file)
+        f.launch_policy_file.write_bytes(policy)
+        f.settings.write_bytes(canonical(settings))
+        permissions = transport.receipt_control(data, f.receipt.read_text(),
+            f.invocation.relative_to(self.root).as_posix(), root=self.root)['exact_permission_rules']
+        generated = {'description': 'Repository-bound independent implementation reviewer',
+                     'prompt': definition.read_text().split('---', 2)[2].strip(),
+                     'model': binding['native_model'], 'effort': binding['effort'],
+                     'tools': transport.agent_tools(data['stage']), 'disallowedTools': list(DISALLOWED)}
+        executable = self.root / 'fixture-bin/claude'
+        executable.parent.mkdir(exist_ok=True)
+        executable.write_text('# fixture command identity; never executed\n')
+        executable.chmod(0o700)
+        real_run, real_which = subprocess.run, shutil.which
+        def run(args: list[str], *positional: Any, **kwargs: Any):
+            if '--help' in args:
+                return subprocess.CompletedProcess(args, 0, HELP_TEXT, '')
+            return real_run(args, *positional, **kwargs)
+        with f.model_env(f.active_env), f.in_root(), \
+                mock.patch.object(transport.shutil, 'which', side_effect=lambda name:
+                                  str(executable) if name == 'claude' else real_which(name)), \
+                mock.patch.object(transport.subprocess, 'run', side_effect=run):
+            command = transport.claude_command(self.root, f.session_id, data['role'], generated, permissions,
+                        f.settings, f.invocation, f.receipt, f.launch_policy_file,
+                        model_binding=binding, environment=dict(os.environ))
+        dependencies = {str(self.root / ref['path']): ref['sha256'] for ref in
+                        [binding['controls'], *binding['pins'], *binding['trusted']]}
+        for target in (f.invocation, definition, executable, self.root / transport.BOUNDARY_PATH,
+                       self.root / TRANSPORT_SCRIPT.relative_to(ROOT), self.root / data['allowed_input_manifest'][0]['path']):
+            dependencies[str(target)] = sha_bytes(target.read_bytes())
+        f.write('reports/model-fixture/dependencies.json', dependencies)
+        self.context = {'schema': 'model-execution-context/v1', 'transport': 'claude-print',
+                        'stage': data['stage'], 'role': data['role'], 'run_id': f.run_id,
+                        'session_id': f.session_id, 'attempt': 1,
+                        'invocation': f.ref(f.invocation.relative_to(self.root).as_posix()),
+                        'dependencies': f.ref('reports/model-fixture/dependencies.json'),
+                        'role_definition': f.ref(definition.relative_to(self.root).as_posix()),
+                        'policy': f.ref(f.launch_policy_file.relative_to(self.root).as_posix()),
+                        'settings': f.ref(f.settings.relative_to(self.root).as_posix()),
+                        'receipt': f.ref(f.receipt.relative_to(self.root).as_posix()),
+                        'fixed_inputs': None, 'policy_environment': dict(f.active_env),
+                        'native_overrides': binding['native_overrides'],
+                        'executable': {'path': str(executable), 'resolved_path': str(executable),
+                                       'sha256': sha_bytes(executable.read_bytes())}}
+        f.write('reports/model-fixture/model-execution-context.json', self.context)
+        return command
+
+    def emit(self, shell, slot='reviewers', extra=(), *, selected=True, launch_sha=None, delivery_sha=None):
+        shutil.rmtree(self.root / 'reports/runs', ignore_errors=True)
+        script = self.root / 'plugins/sdd-quality-loop/scripts' / ('emit-run-record.' +
+                                                                 ('sh' if shell == 'bash' else 'ps1'))
+        if shell == 'bash':
+            command = [BASH, str(script), 'example']
+            names = ['--model-launch', '--model-launch-sha256', '--model-delivery-binding',
+                     '--model-delivery-binding-sha256', '--model-slot']
+        else:
+            command = [os.environ.get('SDD_TEST_PWSH', 'pwsh'), '-NoProfile', '-File', str(script),
+                       '-Feature', 'example']
+            names = ['-ModelLaunch', '-ModelLaunchSha256', '-ModelDeliveryBinding',
+                     '-ModelDeliveryBindingSha256', '-ModelSlot']
+        if selected:
+            values = ['reports/model-fixture/model-launch.json', launch_sha or self.launch_sha,
+                      'reports/model-fixture/model-delivery-binding.json', delivery_sha or self.delivery_sha, slot]
+            command += list(itertools.chain.from_iterable(zip(names, values)))
+        command += list(extra)
+        return self.fixture.run_process(command, timeout=60, label='selected run record ' + shell)
+
+    def accepted_record(self, shell, slot='reviewers'):
+        result = self.emit(shell, slot)
+        self.assertEqual(result.returncode, 0, result.stderr[:1600])
+        paths = list((self.root / 'reports/runs').glob('RUN-*.json'))
+        self.assertEqual(len(paths), 1)
+        return json.loads(paths[0].read_bytes())
+
+    def reject_record(self, shell, **options):
+        result = self.emit(shell, **options)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(list((self.root / 'reports/runs').glob('RUN-*.json')),
+                         'rejected model evidence must not publish a run record')
+
+    def test_protected_selected_entry_retains_canonical_run_session_alias(self):
+        self.records()
+        f = self.fixture
+        data, _ = f.transport.manifest(self.root, f.invocation)
+        self.assertEqual(data['run_id'], data['host_session_id'])
+        launcher = load_module(LAUNCHER_SCRIPT, 'record_selected_entry')
+        self.addCleanup(sys.modules.pop, launcher.__name__, None)
+        data['run_id'] = 'distinct-valid-generic-run'
+        f.invocation.write_bytes(canonical(data))
+        with mock.patch.object(launcher, 'run') as native, \
+                mock.patch.object(launcher.transport, 'model_launch_binding') as gate:
+            with self.assertRaisesRegex(ValueError, 'alias run_id'):
+                launcher.launch(self.root, f.invocation, self.root / 'reports/rejected-selected-entry',
+                    model_binding={'controls': Path('controls.json'),
+                                   'controls_sha256': f.ref('controls.json')['sha256']})
+        native.assert_not_called()
+        gate.assert_not_called()
+        self.assertFalse((self.root / 'reports/rejected-selected-entry').exists())
+
+    def test_retrospective_context_every_field_and_launch_argv_are_independently_rebuilt(self):
+        self.records()
+        self.accepted_record('bash')
+        f = self.fixture
+        original_context = copy.deepcopy(self.context)
+        original_binding = copy.deepcopy(self.delivery_binding)
+        for path in leaf_paths(original_context):
+            with self.subTest(context_leaf='/'.join(map(str, path))):
+                changed_context = copy.deepcopy(original_context)
+                set_path(changed_context, path, altered(get_path(original_context, path)))
+                f.write('reports/model-fixture/model-execution-context.json', changed_context)
+                changed_binding = copy.deepcopy(original_binding)
+                changed_binding['execution_context'] = f.ref('reports/model-fixture/model-execution-context.json')
+                digest = f.write('reports/model-fixture/model-delivery-binding.json', changed_binding)
+                self.reject_record('bash', delivery_sha=digest)
+        f.write('reports/model-fixture/model-execution-context.json', original_context)
+        f.write('reports/model-fixture/model-delivery-binding.json', original_binding)
+        original_launch = copy.deepcopy(self.launch)
+        for path in leaf_paths(original_launch):
+            with self.subTest(launch_leaf='/'.join(map(str, path))):
+                changed_launch = copy.deepcopy(original_launch)
+                set_path(changed_launch, path, altered(get_path(original_launch, path)))
+                if path != ('argv_sha256',):
+                    changed_launch['argv_sha256'] = sha_bytes(canonical(changed_launch['argv']))
+                digest = f.write('reports/model-fixture/model-launch.json', changed_launch)
+                changed_binding = copy.deepcopy(original_binding)
+                changed_binding['launch_sha256'] = digest
+                delivery_digest = f.write('reports/model-fixture/model-delivery-binding.json', changed_binding)
+                self.reject_record('bash', launch_sha=digest, delivery_sha=delivery_digest)
+        f.write('reports/model-fixture/model-launch.json', original_launch)
+        f.write('reports/model-fixture/model-delivery-binding.json', original_binding)
+
+    def test_resealed_context_artifacts_cannot_authorize_changed_permissions_or_role(self):
+        self.records()
+        self.accepted_record('bash')
+        f = self.fixture
+        context = copy.deepcopy(self.context)
+        binding = copy.deepcopy(self.delivery_binding)
+        mutations: dict[str, Callable[[bytes], bytes]] = {
+            'invocation': lambda raw: canonical({**json.loads(raw), 'read_only': False}),
+            'role_definition': lambda raw: raw + b'\nAdditional unauthorized role prompt.\n',
+            'policy': lambda raw: canonical({**json.loads(raw), 'bash_commands': ['arbitrary command']}),
+            'settings': lambda raw: canonical({**json.loads(raw), 'permissions': {'allow': ['Bash']}}),
+            'receipt': lambda raw: raw.replace(b'identity_unique=yes', b'identity_unique=no'),
+            'dependencies': lambda raw: canonical({**json.loads(raw), str(f.invocation): '0' * 64}),
+        }
+        for name, mutate in mutations.items():
+            with self.subTest(resealed_artifact=name):
+                target = self.root / context[name]['path']
+                original = target.read_bytes()
+                target.write_bytes(mutate(original))
+                changed_context = copy.deepcopy(context)
+                changed_context[name] = f.ref(context[name]['path'])
+                f.write('reports/model-fixture/model-execution-context.json', changed_context)
+                changed_binding = copy.deepcopy(binding)
+                changed_binding['execution_context'] = f.ref('reports/model-fixture/model-execution-context.json')
+                digest = f.write('reports/model-fixture/model-delivery-binding.json', changed_binding)
+                try:
+                    self.reject_record('bash', delivery_sha=digest)
+                finally:
+                    target.write_bytes(original)
+        f.write('reports/model-fixture/model-execution-context.json', context)
+        f.write('reports/model-fixture/model-delivery-binding.json', binding)
+
+    def test_retrospective_consumption_never_renews_live_capture_or_model_eligibility(self):
+        self.records()
+        expected = self.accepted_record('bash')['model_policy']
+        transport = self.fixture.transport
+        with mock.patch.object(transport, 'model_launch_binding',
+                               side_effect=AssertionError('postflight eligibility renewal')) as gate, \
+                mock.patch.object(transport, 'fresh_model_binding',
+                                  side_effect=AssertionError('postflight capture renewal')) as fresh, \
+                mock.patch.object(transport.subprocess, 'run',
+                                  side_effect=AssertionError('postflight native process')) as process:
+            result = transport.verify_model_run(self.root, 'reports/model-fixture/model-launch.json',
+                self.launch_sha, 'reports/model-fixture/model-delivery-binding.json',
+                self.delivery_sha, 'reviewers')
+        self.assertEqual(result, expected)
+        gate.assert_not_called()
+        fresh.assert_not_called()
+        process.assert_not_called()
+
+    def test_both_shells_bind_role_specific_configured_identity_and_checked_effort(self):
+        for role, slot in [('spec-reviewer-a', 'reviewers'), ('evaluator', 'main')]:
+            if (self.output / 'model-launch.json').exists():
+                (self.output / 'model-launch.json').unlink()
+            self.records(role)
+            for shell in ('bash', 'powershell'):
+                with self.subTest(role=role, shell=shell):
+                    record = self.accepted_record(shell, slot)
+                    expected = {'actor_slot': slot, 'transport': 'claude-print',
+                                'launch_sha256': self.launch_sha, 'delivery_binding_sha256': self.delivery_sha,
+                                'selection': self.selection, 'delivery': self.delivery,
+                                'events_sha256': self.delivery_binding['events']['sha256']}
+                    self.assertEqual(record['schema'], 'sdd-run-record/v2')
+                    self.assertEqual(record['model_policy'], expected)
+                    self.assertEqual(record['run_id'], self.selection['binding']['run_id'])
+                    self.assertEqual(record['model_ids'][slot], self.selection['resolved']['native_id'])
+                    self.assertEqual(record['model_ids']['main' if slot == 'reviewers' else 'reviewers'], 'unknown')
+                    self.assertEqual(record['effort'][slot], {'effort_requested': 'high',
+                                                            'effort_applied': 'high',
+                                                            'effort_degraded_reason': None})
+                    self.assertIsNone(record['model_policy']['delivery']['actual_id'])
+
+    def test_both_shells_validate_every_delivery_binding_leaf_and_raw_link_before_emission(self):
+        self.records()
+        original = canonical(self.delivery_binding)
+        for shell in ('bash', 'powershell'):
+            self.accepted_record(shell)
+            for path in leaf_paths(self.delivery_binding):
+                with self.subTest(shell=shell, binding_leaf='/'.join(map(str, path))):
+                    changed = copy.deepcopy(self.delivery_binding)
+                    set_path(changed, path, altered(get_path(changed, path)))
+                    raw = canonical(changed)
+                    (self.output / 'model-delivery-binding.json').write_bytes(raw)
+                    self.reject_record(shell, delivery_sha=sha_bytes(raw))
+            (self.output / 'model-delivery-binding.json').write_bytes(original)
+            for name in ('selection', 'events', 'delivery'):
+                with self.subTest(shell=shell, changed_raw=name):
+                    target = self.root / self.delivery_binding[name]['path']
+                    raw = target.read_bytes()
+                    target.write_bytes(raw + b' ')
+                    try:
+                        self.reject_record(shell)
+                    finally:
+                        target.write_bytes(raw)
+            self.reject_record(shell, launch_sha='0' * 64)
+            self.reject_record(shell, delivery_sha='0' * 64)
+
+    def test_both_shells_reject_slot_metadata_and_blocked_delivery_conflicts(self):
+        self.records()
+        for shell in ('bash', 'powershell'):
+            self.accepted_record(shell)
+            self.reject_record(shell, slot='main')
+            names = (['--model-reviewers', '--effort-reviewers', '--effort-control-reviewers',
+                      '--effort-applied-reviewers'] if shell == 'bash' else
+                     ['-ModelReviewers', '-EffortReviewers', '-EffortControlReviewers',
+                      '-EffortAppliedReviewers'])
+            for name, value in zip(names, ['sonnet', 'medium', 'none', 'medium']):
+                with self.subTest(shell=shell, conflicting_metadata=name):
+                    self.reject_record(shell, extra=(name, value))
+            changed = copy.deepcopy(self.delivery)
+            changed.update(status='blocked', reason='actual-id-unavailable')
+            delivery_path = self.root / self.delivery_binding['delivery']['path']
+            original = delivery_path.read_bytes()
+            delivery_path.write_bytes(canonical(changed))
+            altered_binding = copy.deepcopy(self.delivery_binding)
+            altered_binding['delivery']['sha256'] = sha_file(delivery_path)
+            raw = canonical(altered_binding)
+            (self.output / 'model-delivery-binding.json').write_bytes(raw)
+            try:
+                self.reject_record(shell, delivery_sha=sha_bytes(raw))
+            finally:
+                delivery_path.write_bytes(original)
+                (self.output / 'model-delivery-binding.json').write_bytes(canonical(self.delivery_binding))
+
+    def test_both_shells_reject_partial_flag_groups_and_unsafe_record_paths(self):
+        self.records()
+        for shell in ('bash', 'powershell'):
+            self.accepted_record(shell)
+            names = (['--model-launch', '--model-launch-sha256', '--model-delivery-binding',
+                      '--model-delivery-binding-sha256', '--model-slot'] if shell == 'bash' else
+                     ['-ModelLaunch', '-ModelLaunchSha256', '-ModelDeliveryBinding',
+                      '-ModelDeliveryBindingSha256', '-ModelSlot'])
+            values = ['reports/model-fixture/model-launch.json', self.launch_sha,
+                      'reports/model-fixture/model-delivery-binding.json', self.delivery_sha, 'reviewers']
+            for name, value in zip(names, values):
+                with self.subTest(shell=shell, partial_group=name):
+                    self.reject_record(shell, selected=False, extra=(name, value))
+            for name in ('model-launch.json', 'model-delivery-binding.json'):
+                with self.subTest(shell=shell, symlink=name):
+                    target = self.output / name
+                    raw = target.read_bytes()
+                    outside = self.fixture.base / ('outside-' + name)
+                    outside.write_bytes(raw)
+                    target.unlink()
+                    target.symlink_to(outside)
+                    try:
+                        self.reject_record(shell)
+                    finally:
+                        target.unlink()
+                        target.write_bytes(raw)
+            original = canonical(self.delivery_binding)
+            for path in ('../outside-selection.json', '/outside-selection.json',
+                         'reports//model-fixture/model-selection.json',
+                         'reports/model-fixture/./model-selection.json'):
+                with self.subTest(shell=shell, noncanonical_link=path):
+                    changed = copy.deepcopy(self.delivery_binding)
+                    changed['selection']['path'] = path
+                    raw = canonical(changed)
+                    (self.output / 'model-delivery-binding.json').write_bytes(raw)
+                    self.reject_record(shell, delivery_sha=sha_bytes(raw))
+            (self.output / 'model-delivery-binding.json').write_bytes(original)
+
+    def test_protected_controller_publishes_generated_delivery_links_after_bound_execution(self):
+        f = self.fixture
+        result = f.exercise_bound_quality_launch()
+        output = result['output']
+        self.assertTrue((output / 'model-delivery-binding.json').is_file(),
+                        'successful selected controller must publish its delivery linkage')
+        record = json.loads((output / 'model-delivery-binding.json').read_bytes())
+        self.assertEqual(record['schema'], 'model-delivery-binding/v1')
+        self.assertEqual(record['transport'], 'claude-print')
+        self.assertEqual(record['launch_sha256'], sha_file(output / 'model-launch.json'))
+        selection = json.loads((f.root / record['selection']['path']).read_bytes())
+        events = json.loads((f.root / record['events']['path']).read_bytes())
+        delivery = json.loads((f.root / record['delivery']['path']).read_bytes())
+        for name in ('selection', 'events', 'delivery'):
+            self.assertEqual(record[name]['sha256'], sha_file(f.root / record[name]['path']))
+        self.assertEqual(record['selection_sha256'], selection['selection_sha256'])
+        self.assertEqual(record['run_id'], selection['binding']['run_id'])
+        self.assertEqual(record['session_id'], selection['binding']['session_id'])
+        self.assertEqual(record['attempt'], selection['binding']['attempt'])
+        f.helper().validate_delivery_record(delivery, selection=selection, events=events,
+                                            require_actual_id=False)
+        self.assertIsNone(delivery['actual_id'])
+        summary = json.loads((output / 'delivery.json').read_bytes())
+        self.assertEqual(summary['model_launch_sha256'], record['launch_sha256'])
+        self.assertEqual(summary['model_delivery_binding_sha256'], sha_file(output / 'model-delivery-binding.json'))
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
