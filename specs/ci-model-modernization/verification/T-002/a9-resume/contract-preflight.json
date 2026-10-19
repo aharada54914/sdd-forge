@@ -1,0 +1,112 @@
+{
+  "schema": "task-contract-preflight/v1",
+  "task": "T-002",
+  "resume": "A9 approved amendment",
+  "manifest": "specs/ci-model-modernization/verification/T-002/a9-resume/task-input-manifest.json",
+  "manifest_sha256": "e6fd4098367bf34cbec172faa1c1914a2089640630007c7d13e361fd89248cdb",
+  "authority": "specs/ci-model-modernization/verification/T-001/a9-amendment/authorization.json",
+  "persisted_counterparts": [
+    {
+      "fields": [
+        "result.schema",
+        "result.status",
+        "result.reason",
+        "result.run_id",
+        "result.api_head_sha",
+        "result.tested_revision",
+        "result.plan_sha256",
+        "result.results"
+      ],
+      "counterpart": "existing strict shape validation + actual run/checked-out Git/trusted planner reconstruction; result schema; complete T001 validate_result_binding",
+      "tests": [
+        "existing persisted counterpart tests",
+        "test_TEST024_event_and_git_context_positive_branches",
+        "test_TEST024_result_shape_and_consumer_counterparts"
+      ]
+    },
+    {
+      "fields": [
+        "results[].obligation_id",
+        "results[].status",
+        "results[].reason",
+        "results[].job_id",
+        "results[].source_attempt"
+      ],
+      "counterpart": "only exact independently rebuilt A9 obligation: EXPECTED_SKIP/advisory-inactive/null/null when W.a9_activation(root,plan,workflow) is False; full inventory with zero omissions; active uses normal verified and source IDs",
+      "tests": [
+        "test_TEST024_event_and_git_context_positive_branches",
+        "test_TEST024_inactive_success_and_active_skip_are_failures",
+        "test_TEST024_result_shape_and_consumer_counterparts"
+      ]
+    },
+    {
+      "fields": [
+        "raw run.id/head_sha/event/run_attempt",
+        "raw jobs.id/run_id/head_sha/run_attempt/name/status/conclusion",
+        "collection.jobs[].path/sha256"
+      ],
+      "counterpart": "existing collection strict references + validated complete pages/attempt history + workflow expanded exact unique names; advisory skip requires all attempts and nonexecuted runner/step state",
+      "tests": [
+        "test_TEST024_detector_and_skip_observation_mismatch_matrix",
+        "test_TEST024_rerun_skipped_timestamps_and_detector_lineage"
+      ]
+    },
+    {
+      "fields": [
+        "detector runner_id/runner_name/labels",
+        "detector started_at/completed_at/steps",
+        "detect step name/number/status/conclusion/started_at/completed_at"
+      ],
+      "counterpart": "exact passed A9 projection identifies detector job/step; source_job establishes original execution; native ubuntu runner and successful completed detector plus actual successful detection step; origin attempt >= planning_attempt",
+      "tests": [
+        "test_TEST024_detector_and_skip_observation_mismatch_matrix",
+        "test_TEST024_rerun_skipped_timestamps_and_detector_lineage"
+      ]
+    },
+    {
+      "fields": [
+        "advisory skipped runner_id/runner_name/labels/steps/started_at/completed_at"
+      ],
+      "counterpart": "no executed runner or steps; timestamps remain observation metadata, not executed interval; admitted rerun comparison has reversed skipped timestamps",
+      "tests": [
+        "test_TEST024_rerun_skipped_timestamps_and_detector_lineage",
+        "test_TEST024_detector_and_skip_observation_mismatch_matrix"
+      ]
+    },
+    {
+      "fields": [
+        "bound workflow/env/defaults/detector/advisory source",
+        "plan event/base_revision/pr_head_revision/merge_base_revision/tested_revision/workflow_sha256"
+      ],
+      "counterpart": "passed W.a9_activation; None does not authorize inactive; independently bound reconstruction supplies context, no caller flags",
+      "tests": [
+        "test_TEST024_unknown_projection_and_bound_event_fail_closed",
+        "test_TEST024_event_and_git_context_positive_branches"
+      ]
+    }
+  ],
+  "unchanged_contracts": [
+    "observations schema",
+    "catalog registration",
+    "T001 helper/source/schema/tests"
+  ],
+  "fixture_classification": "Actual disposable Git branches and local runner receipts; simulated Actions/native records, no hosted acceptance",
+  "production_before": [
+    {
+      "path": "tests/verification-ci.py",
+      "sha256": "3f255a03c66a6a52e7274cbf260c8350c5ba64dd37ec00367626b61d43b9e90d"
+    },
+    {
+      "path": "contracts/verification-ci-result.schema.json",
+      "sha256": "fb7afcc212288795d11e1de2152c23542152d607895afb097dcfeff531d49f5b"
+    },
+    {
+      "path": "contracts/verification-ci-observations.schema.json",
+      "sha256": "2066711a7531c8e3cb4dd8b88471e9dc22f1070b0e42b1b27400f51cebac42b4"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "71f3fc75df8bfc11b2091a35a9a8146b1734d4a03638214e091b959eec6e0938"
+    }
+  ]
+}

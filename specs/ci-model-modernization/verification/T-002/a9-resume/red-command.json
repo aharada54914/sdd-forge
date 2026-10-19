@@ -1,0 +1,42 @@
+{
+  "schema": "task-red-command/v1",
+  "command": [
+    "python3",
+    "-B",
+    "tests/verification-ci.tests.py",
+    "A9AggregateTests"
+  ],
+  "environment": {
+    "TMPDIR": "/tmp/ci-model-t002-implementation-69dru1mp/tmp",
+    "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+  },
+  "exit_code": 1,
+  "tests": 6,
+  "failures": 10,
+  "log": "specs/ci-model-modernization/verification/T-002/a9-resume/red-a9-v2.log",
+  "test_sha256": "559a5165b7d07016dcad971c6b53a1def0d916324e64734e66f37c8f08d503f8",
+  "unchanged_source": [
+    {
+      "path": "tests/verification-ci.py",
+      "sha256": "3f255a03c66a6a52e7274cbf260c8350c5ba64dd37ec00367626b61d43b9e90d"
+    },
+    {
+      "path": "contracts/verification-ci-result.schema.json",
+      "sha256": "fb7afcc212288795d11e1de2152c23542152d607895afb097dcfeff531d49f5b"
+    },
+    {
+      "path": "contracts/verification-ci-observations.schema.json",
+      "sha256": "2066711a7531c8e3cb4dd8b88471e9dc22f1070b0e42b1b27400f51cebac42b4"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "71f3fc75df8bfc11b2091a35a9a8146b1734d4a03638214e091b959eec6e0938"
+    },
+    {
+      "path": "reports/implementation/ci-model-modernization/T-002.md",
+      "sha256": "7b61f849e6fc45d3491afae98037effea07251e425717d392be9dd9ac8c4dddd"
+    }
+  ],
+  "active_control": "active-baseline-control.log: 3 actual active PR aggregate branches PASS on existing production",
+  "initial_log_limitation": "Initial preparatory Red log was overwritten before preservation instruction; no initial log bytes retained. It contained malformed PR trusted-root fixture. Corrected fixture uses independent base checkout, and this v2 log is the actual corrected Red execution. No frozen historical evidence was changed."
+}

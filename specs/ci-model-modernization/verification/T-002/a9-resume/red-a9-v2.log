@@ -1,0 +1,149 @@
+test_TEST024_detector_and_skip_observation_mismatch_matrix (__main__.A9AggregateTests.test_TEST024_detector_and_skip_observation_mismatch_matrix) ... fixture execution
+fixture execution
+FAIL
+test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) ... fixture execution
+fixture execution
+
+  test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='push', base=False, head=True) ... FAIL
+fixture execution
+  test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='merge_group', base=False, head=False) ... FAIL
+fixture execution
+  test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='workflow_dispatch', base=False, head=False) ... FAIL
+fixture execution
+  test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='release', base=False, head=False) ... FAIL
+fixture execution
+  test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='pull_request', base=False, head=False) ... FAIL
+fixture execution
+fixture execution
+fixture execution
+test_TEST024_inactive_success_and_active_skip_are_failures (__main__.A9AggregateTests.test_TEST024_inactive_success_and_active_skip_are_failures) ... fixture execution
+fixture execution
+fixture execution
+FAIL
+test_TEST024_rerun_skipped_timestamps_and_detector_lineage (__main__.A9AggregateTests.test_TEST024_rerun_skipped_timestamps_and_detector_lineage) ... fixture execution
+fixture execution
+FAIL
+test_TEST024_result_shape_and_consumer_counterparts (__main__.A9AggregateTests.test_TEST024_result_shape_and_consumer_counterparts) ... fixture execution
+FAIL
+test_TEST024_unknown_projection_and_bound_event_fail_closed (__main__.A9AggregateTests.test_TEST024_unknown_projection_and_bound_event_fail_closed) ... fixture execution
+fixture execution
+FAIL
+
+======================================================================
+FAIL: test_TEST024_detector_and_skip_observation_mismatch_matrix (__main__.A9AggregateTests.test_TEST024_detector_and_skip_observation_mismatch_matrix)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 981, in test_TEST024_detector_and_skip_observation_mismatch_matrix
+    self.check_complete(self.invoke(), False)
+                        ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 478, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"9e383e908ec9117755ab0de557890e01322694e1","plan_sha256":"85778510f24f26f0b421d53905b7eb1af89c15e7793b06b8ae22a4c699ab5eaf","reason":"execution-failed","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":300,"obligation_id":"a9-advisory-inputs:06a1ca1a0dc218427f7e6af6eccde08de629e13cc376773d1a3c24cb87794333","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":null,"obligation_id":"a9-advisory:ff65c853a487c1c099d165f42cff9b3b77ebcff3cfb8505ff9216a7d8e4f980a","reason":"evidence-missing","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"9e383e908ec9117755ab0de557890e01322694e1"}
+
+
+======================================================================
+FAIL: test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='push', base=False, head=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 933, in test_TEST024_event_and_git_context_positive_branches
+    self.check_complete(self.invoke(), active)
+                        ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 478, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"79dc906e9ffc895dece69f6b236ecb957043c12a","plan_sha256":"b0cbdf217510a4b45183b5a9ddac14e4b5d60e4db875115ace05221dc9a40ef7","reason":"execution-failed","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":300,"obligation_id":"a9-advisory-inputs:06a1ca1a0dc218427f7e6af6eccde08de629e13cc376773d1a3c24cb87794333","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":null,"obligation_id":"a9-advisory:ff65c853a487c1c099d165f42cff9b3b77ebcff3cfb8505ff9216a7d8e4f980a","reason":"evidence-missing","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"79dc906e9ffc895dece69f6b236ecb957043c12a"}
+
+
+======================================================================
+FAIL: test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='merge_group', base=False, head=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 933, in test_TEST024_event_and_git_context_positive_branches
+    self.check_complete(self.invoke(), active)
+                        ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 478, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"72d5d520e23e7ef0c81b0f506382df9faa506093","plan_sha256":"9658b8fcffebad1e3848b481781d12e7f99a07223920719dbde61ee423896be4","reason":"execution-failed","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":300,"obligation_id":"a9-advisory-inputs:06a1ca1a0dc218427f7e6af6eccde08de629e13cc376773d1a3c24cb87794333","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":null,"obligation_id":"a9-advisory:ff65c853a487c1c099d165f42cff9b3b77ebcff3cfb8505ff9216a7d8e4f980a","reason":"evidence-missing","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"72d5d520e23e7ef0c81b0f506382df9faa506093"}
+
+
+======================================================================
+FAIL: test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='workflow_dispatch', base=False, head=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 933, in test_TEST024_event_and_git_context_positive_branches
+    self.check_complete(self.invoke(), active)
+                        ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 478, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"72d5d520e23e7ef0c81b0f506382df9faa506093","plan_sha256":"940606f8d3c89f7db0b8b8c1b1ae4268663b0fa71e3bcc4ebf844bb123d96084","reason":"execution-failed","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":300,"obligation_id":"a9-advisory-inputs:06a1ca1a0dc218427f7e6af6eccde08de629e13cc376773d1a3c24cb87794333","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":null,"obligation_id":"a9-advisory:ff65c853a487c1c099d165f42cff9b3b77ebcff3cfb8505ff9216a7d8e4f980a","reason":"evidence-missing","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"72d5d520e23e7ef0c81b0f506382df9faa506093"}
+
+
+======================================================================
+FAIL: test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='release', base=False, head=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 933, in test_TEST024_event_and_git_context_positive_branches
+    self.check_complete(self.invoke(), active)
+                        ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 478, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"72d5d520e23e7ef0c81b0f506382df9faa506093","plan_sha256":"90867fc9dea1e41a9e2ff37e3130af547f4ad1f96c5c97457ee89c77bdb65473","reason":"execution-failed","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":300,"obligation_id":"a9-advisory-inputs:06a1ca1a0dc218427f7e6af6eccde08de629e13cc376773d1a3c24cb87794333","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":null,"obligation_id":"a9-advisory:ff65c853a487c1c099d165f42cff9b3b77ebcff3cfb8505ff9216a7d8e4f980a","reason":"evidence-missing","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"72d5d520e23e7ef0c81b0f506382df9faa506093"}
+
+
+======================================================================
+FAIL: test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) (event='pull_request', base=False, head=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 933, in test_TEST024_event_and_git_context_positive_branches
+    self.check_complete(self.invoke(), active)
+                        ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 478, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"72d5d520e23e7ef0c81b0f506382df9faa506093","plan_sha256":"aed735958fdd91262fd047f164c55adec5aea6e50bf88023b08b4a193793c359","reason":"execution-failed","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":300,"obligation_id":"a9-advisory-inputs:06a1ca1a0dc218427f7e6af6eccde08de629e13cc376773d1a3c24cb87794333","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":null,"obligation_id":"a9-advisory:ff65c853a487c1c099d165f42cff9b3b77ebcff3cfb8505ff9216a7d8e4f980a","reason":"evidence-missing","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"72d5d520e23e7ef0c81b0f506382df9faa506093"}
+
+
+======================================================================
+FAIL: test_TEST024_inactive_success_and_active_skip_are_failures (__main__.A9AggregateTests.test_TEST024_inactive_success_and_active_skip_are_failures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 944, in test_TEST024_inactive_success_and_active_skip_are_failures
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 478, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 0 != 1 : {"api_head_sha":"84688ae6a6f8211b0e5a868a6d53e6a395c0feef","plan_sha256":"582ad104b2ccd3ff4ebe694ae88c9b167919ef356ec86d257d439a563341c162","reason":"verified","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":300,"obligation_id":"a9-advisory-inputs:06a1ca1a0dc218427f7e6af6eccde08de629e13cc376773d1a3c24cb87794333","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":301,"obligation_id":"a9-advisory:ff65c853a487c1c099d165f42cff9b3b77ebcff3cfb8505ff9216a7d8e4f980a","reason":"verified","source_attempt":1,"status":"PASS"}],"run_id":"123","schema":"verification-ci-result/v1","status":"PASS","tested_revision":"84688ae6a6f8211b0e5a868a6d53e6a395c0feef"}
+
+
+======================================================================
+FAIL: test_TEST024_rerun_skipped_timestamps_and_detector_lineage (__main__.A9AggregateTests.test_TEST024_rerun_skipped_timestamps_and_detector_lineage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 992, in test_TEST024_rerun_skipped_timestamps_and_detector_lineage
+    self.check_complete(self.invoke(), False)
+                        ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 478, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"b81bdb8b040cced8742d35f0173ff494bb65c5fd","plan_sha256":"aae145df6711ac15cba8a8ad2dc2ff48c546ccce8fe982ef74ab0e16bbc40bc8","reason":"execution-failed","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":300,"obligation_id":"a9-advisory-inputs:06a1ca1a0dc218427f7e6af6eccde08de629e13cc376773d1a3c24cb87794333","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":null,"obligation_id":"a9-advisory:ff65c853a487c1c099d165f42cff9b3b77ebcff3cfb8505ff9216a7d8e4f980a","reason":"evidence-missing","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"b81bdb8b040cced8742d35f0173ff494bb65c5fd"}
+
+
+======================================================================
+FAIL: test_TEST024_result_shape_and_consumer_counterparts (__main__.A9AggregateTests.test_TEST024_result_shape_and_consumer_counterparts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1045, in test_TEST024_result_shape_and_consumer_counterparts
+    self.assertIn('EXPECTED_SKIP', item['properties']['status']['enum'])
+AssertionError: 'EXPECTED_SKIP' not found in ['PASS', 'FAIL', 'NOT_SELECTED']
+
+======================================================================
+FAIL: test_TEST024_unknown_projection_and_bound_event_fail_closed (__main__.A9AggregateTests.test_TEST024_unknown_projection_and_bound_event_fail_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1027, in test_TEST024_unknown_projection_and_bound_event_fail_closed
+    self.assertEqual(result['status'], 'FAIL')
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 6.294s
+
+FAILED (failures=10)

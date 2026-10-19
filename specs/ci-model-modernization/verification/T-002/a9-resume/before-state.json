@@ -1,0 +1,27 @@
+{
+  "baseline": "read-only snapshot current bytes; raw HEAD is not the passed code baseline",
+  "head_diagnostic": "0da3ce672239e7808f203207bf8ab8376ac911a3",
+  "files": [
+    {
+      "path": "tests/verification-ci.py",
+      "sha256": "3f255a03c66a6a52e7274cbf260c8350c5ba64dd37ec00367626b61d43b9e90d"
+    },
+    {
+      "path": "tests/verification-ci.tests.py",
+      "sha256": "a4663fddac37871f153ef8c9c6a1b719cff23e2ee07463399cefa4e7685df4f4"
+    },
+    {
+      "path": "contracts/verification-ci-result.schema.json",
+      "sha256": "fb7afcc212288795d11e1de2152c23542152d607895afb097dcfeff531d49f5b"
+    },
+    {
+      "path": "contracts/verification-ci-observations.schema.json",
+      "sha256": "2066711a7531c8e3cb4dd8b88471e9dc22f1070b0e42b1b27400f51cebac42b4"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "71f3fc75df8bfc11b2091a35a9a8146b1734d4a03638214e091b959eec6e0938"
+    }
+  ],
+  "canonical_report_sha256": "7b61f849e6fc45d3491afae98037effea07251e425717d392be9dd9ac8c4dddd"
+}

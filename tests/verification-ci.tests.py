@@ -836,5 +836,239 @@ class AggregateTests(unittest.TestCase):
         self.invoke(expected=1)
 
 
+class A9AggregateTests(unittest.TestCase):
+    """Actual Git/event reconstruction with simulated Actions observations only."""
+
+    git = AggregateTests.git
+    write = AggregateTests.write
+    commit = AggregateTests.commit
+    prepare = AggregateTests.prepare
+    invoke = AggregateTests.invoke
+
+    def setUp(self):
+        AggregateTests.setUp(self)
+        self.ci = module(SCRIPT, 'a9_ci_test')
+        live = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        self.workflow['env'] = live['env']
+        for job in ('a9-advisory-inputs', 'a9-advisory'):
+            self.workflow['jobs'][job] = copy.deepcopy(live['jobs'][job])
+        self.write('.github/workflows/test.yml', json.dumps(self.workflow))
+        self.a9_base = self.commit('synthetic exact A9 workflow')
+        self.normal_jobs = copy.deepcopy(self.jobs)
+
+    def configure(self, event='push', base_context=False, head_context=False):
+        self.git('checkout', '-q', '--detach', self.a9_base)
+        if base_context:
+            self.write('sdd/project-context.yaml', 'fixture: true\n')
+        self.base = self.commit('synthetic base context') if base_context else self.a9_base
+        if head_context:
+            self.write('sdd/project-context.yaml', 'fixture: head\n')
+        elif base_context:
+            (self.root / 'sdd/project-context.yaml').unlink()
+        self.write('docs/change.txt', 'synthetic PR head\n')
+        self.revision = self.commit('synthetic exact head')
+        kwargs = dict(base=self.base, head=self.revision, force_full='true') if event == 'pull_request' else {}
+        with tempfile.TemporaryDirectory(dir=self.scratch) as directory:
+            trusted = self.root
+            if event == 'pull_request':
+                trusted = Path(directory) / 'trusted'
+                subprocess.run(['git', 'clone', '-q', '--no-checkout', str(self.root), str(trusted)],
+                               check=True, capture_output=True)
+                subprocess.run(['git', '-C', str(trusted), 'checkout', '-q', '--detach', self.base],
+                               check=True, capture_output=True)
+            self.plan = P.make_plan(self.root, trusted, event, '123', 1, self.revision, self.revision, **kwargs)
+        self.api_run.update(event=event, head_sha=self.revision, run_attempt=1,
+                            pull_requests=[{'base': {'sha': self.base}, 'head': {'sha': self.revision}}]
+                            if event == 'pull_request' else [])
+        self.jobs = copy.deepcopy(self.normal_jobs)
+        for job in self.jobs:
+            job['head_sha'] = self.revision
+        with contextlib.redirect_stdout(io.StringIO()):
+            receipt, code = R.execute(R.load_catalog(self.root / 'tests/verification-catalog.json', self.root),
+                                     [self.suite], self.root, 'fixture')
+        self.assertEqual(code, 0)
+        self.receipts = [(j['id'], 1, copy.deepcopy(receipt), 'test', {'os': j['labels'][0]}) for j in self.jobs]
+        active = event == 'pull_request' and (base_context or head_context)
+        for jid, key in [(300, 'a9-advisory-inputs'), (301, 'a9-advisory')]:
+            job = copy.deepcopy(self.jobs[0])
+            job.update(id=jid, name=self.workflow['jobs'][key]['name'], labels=['ubuntu-latest'], steps=[])
+            for number, step in enumerate(self.workflow['jobs'][key]['steps'], 1):
+                job['steps'].append(dict(name=step['name'], number=number, status='completed', conclusion='success',
+                                         started_at=job['started_at'], completed_at=job['completed_at']))
+            if key == 'a9-advisory-inputs' and event != 'pull_request':
+                for step in job['steps'][:-1]:
+                    step.update(conclusion='skipped', started_at=None, completed_at=None)
+            if key == 'a9-advisory' and not active:
+                job.update(conclusion='skipped', runner_id=0, runner_name='', labels=[], steps=[])
+                # Real admitted skipped observations can carry timestamps, including reversed rerun times.
+                job['completed_at'] = job['started_at']
+            self.jobs.append(job)
+        return active
+
+    def advisory_rows(self, result):
+        ids = {o['id'] for o in self.plan['obligations'] if o['job'] == 'a9-advisory'}
+        return [row for row in result['results'] if row['obligation_id'] in ids]
+
+    def check_complete(self, result, active):
+        self.assertEqual(self.plan['mode'], 'full')
+        self.assertEqual(self.plan['omissions'], [])
+        self.assertEqual({r['obligation_id'] for r in result['results']}, {o['id'] for o in self.plan['obligations']})
+        self.assertEqual(P.validate_result_binding(result, self.plan, True, root=self.root, workflow=self.workflow), set())
+        self.assertTrue(self.advisory_rows(result))
+        for row in self.advisory_rows(result):
+            self.assertEqual((row['status'], row['reason'], row['job_id'], row['source_attempt']),
+                             ('PASS', 'verified', 301, 1) if active else
+                             ('EXPECTED_SKIP', 'advisory-inactive', None, None))
+        if not active:
+            with self.assertRaises(ValueError):
+                P.validate_result_binding(result, self.plan, True)
+
+    def test_TEST024_event_and_git_context_positive_branches(self):
+        for event, base, head in [('push', False, True), ('merge_group', False, False),
+                                  ('workflow_dispatch', False, False), ('release', False, False),
+                                  ('pull_request', False, False), ('pull_request', True, False),
+                                  ('pull_request', False, True), ('pull_request', True, True)]:
+            with self.subTest(event=event, base=base, head=head):
+                active = self.configure(event, base, head)
+                self.check_complete(self.invoke(), active)
+
+    def test_TEST024_inactive_success_and_active_skip_are_failures(self):
+        self.configure('pull_request', False, True)
+        successful = copy.deepcopy(self.jobs[-1])
+        self.check_complete(self.invoke(), True)
+        self.jobs[-1].update(conclusion='skipped', runner_id=0, runner_name='', steps=[], labels=[])
+        self.invoke(expected=1)
+        self.configure()
+        successful['head_sha'] = self.revision
+        self.jobs[-1] = successful
+        self.invoke(expected=1)
+
+    def test_TEST024_detector_and_skip_observation_mismatch_matrix(self):
+        self.configure()
+        original = copy.deepcopy(self.jobs)
+        changes = [('detector-missing', -2, 'remove', None), ('advisory-missing', -1, 'remove', None)]
+        for index in (-2, -1):
+            for field, value in dict(run_id=124, head_sha='f'*40, id=True, run_attempt=2,
+                                     name='similar A9 name', status='in_progress', conclusion='failure').items():
+                changes.append((str(index)+'-'+field, index, field, value))
+        for field, value in dict(labels=['windows-latest'], runner_id=0, runner_name='',
+                                 started_at=None, completed_at=None).items():
+            changes.append(('detector-'+field, -2, field, value))
+        for field, value in dict(labels=['ubuntu-latest'], runner_id=999, runner_name='executed',
+                                 steps=[copy.deepcopy(original[-2]['steps'][-1])]).items():
+            changes.append(('skip-'+field, -1, field, value))
+        for label, index, field, value in changes:
+            with self.subTest(mutation=label):
+                self.jobs = copy.deepcopy(original)
+                if field == 'remove':
+                    self.jobs.pop(index)
+                else:
+                    self.jobs[index][field] = value
+                self.invoke(expected=1)
+        for field, value in dict(name='Detect something else', status='in_progress', conclusion='failure',
+                                 number=True, started_at=None, completed_at=None).items():
+            with self.subTest(detector_step=field):
+                self.jobs = copy.deepcopy(original)
+                self.jobs[-2]['steps'][-1][field] = value
+                self.invoke(expected=1)
+        self.jobs = copy.deepcopy(original)
+        self.jobs[-2]['steps'].pop()
+        self.invoke(expected=1)
+        self.jobs = copy.deepcopy(original)
+        self.jobs[-2]['steps'].append(copy.deepcopy(self.jobs[-2]['steps'][-1]))
+        self.invoke(expected=1)
+        self.jobs = original
+        self.check_complete(self.invoke(), False)
+
+    def test_TEST024_rerun_skipped_timestamps_and_detector_lineage(self):
+        self.configure()
+        original = copy.deepcopy(self.jobs)
+        copied = copy.deepcopy(original)
+        for job in copied:
+            job.update(id=job['id']+1000, run_attempt=2)
+        copied[-1].update(started_at='2026-10-19T11:00:00Z', completed_at='2026-10-19T10:00:00Z')
+        self.api_run['run_attempt'] = 2
+        self.jobs = original + copied
+        self.check_complete(self.invoke(), False)
+        for index in (-1, -2):
+            with self.subTest(missing_original=index):
+                self.jobs = original[:index] + original[index+1:] + copied if index != -1 else original[:-1] + copied
+                self.invoke(expected=1)
+        self.jobs = copy.deepcopy(original + copied)
+        self.jobs[-2]['runner_id'] += 1
+        self.invoke(expected=1)
+        self.jobs = copy.deepcopy(original + copied)
+        self.jobs[-2] = copy.deepcopy(copied[-2])
+        # A fresh plan cannot reinterpret copied detector execution as fresh.
+        self.plan = P.make_plan(self.root, self.root, 'push', '123', 2, self.revision, self.revision)
+        for job in self.jobs[5:8]:
+            job.update(started_at='2026-10-19T11:00:00Z', completed_at='2026-10-19T11:01:00Z')
+            for step in job['steps']:
+                step.update(started_at=job['started_at'], completed_at=job['completed_at'])
+        self.receipts = [(jid+1000, 2, receipt, job, matrix) for jid, _, receipt, job, matrix in self.receipts]
+        self.invoke(expected=1)
+        detector = self.jobs[-2]
+        detector.update(started_at='2026-10-19T11:00:00Z', completed_at='2026-10-19T11:01:00Z')
+        for step in detector['steps']:
+            if step['conclusion'] == 'success':
+                step.update(started_at=detector['started_at'], completed_at=detector['completed_at'])
+        self.check_complete(self.invoke(), False)
+
+    def test_TEST024_unknown_projection_and_bound_event_fail_closed(self):
+        self.configure()
+        self.jobs[-1].update(conclusion='success', labels=['ubuntu-latest'], runner_id=1000, runner_name='host-0',
+                             steps=[dict(name=self.workflow['jobs']['a9-advisory']['steps'][-1]['name'], number=3,
+                                         status='completed', conclusion='success', started_at='2026-10-19T10:00:00Z',
+                                         completed_at='2026-10-19T10:01:00Z')], completed_at='2026-10-19T10:01:00Z')
+        plan_path, observations = self.prepare()
+        # Sensitivity control: absence of A9 semantics is not proof of inactivity.
+        with patch.object(self.ci.W, 'a9_activation', return_value=None):
+            result = self.ci.aggregate(self.root, self.plan, observations, '123', self.revision)
+        self.assertEqual(result['status'], 'FAIL')
+        self.workflow['env'] = {'A9_EVENT_NAME': 'push'}
+        self.write('.github/workflows/test.yml', json.dumps(self.workflow))
+        self.revision = self.commit('synthetic unknown A9 projection')
+        self.plan = P.make_plan(self.root, self.root, 'push', '123', 1, self.revision, self.revision)
+        self.api_run['head_sha'] = self.revision
+        for job in self.jobs:
+            job['head_sha'] = self.revision
+        for _, _, receipt, _, _ in self.receipts:
+            receipt.update(revision=self.revision, revision_after=self.revision)
+        self.invoke(expected=1)
+        self.configure('pull_request', False, False)
+        self.api_run['event'] = 'push'
+        self.invoke(expected=1)
+
+    def test_TEST024_result_shape_and_consumer_counterparts(self):
+        schema = json.loads((ROOT / 'contracts/verification-ci-result.schema.json').read_text())
+        item = schema['$defs']['result']['properties']['results']['items']
+        self.assertIn('EXPECTED_SKIP', item['properties']['status']['enum'])
+        self.assertTrue(any(c.get('if', {}).get('properties', {}).get('status', {}).get('const') == 'EXPECTED_SKIP'
+                            for c in item['allOf']))
+        self.configure()
+        result = self.invoke()
+        self.ci.validate_result(result)
+        self.check_complete(result, False)
+        row = self.advisory_rows(result)[0]
+        index = result['results'].index(row)
+        for field, value in dict(reason='verified', job_id=1, source_attempt=1, status='PASS').items():
+            bad = copy.deepcopy(result)
+            bad['results'][index][field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                self.ci.validate_result(bad)
+        for mutation in ('other-obligation', 'omission', 'fake-execution', 'hide-failure'):
+            bad = copy.deepcopy(result)
+            if mutation == 'other-obligation':
+                bad['results'][0].update(status='EXPECTED_SKIP', reason='advisory-inactive', job_id=None, source_attempt=None)
+            elif mutation == 'omission':
+                bad['results'][index].update(status='NOT_SELECTED', reason='unrelated-category')
+            elif mutation == 'fake-execution':
+                bad['results'][index].update(status='PASS', reason='verified', job_id=301, source_attempt=1)
+            else:
+                bad['results'][0].update(status='FAIL', reason='execution-failed')
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                P.validate_result_binding(bad, self.plan, True, root=self.root, workflow=self.workflow)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
