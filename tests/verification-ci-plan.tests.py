@@ -363,6 +363,7 @@ class ProofTests(PlanningTests):
         mutation_plan = IMPACT.make_plan(self.root, self.root, 'push', '124', 1,
                                          mutation_revision, mutation_revision)
         mutation_result = self.result(mutation_plan, True)
+        subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q', str(self.root), mutation_revision], check=True)
         self.git('checkout', '-q', self.baseline)
         self.proof = dict(schema='verification-ci-activation/v1', category='guide',
                           rule_sha256=self.rule, baseline_revision=self.baseline,
@@ -404,6 +405,14 @@ class ProofTests(PlanningTests):
         subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', self.base], check=True)
         self.write('docs/guide.txt', 'ordinary product change')
         self.head = self.commit('classified change')
+
+    def test_selection_executes_trusted_checkout_not_caller_imports(self):
+        with patch.object(IMPACT, 'workflow_module', side_effect=AssertionError('caller imported')):
+            p = self.plan()
+        self.assertEqual(p['mode'], 'affected')
+        (self.root / 'tests/verification-workflow.py').write_text('raise RuntimeError("PR import")')
+        # Uncommitted PR changes cannot change the imported trusted implementation.
+        self.assertEqual(self.plan()['mode'], 'affected')
 
     def test_positive_affected_dependency_partition_and_bound_proof(self):
         p = self.plan()

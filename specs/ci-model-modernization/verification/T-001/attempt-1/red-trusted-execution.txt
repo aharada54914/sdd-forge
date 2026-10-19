@@ -1,0 +1,28 @@
+F
+======================================================================
+FAIL: test_selection_executes_trusted_checkout_not_caller_imports (__main__.ProofTests.test_selection_executes_trusted_checkout_not_caller_imports)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 411, in test_selection_executes_trusted_checkout_not_caller_imports
+    p = self.plan()
+        ^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 216, in plan
+    return IMPACT.make_plan(**args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 625, in make_plan
+    obligations = workflow_module().plan_obligations(workflow, catalog)
+                  ^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+AssertionError: caller imported
+
+----------------------------------------------------------------------
+Ran 1 test in 0.116s
+
+FAILED (failures=1)
