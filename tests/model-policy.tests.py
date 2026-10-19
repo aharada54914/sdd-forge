@@ -751,6 +751,30 @@ class PolicySelection(unittest.TestCase):
             finally:
                 os.chdir(previous)
 
+    def test_completion_rechecks_sources_after_real_native_replay(self):
+        from unittest.mock import patch
+        helper = load_helper()
+        self.save()
+        previous = Path.cwd()
+        try:
+            os.chdir(self.work)
+            context = helper.prepare_policy('request.json', 'registry.json', options={}, environment={})
+            replay = helper._replay_policy_winner
+            winner = replay(context)
+
+            def replay_then_change_policy(prepared):
+                result = replay(prepared)
+                self.policy['source_date'] = '2026-10-17T00:00:00Z'
+                self.write('policy.json', self.policy)
+                return result
+
+            with patch.object(helper, '_replay_policy_winner', replay_then_change_policy):
+                with self.assertRaises(helper.PolicyError) as caught:
+                    helper.complete_policy(context, winner)
+                self.assertEqual(caught.exception.reason, 'config-conflict')
+        finally:
+            os.chdir(previous)
+
     def test_python_api_rejects_fabricated_active_capture(self):
         helper = load_helper()
         prepare = getattr(helper, 'prepare_policy', None)
