@@ -434,33 +434,131 @@ class WorkflowIntegrationTests(unittest.TestCase):
         self.assertFalse(self.w.enabled(condition, {}, 'Windows', outputs={'run_cloud_native': 'true'}))
         self.assertFalse(self.w.enabled(condition, {}, 'Linux', outputs={}))
 
-    def test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os(self):
+    def t003_before(self):
+        return json.loads((ROOT / 'specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json').read_text())
+
+    def t003_inventory(self, workflow, obligations, historical):
         from collections import Counter
         import shlex
-        before = json.loads((ROOT / 'specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json').read_text())
-        def inventory(workflow, obligations):
-            result: Counter[Any] = Counter()
-            for item in obligations:
-                if not item['suites']:
+        result: Counter[Any] = Counter()
+        for item in obligations:
+            if not item['suites']:
+                continue
+            job = workflow['jobs'][item['job']]
+            step = next(s for s in job['steps'] if self.w.expand_matrix(s.get('name', ''), item['matrix']) == item['step'])
+            defaults = {**workflow.get('defaults', {}).get('run', {}), **job.get('defaults', {}).get('run', {})}
+            shell = step.get('shell', defaults.get('shell', 'pwsh' if item['runner'] == 'windows-latest' else 'bash'))
+            lines = []
+            for line in self.w.expand_matrix(step['run'], item['matrix']).splitlines():
+                if not line.strip() or line.lstrip().startswith('#'):
                     continue
-                job = workflow['jobs'][item['job']]
-                step = next(s for s in job['steps'] if self.w.expand_matrix(s.get('name', ''), item['matrix']) == item['step'])
-                defaults = {**workflow.get('defaults', {}).get('run', {}), **job.get('defaults', {}).get('run', {})}
-                shell = step.get('shell', defaults.get('shell', 'pwsh' if item['runner'] == 'windows-latest' else 'bash'))
-                lines = []
-                for line in self.w.expand_matrix(step['run'], item['matrix']).splitlines():
-                    if not line.strip() or line.lstrip().startswith('#'):
-                        continue
-                    argv = shlex.split(line)
-                    if '--receipt' in argv:
-                        index = argv.index('--receipt')
-                        del argv[index:index + 2]
-                    lines.append(tuple(argv))
-                result[(item['runner'], shell, tuple(item['suites']), tuple(lines))] += 1
-            return result
-        expected = inventory(before['workflow'], before['obligations'])
-        actual = inventory(self.workflow, self.w.plan_obligations(self.workflow, self.catalog))
+                argv = shlex.split(line)
+                if '--receipt' in argv:
+                    index = argv.index('--receipt')
+                    del argv[index:index + 2]
+                lines.append(tuple(argv))
+            # T-004: project onto historical suites only; an obligation carrying only new suites keeps an empty key.
+            suites = tuple(s for s in item['suites'] if s in historical)
+            result[(item['runner'], shell, suites, tuple(lines))] += 1
+        return result
+
+    def test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os(self):
+        before = self.t003_before()
+        historical = {s for o in before['obligations'] for s in o['suites']}
+        expected = self.t003_inventory(before['workflow'], before['obligations'], historical)
+        actual = self.t003_inventory(self.workflow, self.w.plan_obligations(self.workflow, self.catalog), historical)
         self.assertEqual(actual, expected)
+
+    def test_T003_suite_projection_rejects_original_obligation_mutations(self):
+        import copy
+        historical = {s for o in self.t003_before()['obligations'] for s in o['suites']}
+        obligations = self.w.plan_obligations(self.workflow, self.catalog)
+        baseline = self.t003_inventory(self.workflow, obligations, historical)
+        index = next(i for i, o in enumerate(obligations)
+                     if o['step'] == 'Test shared review launch and conditional input contracts')
+        target = obligations[index]
+
+        def step_of(workflow):
+            return next(s for s in workflow['jobs'][target['job']]['steps']
+                        if self.w.expand_matrix(s.get('name', ''), target['matrix']) == target['step'])
+
+        def changed(mutate_obligations=None, mutate_workflow=None):
+            workflow, items = copy.deepcopy(self.workflow), copy.deepcopy(obligations)
+            if mutate_obligations:
+                mutate_obligations(items)
+            if mutate_workflow:
+                mutate_workflow(step_of(workflow))
+            return self.t003_inventory(workflow, items, historical)
+
+        added = changed(lambda items: items[index]['suites'].append('tests/model-observation.tests.py'))
+        self.assertEqual(added, baseline, 'appending a new suite to an existing obligation must project away')
+        mutations = {
+            'old-suite-removed': lambda items: items[index]['suites'].pop(0),
+            'obligation-deleted': lambda items: items.pop(index),
+            'obligation-duplicated': lambda items: items.append(copy.deepcopy(items[index])),
+            'os-changed': lambda items: items[index].update(runner='macos-latest'),
+            'new-only-obligation': lambda items: items.append({**copy.deepcopy(items[index]),
+                                                               'suites': ['tests/model-observation.tests.py']}),
+        }
+        for name, mutate in mutations.items():
+            with self.subTest(mutation=name):
+                self.assertNotEqual(changed(mutate), baseline)
+        for name, mutate_step in {'shell-changed': lambda step: step.update(shell='pwsh'),
+                                  'argv-changed': lambda step: step.update(run=step['run'].rstrip() + ' --changed\n')}.items():
+            with self.subTest(mutation=name):
+                self.assertNotEqual(changed(mutate_workflow=mutate_step), baseline)
+
+    MODEL_SUITE = 'tests/model-observation.tests.py'
+    NATIVE_RUNNERS = ('ubuntu-latest', 'macos-latest', 'windows-latest')
+
+    def model_suite_native_errors(self, obligations):
+        from collections import Counter
+        carriers = [o for o in obligations if self.MODEL_SUITE in o['suites']]
+        errors = []
+        if Counter(o['runner'] for o in carriers) != Counter(self.NATIVE_RUNNERS):
+            errors.append('expected exactly one obligation per native OS: ' + repr(sorted(o['runner'] for o in carriers)))
+        if not all(o['receipt_required'] for o in carriers):
+            errors.append('every carrier must be a receipt-producing shared runner')
+        return errors
+
+    def test_T004_model_suite_registration_and_dependency(self):
+        catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+        row = catalog['_suites'].get(self.MODEL_SUITE)
+        self.assertIsNotNone(row, 'model observation suite is not registered')
+        assert row is not None
+        self.assertEqual({k: v for k, v in row.items() if k != 'ci_jobs'}, {'path': self.MODEL_SUITE, 'runtime': 'python'})
+        self.assertIn('test', row.get('ci_jobs', []))
+        for profile in ('local-posix', 'local-powershell'):
+            self.assertEqual(catalog['profiles'][profile].count(self.MODEL_SUITE), 1, profile)
+        self.assertNotIn(self.MODEL_SUITE, catalog['profiles']['ci-posix-fallback'])
+        self.assertEqual(catalog['impact']['dependencies'].get(self.MODEL_SUITE), ['tests/verification-catalog.tests.py'])
+        self.assertEqual([e for e in self.w.coverage_errors(self.workflow, catalog) if e.startswith(self.MODEL_SUITE)], [])
+
+    def test_T004_model_suite_runs_once_on_each_native_os(self):
+        self.assertEqual(self.model_suite_native_errors(self.w.plan_obligations(self.workflow, self.catalog)), [])
+
+    def test_T004_native_coverage_mutations_fail(self):
+        import copy
+        base = [{'id': 'fixture-' + r, 'job': 'test', 'matrix': {'os': r}, 'runner': r, 'step': 'fixture',
+                 'command_sha256': '0' * 64, 'suites': [self.MODEL_SUITE], 'receipt_required': True}
+                for r in self.NATIVE_RUNNERS]
+        self.assertEqual(self.model_suite_native_errors(base), [])
+        mutations = []
+        for index in range(len(base)):
+            mutations.append([o for i, o in enumerate(base) if i != index])
+            mutations.append(base + [copy.deepcopy(base[index])])
+            moved = copy.deepcopy(base)
+            moved[index]['runner'] = self.NATIVE_RUNNERS[index - 1]
+            mutations.append(moved)
+            dropped = copy.deepcopy(base)
+            dropped[index]['suites'] = []
+            mutations.append(dropped)
+            unshared = copy.deepcopy(base)
+            unshared[index]['receipt_required'] = False
+            mutations.append(unshared)
+        for number, mutated in enumerate(mutations):
+            with self.subTest(mutation=number):
+                self.assertNotEqual(self.model_suite_native_errors(mutated), [])
 
     def test_T003_unknown_plan_group_and_output_declarations_fail_closed(self):
         import copy
