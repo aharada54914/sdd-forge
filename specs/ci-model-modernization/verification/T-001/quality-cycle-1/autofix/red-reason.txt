@@ -1,0 +1,86 @@
+FFFFFFFFF
+======================================================================
+FAIL: test_affected_reason_rejected_without_expected_counterpart (__main__.WireTests.test_affected_reason_rejected_without_expected_counterpart) (reason='force-full')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 138, in test_affected_reason_rejected_without_expected_counterpart
+    with self.subTest(reason=reason), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_affected_reason_rejected_without_expected_counterpart (__main__.WireTests.test_affected_reason_rejected_without_expected_counterpart) (reason='event-full')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 138, in test_affected_reason_rejected_without_expected_counterpart
+    with self.subTest(reason=reason), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_affected_reason_rejected_without_expected_counterpart (__main__.WireTests.test_affected_reason_rejected_without_expected_counterpart) (reason='diff-unavailable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 138, in test_affected_reason_rejected_without_expected_counterpart
+    with self.subTest(reason=reason), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_affected_reason_rejected_without_expected_counterpart (__main__.WireTests.test_affected_reason_rejected_without_expected_counterpart) (reason='base-planner-unavailable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 138, in test_affected_reason_rejected_without_expected_counterpart
+    with self.subTest(reason=reason), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_affected_reason_rejected_without_expected_counterpart (__main__.WireTests.test_affected_reason_rejected_without_expected_counterpart) (reason='binding-invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 138, in test_affected_reason_rejected_without_expected_counterpart
+    with self.subTest(reason=reason), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_affected_reason_rejected_without_expected_counterpart (__main__.WireTests.test_affected_reason_rejected_without_expected_counterpart) (reason='unknown-path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 138, in test_affected_reason_rejected_without_expected_counterpart
+    with self.subTest(reason=reason), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_affected_reason_rejected_without_expected_counterpart (__main__.WireTests.test_affected_reason_rejected_without_expected_counterpart) (reason='shared-change')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 138, in test_affected_reason_rejected_without_expected_counterpart
+    with self.subTest(reason=reason), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_affected_reason_rejected_without_expected_counterpart (__main__.WireTests.test_affected_reason_rejected_without_expected_counterpart) (reason='unproven-category')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 138, in test_affected_reason_rejected_without_expected_counterpart
+    with self.subTest(reason=reason), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_affected_reason_rejected_without_expected_counterpart (__main__.WireTests.test_affected_reason_rejected_without_expected_counterpart) (reason='input-invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 138, in test_affected_reason_rejected_without_expected_counterpart
+    with self.subTest(reason=reason), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=9)

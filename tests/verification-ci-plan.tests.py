@@ -123,6 +123,21 @@ class WireTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 IMPACT.validate_plan(self.signed(bad))
 
+    def test_affected_reason_rejected_without_expected_counterpart(self):
+        plan = sample_plan()
+        plan.update(mode='affected', reason='classified-change', event='pull_request',
+                    base_revision='1' * 40, pr_head_revision='a' * 40,
+                    merge_base_revision='1' * 40, changed_path_count=1,
+                    activation_evidence=[dict(category='guide', path='proof.json',
+                                              sha256='2' * 64, rule_sha256='3' * 64,
+                                              baseline_revision='4' * 40)])
+        IMPACT.validate_plan(self.signed(plan))
+        for reason in ('force-full', 'event-full', 'diff-unavailable',
+                       'base-planner-unavailable', 'binding-invalid', 'unknown-path',
+                       'shared-change', 'unproven-category', 'input-invalid'):
+            with self.subTest(reason=reason), self.assertRaises(ValueError):
+                IMPACT.validate_plan(self.signed({**plan, 'reason': reason}))
+
     def test_fixed_condition_outputs_and_collision_rejection(self):
         plan = self.signed(sample_plan())
         self.assertEqual(IMPACT.condition_outputs(plan, ['test', 'optional-group']),
