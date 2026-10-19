@@ -292,7 +292,9 @@ class QualityTransport(unittest.TestCase):
                 'selection': {'selection_sha256': 'c' * 64},
             }
 
-            def selected_gate(_root, _data, path, digest):
+            def selected_gate(_root, _data, path, digest, *, environment=None):
+                assert isinstance(environment, dict), 'captured child environment missing'
+                self.assertEqual(environment['CLAUDE_CODE_EFFORT_LEVEL'], 'high')
                 observed['gate_calls'] += 1
                 self.assertEqual(Path(path).resolve(), controls.resolve())
                 self.assertEqual(digest, raw_controls)

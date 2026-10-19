@@ -660,6 +660,17 @@ class LaunchControls(LaunchFixture):
                 raw = canonical(document)
                 (self.root / 'controls.json').write_bytes(raw)
                 self.rejected(self.cli(sha=sha_bytes(raw), timeout=30), MISMATCH)
+        # A direct listed FIFO must not block at open() before fstat can reject it.
+        direct_fifo = self.root / 'direct-canary.fifo'
+        os.mkfifo(direct_fifo)
+        document = copy.deepcopy(baseline)
+        document['request'] = {'path': direct_fifo.name, 'sha256': sha_bytes(b'')}
+        raw = canonical(document)
+        (self.root / 'controls.json').write_bytes(raw)
+        with self.subTest(special_file='listed-request-fifo'):
+            self.rejected(self.cli(sha=sha_bytes(raw), timeout=5), 'input-invalid')
+        with self.subTest(special_file='controls-fifo'):
+            self.rejected(self.cli(sha=sha_bytes(b''), controls=direct_fifo.name, timeout=5), 'input-invalid')
         # Component swap simulation: metadata probes report the symlink components as ordinary
         # entries (as if swapped after lstat). Only descriptor-relative O_NOFOLLOW opens reject.
         real_lstat, real_stat = os.lstat, os.stat
@@ -693,6 +704,7 @@ class LaunchControls(LaunchFixture):
         seen: dict[str, Any] = {}
         opened: list[str] = []
         selector_cwds: list[Any] = []
+        selector_scripts: list[Path] = []
 
         def mutate_then_prepare(*args, **kwargs):
             if 'cwd' not in seen:
@@ -715,6 +727,12 @@ class LaunchControls(LaunchFixture):
         def recording_run(command, *args, **kwargs):
             if any('select-agent-model' in str(part) for part in command):
                 selector_cwds.append(kwargs.get('cwd'))
+                script = next(Path(part).resolve() for part in command if 'select-agent-model' in str(part))
+                selector_scripts.append(script)
+                scoped_root = helper._output_path('request.json').parent
+                if scoped_root != self.root:
+                    self.assertEqual(script.parent, scoped_root / 'plugins/sdd-implementation/scripts')
+                    self.assertEqual(sha_file(script), sha_file(self.root / SELECTOR_SH))
             return real_run(command, *args, **kwargs)
 
         patches: list[contextlib.AbstractContextManager[Any]] = [mock.patch.object(helper, 'prepare_policy', side_effect=mutate_then_prepare),
@@ -740,6 +758,7 @@ class LaunchControls(LaunchFixture):
         seen.clear()
         seen['mutate'] = False
         selector_cwds.clear()
+        selector_scripts.clear()
         with contextlib.ExitStack() as stack:
             for patch in patches:
                 stack.enter_context(patch)
@@ -753,10 +772,12 @@ class LaunchControls(LaunchFixture):
             self.assertEqual(Path(cwd).resolve(), seen['root'])
         # Legacy direct preparation keeps cwd=None selector replay and Path.cwd() resolution.
         selector_cwds.clear()
+        selector_scripts.clear()
         with self.in_root(), mock.patch.object(helper.subprocess, 'run', side_effect=recording_run):
             context = helper.prepare_policy('request.json', 'registry.json', options={}, environment={})
             helper._replay_policy_winner(context)
         self.assertEqual(selector_cwds, [None])
+        self.assertEqual(selector_scripts, [self.root / SELECTOR_SH])
 
     @staticmethod
     @contextlib.contextmanager
