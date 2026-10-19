@@ -275,6 +275,8 @@ class PlanningTests(GitFixture):
         self.assertEqual(paths, names | {'Old.txt', 'old.txt', 'type.txt', 'docs/guide.txt'} |
                          {f'many/{n:04}.txt' for n in range(3001)})
         self.assertFalse((self.root / 'forbidden').exists())
+        plan = self.plan(base=start, head=end, api_head_sha=end, tested_revision=end)
+        self.assertEqual(plan['changed_path_count'], len(paths))
 
     def test_shared_unknown_empty_and_untrusted_source(self):
         for path in ('tests/verification-impact.py', 'tests/verification-catalog.json',
@@ -307,6 +309,38 @@ class PlanningTests(GitFixture):
         self.assertNotEqual(rows[0]['command_sha256'], other[0]['command_sha256'])
         self.assertEqual(other[0]['suites'], [])
 
+    def test_control_verifier_is_not_its_own_completed_workload(self):
+        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
+        catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
+        workload = W.plan_obligations(live, catalog)
+        controls = W.control_dispositions(live, catalog)
+        self.assertEqual(len(controls), 1)
+        self.assertEqual(controls[0]['job'], 'required-checks')
+        self.assertEqual(controls[0]['disposition'], 'orchestration-verifier')
+        self.assertNotIn('required-checks', {r['job'] for r in workload})
+        self.assertEqual({r['runner'] for r in workload if r['job'] == 'test'},
+                         {'ubuntu-latest', 'macos-latest', 'windows-latest'})
+        aggregate = 'python3 -B tests/verification-ci.py aggregate --root . --plan plan.json --observations observations --run-id "$GITHUB_RUN_ID" --api-head-sha "$API_HEAD_SHA"'
+        future = copy.deepcopy(live)
+        future['jobs']['required-checks']['steps'][0]['run'] = aggregate
+        self.assertEqual(len(W.control_dispositions(future, catalog)), 1)
+        for mutate in (
+            lambda w: w['jobs']['required-checks']['steps'].append(
+                {'name': 'hidden tests', 'run': 'python3 tests/verification-impact.tests.py'}),
+            lambda w: w['jobs']['required-checks']['steps'][0].update(
+                run=aggregate + '\npython3 tests/verification-impact.tests.py'),
+            lambda w: w['jobs']['required-checks'].update(name='other'),
+            lambda w: w['jobs']['required-checks'].update(**{'continue-on-error': True}),
+        ):
+            bad = copy.deepcopy(live)
+            mutate(bad)
+            with self.assertRaises(ValueError):
+                W.plan_obligations(bad, catalog)
+        copied = copy.deepcopy(live)
+        copied['jobs']['arbitrary'] = copied['jobs'].pop('required-checks')
+        self.assertIn('arbitrary', {r['job'] for r in W.plan_obligations(copied, catalog)})
+        self.assertEqual(W.control_dispositions(copied, catalog), [])
+
     def test_full_inventory_runner_matrix_shards_and_opaque_body(self):
         workflow = {'jobs': {'test': {'runs-on': '${{ matrix.os }}', 'strategy': {
             'matrix': {'os': ['ubuntu-latest', 'macos-latest', 'windows-latest']}}, 'steps': [
@@ -332,6 +366,29 @@ class PlanningTests(GitFixture):
         self.catalog['impact']['dependencies'][self.suites[0]] = ['tests/missing.tests.py']
         with self.assertRaises(ValueError):
             IMPACT.dependency_closure({self.suites[0]}, set(), self.catalog, obligations)
+
+    def test_union_fixture_generator_case_and_unknown_syntax_boundaries(self):
+        obligations = W.plan_obligations(self.workflow, self.catalog)
+        categories = [dict(id='fixture', paths=['fixtures/Shared.txt'], prefixes=[],
+                           suites=[self.suites[0]], groups=[], active=False, evidence=None),
+                      dict(id='generator', paths=['generator/input.txt'], prefixes=[],
+                           suites=[], groups=['optional'], active=False, evidence=None)]
+        self.assertTrue(IMPACT.category_matches(categories[0], 'fixtures/Shared.txt'))
+        self.assertFalse(IMPACT.category_matches(categories[0], 'fixtures/shared.txt'))
+        selected = IMPACT.selected_obligations(categories, self.catalog, self.workflow, obligations)
+        self.assertEqual({s for row in selected for s in row['suites']}, set(self.suites))
+        self.assertIn('optional', {row['job'] for row in selected})
+        self.catalog['impact']['categories'] = categories
+        self.catalog['impact']['non_suite_steps'] = [dict(job='optional', step='build', kind='build')]
+        self.workflow['jobs']['optional']['steps'][0]['if'] = 'unknown(expression)'
+        selected = IMPACT.selected_obligations(categories[:1], self.catalog, self.workflow, obligations)
+        self.assertIn('optional', {row['job'] for row in selected})
+        self.workflow['jobs']['optional']['steps'][0]['run'] = 'if true; then npm run build; fi'
+        with self.assertRaises(ValueError):
+            IMPACT.rules(self.catalog, self.workflow)
+        for condition in ('unknown(expression)', "matrix.missing == 'no'"):
+            self.workflow['jobs']['optional']['steps'][0]['if'] = condition
+            self.assertIn('optional', {row['job'] for row in W.plan_obligations(self.workflow, self.catalog)})
 
     def test_definition_hash_excludes_proof_pointers_not_command_definitions(self):
         category = dict(id='guide', paths=['docs/guide.txt'], prefixes=[],
@@ -487,6 +544,51 @@ class ProofTests(GitFixture):
                 with self.assertRaises(ValueError):
                     IMPACT.validate_activation(category, self.rule, self.root, self.base,
                                                self.catalog, self.workflow, self.full['obligations'])
+
+    def test_all_proof_payload_fields_and_sensitivity(self):
+        category = self.catalog['impact']['categories'][0]
+        real_reader = IMPACT.read_reference
+        arguments = (category, self.rule, self.root, self.base, self.catalog,
+                     self.workflow, self.full['obligations'])
+        IMPACT.validate_activation(*arguments)
+
+        def leaves(value, trail=()):
+            if isinstance(value, dict):
+                for key, child in value.items():
+                    yield from leaves(child, trail + (key,))
+            elif isinstance(value, list) and value:
+                for index, child in enumerate(value):
+                    yield from leaves(child, trail + (index,))
+            else:
+                yield trail, value
+
+        total = 0
+        for path in ('proof/activation.json', 'proof/full-plan.json', 'proof/full-result.json',
+                     'proof/consumers.json', 'proof/mutations.json', 'proof/mutation-plan.json',
+                     'proof/mutation-result.json'):
+            payload = json.loads((self.root / path).read_text())
+            for trail, value in leaves(payload):
+                def reader(root, revision, reference):
+                    record = real_reader(root, revision, reference)
+                    if reference['path'] == path:
+                        parent = record
+                        for key in trail[:-1]:
+                            parent = parent[key]
+                        parent[trail[-1]] = ('mismatch' if isinstance(value, str) else
+                                            not value if type(value) is bool else
+                                            -1 if type(value) is int else ['unexpected'])
+                    return record
+                with self.subTest(path=path, field=trail):
+                    with patch.object(IMPACT, 'read_reference', side_effect=reader):
+                        with self.assertRaises(ValueError):
+                            IMPACT.validate_activation(*arguments)
+                    # Each negative assertion is sensitive to removal of the boundary.
+                    with patch.object(IMPACT, 'validate_activation', return_value=None):
+                        with self.assertRaises(AssertionError):
+                            with self.assertRaises(ValueError):
+                                IMPACT.validate_activation(*arguments)
+                    total += 1
+        self.assertGreater(total, 100)
 
     def test_inactive_corrupt_proof_shared_and_opaque_changes_never_omit(self):
         for field, value in (('active', False), ('evidence', None)):

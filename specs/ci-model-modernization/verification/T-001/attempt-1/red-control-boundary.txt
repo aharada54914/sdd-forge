@@ -1,0 +1,14 @@
+E
+======================================================================
+ERROR: test_control_verifier_is_not_its_own_completed_workload (__main__.PlanningTests.test_control_verifier_is_not_its_own_completed_workload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 316, in test_control_verifier_is_not_its_own_completed_workload
+    controls = W.control_dispositions(live, catalog)
+               ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'workflow' has no attribute 'control_dispositions'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.101s
+
+FAILED (errors=1)
