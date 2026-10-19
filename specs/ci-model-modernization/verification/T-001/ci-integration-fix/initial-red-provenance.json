@@ -1,0 +1,47 @@
+{
+  "snapshot_count": 96,
+  "manifest_sha256": "8516a16cc8449f56a89a0f71e55f75fabc5e39818a754019e7b7303d97c0b89d",
+  "production_and_frozen_unchanged": {
+    "tests/verification-workflow.py": {
+      "before_sha256": "52fe8b0f8100718e3511f7ad6539cf558ee6df1b7a6ce405ff25cd5cb6557db2",
+      "current_sha256": "52fe8b0f8100718e3511f7ad6539cf558ee6df1b7a6ce405ff25cd5cb6557db2"
+    },
+    "tests/verification-impact.py": {
+      "before_sha256": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "current_sha256": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493"
+    },
+    "tests/verification-ci.py": {
+      "before_sha256": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50",
+      "current_sha256": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50"
+    },
+    "tests/verification-ci.tests.py": {
+      "before_sha256": "5f09d0d1ab3b09e0c751968debd556616b5f7069a2bd1ef3b787172ac91549d0",
+      "current_sha256": "5f09d0d1ab3b09e0c751968debd556616b5f7069a2bd1ef3b787172ac91549d0"
+    },
+    "contracts/verification-ci-plan.schema.json": {
+      "before_sha256": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+      "current_sha256": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac"
+    },
+    "contracts/verification-ci-result.schema.json": {
+      "before_sha256": "4ce73bcf9204acc32da741e4c5a4be98ceca5be5b04dfc11402f9710fdba34e5",
+      "current_sha256": "4ce73bcf9204acc32da741e4c5a4be98ceca5be5b04dfc11402f9710fdba34e5"
+    },
+    "tests/verification-catalog.json": {
+      "before_sha256": "71f3fc75df8bfc11b2091a35a9a8146b1734d4a03638214e091b959eec6e0938",
+      "current_sha256": "71f3fc75df8bfc11b2091a35a9a8146b1734d4a03638214e091b959eec6e0938"
+    },
+    ".github/workflows/test.yml": {
+      "before_sha256": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b",
+      "current_sha256": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b"
+    },
+    "specs/ci-model-modernization/verification/T-001/a9-amendment/implementation-report.md": {
+      "before_sha256": "6078dba52fedf0e500cb3286e576463b38b963c7f700e3ae671407ecce4c74b8",
+      "current_sha256": "6078dba52fedf0e500cb3286e576463b38b963c7f700e3ae671407ecce4c74b8"
+    }
+  },
+  "tests_sha256": "3fa27b2ce2433216295e0ae91eb9f83d5ed0b4b713c7a6a78b1d5e05ce5362e4",
+  "new_test_methods": 6,
+  "actual_red_admission_errors": 3,
+  "bounded_negative_variants": 219,
+  "negative_boundaries": 2
+}

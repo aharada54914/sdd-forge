@@ -1233,5 +1233,268 @@ class A9ConsumerTests(GitFixture):
         self.assertTrue(row['allOf'], 'conditional status/reason/identity pairing is required')
 
 
+
+def prepared_verifier(needs):
+    """Fixed RT014 caller shape; protocol fixtures, not live workflow wiring."""
+    return {'name': 'required-checks', 'runs-on': 'ubuntu-latest', 'if': 'always()',
+            'needs': needs, 'permissions': {'contents': 'read', 'actions': 'read'}, 'steps': [
+        {'name': 'Checkout exact tested revision',
+         'uses': 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
+         'with': {'ref': '${{ github.sha }}', 'fetch-depth': 0, 'persist-credentials': False}},
+        {'name': 'Install structural YAML parser', 'shell': 'bash',
+         'run': 'npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts'},
+        {'name': 'Download original same-run CI plan', 'shell': 'bash',
+         'env': {'GH_TOKEN': '${{ github.token }}',
+                 'PLAN_ARTIFACT_NAME': '${{ needs.ci-plan.outputs.plan_artifact_name }}'},
+         'run': 'gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$PLAN_ARTIFACT_NAME" --dir "$RUNNER_TEMP/verification-plan"'},
+        {'name': 'Collect actual same-run execution observations', 'shell': 'bash',
+         'env': {'GH_TOKEN': '${{ github.token }}'},
+         'run': 'python3 -B tests/verification-ci.py collect --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --output-dir "$RUNNER_TEMP/verification-observations"'},
+        {'name': 'Check all required tests passed', 'shell': 'bash',
+         'env': {'API_HEAD_SHA': '${{ github.event.pull_request.head.sha || github.sha }}'},
+         'run': 'python3 -B tests/verification-ci.py aggregate --root . --plan "$RUNNER_TEMP/verification-plan/plan.json" --observations "$RUNNER_TEMP/verification-observations" --run-id "$GITHUB_RUN_ID" --api-head-sha "$API_HEAD_SHA" --output "$RUNNER_TEMP/verification-result.json"'}]}
+
+
+class PreparedVerifierTests(unittest.TestCase):
+    def setUp(self):
+        self.catalog = {'suites': [{'path': 'tests/sample.tests.py', 'runtime': 'python'}], 'profiles': {}}
+        self.workflow = {'jobs': {
+            'work': {'runs-on': 'ubuntu-latest', 'steps': [
+                {'name': 'workload', 'run': 'python3 tests/sample.tests.py'}]},
+            'ci-plan': {'runs-on': 'ubuntu-latest', 'steps': [
+                {'name': 'Generate revision-bound plan', 'run': ('python3 -B tests/verification-impact.py --plan --root . --trusted-root . '
+                        '--event push --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" '
+                        '--api-head-sha "$GITHUB_SHA" --tested-revision "$GITHUB_SHA"')}]},
+            'required-checks': prepared_verifier(['work', 'ci-plan'])}}
+
+    def test_exact_preparation_is_control_with_all_projection_counterparts(self):
+        W.verifier_job(self.workflow)
+        obligations, controls = W.plan_inventory(self.workflow, self.catalog)
+        self.assertEqual({row['job'] for row in obligations}, {'work', 'ci-plan'})
+        self.assertEqual(len(controls), 4)
+        self.assertEqual(W.control_dispositions(self.workflow, self.catalog), controls)
+        self.assertEqual(W.plan_obligations(self.workflow, self.catalog), obligations)
+        for step, row in zip(self.workflow['jobs']['required-checks']['steps'][1:], controls):
+            identity = {'job': 'required-checks', 'matrix': {}, 'step': step['name']}
+            command = {'run': step['run'], 'shell': 'bash', 'env': step.get('env', {})}
+            self.assertEqual(row, {**identity, 'id': 'required-checks:' + digest(identity),
+                'runner': 'ubuntu-latest', 'command_sha256': digest(command), 'suites': [],
+                'receipt_required': False, 'disposition': 'orchestration-verifier'})
+        self.assertTrue(W.aggregate_command(self.workflow['jobs']['required-checks']['steps'][-1]['run']))
+
+    def test_live_workload_and_a9_inventory_survives_preparation(self):
+        live = W.load_workflow(ROOT / '.github/workflows/test.yml', ROOT)
+        catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
+        before = W.plan_obligations(live, catalog)
+        a9 = {name: copy.deepcopy(live['jobs'][name]) for name in ('a9-advisory', 'a9-advisory-inputs')}
+        live['jobs']['ci-plan'] = self.workflow['jobs']['ci-plan']
+        live['jobs']['required-checks'] = prepared_verifier([n for n in live['jobs'] if n != 'required-checks'])
+        after, controls = W.plan_inventory(live, catalog)
+        self.assertEqual([o for o in after if o['job'] != 'ci-plan'], before)
+        self.assertEqual({n: live['jobs'][n] for n in a9}, a9)
+        self.assertEqual(len(controls), 4)
+        for step, row in zip(live['jobs']['required-checks']['steps'][1:], controls):
+            self.assertEqual(row['command_sha256'], digest({'run': step['run'], 'shell': 'bash',
+                'env': {**live['env'], **step.get('env', {})}}))
+        self.assertEqual({o['runner'] for o in after if o['job'] == 'test'},
+                         {'ubuntu-latest', 'macos-latest', 'windows-latest'})
+
+    def test_every_preparation_field_order_and_hidden_work_mutation_is_rejected(self):
+        def leaves(value, trail=()):
+            if isinstance(value, dict):
+                for key, item in value.items():
+                    yield from leaves(item, trail + (key,))
+            elif isinstance(value, list):
+                for index, item in enumerate(value):
+                    yield from leaves(item, trail + (index,))
+            else:
+                yield trail, value
+        mutations = []
+        for trail, value in leaves(self.workflow['jobs']['required-checks']):
+            replacement = not value if isinstance(value, bool) else 1 if isinstance(value, int) else 'unexpected'
+            bad = copy.deepcopy(self.workflow)
+            target = bad['jobs']['required-checks']
+            for key in trail[:-1]:
+                target = target[key]
+            target[trail[-1]] = replacement
+            mutations.append((str(trail), bad))
+        for index in range(5):
+            for key in self.workflow['jobs']['required-checks']['steps'][index]:
+                bad = copy.deepcopy(self.workflow)
+                del bad['jobs']['required-checks']['steps'][index][key]
+                mutations.append((f'delete-step-{index}-{key}', bad))
+            for field, value in [('if', 'false'), ('continue-on-error', True),
+                                 ('working-directory', 'other'), ('shell', 'bash -c {0}'),
+                                 ('run', 'python3 tests/sample.tests.py'), ('extra', True),
+                                 ('env', {'BASH_ENV': 'tests/sample.tests.py'})]:
+                bad = copy.deepcopy(self.workflow)
+                bad['jobs']['required-checks']['steps'][index][field] = value
+                mutations.append((f'step-{index}-{field}', bad))
+            for operation in ('duplicate', 'remove'):
+                bad = copy.deepcopy(self.workflow)
+                steps = bad['jobs']['required-checks']['steps']
+                if operation == 'duplicate':
+                    steps.insert(index, copy.deepcopy(steps[index]))
+                else:
+                    del steps[index]
+                mutations.append((f'{operation}-{index}', bad))
+        for left in range(5):
+            for right in range(left + 1, 5):
+                bad = copy.deepcopy(self.workflow)
+                steps = bad['jobs']['required-checks']['steps']
+                steps[left], steps[right] = steps[right], steps[left]
+                mutations.append((f'reorder-{left}-{right}', bad))
+        for index in range(1, 5):
+            import shlex
+            original = self.workflow['jobs']['required-checks']['steps'][index]['run']
+            args = shlex.split(original)
+            for position in range(len(args)):
+                bad = copy.deepcopy(self.workflow)
+                mutated = args.copy()
+                mutated[position] = 'untrusted'
+                bad['jobs']['required-checks']['steps'][index]['run'] = shlex.join(mutated)
+                mutations.append((f'argv-{index}-{position}', bad))
+            for suffix in ('\npython3 tests/sample.tests.py', '; true', ' | cat', ' && true',
+                           ' > output', ' $(python3 tests/sample.tests.py)', ' `true`', ' --unexpected'):
+                bad = copy.deepcopy(self.workflow)
+                bad['jobs']['required-checks']['steps'][index]['run'] += suffix
+                mutations.append((f'composed-{index}-{suffix}', bad))
+        for scope in ('workflow', 'job', 'step'):
+            for name in ('BASH_ENV', 'ENV', 'PYTHONPATH', 'PYTHONHOME', 'NODE_OPTIONS', 'PATH',
+                         'GITHUB_RUN_ID', 'GITHUB_REPOSITORY', 'RUNNER_TEMP', 'GH_TOKEN', 'PLAN_ARTIFACT_NAME'):
+                bad = copy.deepcopy(self.workflow)
+                target = bad if scope == 'workflow' else bad['jobs']['required-checks']
+                if scope == 'step':
+                    target = target['steps'][1]
+                target.setdefault('env', {})[name] = 'untrusted'
+                mutations.append((f'env-{scope}-{name}', bad))
+        for field, value in [('strategy', {'matrix': {'os': ['ubuntu-latest']}}),
+                             ('continue-on-error', True), ('container', 'untrusted'),
+                             ('services', {'hidden': {'image': 'untrusted'}}), ('unknown', True),
+                             ('defaults', {'run': {'shell': 'bash', 'working-directory': 'other'}}),
+                             ('needs', ['work']), ('needs', ['work', 'ci-plan', 'ci-plan']),
+                             ('permissions', {'contents': 'write', 'actions': 'read'})]:
+            bad = copy.deepcopy(self.workflow)
+            bad['jobs']['required-checks'][field] = value
+            mutations.append((f'job-{field}', bad))
+        for defaults in ({'run': {'shell': 'pwsh'}}, {'run': {'working-directory': 'other'}}):
+            bad = copy.deepcopy(self.workflow)
+            bad['defaults'] = defaults
+            mutations.append(('workflow-defaults', bad))
+        bad = copy.deepcopy(self.workflow)
+        bad['jobs']['required-checks']['steps'].insert(1, {'uses': 'actions/download-artifact@' + 'a' * 40})
+        mutations.append(('extra-action', bad))
+        for name, bad in mutations:
+            for boundary in ('verifier', 'inventory'):
+                with self.subTest(mutation=name, boundary=boundary), self.assertRaises(ValueError):
+                    if boundary == 'verifier':
+                        W.verifier_job(bad)
+                    else:
+                        W.plan_inventory(bad, self.catalog)
+        self.assertGreater(len(mutations), 150)
+        print('RT014 bounded mutation variants:', len(mutations), 'x 2 boundaries')
+
+    def test_old_sole_aggregate_and_arbitrary_job_boundaries_remain(self):
+        legacy = copy.deepcopy(self.workflow)
+        job = legacy['jobs']['required-checks']
+        job['steps'] = [job['steps'][-1]]
+        self.assertEqual(len(W.control_dispositions(legacy, self.catalog)), 1)
+        for body in ('python3 tests/sample.tests.py', job['steps'][0]['run'] + '\ntrue'):
+            bad = copy.deepcopy(legacy)
+            bad['jobs']['required-checks']['steps'][0]['run'] = body
+            with self.assertRaises(ValueError):
+                W.plan_inventory(bad, self.catalog)
+        other = copy.deepcopy(self.workflow)
+        other['jobs']['arbitrary'] = other['jobs'].pop('required-checks')
+        self.assertIn('arbitrary', {o['job'] for o in W.plan_obligations(other, self.catalog)})
+        self.assertEqual(W.control_dispositions(other, self.catalog), [])
+
+
+class PreparedVerifierIntegrationTests(unittest.TestCase):
+    def test_actual_collect_aggregate_has_no_control_completion_cycle(self):
+        self.exercise_collection(prepared=True)
+
+    def test_predecessor_collector_still_requires_actual_completion(self):
+        self.exercise_collection(prepared=False)
+
+    def exercise_collection(self, prepared):
+        import contextlib
+        import zipfile
+        fixtures = module('ci_integration_existing_tests', 'verification-ci.tests.py')
+        ci = module('ci_integration_collector', 'verification-ci.py')
+        fixture = fixtures.AggregateFixture()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        fixture.workflow['jobs']['ci-plan'] = {'runs-on': 'ubuntu-latest', 'steps': [
+            {'name': 'Generate revision-bound plan', 'run': ('python3 -B tests/verification-impact.py --plan --root . --trusted-root . '
+                        '--event push --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" '
+                        '--api-head-sha "$GITHUB_SHA" --tested-revision "$GITHUB_SHA"')}]}
+        control = prepared_verifier(['test', 'ci-plan'])
+        if not prepared:
+            fixture.workflow['jobs']['collect'] = {'runs-on': 'ubuntu-latest', 'needs': ['test', 'ci-plan'],
+                                                   'steps': [copy.deepcopy(control['steps'][3])]}
+            control['needs'].append('collect')
+            control['steps'] = [control['steps'][-1]]
+        fixture.workflow['jobs']['required-checks'] = control
+        fixture.write('.github/workflows/test.yml', json.dumps(fixture.workflow))
+        fixture.revision = fixture.commit('synthetic RT014 collection topology')
+        # Current W must admit the successor before any proof is synthesized.
+        fixture.plan = fixtures.P.make_plan(fixture.root, fixture.root, 'push', '123', 1,
+                                            fixture.revision, fixture.revision)
+        with contextlib.redirect_stdout(io.StringIO()):
+            fixture.receipt, code = fixtures.R.execute(fixtures.R.load_catalog(
+                fixture.root / 'tests/verification-catalog.json', fixture.root),
+                [fixture.suite], fixture.root, 'fixture')
+        self.assertEqual(code, 0)
+        fixture.api_run.update(head_sha=fixture.revision, status='in_progress', conclusion=None)
+        for job in fixture.jobs:
+            job['head_sha'] = fixture.revision
+        fixture.receipts = [(j['id'], 1, copy.deepcopy(fixture.receipt), 'test',
+                             {'os': j['labels'][0]}) for j in fixture.jobs]
+        planner_job = copy.deepcopy(fixture.jobs[0])
+        planner_job.update(id=199, name='ci-plan')
+        planner_job['steps'] = [{**planner_job['steps'][0], 'name': 'Generate revision-bound plan'}]
+        fixture.jobs.append(planner_job)
+        running = dict(id=200, run_id=123, run_attempt=1, head_sha=fixture.revision,
+            name='required-checks' if prepared else 'collect', labels=['ubuntu-latest'],
+            runner_id=2000, runner_name='control-runner', status='in_progress', conclusion=None,
+            started_at='2026-10-19T10:02:00Z', completed_at=None, steps=[dict(
+                name='Collect actual same-run execution observations', number=4 if prepared else 1,
+                status='in_progress', conclusion=None, started_at='2026-10-19T10:02:00Z', completed_at=None)])
+        fixture.jobs.append(running)
+        archives, artifacts = {}, []
+        for index, (jid, attempt, receipt, job, matrix) in enumerate(fixture.receipts):
+            raw = io.BytesIO()
+            with zipfile.ZipFile(raw, 'w') as archive:
+                archive.writestr('receipt.json', fixtures.P.canonical(receipt))
+            artifacts.append(dict(id=300 + index, name=fixtures.receipt_name('123', attempt, job, matrix),
+                expired=False, workflow_run={'id': 123, 'head_sha': fixture.revision}))
+            archives[300 + index] = raw.getvalue()
+        def request(endpoint):
+            if endpoint.endswith('/runs/123'):
+                return copy.deepcopy(fixture.api_run), {}
+            if '/jobs?' in endpoint:
+                return {'total_count': len(fixture.jobs), 'jobs': copy.deepcopy(fixture.jobs)}, {}
+            return {'total_count': len(artifacts), 'artifacts': copy.deepcopy(artifacts)}, {}
+        def archive_request(endpoint):
+            return archives[int(endpoint.split('/artifacts/')[1].split('/')[0])], {}
+        destination = fixture.scratch / 'actual-collection'
+        with patch.object(ci, 'api_get', side_effect=request), patch.object(ci, 'api_response', side_effect=archive_request):
+            ci.collect('owner/repo', '123', destination)
+        result = ci.aggregate(fixture.root, fixture.plan, destination, '123', fixture.revision)
+        self.assertEqual(len([r for r in result['results'] if r['status'] == 'PASS']), 7)
+        if prepared:
+            self.assertEqual(result['status'], 'PASS')
+            self.assertEqual(len(result['results']), 7)
+            self.assertFalse(fixture.plan['omissions'])
+            self.assertFalse(any(r['obligation_id'].startswith('required-checks:') for r in result['results']))
+        else:
+            self.assertEqual(result['status'], 'FAIL')
+            failed = [r for r in result['results'] if r['status'] == 'FAIL']
+            self.assertEqual(len(failed), 1)
+            self.assertTrue(failed[0]['obligation_id'].startswith('collect:'))
+            self.assertEqual(failed[0]['reason'], 'evidence-missing')
+
+
 if __name__ == '__main__':
     unittest.main()

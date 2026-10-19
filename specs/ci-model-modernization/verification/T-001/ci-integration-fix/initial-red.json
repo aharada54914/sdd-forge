@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/tmp/ci-model-resume-python/bin/python",
+    "-B",
+    "tests/verification-ci-plan.tests.py",
+    "PreparedVerifierTests",
+    "PreparedVerifierIntegrationTests"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "returncode": 1,
+  "log": "specs/ci-model-modernization/verification/T-001/ci-integration-fix/red.log"
+}
