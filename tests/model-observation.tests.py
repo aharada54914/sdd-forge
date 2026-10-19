@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from unittest.mock import patch
@@ -986,6 +987,123 @@ class DiscoverCliTests(HelperCase):
         self.assertFalse((Path(self.temp.name) / 'escape.json').exists())
         self.assertEqual(list(outside.iterdir()), [])
         self.assertEqual(list((self.work / 'directory').iterdir()), [])
+
+
+class SupplementalReviewTests(HelperCase):
+    """Concrete local review findings; original 43 methods remain unchanged."""
+
+    def test_fractional_utc_z_has_no_invented_nine_digit_limit(self):
+        stamp = '2026-10-19T18:00:00.12345678901234567890Z'
+        self.mp().validate_observation_record(record(observed_at=stamp))
+        self.mp().validate_configuration(configuration(observed_at=stamp), now=T0 + timedelta(seconds=1))
+        schema = strict_load((ROOT / 'contracts/model-observation.schema.json').read_bytes())
+        pattern = resolve(schema['properties']['observed_at'], schema)['pattern']
+        self.assertIsNotNone(re.search(pattern, stamp))
+
+    def test_future_submicrosecond_timestamp_is_not_rounded_into_present(self):
+        for fraction in ('0000001', '0000000001', '00000000000000000001'):
+            with self.subTest(fraction=fraction):
+                self.assertReason('discovery-stale', self.mp().validate_configuration,
+                                  configuration(observed_at='2026-10-19T18:00:00.' + fraction + 'Z'), now=T0)
+
+    def test_native_account_required_closed_enums_reject_unknown_values(self):
+        variants = [
+            {**ACCOUNT_CHATGPT, 'account': {**ACCOUNT_CHATGPT['account'], 'planType': 'invented-plan'}},
+            {**ACCOUNT_CHATGPT, 'workspaceRouting': {
+                **ACCOUNT_CHATGPT['workspaceRouting'], 'accountRoutingOverride': 'invented-region'}},
+        ]
+        for account in variants:
+            with self.subTest(account=account):
+                fake = self.native([page([native_model('a')])], account=account)
+                self.failed_capture(fake, 'discovery-unavailable')
+                self.assertEqual(fake.list_calls(), 0)
+
+    def test_no_native_refresh_still_rejects_closed_or_exited_originating_client(self):
+        for state in ('closed', 'exited'):
+            with self.subTest(state=state):
+                fake = self.native([page([native_model('a')])])
+                client, result = self.capture(fake)
+                self.assertIsNone(self.live(result.observation, result, require_live=False))
+                if state == 'closed':
+                    client.close()
+                else:
+                    for process in fake.servers:
+                        process.terminate()
+                        process.wait(timeout=5)
+                self.assertReason(None, self.live, result.observation, result, require_live=False)
+
+    def test_blocked_outbound_write_and_close_have_deadlines_and_reap_owned_child(self):
+        mp = self.mp()
+        for stage in ('write', 'close'):
+            with self.subTest(stage=stage):
+                fake = self.native([page([native_model('a')])])
+                blocked, released = threading.Event(), threading.Event()
+                errors: list[Exception] = []
+                original_fake_popen = fake.popen
+
+                class BlockingInput:
+                    def __init__(self, stream):
+                        self.stream = stream
+
+                    def __getattr__(self, name):
+                        return getattr(self.stream, name)
+
+                    def write(self, data):
+                        if stage == 'write':
+                            blocked.set()
+                            released.wait()  # only termination releases the simulated full native pipe
+                            raise BrokenPipeError('fixture child terminated')
+                        return self.stream.write(data)
+
+                    def close(self):
+                        if stage == 'close':
+                            blocked.set()
+                            released.wait()  # buffered close must not precede child termination
+                        return self.stream.close()
+
+                def popen(argv, *positional, **options):
+                    process = original_fake_popen(argv, *positional, **options)
+                    if 'app-server' in argv:
+                        original_terminate = process.terminate
+
+                        def terminate():
+                            try:
+                                return original_terminate()
+                            finally:
+                                released.set()
+
+                        process.terminate = terminate
+                        process.stdin = BlockingInput(process.stdin)
+                    return process
+
+                def work():
+                    try:
+                        with mp.CodexClient(NAMESPACE) as client:
+                            client.capture()
+                    except Exception as error:
+                        errors.append(error)
+
+                with patch.object(subprocess, 'Popen', popen), \
+                     patch.object(mp, 'REQUEST_TIMEOUT_SECONDS', 0.1), \
+                     patch.object(mp, 'OPERATION_TIMEOUT_SECONDS', 0.3), \
+                     patch.object(mp, 'CLEANUP_WAIT_SECONDS', 0.1):
+                    worker = threading.Thread(target=work, daemon=True)
+                    worker.start()
+                    try:
+                        self.assertTrue(blocked.wait(2), 'controlled native stdin never reached blocking point')
+                        worker.join(timeout=1.5)
+                        finished_without_rescue = not worker.is_alive()
+                        reaped_without_rescue = bool(fake.servers) and all(p.poll() is not None for p in fake.servers)
+                    finally:
+                        for process in fake.servers:
+                            if process.poll() is None:
+                                process.terminate()  # safety rescue only; never counted as product cleanup
+                        released.set()
+                        worker.join(timeout=3)
+                    self.assertTrue(finished_without_rescue, 'native stdin blocked past the operation deadline')
+                    self.assertTrue(reaped_without_rescue, 'owned native child was not reaped before rescue')
+                    if stage == 'write':
+                        self.assertTrue(errors and isinstance(errors[0], mp.PolicyError), errors)
 
 
 class NativeFixtureSchemaTests(unittest.TestCase):
