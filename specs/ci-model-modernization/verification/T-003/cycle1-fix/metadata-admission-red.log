@@ -1,0 +1,43 @@
+test_RT015_actual_workflow_metadata_condition_admits_full_planning (__main__.WorkflowIntegrationTests.test_RT015_actual_workflow_metadata_condition_admits_full_planning) ... ERROR
+test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar (__main__.WorkflowIntegrationTests.test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar) ... 
+  test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar (__main__.WorkflowIntegrationTests.test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar) (condition="always() && needs.ci-plan.outputs.run_work == 'true'") ... ERROR
+  test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar (__main__.WorkflowIntegrationTests.test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar) (condition="${{ always() && needs.ci-plan.outputs.run_work == 'true' }}") ... ERROR
+test_RT015_metadata_normalization_rejects_workload_and_condition_mutations (__main__.WorkflowIntegrationTests.test_RT015_metadata_normalization_rejects_workload_and_condition_mutations) ... ok
+
+======================================================================
+ERROR: test_RT015_actual_workflow_metadata_condition_admits_full_planning (__main__.WorkflowIntegrationTests.test_RT015_actual_workflow_metadata_condition_admits_full_planning)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 495, in test_RT015_actual_workflow_metadata_condition_admits_full_planning
+    outputs = self.w.planner_outputs(self.workflow)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 205, in planner_outputs
+    raise ValueError('unsupported planner condition')
+ValueError: unsupported planner condition
+
+======================================================================
+ERROR: test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar (__main__.WorkflowIntegrationTests.test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar) (condition="always() && needs.ci-plan.outputs.run_work == 'true'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 528, in test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar
+    self.assertEqual(self.w.planner_outputs(workflow), {'run_ci_plan': 'true', 'run_work': 'true'})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 205, in planner_outputs
+    raise ValueError('unsupported planner condition')
+ValueError: unsupported planner condition
+
+======================================================================
+ERROR: test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar (__main__.WorkflowIntegrationTests.test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar) (condition="${{ always() && needs.ci-plan.outputs.run_work == 'true' }}")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 528, in test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar
+    self.assertEqual(self.w.planner_outputs(workflow), {'run_ci_plan': 'true', 'run_work': 'true'})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-workflow.py", line 205, in planner_outputs
+    raise ValueError('unsupported planner condition')
+ValueError: unsupported planner condition
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.066s
+
+FAILED (errors=3)

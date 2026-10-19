@@ -1,0 +1,9 @@
+# Actual post-patch condition admission boundary
+
+The applied Claude workflow at c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d adds native receipt upload `always() && needs.ci-plan.outputs.run_test == 'true'`. W.planner_outputs scans every job/step condition (including uses-only upload steps), sends it to condition_supported, and raises `unsupported planner condition`. condition_supported permits true/false, exact single producer equality, runner/matrix comparisons; always() is not admitted. The RT015 receipt fixture separately strips always() before validating the residual, so its Green does not prove whole-workflow admission.
+
+Actual full required-checks: 18 methods, 1 failure and 1 error; current-required-checks-posix.tests.py.log. Actual exact-source FULL planner CLI: exit2 input-invalid; current-plan-initial-error.json. Direct protected P.make_plan traceback reaches `workflow does not prove required catalog coverage`; protected W.coverage_errors returns `["unsupported planner condition"]`. All targeted9 and other169 full methods passed; this does not override the failures.
+
+All443 run obligations/four controls still map, so run-only inventory is insufficient. The owner boundary is W planner condition integration, not the P/C algorithm or arbitrary control exemption. No product/test changes were made after the discovery. Root must route a narrowly scoped integration admission or compatible workflow expression; do not broaden arbitrary always+needs expressions or silently skip validation of uses steps. Existing exact single-producer/output/lowercase true/group/collision/unknown-work negatives must remain.
+
+Disposable rollback before stage restored exact admitted baseline and passed182 methods. Candidate stage is interrupted after discovery; no completed rollback claim. The unready candidate was not submitted as Implementation Complete. Primary V2 and pre-product report remain frozen.

@@ -1,0 +1,33 @@
+{
+  "stage": "Red-ready; no W product edit; wait Root commit and Claude",
+  "outputs": [
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "686d4f63085633688af1976c54c7cf86c6f5663245722d139ccf586820b7af08"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-preflight.md",
+      "sha256": "6a10e6dd142392d435664d740d8bbc6f4379ee5ff122c07eafbc5991c0d79aa2"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-red-record.json",
+      "sha256": "7e4d63cfffb5a50717cfed04ff826396cf29fc835d860cc37c88c4fca3015436"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-red.log",
+      "sha256": "e6a57c7700168404a2f9512349af4dbbe3472498b0b6bc51c4fc942953ea9fbf"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-mypy.log",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/condition-boundary.md",
+      "sha256": "597d09d6156a16068004f6297c4ed295fe1a24d3120682d93d610039fd32310a"
+    }
+  ]
+}

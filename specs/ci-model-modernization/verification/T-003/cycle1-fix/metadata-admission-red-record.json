@@ -1,0 +1,106 @@
+{
+  "actor": "work-agent:root:t003_implementation",
+  "stage": "PRE-PRODUCT metadata admission Red",
+  "executions": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py",
+        "WorkflowIntegrationTests.test_RT015_actual_workflow_metadata_condition_admits_full_planning",
+        "WorkflowIntegrationTests.test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar",
+        "WorkflowIntegrationTests.test_RT015_metadata_normalization_rejects_workload_and_condition_mutations",
+        "-v"
+      ],
+      "exit_code": 1,
+      "log": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-red.log",
+      "sha256": "e6a57c7700168404a2f9512349af4dbbe3472498b0b6bc51c4fc942953ea9fbf"
+    },
+    {
+      "argv": [
+        "/tmp/ci-model-resume-python/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "argv": [
+        "/tmp/ci-model-resume-python/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-mypy.log",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    }
+  ],
+  "unchanged_product_and_protected_pins": [
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "0651f7b29116197e23a5374d5d39f8f232869899e6e0c98223050cad21bffeb8"
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "sha256": "86446696664e6b3fda19f1dc73820807e7daf0bdc63668ec8545f690242f120a"
+    },
+    {
+      "path": "tests/verification-impact.py",
+      "sha256": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493"
+    },
+    {
+      "path": "tests/verification-ci.py",
+      "sha256": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50"
+    },
+    {
+      "path": "tests/verification.py",
+      "sha256": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1"
+    },
+    {
+      "path": "tests/ci-dependency-cache.py",
+      "sha256": "81273f739e8cac02c2c4168356a0d60bbb1bd7ec8edf957008c35be2ffba5aab"
+    },
+    {
+      "path": "tests/verification-ci-plan.tests.py",
+      "sha256": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b"
+    },
+    {
+      "path": "tests/required-checks-posix.tests.py",
+      "sha256": "4a412e19b3a1b50c7ba13d801468c08682eed24f8e76d587d0434b79f9982b19"
+    },
+    {
+      "path": "contracts/verification-ci-plan.schema.json",
+      "sha256": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac"
+    },
+    {
+      "path": "contracts/verification-ci-observations.schema.json",
+      "sha256": "2066711a7531c8e3cb4dd8b88471e9dc22f1070b0e42b1b27400f51cebac42b4"
+    },
+    {
+      "path": "contracts/verification-ci-result.schema.json",
+      "sha256": "4ce73bcf9204acc32da741e4c5a4be98ceca5be5b04dfc11402f9710fdba34e5"
+    },
+    {
+      "path": "reports/implementation/ci-model-modernization/T-003.md",
+      "sha256": "1e9480a383ee97319027924beddf515fe82cedcbd991cb4aac877dc0289eedc1"
+    }
+  ],
+  "test_path": "tests/verification-catalog.tests.py",
+  "test_sha256": "686d4f63085633688af1976c54c7cf86c6f5663245722d139ccf586820b7af08",
+  "method_count": 3,
+  "actual_errors": 3,
+  "negative_mutations": 16
+}

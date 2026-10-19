@@ -491,6 +491,98 @@ class WorkflowIntegrationTests(unittest.TestCase):
                     bad['jobs']['ci-plan']['outputs']['run_work_extra'] = '${{ steps.plan.outputs.run_work_extra }}'
                 self.assertTrue(self.w.coverage_errors(bad, catalog))
 
+    def test_RT015_actual_workflow_metadata_condition_admits_full_planning(self):
+        outputs = self.w.planner_outputs(self.workflow)
+        self.assertEqual(outputs['run_test'], 'true')
+        self.assertEqual(self.w.coverage_errors(self.workflow, self.catalog), [])
+
+    def metadata_upload_fixture(self):
+        expression = "always() && needs.ci-plan.outputs.run_work == 'true'"
+        workflow = {'jobs': {
+            'ci-plan': {'runs-on': 'ubuntu-latest', 'outputs': {
+                'run_ci_plan': '${{ steps.plan.outputs.run_ci_plan }}',
+                'run_work': '${{ steps.plan.outputs.run_work }}'},
+                'steps': [{'name': 'plan', 'run': 'echo plan'}]},
+            'work': {'runs-on': 'ubuntu-latest', 'steps': [
+                {'name': 'assertions', 'run': 'python3 tests/sample.tests.py'},
+                {'name': 'metadata', 'if': expression,
+                 'uses': 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9',
+                 'with': {'name': 'verification-receipts-fixture', 'path': 'receipt.json',
+                          'if-no-files-found': 'error'}}]}}}
+        catalog = {'suites': [{'path': 'tests/sample.tests.py', 'runtime': 'python', 'ci_jobs': ['work']}],
+                   'profiles': {}}
+        return workflow, catalog
+
+    def test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar(self):
+        import copy
+        workflow, catalog = self.metadata_upload_fixture()
+        metadata = workflow['jobs']['work']['steps'][1]
+        expression = metadata['if']
+        self.assertFalse(self.w.condition_supported(expression))
+        self.assertFalse(self.w.enabled(expression, {}, 'Linux', {'run_work': 'true'}))
+        before = copy.deepcopy(workflow)
+        del before['jobs']['work']['steps'][1]
+        for condition in (expression, '${{ ' + expression + ' }}'):
+            with self.subTest(condition=condition):
+                metadata['if'] = condition
+                self.assertEqual(self.w.planner_outputs(workflow), {'run_ci_plan': 'true', 'run_work': 'true'})
+                self.assertEqual(self.w.coverage_errors(workflow, catalog), [])
+                self.assertEqual(self.w.workflow_coverage(workflow, catalog), self.w.workflow_coverage(before, catalog))
+                self.assertEqual(self.w.plan_obligations(workflow, catalog), self.w.plan_obligations(before, catalog))
+
+    def test_RT015_metadata_normalization_rejects_workload_and_condition_mutations(self):
+        import copy
+        workflow, catalog = self.metadata_upload_fixture()
+        expression = workflow['jobs']['work']['steps'][1]['if']
+        mutations = ('run-step', 'uses-plus-run', 'job-condition', 'unknown-output', 'or-true',
+                     'disabled-guard', 'success-guard', 'double-plan', 'matrix-guard', 'wrong-case',
+                     'unpinned-action', 'different-action', 'different-pin', 'missing-action',
+                     'undeclared-output', 'group-collision')
+        for mutation in mutations:
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(workflow)
+                job = bad['jobs']['work']
+                step = job['steps'][1]
+                if mutation == 'run-step':
+                    step.pop('uses')
+                    step['run'] = 'echo hidden workload'
+                elif mutation == 'uses-plus-run':
+                    step['run'] = 'echo hidden workload'
+                elif mutation == 'job-condition':
+                    job['if'] = expression
+                    step['if'] = 'always()'
+                elif mutation == 'unknown-output':
+                    step['if'] = expression.replace('run_work', 'run_unknown')
+                elif mutation == 'or-true':
+                    step['if'] += ' || true'
+                elif mutation == 'disabled-guard':
+                    step['if'] += ' && false'
+                elif mutation == 'success-guard':
+                    step['if'] = expression.replace('always()', 'success()')
+                elif mutation == 'double-plan':
+                    step['if'] += " && needs.ci-plan.outputs.run_ci_plan == 'true'"
+                elif mutation == 'matrix-guard':
+                    step['if'] += " && matrix.lane == 'gates'"
+                elif mutation == 'wrong-case':
+                    step['if'] = expression.replace("'true'", "'True'")
+                elif mutation == 'unpinned-action':
+                    step['uses'] = 'actions/upload-artifact@v4'
+                elif mutation == 'different-action':
+                    step['uses'] = 'actions/download-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
+                elif mutation == 'different-pin':
+                    step['uses'] = 'actions/upload-artifact@' + '0' * 40
+                elif mutation == 'missing-action':
+                    step.pop('uses')
+                elif mutation == 'undeclared-output':
+                    del bad['jobs']['ci-plan']['outputs']['run_work']
+                else:
+                    bad['jobs']['work-extra'] = copy.deepcopy(job)
+                    bad['jobs']['work_extra'] = copy.deepcopy(job)
+                with self.assertRaises(ValueError):
+                    self.w.planner_outputs(bad)
+                self.assertTrue(self.w.coverage_errors(bad, catalog))
+        self.assertFalse(self.w.condition_supported(expression), 'generic workload grammar must remain protected')
+
     def test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped(self):
         caches = [s for j in self.workflow['jobs'].values() for s in j['steps']
                   if s.get('uses', '').startswith('actions/cache@')]
