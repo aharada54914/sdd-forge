@@ -1,0 +1,12 @@
+{
+  "command": [
+    "git",
+    "show",
+    "2aaac49c528d0dfe28437082d54fb86a32f04a15:tests/verification-impact.py"
+  ],
+  "exit_code": 0,
+  "source_revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "source": "specs/ci-model-modernization/verification/T-003/cycle1-fix/historical-shadow-impact.py",
+  "sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3",
+  "kind": "Actual historical released shadow-only source for first-adoption regression; no execution yet"
+}

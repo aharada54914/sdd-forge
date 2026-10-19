@@ -1,0 +1,360 @@
+test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) ... 
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected='false', prior_failure=False, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected='false', prior_failure=False, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected='false', prior_failure=True, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected='false', prior_failure=True, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected=None, prior_failure=False, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected=None, prior_failure=False, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected=None, prior_failure=True, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected=None, prior_failure=True, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected='false', prior_failure=False, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected='false', prior_failure=False, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected='false', prior_failure=True, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected='false', prior_failure=True, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected=None, prior_failure=False, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected=None, prior_failure=False, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected=None, prior_failure=True, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected=None, prior_failure=True, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected='false', prior_failure=False, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected='false', prior_failure=False, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected='false', prior_failure=True, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected='false', prior_failure=True, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected=None, prior_failure=False, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected=None, prior_failure=False, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected=None, prior_failure=True, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected=None, prior_failure=True, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'compatibility'}, selected='true', prior_failure=False, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'compatibility'}, selected='true', prior_failure=False, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'compatibility'}, selected='true', prior_failure=True, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'compatibility'}, selected='true', prior_failure=True, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'a9'}, selected='true', prior_failure=False, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'a9'}, selected='true', prior_failure=False, receipt_present=True) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'a9'}, selected='true', prior_failure=True, receipt_present=False) ... FAIL
+  test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'a9'}, selected='true', prior_failure=True, receipt_present=True) ... FAIL
+test_RT015_missing_required_receipt_and_hidden_upload_mutations_fail (__main__.WorkflowIntegrationTests.test_RT015_missing_required_receipt_and_hidden_upload_mutations_fail) ... ok
+test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) ... ok
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected='false', prior_failure=False, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'windows-latest'}, 'false', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected='false', prior_failure=False, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'windows-latest'}, 'false', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected='false', prior_failure=True, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'windows-latest'}, 'false', True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected='false', prior_failure=True, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'windows-latest'}, 'false', True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected=None, prior_failure=False, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'windows-latest'}, None, False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected=None, prior_failure=False, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'windows-latest'}, None, False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected=None, prior_failure=True, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'windows-latest'}, None, True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'windows-latest'}, selected=None, prior_failure=True, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'windows-latest'}, None, True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected='false', prior_failure=False, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'macos-latest'}, 'false', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected='false', prior_failure=False, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'macos-latest'}, 'false', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected='false', prior_failure=True, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'macos-latest'}, 'false', True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected='false', prior_failure=True, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'macos-latest'}, 'false', True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected=None, prior_failure=False, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'macos-latest'}, None, False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected=None, prior_failure=False, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'macos-latest'}, None, False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected=None, prior_failure=True, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'macos-latest'}, None, True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'macos-latest'}, selected=None, prior_failure=True, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'macos-latest'}, None, True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected='false', prior_failure=False, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'ubuntu-latest'}, 'false', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected='false', prior_failure=False, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'ubuntu-latest'}, 'false', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected='false', prior_failure=True, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'ubuntu-latest'}, 'false', True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected='false', prior_failure=True, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'ubuntu-latest'}, 'false', True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected=None, prior_failure=False, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'ubuntu-latest'}, None, False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected=None, prior_failure=False, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'ubuntu-latest'}, None, False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected=None, prior_failure=True, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'ubuntu-latest'}, None, True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test', matrix={'os': 'ubuntu-latest'}, selected=None, prior_failure=True, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test', {'os': 'ubuntu-latest'}, None, True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'compatibility'}, selected='true', prior_failure=False, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test-windows-heavy', {'lane': 'compatibility'}, 'true', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'compatibility'}, selected='true', prior_failure=False, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test-windows-heavy', {'lane': 'compatibility'}, 'true', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'compatibility'}, selected='true', prior_failure=True, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test-windows-heavy', {'lane': 'compatibility'}, 'true', True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'compatibility'}, selected='true', prior_failure=True, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test-windows-heavy', {'lane': 'compatibility'}, 'true', True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'a9'}, selected='true', prior_failure=False, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test-windows-heavy', {'lane': 'a9'}, 'true', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'a9'}, selected='true', prior_failure=False, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test-windows-heavy', {'lane': 'a9'}, 'true', False)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'a9'}, selected='true', prior_failure=True, receipt_present=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test-windows-heavy', {'lane': 'a9'}, 'true', True)
+
+======================================================================
+FAIL: test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) (job='test-windows-heavy', matrix={'lane': 'a9'}, selected='true', prior_failure=True, receipt_present=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 342, in test_RT015_every_upload_row_matches_selected_receipt_producers
+    self.assert_receipt_row_policy(row, selected, failed, present)
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 325, in assert_receipt_row_policy
+    self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+AssertionError: True != False : ('test-windows-heavy', {'lane': 'a9'}, 'true', True)
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.257s
+
+FAILED (failures=32)

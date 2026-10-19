@@ -2,6 +2,7 @@
 """Behavioral contracts for the executable verification catalog."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -208,13 +209,19 @@ class CatalogTests(unittest.TestCase):
 
 
 class WorkflowIntegrationTests(unittest.TestCase):
+    w: Any
+    ci: Any
+    workflow: dict[str, Any]
+    catalog: dict[str, Any]
     """T-003 workflow caller contracts; local checks are not hosted acceptance."""
     @classmethod
     def setUpClass(cls):
         spec = importlib.util.spec_from_file_location('t003_workflow', ROOT / 'tests/verification-workflow.py')
+        assert spec and spec.loader
         cls.w = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cls.w)
         spec = importlib.util.spec_from_file_location('t003_ci', ROOT / 'tests/verification-ci.py')
+        assert spec and spec.loader
         cls.ci = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cls.ci)
         cls.workflow = cls.w.load_workflow(ROOT / '.github/workflows/test.yml')
@@ -273,10 +280,106 @@ class WorkflowIntegrationTests(unittest.TestCase):
                            and 'verification-receipts-' in s.get('with', {}).get('name', '')]
                 self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
                 upload = uploads[0]
-                self.assertEqual(upload.get('if'), 'always()')
+                runner = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'windows-latest': 'Windows'}[obligation['runner']]
+                outputs = {'run_' + key.replace('-', '_'): 'true' for key in self.workflow['jobs']}
+                self.assertTrue(self.receipt_upload_enabled(upload, obligation['matrix'], runner, outputs))
                 self.assertIn('github.run_id', upload['with']['name'])
                 self.assertIn('github.run_attempt', upload['with']['name'])
                 self.assertNotIn('overwrite', upload['with'])
+
+    def receipt_upload_enabled(self, upload, matrix, runner, outputs):
+        """Bounded Actions-condition fixture; always() preserves a prior failure's upload."""
+        condition = upload.get('if', '').strip()
+        if condition.startswith('${{') and condition.endswith('}}'):
+            condition = condition[3:-2].strip()
+        self.assertTrue(condition == 'always()' or condition.startswith('always() && '),
+                        'receipt upload must survive producer failure, with no success()/file-existence escape')
+        predicate = condition[len('always()'):].removeprefix(' && ')
+        self.assertTrue(not predicate or self.w.condition_supported(predicate), 'unbounded upload predicate')
+        return not predicate or self.w.enabled(predicate, matrix, runner, outputs=outputs)
+
+    def receipt_upload_rows(self):
+        obligations = self.w.plan_obligations(self.workflow, self.catalog)
+        for job_id, job in self.workflow['jobs'].items():
+            uploads = [step for step in job['steps'] if step.get('uses', '').startswith('actions/upload-artifact@')
+                       and 'verification-receipts-' in step.get('with', {}).get('name', '')]
+            if not uploads:
+                continue
+            self.assertEqual(len(uploads), 1)
+            for matrix in self.w.matrix_rows(job):
+                runner = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'windows-latest': 'Windows'}[
+                    self.w.expand_matrix(job['runs-on'], matrix)]
+                names = {item['step'] for item in obligations if item['job'] == job_id
+                         and item['matrix'] == matrix and item['receipt_required']}
+                producers = [step for step in job['steps'] if self.w.expand_matrix(step.get('name', ''), matrix) in names]
+                yield job_id, job, matrix, runner, producers, uploads[0]
+
+    def assert_receipt_row_policy(self, row, selected, prior_failure, receipt_present):
+        job_id, job, matrix, runner, producers, upload = row
+        outputs = {} if selected is None else {'run_' + key.replace('-', '_'): selected for key in self.workflow['jobs']}
+        job_runs = job.get('if') == 'always()' or self.w.enabled(job.get('if'), matrix, runner, outputs=outputs)
+        required = job_runs and any(self.w.enabled(step.get('if'), matrix, runner, outputs=outputs) for step in producers)
+        enabled = self.receipt_upload_enabled(upload, matrix, runner, outputs)
+        # A predecessor assertion failure may suppress ordinary steps, but never this declared always() upload.
+        actual = job_runs and enabled
+        self.assertEqual(actual, required, (job_id, matrix, selected, prior_failure))
+        self.assertEqual(upload['with'].get('if-no-files-found'), 'error', 'missing required receipts must fail')
+        disposition = 'skip' if not actual else 'upload' if receipt_present else 'error'
+        self.assertEqual(disposition, 'skip' if not required else 'upload' if receipt_present else 'error')
+        return required
+
+    def test_RT015_every_upload_row_matches_selected_receipt_producers(self):
+        rows = list(self.receipt_upload_rows())
+        self.assertEqual(len({row[0] for row in rows}), 6)
+        self.assertEqual(len(rows), 16)
+        self.assertEqual(sum(bool(row[4]) for row in rows), 14)
+        for row in rows:
+            for selected in ('true', 'false', None):
+                for failed in (False, True):
+                    for present in (False, True):
+                        with self.subTest(job=row[0], matrix=row[2], selected=selected,
+                                          prior_failure=failed, receipt_present=present):
+                            self.assert_receipt_row_policy(row, selected, failed, present)
+
+    def test_RT015_missing_required_receipt_and_hidden_upload_mutations_fail(self):
+        import copy
+        producer = next(row for row in self.receipt_upload_rows() if row[0] == 'test-windows-heavy' and row[2]['lane'] == 'gates')
+        for mutation in ('ignore-missing', 'success-only', 'disabled', 'file-existence'):
+            with self.subTest(mutation=mutation):
+                row = copy.deepcopy(producer)
+                if mutation == 'ignore-missing':
+                    row[-1]['with']['if-no-files-found'] = 'ignore'
+                else:
+                    row[-1]['if'] = {'success-only': 'success()', 'disabled': 'always() && false',
+                                     'file-existence': "always() && hashFiles('receipt.json') != ''"}[mutation]
+                with self.assertRaises(AssertionError):
+                    self.assert_receipt_row_policy(row, 'true', True, False)
+        # Stale bytes never authorize upload in a row with no producer or no selected native producer.
+        for source in (next(row for row in self.receipt_upload_rows() if row[0] == 'test-windows-heavy' and row[2]['lane'] == 'a9'),
+                       next(row for row in self.receipt_upload_rows() if row[0] == 'test')):
+            row = copy.deepcopy(source)
+            row[-1]['if'] = 'always()'
+            selected = 'true' if row[0] == 'test-windows-heavy' else 'false'
+            with self.subTest(job=row[0]), self.assertRaises(AssertionError):
+                self.assert_receipt_row_policy(row, selected, False, True)
+
+    def test_T003_actual_receipt_identity_body_matches_collector(self):
+        for display, expanded in self.ci.expanded_jobs(self.workflow).items():
+            job = self.workflow['jobs'][expanded['job']]
+            steps = [step for step in job['steps'] if step.get('id') == 'receipt-artifact']
+            if not steps:
+                continue
+            with self.subTest(display=display), tempfile.TemporaryDirectory() as directory:
+                step = steps[0]
+                output = Path(directory) / 'output'
+                env = dict(os.environ, GITHUB_OUTPUT=str(output),
+                           RECEIPT_JOB_NAME=self.w.expand_matrix(step['env']['RECEIPT_JOB_NAME'], expanded['matrix']))
+                self.assertEqual(env['RECEIPT_JOB_NAME'], display)
+                result = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', step['run']],
+                                        env=env, capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                expected = self.ci.P.sha(self.ci.P.canonical({'name': display}))
+                self.assertEqual(output.read_text(), 'job_key=' + expected + '\n')
 
     def test_T003_pr_number_cancellation_and_non_pr_run_groups(self):
         self.assertEqual(self.workflow['concurrency'], {
@@ -336,7 +439,7 @@ class WorkflowIntegrationTests(unittest.TestCase):
         import shlex
         before = json.loads((ROOT / 'specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json').read_text())
         def inventory(workflow, obligations):
-            result = Counter()
+            result: Counter[Any] = Counter()
             for item in obligations:
                 if not item['suites']:
                     continue
@@ -361,7 +464,7 @@ class WorkflowIntegrationTests(unittest.TestCase):
 
     def test_T003_unknown_plan_group_and_output_declarations_fail_closed(self):
         import copy
-        workflow = {'jobs': {
+        workflow: dict[str, Any] = {'jobs': {
             'ci-plan': {'runs-on': 'ubuntu-latest', 'outputs': {'run_work': '${{ steps.plan.outputs.run_work }}'},
                         'steps': [{'name': 'plan', 'run': 'echo plan'}]},
             'work': {'runs-on': 'ubuntu-latest', 'if': "needs.ci-plan.outputs.run_missing == 'true'",
@@ -371,7 +474,7 @@ class WorkflowIntegrationTests(unittest.TestCase):
         workflow['jobs']['work']['if'] = "needs.ci-plan.outputs.run_work == 'true'"
         workflow['jobs']['ci-plan']['outputs']['run_ci_plan'] = '${{ steps.plan.outputs.run_ci_plan }}'
         self.assertEqual(self.w.coverage_errors(workflow, catalog), [], 'declared true group should prove full coverage')
-        for mutation in ('wrong-producer', 'missing-output', 'wrong-case', 'group-collision'):
+        for mutation in ('wrong-producer', 'missing-output', 'wrong-case', 'group-collision', 'extra-output'):
             with self.subTest(mutation=mutation):
                 bad = copy.deepcopy(workflow)
                 if mutation == 'wrong-producer':
@@ -380,6 +483,8 @@ class WorkflowIntegrationTests(unittest.TestCase):
                     del bad['jobs']['ci-plan']['outputs']['run_work']
                 elif mutation == 'wrong-case':
                     bad['jobs']['ci-plan']['outputs']['run_work'] = '${{ steps.plan.outputs.run_Work }}'
+                elif mutation == 'extra-output':
+                    bad['jobs']['ci-plan']['outputs']['run_undeclared'] = '${{ steps.plan.outputs.run_undeclared }}'
                 else:
                     bad['jobs']['work-extra'] = copy.deepcopy(bad['jobs']['work'])
                     bad['jobs']['work_extra'] = copy.deepcopy(bad['jobs']['work'])
@@ -401,10 +506,14 @@ class WorkflowIntegrationTests(unittest.TestCase):
                 self.assertIn('4.10.1', key)
                 self.assertIn('898210e1a30c52cd46ba317c2278a9324345214213aa2f7d6b7dfa7b98f37ac9', key)
                 self.assertRegex(key.lower(), r'(pwsh|powershell)')
+                self.assertIn('steps.pester-runtime.outputs.version', key)
+                self.assertEqual(cache['with']['path'], '${{ runner.temp }}/pester-package-cache/*.nupkg')
             else:
                 self.assertIn('hashFiles(', key)
                 self.assertIn('package-lock.json', key)
                 self.assertRegex(key.lower(), r'node[-_]?22')
+                self.assertIn('steps.node-runtime.outputs.version', key)
+                self.assertEqual(cache['with']['path'], '${{ runner.temp }}/npm-cache/_cacache')
             paths = cache['with']['path']
             self.assertNotIn('node_modules', paths)
             self.assertNotIn('verification-', paths)
@@ -414,6 +523,30 @@ class WorkflowIntegrationTests(unittest.TestCase):
                   if 'ci-dependency-cache.py pester' in s.get('run', '')]
         self.assertTrue(pester, 'Pester reuse lacks pinned archive integrity validation')
         self.assertTrue(all(s.get('if') is None or 'cache-hit' not in s['if'] for s in pester))
+
+    def test_T003_cache_policy_mutations_reject_evidence_and_cross_event_writes(self):
+        import copy
+        original = self.workflow
+        try:
+            for mutation in ('source', 'verdict', 'credentials', 'restore-fallback', 'os', 'runtime', 'lock', 'event', 'pr'):
+                with self.subTest(mutation=mutation):
+                    self.workflow = copy.deepcopy(original)
+                    cache = next(step for step in self.workflow['jobs']['mcp-tests']['steps']
+                                 if step.get('uses', '').startswith('actions/cache@'))['with']
+                    if mutation in ('source', 'verdict', 'credentials'):
+                        cache['path'] = {'source': '${{ github.workspace }}', 'verdict': '${{ runner.temp }}/verification-result.json',
+                                         'credentials': '~/.ssh'}[mutation]
+                    elif mutation == 'restore-fallback':
+                        cache['restore-keys'] = 'npm-trusted-'
+                    else:
+                        token = {'os': 'runner.os', 'runtime': 'steps.node-runtime.outputs.version',
+                                 'lock': 'package-lock.json', 'event': 'github.event_name',
+                                 'pr': 'github.event.pull_request.number'}[mutation]
+                        cache['key'] = cache['key'].replace(token, 'shared')
+                    with self.assertRaises(AssertionError):
+                        self.test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped()
+        finally:
+            self.workflow = original
 
 
 if __name__ == '__main__':

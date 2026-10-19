@@ -1,0 +1,25 @@
+test_RT016_actual_pr_body_binds_api_head_and_distinct_tested_merge (__main__.WorkflowPlanIntegrationTests.test_RT016_actual_pr_body_binds_api_head_and_distinct_tested_merge) ... ok
+test_RT016_present_released_shadow_planner_uses_full_adoption_fallback (__main__.WorkflowPlanIntegrationTests.test_RT016_present_released_shadow_planner_uses_full_adoption_fallback) ... FAIL
+test_RT016_subject_origin_sentinel_detects_wrong_dispatch (__main__.WorkflowPlanIntegrationTests.test_RT016_subject_origin_sentinel_detects_wrong_dispatch) ... ok
+test_T003_actual_first_adoption_without_base_planner_stays_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_first_adoption_without_base_planner_stays_full) ... ok
+test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) ... ok
+test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) ... ok
+
+======================================================================
+FAIL: test_RT016_present_released_shadow_planner_uses_full_adoption_fallback (__main__.WorkflowPlanIntegrationTests.test_RT016_present_released_shadow_planner_uses_full_adoption_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1549, in test_RT016_present_released_shadow_planner_uses_full_adoption_fallback
+    plan = self.invoke_workflow()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1483, in invoke_workflow
+    self.assertEqual(result.returncode, expected_exit, result.stdout + result.stderr)
+AssertionError: 2 != 0 : usage: verification-impact.py [-h] [--base BASE] [--head HEAD]
+                              [--profile PROFILE] [--receipt RECEIPT]
+verification-impact.py: error: unrecognized arguments: --plan --root /tmp/tmpuw3ab_2e/subject --trusted-root /tmp/tmpuw3ab_2e/trusted --event pull_request --run-id 123 --run-attempt 1 --api-head-sha b57e561f508ae55fb81d377254bb6081e4b55655 --tested-revision b57e561f508ae55fb81d377254bb6081e4b55655 --force-full false --output /tmp/tmpuw3ab_2e/tmpl9af5jzs/verification-plan/plan.json --github-output /tmp/tmpuw3ab_2e/tmpl9af5jzs/github-output
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.815s
+
+FAILED (failures=1)

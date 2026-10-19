@@ -1,0 +1,32 @@
+{
+  "actor": "work-agent:root:t003_implementation",
+  "recorded_at": "2026-10-19T16:57:22.230162+00:00",
+  "executions": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py",
+        "WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers",
+        "WorkflowIntegrationTests.test_RT015_missing_required_receipt_and_hidden_upload_mutations_fail",
+        "WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it",
+        "-v"
+      ],
+      "exit_code": 1,
+      "log": "specs/ci-model-modernization/verification/T-003/cycle1-fix/receipt-red.log",
+      "sha256": "7500a0b846809cb2455517a66f5a65fd1a31f7a9ab0e9cdd675b353026e0efa2"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-ci.tests.py",
+        "WorkflowPlanIntegrationTests",
+        "-v"
+      ],
+      "exit_code": 1,
+      "log": "specs/ci-model-modernization/verification/T-003/cycle1-fix/planner-red.log",
+      "sha256": "74342ac3fe6a4aff830047520e20e17bece276efb070431d2a23a8948c72eade"
+    }
+  ]
+}

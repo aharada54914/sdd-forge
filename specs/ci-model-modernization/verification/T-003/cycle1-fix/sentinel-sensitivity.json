@@ -1,0 +1,21 @@
+{
+  "scope": "Counterfactual wrong-dispatch fixture, not a changed product workflow or hosted result",
+  "observations": [
+    {
+      "fixture": "old-after-main",
+      "forced_wrong_origin": "subject",
+      "actual_exit": 0,
+      "plan_created": true,
+      "stdout": "{\n  \"schema\": \"verification-ci-plan/v1\",\n  \"mode\": \"full\",\n  \"reason\": \"shared-change\",\n  \"event\": \"pull_request\",\n  \"run_id\": \"123\",\n  \"planning_attempt\": 1,\n  \"api_head_sha\": \"597119720736f0ed679df38e43c01195e4eec034\",\n  \"tested_revision\": \"597119720736f0ed679df38e43c01195e4eec034\",\n  \"base_revision\": \"1c6096d3117879a320c941e8804d9d937dad7737\",\n  \"pr_head_revision\": \"597119720736f0ed679df38e43c01195e4eec034\",\n  \"merge_base_revision\": \"1c6096d3117879a320c941e8804d9d937dad7737\",\n  \"catalog_sha256\": \"0d19d42d4859a3e6702cf492acb7f38baa5c780a1150c710fa13b7e178f1236c\",\n  \"workflow_sha256\": \"9846a706175bea2ac044dc904401317a891126dad6182d41d737c102535ff8c7\",\n  \"trusted_planner_sha256\": \"25e4447508dc50f30c9d5d6263bd8e62421f30f974028d7ae430291a9059cb0f\",\n  \"changed_path_count\": 2,\n  \"groups\": [\n    \"optional\",\n    \"test\"\n  ],\n  \"obligations\": [\n    {\n      \"id\": \"test:b9280aa71d14e573e8b2fe1dfa05eb7d6f69fb1e39daf06322c18ca5921a5ca7\",\n      \"job\": \"test\",\n      \"matrix\": {},\n      \"runner\": \"ubuntu-latest\",\n      \"step\": \"a\",\n      \"command_sha256\": \"c3f7576c3cd32da04d000069f6b0392bdd498af3c35638e17f87a4bc0eff9775\",\n      \"suites\": [\n        \"tests/a.tests.py\"\n      ],\n      \"receipt_required\": false\n    },\n    {\n      \"id\": \"test:cfb77d24e3e0d8b86cae7c8be6f7aae4f6d8985b573942e3dde48a3ca4b3e4f8\",\n      \"job\": \"test\",\n      \"matrix\": {},\n      \"runner\": \"ubuntu-latest\",\n      \"step\": \"bc\",\n      \"command_sha256\": \"7052260d7d87f92210df0e03a0847296ea0af950c7348fa554be8cb3a5a68406\",\n      \"suites\": [\n        \"tests/b.tests.py\",\n        \"tests/c.tests.py\"\n      ],\n      \"receipt_required\": false\n    },\n    {\n      \"id\": \"test:6bacc5619df5455bf4b3b82d661f09dd47501d0e7d1ee2bba0238b95d915f4df\",\n      \"job\": \"test\",\n      \"matrix\": {},\n      \"runner\": \"ubuntu-latest\",\n      \"step\": \"d\",\n      \"command_sha256\": \"64a1ff9cf481aa0e9e21d5b3fadff15191a315f61adb07b893c61f82ba96e81c\",\n      \"suites\": [\n        \"tests/d.tests.py\"\n      ],\n      \"receipt_required\": false\n    },\n    {\n      \"id\": \"test:fe0485a88e6a4e5d13f1ed43ca9449b804092bdfa7bda0184a9ac6807af18f8e\",\n      \"job\": \"test\",\n      \"matrix\": {},\n      \"runner\": \"ubuntu-latest\",\n      \"step\": \"integrity\",\n      \"command_sha256\": \"43398a074006937712fd87d148b8b977370ee49e6423f1329bba40cfa8035ea0\",\n      \"suites\": [],\n      \"receipt_required\": false\n    },\n    {\n      \"id\": \"optional:d01a41c933268b80ffc831310a6c0fb12dd7478fea2ef6e233a0aaa893558440\",\n      \"job\": \"optional\",\n      \"matrix\": {},\n      \"runner\": \"ubuntu-latest\",\n      \"step\": \"build\",\n      \"command_sha256\": \"df0451b2bb9f8c6caaabcf267c6e4d4d6af47a54845860e750590d00b2043ac0\",\n      \"suites\": [],\n      \"receipt_required\": false\n    }\n  ],\n  \"omissions\": [],\n  \"activation_evidence\": [],\n  \"plan_sha256\": \"7c0a554ebc3667d2c9cfa78c9ad50818599169c5b61042bcfc1c7a76aa3ada02\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "fixture": "fixed-before-main",
+      "forced_wrong_origin": "subject",
+      "actual_exit": 96,
+      "plan_created": false,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

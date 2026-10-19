@@ -1,0 +1,31 @@
+[
+  {
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-catalog.tests.py",
+      "tests/verification-ci.tests.py"
+    ],
+    "exit_code": 0,
+    "log": "specs/ci-model-modernization/verification/T-003/cycle1-fix/red-tests-ruff.log",
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-catalog.tests.py",
+      "tests/verification-ci.tests.py"
+    ],
+    "exit_code": 0,
+    "log": "specs/ci-model-modernization/verification/T-003/cycle1-fix/red-tests-mypy.log",
+    "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+  }
+]
