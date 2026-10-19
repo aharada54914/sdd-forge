@@ -822,6 +822,38 @@ class PolicySelection(unittest.TestCase):
         finally:
             os.chdir(old_cwd)
 
+    def test_empty_optional_minimum_matches_omission_in_both_wrappers(self):
+        for backend, option in [('bash', '--minimum-tier'), ('powershell', '-MinimumTier')]:
+            with self.subTest(backend=backend):
+                expected = self.selected(self.invoke(backend), CURRENT)
+                actual = self.selected(self.invoke(backend, extra=(option, '')), CURRENT)
+                self.assertEqual(actual, expected)
+
+    def test_empty_optional_minimum_direct_completion_preserves_role_floor(self):
+        helper = load_helper()
+        self.request.update({'role': 'evaluator', 'risk': 'low'})
+        self.save()
+        previous = Path.cwd()
+        try:
+            os.chdir(self.work)
+            control = helper.prepare_policy('request.json', 'registry.json', options={}, environment={})
+            winner = helper._replay_policy_winner(control)
+            expected = helper.complete_policy(control, winner)
+            context = helper.prepare_policy('request.json', 'registry.json',
+                                            options={'minimum_tier': ''}, environment={})
+            forged = dict(winner, model=LIGHT, canonical_tier='lightweight', effort='low')
+            with self.assertRaises(helper.PolicyError) as caught:
+                helper.complete_policy(context, forged)
+            self.assertEqual(caught.exception.reason, 'model-tier-unavailable')
+            try:
+                actual = helper.complete_policy(context, winner)
+            except helper.PolicyError as error:
+                self.fail('Accepted empty optional minimum rejected: ' + error.reason)
+            self.assertEqual(actual, expected)
+            self.assertEqual(actual['resolved']['catalog_id'], CURRENT)
+        finally:
+            os.chdir(previous)
+
     def test_wrapper_policy_smoke(self):
         backend = os.environ.get('SDD_TEST_POLICY_BACKEND', 'bash')
         self.selected(self.invoke(backend), CURRENT)
