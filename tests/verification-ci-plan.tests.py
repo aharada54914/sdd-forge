@@ -48,6 +48,16 @@ def sample_plan():
 
 
 class WireTests(unittest.TestCase):
+    def test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits(self):
+        good = {'flat': list(range(3001)), 'seconds': 10 ** 400}
+        self.assertEqual(IMPACT.strict_json(IMPACT.canonical(good)), good)
+        raw = b'{"nested":' + b'[' * 10000 + b'0' + b']' * 10000 + b'}'
+        self.assertLess(len(raw), 32 * 1024 * 1024)
+        for payload in (raw, raw.decode('utf-8')):
+            with self.subTest(input_type=type(payload).__name__), self.assertRaises(ValueError):
+                IMPACT.strict_json(payload)
+        self.assertEqual(IMPACT.strict_json(b'{"valid":true}'), {'valid': True})
+
     def signed(self, plan):
         plan = copy.deepcopy(plan)
         plan['plan_sha256'] = digest({k: v for k, v in plan.items() if k != 'plan_sha256'})
@@ -986,9 +996,9 @@ class RenameConsumerTests(GitFixture):
 class A9ConsumerTests(GitFixture):
     """Synthetic Git proofs exercise both actual activation-consumer call sites."""
 
-    ref = ProofTests.ref
-    result = ProofTests.result
-    activate = ProofTests.activate
+    ref: Any = ProofTests.ref
+    result: Any = ProofTests.result
+    activate: Any = ProofTests.activate
 
     def setUp(self):
         super().setUp()
@@ -1013,6 +1023,7 @@ class A9ConsumerTests(GitFixture):
         self.mutation_plan = IMPACT.make_plan(self.root, self.root, 'push', '124', 1,
                                               self.mutation, self.mutation)
         self.mutation_result = self.skipped_result(self.mutation_plan, True)
+        subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q', str(self.root), self.mutation], check=True)
         self.git('checkout', '-q', self.baseline)
         self.proof = dict(schema='verification-ci-activation/v1', category='guide',
             rule_sha256=self.rule, baseline_revision=self.baseline,
@@ -1152,7 +1163,46 @@ class A9ConsumerTests(GitFixture):
         self.assertIs(W.a9_activation(self.root, pr, self.workflow), False)
         for field in ('base_revision', 'pr_head_revision', 'merge_base_revision'):
             with self.subTest(field=field), self.assertRaises(ValueError):
-                W.a9_activation(self.root, {**pr, field: self.mutation}, self.workflow)
+                W.a9_activation(self.root, {**pr, field: '0' * 40}, self.workflow)
+
+    def test_active_execution_and_exact_merge_context(self):
+        self.git('checkout', '-q', self.baseline)
+        self.write('sdd/project-context.yaml', 'active')
+        head = self.commit('active exact PR head')
+        active = {**self.full, 'event': 'pull_request', 'api_head_sha': head,
+                  'tested_revision': head, 'pr_head_revision': head,
+                  'base_revision': self.baseline, 'merge_base_revision': self.baseline}
+        active['plan_sha256'] = digest({k: v for k, v in active.items() if k != 'plan_sha256'})
+        self.check_result(self.result(active, False), plan=active)
+        with self.assertRaises(ValueError):
+            self.check_result(self.skipped_result(active, False), plan=active)
+        self.git('checkout', '-q', self.baseline)
+        self.git('commit', '--allow-empty', '-qm', 'base advances')
+        base = self.git('rev-parse', 'HEAD')
+        self.git('merge', '--no-ff', '-qm', 'synthetic tested merge', head)
+        merge = self.git('rev-parse', 'HEAD')
+        active.update(base_revision=base, tested_revision=merge)
+        self.assertIs(W.a9_activation(self.root, active, self.workflow), True)
+        with self.assertRaises(ValueError):
+            W.a9_activation(self.root, {**active, 'base_revision': self.baseline}, self.workflow)
+        wrong = copy.deepcopy(self.full)
+        wrong['obligations'][-1]['step'] = 'renamed A9 obligation'
+        with self.assertRaises(ValueError):
+            self.check_result(self.full_result, plan=wrong)
+        for context in ({'root': self.root}, {'workflow': self.workflow},
+                        {'root': self.root, 'workflow': {'jobs': {}}}):
+            with self.assertRaises(ValueError):
+                IMPACT.validate_result_binding(self.full_result, self.full, True, **context)
+
+    def test_ancestor_symlink_unknown_checkout_context_fails_closed(self):
+        self.git('checkout', '-q', self.baseline)
+        (self.root / 'sdd').symlink_to('outside-or-unknown')
+        head = self.commit('unknown ancestor checkout semantics')
+        plan = {**self.full, 'event': 'pull_request', 'api_head_sha': head,
+                'tested_revision': head, 'base_revision': self.baseline,
+                'pr_head_revision': head, 'merge_base_revision': self.baseline}
+        with self.assertRaises(ValueError):
+            W.a9_activation(self.root, plan, self.workflow)
 
     def test_same_job_name_and_unknown_workflow_never_grant_exception(self):
         changes = [lambda w: w['jobs']['a9-advisory'].update(**{'if': 'false'}),

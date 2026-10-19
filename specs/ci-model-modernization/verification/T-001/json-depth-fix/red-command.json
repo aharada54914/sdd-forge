@@ -1,0 +1,16 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/verification-ci-plan.tests.py",
+    "WireTests.test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits"
+  ],
+  "exit_code": 1,
+  "tests": 1,
+  "errors": 2,
+  "source_unchanged_sha256": "c9ec6d41ffa577424d1408be522fea4b4927404afe24a621b76e6eb12b11e422",
+  "test_sha256": "8be2689187142a4438a11e12f79a0d7b4490e418d7a4e5ef4e7032de9927c1cd",
+  "evidence": "specs/ci-model-modernization/verification/T-001/json-depth-fix/red.log",
+  "initial_probe": "depth2000 did not exceed actual Python3.12 parser limit; preserved, no detection credit",
+  "recorded_at": "2026-10-19T14:42:33Z"
+}

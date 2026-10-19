@@ -1,0 +1,23 @@
+FF
+======================================================================
+FAIL: test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits (__main__.WireTests.test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits) (input_type='bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 57, in test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits
+    with self.subTest(input_type=type(payload).__name__), self.assertRaises(ValueError):
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits (__main__.WireTests.test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits) (input_type='str')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 57, in test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits
+    with self.subTest(input_type=type(payload).__name__), self.assertRaises(ValueError):
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=2)

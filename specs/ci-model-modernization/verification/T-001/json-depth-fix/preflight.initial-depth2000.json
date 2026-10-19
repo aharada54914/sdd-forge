@@ -1,0 +1,56 @@
+{
+  "task_id": "T-001",
+  "ticket": "RT-20261019-011",
+  "actor": "work-agent:root",
+  "kind": "Authorized small owning-scope in-gate correction; existing task implementation report/context remains historical",
+  "inputs": [
+    {
+      "path": "tests/verification-impact.py",
+      "sha256": "c9ec6d41ffa577424d1408be522fea4b4927404afe24a621b76e6eb12b11e422"
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "sha256": "52fe8b0f8100718e3511f7ad6539cf558ee6df1b7a6ce405ff25cd5cb6557db2"
+    },
+    {
+      "path": "tests/verification-ci-plan.tests.py",
+      "sha256": "a519153c2e96980859742847f406a9239e30cee8a74ec015e1c5e110d62be666"
+    },
+    {
+      "path": "tests/verification-ci.py",
+      "sha256": "f7f1dab5e7e098b9895213796541617655459edc320a32228ea1aa71ec8a5b10"
+    },
+    {
+      "path": "tests/verification-ci.tests.py",
+      "sha256": "63a1c14beb742c930e4a84775f30405583da8c62373bf95ba83e191e06ddd266"
+    },
+    {
+      "path": "contracts/verification-ci-plan.schema.json",
+      "sha256": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac"
+    },
+    {
+      "path": "contracts/verification-ci-result.schema.json",
+      "sha256": "4ce73bcf9204acc32da741e4c5a4be98ceca5be5b04dfc11402f9710fdba34e5"
+    },
+    {
+      "path": "contracts/verification-ci-observations.schema.json",
+      "sha256": "2066711a7531c8e3cb4dd8b88471e9dc22f1070b0e42b1b27400f51cebac42b4"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "71f3fc75df8bfc11b2091a35a9a8146b1734d4a03638214e091b959eec6e0938"
+    }
+  ],
+  "boundary": "shared strict_json decoder plus canonical recheck must normalize RecursionError to ValueError; preserve finite integer and flat large-input semantics",
+  "producer_consumer": "P.strict_json used by planner proof/trusted JSON and T002 collect/aggregate raw JSON readers; no second parser/consumer-specific permissive wrapper",
+  "persisted_fields_changed": [],
+  "negative": "actual root-object JSON with2000 nested arrays, bytes andtext, below C byte bound; no mocked parser",
+  "positive": [
+    "ordinary object",
+    "flat3001 entries",
+    "JSONinteger10**400 roundtrip"
+  ],
+  "required_model_note": "Root orchestrator applied safe ticket patch; no inferred root backend model identity. Independent gate will use fresh configured strong/high context.",
+  "authorization": "Existing user all remaining approved task work; T001 independent cycles through10 explicitly authorized; next is9",
+  "recorded_at": "2026-10-19T14:41:13Z"
+}

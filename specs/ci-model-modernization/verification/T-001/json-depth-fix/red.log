@@ -1,0 +1,45 @@
+EE
+======================================================================
+ERROR: test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits (__main__.WireTests.test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits) (input_type='bytes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 58, in test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits
+    IMPACT.strict_json(payload)
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 175, in strict_json
+    result = json.loads(value, object_pairs_hook=unique, parse_constant=invalid)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py", line 359, in loads
+    return cls(**kw).decode(s)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 354, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+RecursionError: maximum recursion depth exceeded while decoding a JSON array from a unicode string
+
+======================================================================
+ERROR: test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits (__main__.WireTests.test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits) (input_type='str')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 58, in test_deep_json_is_a_typed_input_failure_without_flat_or_integer_limits
+    IMPACT.strict_json(payload)
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 175, in strict_json
+    result = json.loads(value, object_pairs_hook=unique, parse_constant=invalid)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py", line 359, in loads
+    return cls(**kw).decode(s)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 354, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+RecursionError: maximum recursion depth exceeded while decoding a JSON array from a unicode string
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (errors=2)
