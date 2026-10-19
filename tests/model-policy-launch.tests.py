@@ -919,6 +919,15 @@ class LaunchControls(LaunchFixture):
     def test_controls_trusted_native_mapping_cannot_be_resealed(self):
         self.baseline_accepts('spec-reviewer-a')
         baseline = copy.deepcopy(self.policy)
+        with self.subTest(policy='valid-restricted-subset'):
+            self.policy['models'] = [copy.deepcopy(self.policy_model('anthropic/opus'))]
+            self.assertEqual(self.policy['models'][0]['successor_of'], [])
+            for role in self.policy['roles'].values():
+                role['preferences'] = [name for name in role['preferences'] if name == 'anthropic/opus']
+            selection = self.select('spec-reviewer-a')
+            sha = self.controls()
+            self.assertEqual(selection['resolved']['catalog_id'], 'anthropic/opus')
+            self.assert_validation(self.accepted(self.cli(sha=sha)), sha=sha, selection=selection)
         swaps = [('strong-to-light', {'anthropic/opus': 'haiku', 'anthropic/haiku': 'opus'}),
                  ('strong-to-standard', {'anthropic/opus': 'sonnet', 'anthropic/sonnet': 'opus'})]
         for label, mapping in swaps:
@@ -970,7 +979,8 @@ class LaunchControls(LaunchFixture):
             with self.subTest(leaf=label):
                 changed = copy.deepcopy(selection)
                 set_path(changed, path, value)
-                changed['selection_sha256'] = digest(changed, 'selection_sha256')
+                if path != ('selection_sha256',):
+                    changed['selection_sha256'] = digest(changed, 'selection_sha256')
                 self.write('selection.json', changed)
                 self.rejected(self.cli(sha=self.controls()), REASONS)
 
