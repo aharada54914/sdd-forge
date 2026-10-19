@@ -1,0 +1,774 @@
+test_TEST019_positive_full_receipts_native_obligations (__main__.AggregateTests.test_TEST019_positive_full_receipts_native_obligations) ... fixture execution
+FAIL
+test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) ... fixture execution
+
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='failure', level='job') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='failure', level='step') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='cancelled', level='job') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='cancelled', level='step') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='skipped', level='job') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='skipped', level='step') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='timed_out', level='job') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='timed_out', level='step') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='neutral', level='job') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='neutral', level='step') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='action_required', level='job') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='action_required', level='step') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion=None, level='job') ... FAIL
+  test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion=None, level='step') ... FAIL
+test_TEST021_057_absent_malformed_plan_and_empty_evidence (__main__.AggregateTests.test_TEST021_057_absent_malformed_plan_and_empty_evidence) ... fixture execution
+FAIL
+test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) ... fixture execution
+
+  test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='run_id') ... FAIL
+  test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='head_sha') ... FAIL
+  test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='id') ... FAIL
+  test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='run_attempt') ... FAIL
+  test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='name') ... FAIL
+  test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='labels') ... FAIL
+  test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='status') ... FAIL
+test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) ... FAIL
+test_TEST023_copied_success_preserves_original_ids_and_attempts (__main__.AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts) ... fixture execution
+FAIL
+test_TEST023_genuine_rerun_keeps_failed_history (__main__.AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history) ... fixture execution
+FAIL
+test_TEST058_missing_receipt (__main__.AggregateTests.test_TEST058_missing_receipt) ... fixture execution
+FAIL
+test_TEST059_empty_receipt_success (__main__.AggregateTests.test_TEST059_empty_receipt_success) ... fixture execution
+FAIL
+test_manifest_hash_and_containment_counterparts (__main__.AggregateTests.test_manifest_hash_and_containment_counterparts) ... fixture execution
+FAIL
+test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) ... fixture execution
+
+  test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='id') ... FAIL
+  test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='job') ... FAIL
+  test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='matrix') ... FAIL
+  test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='runner') ... FAIL
+  test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='step') ... FAIL
+  test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='command_sha256') ... FAIL
+  test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='suites') ... FAIL
+  test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='receipt_required') ... FAIL
+test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) ... FAIL
+test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) ... fixture execution
+
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='schema') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='profile') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='revision') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='revision_after') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='clean_before') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='clean_after') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='reusable') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='catalog_sha256') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='selected') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='results') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='suite') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='source_sha256') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='status') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='exit_code') ... FAIL
+  test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='seconds') ... FAIL
+test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) ... fixture execution
+
+  test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) (mode='missing') ... FAIL
+  test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) (mode='ambiguous') ... FAIL
+  test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) (mode='relabelled') ... FAIL
+test_collection_field_counterparts_and_schema (__main__.BoundaryTests.test_collection_field_counterparts_and_schema) ... FAIL
+test_collection_pagination_history_and_get_only (__main__.BoundaryTests.test_collection_pagination_history_and_get_only) ... FAIL
+test_pagination_rejects_partial_duplicate_loop_and_other_origin (__main__.BoundaryTests.test_pagination_rejects_partial_duplicate_loop_and_other_origin) ... FAIL
+test_result_and_error_all_persisted_field_counterparts (__main__.BoundaryTests.test_result_and_error_all_persisted_field_counterparts) ... FAIL
+test_strict_contract_inputs (__main__.BoundaryTests.test_strict_contract_inputs) ... FAIL
+test_zip_safety_complete_before_extraction (__main__.BoundaryTests.test_zip_safety_complete_before_extraction) ... FAIL
+test_zip_valid_json_payloads_and_create_only (__main__.BoundaryTests.test_zip_valid_json_payloads_and_create_only) ... FAIL
+
+======================================================================
+FAIL: test_TEST019_positive_full_receipts_native_obligations (__main__.AggregateTests.test_TEST019_positive_full_receipts_native_obligations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 328, in test_TEST019_positive_full_receipts_native_obligations
+    result = self.invoke()
+             ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='failure', level='job')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='failure', level='step')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='cancelled', level='job')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='cancelled', level='step')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='skipped', level='job')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='skipped', level='step')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='timed_out', level='job')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='timed_out', level='step')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='neutral', level='job')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='neutral', level='step')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='action_required', level='job')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion='action_required', level='step')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion=None, level='job')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) (conclusion=None, level='step')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 341, in test_TEST020_055_056_failure_cancel_skip_timeout_neutral
+    result = self.invoke(expected=1)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST021_057_absent_malformed_plan_and_empty_evidence (__main__.AggregateTests.test_TEST021_057_absent_malformed_plan_and_empty_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 346, in test_TEST021_057_absent_malformed_plan_and_empty_evidence
+    self.invoke(lambda path, _obs: path.write_bytes(raw), expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 318, in invoke
+    self.assertTrue(raw.lstrip().startswith('{'), 'missing T-002 JSON protocol: ' + raw)
+AssertionError: False is not true : missing T-002 JSON protocol: /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='run_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 383, in test_TEST022_060_061_062_063_identity_and_hash_mutations
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='head_sha')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 383, in test_TEST022_060_061_062_063_identity_and_hash_mutations
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 383, in test_TEST022_060_061_062_063_identity_and_hash_mutations
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='run_attempt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 383, in test_TEST022_060_061_062_063_identity_and_hash_mutations
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='name')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 383, in test_TEST022_060_061_062_063_identity_and_hash_mutations
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='labels')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 383, in test_TEST022_060_061_062_063_identity_and_hash_mutations
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) (field='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 383, in test_TEST022_060_061_062_063_identity_and_hash_mutations
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 385, in test_TEST022_060_061_062_063_identity_and_hash_mutations
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST023_copied_success_preserves_original_ids_and_attempts (__main__.AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 434, in test_TEST023_copied_success_preserves_original_ids_and_attempts
+    result = self.invoke()
+             ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST023_genuine_rerun_keeps_failed_history (__main__.AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 455, in test_TEST023_genuine_rerun_keeps_failed_history
+    result = self.invoke()
+             ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST058_missing_receipt (__main__.AggregateTests.test_TEST058_missing_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 353, in test_TEST058_missing_receipt
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_TEST059_empty_receipt_success (__main__.AggregateTests.test_TEST059_empty_receipt_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 357, in test_TEST059_empty_receipt_success
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_manifest_hash_and_containment_counterparts (__main__.AggregateTests.test_manifest_hash_and_containment_counterparts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 415, in test_manifest_hash_and_containment_counterparts
+    self.invoke(corrupt, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 404, in test_plan_partition_recomputed_not_self_authorized
+    self.invoke(expected=2 if field == 'job' else 1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='job')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 404, in test_plan_partition_recomputed_not_self_authorized
+    self.invoke(expected=2 if field == 'job' else 1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 318, in invoke
+    self.assertTrue(raw.lstrip().startswith('{'), 'missing T-002 JSON protocol: ' + raw)
+AssertionError: False is not true : missing T-002 JSON protocol: /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='matrix')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 404, in test_plan_partition_recomputed_not_self_authorized
+    self.invoke(expected=2 if field == 'job' else 1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='runner')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 404, in test_plan_partition_recomputed_not_self_authorized
+    self.invoke(expected=2 if field == 'job' else 1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='step')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 404, in test_plan_partition_recomputed_not_self_authorized
+    self.invoke(expected=2 if field == 'job' else 1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='command_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 404, in test_plan_partition_recomputed_not_self_authorized
+    self.invoke(expected=2 if field == 'job' else 1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='suites')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 404, in test_plan_partition_recomputed_not_self_authorized
+    self.invoke(expected=2 if field == 'job' else 1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) (field='receipt_required')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 404, in test_plan_partition_recomputed_not_self_authorized
+    self.invoke(expected=2 if field == 'job' else 1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 407, in test_plan_partition_recomputed_not_self_authorized
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='schema')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='profile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='revision')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='revision_after')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='clean_before')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='clean_after')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='reusable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='catalog_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='selected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='results')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 368, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='suite')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 374, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='source_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 374, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 374, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='exit_code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 374, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) (field='seconds')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 374, in test_receipt_persisted_fields_counterparts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) (mode='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 474, in test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) (mode='ambiguous')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 474, in test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) (mode='relabelled')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 474, in test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 316, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 2 != 1 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/sdd-forge/tests/verification-ci.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_collection_field_counterparts_and_schema (__main__.BoundaryTests.test_collection_field_counterparts_and_schema)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 50, in setUp
+    self.assertTrue(SCRIPT.is_file(), 'T-002 collector/aggregate implementation is missing')
+AssertionError: False is not true : T-002 collector/aggregate implementation is missing
+
+======================================================================
+FAIL: test_collection_pagination_history_and_get_only (__main__.BoundaryTests.test_collection_pagination_history_and_get_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 50, in setUp
+    self.assertTrue(SCRIPT.is_file(), 'T-002 collector/aggregate implementation is missing')
+AssertionError: False is not true : T-002 collector/aggregate implementation is missing
+
+======================================================================
+FAIL: test_pagination_rejects_partial_duplicate_loop_and_other_origin (__main__.BoundaryTests.test_pagination_rejects_partial_duplicate_loop_and_other_origin)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 50, in setUp
+    self.assertTrue(SCRIPT.is_file(), 'T-002 collector/aggregate implementation is missing')
+AssertionError: False is not true : T-002 collector/aggregate implementation is missing
+
+======================================================================
+FAIL: test_result_and_error_all_persisted_field_counterparts (__main__.BoundaryTests.test_result_and_error_all_persisted_field_counterparts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 50, in setUp
+    self.assertTrue(SCRIPT.is_file(), 'T-002 collector/aggregate implementation is missing')
+AssertionError: False is not true : T-002 collector/aggregate implementation is missing
+
+======================================================================
+FAIL: test_strict_contract_inputs (__main__.BoundaryTests.test_strict_contract_inputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 50, in setUp
+    self.assertTrue(SCRIPT.is_file(), 'T-002 collector/aggregate implementation is missing')
+AssertionError: False is not true : T-002 collector/aggregate implementation is missing
+
+======================================================================
+FAIL: test_zip_safety_complete_before_extraction (__main__.BoundaryTests.test_zip_safety_complete_before_extraction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 50, in setUp
+    self.assertTrue(SCRIPT.is_file(), 'T-002 collector/aggregate implementation is missing')
+AssertionError: False is not true : T-002 collector/aggregate implementation is missing
+
+======================================================================
+FAIL: test_zip_valid_json_payloads_and_create_only (__main__.BoundaryTests.test_zip_valid_json_payloads_and_create_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 50, in setUp
+    self.assertTrue(SCRIPT.is_file(), 'T-002 collector/aggregate implementation is missing')
+AssertionError: False is not true : T-002 collector/aggregate implementation is missing
+
+----------------------------------------------------------------------
+Ran 19 tests in 1.008s
+
+FAILED (failures=63)

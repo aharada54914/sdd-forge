@@ -1,0 +1,30 @@
+{
+  "head": "a290e146eae864e249fce6a26807e668eabbaac6",
+  "files": [
+    {
+      "path": "tests/verification-ci.py",
+      "existed_before": false,
+      "sha256": null
+    },
+    {
+      "path": "contracts/verification-ci-result.schema.json",
+      "existed_before": false,
+      "sha256": null
+    },
+    {
+      "path": "contracts/verification-ci-observations.schema.json",
+      "existed_before": false,
+      "sha256": null
+    },
+    {
+      "path": "tests/verification-ci.tests.py",
+      "existed_before": false,
+      "sha256": null
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "existed_before": true,
+      "sha256": "9a6cf7df7aa63361ab0403efb67b70f80d584efd92a578fa3637c7c7b9dd7e1b"
+    }
+  ]
+}

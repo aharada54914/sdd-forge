@@ -1,0 +1,518 @@
+{
+  "schema": "t002-high-risk-preflight/v1",
+  "task": "T-002",
+  "stage": "before-production-edits",
+  "scope": "Initial collector/full aggregate/rerun slice. PR affected/A9 and additional transport assertions remain a subsequent test-first slice; no implementation of those branches before their Red checkpoint.",
+  "fields": [
+    {
+      "field": "collection.schema",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.repository",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.run_id",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.api_head_sha",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.collected_at",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.api_version",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.run",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.jobs",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.artifacts",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.run.path",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.run.sha256",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.jobs[].path",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.jobs[].sha256",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.artifacts[].path",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.artifacts[].sha256",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.artifacts[].job_id",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "collection.artifacts[].source_attempt",
+      "counterpart": "strict observations schema; raw API run/job ID, head, attempt; exact contained bytes",
+      "failing_mismatch_test": "BoundaryTests.test_collection_field_counterparts_and_schema; AggregateTests.test_manifest_hash_and_containment_counterparts"
+    },
+    {
+      "field": "result.schema",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.status",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.reason",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.run_id",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.api_head_sha",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.tested_revision",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.plan_sha256",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.results",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.results[].obligation_id",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.results[].status",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.results[].reason",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.results[].job_id",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "result.results[].source_attempt",
+      "counterpart": "strict result schema; independently reconstructed obligation and actual execution origin",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST019_positive_full_receipts_native_obligations; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts"
+    },
+    {
+      "field": "error.schema",
+      "counterpart": "strict error schema and no PASS stdout on exit 2",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST021_057_absent_malformed_plan_and_empty_evidence"
+    },
+    {
+      "field": "error.reason",
+      "counterpart": "strict error schema and no PASS stdout on exit 2",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST021_057_absent_malformed_plan_and_empty_evidence"
+    },
+    {
+      "field": "error.message",
+      "counterpart": "strict error schema and no PASS stdout on exit 2",
+      "failing_mismatch_test": "BoundaryTests.test_result_and_error_all_persisted_field_counterparts; AggregateTests.test_TEST021_057_absent_malformed_plan_and_empty_evidence"
+    },
+    {
+      "field": "api.run.id",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.run.run_attempt",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.run.head_sha",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.run.event",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.run.repository",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.run.path",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.run.pull_requests",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.id",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.run_id",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.run_attempt",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.head_sha",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.name",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.labels",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.runner_id",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.runner_name",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.status",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.conclusion",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.started_at",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.completed_at",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.job.steps",
+      "counterpart": "raw upstream API metadata; exact event/repository/run/current revision; bounded workflow job and lineage",
+      "failing_mismatch_test": "AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts"
+    },
+    {
+      "field": "api.step.name",
+      "counterpart": "unique admitted workflow step and unchanged original execution interval",
+      "failing_mismatch_test": "AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts; AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history"
+    },
+    {
+      "field": "api.step.number",
+      "counterpart": "unique admitted workflow step and unchanged original execution interval",
+      "failing_mismatch_test": "AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts; AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history"
+    },
+    {
+      "field": "api.step.status",
+      "counterpart": "unique admitted workflow step and unchanged original execution interval",
+      "failing_mismatch_test": "AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts; AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history"
+    },
+    {
+      "field": "api.step.conclusion",
+      "counterpart": "unique admitted workflow step and unchanged original execution interval",
+      "failing_mismatch_test": "AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts; AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history"
+    },
+    {
+      "field": "api.step.started_at",
+      "counterpart": "unique admitted workflow step and unchanged original execution interval",
+      "failing_mismatch_test": "AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts; AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history"
+    },
+    {
+      "field": "api.step.completed_at",
+      "counterpart": "unique admitted workflow step and unchanged original execution interval",
+      "failing_mismatch_test": "AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral; AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts; AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history"
+    },
+    {
+      "field": "receipt.schema",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.profile",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.revision",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.revision_after",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.clean_before",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.clean_after",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.reusable",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.catalog_sha256",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.selected",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.results",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.results[].suite",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.results[].source_sha256",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.results[].status",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.results[].exit_code",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "receipt.results[].seconds",
+      "counterpart": "unchanged verification.py producer; exact selected suite/invocation and committed source hash",
+      "failing_mismatch_test": "AggregateTests.test_receipt_persisted_fields_counterparts"
+    },
+    {
+      "field": "plan.schema",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.mode",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.reason",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.event",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.run_id",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.planning_attempt",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.api_head_sha",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.tested_revision",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.base_revision",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.pr_head_revision",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.merge_base_revision",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.catalog_sha256",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.workflow_sha256",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.trusted_planner_sha256",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.plan_sha256",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.changed_path_count",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.groups",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.obligations",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.omissions",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "plan.activation_evidence",
+      "counterpart": "T-001 shape validator plus independent Git/API/workflow reconstruction; never candidate-to-expected copy",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized; AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations; later PR/affected slice before implementation"
+    },
+    {
+      "field": "obligation.id",
+      "counterpart": "full bounded workflow inventory and source-hashed receipt",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized"
+    },
+    {
+      "field": "obligation.job",
+      "counterpart": "full bounded workflow inventory and source-hashed receipt",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized"
+    },
+    {
+      "field": "obligation.matrix",
+      "counterpart": "full bounded workflow inventory and source-hashed receipt",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized"
+    },
+    {
+      "field": "obligation.runner",
+      "counterpart": "full bounded workflow inventory and source-hashed receipt",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized"
+    },
+    {
+      "field": "obligation.step",
+      "counterpart": "full bounded workflow inventory and source-hashed receipt",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized"
+    },
+    {
+      "field": "obligation.command_sha256",
+      "counterpart": "full bounded workflow inventory and source-hashed receipt",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized"
+    },
+    {
+      "field": "obligation.suites",
+      "counterpart": "full bounded workflow inventory and source-hashed receipt",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized"
+    },
+    {
+      "field": "obligation.receipt_required",
+      "counterpart": "full bounded workflow inventory and source-hashed receipt",
+      "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized"
+    }
+  ]
+}
