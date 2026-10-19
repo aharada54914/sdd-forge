@@ -1835,5 +1835,71 @@ class SupplementalHttpsSchemeTests(IdentityCase):
                 self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
 
 
+
+
+class UriAuthorityContractTests(IdentityCase):
+    def test_empty_default_ports_bind_without_changing_valid_https_metadata(self):
+        contract = SchemaContractTests('test_delivery_schema_closed_fields_and_enums')
+        schema = contract.load('model-selection.schema.json')
+        pattern = contract.assertClosed(schema, schema['properties']['estimate'], ESTIMATE_FIELDS)['source_url']['pattern']
+        for url in ('https://pricing.example.invalid:/pricing', 'HTTPS://pricing.example.invalid:',
+                    'https://[::1]:/pricing', 'https://[2001:db8::1]:'):
+            with self.subTest(url=url):
+                record = pinned_selection()
+                record['estimate']['source_url'] = url
+                record = seal(record)
+                self.assertIsNone(self.validate(record))
+                result = self.bind(record)
+                self.assertEqual(result['estimate']['source_url'], url)
+                self.assertEqual(result['selection_sha256'], digest(result))
+                self.assertIsNotNone(re.fullmatch(pattern, url), 'bound producer value must match the published schema')
+
+    def test_original_bracketed_authority_suffix_cannot_be_discarded_by_urlsplit(self):
+        for url in ('https://[::1]garbage/pricing', 'https://[::1]garbage:443/pricing',
+                    'https://[2001:db8::1]unexpected/pricing'):
+            with self.subTest(url=url):
+                record = pinned_selection()
+                record['estimate']['source_url'] = url
+                self.assertRejects(INVALID, self.validate, seal(record))
+
+
+class UriAuthorityCliTests(CliCase):
+    def test_cli_bound_record_conforms_to_original_uri_authority_and_preserves_rejections(self):
+        contract = SchemaContractTests('test_delivery_schema_closed_fields_and_enums')
+        schema = contract.load('model-selection.schema.json')
+        pattern = contract.assertClosed(schema, schema['properties']['estimate'], ESTIMATE_FIELDS)['source_url']['pattern']
+        for index, url in enumerate(('https://pricing.example.invalid:/pricing', 'https://[::1]:/pricing')):
+            with self.subTest(valid=url):
+                record = pinned_selection()
+                record['estimate']['source_url'] = url
+                name = self.write('valid-%s.json' % index, seal(record))
+                output = 'bound-%s.json' % index
+                self.assertOk(self.run_cli(*self.bind_args(selection=name, output=output)))
+                bound_record = strict_load((self.work / output).read_bytes())
+                self.assertEqual(bound_record, bound(record))
+                self.assertIsNotNone(re.fullmatch(pattern, bound_record['estimate']['source_url']))
+        for index, url in enumerate(('https://[::1]garbage/pricing', 'https://[::1]garbage:443/pricing')):
+            with self.subTest(invalid=url):
+                record = pinned_selection()
+                record['estimate']['source_url'] = url
+                name = self.write('invalid-%s.json' % index, seal(record))
+                output = 'rejected-%s.json' % index
+                before = self.snapshot()
+                self.assertError(self.run_cli(*self.bind_args(selection=name, output=output)), INVALID)
+                self.assertFalse((self.work / output).exists())
+                self.assertEqual(self.snapshot(), before)
+
+
+
+
+class UriOriginalStringTests(IdentityCase):
+    def test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata(self):
+        for code in (0, 1, 27):
+            with self.subTest(control=code):
+                record = pinned_selection()
+                record['estimate']['source_url'] = chr(code) + 'https://pricing.example.invalid/pricing'
+                self.assertRejects(INVALID, self.validate, seal(record))
+
+
 if __name__ == '__main__':
     unittest.main()
