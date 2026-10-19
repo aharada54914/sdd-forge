@@ -1,0 +1,69 @@
+{
+  "schema": "task-contract-preflight/v1",
+  "task": "T-002",
+  "tickets": [
+    "RT-20261019-008",
+    "RT-20261019-009"
+  ],
+  "manifest": "specs/ci-model-modernization/verification/T-002/cycle1-fix/task-input-manifest.dependencies.json",
+  "manifest_sha256": "4dd2760ea2e79d773e86cbfe31ccdb7a297ca1dd5f7c25916900bffcd756ac5f",
+  "production_before": "673fe8fda8508309036022dca017e6c2f55155343b56f72c884cd98cba8e9b7f",
+  "public_schema_changes": "none intended",
+  "counterparts": [
+    {
+      "fields": [
+        "collection.artifacts[].job_id",
+        "collection.artifacts[].source_attempt",
+        "collection.artifacts[].path",
+        "collection.artifacts[].sha256"
+      ],
+      "counterpart": "all historical authentic execution origins derived by existing source_job from observed logical job history prefixes; exact artifact run/attempt/expanded-name hash and hash-consistent receipt payload",
+      "tests": [
+        "test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns",
+        "test_RT008_copied_observation_id_is_not_historical_execution_origin"
+      ],
+      "failure_hypothesis": "aggregate checks artifact against only latest origin and incorrectly rejects retained authentic earlier failed receipt"
+    },
+    {
+      "fields": [
+        "result.results[].job_id",
+        "result.results[].source_attempt",
+        "result.results[].status/reason",
+        "receipt.selected/results/revision/catalog/profile/source_hash"
+      ],
+      "counterpart": "current selected obligation still uses latest observation resolved to original execution; old receipts cannot replace missing/failed/unselected/malformed current proof",
+      "tests": [
+        "test_RT008_historical_receipts_cannot_replace_current_required_proof",
+        "test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns"
+      ]
+    },
+    {
+      "fields": [
+        "raw run.repository",
+        "raw jobs[]",
+        "raw jobs[].steps[]",
+        "raw artifacts[]",
+        "raw artifacts[].workflow_run"
+      ],
+      "counterpart": "explicit JSON object validation before nested property reads, existing collection/aggregate typed exit contracts and no success publication; P.strict_json already rejects top-level nonobjects, pages already validates entry object/id, P.exact_fields already guards receipt/result/manifest references",
+      "tests": [
+        "test_RT009_collect_nested_json_types_return_typed_cli_errors",
+        "test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures"
+      ],
+      "failure_hypothesis": "nested null/scalar/list reaches unchecked .get and leaks AttributeError instead of existing typed ValueError boundary"
+    },
+    {
+      "fields": [
+        "raw run.pull_requests[].base/head.sha",
+        "raw receipt.results[]",
+        "manifest references"
+      ],
+      "counterpart": "existing checked list/indexing or exact_fields turns malformed types into caught TypeError/ValueError; scope scan retains those current defenses, no broad catch of programming errors",
+      "tests": [
+        "existing PR independent persisted-plan fields",
+        "existing receipt/result/manifest counterpart tests"
+      ]
+    }
+  ],
+  "fixture_classification": "Actual collector/aggregate subprocess CLIs, disposable Git and real ZIPs/local receipt fixture. Fake gh executable serves deterministic bytes without network; no hosted/native inference."
+}

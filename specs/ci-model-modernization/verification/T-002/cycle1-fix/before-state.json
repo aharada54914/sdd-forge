@@ -1,0 +1,18 @@
+{
+  "baseline": "pinned snapshot current bytes, not raw checkpoint HEAD",
+  "owned": {
+    "tests/verification-ci.py": "673fe8fda8508309036022dca017e6c2f55155343b56f72c884cd98cba8e9b7f",
+    "tests/verification-ci.tests.py": "8dd7390651038b22ff3937c5c044044657e5e48b791bc62cb9c73277e3a9cceb"
+  },
+  "protected": {
+    "contracts/verification-ci-result.schema.json": "4ce73bcf9204acc32da741e4c5a4be98ceca5be5b04dfc11402f9710fdba34e5",
+    "contracts/verification-ci-observations.schema.json": "2066711a7531c8e3cb4dd8b88471e9dc22f1070b0e42b1b27400f51cebac42b4",
+    "tests/verification-catalog.json": "71f3fc75df8bfc11b2091a35a9a8146b1734d4a03638214e091b959eec6e0938",
+    "tests/verification-impact.py": "c9ec6d41ffa577424d1408be522fea4b4927404afe24a621b76e6eb12b11e422",
+    "tests/verification-workflow.py": "52fe8b0f8100718e3511f7ad6539cf558ee6df1b7a6ce405ff25cd5cb6557db2",
+    "tests/verification-ci-plan.tests.py": "a519153c2e96980859742847f406a9239e30cee8a74ec015e1c5e110d62be666",
+    "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+    "reports/implementation/ci-model-modernization/T-002.md": "7b61f849e6fc45d3491afae98037effea07251e425717d392be9dd9ac8c4dddd",
+    "specs/ci-model-modernization/verification/T-002/a9-resume/implementation-report.md": "5e0df3572075abda9c2983eb2384a27d19e26b6053753d28db1d7c44041c647b"
+  }
+}

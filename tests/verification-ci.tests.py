@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Deterministic Actions protocol fixtures; never hosted/native acceptance proof."""
+import base64
 import contextlib
 import copy
 import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import stat
 import subprocess
@@ -384,7 +386,7 @@ class BoundaryTests(unittest.TestCase):
 
 
 
-class AggregateTests(unittest.TestCase):
+class AggregateFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -486,6 +488,8 @@ class AggregateTests(unittest.TestCase):
             self.assertEqual(payload['status'], 'PASS' if expected == 0 else 'FAIL')
         return payload
 
+
+class AggregateTests(AggregateFixture):
     def test_full_result_consumed_by_predecessor_activation_validator(self):
         result = self.invoke()
         try:
@@ -836,17 +840,11 @@ class AggregateTests(unittest.TestCase):
         self.invoke(expected=1)
 
 
-class A9AggregateTests(unittest.TestCase):
+class A9AggregateTests(AggregateFixture):
     """Actual Git/event reconstruction with simulated Actions observations only."""
 
-    git = AggregateTests.git
-    write = AggregateTests.write
-    commit = AggregateTests.commit
-    prepare = AggregateTests.prepare
-    invoke = AggregateTests.invoke
-
     def setUp(self):
-        AggregateTests.setUp(self)
+        super().setUp()
         self.ci = module(SCRIPT, 'a9_ci_test')
         live = W.load_workflow(ROOT / '.github/workflows/test.yml')
         self.workflow['env'] = live['env']
@@ -946,7 +944,7 @@ class A9AggregateTests(unittest.TestCase):
     def test_TEST024_detector_and_skip_observation_mismatch_matrix(self):
         self.configure()
         original = copy.deepcopy(self.jobs)
-        changes = [('detector-missing', -2, 'remove', None), ('advisory-missing', -1, 'remove', None)]
+        changes: list[tuple[str, int, str, Any]] = [('detector-missing', -2, 'remove', None), ('advisory-missing', -1, 'remove', None)]
         for index in (-2, -1):
             for field, value in dict(run_id=124, head_sha='f'*40, id=True, run_attempt=2,
                                      name='similar A9 name', status='in_progress', conclusion='failure').items():
@@ -1068,6 +1066,214 @@ class A9AggregateTests(unittest.TestCase):
                 bad['results'][0].update(status='FAIL', reason='execution-failed')
             with self.subTest(mutation=mutation), self.assertRaises(ValueError):
                 P.validate_result_binding(bad, self.plan, True, root=self.root, workflow=self.workflow)
+
+
+class Cycle1RegressionTests(AggregateFixture):
+    """Real collector/aggregate CLIs, with a local fake gh transport and real ZIPs."""
+
+    def setUp(self):
+        super().setUp()
+        self.ci = module(SCRIPT, 'cycle1_ci')
+        self.serial = 0
+        self.bin = self.scratch / 'bin'
+        self.bin.mkdir()
+        fake = self.bin / 'gh'
+        fake.write_text('#!' + sys.executable + '\n' + '''import base64,json,sys
+from pathlib import Path
+args=sys.argv[1:]
+assert args[0]=='api' and args[args.index('--method')+1]=='GET'
+assert 'X-GitHub-Api-Version: 2026-03-10' in args
+responses=json.loads((Path(__file__).parent/'responses.json').read_text())
+sys.stdout.buffer.write(b'HTTP/2.0 200 OK\\r\\n\\r\\n'+base64.b64decode(responses[args[-1]]))
+''')
+        fake.chmod(0o755)
+        self.environment = {**os.environ, 'PATH': str(self.bin) + os.pathsep + os.environ['PATH']}
+        self.original_jobs = copy.deepcopy(self.jobs)
+        self.original_receipts = copy.deepcopy(self.receipts)
+
+    def collect_cli(self, mutate=None, expected=0):
+        self.serial += 1
+        target = self.scratch / ('collected-' + str(self.serial))
+        prefix = '/repos/owner/repo/actions'
+        responses: dict[str, Any] = {prefix + '/runs/123': copy.deepcopy(self.api_run)}
+        for attempt in range(1, self.api_run['run_attempt'] + 1):
+            rows = [copy.deepcopy(j) for j in self.jobs if j['run_attempt'] == attempt]
+            responses[prefix + f'/runs/123/attempts/{attempt}/jobs?per_page=100'] = dict(total_count=len(rows), jobs=rows)
+        artifacts = []
+        for i, (_jid, attempt, receipt, job, matrix) in enumerate(self.receipts, 1):
+            artifacts.append(dict(id=i, name=receipt_name('123', attempt, job, matrix), expired=False,
+                                  workflow_run=dict(id=123, head_sha=self.api_run['head_sha'])))
+            raw = io.BytesIO()
+            with zipfile.ZipFile(raw, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr('receipt.json', P.canonical(receipt))
+            responses[prefix + f'/artifacts/{i}/zip'] = raw.getvalue()
+        responses[prefix + '/runs/123/artifacts?per_page=100'] = dict(total_count=len(artifacts), artifacts=artifacts)
+        if mutate:
+            mutate(responses)
+        wire = {endpoint: base64.b64encode(value if isinstance(value, bytes) else P.canonical(value)).decode()
+                for endpoint, value in responses.items()}
+        (self.bin / 'responses.json').write_text(json.dumps(wire))
+        command = [sys.executable, '-B', str(SCRIPT), 'collect', '--repository', 'owner/repo',
+                   '--run-id', '123', '--output-dir', str(target)]
+        result = subprocess.run(command, env=self.environment, capture_output=True, text=True)
+        self.assertNotIn('Traceback', result.stdout + result.stderr)
+        self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+        self.assertFalse(result.stdout)
+        if expected:
+            error = json.loads(result.stderr)
+            self.ci.validate_error(error)
+            self.assertFalse((target / 'collection.json').exists(), 'failed acquisition cannot publish success manifest')
+        else:
+            self.assertFalse(result.stderr)
+            manifest = json.loads((target / 'collection.json').read_text())
+            self.ci.validate_collection(manifest)
+            self.assertEqual(len(manifest['artifacts']), len(self.receipts), 'all source-attempt receipts must be retained')
+            self.assertEqual(len(manifest['jobs']), self.api_run['run_attempt'])
+        return target
+
+    def aggregate_cli(self, observations, expected=0):
+        self.serial += 1
+        plan_path = self.scratch / ('bound-plan-' + str(self.serial) + '.json')
+        plan_path.write_bytes(P.canonical(self.plan))
+        output = self.scratch / ('result-' + str(self.serial) + '.json')
+        command = [sys.executable, '-B', str(SCRIPT), 'aggregate', '--root', str(self.root),
+                   '--plan', str(plan_path), '--observations', str(observations), '--run-id', '123',
+                   '--api-head-sha', self.api_run['head_sha'], '--output', str(output)]
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertNotIn('Traceback', result.stdout + result.stderr)
+        self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+        payload = json.loads(result.stderr if expected == 2 else result.stdout)
+        if expected == 2:
+            self.ci.validate_error(payload)
+            self.assertFalse(output.exists())
+            self.assertFalse(result.stdout)
+        else:
+            self.ci.validate_result(payload)
+            self.assertEqual(payload['status'], 'FAIL' if expected else 'PASS')
+            self.assertEqual(json.loads(output.read_text()), payload)
+            self.assertFalse(result.stderr)
+        return payload
+
+    def rerun(self, partial=False, copied_intermediate=False):
+        old = copy.deepcopy(self.original_jobs)
+        old_receipts = copy.deepcopy(self.original_receipts)
+        current = copy.deepcopy(old)
+        attempt = 3 if copied_intermediate else 2
+        for index, job in enumerate(old):
+            if not partial or index == 0:
+                job['conclusion'] = 'failure'
+                job['steps'][-1]['conclusion'] = 'failure'
+                old_receipts[index][2]['results'][0].update(status='failed', exit_code=1)
+        for index, job in enumerate(current):
+            job.update(id=job['id'] + (attempt - 1) * 100, run_attempt=attempt)
+            if not partial or index == 0:
+                job.update(started_at='2026-10-19T11:00:00Z', completed_at='2026-10-19T11:01:00Z')
+                for step in job['steps']:
+                    step.update(started_at=job['started_at'], completed_at=job['completed_at'])
+        middle = []
+        if copied_intermediate:
+            middle = copy.deepcopy(old)
+            for job in middle:
+                job.update(id=job['id'] + 100, run_attempt=2)
+        self.jobs = old + middle + current
+        self.receipts = old_receipts + [(jid + (attempt - 1) * 100, attempt, copy.deepcopy(receipt), key, matrix)
+                                        for index, (jid, _, receipt, key, matrix) in enumerate(self.original_receipts)
+                                        if not partial or index == 0]
+        self.api_run['run_attempt'] = attempt
+
+    def test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns(self):
+        self.aggregate_cli(self.collect_cli())
+        for partial in (False, True):
+            with self.subTest(partial=partial):
+                self.rerun(partial)
+                result = self.aggregate_cli(self.collect_cli())
+                expected = {(200, 2), (101, 1), (102, 1)} if partial else {(200, 2), (201, 2), (202, 2)}
+                self.assertEqual({(row['job_id'], row['source_attempt']) for row in result['results']}, expected)
+
+    def test_RT008_historical_receipts_cannot_replace_current_required_proof(self):
+        for mode in ('missing-current', 'failed-current', 'unselected-current', 'malformed-current'):
+            with self.subTest(mode=mode):
+                self.rerun()
+                if mode == 'missing-current':
+                    self.receipts.pop()
+                elif mode == 'failed-current':
+                    self.receipts[-1][2]['results'][0].update(status='failed', exit_code=1)
+                elif mode == 'unselected-current':
+                    self.receipts[-1][2]['selected'] = []
+                else:
+                    self.receipts[-1][2]['results'] = [None]
+                self.aggregate_cli(self.collect_cli(), expected=1)
+        self.rerun()
+        self.aggregate_cli(self.collect_cli())
+
+    def test_RT008_copied_observation_id_is_not_historical_execution_origin(self):
+        self.rerun(copied_intermediate=True)
+        for job in self.jobs[:6]:
+            job['conclusion'] = 'success'
+            job['steps'][-1]['conclusion'] = 'success'
+        for _, _, receipt, _, _ in self.receipts[:3]:
+            receipt['results'][0].update(status='passed', exit_code=0)
+        self.aggregate_cli(self.collect_cli())
+        jid, _, receipt, key, matrix = self.receipts[0]
+        self.receipts.append((jid + 100, 2, copy.deepcopy(receipt), key, matrix))
+        # Collector binds the artifact to a real API job instance. The aggregate must
+        # still reject this copied observation ID as a fabricated execution source.
+        self.aggregate_cli(self.collect_cli(), expected=1)
+        self.receipts.pop()
+        self.aggregate_cli(self.collect_cli())
+
+    def test_RT009_collect_nested_json_types_return_typed_cli_errors(self):
+        self.collect_cli()
+        prefix = '/repos/owner/repo/actions'
+        for value in (None, 7, 'scalar', [], [1]):
+            for surface in ('repository', 'job', 'artifact', 'workflow_run'):
+                with self.subTest(surface=surface, value=value):
+                    def mutate(responses):
+                        if surface == 'repository':
+                            responses[prefix + '/runs/123']['repository'] = value
+                        elif surface == 'job':
+                            responses[prefix + '/runs/123/attempts/1/jobs?per_page=100']['jobs'][0] = value
+                        else:
+                            rows = responses[prefix + '/runs/123/artifacts?per_page=100']['artifacts']
+                            if surface == 'artifact':
+                                rows[0] = value
+                            else:
+                                rows[0]['workflow_run'] = value
+                    self.collect_cli(mutate, expected=2)
+        self.collect_cli()
+
+    def test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures(self):
+        observations = self.collect_cli()
+        original_manifest = json.loads((observations / 'collection.json').read_text())
+        original_run = json.loads((observations / 'run.json').read_text())
+        jobs_reference = original_manifest['jobs'][0]
+        job_path = observations / jobs_reference['path']
+        original_page = json.loads(job_path.read_text())
+        self.aggregate_cli(observations)
+        for value in (None, 7, 'scalar', [], [1]):
+            for surface in ('repository', 'job', 'step', 'steps'):
+                with self.subTest(surface=surface, value=value):
+                    manifest, run, page = (copy.deepcopy(v) for v in (original_manifest, original_run, original_page))
+                    if surface == 'repository':
+                        run['repository'] = value
+                    elif surface == 'job':
+                        page['jobs'][0] = value
+                    elif surface == 'step':
+                        page['jobs'][0]['steps'][0] = value
+                    else:
+                        page['jobs'][0]['steps'] = value
+                    (observations / 'run.json').write_bytes(P.canonical(run))
+                    job_path.write_bytes(P.canonical(page))
+                    manifest['run']['sha256'] = sha((observations / 'run.json').read_bytes())
+                    manifest['jobs'][0]['sha256'] = sha(job_path.read_bytes())
+                    (observations / 'collection.json').write_bytes(P.canonical(manifest))
+                    self.aggregate_cli(observations, expected=1)
+        (observations / 'run.json').write_bytes(P.canonical(original_run))
+        job_path.write_bytes(P.canonical(original_page))
+        original_manifest['run']['sha256'] = sha((observations / 'run.json').read_bytes())
+        original_manifest['jobs'][0]['sha256'] = sha(job_path.read_bytes())
+        (observations / 'collection.json').write_bytes(P.canonical(original_manifest))
+        self.aggregate_cli(observations)
 
 
 if __name__ == '__main__':

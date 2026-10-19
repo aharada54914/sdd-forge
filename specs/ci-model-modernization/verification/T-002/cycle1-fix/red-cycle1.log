@@ -1,0 +1,349 @@
+test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns (__main__.Cycle1RegressionTests.test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns) ... fixture execution
+
+  test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns (__main__.Cycle1RegressionTests.test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns) (partial=False) ... FAIL
+  test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns (__main__.Cycle1RegressionTests.test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns) (partial=True) ... FAIL
+test_RT008_copied_observation_id_is_not_historical_execution_origin (__main__.Cycle1RegressionTests.test_RT008_copied_observation_id_is_not_historical_execution_origin) ... fixture execution
+FAIL
+test_RT008_historical_receipts_cannot_replace_current_required_proof (__main__.Cycle1RegressionTests.test_RT008_historical_receipts_cannot_replace_current_required_proof) ... fixture execution
+FAIL
+test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) ... fixture execution
+
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value=None) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value=None) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value=None) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value=7) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value=7) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value=7) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value='scalar') ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value='scalar') ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value='scalar') ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value=[]) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value=[]) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value=[]) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value=[1]) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value=[1]) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value=[1]) ... FAIL
+  test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='steps', value=[1]) ... FAIL
+test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) ... fixture execution
+
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value=None) ... FAIL
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value=None) ... FAIL
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value=7) ... FAIL
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value=7) ... FAIL
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value='scalar') ... FAIL
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value='scalar') ... FAIL
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value=[]) ... FAIL
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value=[]) ... FAIL
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value=[1]) ... FAIL
+  test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value=[1]) ... FAIL
+
+======================================================================
+FAIL: test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns (__main__.Cycle1RegressionTests.test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns) (partial=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1189, in test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns
+    result = self.aggregate_cli(self.collect_cli())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1144, in aggregate_cli
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"b5d1e0c01100cfb7b219b6cb7093b8965ed6083d","plan_sha256":"c3b608e3140e5cfaef483e75572448c2b53f772fb7f4261ff921bc93c7e12864","reason":"evidence-mismatch","results":[{"job_id":null,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"b5d1e0c01100cfb7b219b6cb7093b8965ed6083d"}
+
+
+======================================================================
+FAIL: test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns (__main__.Cycle1RegressionTests.test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns) (partial=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1189, in test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns
+    result = self.aggregate_cli(self.collect_cli())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1144, in aggregate_cli
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"b5d1e0c01100cfb7b219b6cb7093b8965ed6083d","plan_sha256":"c3b608e3140e5cfaef483e75572448c2b53f772fb7f4261ff921bc93c7e12864","reason":"evidence-mismatch","results":[{"job_id":null,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"b5d1e0c01100cfb7b219b6cb7093b8965ed6083d"}
+
+
+======================================================================
+FAIL: test_RT008_copied_observation_id_is_not_historical_execution_origin (__main__.Cycle1RegressionTests.test_RT008_copied_observation_id_is_not_historical_execution_origin)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1211, in test_RT008_copied_observation_id_is_not_historical_execution_origin
+    self.aggregate_cli(self.collect_cli())
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1144, in aggregate_cli
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"5a90e3dc902506bafae0afa48e1b3b077dd65c05","plan_sha256":"aaf109c5f351669828b97692d69b50f2e42f152f27f182129d4ae450a6a99fbf","reason":"evidence-mismatch","results":[{"job_id":null,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"5a90e3dc902506bafae0afa48e1b3b077dd65c05"}
+
+
+======================================================================
+FAIL: test_RT008_historical_receipts_cannot_replace_current_required_proof (__main__.Cycle1RegressionTests.test_RT008_historical_receipts_cannot_replace_current_required_proof)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1207, in test_RT008_historical_receipts_cannot_replace_current_required_proof
+    self.aggregate_cli(self.collect_cli())
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1144, in aggregate_cli
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"5a90e3dc902506bafae0afa48e1b3b077dd65c05","plan_sha256":"aaf109c5f351669828b97692d69b50f2e42f152f27f182129d4ae450a6a99fbf","reason":"evidence-mismatch","results":[{"job_id":null,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"5a90e3dc902506bafae0afa48e1b3b077dd65c05"}
+
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 577, in aggregate\n    or run.get(\'repository\', {}).get(\'full_name\') != manifest[\'repository\']):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'NoneType\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 580, in aggregate\n    jobs = validate_jobs(manifest, observations, run)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 360, in validate_jobs\n    attempt = job.get(\'run_attempt\')\n              ^^^^^^^\nAttributeError: \'NoneType\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 588, in aggregate\n    origins[name] = source_job(history)\n                    ^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 410, in source_job\n    signature = execution_signature(latest)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 392, in execution_signature\n    if (not isinstance(step.get(\'name\'), str) or not step[\'name\'] or step[\'name\'] in names\n                       ^^^^^^^^\nAttributeError: \'NoneType\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 577, in aggregate\n    or run.get(\'repository\', {}).get(\'full_name\') != manifest[\'repository\']):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'int\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 580, in aggregate\n    jobs = validate_jobs(manifest, observations, run)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 360, in validate_jobs\n    attempt = job.get(\'run_attempt\')\n              ^^^^^^^\nAttributeError: \'int\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 588, in aggregate\n    origins[name] = source_job(history)\n                    ^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 410, in source_job\n    signature = execution_signature(latest)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 392, in execution_signature\n    if (not isinstance(step.get(\'name\'), str) or not step[\'name\'] or step[\'name\'] in names\n                       ^^^^^^^^\nAttributeError: \'int\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value='scalar')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 577, in aggregate\n    or run.get(\'repository\', {}).get(\'full_name\') != manifest[\'repository\']):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'str\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value='scalar')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 580, in aggregate\n    jobs = validate_jobs(manifest, observations, run)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 360, in validate_jobs\n    attempt = job.get(\'run_attempt\')\n              ^^^^^^^\nAttributeError: \'str\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value='scalar')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 588, in aggregate\n    origins[name] = source_job(history)\n                    ^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 410, in source_job\n    signature = execution_signature(latest)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 392, in execution_signature\n    if (not isinstance(step.get(\'name\'), str) or not step[\'name\'] or step[\'name\'] in names\n                       ^^^^^^^^\nAttributeError: \'str\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 577, in aggregate\n    or run.get(\'repository\', {}).get(\'full_name\') != manifest[\'repository\']):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 580, in aggregate\n    jobs = validate_jobs(manifest, observations, run)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 360, in validate_jobs\n    attempt = job.get(\'run_attempt\')\n              ^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 588, in aggregate\n    origins[name] = source_job(history)\n                    ^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 410, in source_job\n    signature = execution_signature(latest)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 392, in execution_signature\n    if (not isinstance(step.get(\'name\'), str) or not step[\'name\'] or step[\'name\'] in names\n                       ^^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='repository', value=[1])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 577, in aggregate\n    or run.get(\'repository\', {}).get(\'full_name\') != manifest[\'repository\']):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='job', value=[1])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 580, in aggregate\n    jobs = validate_jobs(manifest, observations, run)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 360, in validate_jobs\n    attempt = job.get(\'run_attempt\')\n              ^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='step', value=[1])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 588, in aggregate\n    origins[name] = source_job(history)\n                    ^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 410, in source_job\n    signature = execution_signature(latest)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 392, in execution_signature\n    if (not isinstance(step.get(\'name\'), str) or not step[\'name\'] or step[\'name\'] in names\n                       ^^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) (surface='steps', value=[1])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1265, in test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures
+    self.aggregate_cli(observations, expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 662, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 588, in aggregate\n    origins[name] = source_job(history)\n                    ^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 410, in source_job\n    signature = execution_signature(latest)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 392, in execution_signature\n    if (not isinstance(step.get(\'name\'), str) or not step[\'name\'] or step[\'name\'] in names\n                       ^^^^^^^^\nAttributeError: \'int\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 291, in collect\n    or run.get(\'repository\', {}).get(\'full_name\') != repository):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'NoneType\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 319, in collect\n    or artifact.get(\'workflow_run\', {}).get(\'id\') != int(run_id)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'NoneType\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 291, in collect\n    or run.get(\'repository\', {}).get(\'full_name\') != repository):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'int\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 319, in collect\n    or artifact.get(\'workflow_run\', {}).get(\'id\') != int(run_id)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'int\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value='scalar')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 291, in collect\n    or run.get(\'repository\', {}).get(\'full_name\') != repository):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'str\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value='scalar')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 319, in collect\n    or artifact.get(\'workflow_run\', {}).get(\'id\') != int(run_id)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'str\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 291, in collect\n    or run.get(\'repository\', {}).get(\'full_name\') != repository):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 319, in collect\n    or artifact.get(\'workflow_run\', {}).get(\'id\') != int(run_id)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='repository', value=[1])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 291, in collect\n    or run.get(\'repository\', {}).get(\'full_name\') != repository):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+======================================================================
+FAIL: test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) (surface='workflow_run', value=[1])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1237, in test_RT009_collect_nested_json_types_return_typed_cli_errors
+    self.collect_cli(mutate, expected=2)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 676, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 658, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 319, in collect\n    or artifact.get(\'workflow_run\', {}).get(\'id\') != int(run_id)\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'list\' object has no attribute \'get\'\n'
+
+----------------------------------------------------------------------
+Ran 5 tests in 7.649s
+
+FAILED (failures=30)

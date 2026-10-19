@@ -1,0 +1,25 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/verification-ci.tests.py",
+    "Cycle1RegressionTests"
+  ],
+  "environment": {
+    "TMPDIR": "/tmp/ci-model-t002-cycle1-fix-0aez0vie/tmp",
+    "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+  },
+  "exit_code": 1,
+  "test_count": 5,
+  "failures": 30,
+  "test_sha256": "63a1c14beb742c930e4a84775f30405583da8c62373bf95ba83e191e06ddd266",
+  "source_unchanged_sha256": "673fe8fda8508309036022dca017e6c2f55155343b56f72c884cd98cba8e9b7f",
+  "log": "specs/ci-model-modernization/verification/T-002/cycle1-fix/red-cycle1-final.log",
+  "log_sha256": "913cfe3b036b7c87ca0ebff50d432737c35cc673c84db56d3bf7b39f9785d609",
+  "failure_classification": {
+    "RT008": 4,
+    "RT009_nested_tracebacks": 26
+  },
+  "controls": "each CLI fixture includes valid control; test initial baseline collect->aggregate succeeds and native job metadata remain protocol fixtures",
+  "schema_changes": "none"
+}
