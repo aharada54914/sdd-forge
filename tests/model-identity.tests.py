@@ -1816,5 +1816,24 @@ class SupplementalMonetaryMetadataTests(IdentityCase):
                 self.assertRejects(INVALID, self.validate, seal(record))
 
 
+
+
+class SupplementalHttpsSchemeTests(IdentityCase):
+    def test_https_ascii_scheme_case_variants_match_producer_and_schema(self):
+        contract = SchemaContractTests('test_delivery_schema_closed_fields_and_enums')
+        schema = contract.load('model-selection.schema.json')
+        estimate = contract.assertClosed(schema, schema['properties']['estimate'], ESTIMATE_FIELDS)
+        pattern = estimate['source_url']['pattern']
+        for mask in range(32):
+            scheme = ''.join(letter.upper() if mask & (1 << index) else letter
+                             for index, letter in enumerate('https'))
+            url = scheme + '://pricing.example.invalid/pricing'
+            with self.subTest(scheme=scheme):
+                record = pinned_selection()
+                record['estimate']['source_url'] = url
+                self.assertIsNone(self.validate(seal(record)))
+                self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+
+
 if __name__ == '__main__':
     unittest.main()
