@@ -1,0 +1,21 @@
+{
+  "scope": "Isolated local fixture using current planner, not hosted CI",
+  "baseline_build_exit": 0,
+  "changed_build_exit": 1,
+  "plan_mode": "affected",
+  "plan_reason": "classified-change",
+  "selected_groups": [
+    "test"
+  ],
+  "omissions": [
+    {
+      "id": "optional:d01a41c933268b80ffc831310a6c0fb12dd7478fea2ef6e233a0aaa893558440",
+      "reason": "unrelated-category"
+    }
+  ],
+  "full_build_obligations": [
+    "optional:d01a41c933268b80ffc831310a6c0fb12dd7478fea2ef6e233a0aaa893558440"
+  ],
+  "changed_definition": "package.json added to trusted base after activation baseline without changed catalog/workflow",
+  "source": "tests/verification-ci-plan.tests.py ProofTests fixture with actual offline npm build"
+}

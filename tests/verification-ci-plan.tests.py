@@ -549,6 +549,59 @@ class ProofTests(GitFixture):
         self.head = self.commit('PR-controlled planner import')
         self.assertEqual(self.plan()['mode'], 'full')
 
+    def test_changed_base_definition_invalidates_activation(self):
+        original_base = self.base
+        build = {'name': 'offline-proof-regression', 'private': True, 'scripts': {
+            'build': 'node -e \'process.exit(require("fs").readFileSync("docs/guide.txt","utf8") === "old\\n" ? 0 : 1)\''}}
+        for path, content in (
+                ('package.json', json.dumps(build)),
+                ('tests/new-consumer.py', 'print("new dependency")\n'),
+                ('unknown-definition.data', 'new dependency\n')):
+            with self.subTest(path=path):
+                self.git('checkout', '-q', original_base)
+                self.write(path, content)
+                self.base = self.commit('changed definition after proof')
+                if path == 'package.json':
+                    before = subprocess.run(['npm', 'run', 'build', '--offline'], cwd=self.root,
+                                            capture_output=True)
+                    self.assertEqual(before.returncode, 0)
+                subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q', str(self.root), self.base], check=True)
+                subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', self.base], check=True)
+                self.write('docs/guide.txt', 'ordinary product change')
+                self.head = self.commit('later classified edit')
+                if path == 'package.json':
+                    after = subprocess.run(['npm', 'run', 'build', '--offline'], cwd=self.root,
+                                           capture_output=True)
+                    self.assertNotEqual(after.returncode, 0)
+                self.assertEqual(self.plan()['mode'], 'full')
+
+    def test_ordinary_base_input_change_preserves_activation(self):
+        self.git('checkout', '-q', self.base)
+        self.write('docs/guide.txt', 'ordinary change in base')
+        self.base = self.commit('ordinary base input change')
+        subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q', str(self.root), self.base], check=True)
+        subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', self.base], check=True)
+        self.write('docs/guide.txt', 'later ordinary change')
+        self.head = self.commit('ordinary head input change')
+        self.assertEqual(self.plan()['mode'], 'affected')
+
+    def test_supporting_records_are_bound_and_cannot_hide_definitions(self):
+        original_base = self.base
+        original_proof = copy.deepcopy(self.proof)
+        for kind in ('valid', 'wrong-hash', 'duplicate', 'definition', 'executable', 'outside'):
+            with self.subTest(kind=kind):
+                self.git('checkout', '-q', original_base)
+                self.proof = copy.deepcopy(original_proof)
+                path = {'definition': 'reports/verification/proof/package.json',
+                        'executable': 'reports/verification/proof/helper.py',
+                        'outside': 'runtime/config.json'}.get(kind, 'reports/verification/proof/job.json')
+                ref = self.ref(path, {'observed': 'fixture, not hosted'})
+                if kind == 'wrong-hash':
+                    ref['sha256'] = '0' * 64
+                self.proof['supporting_evidence'] = [ref, ref] if kind == 'duplicate' else [ref]
+                self.activate()
+                self.assertEqual(self.plan()['mode'], 'affected' if kind == 'valid' else 'full')
+
     def test_positive_affected_dependency_partition_and_bound_proof(self):
         p = self.plan()
         self.assertEqual(p['mode'], 'affected')

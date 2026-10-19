@@ -1,0 +1,49 @@
+FFF.F
+======================================================================
+FAIL: test_changed_base_definition_invalidates_activation (__main__.ProofTests.test_changed_base_definition_invalidates_activation) (path='package.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 576, in test_changed_base_definition_invalidates_activation
+    self.assertEqual(self.plan()['mode'], 'full')
+AssertionError: 'affected' != 'full'
+- affected
++ full
+
+
+======================================================================
+FAIL: test_changed_base_definition_invalidates_activation (__main__.ProofTests.test_changed_base_definition_invalidates_activation) (path='tests/new-consumer.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 576, in test_changed_base_definition_invalidates_activation
+    self.assertEqual(self.plan()['mode'], 'full')
+AssertionError: 'affected' != 'full'
+- affected
++ full
+
+
+======================================================================
+FAIL: test_changed_base_definition_invalidates_activation (__main__.ProofTests.test_changed_base_definition_invalidates_activation) (path='unknown-definition.data')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 576, in test_changed_base_definition_invalidates_activation
+    self.assertEqual(self.plan()['mode'], 'full')
+AssertionError: 'affected' != 'full'
+- affected
++ full
+
+
+======================================================================
+FAIL: test_supporting_records_are_bound_and_cannot_hide_definitions (__main__.ProofTests.test_supporting_records_are_bound_and_cannot_hide_definitions) (kind='valid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 603, in test_supporting_records_are_bound_and_cannot_hide_definitions
+    self.assertEqual(self.plan()['mode'], 'affected' if kind == 'valid' else 'full')
+AssertionError: 'full' != 'affected'
+- full
++ affected
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.956s
+
+FAILED (failures=4)
