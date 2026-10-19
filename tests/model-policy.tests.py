@@ -671,7 +671,7 @@ class PolicySelection(unittest.TestCase):
         cases = [
             ('high-risk-tier', 'implementer', 'high', {}, LIGHT, 'lightweight', 'low'),
             ('high-risk-effort', 'implementer', 'high', {}, CURRENT, 'strong', 'low'),
-            ('role-effort', 'evaluator', 'low', {}, CURRENT, 'strong', 'low'),
+            ('role-effort-fallback', 'evaluator', 'low', {}, CURRENT, 'strong', 'low'),
             ('escalation', 'implementer', 'low',
              {'failure_history': 'test,test', 'previous_tier': 'lightweight', 'attempt_number': '2'},
              LIGHT, 'lightweight', 'low'),
@@ -679,6 +679,8 @@ class PolicySelection(unittest.TestCase):
         for label, role, risk, options, model, tier, effort in cases:
             with self.subTest(boundary=label):
                 self.request.update(role=role, risk=risk)
+                if label == 'role-effort-fallback':
+                    self.registry['risk_effort_matrix'].pop('low')
                 self.save()
                 prepared = self.bridge('prepare-selection', {
                     'request_path': 'request.json', 'registry_path': 'registry.json',
@@ -702,6 +704,28 @@ class PolicySelection(unittest.TestCase):
         for role in self.policy['roles'].values():
             role['preferences'] = []
         self.blocked(self.invoke(), 'config-invalid')
+
+    def test_powershell_mixed_known_prices_and_signed_zero_are_total_ordered(self):
+        names = ['vendor/unknown', 'vendor/cheap', 'vendor/dear']
+        self.policy['models'] = [self.policy_model(name, 'current') for name in names]
+        self.registry['models'] = [self.capability(name, 'strong') for name in names]
+        for role in self.policy['roles'].values():
+            role['preferences'] = []
+        for prices in [(1, 2), (-0.0, 0.0)]:
+            self.request['estimates'] = [
+                {'catalog_id': name, 'amount': amount, 'unit': 'USD',
+                 'source_url': 'https://example.invalid/price', 'source_date': SOURCE_DATE}
+                for name, amount in [('vendor/cheap', prices[0]), ('vendor/dear', prices[1])]]
+            for order in itertools.permutations(names):
+                with self.subTest(prices=prices, order=order):
+                    self.policy['models'].sort(key=lambda item: order.index(item['id']))
+                    self.registry['models'].sort(key=lambda item: order.index(item['name']))
+                    self.observation['models'] = [
+                        {'native_id': 'native-' + name.split('/')[1],
+                         'efforts': EFFORTS[:], 'available': True} for name in reversed(order)]
+                    expected = self.selected(self.invoke(), 'vendor/cheap')
+                    actual = self.selected(self.invoke('powershell'), 'vendor/cheap')
+                    self.assertEqual(actual, expected)
 
     def test_genuine_diagnostic_capture_cannot_authorize_selection(self):
         specification = importlib.util.spec_from_file_location(
