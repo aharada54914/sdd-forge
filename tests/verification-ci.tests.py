@@ -14,6 +14,7 @@ import tempfile
 import unittest
 import zipfile
 from unittest.mock import patch
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / 'tests/verification-ci.py'
@@ -59,13 +60,14 @@ class BoundaryTests(unittest.TestCase):
                 self.ci.P.strict_json(value)
 
     def test_result_and_error_all_persisted_field_counterparts(self):
-        good = dict(schema='verification-ci-result/v1', status='PASS', reason='verified', run_id='123',
+        good: dict[str, Any] = dict(schema='verification-ci-result/v1', status='PASS', reason='verified', run_id='123',
                     api_head_sha='a'*40, tested_revision='b'*40, plan_sha256='c'*64,
-                    results=[dict(obligation_id='test:fixture', status='PASS', reason='executed',
+                    results=[dict(obligation_id='test:fixture', status='PASS', reason='verified',
                                   job_id=1, source_attempt=1)])
         self.ci.validate_result(good, expected=good)
-        changes = dict(schema='wrong', status='FAIL', reason='evidence-missing', run_id='124',
+        changes: dict[str, Any] = dict(schema='wrong', status='FAIL', reason='evidence-missing', run_id='124',
                        api_head_sha='d'*40, tested_revision='e'*40, plan_sha256='f'*64, results=[])
+        value: Any
         for field, value in changes.items():
             with self.subTest(field=field), self.assertRaises(ValueError):
                 self.ci.validate_result({**good, field: value}, expected=good)
@@ -196,13 +198,14 @@ class BoundaryTests(unittest.TestCase):
                 self.assertFalse((self.scratch / mode / 'collection.json').exists())
 
     def test_collection_field_counterparts_and_schema(self):
-        good = dict(schema='verification-ci-observations/v1', repository='owner/repo', run_id='123',
+        good: dict[str, Any] = dict(schema='verification-ci-observations/v1', repository='owner/repo', run_id='123',
                     api_head_sha='a' * 40, collected_at='2026-10-19T12:00:00Z', api_version='2026-03-10',
                     run={'path': 'run.json', 'sha256': 'b' * 64}, jobs=[{'path': 'jobs/1.json', 'sha256': 'c' * 64}],
                     artifacts=[{'path': 'artifacts/a/r.json', 'sha256': 'd' * 64, 'job_id': 1, 'source_attempt': 1}])
         self.ci.validate_collection(good)
-        changes = dict(schema='other', repository='https://evil.invalid', run_id=123, api_head_sha='bad',
+        changes: dict[str, Any] = dict(schema='other', repository='https://evil.invalid', run_id=123, api_head_sha='bad',
                        collected_at='yesterday', api_version='2022-11-28', run={}, jobs=[], artifacts={})
+        value: Any
         for field, value in changes.items():
             with self.subTest(field=field), self.assertRaises(ValueError):
                 self.ci.validate_collection({**good, field: value})
@@ -222,7 +225,7 @@ class BoundaryTests(unittest.TestCase):
         self.assertFalse(schema['additionalProperties'])
 
     def test_expanded_name_binding_matrix_order_and_collisions(self):
-        workflow = {'jobs': {
+        workflow: dict[str, Any] = {'jobs': {
             'simple': {'runs-on': 'ubuntu-latest'},
             'matrix-job': {'strategy': {'matrix': {'os': ['ubuntu-latest'], 'lane': ['a', 'b']}},
                            'runs-on': '${{ matrix.os }}'},
@@ -317,6 +320,45 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(observations['properties']['api_version']['const'], self.ci.API_VERSION)
 
 
+    def test_corrupt_deflate_is_typed_error_without_partial_files(self):
+        raw = io.BytesIO()
+        with zipfile.ZipFile(raw, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr('receipt.json', '{}')
+        malformed = bytearray(raw.getvalue())
+        offset = 30 + int.from_bytes(malformed[26:28], 'little') + int.from_bytes(malformed[28:30], 'little')
+        malformed[offset:offset+2] = b'\xff\xff'
+        target = self.scratch / 'bad-deflate'
+        try:
+            self.ci.extract_receipts(bytes(malformed), target)
+        except Exception as error:
+            self.assertIsInstance(error, ValueError)
+        else:
+            self.fail('corrupt compressed data was accepted')
+        self.assertFalse(target.exists())
+        run = dict(id=123,run_attempt=1,head_sha='a'*40,repository={'full_name':'owner/repo'})
+        job = dict(id=1,run_id=123,run_attempt=1,head_sha='a'*40,name='native')
+        artifact = dict(id=2,name=receipt_name('123',1,'native',{}),expired=False,
+                        workflow_run={'id':123,'head_sha':'a'*40})
+        def request(endpoint):
+            if endpoint.endswith('/runs/123'):
+                return run, {}
+            if '/jobs' in endpoint:
+                return {'total_count':1,'jobs':[job]}, {}
+            return {'total_count':1,'artifacts':[artifact]}, {}
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with patch.object(self.ci,'api_get',side_effect=request), patch.object(self.ci,'api_response',return_value=(bytes(malformed),{})), contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            try:
+                code = self.ci.main(['collect','--repository','owner/repo','--run-id','123',
+                                     '--output-dir',str(self.scratch/'failed-collection')])
+            except Exception as error:
+                self.fail('typed CLI error boundary leaked ' + type(error).__name__)
+        self.assertEqual(code,2)
+        self.assertFalse(stdout.getvalue())
+        self.assertEqual(json.loads(stderr.getvalue())['schema'],'verification-ci-error/v1')
+        self.assertFalse((self.scratch/'failed-collection'/'collection.json').exists())
+        self.assertFalse((self.scratch/'failed-collection'/'artifacts').exists())
+
+
 
 class AggregateTests(unittest.TestCase):
     def setUp(self):
@@ -330,10 +372,10 @@ class AggregateTests(unittest.TestCase):
         self.git('config', 'user.email', 'fixture@example.invalid')
         self.suite = 'tests/sample.tests.py'
         self.write(self.suite, 'print("fixture execution")\n')
-        self.catalog = dict(schema='verification-catalog/v1', suites=[dict(path=self.suite, runtime='python')],
+        self.catalog: dict[str, Any] = dict(schema='verification-catalog/v1', suites=[dict(path=self.suite, runtime='python')],
                             profiles={'fixture': [self.suite]},
                             impact=dict(schema='verification-impact-rules/v1', categories=[], dependencies={}))
-        self.workflow = {'jobs': {'test': {
+        self.workflow: dict[str, Any] = {'jobs': {'test': {
             'strategy': {'matrix': {'os': ['ubuntu-latest', 'macos-latest', 'windows-latest']}},
             'runs-on': '${{ matrix.os }}', 'steps': [
                 {'name': 'integrity', 'run': 'git diff --exit-code'},
@@ -350,7 +392,7 @@ class AggregateTests(unittest.TestCase):
             self.receipt, code = R.execute(R.load_catalog(self.root / 'tests/verification-catalog.json', self.root),
                                          [self.suite], self.root, 'fixture')
         self.assertEqual(code, 0)
-        self.run = dict(id=123, run_attempt=1, head_sha=self.revision, event='push',
+        self.api_run = dict(id=123, run_attempt=1, head_sha=self.revision, event='push',
                         repository={'full_name': 'owner/repo'}, path='.github/workflows/test.yml', pull_requests=[])
         self.jobs = []
         self.receipts = []
@@ -386,9 +428,9 @@ class AggregateTests(unittest.TestCase):
             target.write_bytes(P.canonical(value))
             return {'path': path, 'sha256': sha(target.read_bytes())}
         manifest = dict(schema='verification-ci-observations/v1', repository='owner/repo', run_id='123',
-                        api_head_sha=self.run['head_sha'], collected_at='2026-10-19T12:00:00Z',
-                        api_version='2026-03-10', run=persist('run.json', self.run), jobs=[], artifacts=[])
-        for attempt in range(1, self.run['run_attempt']+1):
+                        api_head_sha=self.api_run['head_sha'], collected_at='2026-10-19T12:00:00Z',
+                        api_version='2026-03-10', run=persist('run.json', self.api_run), jobs=[], artifacts=[])
+        for attempt in range(1, self.api_run['run_attempt']+1):
             rows = [j for j in self.jobs if j['run_attempt'] == attempt]
             manifest['jobs'].append(persist(f'jobs/{attempt}.json', {'total_count': len(rows), 'jobs': rows}))
         for i, (jid, attempt, receipt, job, matrix) in enumerate(self.receipts):
@@ -407,7 +449,7 @@ class AggregateTests(unittest.TestCase):
             mutate(plan_path, observations)
         command = [sys.executable, '-B', str(SCRIPT), 'aggregate', '--root', str(self.root),
                    '--plan', str(plan_path), '--observations', str(observations), '--run-id', '123',
-                   '--api-head-sha', self.run['head_sha']]
+                   '--api-head-sha', self.api_run['head_sha']]
         result = subprocess.run(command, capture_output=True, text=True)
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         raw = result.stderr if expected == 2 else result.stdout
@@ -460,10 +502,11 @@ class AggregateTests(unittest.TestCase):
         self.invoke(expected=1)
 
     def test_receipt_persisted_fields_counterparts(self):
-        changes = dict(schema='wrong', profile='other', revision='a'*40, revision_after='a'*40,
+        changes: dict[str, Any] = dict(schema='wrong', profile='other', revision='a'*40, revision_after='a'*40,
                        clean_before=False, clean_after=False, reusable=True, catalog_sha256='a'*64,
                        selected=[], results=[])
         original = copy.deepcopy(self.receipts)
+        value: Any
         for field, value in changes.items():
             with self.subTest(field=field):
                 self.receipts = copy.deepcopy(original)
@@ -528,7 +571,7 @@ class AggregateTests(unittest.TestCase):
         self.invoke(symlink, expected=1)
 
     def test_TEST023_copied_success_preserves_original_ids_and_attempts(self):
-        self.run['run_attempt'] = 2
+        self.api_run['run_attempt'] = 2
         copies = copy.deepcopy(self.jobs)
         for job in copies:
             job['id'] += 100
@@ -541,7 +584,7 @@ class AggregateTests(unittest.TestCase):
         self.invoke(expected=1)
 
     def test_TEST023_genuine_rerun_keeps_failed_history(self):
-        self.run['run_attempt'] = 2
+        self.api_run['run_attempt'] = 2
         newer = copy.deepcopy(self.jobs)
         for job in newer:
             job['id'] += 100
@@ -560,7 +603,7 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual({r['job_id'] for r in result['results']}, {200, 201, 202})
 
     def test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts(self):
-        self.run['run_attempt'] = 2
+        self.api_run['run_attempt'] = 2
         original = copy.deepcopy(self.jobs)
         copied = copy.deepcopy(original)
         for job in copied:
@@ -586,7 +629,7 @@ class AggregateTests(unittest.TestCase):
         if merge:
             _, tested = fixture.verified_merge()
         self.plan = fixture.plan(tested_revision=tested)
-        self.run.update(event='pull_request', head_sha=fixture.head,
+        self.api_run.update(event='pull_request', head_sha=fixture.head,
                         pull_requests=[{'base': {'sha': fixture.base}, 'head': {'sha': fixture.head}}])
         self.jobs, self.receipts = [], []
         for i, (job_id, job) in enumerate(fixture.workflow['jobs'].items()):
@@ -631,10 +674,11 @@ class AggregateTests(unittest.TestCase):
         fixture = self.use_pr_fixture()
         self.invoke()
         original = copy.deepcopy(self.plan)
-        changes = dict(run_id='124', event='push', planning_attempt=2, api_head_sha=fixture.base,
+        changes: dict[str, Any] = dict(run_id='124', event='push', planning_attempt=2, api_head_sha=fixture.base,
                        tested_revision=fixture.base, base_revision=fixture.head, pr_head_revision=fixture.base,
                        merge_base_revision=fixture.head, catalog_sha256='f'*64, workflow_sha256='f'*64,
                        trusted_planner_sha256='f'*64, changed_path_count=999, groups=['test', 'optional'])
+        value: Any
         for field, value in changes.items():
             with self.subTest(field=field):
                 self.plan = copy.deepcopy(original)
@@ -642,12 +686,12 @@ class AggregateTests(unittest.TestCase):
                 self.invoke(expected=2 if field == 'event' else 1)
         self.plan = original
         for field in ('base', 'head'):
-            self.run['pull_requests'][0][field]['sha'] = 'f'*40
+            self.api_run['pull_requests'][0][field]['sha'] = 'f'*40
             self.invoke(expected=1)
-            self.run['pull_requests'][0][field]['sha'] = fixture.base if field == 'base' else fixture.head
+            self.api_run['pull_requests'][0][field]['sha'] = fixture.base if field == 'base' else fixture.head
 
     def test_history_unstarted_cancel_then_true_success(self):
-        self.run['run_attempt'] = 2
+        self.api_run['run_attempt'] = 2
         new = copy.deepcopy(self.jobs)
         for job in self.jobs:
             job.update(status='completed', conclusion='cancelled', started_at=None, completed_at=None,
@@ -663,7 +707,7 @@ class AggregateTests(unittest.TestCase):
         self.write('tests/verification-catalog.json', json.dumps(self.catalog))
         self.revision = self.commit('equivalent alternate profile')
         self.plan = P.make_plan(self.root, self.root, 'push', '123', 1, self.revision, self.revision)
-        self.run['head_sha'] = self.revision
+        self.api_run['head_sha'] = self.revision
         for job in self.jobs:
             job['head_sha'] = self.revision
         for _, _, receipt, _, _ in self.receipts:
@@ -697,6 +741,75 @@ class AggregateTests(unittest.TestCase):
             result = subprocess.run([sys.executable, '-B', str(SCRIPT), *args], capture_output=True, text=True)
             self.assertEqual(result.returncode, 2)
             self.assertEqual(json.loads(result.stderr)['schema'], 'verification-ci-error/v1')
+
+    def test_second_planning_attempt_without_specific_planner_job(self):
+        self.api_run['run_attempt'] = 2
+        current = copy.deepcopy(self.jobs)
+        for job in current:
+            job.update(id=job['id']+100,run_attempt=2,started_at='2026-10-19T11:00:00Z',completed_at='2026-10-19T11:01:00Z')
+            for step in job['steps']:
+                step.update(started_at=job['started_at'],completed_at=job['completed_at'])
+        self.jobs += current
+        self.plan = P.make_plan(self.root,self.root,'push','123',2,self.revision,self.revision)
+        self.receipts = [(jid+100,2,receipt,job,matrix) for jid,_,receipt,job,matrix in self.receipts]
+        self.invoke()
+        self.plan['planning_attempt'] = 3
+        self.invoke(expected=1)
+
+    def test_direct_work_rejects_dirty_checked_out_source(self):
+        self.workflow['jobs']['test']['steps'][1]['run'] = 'python3 tests/sample.tests.py'
+        self.write('.github/workflows/test.yml', json.dumps(self.workflow))
+        self.revision = self.commit('direct execution fixture')
+        self.plan = P.make_plan(self.root, self.root, 'push', '123', 1, self.revision, self.revision)
+        self.api_run['head_sha'] = self.revision
+        for job in self.jobs:
+            job['head_sha'] = self.revision
+        self.receipts = []
+        self.invoke()
+        self.write(self.suite, 'raise SystemExit(7)\n')
+        self.invoke(expected=1)
+
+    def test_new_planner_attempt_requires_fresh_execution(self):
+        self.workflow['jobs']['plan'] = {'name':'Plan verification', 'runs-on':'ubuntu-latest',
+                                         'steps':[{'name':'Plan', 'run':'echo fixture-plan'}]}
+        self.write('.github/workflows/test.yml', json.dumps(self.workflow))
+        self.revision = self.commit('planner execution fixture')
+        self.api_run.update(head_sha=self.revision, run_attempt=2)
+        self.jobs.append(dict(id=103, run_id=123, run_attempt=1, head_sha=self.revision, name='Plan verification',
+                              labels=['ubuntu-latest'], runner_id=1003, runner_name='planner',
+                              status='completed', conclusion='success', started_at='2026-10-19T10:00:00Z',
+                              completed_at='2026-10-19T10:01:00Z', steps=[dict(name='Plan', number=1,
+                              status='completed', conclusion='success', started_at='2026-10-19T10:00:00Z',
+                              completed_at='2026-10-19T10:01:00Z')]))
+        for job in self.jobs:
+            job['head_sha'] = self.revision
+        old = copy.deepcopy(self.jobs)
+        latest = copy.deepcopy(old)
+        for job in latest:
+            job.update(id=job['id']+100, run_attempt=2, started_at='2026-10-19T11:00:00Z',
+                       completed_at='2026-10-19T11:01:00Z')
+            for step in job['steps']:
+                step.update(started_at=job['started_at'], completed_at=job['completed_at'])
+        self.jobs = old + latest
+        self.plan = P.make_plan(self.root, self.root, 'push', '123', 2, self.revision, self.revision)
+        self.receipts = [(jid+100, 2, {**receipt,'revision':self.revision,'revision_after':self.revision,
+                                     'catalog_sha256':self.plan['catalog_sha256']},job,matrix)
+                         for jid,_,receipt,job,matrix in self.receipts]
+        self.invoke()
+        # A freshly executed planner cannot relabel inherited workload as fresh.
+        self.jobs[4] = {**copy.deepcopy(old[0]), 'id':200, 'run_attempt':2}
+        self.receipts[0] = (100, 1, self.receipts[0][2], 'test', {'os':'ubuntu-latest'})
+        self.invoke(expected=1)
+
+    def test_copied_job_missing_original_despite_other_history_fails(self):
+        self.api_run['run_attempt'] = 2
+        original = copy.deepcopy(self.jobs)
+        copied = copy.deepcopy(original)
+        for job in copied:
+            job.update(id=job['id']+100, run_attempt=2)
+        self.jobs = original[1:] + copied
+        self.receipts[0] = (200, 2, self.receipts[0][2], 'test', {'os':'ubuntu-latest'})
+        self.invoke(expected=1)
 
 
 if __name__ == '__main__':

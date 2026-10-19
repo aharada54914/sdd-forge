@@ -1,0 +1,134 @@
+test_TEST019_positive_full_receipts_native_obligations (__main__.AggregateTests.test_TEST019_positive_full_receipts_native_obligations) ... fixture execution
+ok
+test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) ... fixture execution
+ok
+test_TEST021_057_absent_malformed_plan_and_empty_evidence (__main__.AggregateTests.test_TEST021_057_absent_malformed_plan_and_empty_evidence) ... fixture execution
+ok
+test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) ... fixture execution
+ok
+test_TEST023_copied_success_preserves_original_ids_and_attempts (__main__.AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts) ... fixture execution
+ok
+test_TEST023_genuine_rerun_keeps_failed_history (__main__.AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history) ... fixture execution
+ok
+test_TEST058_missing_receipt (__main__.AggregateTests.test_TEST058_missing_receipt) ... fixture execution
+ok
+test_TEST059_empty_receipt_success (__main__.AggregateTests.test_TEST059_empty_receipt_success) ... fixture execution
+ok
+test_affected_partition_omissions_and_verified_merge (__main__.AggregateTests.test_affected_partition_omissions_and_verified_merge) ... fixture execution
+ok
+test_cli_create_only_output_and_fixed_error (__main__.AggregateTests.test_cli_create_only_output_and_fixed_error) ... fixture execution
+ok
+test_copied_job_missing_original_despite_other_history_fails (__main__.AggregateTests.test_copied_job_missing_original_despite_other_history_fails) ... fixture execution
+FAIL
+test_direct_work_rejects_dirty_checked_out_source (__main__.AggregateTests.test_direct_work_rejects_dirty_checked_out_source) ... fixture execution
+FAIL
+test_full_result_consumed_by_predecessor_activation_validator (__main__.AggregateTests.test_full_result_consumed_by_predecessor_activation_validator) ... fixture execution
+ok
+test_history_unstarted_cancel_then_true_success (__main__.AggregateTests.test_history_unstarted_cancel_then_true_success) ... fixture execution
+ok
+test_manifest_hash_and_containment_counterparts (__main__.AggregateTests.test_manifest_hash_and_containment_counterparts) ... fixture execution
+ok
+test_new_planner_attempt_requires_fresh_execution (__main__.AggregateTests.test_new_planner_attempt_requires_fresh_execution) ... fixture execution
+FAIL
+test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) ... fixture execution
+ok
+test_pr_independent_persisted_plan_fields (__main__.AggregateTests.test_pr_independent_persisted_plan_fields) ... fixture execution
+ok
+test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) ... fixture execution
+ok
+test_receipt_profile_is_exact_invocation_not_equivalent_membership (__main__.AggregateTests.test_receipt_profile_is_exact_invocation_not_equivalent_membership) ... fixture execution
+ok
+test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) ... fixture execution
+ok
+test_second_planning_attempt_without_specific_planner_job (__main__.AggregateTests.test_second_planning_attempt_without_specific_planner_job) ... fixture execution
+FAIL
+test_unexpected_receipt_and_duplicate_selected_receipt_fail (__main__.AggregateTests.test_unexpected_receipt_and_duplicate_selected_receipt_fail) ... fixture execution
+ok
+test_collection_artifact_job_name_binding_and_mismatches (__main__.BoundaryTests.test_collection_artifact_job_name_binding_and_mismatches) ... ok
+test_collection_field_counterparts_and_schema (__main__.BoundaryTests.test_collection_field_counterparts_and_schema) ... ok
+test_collection_pagination_history_and_get_only (__main__.BoundaryTests.test_collection_pagination_history_and_get_only) ... ok
+test_corrupt_deflate_is_typed_error_without_partial_files (__main__.BoundaryTests.test_corrupt_deflate_is_typed_error_without_partial_files) ... FAIL
+test_expanded_name_binding_matrix_order_and_collisions (__main__.BoundaryTests.test_expanded_name_binding_matrix_order_and_collisions) ... ok
+test_pagination_rejects_partial_duplicate_loop_and_other_origin (__main__.BoundaryTests.test_pagination_rejects_partial_duplicate_loop_and_other_origin) ... ok
+test_result_and_error_all_persisted_field_counterparts (__main__.BoundaryTests.test_result_and_error_all_persisted_field_counterparts) ... ok
+test_schema_enums_and_all_properties_match_producers (__main__.BoundaryTests.test_schema_enums_and_all_properties_match_producers) ... ok
+test_strict_contract_inputs (__main__.BoundaryTests.test_strict_contract_inputs) ... ok
+test_transport_failures_redact_headers_and_signed_urls (__main__.BoundaryTests.test_transport_failures_redact_headers_and_signed_urls) ... ok
+test_zip_safety_complete_before_extraction (__main__.BoundaryTests.test_zip_safety_complete_before_extraction) ... ok
+test_zip_valid_json_payloads_and_create_only (__main__.BoundaryTests.test_zip_valid_json_payloads_and_create_only) ... ok
+
+======================================================================
+FAIL: test_copied_job_missing_original_despite_other_history_fails (__main__.AggregateTests.test_copied_job_missing_original_despite_other_history_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 812, in test_copied_job_missing_original_despite_other_history_fails
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 454, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 0 != 1 : {"api_head_sha":"520baa6eb643356fcf7eceace71e4d7b583003f0","plan_sha256":"5a87ee42782f0a2a3d585a28fe172134f787d19c7cf2207f71e5d7403b10986b","reason":"verified","results":[{"job_id":200,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":2,"status":"PASS"},{"job_id":200,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":2,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"}],"run_id":"123","schema":"verification-ci-result/v1","status":"PASS","tested_revision":"520baa6eb643356fcf7eceace71e4d7b583003f0"}
+
+
+======================================================================
+FAIL: test_direct_work_rejects_dirty_checked_out_source (__main__.AggregateTests.test_direct_work_rejects_dirty_checked_out_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 770, in test_direct_work_rejects_dirty_checked_out_source
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 454, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 0 != 1 : {"api_head_sha":"141396e97c863b6dbe3d58f40761782f636b0bb7","plan_sha256":"4faf728e4e7bf2929c46d8cf82689f7999f63e1f299cb7a4ae4fbd933089f4d0","reason":"verified","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"verified","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"verified","source_attempt":1,"status":"PASS"}],"run_id":"123","schema":"verification-ci-result/v1","status":"PASS","tested_revision":"141396e97c863b6dbe3d58f40761782f636b0bb7"}
+
+
+======================================================================
+FAIL: test_new_planner_attempt_requires_fresh_execution (__main__.AggregateTests.test_new_planner_attempt_requires_fresh_execution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 798, in test_new_planner_attempt_requires_fresh_execution
+    self.invoke()
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 454, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"de2e61c3820df66f16921c7c8b29d7fb34f4198b","plan_sha256":"0f7614dbb4a99396b2ce41ed126bdd338c261c68988c30a9cd08ea2331f735ea","reason":"evidence-mismatch","results":[{"job_id":null,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"plan:a84089ada76bdcc6ce396023d77f15e0355ed45949c105fb4c476b1550332ecc","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"de2e61c3820df66f16921c7c8b29d7fb34f4198b"}
+
+
+======================================================================
+FAIL: test_second_planning_attempt_without_specific_planner_job (__main__.AggregateTests.test_second_planning_attempt_without_specific_planner_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 755, in test_second_planning_attempt_without_specific_planner_job
+    self.invoke()
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 454, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"f323375a791b6c6928414d42d3c0ee64aabede34","plan_sha256":"38ee7f909c51d686d51e90c31567cdd03c0eb60dd899ee9b3846c56686c82b55","reason":"evidence-mismatch","results":[{"job_id":null,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"f323375a791b6c6928414d42d3c0ee64aabede34"}
+
+
+======================================================================
+FAIL: test_corrupt_deflate_is_typed_error_without_partial_files (__main__.BoundaryTests.test_corrupt_deflate_is_typed_error_without_partial_files)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 332, in test_corrupt_deflate_is_typed_error_without_partial_files
+    self.ci.extract_receipts(bytes(malformed), target)
+  File "/workspace/sdd-forge/tests/verification-ci.py", line 249, in extract_receipts
+    data = archive.read(member)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipfile/__init__.py", line 1586, in read
+    return fp.read()
+           ^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipfile/__init__.py", line 994, in read
+    buf += self._read1(self.MAX_N)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipfile/__init__.py", line 1084, in _read1
+    data = self._decompressor.decompress(data, n)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+zlib.error: Error -3 while decompressing data: invalid block type
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 334, in test_corrupt_deflate_is_typed_error_without_partial_files
+    self.assertIsInstance(error, ValueError)
+AssertionError: error('Error -3 while decompressing data: invalid block type') is not an instance of <class 'ValueError'>
+
+----------------------------------------------------------------------
+Ran 35 tests in 12.399s
+
+FAILED (failures=5)

@@ -530,5 +530,22 @@
     ],
     "red_evidence": "specs/ci-model-modernization/verification/T-002/attempt-1/red-pr-lineage.log",
     "A9": "unresolved root contract decision; no production branch"
+  },
+  "execution_binding_slice": {
+    "stage": "before-production-edit",
+    "fields": {
+      "plan.planning_attempt": "actual API attempt range/history and source_attempt >= planning_attempt for every selected execution",
+      "plan.tested_revision": "actual HEAD plus unchanged tracked checkout",
+      "result.results[].source_attempt": "complete original logical job history; no replacement-ID relabelling",
+      "error.schema/reason/message": "corrupt ZIP deflate produces typed exit2 and no partial receipt output"
+    },
+    "tests": [
+      "AggregateTests.test_direct_work_rejects_dirty_checked_out_source",
+      "AggregateTests.test_new_planner_attempt_requires_fresh_execution",
+      "AggregateTests.test_second_planning_attempt_without_specific_planner_job",
+      "AggregateTests.test_copied_job_missing_original_despite_other_history_fails",
+      "BoundaryTests.test_corrupt_deflate_is_typed_error_without_partial_files"
+    ],
+    "red_evidence": "specs/ci-model-modernization/verification/T-002/attempt-1/red-execution-binding.log"
   }
 }
