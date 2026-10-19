@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/tmp/ci-model-resume-python/bin/python",
+    "-B",
+    "tests/verification-ci-plan.tests.py",
+    "A9ConsumerTests"
+  ],
+  "returncode": 1,
+  "tests": 7,
+  "failures": 2,
+  "errors": 4,
+  "meaningful_red": [
+    "valid inactive EXPECTED_SKIP rejected by actual validate_activation/full-result consumer",
+    "inactive A9 relabelled as PASS accepted by actual full and mutation proof consumers",
+    "comparison schema missing new status"
+  ],
+  "missing_component_red": [
+    "shared helper absent",
+    "context keyword absent"
+  ],
+  "production_unchanged": true
+}

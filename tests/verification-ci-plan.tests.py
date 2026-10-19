@@ -982,5 +982,206 @@ class RenameConsumerTests(GitFixture):
             IMPACT.validate_plan(plan, expected=selected)
 
 
+
+class A9ConsumerTests(GitFixture):
+    """Synthetic Git proofs exercise both actual activation-consumer call sites."""
+
+    ref = ProofTests.ref
+    result = ProofTests.result
+    activate = ProofTests.activate
+
+    def setUp(self):
+        super().setUp()
+        self.git('checkout', '-q', self.base)
+        live = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        self.workflow['env'] = live['env']
+        for job in ('a9-advisory-inputs', 'a9-advisory'):
+            self.workflow['jobs'][job] = copy.deepcopy(live['jobs'][job])
+        self.catalog['impact']['categories'] = [dict(
+            id='guide', paths=['docs/guide.txt'], prefixes=[], suites=[self.suites[0]],
+            groups=[], active=False, evidence=None)]
+        self.catalog['impact']['non_suite_steps'] = [dict(job='optional', step='build', kind='build')]
+        self.write('.github/workflows/test.yml', json.dumps(self.workflow))
+        self.write('tests/verification-catalog.json', json.dumps(self.catalog))
+        self.baseline = self.commit('synthetic A9 baseline')
+        self.rule = IMPACT.rule_digest(self.catalog, self.workflow)
+        self.full = IMPACT.make_plan(self.root, self.root, 'push', '123', 1,
+                                     self.baseline, self.baseline)
+        self.full_result = self.skipped_result(self.full, False)
+        self.write('docs/guide.txt', 'deliberate broken input')
+        self.mutation = self.commit('synthetic A9 mutation')
+        self.mutation_plan = IMPACT.make_plan(self.root, self.root, 'push', '124', 1,
+                                              self.mutation, self.mutation)
+        self.mutation_result = self.skipped_result(self.mutation_plan, True)
+        self.git('checkout', '-q', self.baseline)
+        self.proof = dict(schema='verification-ci-activation/v1', category='guide',
+            rule_sha256=self.rule, baseline_revision=self.baseline,
+            full_plan=self.ref('proof/full-plan.json', self.full),
+            full_result=self.ref('proof/full-result.json', self.full_result),
+            consumer_inventory=self.ref('proof/consumers.json', dict(
+                schema='verification-ci-consumers/v1', baseline_revision=self.baseline,
+                rule_sha256=self.rule, consumers=[dict(input='docs/guide.txt',
+                    suites=[self.suites[0]], groups=[], sources=[dict(path='docs/guide.txt',
+                    sha256=hashlib.sha256(b'old\n').hexdigest())])])),
+            mutation_evidence=self.ref('proof/mutations.json', dict(
+                schema='verification-ci-mutations/v1', baseline_revision=self.baseline,
+                rule_sha256=self.rule, cases=[dict(input='docs/guide.txt',
+                    plan=self.ref('proof/mutation-plan.json', self.mutation_plan),
+                    result=self.ref('proof/mutation-result.json', self.mutation_result))])))
+        self.activate()
+
+    def skipped_result(self, plan, failing):
+        value = self.result(plan, failing)
+        ids = {o['id'] for o in plan['obligations'] if o['job'] == 'a9-advisory'}
+        for row in value['results']:
+            if row['obligation_id'] in ids:
+                row.update(status='EXPECTED_SKIP', reason='advisory-inactive',
+                           job_id=None, source_attempt=None)
+        return value
+
+    def check_proof(self):
+        return IMPACT.validate_activation(self.catalog['impact']['categories'][0], self.rule,
+            self.root, self.base, self.catalog, self.workflow, self.full['obligations'])
+
+    def check_result(self, value, plan=None, success=True, **context):
+        return IMPACT.validate_result_binding(value, plan or self.full, success,
+                                              root=self.root, workflow=self.workflow, **context)
+
+    def test_inactive_skip_reaches_both_historical_proof_consumers(self):
+        self.assertEqual(self.check_proof()['category'], 'guide')
+        self.assertEqual(self.full['omissions'], [])
+        self.assertEqual(len(self.full_result['results']), len(self.full['obligations']))
+        self.assertEqual(self.plan()['mode'], 'affected')
+
+    def test_inactive_all_pass_rows_cannot_bypass_context_guard(self):
+        real_reader = IMPACT.read_reference
+        def reader(root, revision, reference):
+            value = real_reader(root, revision, reference)
+            if reference['path'] in ('proof/full-result.json', 'proof/mutation-result.json'):
+                for row in value['results']:
+                    if row['status'] == 'EXPECTED_SKIP':
+                        row.update(status='PASS', reason='verified', job_id=99, source_attempt=1)
+            return value
+        with patch.object(IMPACT, 'read_reference', side_effect=reader):
+            with self.assertRaises(ValueError):
+                self.check_proof()
+
+    def test_skip_cannot_hide_mutation_failure_or_claim_executed_pass(self):
+        real_reader = IMPACT.read_reference
+        for path, kind in [('proof/full-result.json', 'pass'),
+                           ('proof/mutation-result.json', 'pass'),
+                           ('proof/mutation-result.json', 'hide-failure')]:
+            def reader(root, revision, reference):
+                value = real_reader(root, revision, reference)
+                if reference['path'] == path:
+                    for row in value['results']:
+                        if kind == 'pass' and row['status'] == 'EXPECTED_SKIP':
+                            row.update(status='PASS', reason='verified', job_id=99, source_attempt=1)
+                        elif kind == 'hide-failure' and row['status'] == 'FAIL':
+                            row.update(status='EXPECTED_SKIP', reason='advisory-inactive',
+                                       job_id=None, source_attempt=None)
+                return value
+            with self.subTest(path=path, kind=kind), patch.object(IMPACT, 'read_reference', side_effect=reader):
+                with self.assertRaises(ValueError):
+                    self.check_proof()
+
+    def test_row_fields_no_context_and_normal_records_stay_strict(self):
+        ordinary = self.result(self.full, False)
+        IMPACT.validate_result_binding(ordinary, self.full, True)
+        with self.assertRaises(ValueError):
+            IMPACT.validate_result_binding(self.full_result, self.full, True)
+        self.check_result(self.full_result)
+        index = next(i for i, row in enumerate(self.full_result['results']) if row['status'] == 'EXPECTED_SKIP')
+        for field, value in [('reason', 'verified'), ('job_id', 1), ('source_attempt', 1),
+                             ('job_id', True), ('status', 'NOT_SELECTED'), ('status', 'SKIP'),
+                             ('obligation_id', 'a9-advisory:invented')]:
+            bad = copy.deepcopy(self.full_result)
+            bad['results'][index][field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                self.check_result(bad)
+        for index, original in enumerate(self.full_result['results']):
+            if original['status'] == 'EXPECTED_SKIP':
+                continue
+            bad = copy.deepcopy(self.full_result)
+            bad['results'][index].update(status='EXPECTED_SKIP', reason='advisory-inactive',
+                                        job_id=None, source_attempt=None)
+            with self.subTest(non_a9=original['obligation_id']), self.assertRaises(ValueError):
+                self.check_result(bad)
+        bad = copy.deepcopy(self.full_result)
+        bad['results'] = bad['results'][:-1]
+        with self.assertRaises(ValueError):
+            self.check_result(bad)
+
+    def test_independent_activation_binds_event_revisions_and_lexists(self):
+        self.assertIs(W.a9_activation(self.root, self.full, self.workflow), False)
+        self.git('checkout', '-q', self.baseline)
+        # Presence in either exact tree activates PR A9, including a dangling leaf symlink.
+        for kind in ('file', 'symlink', 'directory'):
+            with self.subTest(kind=kind):
+                self.git('checkout', '-q', self.baseline)
+                path = self.root / 'sdd/project-context.yaml'
+                path.parent.mkdir(exist_ok=True)
+                if kind == 'symlink':
+                    path.symlink_to('missing-target')
+                elif kind == 'directory':
+                    self.write('sdd/project-context.yaml/child', 'data')
+                else:
+                    self.write('sdd/project-context.yaml', 'data')
+                present = self.commit('context presence ' + kind)
+                for base, head in [(self.baseline, present), (present, self.baseline)]:
+                    plan = copy.deepcopy(self.full)
+                    plan.update(event='pull_request', api_head_sha=head, tested_revision=head,
+                                base_revision=base, pr_head_revision=head, merge_base_revision=self.baseline)
+                    self.assertIs(W.a9_activation(self.root, plan, self.workflow), True)
+                    plan['plan_sha256'] = digest({k: v for k, v in plan.items() if k != 'plan_sha256'})
+                    with self.assertRaises(ValueError):
+                        self.check_result(self.skipped_result(plan, False), plan=plan)
+        self.git('checkout', '-q', self.baseline)
+        for event in ('push', 'merge_group', 'workflow_dispatch', 'release'):
+            plan = {**self.full, 'event': event}
+            self.assertIs(W.a9_activation(self.root, plan, self.workflow), False)
+        for field, value in [('event', 'unknown'), ('tested_revision', '0' * 40),
+                             ('api_head_sha', self.mutation), ('workflow_sha256', '0' * 64)]:
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                W.a9_activation(self.root, {**self.full, field: value}, self.workflow)
+        pr = {**self.full, 'event': 'pull_request'}
+        with self.assertRaises(ValueError):
+            W.a9_activation(self.root, pr, self.workflow)
+        pr.update(base_revision=self.baseline, pr_head_revision=self.baseline,
+                  merge_base_revision=self.baseline)
+        self.assertIs(W.a9_activation(self.root, pr, self.workflow), False)
+        for field in ('base_revision', 'pr_head_revision', 'merge_base_revision'):
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                W.a9_activation(self.root, {**pr, field: self.mutation}, self.workflow)
+
+    def test_same_job_name_and_unknown_workflow_never_grant_exception(self):
+        changes = [lambda w: w['jobs']['a9-advisory'].update(**{'if': 'false'}),
+                   lambda w: w['jobs']['a9-advisory-inputs']['steps'][-1].update(run='echo active=false'),
+                   lambda w: w['jobs']['a9-advisory-inputs']['steps'][0]['with'].update(ref='main'),
+                   lambda w: w['jobs']['a9-advisory']['steps'][-1].update(run='echo different workload'),
+                   lambda w: w['jobs']['a9-advisory-inputs']['steps'][-1].update(**{'continue-on-error': True}),
+                   lambda w: w.update(env={'A9_EVENT_NAME': 'push'}),
+                   lambda w: w['jobs'].pop('a9-advisory-inputs')]
+        for mutate in changes:
+            self.git('checkout', '-q', self.baseline)
+            workflow = copy.deepcopy(self.workflow)
+            mutate(workflow)
+            self.write('.github/workflows/test.yml', json.dumps(workflow))
+            revision = self.commit('unknown A9 workflow semantics')
+            plan = {**self.full, 'tested_revision': revision, 'api_head_sha': revision,
+                    'workflow_sha256': hashlib.sha256((self.root / '.github/workflows/test.yml').read_bytes()).hexdigest()}
+            with self.assertRaises(ValueError):
+                W.a9_activation(self.root, plan, workflow)
+
+    def test_comparison_schema_expresses_skip_and_executed_counterparts(self):
+        schema = json.loads((ROOT / 'contracts/verification-ci-plan.schema.json').read_text())
+        row = schema['$defs']['comparisonResult']['properties']['results']['items']
+        self.assertEqual(set(row['properties']['status']['enum']), {'PASS', 'FAIL', 'EXPECTED_SKIP'})
+        self.assertIn('advisory-inactive', row['properties']['reason']['enum'])
+        self.assertEqual(row['properties']['job_id']['type'], ['integer', 'null'])
+        self.assertEqual(row['properties']['source_attempt']['type'], ['integer', 'null'])
+        self.assertTrue(row['allOf'], 'conditional status/reason/identity pairing is required')
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,68 @@
+FFEEEE.
+======================================================================
+ERROR: test_inactive_skip_reaches_both_historical_proof_consumers (__main__.A9ConsumerTests.test_inactive_skip_reaches_both_historical_proof_consumers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1051, in test_inactive_skip_reaches_both_historical_proof_consumers
+    self.assertEqual(self.check_proof()['category'], 'guide')
+                     ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1043, in check_proof
+    return IMPACT.validate_activation(self.catalog['impact']['categories'][0], self.rule,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 552, in validate_activation
+    validate_result_binding(read_reference(root, revision, proof['full_result']), full, True)
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 432, in validate_result_binding
+    raise ValueError('invalid comparison obligation result')
+ValueError: invalid comparison obligation result
+
+======================================================================
+ERROR: test_independent_activation_binds_event_revisions_and_lexists (__main__.A9ConsumerTests.test_independent_activation_binds_event_revisions_and_lexists)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1116, in test_independent_activation_binds_event_revisions_and_lexists
+    self.assertIs(W.a9_activation(self.root, self.full, self.workflow), False)
+                  ^^^^^^^^^^^^^^^
+AttributeError: module 'workflow' has no attribute 'a9_activation'
+
+======================================================================
+ERROR: test_row_fields_no_context_and_normal_records_stay_strict (__main__.A9ConsumerTests.test_row_fields_no_context_and_normal_records_stay_strict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1093, in test_row_fields_no_context_and_normal_records_stay_strict
+    self.check_result(self.full_result)
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1047, in check_result
+    return IMPACT.validate_result_binding(value, plan or self.full, success,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: validate_result_binding() got an unexpected keyword argument 'root'
+
+======================================================================
+ERROR: test_same_job_name_and_unknown_workflow_never_grant_exception (__main__.A9ConsumerTests.test_same_job_name_and_unknown_workflow_never_grant_exception)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1174, in test_same_job_name_and_unknown_workflow_never_grant_exception
+    W.a9_activation(self.root, plan, workflow)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'workflow' has no attribute 'a9_activation'
+
+======================================================================
+FAIL: test_comparison_schema_expresses_skip_and_executed_counterparts (__main__.A9ConsumerTests.test_comparison_schema_expresses_skip_and_executed_counterparts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1179, in test_comparison_schema_expresses_skip_and_executed_counterparts
+    self.assertEqual(set(row['properties']['status']['enum']), {'PASS', 'FAIL', 'EXPECTED_SKIP'})
+AssertionError: Items in the second set but not the first:
+'EXPECTED_SKIP'
+
+======================================================================
+FAIL: test_inactive_all_pass_rows_cannot_bypass_context_guard (__main__.A9ConsumerTests.test_inactive_all_pass_rows_cannot_bypass_context_guard)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1066, in test_inactive_all_pass_rows_cannot_bypass_context_guard
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.151s
+
+FAILED (failures=2, errors=4)
