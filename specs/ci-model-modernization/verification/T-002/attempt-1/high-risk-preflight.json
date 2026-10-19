@@ -514,5 +514,21 @@
       "counterpart": "full bounded workflow inventory and source-hashed receipt",
       "failing_mismatch_test": "AggregateTests.test_plan_partition_recomputed_not_self_authorized"
     }
-  ]
+  ],
+  "next_slice": {
+    "stage": "before-next-production-edits",
+    "tests": [
+      "AggregateTests.test_affected_partition_omissions_and_verified_merge",
+      "AggregateTests.test_pr_independent_persisted_plan_fields",
+      "AggregateTests.test_history_unstarted_cancel_then_true_success",
+      "AggregateTests.test_receipt_profile_is_exact_invocation_not_equivalent_membership",
+      "AggregateTests.test_full_result_consumed_by_predecessor_activation_validator",
+      "BoundaryTests.test_expanded_name_binding_matrix_order_and_collisions",
+      "BoundaryTests.test_collection_artifact_job_name_binding_and_mismatches",
+      "BoundaryTests.test_transport_failures_redact_headers_and_signed_urls",
+      "BoundaryTests.test_schema_enums_and_all_properties_match_producers"
+    ],
+    "red_evidence": "specs/ci-model-modernization/verification/T-002/attempt-1/red-pr-lineage.log",
+    "A9": "unresolved root contract decision; no production branch"
+  }
 }

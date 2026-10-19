@@ -221,6 +221,102 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(set(schema['required']), set(good))
         self.assertFalse(schema['additionalProperties'])
 
+    def test_expanded_name_binding_matrix_order_and_collisions(self):
+        workflow = {'jobs': {
+            'simple': {'runs-on': 'ubuntu-latest'},
+            'matrix-job': {'strategy': {'matrix': {'os': ['ubuntu-latest'], 'lane': ['a', 'b']}},
+                           'runs-on': '${{ matrix.os }}'},
+            'explicit': {'name': 'custom (${{ matrix.flag }})', 'runs-on': 'ubuntu-latest',
+                         'strategy': {'matrix': {'flag': [True, False]}}}}}
+        result = self.ci.expanded_jobs(workflow)
+        self.assertEqual(set(result), {'simple', 'matrix-job (ubuntu-latest, a)', 'matrix-job (ubuntu-latest, b)',
+                                       'custom (true)', 'custom (false)'})
+        self.assertEqual(self.ci.name_key('matrix-job (ubuntu-latest, a)'),
+                         sha(P.canonical({'name': 'matrix-job (ubuntu-latest, a)'})))
+        self.assertNotEqual(self.ci.name_key('matrix-job (ubuntu-latest, a)'), self.ci.name_key('matrix-job (a, ubuntu-latest)'))
+        self.assertNotEqual(self.ci.name_key('simple'), self.ci.name_key('Simple'))
+        workflow['jobs']['matrix-job']['name'] = 'same'
+        with self.assertRaises(ValueError):
+            self.ci.expanded_jobs(workflow)
+        workflow['jobs'].pop('matrix-job')
+        workflow['jobs']['explicit']['name'] = 'simple'
+        with self.assertRaises(ValueError):
+            self.ci.expanded_jobs(workflow)
+
+    def test_collection_artifact_job_name_binding_and_mismatches(self):
+        run = dict(id=123, run_attempt=1, head_sha='a'*40, repository={'full_name':'owner/repo'})
+        job = dict(id=42, run_id=123, run_attempt=1, head_sha='a'*40, name='native (ubuntu-latest)')
+        name = receipt_name('123', 1, 'native', {'os':'ubuntu-latest'})
+        artifact = dict(id=9, name=name, expired=False, workflow_run={'id':123, 'head_sha':'a'*40})
+        raw = io.BytesIO()
+        with zipfile.ZipFile(raw, 'w') as archive:
+            archive.writestr('receipt.json', '{"schema":"verification-receipt/v1"}')
+        def run_case(mode):
+            selected = copy.deepcopy(artifact)
+            jobs = [copy.deepcopy(job)]
+            if mode == 'wrong-run':
+                selected['workflow_run']['id'] = 124
+            elif mode == 'wrong-head':
+                selected['workflow_run']['head_sha'] = 'b'*40
+            elif mode == 'expired':
+                selected['expired'] = True
+            elif mode == 'wrong-name':
+                selected['name'] = receipt_name('123', 1, 'native', {'os':'macos-latest'})
+            elif mode == 'wrong-attempt':
+                selected['name'] = receipt_name('123', 2, 'native', {'os':'ubuntu-latest'})
+            elif mode == 'ambiguous-name':
+                jobs.append({**job, 'id':43})
+            def request(endpoint):
+                if endpoint.endswith('/runs/123'):
+                    return run, {}
+                if '/jobs' in endpoint:
+                    return {'total_count':len(jobs),'jobs':jobs}, {}
+                rows = [selected, {**selected,'id':10}] if mode == 'duplicate-artifact' else [selected]
+                return {'total_count':len(rows),'artifacts':rows}, {}
+            target = self.scratch / mode
+            with patch.object(self.ci, 'api_get', side_effect=request), patch.object(self.ci, 'api_response', return_value=(raw.getvalue(), {})):
+                return self.ci.collect('owner/repo', '123', target)
+        result = run_case('valid')
+        self.assertEqual(len(result['artifacts']), 1)
+        self.assertEqual(result['artifacts'][0]['job_id'], 42)
+        self.assertEqual(result['artifacts'][0]['source_attempt'], 1)
+        self.assertIn(name, result['artifacts'][0]['path'])
+        for mode in ('wrong-run','wrong-head','expired','wrong-name','wrong-attempt','ambiguous-name','duplicate-artifact'):
+            with self.subTest(mode=mode), self.assertRaises(ValueError):
+                run_case(mode)
+
+    def test_transport_failures_redact_headers_and_signed_urls(self):
+        secret = b'authorization: fixture-secret https://storage.invalid/file?signature=fixture-secret'
+        for result in (subprocess.CompletedProcess([], 1, b'', secret),
+                       subprocess.CompletedProcess([], 0, b'HTTP/2.0 403 Forbidden\r\n\r\n' + secret, b''),
+                       subprocess.CompletedProcess([], 0, b'HTTP/2.0 200 OK\r\nX-GitHub-Api-Version-Selected: old\r\n\r\n{}', b'')):
+            with patch.object(self.ci.subprocess, 'run', return_value=result):
+                with self.assertRaises(ValueError) as caught:
+                    self.ci.api_get('/repos/owner/repo/actions/runs/123')
+            self.assertNotIn('fixture-secret', str(caught.exception))
+            self.assertNotIn('signature=', str(caught.exception))
+        with patch.object(self.ci.subprocess, 'run', side_effect=subprocess.TimeoutExpired('gh', 60)):
+            with self.assertRaises(ValueError):
+                self.ci.api_get('/repos/owner/repo/actions/runs/123')
+        with patch.object(self.ci.subprocess, 'run') as execute:
+            execute.return_value = subprocess.CompletedProcess([], 0, b'HTTP/2.0 200 OK\r\n\r\n{}', b'')
+            self.ci.api_get('/repos/owner/repo/actions/runs/123')
+            argv = execute.call_args.args[0]
+            self.assertIn('--hostname', argv, 'GitHub origin must be explicit')
+            self.assertEqual(argv[argv.index('--hostname')+1], 'github.com')
+
+    def test_schema_enums_and_all_properties_match_producers(self):
+        observations = json.loads((ROOT / 'contracts/verification-ci-observations.schema.json').read_text())
+        result = json.loads((ROOT / 'contracts/verification-ci-result.schema.json').read_text())
+        for node in (observations, result['$defs']['result'], result['$defs']['error'],
+                     result['$defs']['result']['properties']['results']['items']):
+            self.assertEqual(set(node['required']), set(node['properties']))
+            self.assertFalse(node['additionalProperties'])
+        for name in ('result', 'error'):
+            self.assertEqual(set(result['$defs'][name]['properties']['reason']['enum']), self.ci.REASONS)
+        self.assertEqual(observations['properties']['api_version']['const'], self.ci.API_VERSION)
+
+
 
 class AggregateTests(unittest.TestCase):
     def setUp(self):
@@ -323,6 +419,13 @@ class AggregateTests(unittest.TestCase):
         else:
             self.assertEqual(payload['status'], 'PASS' if expected == 0 else 'FAIL')
         return payload
+
+    def test_full_result_consumed_by_predecessor_activation_validator(self):
+        result = self.invoke()
+        try:
+            self.assertEqual(P.validate_result_binding(result, self.plan, True), set())
+        except ValueError as error:
+            self.fail('aggregate result is incompatible with T-001: ' + str(error))
 
     def test_TEST019_positive_full_receipts_native_obligations(self):
         result = self.invoke()
@@ -472,6 +575,128 @@ class AggregateTests(unittest.TestCase):
                 else:
                     self.receipts = [(jid+100, 2, receipt, job, matrix) for jid, _, receipt, job, matrix in self.receipts]
                 self.invoke(expected=1)
+
+    def use_pr_fixture(self, merge=False):
+        predecessor = module(ROOT / 'tests/verification-ci-plan.tests.py', 'ci_plan_fixture')
+        fixture = predecessor.ProofTests('test_positive_affected_dependency_partition_and_bound_proof')
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        self.root = fixture.root
+        tested = fixture.head
+        if merge:
+            _, tested = fixture.verified_merge()
+        self.plan = fixture.plan(tested_revision=tested)
+        self.run.update(event='pull_request', head_sha=fixture.head,
+                        pull_requests=[{'base': {'sha': fixture.base}, 'head': {'sha': fixture.head}}])
+        self.jobs, self.receipts = [], []
+        for i, (job_id, job) in enumerate(fixture.workflow['jobs'].items()):
+            selected = [o for o in self.plan['obligations'] if o['job'] == job_id]
+            self.jobs.append(dict(id=500+i, run_id=123, run_attempt=1, head_sha=fixture.head, name=job_id,
+                                 labels=['ubuntu-latest'], runner_id=600+i if selected else None,
+                                 runner_name='fixture' if selected else None, status='completed',
+                                 conclusion='success' if selected else 'skipped',
+                                 started_at='2026-10-19T10:00:00Z' if selected else None,
+                                 completed_at='2026-10-19T10:01:00Z' if selected else None,
+                                 steps=[dict(name=o['step'], number=n+1, status='completed', conclusion='success',
+                                             started_at='2026-10-19T10:00:00Z', completed_at='2026-10-19T10:01:00Z')
+                                        for n, o in enumerate(selected)]))
+        return fixture
+
+    def test_affected_partition_omissions_and_verified_merge(self):
+        self.use_pr_fixture(merge=True)
+        self.assertNotEqual(self.plan['api_head_sha'], self.plan['tested_revision'])
+        self.assertTrue(self.plan['omissions'])
+        result = self.invoke()
+        omitted = [r for r in result['results'] if r['status'] == 'NOT_SELECTED']
+        self.assertEqual({r['obligation_id'] for r in omitted}, {o['id'] for o in self.plan['omissions']})
+        self.assertTrue(all(r['job_id'] is None and r['source_attempt'] is None for r in omitted))
+        original = copy.deepcopy(self.plan)
+        for mutation in ('missing-omission', 'extra-omission', 'selected-omitted', 'empty-reason', 'wrong-evidence'):
+            with self.subTest(mutation=mutation):
+                self.plan = copy.deepcopy(original)
+                if mutation == 'missing-omission':
+                    self.plan['omissions'].pop()
+                elif mutation == 'extra-omission':
+                    self.plan['omissions'].append({'id': 'invented', 'reason': 'unrelated-category'})
+                elif mutation == 'selected-omitted':
+                    removed = self.plan['obligations'].pop()
+                    self.plan['omissions'].append({'id': removed['id'], 'reason': 'unrelated-category'})
+                elif mutation == 'empty-reason':
+                    self.plan['omissions'][0]['reason'] = ''
+                else:
+                    self.plan['activation_evidence'][0]['sha256'] = 'f'*64
+                self.invoke(expected=2 if mutation == 'empty-reason' else 1)
+
+    def test_pr_independent_persisted_plan_fields(self):
+        fixture = self.use_pr_fixture()
+        self.invoke()
+        original = copy.deepcopy(self.plan)
+        changes = dict(run_id='124', event='push', planning_attempt=2, api_head_sha=fixture.base,
+                       tested_revision=fixture.base, base_revision=fixture.head, pr_head_revision=fixture.base,
+                       merge_base_revision=fixture.head, catalog_sha256='f'*64, workflow_sha256='f'*64,
+                       trusted_planner_sha256='f'*64, changed_path_count=999, groups=['test', 'optional'])
+        for field, value in changes.items():
+            with self.subTest(field=field):
+                self.plan = copy.deepcopy(original)
+                self.plan[field] = value
+                self.invoke(expected=2 if field == 'event' else 1)
+        self.plan = original
+        for field in ('base', 'head'):
+            self.run['pull_requests'][0][field]['sha'] = 'f'*40
+            self.invoke(expected=1)
+            self.run['pull_requests'][0][field]['sha'] = fixture.base if field == 'base' else fixture.head
+
+    def test_history_unstarted_cancel_then_true_success(self):
+        self.run['run_attempt'] = 2
+        new = copy.deepcopy(self.jobs)
+        for job in self.jobs:
+            job.update(status='completed', conclusion='cancelled', started_at=None, completed_at=None,
+                       runner_id=None, runner_name=None, steps=[])
+        for job in new:
+            job.update(id=job['id']+100, run_attempt=2)
+        self.jobs += new
+        self.receipts = [(jid+100, 2, receipt, job, matrix) for jid, _, receipt, job, matrix in self.receipts]
+        self.invoke()
+
+    def test_receipt_profile_is_exact_invocation_not_equivalent_membership(self):
+        self.catalog['profiles']['other'] = [self.suite]
+        self.write('tests/verification-catalog.json', json.dumps(self.catalog))
+        self.revision = self.commit('equivalent alternate profile')
+        self.plan = P.make_plan(self.root, self.root, 'push', '123', 1, self.revision, self.revision)
+        self.run['head_sha'] = self.revision
+        for job in self.jobs:
+            job['head_sha'] = self.revision
+        for _, _, receipt, _, _ in self.receipts:
+            receipt.update(revision=self.revision, revision_after=self.revision, catalog_sha256=self.plan['catalog_sha256'])
+        self.invoke()
+        self.receipts[0][2]['profile'] = 'other'
+        self.invoke(expected=1)
+
+    def test_unexpected_receipt_and_duplicate_selected_receipt_fail(self):
+        self.receipts.append(copy.deepcopy(self.receipts[0]))
+        self.invoke(expected=1)
+        self.receipts.pop()
+        self.receipts[0][2]['selected'] = ['tests/other.tests.py']
+        self.invoke(expected=1)
+
+    def test_cli_create_only_output_and_fixed_error(self):
+        plan_path, observations = self.prepare()
+        output = self.scratch / 'result.json'
+        command = [sys.executable, '-B', str(SCRIPT), 'aggregate', '--root', str(self.root), '--plan', str(plan_path),
+                   '--observations', str(observations), '--run-id', '123', '--api-head-sha', self.revision,
+                   '--output', str(output)]
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), json.loads(output.read_text()))
+        before = output.read_bytes()
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(output.read_bytes(), before)
+        self.assertFalse(result.stdout)
+        for args in ([], ['unknown'], ['collect', '--repository', '--evil', '--run-id', '123', '--output-dir', str(output)]):
+            result = subprocess.run([sys.executable, '-B', str(SCRIPT), *args], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertEqual(json.loads(result.stderr)['schema'], 'verification-ci-error/v1')
 
 
 if __name__ == '__main__':

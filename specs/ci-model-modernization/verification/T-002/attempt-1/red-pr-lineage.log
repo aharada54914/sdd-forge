@@ -1,0 +1,138 @@
+test_TEST019_positive_full_receipts_native_obligations (__main__.AggregateTests.test_TEST019_positive_full_receipts_native_obligations) ... fixture execution
+ok
+test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) ... fixture execution
+ok
+test_TEST021_057_absent_malformed_plan_and_empty_evidence (__main__.AggregateTests.test_TEST021_057_absent_malformed_plan_and_empty_evidence) ... fixture execution
+ok
+test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) ... fixture execution
+ok
+test_TEST023_copied_success_preserves_original_ids_and_attempts (__main__.AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts) ... fixture execution
+ok
+test_TEST023_genuine_rerun_keeps_failed_history (__main__.AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history) ... fixture execution
+ok
+test_TEST058_missing_receipt (__main__.AggregateTests.test_TEST058_missing_receipt) ... fixture execution
+ok
+test_TEST059_empty_receipt_success (__main__.AggregateTests.test_TEST059_empty_receipt_success) ... fixture execution
+ok
+test_affected_partition_omissions_and_verified_merge (__main__.AggregateTests.test_affected_partition_omissions_and_verified_merge) ... fixture execution
+FAIL
+test_cli_create_only_output_and_fixed_error (__main__.AggregateTests.test_cli_create_only_output_and_fixed_error) ... fixture execution
+ok
+test_full_result_consumed_by_predecessor_activation_validator (__main__.AggregateTests.test_full_result_consumed_by_predecessor_activation_validator) ... fixture execution
+FAIL
+test_history_unstarted_cancel_then_true_success (__main__.AggregateTests.test_history_unstarted_cancel_then_true_success) ... fixture execution
+FAIL
+test_manifest_hash_and_containment_counterparts (__main__.AggregateTests.test_manifest_hash_and_containment_counterparts) ... fixture execution
+ok
+test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) ... fixture execution
+ok
+test_pr_independent_persisted_plan_fields (__main__.AggregateTests.test_pr_independent_persisted_plan_fields) ... fixture execution
+FAIL
+test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) ... fixture execution
+ok
+test_receipt_profile_is_exact_invocation_not_equivalent_membership (__main__.AggregateTests.test_receipt_profile_is_exact_invocation_not_equivalent_membership) ... fixture execution
+FAIL
+test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) ... fixture execution
+ok
+test_unexpected_receipt_and_duplicate_selected_receipt_fail (__main__.AggregateTests.test_unexpected_receipt_and_duplicate_selected_receipt_fail) ... fixture execution
+ok
+test_collection_artifact_job_name_binding_and_mismatches (__main__.BoundaryTests.test_collection_artifact_job_name_binding_and_mismatches) ... ok
+test_collection_field_counterparts_and_schema (__main__.BoundaryTests.test_collection_field_counterparts_and_schema) ... ok
+test_collection_pagination_history_and_get_only (__main__.BoundaryTests.test_collection_pagination_history_and_get_only) ... ok
+test_expanded_name_binding_matrix_order_and_collisions (__main__.BoundaryTests.test_expanded_name_binding_matrix_order_and_collisions) ... FAIL
+test_pagination_rejects_partial_duplicate_loop_and_other_origin (__main__.BoundaryTests.test_pagination_rejects_partial_duplicate_loop_and_other_origin) ... ok
+test_result_and_error_all_persisted_field_counterparts (__main__.BoundaryTests.test_result_and_error_all_persisted_field_counterparts) ... ok
+test_schema_enums_and_all_properties_match_producers (__main__.BoundaryTests.test_schema_enums_and_all_properties_match_producers) ... ok
+test_strict_contract_inputs (__main__.BoundaryTests.test_strict_contract_inputs) ... ok
+test_transport_failures_redact_headers_and_signed_urls (__main__.BoundaryTests.test_transport_failures_redact_headers_and_signed_urls) ... FAIL
+test_zip_safety_complete_before_extraction (__main__.BoundaryTests.test_zip_safety_complete_before_extraction) ... ok
+test_zip_valid_json_payloads_and_create_only (__main__.BoundaryTests.test_zip_valid_json_payloads_and_create_only) ... ok
+
+======================================================================
+FAIL: test_affected_partition_omissions_and_verified_merge (__main__.AggregateTests.test_affected_partition_omissions_and_verified_merge)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 609, in test_affected_partition_omissions_and_verified_merge
+    result = self.invoke()
+             ^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 412, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"46cc6dfffd4d5e342e862c4beaa21eea4d32a38b","plan_sha256":"7132938f2acec27993ed746e4cf4ca75751de8a42d9b4c2c583c84ac265aea2b","reason":"evidence-mismatch","results":[{"job_id":null,"obligation_id":"test:b9280aa71d14e573e8b2fe1dfa05eb7d6f69fb1e39daf06322c18ca5921a5ca7","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:cfb77d24e3e0d8b86cae7c8be6f7aae4f6d8985b573942e3dde48a3ca4b3e4f8","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:6bacc5619df5455bf4b3b82d661f09dd47501d0e7d1ee2bba0238b95d915f4df","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:fe0485a88e6a4e5d13f1ed43ca9449b804092bdfa7bda0184a9ac6807af18f8e","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"optional:d01a41c933268b80ffc831310a6c0fb12dd7478fea2ef6e233a0aaa893558440","reason":"unrelated-category","source_attempt":null,"status":"NOT_SELECTED"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"6fc6f8e9d1bd83cabe59e1199b9e935679219e0d"}
+
+
+======================================================================
+FAIL: test_full_result_consumed_by_predecessor_activation_validator (__main__.AggregateTests.test_full_result_consumed_by_predecessor_activation_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 426, in test_full_result_consumed_by_predecessor_activation_validator
+    self.assertEqual(P.validate_result_binding(result, self.plan, True), set())
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 432, in validate_result_binding
+    raise ValueError('invalid comparison obligation result')
+ValueError: invalid comparison obligation result
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 428, in test_full_result_consumed_by_predecessor_activation_validator
+    self.fail('aggregate result is incompatible with T-001: ' + str(error))
+AssertionError: aggregate result is incompatible with T-001: invalid comparison obligation result
+
+======================================================================
+FAIL: test_history_unstarted_cancel_then_true_success (__main__.AggregateTests.test_history_unstarted_cancel_then_true_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 659, in test_history_unstarted_cancel_then_true_success
+    self.invoke()
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 412, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"66127b777155437b654320a66b430b860530253c","plan_sha256":"25a7e5e7d7b68ccee7a24cc33a8eeee36be1f29ce9b05919f6089dfb9e382959","reason":"evidence-mismatch","results":[{"job_id":null,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"66127b777155437b654320a66b430b860530253c"}
+
+
+======================================================================
+FAIL: test_pr_independent_persisted_plan_fields (__main__.AggregateTests.test_pr_independent_persisted_plan_fields)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 632, in test_pr_independent_persisted_plan_fields
+    self.invoke()
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 412, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 1 != 0 : {"api_head_sha":"5d060c3362dfcd52500f4f4784fc85040ffc58f3","plan_sha256":"c4d3c92c83325b6ed301536e74e0645a0c672f00429f733d1d5c5dcd4e2afbb1","reason":"evidence-mismatch","results":[{"job_id":null,"obligation_id":"test:b9280aa71d14e573e8b2fe1dfa05eb7d6f69fb1e39daf06322c18ca5921a5ca7","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:cfb77d24e3e0d8b86cae7c8be6f7aae4f6d8985b573942e3dde48a3ca4b3e4f8","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:6bacc5619df5455bf4b3b82d661f09dd47501d0e7d1ee2bba0238b95d915f4df","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"test:fe0485a88e6a4e5d13f1ed43ca9449b804092bdfa7bda0184a9ac6807af18f8e","reason":"evidence-mismatch","source_attempt":null,"status":"FAIL"},{"job_id":null,"obligation_id":"optional:d01a41c933268b80ffc831310a6c0fb12dd7478fea2ef6e233a0aaa893558440","reason":"unrelated-category","source_attempt":null,"status":"NOT_SELECTED"}],"run_id":"123","schema":"verification-ci-result/v1","status":"FAIL","tested_revision":"5d060c3362dfcd52500f4f4784fc85040ffc58f3"}
+
+
+======================================================================
+FAIL: test_receipt_profile_is_exact_invocation_not_equivalent_membership (__main__.AggregateTests.test_receipt_profile_is_exact_invocation_not_equivalent_membership)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 673, in test_receipt_profile_is_exact_invocation_not_equivalent_membership
+    self.invoke(expected=1)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 412, in invoke
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+AssertionError: 0 != 1 : {"api_head_sha":"3b953324c738362ee04fdc22a1909e118f88fd3e","plan_sha256":"b1ef2f958ed93af546c450fc3496a585447e5001a22b3ac41f5edf386e2f7fbc","reason":"verified","results":[{"job_id":100,"obligation_id":"test:587e8635c48ada5031cf003070cf33bd7a9cdac8d957dddf4035e78c7f181aff","reason":"executed","source_attempt":1,"status":"PASS"},{"job_id":100,"obligation_id":"test:0bad2ebe99def82769e98b124ea61f7d966098eeb91ebc1664aaf12a705e52bf","reason":"executed","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:b418dd28292367d5d75aaf4a51243bc872635e38356eb5baada59ec612a28503","reason":"executed","source_attempt":1,"status":"PASS"},{"job_id":101,"obligation_id":"test:d3f3f5e4078ff350476154f4d57b5b8fc8396990f6df15bbe57452ebfd465c06","reason":"executed","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:434659c472c82f4a5233ce1f1601240972052f759511cc8d03b8df0b615d1fc9","reason":"executed","source_attempt":1,"status":"PASS"},{"job_id":102,"obligation_id":"test:292fc808943c7f4c8201c3fe92f5cbd18817e6fad5cd737d0ec6ee4a29d67785","reason":"executed","source_attempt":1,"status":"PASS"}],"run_id":"123","schema":"verification-ci-result/v1","status":"PASS","tested_revision":"3b953324c738362ee04fdc22a1909e118f88fd3e"}
+
+
+======================================================================
+FAIL: test_expanded_name_binding_matrix_order_and_collisions (__main__.BoundaryTests.test_expanded_name_binding_matrix_order_and_collisions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 232, in test_expanded_name_binding_matrix_order_and_collisions
+    self.assertEqual(set(result), {'simple', 'matrix-job (ubuntu-latest, a)', 'matrix-job (ubuntu-latest, b)',
+AssertionError: Items in the first set but not the second:
+'custom (False)'
+'custom (True)'
+Items in the second set but not the first:
+'custom (false)'
+'custom (true)'
+
+======================================================================
+FAIL: test_transport_failures_redact_headers_and_signed_urls (__main__.BoundaryTests.test_transport_failures_redact_headers_and_signed_urls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 305, in test_transport_failures_redact_headers_and_signed_urls
+    self.assertIn('--hostname', argv, 'GitHub origin must be explicit')
+AssertionError: '--hostname' not found in ['gh', 'api', '--method', 'GET', '--include', '--header', 'Accept: application/vnd.github+json', '--header', 'X-GitHub-Api-Version: 2026-03-10', '/repos/owner/repo/actions/runs/123'] : GitHub origin must be explicit
+
+----------------------------------------------------------------------
+Ran 30 tests in 7.128s
+
+FAILED (failures=7)
