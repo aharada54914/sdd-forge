@@ -667,6 +667,42 @@ class PolicySelection(unittest.TestCase):
         self.blocked(self.bridge('complete-selection', {'context': context, 'winner': winner}),
                      {'input-invalid', 'config-conflict', 'resume-conflict'})
 
+    def test_direct_completion_cannot_bypass_risk_effort_or_escalation(self):
+        cases = [
+            ('high-risk-tier', 'implementer', 'high', {}, LIGHT, 'lightweight', 'low'),
+            ('high-risk-effort', 'implementer', 'high', {}, CURRENT, 'strong', 'low'),
+            ('role-effort', 'evaluator', 'low', {}, CURRENT, 'strong', 'low'),
+            ('escalation', 'implementer', 'low',
+             {'failure_history': 'test,test', 'previous_tier': 'lightweight', 'attempt_number': '2'},
+             LIGHT, 'lightweight', 'low'),
+        ]
+        for label, role, risk, options, model, tier, effort in cases:
+            with self.subTest(boundary=label):
+                self.request.update(role=role, risk=risk)
+                self.save()
+                prepared = self.bridge('prepare-selection', {
+                    'request_path': 'request.json', 'registry_path': 'registry.json',
+                    'selector_options': options})
+                self.assertEqual(prepared.returncode, 0, prepared.stderr[:1000])
+                winner = {'model': model, 'canonical_tier': tier,
+                          'effort': effort, 'effort_control': 'flag'}
+                self.blocked(self.bridge('complete-selection', {
+                    'context': json.loads(prepared.stdout), 'winner': winner}),
+                    {'config-conflict', 'model-tier-unavailable', 'effort-unavailable'})
+
+    def test_deep_successor_cycle_is_a_typed_configuration_error(self):
+        names = ['vendor/deep-' + str(index) for index in range(1100)]
+        self.registry['models'] = [self.capability(name, 'strong') for name in names]
+        self.policy['models'] = [
+            {'id': name, 'lifecycle': 'candidate',
+             'source_url': 'https://example.invalid/models', 'source_date': SOURCE_DATE,
+             'successor_of': [names[index - 1]], 'hosts': {'codex-cli': 'deep-' + str(index)},
+             'adoption': []} for index, name in enumerate(names)]
+        self.policy['models'].reverse()
+        for role in self.policy['roles'].values():
+            role['preferences'] = []
+        self.blocked(self.invoke(), 'config-invalid')
+
     def test_python_api_rejects_fabricated_active_capture(self):
         helper = load_helper()
         prepare = getattr(helper, 'prepare_policy', None)
