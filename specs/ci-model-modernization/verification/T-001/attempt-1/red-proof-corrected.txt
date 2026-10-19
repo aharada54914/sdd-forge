@@ -1,0 +1,53 @@
+EEE
+======================================================================
+ERROR: test_positive_affected_dependency_partition_and_bound_proof (__main__.ProofTests.test_positive_affected_dependency_partition_and_bound_proof)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 356, in setUp
+    self.rule = IMPACT.rule_digest(self.catalog, self.workflow)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 352, in rule_digest
+    data = rules(catalog, workflow)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 318, in rules
+    exact_fields(data, 'schema categories dependencies')
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 184, in exact_fields
+    raise ValueError('invalid object fields')
+ValueError: invalid object fields
+
+======================================================================
+ERROR: test_proof_fields_and_references_must_match (__main__.ProofTests.test_proof_fields_and_references_must_match)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 356, in setUp
+    self.rule = IMPACT.rule_digest(self.catalog, self.workflow)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 352, in rule_digest
+    data = rules(catalog, workflow)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 318, in rules
+    exact_fields(data, 'schema categories dependencies')
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 184, in exact_fields
+    raise ValueError('invalid object fields')
+ValueError: invalid object fields
+
+======================================================================
+ERROR: test_full_result_and_consumer_mutation_records_are_not_success_flags (__main__.ProofTests.test_full_result_and_consumer_mutation_records_are_not_success_flags)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 356, in setUp
+    self.rule = IMPACT.rule_digest(self.catalog, self.workflow)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 352, in rule_digest
+    data = rules(catalog, workflow)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 318, in rules
+    exact_fields(data, 'schema categories dependencies')
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 184, in exact_fields
+    raise ValueError('invalid object fields')
+ValueError: invalid object fields
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.107s
+
+FAILED (errors=3)

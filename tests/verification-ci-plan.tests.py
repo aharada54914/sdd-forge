@@ -471,6 +471,5 @@ class ProofTests(PlanningTests):
             head = self.commit('change')
             self.assertEqual(self.plan(base=base, head=head, api_head_sha=head, tested_revision=head)['mode'], 'full')
 
-'''
 if __name__ == '__main__':
     unittest.main()
