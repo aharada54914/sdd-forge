@@ -374,6 +374,33 @@ class SchemaContractTests(HelperCase):
         self.assertEqual(set(resolve(mprops['efforts']['items'], schema)['enum']), set(EFFORTS))
         self.assertEqual(mprops['available']['type'], 'boolean')
 
+    def test_schema_patterns_reject_final_newline_like_producer(self):
+        schema = self.load('model-observation.schema.json')
+        props = {key: resolve(value, schema) for key, value in schema['properties'].items()}
+        for field in ('scope_id', 'cli_version', 'observed_at', 'observation_sha256'):
+            with self.subTest(field=field):
+                good = record()
+                bad = record(**{field: good[field] + '\n'})
+                if field == 'observation_sha256':
+                    bad[field] = good[field] + '\n'
+                self.assertReason('input-invalid', self.mp().validate_observation_record, bad)
+                self.assertIsNotNone(re.search(props[field]['pattern'], good[field]))
+                self.assertIsNone(re.search(props[field]['pattern'], bad[field]))
+        with self.subTest(field='native_id'):
+            model = resolve(props['models']['items'], schema)
+            identifier = resolve(model['properties']['native_id'], schema)
+            good_id = record()['models'][0]['native_id']
+            bad = record(models=[{'native_id': good_id + '\n', 'efforts': [], 'available': True}])
+            self.assertReason('input-invalid', self.mp().validate_observation_record, bad)
+            self.assertIsNotNone(re.search(identifier['pattern'], good_id))
+            self.assertIsNone(re.search(identifier['pattern'], good_id + '\n'))
+
+    def test_observation_schema_declares_calendar_format(self):
+        schema = self.load('model-observation.schema.json')
+        self.assertReason('input-invalid', self.mp().validate_observation_record,
+                          record(observed_at='2026-99-99T99:99:99Z'))
+        self.assertEqual(resolve(schema['properties']['observed_at'], schema).get('format'), 'date-time')
+
     def test_error_schema_fields_and_closed_reason_vocabulary(self):
         schema = self.load('model-policy-error.schema.json')
         self.assertClosed(schema, {'schema', 'reason', 'message'})
@@ -473,9 +500,9 @@ class ObservationRecordTests(HelperCase):
         flipped = record()
         flipped['models'][0]['available'] = False
         self.assertReason('input-invalid', validate, flipped)
-        for value in ('A' * 64, digest(record())[:63], 'g' * 64, None, 5, digest(record()).upper()):
-            with self.subTest(sha=value):
-                self.assertReason('input-invalid', validate, {**record(), 'observation_sha256': value})
+        for sha_value in ('A' * 64, digest(record())[:63], 'g' * 64, None, 5, digest(record()).upper()):
+            with self.subTest(sha=sha_value):
+                self.assertReason('input-invalid', validate, {**record(), 'observation_sha256': sha_value})
         self.assertReason('input-invalid', validate, {k: v for k, v in record().items() if k != 'observation_sha256'})
 
     def test_rehashed_structural_mismatches_are_input_invalid(self):
@@ -1157,7 +1184,7 @@ class NativeFixtureSchemaTests(unittest.TestCase):
         variants = {v['properties']['type']['enum'][0]: v for v in account['definitions']['Account']['oneOf']}
         self.assertEqual(set(variants), {'apiKey', 'chatgpt', 'amazonBedrock'})
         for fixture in (ACCOUNT_API_KEY, ACCOUNT_BEDROCK, ACCOUNT_CHATGPT):
-            body = fixture['account']
+            body: Any = fixture['account']
             self.assertLessEqual(set(variants[body['type']]['required']), set(body))
             self.assertLessEqual(set(body), set(variants[body['type']]['properties']))
         self.assertIn(ACCOUNT_CHATGPT['account']['planType'], account['definitions']['PlanType']['enum'])
