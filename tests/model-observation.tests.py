@@ -1133,6 +1133,89 @@ class SupplementalReviewTests(HelperCase):
                         self.assertTrue(errors and isinstance(errors[0], mp.PolicyError), errors)
 
 
+class VersionAcquisitionBoundTests(HelperCase):
+    """QA1: version acquisition must reject excess bytes before collecting the whole stream."""
+
+    def test_oversized_and_continuous_version_stdout_rejects_early_and_reaps_child(self):
+        mp = self.mp()
+        for mode in ('finite', 'continuous'):
+            with self.subTest(mode=mode):
+                fake = self.native([page([native_model('must-not-be-listed')])])
+                progress, marker = fake.dir / 'version-progress', fake.dir / 'full-stream-marker'
+                script = (
+                    "import os, pathlib, sys, time\n"
+                    "progress, marker, mode = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), sys.argv[3]\n"
+                    "chunk = (sys.argv[4].encode() * 4096)[:4096]\n"
+                    "total = 0\n"
+                    "with progress.open('a') as log:\n"
+                    " while True:\n"
+                    "  offset = 0\n"
+                    "  while offset < len(chunk): offset += os.write(sys.stdout.fileno(), chunk[offset:])\n"
+                    "  total += len(chunk)\n"
+                    "  log.write(str(total) + '\\n'); log.flush()\n"
+                    "  if total >= 1024 * 1024:\n"
+                    "   marker.touch()\n"
+                    "   if mode == 'finite': break\n"
+                    "  time.sleep(0.0001 if mode == 'finite' else 0.001)\n"
+                )
+                original_fake_popen = fake.popen
+                children: list[Any] = []
+                errors: list[Exception] = []
+
+                def popen(argv, *positional, **options):
+                    if '--version' not in argv:
+                        return original_fake_popen(argv, *positional, **options)
+                    child = REAL_POPEN([sys.executable, '-I', '-c', script, str(progress), str(marker), mode,
+                                        SECRET], *positional, **options)
+                    children.append(child)
+                    self.addCleanup(NativeFake.reap, child)
+                    return child
+
+                def capture():
+                    try:
+                        with mp.CodexClient(NAMESPACE) as client:
+                            client.capture()
+                    except Exception as error:
+                        errors.append(error)
+
+                with patch.object(subprocess, 'Popen', popen), \
+                     patch.object(mp, 'VERSION_TIMEOUT_SECONDS', 3), \
+                     patch.object(mp, 'CLEANUP_WAIT_SECONDS', 0.1):
+                    worker = threading.Thread(target=capture, daemon=True)
+                    worker.start()
+                    try:
+                        worker.join(timeout=1.5)
+                        finished_without_rescue = not worker.is_alive()
+                        reaped_without_rescue = bool(children) and all(p.poll() is not None for p in children)
+                        marker_before_rescue = marker.exists()
+                        progress_lines = progress.read_text().splitlines() if progress.exists() else []
+                        emitted_lower_bound = max((int(line) for line in progress_lines if line.isdigit()), default=0)
+                    finally:
+                        for child in children:
+                            if child.poll() is None:
+                                child.kill()  # bounded test safety; never counted as product cleanup
+                            child.wait(timeout=3)
+                        worker.join(timeout=3)
+                    checks = {
+                        'returns before outer deadline': finished_without_rescue,
+                        'owned version child reaped before rescue': reaped_without_rescue,
+                        'rejects before full 1MiB stream marker': not marker_before_rescue,
+                        'rejects before draining more than 128KiB': emitted_lower_bound <= 128 * 1024,
+                        'no app-server after invalid version': not fake.servers,
+                    }
+                    for check, valid in checks.items():
+                        with self.subTest(check=check, emitted_lower_bound=emitted_lower_bound):
+                            self.assertTrue(valid, check)
+                    self.assertEqual(len(errors), 1, errors)
+                    self.assertIsInstance(errors[0], mp.PolicyError)
+                    failure: Any = errors[0]
+                    self.assertEqual(failure.reason, 'discovery-unavailable')
+                    self.assertEqual(failure.observation['status'], 'unavailable')
+                    self.assertEqual(failure.observation['models'], [])
+                    mp.validate_observation_record(failure.observation)
+                    self.assertNoLeak(failure.as_dict(), failure.observation)
+
+
 class NativeFixtureSchemaTests(unittest.TestCase):
     """Fakes must stay inside the pinned generated Codex 0.159.2 schemas; structural, not a schema engine."""
     ACQUISITIONS = {'acquisition.json': '43a5c6cd13e74665d8afd7f2a7a7b84a215b48a0e868be758a292815c2b84326',
