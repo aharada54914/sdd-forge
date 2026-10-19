@@ -1,0 +1,31 @@
+{
+  "actor": "work-agent:root:t003_implementation",
+  "recorded_at": "2026-10-19T16:16:36.817198+00:00",
+  "executions": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py",
+        "WorkflowIntegrationTests",
+        "-v"
+      ],
+      "exit_code": 1,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/red-workflow.log",
+      "log_sha256": "a72c50455370e915b634fb78f6f8d10b930b610cc316824c2c3108bfcb64fb3b"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-ci.tests.py",
+        "DependencyCacheIntegrationTests",
+        "WorkflowPlanIntegrationTests",
+        "-v"
+      ],
+      "exit_code": 1,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/red-runtime.log",
+      "log_sha256": "bdfd48e4a821f38d8a72a70645cf587c5123dff80d68af14071b239beec99776"
+    }
+  ]
+}

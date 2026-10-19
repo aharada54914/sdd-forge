@@ -1373,5 +1373,155 @@ sys.stdout.buffer.write(b'HTTP/2.0 200 OK\\r\\n\\r\\n'+base64.b64decode(response
                     self.assertFalse(result.stderr)
 
 
+
+class DependencyCacheIntegrationTests(unittest.TestCase):
+    """Exercise acquisition integrity with in-memory dependency bytes only."""
+    def setUp(self):
+        path = ROOT / 'tests/ci-dependency-cache.py'
+        self.assertTrue(path.is_file(), 'pinned dependency acquisition/integrity helper is missing')
+        self.cache = module(path, 't003_cache')
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.directory = Path(self.temp.name)
+        self.target = self.directory / 'pester.nupkg'
+        self.payload = b'fixture dependency bytes; never executed'
+        self.digest = sha(self.payload)
+        self.url = 'https://fixture.invalid/pinned.nupkg'
+
+    def acquire(self):
+        return self.cache.acquire(self.target, self.url, self.digest, attempts=3)
+
+    def test_T003_cache_hit_rehashes_bytes_without_network(self):
+        self.target.write_bytes(self.payload)
+        with patch.object(self.cache.urllib.request, 'urlopen') as request:
+            self.assertEqual(self.acquire(), self.target)
+        request.assert_not_called()
+        self.assertEqual(sha(self.target.read_bytes()), self.digest)
+
+    def test_T003_cache_corruption_is_reacquired_before_reuse(self):
+        self.target.write_bytes(b'tampered')
+        with patch.object(self.cache.urllib.request, 'urlopen', return_value=io.BytesIO(self.payload)) as request:
+            self.acquire()
+        self.assertEqual(request.call_count, 1)
+        self.assertEqual(self.target.read_bytes(), self.payload)
+
+    def test_T003_corrupt_download_never_publishes_a_valid_cache_file(self):
+        with patch.object(self.cache.urllib.request, 'urlopen', side_effect=lambda *a, **k: io.BytesIO(b'wrong bytes')):
+            with self.assertRaises(ValueError):
+                self.acquire()
+        self.assertFalse(self.target.exists())
+
+    def test_T003_acquisition_retries_are_bounded_and_failures_logged(self):
+        errors = io.StringIO()
+        responses = [OSError('temporary acquisition failure'), OSError('temporary acquisition failure'), io.BytesIO(self.payload)]
+        with patch.object(self.cache.urllib.request, 'urlopen', side_effect=responses) as request, contextlib.redirect_stderr(errors):
+            self.acquire()
+        self.assertEqual(request.call_count, 3)
+        self.assertIn('attempt 1', errors.getvalue())
+        self.assertIn('attempt 2', errors.getvalue())
+        self.target.unlink()
+        with patch.object(self.cache.urllib.request, 'urlopen', side_effect=OSError('unavailable')) as request:
+            with self.assertRaises((OSError, ValueError)):
+                self.acquire()
+        self.assertEqual(request.call_count, 3)
+        self.assertFalse(self.target.exists())
+
+    def test_T003_cache_paths_never_follow_symlinks(self):
+        outside = self.directory / 'outside'
+        outside.write_bytes(b'untouched')
+        try:
+            self.target.symlink_to(outside)
+        except OSError:
+            self.skipTest('host cannot create symlinks')
+        with patch.object(self.cache.urllib.request, 'urlopen') as request, self.assertRaises(ValueError):
+            self.acquire()
+        request.assert_not_called()
+        self.assertEqual(outside.read_bytes(), b'untouched')
+
+    def test_T003_pester_package_and_manifest_pins_match_observed_bytes(self):
+        self.assertEqual(self.cache.PESTER_VERSION, '4.10.1')
+        self.assertEqual(self.cache.PESTER_SHA256, '898210e1a30c52cd46ba317c2278a9324345214213aa2f7d6b7dfa7b98f37ac9')
+        self.assertEqual(self.cache.PESTER_MANIFEST_SHA256, '05bf87f45bf2b6604073a6851d0803917adfa87c134b9dd5867ba93b2e872663')
+
+
+PlanFixture = module(ROOT / 'tests/verification-ci-plan.tests.py', 't003_plan_fixture').GitFixture
+
+
+class WorkflowPlanIntegrationTests(PlanFixture):
+    """Run the actual workflow planner body against disposable Git histories."""
+    def actual_body(self):
+        workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+        steps = [s for s in workflow['jobs']['ci-plan']['steps'] if s.get('id') == 'plan']
+        self.assertEqual(len(steps), 1)
+        step = steps[0]
+        self.assertEqual(step['shell'], 'bash')
+        self.assertEqual(step['env'], {
+            'CI_EVENT': '${{ github.event_name }}',
+            'CI_BASE_SHA': '${{ github.event.pull_request.base.sha }}',
+            'CI_HEAD_SHA': '${{ github.event.pull_request.head.sha }}',
+            'CI_TESTED_SHA': '${{ github.sha }}',
+            'CI_API_HEAD_SHA': '${{ github.event.pull_request.head.sha || github.sha }}',
+            'CI_FORCE_FULL': '${{ vars.SDD_CI_FORCE_FULL }}'})
+        return step['run']
+
+    def invoke_workflow(self, event='pull_request', force='false'):
+        body = self.actual_body()
+        with tempfile.TemporaryDirectory(dir=self.temp.name) as directory:
+            runtime = Path(directory)
+            output = runtime / 'github-output'
+            env = dict(os.environ, GITHUB_WORKSPACE=self.temp.name, RUNNER_TEMP=str(runtime),
+                       GITHUB_RUN_ID='123', GITHUB_RUN_ATTEMPT='1', GITHUB_OUTPUT=str(output),
+                       CI_EVENT=event, CI_BASE_SHA=self.base if event == 'pull_request' else '',
+                       CI_HEAD_SHA=self.head if event == 'pull_request' else '', CI_TESTED_SHA=self.head,
+                       CI_API_HEAD_SHA=self.head, CI_FORCE_FULL=force)
+            result = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', body], cwd=self.temp.name,
+                                    env=env, capture_output=True, text=True, timeout=60)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            plan = P.strict_json((runtime / 'verification-plan/plan.json').read_bytes())
+            P.validate_plan(plan)
+            actual = dict(line.split('=', 1) for line in output.read_text().splitlines())
+            expected = P.condition_outputs(plan, sorted(set(self.workflow['jobs']) - {'required-checks'}))
+            expected['plan_artifact_name'] = 'verification-plan-123-1'
+            self.assertEqual(actual, expected)
+            self.assertEqual(plan['run_id'], '123')
+            self.assertEqual(plan['planning_attempt'], 1)
+            self.assertEqual(plan['api_head_sha'], self.head)
+            self.assertEqual(plan['tested_revision'], self.head)
+            return plan
+
+    def test_T003_actual_planner_body_keeps_non_pr_and_manual_full(self):
+        for event in ('push', 'merge_group', 'release', 'workflow_dispatch'):
+            with self.subTest(event=event):
+                plan = self.invoke_workflow(event)
+                self.assertEqual(plan['mode'], 'full')
+                self.assertEqual(plan['reason'], 'event-full')
+
+    def test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full(self):
+        path = self.root / 'tests/verification-impact.py'
+        path.write_text(path.read_text() + '\nraise SystemExit(96)\n')
+        self.head = self.commit('PR planner sentinel must never execute')
+        for force in ('false', 'true', '', 'False', 'unexpected'):
+            with self.subTest(force=force):
+                plan = self.invoke_workflow(force=force)
+                self.assertEqual(plan['mode'], 'full')
+                self.assertEqual(plan['base_revision'], self.base)
+                if force != 'false':
+                    self.assertEqual(plan['reason'], 'force-full')
+
+    def test_T003_actual_first_adoption_without_base_planner_stays_full(self):
+        original = (self.root / 'tests/verification-impact.py').read_text()
+        (self.root / 'tests/verification-impact.py').unlink()
+        self.base = self.commit('old base lacks explicit planner')
+        import shutil
+        shutil.rmtree(self.trusted)
+        self.git('clone', '-q', '--no-hardlinks', str(self.root), str(self.trusted))
+        self.write('tests/verification-impact.py', original)
+        self.head = self.commit('first adoption subject')
+        plan = self.invoke_workflow()
+        self.assertEqual(plan['mode'], 'full')
+        self.assertEqual(plan['reason'], 'base-planner-unavailable')
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

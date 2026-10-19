@@ -206,5 +206,215 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(set(result.stdout.splitlines()), set(catalog['profiles']['ci-posix-fallback']))
 
 
+
+class WorkflowIntegrationTests(unittest.TestCase):
+    """T-003 workflow caller contracts; local checks are not hosted acceptance."""
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location('t003_workflow', ROOT / 'tests/verification-workflow.py')
+        cls.w = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.w)
+        spec = importlib.util.spec_from_file_location('t003_ci', ROOT / 'tests/verification-ci.py')
+        cls.ci = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.ci)
+        cls.workflow = cls.w.load_workflow(ROOT / '.github/workflows/test.yml')
+        cls.catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
+
+    def test_T003_required_verifier_uses_accepted_prepared_shape(self):
+        self.assertIs(self.w.verifier_job(self.workflow), True,
+                      'workflow must use the accepted exact prepared verifier caller')
+        self.assertEqual(len(self.w.control_dispositions(self.workflow, self.catalog)), 4)
+
+    def test_T003_planner_outputs_have_one_declared_producer(self):
+        jobs = self.workflow['jobs']
+        self.assertTrue('ci-plan' in jobs, 'missing revision-bound planner job')
+        job = jobs['ci-plan']
+        groups = sorted(set(jobs) - {'required-checks'})
+        expected = {'run_' + name.replace('-', '_'): '${{ steps.plan.outputs.run_' + name.replace('-', '_') + ' }}'
+                    for name in groups}
+        expected['plan_artifact_name'] = '${{ steps.plan.outputs.plan_artifact_name }}'
+        self.assertEqual(job['outputs'], expected)
+        self.assertEqual(job.get('permissions'), {'contents': 'read'})
+        checkouts = [s['with'] for s in job['steps'] if s.get('uses', '').startswith('actions/checkout@')]
+        self.assertIn({'ref': '${{ github.sha }}', 'path': 'subject', 'fetch-depth': 0,
+                       'persist-credentials': False}, checkouts)
+        self.assertTrue(any(c.get('path') == 'trusted' and c.get('ref') == '${{ github.event.pull_request.base.sha }}'
+                            and c.get('persist-credentials') is False for c in checkouts))
+
+    def test_T003_all_native_contexts_survive_failed_planner(self):
+        job = self.workflow['jobs']['test']
+        self.assertEqual(job.get('if'), 'always()')
+        self.assertIn('ci-plan', job.get('needs', []))
+        self.assertEqual(job['strategy']['matrix']['os'], ['windows-latest', 'macos-latest', 'ubuntu-latest'])
+        self.assertNotIn('name', job)
+        integrity = [s for s in job['steps'] if 'generate-guard-invariants.py --check' in s.get('run', '')]
+        self.assertEqual(len(integrity), 2)
+        self.assertTrue(all('needs.ci-plan' not in s.get('if', '') for s in integrity))
+        self.assertFalse(job.get('continue-on-error', False))
+
+    def test_T003_all_expanded_job_identities_are_unambiguous(self):
+        try:
+            jobs = self.ci.expanded_jobs(self.workflow)
+        except ValueError as error:
+            self.fail('actual collector cannot identify current matrix jobs: ' + str(error))
+        self.assertEqual(len(jobs), sum(len(self.w.matrix_rows(j)) for key, j in self.workflow['jobs'].items()
+                                        if key != 'required-checks'))
+        for os_name in ('ubuntu-latest', 'macos-latest', 'windows-latest'):
+            self.assertIn('test (' + os_name + ')', jobs)
+
+    def test_T003_every_existing_runner_persists_a_receipt_and_uploads_it(self):
+        obligations = self.w.plan_obligations(self.workflow, self.catalog)
+        for obligation in (o for o in obligations if o['receipt_required']):
+            with self.subTest(job=obligation['job'], matrix=obligation['matrix'], step=obligation['step']):
+                job = self.workflow['jobs'][obligation['job']]
+                step = next(s for s in job['steps'] if self.w.expand_matrix(s.get('name', ''), obligation['matrix']) == obligation['step'])
+                self.assertIn('--receipt', step['run'], 'stdout-only runner receipt has no artifact producer')
+                uploads = [s for s in job['steps'] if s.get('uses', '').startswith('actions/upload-artifact@')
+                           and 'verification-receipts-' in s.get('with', {}).get('name', '')]
+                self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
+                upload = uploads[0]
+                self.assertEqual(upload.get('if'), 'always()')
+                self.assertIn('github.run_id', upload['with']['name'])
+                self.assertIn('github.run_attempt', upload['with']['name'])
+                self.assertNotIn('overwrite', upload['with'])
+
+    def test_T003_pr_number_cancellation_and_non_pr_run_groups(self):
+        self.assertEqual(self.workflow['concurrency'], {
+            'group': '${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}',
+            'cancel-in-progress': "${{ github.event_name == 'pull_request' }}"})
+        def group(event, pr, run):
+            return ('workflow', event, pr if event == 'pull_request' else run)
+        self.assertEqual(group('pull_request', 7, 1), group('pull_request', 7, 2))
+        self.assertNotEqual(group('pull_request', 7, 1), group('pull_request', 8, 2))
+        for event in ('push', 'merge_group', 'release', 'workflow_dispatch'):
+            self.assertNotEqual(group(event, None, 1), group(event, None, 2))
+
+    def test_T003_triggers_and_unproven_categories_remain_conservative(self):
+        self.assertEqual(set(self.workflow['on']), {'push', 'pull_request', 'merge_group', 'workflow_dispatch'})
+        for value in self.workflow['on'].values():
+            if isinstance(value, dict):
+                self.assertNotIn('paths', value)
+                self.assertNotIn('paths-ignore', value)
+        self.assertTrue(all(c['active'] is False and c['evidence'] is None
+                            for c in self.catalog['impact']['categories']))
+        projection = {key: self.workflow.get(key, {}) for key in ('env', 'defaults')}
+        projection['jobs'] = {name: self.workflow['jobs'][name] for name in ('a9-advisory-inputs', 'a9-advisory')}
+        self.assertEqual(self.ci.P.sha(self.ci.P.canonical(projection)), self.w.A9_ACTIVATION_PROJECTION)
+
+    def test_T003_measured_cloud_partition_keeps_three_native_obligations(self):
+        jobs = self.workflow['jobs']
+        self.assertTrue('cloud-native' in jobs, 'measured long cloud work remains serialized in required wrappers')
+        cloud = jobs['cloud-native']
+        self.assertEqual(cloud['strategy']['matrix']['os'], ['windows-latest', 'macos-latest', 'ubuntu-latest'])
+        self.assertIs(cloud['strategy']['fail-fast'], False)
+        wanted = '[deterministic] Test cloud suites, installed packages and current multitarget boundaries'
+        self.assertFalse(any(s.get('name') == wanted for s in jobs['test']['steps']))
+        runs = [s for s in cloud['steps'] if s.get('name') == wanted]
+        self.assertEqual(len(runs), 1)
+        self.assertEqual(runs[0]['run'], 'python -B tests/verification.py --profile ci-cloud --run --receipt "${{ runner.temp }}/verification-cloud.json"')
+        self.assertEqual(runs[0]['shell'], 'pwsh')
+        self.assertEqual(runs[0]['env'], {'CLOUD_REQUIRE_NATIVE': "${{ runner.os == 'Linux' && '1' || '0' }}"})
+        self.assertIn('cloud-native', jobs['required-checks']['needs'])
+
+    def test_T003_exact_plan_conditions_are_supported(self):
+        expression = "needs.ci-plan.outputs.run_cloud_native == 'true'"
+        self.assertTrue(self.w.condition_supported(expression), 'bounded planner condition has no interpreter integration')
+        for bad in (expression.replace('ci-plan', 'other'), expression.replace("'true'", "'True'"),
+                    expression + ' || success()', expression.replace('==', '!=')):
+            self.assertFalse(self.w.condition_supported(bad))
+
+    def test_T003_full_and_affected_conditions_use_actual_output_values(self):
+        condition = "needs.ci-plan.outputs.run_cloud_native == 'true' && runner.os != 'Windows'"
+        for value, expected in [('true', True), ('false', False), ('True', False), ('', False)]:
+            with self.subTest(value=value):
+                self.assertEqual(self.w.enabled(condition, {}, 'Linux', outputs={'run_cloud_native': value}), expected)
+        self.assertFalse(self.w.enabled(condition, {}, 'Windows', outputs={'run_cloud_native': 'true'}))
+        self.assertFalse(self.w.enabled(condition, {}, 'Linux', outputs={}))
+
+    def test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os(self):
+        from collections import Counter
+        import shlex
+        before = json.loads((ROOT / 'specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json').read_text())
+        def inventory(workflow, obligations):
+            result = Counter()
+            for item in obligations:
+                if not item['suites']:
+                    continue
+                job = workflow['jobs'][item['job']]
+                step = next(s for s in job['steps'] if self.w.expand_matrix(s.get('name', ''), item['matrix']) == item['step'])
+                defaults = {**workflow.get('defaults', {}).get('run', {}), **job.get('defaults', {}).get('run', {})}
+                shell = step.get('shell', defaults.get('shell', 'pwsh' if item['runner'] == 'windows-latest' else 'bash'))
+                lines = []
+                for line in self.w.expand_matrix(step['run'], item['matrix']).splitlines():
+                    if not line.strip() or line.lstrip().startswith('#'):
+                        continue
+                    argv = shlex.split(line)
+                    if '--receipt' in argv:
+                        index = argv.index('--receipt')
+                        del argv[index:index + 2]
+                    lines.append(tuple(argv))
+                result[(item['runner'], shell, tuple(item['suites']), tuple(lines))] += 1
+            return result
+        expected = inventory(before['workflow'], before['obligations'])
+        actual = inventory(self.workflow, self.w.plan_obligations(self.workflow, self.catalog))
+        self.assertEqual(actual, expected)
+
+    def test_T003_unknown_plan_group_and_output_declarations_fail_closed(self):
+        import copy
+        workflow = {'jobs': {
+            'ci-plan': {'runs-on': 'ubuntu-latest', 'outputs': {'run_work': '${{ steps.plan.outputs.run_work }}'},
+                        'steps': [{'name': 'plan', 'run': 'echo plan'}]},
+            'work': {'runs-on': 'ubuntu-latest', 'if': "needs.ci-plan.outputs.run_missing == 'true'",
+                     'steps': [{'name': 'sample', 'run': 'python3 tests/sample.tests.py'}]}}}
+        catalog = {'suites': [{'path': 'tests/sample.tests.py', 'runtime': 'python', 'ci_jobs': ['work']}], 'profiles': {}}
+        self.assertTrue(self.w.coverage_errors(workflow, catalog))
+        workflow['jobs']['work']['if'] = "needs.ci-plan.outputs.run_work == 'true'"
+        workflow['jobs']['ci-plan']['outputs']['run_ci_plan'] = '${{ steps.plan.outputs.run_ci_plan }}'
+        self.assertEqual(self.w.coverage_errors(workflow, catalog), [], 'declared true group should prove full coverage')
+        for mutation in ('wrong-producer', 'missing-output', 'wrong-case', 'group-collision'):
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(workflow)
+                if mutation == 'wrong-producer':
+                    bad['jobs']['work']['if'] = bad['jobs']['work']['if'].replace('ci-plan', 'unrelated')
+                elif mutation == 'missing-output':
+                    del bad['jobs']['ci-plan']['outputs']['run_work']
+                elif mutation == 'wrong-case':
+                    bad['jobs']['ci-plan']['outputs']['run_work'] = '${{ steps.plan.outputs.run_Work }}'
+                else:
+                    bad['jobs']['work-extra'] = copy.deepcopy(bad['jobs']['work'])
+                    bad['jobs']['work_extra'] = copy.deepcopy(bad['jobs']['work'])
+                    bad['jobs']['ci-plan']['outputs']['run_work_extra'] = '${{ steps.plan.outputs.run_work_extra }}'
+                self.assertTrue(self.w.coverage_errors(bad, catalog))
+
+    def test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped(self):
+        caches = [s for j in self.workflow['jobs'].values() for s in j['steps']
+                  if s.get('uses', '').startswith('actions/cache@')]
+        self.assertTrue(caches, 'no explicit dependency archive cache with event trust separation')
+        for cache in caches:
+            self.assertEqual(cache['uses'], 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9')
+            key = cache['with']['key']
+            self.assertIn('runner.os', key)
+            self.assertIn('github.event_name', key)
+            self.assertIn('github.event.pull_request.number', key)
+            self.assertNotIn('restore-keys', cache['with'], 'broad restore fallback crosses exact dependency identities')
+            if 'pester' in key.lower():
+                self.assertIn('4.10.1', key)
+                self.assertIn('898210e1a30c52cd46ba317c2278a9324345214213aa2f7d6b7dfa7b98f37ac9', key)
+                self.assertRegex(key.lower(), r'(pwsh|powershell)')
+            else:
+                self.assertIn('hashFiles(', key)
+                self.assertIn('package-lock.json', key)
+                self.assertRegex(key.lower(), r'node[-_]?22')
+            paths = cache['with']['path']
+            self.assertNotIn('node_modules', paths)
+            self.assertNotIn('verification-', paths)
+            self.assertNotIn('.git', paths)
+            self.assertNotIn('secrets', paths)
+        pester = [s for j in self.workflow['jobs'].values() for s in j['steps']
+                  if 'ci-dependency-cache.py pester' in s.get('run', '')]
+        self.assertTrue(pester, 'Pester reuse lacks pinned archive integrity validation')
+        self.assertTrue(all(s.get('if') is None or 'cache-hit' not in s['if'] for s in pester))
+
+
 if __name__ == '__main__':
     unittest.main()

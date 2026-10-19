@@ -1,0 +1,211 @@
+test_T003_acquisition_retries_are_bounded_and_failures_logged (__main__.DependencyCacheIntegrationTests.test_T003_acquisition_retries_are_bounded_and_failures_logged) ... FAIL
+test_T003_cache_corruption_is_reacquired_before_reuse (__main__.DependencyCacheIntegrationTests.test_T003_cache_corruption_is_reacquired_before_reuse) ... FAIL
+test_T003_cache_hit_rehashes_bytes_without_network (__main__.DependencyCacheIntegrationTests.test_T003_cache_hit_rehashes_bytes_without_network) ... FAIL
+test_T003_cache_paths_never_follow_symlinks (__main__.DependencyCacheIntegrationTests.test_T003_cache_paths_never_follow_symlinks) ... FAIL
+test_T003_corrupt_download_never_publishes_a_valid_cache_file (__main__.DependencyCacheIntegrationTests.test_T003_corrupt_download_never_publishes_a_valid_cache_file) ... FAIL
+test_T003_pester_package_and_manifest_pins_match_observed_bytes (__main__.DependencyCacheIntegrationTests.test_T003_pester_package_and_manifest_pins_match_observed_bytes) ... FAIL
+test_T003_actual_first_adoption_without_base_planner_stays_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_first_adoption_without_base_planner_stays_full) ... FAIL
+test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) ... 
+  test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) (event='push') ... FAIL
+  test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) (event='merge_group') ... FAIL
+  test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) (event='release') ... FAIL
+  test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) (event='workflow_dispatch') ... FAIL
+test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) ... 
+  test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='false') ... FAIL
+  test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='true') ... FAIL
+  test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='') ... FAIL
+  test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='False') ... FAIL
+  test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='unexpected') ... FAIL
+
+======================================================================
+FAIL: test_T003_acquisition_retries_are_bounded_and_failures_logged (__main__.DependencyCacheIntegrationTests.test_T003_acquisition_retries_are_bounded_and_failures_logged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1381, in setUp
+    self.assertTrue(path.is_file(), 'pinned dependency acquisition/integrity helper is missing')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing
+
+======================================================================
+FAIL: test_T003_cache_corruption_is_reacquired_before_reuse (__main__.DependencyCacheIntegrationTests.test_T003_cache_corruption_is_reacquired_before_reuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1381, in setUp
+    self.assertTrue(path.is_file(), 'pinned dependency acquisition/integrity helper is missing')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing
+
+======================================================================
+FAIL: test_T003_cache_hit_rehashes_bytes_without_network (__main__.DependencyCacheIntegrationTests.test_T003_cache_hit_rehashes_bytes_without_network)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1381, in setUp
+    self.assertTrue(path.is_file(), 'pinned dependency acquisition/integrity helper is missing')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing
+
+======================================================================
+FAIL: test_T003_cache_paths_never_follow_symlinks (__main__.DependencyCacheIntegrationTests.test_T003_cache_paths_never_follow_symlinks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1381, in setUp
+    self.assertTrue(path.is_file(), 'pinned dependency acquisition/integrity helper is missing')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing
+
+======================================================================
+FAIL: test_T003_corrupt_download_never_publishes_a_valid_cache_file (__main__.DependencyCacheIntegrationTests.test_T003_corrupt_download_never_publishes_a_valid_cache_file)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1381, in setUp
+    self.assertTrue(path.is_file(), 'pinned dependency acquisition/integrity helper is missing')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing
+
+======================================================================
+FAIL: test_T003_pester_package_and_manifest_pins_match_observed_bytes (__main__.DependencyCacheIntegrationTests.test_T003_pester_package_and_manifest_pins_match_observed_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1381, in setUp
+    self.assertTrue(path.is_file(), 'pinned dependency acquisition/integrity helper is missing')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing
+
+======================================================================
+FAIL: test_T003_actual_first_adoption_without_base_planner_stays_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_first_adoption_without_base_planner_stays_full)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1521, in test_T003_actual_first_adoption_without_base_planner_stays_full
+    plan = self.invoke_workflow()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+======================================================================
+FAIL: test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) (event='push')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1496, in test_T003_actual_planner_body_keeps_non_pr_and_manual_full
+    plan = self.invoke_workflow(event)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+======================================================================
+FAIL: test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) (event='merge_group')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1496, in test_T003_actual_planner_body_keeps_non_pr_and_manual_full
+    plan = self.invoke_workflow(event)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+======================================================================
+FAIL: test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) (event='release')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1496, in test_T003_actual_planner_body_keeps_non_pr_and_manual_full
+    plan = self.invoke_workflow(event)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+======================================================================
+FAIL: test_T003_actual_planner_body_keeps_non_pr_and_manual_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_planner_body_keeps_non_pr_and_manual_full) (event='workflow_dispatch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1496, in test_T003_actual_planner_body_keeps_non_pr_and_manual_full
+    plan = self.invoke_workflow(event)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+======================================================================
+FAIL: test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='false')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1506, in test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full
+    plan = self.invoke_workflow(force=force)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+======================================================================
+FAIL: test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='true')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1506, in test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full
+    plan = self.invoke_workflow(force=force)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+======================================================================
+FAIL: test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1506, in test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full
+    plan = self.invoke_workflow(force=force)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+======================================================================
+FAIL: test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='False')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1506, in test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full
+    plan = self.invoke_workflow(force=force)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+======================================================================
+FAIL: test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full (__main__.WorkflowPlanIntegrationTests.test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full) (force='unexpected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1506, in test_T003_actual_pr_body_executes_trusted_planner_and_propagates_force_full
+    plan = self.invoke_workflow(force=force)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1469, in invoke_workflow
+    body = self.actual_body()
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1454, in actual_body
+    self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the accepted planner')
+AssertionError: False is not true : workflow does not invoke the accepted planner
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.604s
+
+FAILED (failures=16)

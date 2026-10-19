@@ -1,0 +1,290 @@
+test_T003_all_expanded_job_identities_are_unambiguous (__main__.WorkflowIntegrationTests.test_T003_all_expanded_job_identities_are_unambiguous) ... FAIL
+test_T003_all_native_contexts_survive_failed_planner (__main__.WorkflowIntegrationTests.test_T003_all_native_contexts_survive_failed_planner) ... FAIL
+test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped (__main__.WorkflowIntegrationTests.test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped) ... FAIL
+test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) ... 
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-regression', matrix={}, step='Test shared review launch and conditional input contracts') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-unwired-sharded', matrix={'shard': 0}, step='Run POSIX inventory shard') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-unwired-sharded', matrix={'shard': 1}, step='Run POSIX inventory shard') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-unwired-sharded', matrix={'shard': 2}, step='Run POSIX inventory shard') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-unwired-sharded', matrix={'shard': 3}, step='Run POSIX inventory shard') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'windows-latest'}, step='[deterministic] Test cloud suites, installed packages and current multitarget boundaries') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'windows-latest'}, step='[deterministic] Test Epic A7 compatibility suites (pwsh)') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'macos-latest'}, step='[deterministic] Test cloud suites, installed packages and current multitarget boundaries') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'macos-latest'}, step='[deterministic] Test portable review-loop prechecks (pwsh)') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'ubuntu-latest'}, step='[deterministic] Test cloud suites, installed packages and current multitarget boundaries') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'ubuntu-latest'}, step='[deterministic] Test portable review-loop prechecks (pwsh)') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='version-gates-windows-bump', matrix={'runtime': 'bash', 'suite': 'tests/bump-version-gate.tests.sh'}, step='Test bump-version loop-gate prerequisite') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='version-gates-windows-bump', matrix={'runtime': 'powershell', 'suite': 'tests/bump-version-gate.tests.ps1'}, step='Test bump-version loop-gate prerequisite') ... FAIL
+  test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test-windows-heavy', matrix={'lane': 'gates'}, step='[deterministic] Test portable review-loop prechecks') ... FAIL
+test_T003_exact_plan_conditions_are_supported (__main__.WorkflowIntegrationTests.test_T003_exact_plan_conditions_are_supported) ... FAIL
+test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) ... 
+  test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) (value='true') ... ERROR
+  test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) (value='false') ... ERROR
+  test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) (value='True') ... ERROR
+  test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) (value='') ... ERROR
+test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) ... ERROR
+test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os (__main__.WorkflowIntegrationTests.test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os) ... ok
+test_T003_measured_cloud_partition_keeps_three_native_obligations (__main__.WorkflowIntegrationTests.test_T003_measured_cloud_partition_keeps_three_native_obligations) ... FAIL
+test_T003_planner_outputs_have_one_declared_producer (__main__.WorkflowIntegrationTests.test_T003_planner_outputs_have_one_declared_producer) ... FAIL
+test_T003_pr_number_cancellation_and_non_pr_run_groups (__main__.WorkflowIntegrationTests.test_T003_pr_number_cancellation_and_non_pr_run_groups) ... FAIL
+test_T003_required_verifier_uses_accepted_prepared_shape (__main__.WorkflowIntegrationTests.test_T003_required_verifier_uses_accepted_prepared_shape) ... FAIL
+test_T003_triggers_and_unproven_categories_remain_conservative (__main__.WorkflowIntegrationTests.test_T003_triggers_and_unproven_categories_remain_conservative) ... ok
+test_T003_unknown_plan_group_and_output_declarations_fail_closed (__main__.WorkflowIntegrationTests.test_T003_unknown_plan_group_and_output_declarations_fail_closed) ... FAIL
+
+======================================================================
+ERROR: test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) (value='true')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 330, in test_T003_full_and_affected_conditions_use_actual_output_values
+    self.assertEqual(self.w.enabled(condition, {}, 'Linux', outputs={'run_cloud_native': value}), expected)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: enabled() got an unexpected keyword argument 'outputs'
+
+======================================================================
+ERROR: test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) (value='false')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 330, in test_T003_full_and_affected_conditions_use_actual_output_values
+    self.assertEqual(self.w.enabled(condition, {}, 'Linux', outputs={'run_cloud_native': value}), expected)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: enabled() got an unexpected keyword argument 'outputs'
+
+======================================================================
+ERROR: test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) (value='True')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 330, in test_T003_full_and_affected_conditions_use_actual_output_values
+    self.assertEqual(self.w.enabled(condition, {}, 'Linux', outputs={'run_cloud_native': value}), expected)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: enabled() got an unexpected keyword argument 'outputs'
+
+======================================================================
+ERROR: test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) (value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 330, in test_T003_full_and_affected_conditions_use_actual_output_values
+    self.assertEqual(self.w.enabled(condition, {}, 'Linux', outputs={'run_cloud_native': value}), expected)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: enabled() got an unexpected keyword argument 'outputs'
+
+======================================================================
+ERROR: test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 331, in test_T003_full_and_affected_conditions_use_actual_output_values
+    self.assertFalse(self.w.enabled(condition, {}, 'Windows', outputs={'run_cloud_native': 'true'}))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: enabled() got an unexpected keyword argument 'outputs'
+
+======================================================================
+FAIL: test_T003_all_expanded_job_identities_are_unambiguous (__main__.WorkflowIntegrationTests.test_T003_all_expanded_job_identities_are_unambiguous)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 257, in test_T003_all_expanded_job_identities_are_unambiguous
+    jobs = self.ci.expanded_jobs(self.workflow)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.py", line 347, in expanded_jobs
+    raise ValueError('ambiguous expanded job name')
+ValueError: ambiguous expanded job name
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 259, in test_T003_all_expanded_job_identities_are_unambiguous
+    self.fail('actual collector cannot identify current matrix jobs: ' + str(error))
+AssertionError: actual collector cannot identify current matrix jobs: ambiguous expanded job name
+
+======================================================================
+FAIL: test_T003_all_native_contexts_survive_failed_planner (__main__.WorkflowIntegrationTests.test_T003_all_native_contexts_survive_failed_planner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 246, in test_T003_all_native_contexts_survive_failed_planner
+    self.assertEqual(job.get('if'), 'always()')
+AssertionError: None != 'always()'
+
+======================================================================
+FAIL: test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped (__main__.WorkflowIntegrationTests.test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 392, in test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped
+    self.assertTrue(caches, 'no explicit dependency archive cache with event trust separation')
+AssertionError: [] is not true : no explicit dependency archive cache with event trust separation
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-regression', matrix={}, step='Test shared review launch and conditional input contracts')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 274, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
+AssertionError: 0 != 1 : selected runner needs one source-attempt artifact
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-unwired-sharded', matrix={'shard': 0}, step='Run POSIX inventory shard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 274, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
+AssertionError: 0 != 1 : selected runner needs one source-attempt artifact
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-unwired-sharded', matrix={'shard': 1}, step='Run POSIX inventory shard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 274, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
+AssertionError: 0 != 1 : selected runner needs one source-attempt artifact
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-unwired-sharded', matrix={'shard': 2}, step='Run POSIX inventory shard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 274, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
+AssertionError: 0 != 1 : selected runner needs one source-attempt artifact
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='posix-unwired-sharded', matrix={'shard': 3}, step='Run POSIX inventory shard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 274, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
+AssertionError: 0 != 1 : selected runner needs one source-attempt artifact
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'windows-latest'}, step='[deterministic] Test cloud suites, installed packages and current multitarget boundaries')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 274, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
+AssertionError: 0 != 1 : selected runner needs one source-attempt artifact
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'windows-latest'}, step='[deterministic] Test Epic A7 compatibility suites (pwsh)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 271, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertIn('--receipt', step['run'], 'stdout-only runner receipt has no artifact producer')
+AssertionError: '--receipt' not found in 'python tests/verification.py --profile ci-a7-native --run\n' : stdout-only runner receipt has no artifact producer
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'macos-latest'}, step='[deterministic] Test cloud suites, installed packages and current multitarget boundaries')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 274, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
+AssertionError: 0 != 1 : selected runner needs one source-attempt artifact
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'macos-latest'}, step='[deterministic] Test portable review-loop prechecks (pwsh)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 271, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertIn('--receipt', step['run'], 'stdout-only runner receipt has no artifact producer')
+AssertionError: '--receipt' not found in 'python tests/verification.py --profile ci-portable-prechecks --run\n' : stdout-only runner receipt has no artifact producer
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'ubuntu-latest'}, step='[deterministic] Test cloud suites, installed packages and current multitarget boundaries')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 274, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertEqual(len(uploads), 1, 'selected runner needs one source-attempt artifact')
+AssertionError: 0 != 1 : selected runner needs one source-attempt artifact
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test', matrix={'os': 'ubuntu-latest'}, step='[deterministic] Test portable review-loop prechecks (pwsh)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 271, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertIn('--receipt', step['run'], 'stdout-only runner receipt has no artifact producer')
+AssertionError: '--receipt' not found in 'python tests/verification.py --profile ci-portable-prechecks --run\n' : stdout-only runner receipt has no artifact producer
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='version-gates-windows-bump', matrix={'runtime': 'bash', 'suite': 'tests/bump-version-gate.tests.sh'}, step='Test bump-version loop-gate prerequisite')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 271, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertIn('--receipt', step['run'], 'stdout-only runner receipt has no artifact producer')
+AssertionError: '--receipt' not found in 'python tests/verification.py --suite "${{ matrix.suite }}" --run' : stdout-only runner receipt has no artifact producer
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='version-gates-windows-bump', matrix={'runtime': 'powershell', 'suite': 'tests/bump-version-gate.tests.ps1'}, step='Test bump-version loop-gate prerequisite')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 271, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertIn('--receipt', step['run'], 'stdout-only runner receipt has no artifact producer')
+AssertionError: '--receipt' not found in 'python tests/verification.py --suite "${{ matrix.suite }}" --run' : stdout-only runner receipt has no artifact producer
+
+======================================================================
+FAIL: test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) (job='test-windows-heavy', matrix={'lane': 'gates'}, step='[deterministic] Test portable review-loop prechecks')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 271, in test_T003_every_existing_runner_persists_a_receipt_and_uploads_it
+    self.assertIn('--receipt', step['run'], 'stdout-only runner receipt has no artifact producer')
+AssertionError: '--receipt' not found in 'python tests/verification.py --profile ci-portable-prechecks --run\n' : stdout-only runner receipt has no artifact producer
+
+======================================================================
+FAIL: test_T003_exact_plan_conditions_are_supported (__main__.WorkflowIntegrationTests.test_T003_exact_plan_conditions_are_supported)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 321, in test_T003_exact_plan_conditions_are_supported
+    self.assertTrue(self.w.condition_supported(expression), 'bounded planner condition has no interpreter integration')
+AssertionError: False is not true : bounded planner condition has no interpreter integration
+
+======================================================================
+FAIL: test_T003_measured_cloud_partition_keeps_three_native_obligations (__main__.WorkflowIntegrationTests.test_T003_measured_cloud_partition_keeps_three_native_obligations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 306, in test_T003_measured_cloud_partition_keeps_three_native_obligations
+    self.assertTrue('cloud-native' in jobs, 'measured long cloud work remains serialized in required wrappers')
+AssertionError: False is not true : measured long cloud work remains serialized in required wrappers
+
+======================================================================
+FAIL: test_T003_planner_outputs_have_one_declared_producer (__main__.WorkflowIntegrationTests.test_T003_planner_outputs_have_one_declared_producer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 230, in test_T003_planner_outputs_have_one_declared_producer
+    self.assertTrue('ci-plan' in jobs, 'missing revision-bound planner job')
+AssertionError: False is not true : missing revision-bound planner job
+
+======================================================================
+FAIL: test_T003_pr_number_cancellation_and_non_pr_run_groups (__main__.WorkflowIntegrationTests.test_T003_pr_number_cancellation_and_non_pr_run_groups)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 282, in test_T003_pr_number_cancellation_and_non_pr_run_groups
+    self.assertEqual(self.workflow['concurrency'], {
+AssertionError: {'gro[60 chars]thub.head_ref || github.run_id }}', 'cancel-in[52 chars] }}"} != {'gro[60 chars]thub.event.pull_request.number || github.run_i[69 chars] }}"}
+  {'cancel-in-progress': "${{ github.event_name == 'pull_request' }}",
+-  'group': '${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref '
+?                                                                ----------------
+
++  'group': '${{ github.workflow }}-${{ github.event_name }}-${{ '
+-           '|| github.run_id }}'}
++           'github.event.pull_request.number || github.run_id }}'}
+
+======================================================================
+FAIL: test_T003_required_verifier_uses_accepted_prepared_shape (__main__.WorkflowIntegrationTests.test_T003_required_verifier_uses_accepted_prepared_shape)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 224, in test_T003_required_verifier_uses_accepted_prepared_shape
+    self.assertIs(self.w.verifier_job(self.workflow), True,
+AssertionError: None is not True : workflow must use the accepted exact prepared verifier caller
+
+======================================================================
+FAIL: test_T003_unknown_plan_group_and_output_declarations_fail_closed (__main__.WorkflowIntegrationTests.test_T003_unknown_plan_group_and_output_declarations_fail_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 373, in test_T003_unknown_plan_group_and_output_declarations_fail_closed
+    self.assertEqual(self.w.coverage_errors(workflow, catalog), [], 'declared true group should prove full coverage')
+AssertionError: Lists differ: ['tests/sample.tests.py: no admitted execution in work'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'tests/sample.tests.py: no admitted execution in work'
+
+- ['tests/sample.tests.py: no admitted execution in work']
++ [] : declared true group should prove full coverage
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.164s
+
+FAILED (failures=23, errors=5)
