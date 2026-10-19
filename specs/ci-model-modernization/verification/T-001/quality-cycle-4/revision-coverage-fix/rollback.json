@@ -1,0 +1,39 @@
+{
+  "base_revision": "5420010dca74e7aa4d2d7fafd4f098cda9e400f3",
+  "disposable_checkout": "/tmp/ci-revision-coverage-rollback-hx93h4fr",
+  "commands": [
+    {
+      "phase": "candidate",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "ProofTests.test_optional_revision_rejections_have_binding_specific_reasons",
+        "ProofTests.test_verified_merge_binds_exact_base_head_and_tested_revision",
+        "ProofTests.test_revision_guards_detect_real_source_mutations"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback-candidate.txt"
+    },
+    {
+      "phase": "restored",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "PlanningTests.test_mandatory_identity_and_optional_revision_failures",
+        "PlanningTests.test_merge_parents_and_api_head_are_separate"
+      ],
+      "exit_code": 0,
+      "evidence": "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback-restored.txt"
+    }
+  ],
+  "restored_hash": "a5f54d3e49824d126c6fe259448d3160428fac2a8051fb2b101f722d39819d22",
+  "expected_hash": "a5f54d3e49824d126c6fe259448d3160428fac2a8051fb2b101f722d39819d22",
+  "production_unchanged_from_checkpoint": {
+    "tests/verification-impact.py": true,
+    "tests/verification-workflow.py": true,
+    "tests/verification-catalog.json": true,
+    "contracts/verification-ci-plan.schema.json": true
+  }
+}

@@ -1,0 +1,35 @@
+FF
+======================================================================
+FAIL: test_verified_merge_binds_exact_base_head_and_tested_revision (__main__.ProofTests.test_verified_merge_binds_exact_base_head_and_tested_revision) (values={'head': '8037b36afbbc3a9c219839f699c6bfbf2970dfdb', 'api_head_sha': '8037b36afbbc3a9c219839f699c6bfbf2970dfdb'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/ci-revision-coverage-after-8tnts9le/tests/verification-ci-plan.tests.py", line 621, in test_verified_merge_binds_exact_base_head_and_tested_revision
+    self.assertEqual((rejected['mode'], rejected['reason']),
+AssertionError: Tuples differ: ('affected', 'classified-change') != ('full', 'binding-invalid')
+
+First differing element 0:
+'affected'
+'full'
+
+- ('affected', 'classified-change')
++ ('full', 'binding-invalid')
+
+======================================================================
+FAIL: test_verified_merge_binds_exact_base_head_and_tested_revision (__main__.ProofTests.test_verified_merge_binds_exact_base_head_and_tested_revision)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/ci-revision-coverage-after-8tnts9le/tests/verification-ci-plan.tests.py", line 630, in test_verified_merge_binds_exact_base_head_and_tested_revision
+    self.assertEqual((rejected['mode'], rejected['reason']), ('full', 'binding-invalid'))
+AssertionError: Tuples differ: ('affected', 'classified-change') != ('full', 'binding-invalid')
+
+First differing element 0:
+'affected'
+'full'
+
+- ('affected', 'classified-change')
++ ('full', 'binding-invalid')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.661s
+
+FAILED (failures=2)

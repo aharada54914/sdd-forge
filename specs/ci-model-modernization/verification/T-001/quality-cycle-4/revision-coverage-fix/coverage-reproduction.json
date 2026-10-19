@@ -1,0 +1,27 @@
+{
+  "meaning": "Both old tests pass despite actual production guard removal in isolated copied sources; this is a test sensitivity gap, not evidence of a production omission.",
+  "records": [
+    {
+      "mutated_guard": "api_head",
+      "old_tests_exit_code": 0,
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "PlanningTests.test_mandatory_identity_and_optional_revision_failures",
+        "PlanningTests.test_merge_parents_and_api_head_are_separate"
+      ]
+    },
+    {
+      "mutated_guard": "merge_parents",
+      "old_tests_exit_code": 0,
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "PlanningTests.test_mandatory_identity_and_optional_revision_failures",
+        "PlanningTests.test_merge_parents_and_api_head_are_separate"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "feature": "ci-model-modernization",
+  "task_id": "T-001",
+  "state": "awaiting-fifth-review-exception",
+  "completed_independent_cycles": 4,
+  "authorized_extra_cycle": 4,
+  "last_evaluator_verdict": "NEEDS_WORK",
+  "critical": 0,
+  "major": 1,
+  "candidate_local_tests_passed": 72,
+  "candidate_independent_acceptance": false,
+  "product_changed_after_review": false,
+  "test_coverage_corrected": true,
+  "required_approval": "One fifth independent review; dependent work still requires actual PASS",
+  "recorded_at": "2026-10-19T07:15:12Z"
+}

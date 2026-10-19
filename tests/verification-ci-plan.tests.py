@@ -4,6 +4,7 @@ import copy
 import hashlib
 import importlib.util
 import io
+import inspect
 import json
 from pathlib import Path
 import subprocess
@@ -248,29 +249,12 @@ class PlanningTests(GitFixture):
         for force in (None, '', 'true', 'False', 'FALSE', 'unexpected'):
             self.assertEqual(self.plan(force_full=force)['reason'], 'force-full')
 
-    def test_mandatory_identity_and_optional_revision_failures(self):
+    def test_mandatory_identity_failures(self):
         for values in (dict(run_id=''), dict(run_id='0'), dict(run_attempt=0),
                        dict(api_head_sha=''), dict(tested_revision='f' * 40),
                        dict(event='PUSH')):
             with self.subTest(values=values), self.assertRaises(ValueError):
                 self.plan(**values)
-        for optional_values in (dict(base=None), dict(base='e' * 40), dict(head='d' * 40),
-                       dict(head=self.base), dict(api_head_sha=self.base)):
-            with self.subTest(values=optional_values):
-                self.assertEqual(self.plan(**optional_values)['mode'], 'full')
-
-    def test_merge_parents_and_api_head_are_separate(self):
-        self.git('checkout', '-qb', 'base-side', self.base)
-        self.write('base-side.txt', 'base side')
-        new_base = self.commit('base side')
-        self.git('merge', '--no-ff', '-m', 'merge', self.head)
-        merge = self.git('rev-parse', 'HEAD')
-        p = self.plan(base=new_base, tested_revision=merge)
-        self.assertEqual(p['api_head_sha'], self.head)
-        self.assertEqual(p['tested_revision'], merge)
-        self.assertEqual(p['merge_base_revision'], self.base)
-        self.assertEqual(self.plan(tested_revision=merge)['mode'], 'full')
-
     def test_complete_nul_diff_rename_case_type_newlines_and_3001(self):
         self.git('checkout', '-q', self.base)
         self.write('Old.txt', 'old')
@@ -584,6 +568,90 @@ class ProofTests(GitFixture):
         subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', self.base], check=True)
         self.write('docs/guide.txt', 'ordinary product change')
         self.head = self.commit('classified change')
+
+    def verified_merge(self):
+        original_base = self.base
+        self.git('checkout', '-qb', 'base-side', original_base)
+        self.git('commit', '--allow-empty', '-qm', 'advance exact trusted base')
+        self.base = self.git('rev-parse', 'HEAD')
+        self.git('merge', '--no-ff', '-m', 'verified tested merge', self.head)
+        merge = self.git('rev-parse', 'HEAD')
+        self.assertEqual(self.git('show', '-s', '--format=%P', merge).split(),
+                         [self.base, self.head])
+        subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q',
+                        str(self.root), self.base], check=True)
+        subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', self.base], check=True)
+        return original_base, merge
+
+    def test_optional_revision_rejections_have_binding_specific_reasons(self):
+        control = self.plan()
+        self.assertEqual((control['mode'], control['reason']), ('affected', 'classified-change'))
+        self.assertTrue(control['omissions'])
+        for values, reason in (
+                (dict(base=None), 'base-planner-unavailable'),
+                (dict(base='e' * 40), 'base-planner-unavailable'),
+                (dict(head='d' * 40), 'diff-unavailable'),
+                (dict(head=None), 'diff-unavailable'),
+                (dict(head=self.base), 'binding-invalid'),
+                (dict(api_head_sha=self.base), 'binding-invalid')):
+            with self.subTest(values=values):
+                plan = self.plan(**values)
+                self.assertEqual((plan['mode'], plan['reason']), ('full', reason))
+                self.assertEqual(plan['omissions'], [])
+                self.assertEqual(len(plan['obligations']), len(self.full['obligations']))
+                if reason != 'base-planner-unavailable':
+                    self.assertTrue(plan['trusted_planner_sha256'])
+
+    def test_verified_merge_binds_exact_base_head_and_tested_revision(self):
+        original_base, merge = self.verified_merge()
+        plan = self.plan(tested_revision=merge)
+        self.assertEqual((plan['mode'], plan['reason']), ('affected', 'classified-change'))
+        self.assertTrue(plan['trusted_planner_sha256'])
+        self.assertTrue(plan['omissions'])
+        self.assertEqual(plan['api_head_sha'], self.head)
+        self.assertEqual(plan['pr_head_revision'], self.head)
+        self.assertEqual(plan['tested_revision'], merge)
+        self.assertEqual(plan['base_revision'], self.base)
+        self.assertEqual(plan['merge_base_revision'], original_base)
+        self.assertNotEqual(plan['api_head_sha'], plan['tested_revision'])
+        for values in (dict(api_head_sha=merge),
+                       dict(head=self.base, api_head_sha=self.base)):
+            with self.subTest(values=values):
+                rejected = self.plan(tested_revision=merge, **values)
+                self.assertEqual((rejected['mode'], rejected['reason']),
+                                 ('full', 'binding-invalid'))
+                self.assertTrue(rejected['trusted_planner_sha256'])
+                self.assertFalse(rejected['omissions'])
+        with self.assertRaises(ValueError):
+            self.plan(tested_revision=self.head)
+        # Keep the old base genuinely trusted so the parent mismatch is isolated.
+        subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', original_base], check=True)
+        rejected = self.plan(base=original_base, tested_revision=merge)
+        self.assertEqual((rejected['mode'], rejected['reason']), ('full', 'binding-invalid'))
+        self.assertTrue(rejected['trusted_planner_sha256'])
+        self.assertFalse(rejected['omissions'])
+
+    def test_revision_guards_detect_real_source_mutations(self):
+        original_base, merge = self.verified_merge()
+        arguments = [self.root, 'pull_request', self.head, merge, self.base, self.head]
+        matched = IMPACT.revision_inputs(*arguments)
+        self.assertIsNone(matched[2])
+        self.assertEqual(matched[1], {'docs/guide.txt'})
+        source = inspect.getsource(IMPACT.revision_inputs)
+        for guard, index, value in (
+                ('    if api_head != head:\n', 2, merge),
+                ('        if parents != [base, head]:\n', 4, original_base)):
+            with self.subTest(guard=guard.strip()):
+                bad = list(arguments)
+                bad[index] = value
+                self.assertEqual(IMPACT.revision_inputs(*bad)[2], 'binding-invalid')
+                self.assertEqual(source.count(guard), 1)
+                namespace = dict(IMPACT.__dict__)
+                changed = source.replace(guard, guard[:len(guard) - len(guard.lstrip())] + 'if False:\n')
+                exec(compile(changed, '<isolated-revision-guard-mutation>', 'exec'), namespace)
+                # Removing this exact guard loses the specific rejection.
+                self.assertIsNone(namespace['revision_inputs'](*bad)[2])
+                self.assertEqual(namespace['revision_inputs'](*arguments), matched)
 
     def test_selection_executes_trusted_checkout_not_caller_imports(self):
         with patch.object(IMPACT, 'workflow_module', side_effect=AssertionError('caller imported')):

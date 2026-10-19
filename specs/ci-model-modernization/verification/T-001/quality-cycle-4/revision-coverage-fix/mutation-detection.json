@@ -1,0 +1,25 @@
+{
+  "meaning": "Strengthened integration tests reject actual isolated API-head/merge-parent guard removals. Production code unchanged; old suites did not reject these mutations.",
+  "records": [
+    {
+      "mutated_guard": "api_head",
+      "new_tests_exit_code": 1,
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "ProofTests.test_optional_revision_rejections_have_binding_specific_reasons"
+      ]
+    },
+    {
+      "mutated_guard": "merge_parents",
+      "new_tests_exit_code": 1,
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "ProofTests.test_verified_merge_binds_exact_base_head_and_tested_revision"
+      ]
+    }
+  ]
+}

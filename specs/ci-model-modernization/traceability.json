@@ -31,7 +31,11 @@
         "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/unit-tests.log",
         "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/regression.log",
         "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/inventory-parity.json",
-        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json"
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/mutation-detection.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json"
       ],
       "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
     },
@@ -63,7 +67,11 @@
         "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/unit-tests.log",
         "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/regression.log",
         "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/inventory-parity.json",
-        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json"
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/mutation-detection.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json"
       ],
       "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
     },
@@ -93,7 +101,11 @@
         "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/unit-tests.log",
         "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/regression.log",
         "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/inventory-parity.json",
-        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json"
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/mutation-detection.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json"
       ],
       "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
     },
@@ -119,7 +131,11 @@
         "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/unit-tests.log",
         "specs/ci-model-modernization/verification/T-001/post-cycle3-checks/regression.log",
         "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/inventory-parity.json",
-        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json"
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-3/continue-error-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/mutation-detection.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json"
       ],
       "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
     }

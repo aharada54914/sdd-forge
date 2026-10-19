@@ -1,0 +1,13 @@
+RUN_ID: 01a152fa-d909-77f2-93ff-df30227ee111
+HOST_SESSION_ID: 01a152fa-d909-77f2-93ff-df30227ee111
+ALLOWED_INPUT_MANIFEST: specs/ci-model-modernization/verification/T-001/quality-cycle-4/review/invocation.json SHA-256 30dc5ddc0ded6f862fbf65f16331124d3f93d3d6475ff38605e297ea13da2e18
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] tests/verification-ci-plan.tests.py:251–272 — Revision-binding tests do not establish TEST-041/042/078 acceptance. Their fixture has no categories, so mismatched identities can still produce full mode through unrelated fallback. The valid-merge case changes base without updating the trusted checkout and never asserts successful binding rather than base-planner-unavailable. Add a matched affected-plan control, explicit mismatch reasons, and guard-removal sensitivity tests.
+CHECKED:
+- Recomputed invocation and reservation-record hashes; both match supplied pins. Sequence and predecessor agree with the reservation receipt.
+- Inspected T-001 scope, requirements, acceptance criteria, design, contracts, ADRs, source, tests and task diff. Reviewed revision binding, trusted execution, closure, omission and inventory logic at line level.
+- Read saved cycle-4 outputs: planner 30 tests, impact 6, catalog 16 and required-checks 18, all OK; lint and typecheck passed. These results do not resolve the coverage finding.
+- Compared saved baseline/current inventories: 415 workload obligations and one control disposition; command hashes, runners and prior suite/OS coverage preserved. Categories remain inactive.
+- Read rollback outputs: restored impact 6 and catalog 15 tests passed; recorded restored hashes match baseline.
+- No tests rerun under this read-only boundary. Hosted execution, activation and later-task integration remain unverified and outside T-001 scope.

@@ -1,0 +1,19 @@
+ticket_id: RT-20261019-004
+status: open
+type: revision-binding-test-sensitivity
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-001
+summary: Revision-binding tests can pass through unrelated full fallback
+expected_fix:
+  - Use an activated category with a matched affected-plan control.
+  - Verify valid merge parents with the trusted checkout at the exact new base.
+  - Assert specific binding and unavailable-input rejection reasons.
+  - Demonstrate guard-removal sensitivity with real isolated source mutations.
+  - Obtain independent quality acceptance before Done.
+approval: Existing user approval covers necessary bounded acceptance-test corrections.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 4
+evidence: specs/ci-model-modernization/verification/T-001/quality-cycle-4/review/evaluator.txt

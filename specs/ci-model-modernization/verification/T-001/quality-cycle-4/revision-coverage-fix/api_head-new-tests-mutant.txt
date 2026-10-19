@@ -1,0 +1,20 @@
+F
+======================================================================
+FAIL: test_optional_revision_rejections_have_binding_specific_reasons (__main__.ProofTests.test_optional_revision_rejections_have_binding_specific_reasons) (values={'api_head_sha': 'f562e8d00085d0c7fc91ae88007fc0b7dd176ebd'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/ci-revision-coverage-after-q7z85_5a/tests/verification-ci-plan.tests.py", line 599, in test_optional_revision_rejections_have_binding_specific_reasons
+    self.assertEqual((plan['mode'], plan['reason']), ('full', reason))
+AssertionError: Tuples differ: ('affected', 'classified-change') != ('full', 'binding-invalid')
+
+First differing element 0:
+'affected'
+'full'
+
+- ('affected', 'classified-change')
++ ('full', 'binding-invalid')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.613s
+
+FAILED (failures=1)

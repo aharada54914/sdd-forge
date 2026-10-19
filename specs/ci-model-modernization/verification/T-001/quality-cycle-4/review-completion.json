@@ -1,0 +1,12 @@
+{
+  "task_id": "T-001",
+  "review_run_id": "01a152fa-d909-77f2-93ff-df30227ee111",
+  "implementation_run_id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+  "verdict": "NEEDS_WORK",
+  "evaluator_verdict": "NEEDS_WORK",
+  "manifest_sha256": "30dc5ddc0ded6f862fbf65f16331124d3f93d3d6475ff38605e297ea13da2e18",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261019-ci-model-modernization-T-001-cycle-4.md",
+  "completion_scope": "Retain Implementation Complete and NEEDS_WORK. Fourth review was performed within the user exception, but did not pass. All safe bounded test fixes and local checks are complete. Further independent evaluation requires another explicit exception before any fifth review. Continue dependent approved work only after an actual PASS."
+}
