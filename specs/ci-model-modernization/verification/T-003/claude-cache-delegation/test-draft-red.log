@@ -1,0 +1,225 @@
+FFFFFFFFFFFFFFFFFFFFFF
+======================================================================
+FAIL: test_T003_acquisition_retries_are_bounded_and_failures_logged (__main__.DependencyCacheAcquireTests.test_T003_acquisition_retries_are_bounded_and_failures_logged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 113, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_T003_cache_corruption_is_reacquired_before_reuse (__main__.DependencyCacheAcquireTests.test_T003_cache_corruption_is_reacquired_before_reuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 113, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_T003_cache_hit_rehashes_bytes_without_network (__main__.DependencyCacheAcquireTests.test_T003_cache_hit_rehashes_bytes_without_network)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 113, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_T003_cache_paths_never_follow_symlinks (__main__.DependencyCacheAcquireTests.test_T003_cache_paths_never_follow_symlinks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 113, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_T003_corrupt_download_never_publishes_a_valid_cache_file (__main__.DependencyCacheAcquireTests.test_T003_corrupt_download_never_publishes_a_valid_cache_file)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 113, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_T003_pester_package_and_manifest_pins_match_observed_bytes (__main__.DependencyCacheAcquireTests.test_T003_pester_package_and_manifest_pins_match_observed_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 113, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_download_is_published_atomically_from_unique_same_directory_temporary (__main__.DependencyCacheAcquireTests.test_download_is_published_atomically_from_unique_same_directory_temporary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 113, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_every_cache_hit_rehashes_even_when_size_and_mtime_are_unchanged (__main__.DependencyCacheAcquireTests.test_every_cache_hit_rehashes_even_when_size_and_mtime_are_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 113, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_symlinked_cache_ancestor_is_refused_without_network (__main__.DependencyCacheAcquireTests.test_symlinked_cache_ancestor_is_refused_without_network)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 113, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_cli_failures_return_typed_nonzero_without_traceback (__main__.PesterCliTests.test_cli_failures_return_typed_nonzero_without_traceback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_cli_installs_pinned_package (__main__.PesterCliTests.test_cli_installs_pinned_package)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_cache_hit_installs_fresh_module_root_without_network (__main__.PesterInstallTests.test_cache_hit_installs_fresh_module_root_without_network)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_corrupt_cached_package_is_reacquired_before_extraction (__main__.PesterInstallTests.test_corrupt_cached_package_is_reacquired_before_extraction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_existing_symlinks_in_module_root_are_never_written_through (__main__.PesterInstallTests.test_existing_symlinks_in_module_root_are_never_written_through)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_install_extracts_validated_fresh_tree_and_caches_only_package (__main__.PesterInstallTests.test_install_extracts_validated_fresh_tree_and_caches_only_package)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_invalid_or_corrupt_archives_are_typed_errors_without_partial_tree (__main__.PesterInstallTests.test_invalid_or_corrupt_archives_are_typed_errors_without_partial_tree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_root_manifest_bytes_are_validated_not_version_string (__main__.PesterInstallTests.test_root_manifest_bytes_are_validated_not_version_string)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_symlink_duplicate_and_collision_members_are_rejected (__main__.PesterInstallTests.test_symlink_duplicate_and_collision_members_are_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_symlinked_cache_dir_is_refused_without_network (__main__.PesterInstallTests.test_symlinked_cache_dir_is_refused_without_network)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_tampered_installed_module_is_repaired_or_fails_closed (__main__.PesterInstallTests.test_tampered_installed_module_is_repaired_or_fails_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_unsafe_member_names_are_rejected_before_extraction (__main__.PesterInstallTests.test_unsafe_member_names_are_rejected_before_extraction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+======================================================================
+FAIL: test_real_pins_reject_synthetic_package_without_publishing (__main__.PinnedPesterTests.test_real_pins_reject_synthetic_package_without_publishing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 222, in setUp
+    super().setUp()
+  File "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-003/claude-cache-delegation/cache-helper.tests.py", line 84, in setUp
+    self.assertTrue(HELPER.is_file(), f'pinned dependency acquisition/integrity helper is missing: {HELPER.name}')
+AssertionError: False is not true : pinned dependency acquisition/integrity helper is missing: ci-dependency-cache.py
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.003s
+
+FAILED (failures=22)
