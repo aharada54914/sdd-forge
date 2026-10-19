@@ -1,0 +1,14 @@
+E
+======================================================================
+ERROR: test_full_inventory_runner_matrix_shards_and_opaque_body (__main__.PlanningTests.test_full_inventory_runner_matrix_shards_and_opaque_body)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 320, in test_full_inventory_runner_matrix_shards_and_opaque_body
+    rows = W.plan_obligations(workflow, self.catalog, weights=dict.fromkeys(self.suites, 1))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: plan_obligations() got an unexpected keyword argument 'weights'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.030s
+
+FAILED (errors=1)

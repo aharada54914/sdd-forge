@@ -157,7 +157,7 @@ class WireTests(unittest.TestCase):
         self.assertIs(schema['additionalProperties'], False)
 
 
-class PlanningTests(unittest.TestCase):
+class GitFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -215,6 +215,8 @@ class PlanningTests(unittest.TestCase):
         args.update(kwargs)
         return IMPACT.make_plan(**args)
 
+
+class PlanningTests(GitFixture):
     def test_bound_full_and_event_force_precedence(self):
         p = self.plan()
         self.assertEqual(p['mode'], 'full')
@@ -305,6 +307,24 @@ class PlanningTests(unittest.TestCase):
         self.assertNotEqual(rows[0]['command_sha256'], other[0]['command_sha256'])
         self.assertEqual(other[0]['suites'], [])
 
+    def test_full_inventory_runner_matrix_shards_and_opaque_body(self):
+        workflow = {'jobs': {'test': {'runs-on': '${{ matrix.os }}', 'strategy': {
+            'matrix': {'os': ['ubuntu-latest', 'macos-latest', 'windows-latest']}}, 'steps': [
+                {'name': 'posix', 'if': "runner.os == 'Linux' || runner.os == 'macOS'",
+                 'run': 'python3 tests/a.tests.py'},
+                {'name': 'opaque', 'run': 'if true; then python3 tests/b.tests.py; fi'}]},
+            'shards': {'runs-on': 'ubuntu-latest', 'strategy': {'matrix': {'shard': [0, 1]}},
+                       'steps': [{'name': 'partition', 'shell': 'bash', 'run':
+                           'bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 2 --receipt "receipt.json"'}]}}}
+        self.catalog['profiles']['ci-posix-fallback'] = self.suites
+        rows = W.plan_obligations(workflow, self.catalog, weights=dict.fromkeys(self.suites, 1))
+        posix = [r for r in rows if r['step'] == 'posix']
+        self.assertEqual({r['runner'] for r in posix}, {'ubuntu-latest', 'macos-latest'})
+        shards = [r for r in rows if r['step'] == 'partition']
+        self.assertEqual(sorted(s for r in shards for s in r['suites']), self.suites)
+        self.assertTrue(all(r['receipt_required'] for r in shards))
+        self.assertTrue(all(not r['suites'] for r in rows if r['step'] == 'opaque'))
+
     def test_dependency_and_indivisible_step_fixed_point(self):
         obligations = W.plan_obligations(self.workflow, self.catalog)
         selected = IMPACT.dependency_closure({self.suites[0]}, set(), self.catalog, obligations)
@@ -341,7 +361,7 @@ class PlanningTests(unittest.TestCase):
 
 
 
-class ProofTests(PlanningTests):
+class ProofTests(GitFixture):
     def setUp(self):
         super().setUp()
         self.git('checkout', '-q', self.base)
@@ -411,8 +431,8 @@ class ProofTests(PlanningTests):
             p = self.plan()
         self.assertEqual(p['mode'], 'affected')
         (self.root / 'tests/verification-workflow.py').write_text('raise RuntimeError("PR import")')
-        # Uncommitted PR changes cannot change the imported trusted implementation.
-        self.assertEqual(self.plan()['mode'], 'affected')
+        self.head = self.commit('PR-controlled planner import')
+        self.assertEqual(self.plan()['mode'], 'full')
 
     def test_positive_affected_dependency_partition_and_bound_proof(self):
         p = self.plan()
