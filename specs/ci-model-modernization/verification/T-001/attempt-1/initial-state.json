@@ -1,0 +1,10 @@
+{
+  "revision": "f9befa7f301cb96664c692903d61b8d121c20619",
+  "ordinary_tree_clean": false,
+  "input_snapshot": "/tmp/ci-model-T001-01a1517b/inputs",
+  "external_input_mapping": "external + original absolute source path",
+  "identity_source": "caller supplied native allocation; not environment",
+  "run_id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+  "session_id": "01a1517b-38f6-7143-8bec-e35f0e425903",
+  "agent_instance_id": "01a1517b-38f6-7143-8bec-e35f0e425903"
+}
