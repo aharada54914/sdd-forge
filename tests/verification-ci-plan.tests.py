@@ -91,6 +91,44 @@ class WireTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     I.validate_plan(bad, expected=expected)
 
+    def test_omission_and_activation_field_pairs(self):
+        expected = sample_plan()
+        expected.update(mode='affected', reason='classified-change', event='pull_request',
+                        base_revision='1' * 40, pr_head_revision='a' * 40,
+                        merge_base_revision='1' * 40, changed_path_count=1,
+                        omissions=[{'id': 'optional:build', 'reason': 'unrelated-category'}],
+                        activation_evidence=[dict(category='guide', path='proof.json',
+                                                  sha256='2' * 64, rule_sha256='3' * 64,
+                                                  baseline_revision='4' * 40)])
+        expected = self.signed(expected)
+        I.validate_plan(expected, expected=expected)
+        for container, field, value in (
+            ('omissions', 'id', 'other'), ('omissions', 'reason', ''),
+            ('activation_evidence', 'category', 'other'),
+            ('activation_evidence', 'path', '../escape'),
+            ('activation_evidence', 'sha256', '5' * 64),
+            ('activation_evidence', 'rule_sha256', '6' * 64),
+            ('activation_evidence', 'baseline_revision', '7' * 40),
+        ):
+            with self.subTest(container=container, field=field):
+                bad = copy.deepcopy(expected)
+                bad[container][0][field] = value
+                with self.assertRaises(ValueError):
+                    I.validate_plan(self.signed(bad), expected=expected)
+        for field in ('omissions', 'activation_evidence'):
+            bad = copy.deepcopy(expected)
+            bad[field].append(bad[field][0])
+            with self.assertRaises(ValueError):
+                I.validate_plan(self.signed(bad))
+
+    def test_fixed_condition_outputs_and_collision_rejection(self):
+        plan = self.signed(sample_plan())
+        self.assertEqual(I.condition_outputs(plan, ['test', 'optional-group']),
+                         {'run_test': 'true', 'run_optional_group': 'false'})
+        for groups in (['test', 'test'], ['test', 'bad\nkey'], ['test', 'a-b', 'a_b']):
+            with self.assertRaises(ValueError):
+                I.condition_outputs(plan, groups)
+
     def test_strict_json_schema_and_duplicate_unsafe_inputs(self):
         good = self.signed(sample_plan())
         I.validate_plan(good)

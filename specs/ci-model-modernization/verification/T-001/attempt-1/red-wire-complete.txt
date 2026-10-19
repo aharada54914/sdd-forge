@@ -1,0 +1,327 @@
+EF.EEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+======================================================================
+ERROR: test_bound_full_and_event_force_precedence (__main__.PlanningTests.test_bound_full_and_event_force_precedence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 218, in test_bound_full_and_event_force_precedence
+    p = self.plan()
+        ^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_definition_hash_excludes_proof_pointers_not_command_definitions (__main__.PlanningTests.test_definition_hash_excludes_proof_pointers_not_command_definitions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 319, in test_definition_hash_excludes_proof_pointers_not_command_definitions
+    original = I.rule_digest(self.catalog, self.workflow)
+               ^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'rule_digest'
+
+======================================================================
+ERROR: test_dependency_and_indivisible_step_fixed_point (__main__.PlanningTests.test_dependency_and_indivisible_step_fixed_point)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 308, in test_dependency_and_indivisible_step_fixed_point
+    obligations = W.plan_obligations(self.workflow, self.catalog)
+                  ^^^^^^^^^^^^^^^^^^
+AttributeError: module 'workflow' has no attribute 'plan_obligations'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'run_id': ''})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 237, in test_mandatory_identity_and_optional_revision_failures
+    self.plan(**values)
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'run_id': '0'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 237, in test_mandatory_identity_and_optional_revision_failures
+    self.plan(**values)
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'run_attempt': 0})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 237, in test_mandatory_identity_and_optional_revision_failures
+    self.plan(**values)
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'api_head_sha': ''})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 237, in test_mandatory_identity_and_optional_revision_failures
+    self.plan(**values)
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'tested_revision': 'ffffffffffffffffffffffffffffffffffffffff'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 237, in test_mandatory_identity_and_optional_revision_failures
+    self.plan(**values)
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'event': 'PUSH'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 237, in test_mandatory_identity_and_optional_revision_failures
+    self.plan(**values)
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'base': None})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 241, in test_mandatory_identity_and_optional_revision_failures
+    self.assertEqual(self.plan(**values)['mode'], 'full')
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'base': 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 241, in test_mandatory_identity_and_optional_revision_failures
+    self.assertEqual(self.plan(**values)['mode'], 'full')
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'head': 'dddddddddddddddddddddddddddddddddddddddd'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 241, in test_mandatory_identity_and_optional_revision_failures
+    self.assertEqual(self.plan(**values)['mode'], 'full')
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'head': 'eea1cad133af017d65d5e9e79f5194b58d8b9ef9'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 241, in test_mandatory_identity_and_optional_revision_failures
+    self.assertEqual(self.plan(**values)['mode'], 'full')
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_mandatory_identity_and_optional_revision_failures (__main__.PlanningTests.test_mandatory_identity_and_optional_revision_failures) (values={'api_head_sha': 'eea1cad133af017d65d5e9e79f5194b58d8b9ef9'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 241, in test_mandatory_identity_and_optional_revision_failures
+    self.assertEqual(self.plan(**values)['mode'], 'full')
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_merge_parents_and_api_head_are_separate (__main__.PlanningTests.test_merge_parents_and_api_head_are_separate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 249, in test_merge_parents_and_api_head_are_separate
+    p = self.plan(base=new_base, tested_revision=merge)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_obligation_inventory_exact_commands_os_and_non_suite (__main__.PlanningTests.test_obligation_inventory_exact_commands_os_and_non_suite)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 294, in test_obligation_inventory_exact_commands_os_and_non_suite
+    rows = W.plan_obligations(self.workflow, self.catalog)
+           ^^^^^^^^^^^^^^^^^^
+AttributeError: module 'workflow' has no attribute 'plan_obligations'
+
+======================================================================
+ERROR: test_shared_unknown_empty_and_untrusted_source (__main__.PlanningTests.test_shared_unknown_empty_and_untrusted_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 284, in test_shared_unknown_empty_and_untrusted_source
+    self.assertEqual(self.plan(head=revision, api_head_sha=revision,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 215, in plan
+    return I.make_plan(**args)
+           ^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'make_plan'
+
+======================================================================
+ERROR: test_every_obligation_field_mismatch_and_guard_sensitivity (__main__.WireTests.test_every_obligation_field_mismatch_and_guard_sensitivity) (field='id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 85, in test_every_obligation_field_mismatch_and_guard_sensitivity
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_every_obligation_field_mismatch_and_guard_sensitivity (__main__.WireTests.test_every_obligation_field_mismatch_and_guard_sensitivity) (field='job')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 85, in test_every_obligation_field_mismatch_and_guard_sensitivity
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_every_obligation_field_mismatch_and_guard_sensitivity (__main__.WireTests.test_every_obligation_field_mismatch_and_guard_sensitivity) (field='matrix')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 85, in test_every_obligation_field_mismatch_and_guard_sensitivity
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_every_obligation_field_mismatch_and_guard_sensitivity (__main__.WireTests.test_every_obligation_field_mismatch_and_guard_sensitivity) (field='runner')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 85, in test_every_obligation_field_mismatch_and_guard_sensitivity
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_every_obligation_field_mismatch_and_guard_sensitivity (__main__.WireTests.test_every_obligation_field_mismatch_and_guard_sensitivity) (field='step')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 85, in test_every_obligation_field_mismatch_and_guard_sensitivity
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_every_obligation_field_mismatch_and_guard_sensitivity (__main__.WireTests.test_every_obligation_field_mismatch_and_guard_sensitivity) (field='command_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 85, in test_every_obligation_field_mismatch_and_guard_sensitivity
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_every_obligation_field_mismatch_and_guard_sensitivity (__main__.WireTests.test_every_obligation_field_mismatch_and_guard_sensitivity) (field='suites')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 85, in test_every_obligation_field_mismatch_and_guard_sensitivity
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_every_obligation_field_mismatch_and_guard_sensitivity (__main__.WireTests.test_every_obligation_field_mismatch_and_guard_sensitivity) (field='receipt_required')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 85, in test_every_obligation_field_mismatch_and_guard_sensitivity
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_every_obligation_field_mismatch_and_guard_sensitivity (__main__.WireTests.test_every_obligation_field_mismatch_and_guard_sensitivity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 89, in test_every_obligation_field_mismatch_and_guard_sensitivity
+    with patch.object(I, 'validate_plan', return_value=None):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1467, in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1437, in get_original
+    raise AttributeError(
+AttributeError: <module 'impact' from '/workspace/sdd-forge/tests/verification-impact.py'> does not have the attribute 'validate_plan'
+
+======================================================================
+ERROR: test_every_persisted_field_matches_independent_counterpart (__main__.WireTests.test_every_persisted_field_matches_independent_counterpart)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 54, in test_every_persisted_field_matches_independent_counterpart
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_fixed_condition_outputs_and_collision_rejection (__main__.WireTests.test_fixed_condition_outputs_and_collision_rejection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 126, in test_fixed_condition_outputs_and_collision_rejection
+    self.assertEqual(I.condition_outputs(plan, ['test', 'optional-group']),
+                     ^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'condition_outputs'
+
+======================================================================
+ERROR: test_omission_and_activation_field_pairs (__main__.WireTests.test_omission_and_activation_field_pairs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 104, in test_omission_and_activation_field_pairs
+    I.validate_plan(expected, expected=expected)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+ERROR: test_strict_json_schema_and_duplicate_unsafe_inputs (__main__.WireTests.test_strict_json_schema_and_duplicate_unsafe_inputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 134, in test_strict_json_schema_and_duplicate_unsafe_inputs
+    I.validate_plan(good)
+    ^^^^^^^^^^^^^^^
+AttributeError: module 'impact' has no attribute 'validate_plan'
+
+======================================================================
+FAIL: test_cli_explicit_plan_and_create_only_output (__main__.PlanningTests.test_cli_explicit_plan_and_create_only_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 336, in test_cli_explicit_plan_and_create_only_output
+    self.assertEqual(result.returncode, 0, result.stderr)
+AssertionError: 2 != 0 : usage: verification-impact.py [-h] [--base BASE] [--head HEAD]
+                              [--profile PROFILE] [--receipt RECEIPT]
+verification-impact.py: error: unrecognized arguments: --plan --root /tmp/tmpmy5chb7o/subject --trusted-root /tmp/tmpmy5chb7o/trusted --event push --run-id 123 --run-attempt 1 --api-head-sha 169c75780bce53c7df0e6c3d01778e2f847da21e --tested-revision 169c75780bce53c7df0e6c3d01778e2f847da21e --output /tmp/tmpmy5chb7o/plan.json
+
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.536s
+
+FAILED (failures=1, errors=30)
