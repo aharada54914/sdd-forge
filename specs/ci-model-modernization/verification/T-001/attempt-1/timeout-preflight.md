@@ -1,0 +1,3 @@
+# Timeout boundary preflight
+
+The current candidate already catches subprocess.SubprocessError, including TimeoutExpired. No unhandled-exception Red is claimed. The new test executes both actual subprocess call sites (trusted re-execution timeout=120 and YAML loader timeout=20), with timeout injection only at subprocess.run. It requires exit 2 and a sanitized timeout-specific message in verification-ci-error/v1; the existing generic message should fail. Field counterparts: schema/reason/message against the frozen error envelope and non-secret timeout diagnostic; stdout empty against no successful plan; both timeout values against their actual call sites. Raw exception command/output/stderr must not appear. Existing CLI test provides the successful matching control.

@@ -1,0 +1,31 @@
+FF
+======================================================================
+FAIL: test_timeout_boundaries_have_sanitized_typed_diagnostics (__main__.PlanningTests.test_timeout_boundaries_have_sanitized_typed_diagnostics) (timeout=120)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 439, in test_timeout_boundaries_have_sanitized_typed_diagnostics
+    self.assertEqual(json.loads(stderr.getvalue()), {
+AssertionError: {'sch[68 chars]e': 'Invalid planning input, revision binding,[20 chars]on.'} != {'sch[68 chars]e': 'Planning subprocess timed out; verify loc[23 chars]ry.'}
+- {'message': 'Invalid planning input, revision binding, or output destination.',
++ {'message': 'Planning subprocess timed out; verify local dependencies and '
++             'retry.',
+   'reason': 'input-invalid',
+   'schema': 'verification-ci-error/v1'}
+
+======================================================================
+FAIL: test_timeout_boundaries_have_sanitized_typed_diagnostics (__main__.PlanningTests.test_timeout_boundaries_have_sanitized_typed_diagnostics) (timeout=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 439, in test_timeout_boundaries_have_sanitized_typed_diagnostics
+    self.assertEqual(json.loads(stderr.getvalue()), {
+AssertionError: {'sch[68 chars]e': 'Invalid planning input, revision binding,[20 chars]on.'} != {'sch[68 chars]e': 'Planning subprocess timed out; verify loc[23 chars]ry.'}
+- {'message': 'Invalid planning input, revision binding, or output destination.',
++ {'message': 'Planning subprocess timed out; verify local dependencies and '
++             'retry.',
+   'reason': 'input-invalid',
+   'schema': 'verification-ci-error/v1'}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.039s
+
+FAILED (failures=2)

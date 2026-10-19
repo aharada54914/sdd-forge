@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -404,17 +405,59 @@ class PlanningTests(GitFixture):
         category['suites'] = [self.suites[1]]
         self.assertNotEqual(IMPACT.rule_digest(self.catalog, self.workflow), original)
 
+    def test_timeout_boundaries_have_sanitized_typed_diagnostics(self):
+        argv = ['--plan', '--root', str(self.root), '--trusted-root', str(self.trusted),
+                '--event', 'pull_request', '--run-id', '123', '--run-attempt', '1',
+                '--api-head-sha', self.head, '--tested-revision', self.head,
+                '--base', self.base, '--head', self.head, '--force-full', 'false']
+        real_run = subprocess.run
+        secret = 'fixture-private-command-and-environment'
+        for timeout in (120, 20):
+            calls = []
+
+            def run(*args, **kwargs):
+                if kwargs.get('timeout') == timeout:
+                    calls.append(timeout)
+                    raise subprocess.TimeoutExpired(secret, timeout, output=secret, stderr=secret)
+                return real_run(*args, **kwargs)
+
+            # YAML case executes the actual existing loader, not a mocked exception boundary.
+            def yaml_plan(**kwargs):
+                return W.load_workflow(ROOT / '.github/workflows/test.yml')
+
+            stderr, stdout = io.StringIO(), io.StringIO()
+            with self.subTest(timeout=timeout), patch.object(subprocess, 'run', side_effect=run), \
+                    patch.object(sys, 'stderr', stderr), patch.object(sys, 'stdout', stdout):
+                if timeout == 20:
+                    with patch.object(IMPACT, 'make_plan', side_effect=yaml_plan):
+                        code = IMPACT.plan_main(argv)
+                else:
+                    code = IMPACT.plan_main(argv)
+                self.assertEqual(calls, [timeout])
+                self.assertEqual(code, 2)
+                self.assertEqual(stdout.getvalue(), '')
+                self.assertEqual(json.loads(stderr.getvalue()), {
+                    'schema': 'verification-ci-error/v1', 'reason': 'input-invalid',
+                    'message': 'Planning subprocess timed out; verify local dependencies and retry.'})
+                self.assertNotIn(secret, stderr.getvalue())
+                self.assertNotIn('Traceback', stderr.getvalue())
+
     def test_cli_explicit_plan_and_create_only_output(self):
         output = Path(self.temp.name) / 'plan.json'
+        github_output = Path(self.temp.name) / 'github-output'
         command = [sys.executable, '-B', str(ROOT / 'tests/verification-impact.py'), '--plan',
                    '--root', str(self.root), '--trusted-root', str(self.trusted),
                    '--event', 'push', '--run-id', '123', '--run-attempt', '1',
                    '--api-head-sha', self.head, '--tested-revision', self.head,
-                   '--output', str(output)]
+                   '--output', str(output), '--github-output', str(github_output)]
         result = subprocess.run(command, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout), json.loads(output.read_text()))
+        self.assertEqual(github_output.read_text(), 'run_optional=true\nrun_test=true\n')
         self.assertEqual(subprocess.run(command, capture_output=True).returncode, 2)
+        duplicate = subprocess.run(command + ['--run-id', '124'], capture_output=True, text=True)
+        self.assertEqual(duplicate.returncode, 2)
+        self.assertEqual(json.loads(duplicate.stderr)['schema'], 'verification-ci-error/v1')
 
 
 
