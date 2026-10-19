@@ -1,0 +1,16 @@
+Independent planning hashes: ['08342512311c133554cb891fde65599090f6faaa2fa22d8c8e302302e5d8af1e', '08342512311c133554cb891fde65599090f6faaa2fa22d8c8e302302e5d8af1e', 'a6c484db0183de711a67f020cb394c9bd93dd3685aa3bbf98fe73583d2d71bea', 'a6c484db0183de711a67f020cb394c9bd93dd3685aa3bbf98fe73583d2d71bea']
+E
+======================================================================
+ERROR: test_content_changing_rename_selects_old_and_new_consumers (__main__.RenameConsumerTests.test_content_changing_rename_selects_old_and_new_consumers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 982, in test_content_changing_rename_selects_old_and_new_consumers
+    IMPACT.validate_plan(plan, expected=selected)
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 285, in validate_plan
+    raise ValueError('plan disagrees with independently bound counterpart')
+ValueError: plan disagrees with independently bound counterpart
+
+----------------------------------------------------------------------
+Ran 1 test in 1.610s
+
+FAILED (errors=1)

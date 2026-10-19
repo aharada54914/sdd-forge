@@ -6,6 +6,7 @@ import importlib.util
 import io
 import inspect
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -725,6 +726,37 @@ class ProofTests(GitFixture):
         self.assertEqual(p['groups'], ['test'])
         self.assertEqual(len(p['obligations']) + len(p['omissions']), len(self.full['obligations']))
 
+    def test_required_dependency_deletion_invalidates_activated_definition(self):
+        control = self.plan()
+        self.assertEqual((control['mode'], control['reason']), ('affected', 'classified-change'))
+        self.assertEqual({s for row in control['obligations'] for s in row['suites']}, set(self.suites))
+        self.assertTrue(control['omissions'])
+        category = self.catalog['impact']['categories'][0]
+        IMPACT.validate_activation(category, self.rule, self.root, self.base,
+                                   self.catalog, self.workflow, self.full['obligations'])
+        self.git('checkout', '-q', self.base)
+        del self.catalog['impact']['dependencies'][self.suites[0]]
+        # Every reference remains valid; only a required edge has disappeared.
+        self.assertTrue(all(key in self.suites and set(deps).issubset(self.suites)
+                            for key, deps in self.catalog['impact']['dependencies'].items()))
+        changed_rule = IMPACT.rule_digest(self.catalog, self.workflow)
+        self.assertNotEqual(changed_rule, self.rule)
+        with self.assertRaisesRegex(ValueError, 'activation definition mismatch'):
+            IMPACT.validate_activation(category, changed_rule, self.root, self.base,
+                                       self.catalog, self.workflow, self.full['obligations'])
+        self.write('tests/verification-catalog.json', json.dumps(self.catalog))
+        self.base = self.commit('delete required dependency without updating proof')
+        subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q', str(self.root), self.base], check=True)
+        subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', self.base], check=True)
+        self.write('docs/guide.txt', 'later classified edit')
+        self.head = self.commit('edit after dependency deletion')
+        rejected = self.plan()
+        self.assertEqual((rejected['mode'], rejected['reason']), ('full', 'unproven-category'))
+        self.assertTrue(rejected['trusted_planner_sha256'])
+        self.assertFalse(rejected['omissions'])
+        self.assertFalse(rejected['activation_evidence'])
+        self.assertEqual(rejected['obligations'], self.full['obligations'])
+
     def test_proof_fields_and_references_must_match(self):
         category = self.catalog['impact']['categories'][0]
         expected = IMPACT.validate_activation(category, self.rule, self.root, self.base,
@@ -824,6 +856,131 @@ class ProofTests(GitFixture):
             self.write('docs/guide.txt', 'changed')
             head = self.commit('change')
             self.assertEqual(self.plan(base=base, head=head, api_head_sha=head, tested_revision=head)['mode'], 'full')
+
+class RenameConsumerTests(GitFixture):
+    def test_content_changing_rename_selects_old_and_new_consumers(self):
+        self.git('checkout', '-q', self.base)
+        old, new = 'docs/old/guide.txt', 'docs/new/moved.txt'
+        original = ''.join(f'guide line {n:03}\n' for n in range(40))
+        self.write(old, original)
+        self.catalog['impact']['dependencies'] = {}
+        categories: list[dict[str, Any]] = [
+            dict(id=name, paths=[], prefixes=[f'docs/{name}/'], suites=[suite],
+                 groups=[], active=False, evidence=None)
+            for name, suite in [('old', self.suites[0]), ('new', self.suites[2])]]
+        self.catalog['impact']['categories'] = categories
+        self.catalog['impact']['non_suite_steps'] = [dict(job='optional', step='build', kind='build')]
+        self.workflow['jobs']['test']['steps'] = [
+            {'name': name, 'run': f'python3 {suite}'}
+            for name, suite in zip('abcd', self.suites)] + [
+                {'name': 'integrity', 'run': 'git diff --exit-code'}]
+        for category, path in zip(categories, (old, new)):
+            self.write(category['suites'][0], 'from pathlib import Path\n'
+                       f'p = Path({path!r})\n'
+                       'assert not p.exists() or "BROKEN" not in p.read_text()\n')
+        self.write('tests/verification-catalog.json', json.dumps(self.catalog))
+        self.write('.github/workflows/test.yml', json.dumps(self.workflow))
+        baseline = self.commit('distinct rename consumers and independent obligations')
+        rule = IMPACT.rule_digest(self.catalog, self.workflow)
+        full = IMPACT.make_plan(self.root, self.root, 'push', '123', 1, baseline, baseline)
+
+        def ref(path, value):
+            text = json.dumps(value, sort_keys=True) + '\n'
+            self.write(path, text)
+            return dict(path=path, sha256=hashlib.sha256(text.encode()).hexdigest())
+
+        def result(plan, failed_suite=None):
+            return dict(schema='verification-ci-result/v1', status='FAIL' if failed_suite else 'PASS',
+                        reason='execution-failed' if failed_suite else 'verified', run_id=plan['run_id'],
+                        api_head_sha=plan['api_head_sha'], tested_revision=plan['tested_revision'],
+                        plan_sha256=plan['plan_sha256'], results=[dict(
+                            obligation_id=row['id'], status='FAIL' if failed_suite in row['suites'] else 'PASS',
+                            reason='execution-failed' if failed_suite in row['suites'] else 'verified',
+                            job_id=index + 1, source_attempt=1)
+                            for index, row in enumerate(plan['obligations'])])
+
+        mutations = []
+        for category, path in zip(categories, (old, new)):
+            self.git('checkout', '-q', baseline)
+            self.write(path, 'BROKEN\n')
+            revision = self.commit('local consumer failure fixture')
+            execution = subprocess.run(['python3', '-B', category['suites'][0]],
+                                       cwd=self.root, capture_output=True)
+            self.assertNotEqual(execution.returncode, 0)
+            plan = IMPACT.make_plan(self.root, self.root, 'push', '124', 1, revision, revision)
+            mutations.append((plan, result(plan, category['suites'][0])))
+            subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q', str(self.root), revision], check=True)
+        self.git('checkout', '-q', baseline)
+        # Both input namespaces contain their passive protocol fixtures; neither
+        # category must trust undeclared changes to the other's input namespace.
+        full_ref = ref('docs/old/proof/full-plan.json', full)
+        full_result_ref = ref('docs/old/proof/full-result.json', result(full))
+        for category, path, (plan, failure) in zip(categories, (old, new), mutations):
+            prefix = 'docs/' + category['id'] + '/proof/rename'
+            proof = dict(schema='verification-ci-activation/v1', category=category['id'],
+                         rule_sha256=rule, baseline_revision=baseline,
+                         full_plan=full_ref, full_result=full_result_ref,
+                         consumer_inventory=ref(prefix + '-consumers.json', dict(
+                             schema='verification-ci-consumers/v1', baseline_revision=baseline,
+                             rule_sha256=rule, consumers=[dict(
+                                 input=category['prefixes'][0], suites=category['suites'], groups=[],
+                                 sources=[dict(path=category['suites'][0], sha256=hashlib.sha256(
+                                     (self.root / category['suites'][0]).read_bytes()).hexdigest())])])),
+                         mutation_evidence=ref(prefix + '-mutations.json', dict(
+                             schema='verification-ci-mutations/v1', baseline_revision=baseline,
+                             rule_sha256=rule, cases=[dict(input=path,
+                                 plan=ref(prefix + '-plan.json', plan),
+                                 result=ref(prefix + '-result.json', failure))])))
+            category.update(active=True, evidence={**ref(prefix + '-activation.json', proof),
+                                                   'rule_sha256': rule, 'baseline_revision': baseline})
+        self.write('tests/verification-catalog.json', json.dumps(self.catalog))
+        self.base = self.commit('local activation protocol fixtures, not hosted evidence')
+        for category in categories:
+            IMPACT.validate_activation(category, rule, self.root, self.base,
+                                       self.catalog, self.workflow, full['obligations'])
+        subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q', str(self.root), self.base], check=True)
+        subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', self.base], check=True)
+        for path, expected in [(old, {self.suites[0]}), (new, {self.suites[2]})]:
+            self.git('checkout', '-q', self.base)
+            self.write(path, original + 'independent control\n')
+            self.head = self.commit('matched single-consumer control')
+            for category in categories:
+                IMPACT.validate_activation(category, rule, self.root, self.head,
+                                           self.catalog, self.workflow, full['obligations'])
+            control = self.plan()
+            self.assertEqual((control['mode'], control['reason']), ('affected', 'classified-change'))
+            self.assertEqual({s for row in control['obligations'] for s in row['suites']}, expected)
+            self.assertTrue(control['omissions'])
+        self.git('checkout', '-q', self.base)
+        (self.root / old).rename(self.root / new)
+        self.write(new, original.replace('guide line 020', 'changed line 020'))
+        self.head = self.commit('rename with content changes')
+        self.assertNotEqual((self.root / new).read_text(), original)
+        self.assertRegex(self.git('diff', '--name-status', '-M', self.base, self.head),
+                         r'^R[0-9]+\tdocs/old/guide\.txt\tdocs/new/moved\.txt$')
+        paths, status = IMPACT.changed_paths(self.root, self.base, self.head)
+        self.assertEqual((paths, status), ({old, new}, 'diff-available'))
+        selected = self.plan()
+        self.assertEqual((selected['mode'], selected['reason']), ('affected', 'classified-change'))
+        self.assertEqual({s for row in selected['obligations'] for s in row['suites']},
+                         {self.suites[0], self.suites[2]})
+        self.assertEqual({row['category'] for row in selected['activation_evidence']}, {'old', 'new'})
+        self.assertTrue(selected['omissions'])
+        command = [sys.executable, '-B', str(self.trusted / 'tests/verification-impact.py'),
+                   '--plan', '--root', str(self.root), '--trusted-root', str(self.trusted),
+                   '--event', 'pull_request', '--run-id', '123', '--run-attempt', '1',
+                   '--api-head-sha', self.head, '--tested-revision', self.head,
+                   '--base', self.base, '--head', self.head, '--force-full', 'false']
+        independent = []
+        for seed in ('0', '1', '2', '3'):
+            completed = subprocess.run(command, capture_output=True, check=True,
+                                       env={**os.environ, 'PYTHONHASHSEED': seed})
+            independent.append(IMPACT.strict_json(completed.stdout))
+        print('Independent planning hashes:', [plan['plan_sha256'] for plan in independent])
+        for plan in independent:
+            self.assertEqual(plan, independent[0])
+            IMPACT.validate_plan(plan, expected=selected)
+
 
 if __name__ == '__main__':
     unittest.main()
