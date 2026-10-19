@@ -1106,5 +1106,15 @@ foreach ($reviewerDecl in @(
 
 }
 
+# T-006 policy entrypoint integration: positive selection and separate case hazards.
+$t006PriorBackend = $env:SDD_TEST_POLICY_BACKEND
+try {
+    $env:SDD_TEST_POLICY_BACKEND = 'powershell'
+    & python3 -B (Join-Path $root 'tests/model-policy.tests.py') PolicySelection.test_wrapper_policy_smoke
+    if ($LASTEXITCODE -ne 0) { Fail 'T-006 policy selection integration failed' }
+} finally {
+    $env:SDD_TEST_POLICY_BACKEND = $t006PriorBackend
+}
+
 Write-Output 'ok: turn-first model routing structure is defined (PowerShell twin)'
 exit 0

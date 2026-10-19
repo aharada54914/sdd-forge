@@ -1236,4 +1236,8 @@ if command -v pwsh >/dev/null 2>&1; then
     fail "PowerShell selector let the fallback win the equal-cost tie on the v2 registry: $fb_ps_v2"
 fi
 
+# T-006 policy entrypoint integration: positive selection and both independent case hazards.
+SDD_TEST_POLICY_BACKEND=bash python3 -B "$ROOT/tests/model-policy.tests.py" \
+  PolicySelection.test_wrapper_policy_smoke
+
 printf 'ok: turn-first model routing structure is defined\n'
