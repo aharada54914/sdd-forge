@@ -54,6 +54,28 @@ class LaunchPlatformBoundary(unittest.TestCase):
                 self.assertIn('control', envelope['message'].lower())
                 errors.close()
 
+    def test_paired_sidecar_missing_primitives_reject_before_file_access(self):
+        script = ROOT / 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py'
+        spec = importlib.util.spec_from_file_location('launch_platform_transport', script)
+        if spec is None or spec.loader is None:
+            self.fail('paired transport loader is unavailable')
+        transport = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(transport)
+        unavailable: list[tuple[str, object]] = [
+            ('O_NOFOLLOW', None), ('O_DIRECTORY', None), ('O_NONBLOCK', None),
+            ('supports_dir_fd', set()), ('supports_fd', set())]
+        for name, value in unavailable:
+            with self.subTest(primitive=name), mock.patch.object(transport.os, name, value, create=True), \
+                    mock.patch.object(transport.os, 'open', side_effect=ValueError('unexpected read')) as opened:
+                if name in ('O_NOFOLLOW', 'O_DIRECTORY', 'O_NONBLOCK'):
+                    delattr(transport.os, name)  # actual absence; restoring mock reinstalls it
+                supported = set(transport.os.supports_dir_fd)
+                support_context = (contextlib.nullcontext() if name == 'supports_dir_fd' else
+                                   mock.patch.object(transport.os, 'supports_dir_fd', supported | {opened}))
+                with support_context, self.assertRaises(ValueError):
+                    transport.read_regular(ROOT / 'missing-sidecar.json', 1024, 'model launch sidecar')
+                opened.assert_not_called()
+
     def test_actual_host_capability_boundary_rejects_missing_controls_without_launch(self):
         spec = importlib.util.spec_from_file_location('launch_platform_actual_helper', HELPER)
         if spec is None or spec.loader is None:

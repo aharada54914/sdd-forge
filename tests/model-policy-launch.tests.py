@@ -1328,6 +1328,22 @@ class PairedClaudeLaunch(LaunchFixture):
                 finally:
                     (self.root / path).write_bytes(original)
 
+    def test_paired_sidecar_rejects_symlinked_parent_before_controls_revalidation(self):
+        binding, _ = self.bind('task-reviewer-a')
+        command = self.command('task-reviewer-a', binding)
+        real = self.root / 'reports/real-parent/launch'
+        real.mkdir(parents=True)
+        with self.model_env(), self.in_root():
+            digest = self.transport.record_model_launch(real, binding, command, 'generated')
+            self.transport.verify_model_launch(self.root, real, digest, binding, command)
+        alias = self.root / 'reports/aliased-parent'
+        alias.symlink_to(real.parent, target_is_directory=True)
+        with self.model_env(), self.in_root(), mock.patch.object(
+                self.transport, 'fresh_model_binding', return_value=binding) as refreshed:
+            with self.assertRaises(ValueError):
+                self.transport.verify_model_launch(self.root, alias / 'launch', digest, binding, command)
+            refreshed.assert_not_called()
+
     def test_paired_launch_binding_every_field_counterpart(self):
         role = 'spec-reviewer-a'
         definition = self.root / 'plugins/sdd-review-loop/agents' / (role + '.md')
