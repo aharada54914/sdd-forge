@@ -1778,5 +1778,43 @@ class SchemaContractTests(IdentityCase):
 
 
 
+
+
+class SupplementalMonetaryMetadataTests(IdentityCase):
+    def test_finite_large_integer_amounts_remain_exact_through_binding_and_resume(self):
+        record = pinned_selection()
+        record['budget']['amount'] = 10 ** 1000
+        record['estimate']['amount'] = 10 ** 999
+        record = seal(record)
+        self.assertIsNone(self.validate(record))
+        result = self.bind(record)
+        self.assertEqual(result['budget']['amount'], 10 ** 1000)
+        self.assertEqual(result['estimate']['amount'], 10 ** 999)
+        self.assertIsNone(self.resume(result, record))
+        self.assertEqual(result['selection_sha256'], digest(result))
+        self.assertEqual(strict_load(canonical(result)), result)
+        record['estimate']['amount'] = 10 ** 1001
+        self.assertRejects(BUDGET, self.validate, seal(record))
+
+    def test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo(self):
+        contract = SchemaContractTests('test_delivery_schema_closed_fields_and_enums')
+        schema = contract.load('model-selection.schema.json')
+        estimate = contract.assertClosed(schema, schema['properties']['estimate'], ESTIMATE_FIELDS)
+        pattern = estimate['source_url']['pattern']
+        for url in ('https://pricing.example.invalid:443/pricing',
+                    'https://[::1]/pricing', 'https://[2001:db8::1]:443/pricing'):
+            with self.subTest(valid=url):
+                record = pinned_selection()
+                record['estimate']['source_url'] = url
+                self.assertIsNone(self.validate(seal(record)))
+                self.assertIsNotNone(re.search(pattern, url), 'producer-accepted HTTPS must match schema')
+        for url in ('https://example.invalid:abc/pricing', 'https://@example.invalid/pricing',
+                    'https://example.invalid:65536/pricing'):
+            with self.subTest(invalid=url):
+                record = pinned_selection()
+                record['estimate']['source_url'] = url
+                self.assertRejects(INVALID, self.validate, seal(record))
+
+
 if __name__ == '__main__':
     unittest.main()
