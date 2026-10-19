@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -22,7 +23,7 @@ def module(name, filename):
     return result
 
 
-I = module('impact', 'verification-impact.py')
+IMPACT = module('impact', 'verification-impact.py')
 W = module('workflow', 'verification-workflow.py')
 
 
@@ -51,7 +52,7 @@ class WireTests(unittest.TestCase):
 
     def test_every_persisted_field_matches_independent_counterpart(self):
         expected = self.signed(sample_plan())
-        I.validate_plan(expected, expected=expected)
+        IMPACT.validate_plan(expected, expected=expected)
         changes = dict(schema='verification-ci-plan/v2', mode='affected', reason='force-full',
                        event='release', run_id='124', planning_attempt=2,
                        api_head_sha='c' * 40, tested_revision='d' * 40,
@@ -68,9 +69,9 @@ class WireTests(unittest.TestCase):
             with self.subTest(field=field):
                 bad = self.signed({**expected, field: value})
                 with self.assertRaises(ValueError):
-                    I.validate_plan(bad, expected=expected)
+                    IMPACT.validate_plan(bad, expected=expected)
         with self.assertRaises(ValueError):
-            I.validate_plan({**expected, 'plan_sha256': '0' * 64}, expected=expected)
+            IMPACT.validate_plan({**expected, 'plan_sha256': '0' * 64}, expected=expected)
 
     def test_every_obligation_field_mismatch_and_guard_sensitivity(self):
         expected = self.signed(sample_plan())
@@ -82,14 +83,14 @@ class WireTests(unittest.TestCase):
                 bad = copy.deepcopy(expected)
                 bad['obligations'][0][field] = value
                 bad = self.signed(bad)
-                I.validate_plan(expected, expected=expected)
+                IMPACT.validate_plan(expected, expected=expected)
                 with self.assertRaises(ValueError):
-                    I.validate_plan(bad, expected=expected)
+                    IMPACT.validate_plan(bad, expected=expected)
         # Sensitivity: replacing the boundary with a no-op really loses rejection.
-        with patch.object(I, 'validate_plan', return_value=None):
+        with patch.object(IMPACT, 'validate_plan', return_value=None):
             with self.assertRaises(AssertionError):
                 with self.assertRaises(ValueError):
-                    I.validate_plan(bad, expected=expected)
+                    IMPACT.validate_plan(bad, expected=expected)
 
     def test_omission_and_activation_field_pairs(self):
         expected = sample_plan()
@@ -101,7 +102,7 @@ class WireTests(unittest.TestCase):
                                                   sha256='2' * 64, rule_sha256='3' * 64,
                                                   baseline_revision='4' * 40)])
         expected = self.signed(expected)
-        I.validate_plan(expected, expected=expected)
+        IMPACT.validate_plan(expected, expected=expected)
         for container, field, value in (
             ('omissions', 'id', 'other'), ('omissions', 'reason', ''),
             ('activation_evidence', 'category', 'other'),
@@ -114,27 +115,27 @@ class WireTests(unittest.TestCase):
                 bad = copy.deepcopy(expected)
                 bad[container][0][field] = value
                 with self.assertRaises(ValueError):
-                    I.validate_plan(self.signed(bad), expected=expected)
+                    IMPACT.validate_plan(self.signed(bad), expected=expected)
         for field in ('omissions', 'activation_evidence'):
             bad = copy.deepcopy(expected)
             bad[field].append(bad[field][0])
             with self.assertRaises(ValueError):
-                I.validate_plan(self.signed(bad))
+                IMPACT.validate_plan(self.signed(bad))
 
     def test_fixed_condition_outputs_and_collision_rejection(self):
         plan = self.signed(sample_plan())
-        self.assertEqual(I.condition_outputs(plan, ['test', 'optional-group']),
+        self.assertEqual(IMPACT.condition_outputs(plan, ['test', 'optional-group']),
                          {'run_test': 'true', 'run_optional_group': 'false'})
         for groups in (['test', 'test'], ['test', 'bad\nkey'], ['test', 'a-b', 'a_b']):
             with self.assertRaises(ValueError):
-                I.condition_outputs(plan, groups)
+                IMPACT.condition_outputs(plan, groups)
 
     def test_strict_json_schema_and_duplicate_unsafe_inputs(self):
         good = self.signed(sample_plan())
-        I.validate_plan(good)
+        IMPACT.validate_plan(good)
         for text in ('{"x":1,"x":2}', '{"x":NaN}', '{"x":Infinity}', '[]', '{} {}'):
             with self.subTest(text=text), self.assertRaises(ValueError):
-                I.strict_json(text)
+                IMPACT.strict_json(text)
         for mutate in (
             lambda p: p.update(extra=True),
             lambda p: p.update(planning_attempt=True),
@@ -150,7 +151,7 @@ class WireTests(unittest.TestCase):
             bad = copy.deepcopy(good)
             mutate(bad)
             with self.assertRaises(ValueError):
-                I.validate_plan(self.signed(bad))
+                IMPACT.validate_plan(self.signed(bad))
         schema = json.loads((ROOT / 'contracts/verification-ci-plan.schema.json').read_text())
         self.assertEqual(set(schema['required']), set(good))
         self.assertIs(schema['additionalProperties'], False)
@@ -169,13 +170,13 @@ class PlanningTests(unittest.TestCase):
         self.suites = ['tests/a.tests.py', 'tests/b.tests.py', 'tests/c.tests.py', 'tests/d.tests.py']
         for path in self.suites:
             self.write(path, 'print("fixture")\n')
-        self.catalog = dict(schema='verification-catalog/v1',
+        self.catalog: dict[str, Any] = dict(schema='verification-catalog/v1',
                             suites=[dict(path=p, runtime='python') for p in self.suites],
                             profiles={'fixture': self.suites},
                             impact=dict(schema='verification-impact-rules/v1', categories=[],
                                         dependencies={self.suites[0]: [self.suites[1]],
                                                       self.suites[2]: [self.suites[3]]}))
-        self.workflow = {'jobs': {
+        self.workflow: dict[str, Any] = {'jobs': {
             'test': {'runs-on': 'ubuntu-latest', 'steps': [
                 {'name': 'a', 'run': 'python3 tests/a.tests.py'},
                 {'name': 'bc', 'run': 'python3 tests/b.tests.py\npython3 tests/c.tests.py'},
@@ -212,7 +213,7 @@ class PlanningTests(unittest.TestCase):
                     run_id='123', run_attempt=1, api_head_sha=self.head,
                     tested_revision=self.head, base=self.base, head=self.head, force_full='false')
         args.update(kwargs)
-        return I.make_plan(**args)
+        return IMPACT.make_plan(**args)
 
     def test_bound_full_and_event_force_precedence(self):
         p = self.plan()
@@ -235,10 +236,10 @@ class PlanningTests(unittest.TestCase):
                        dict(event='PUSH')):
             with self.subTest(values=values), self.assertRaises(ValueError):
                 self.plan(**values)
-        for values in (dict(base=None), dict(base='e' * 40), dict(head='d' * 40),
+        for optional_values in (dict(base=None), dict(base='e' * 40), dict(head='d' * 40),
                        dict(head=self.base), dict(api_head_sha=self.base)):
-            with self.subTest(values=values):
-                self.assertEqual(self.plan(**values)['mode'], 'full')
+            with self.subTest(values=optional_values):
+                self.assertEqual(self.plan(**optional_values)['mode'], 'full')
 
     def test_merge_parents_and_api_head_are_separate(self):
         self.git('checkout', '-qb', 'base-side', self.base)
@@ -267,7 +268,7 @@ class PlanningTests(unittest.TestCase):
         for n in range(3001):
             self.write(f'many/{n:04}.txt', str(n))
         end = self.commit('changes')
-        paths, status = I.changed_paths(self.root, start, end)
+        paths, status = IMPACT.changed_paths(self.root, start, end)
         self.assertEqual(status, 'diff-available')
         self.assertEqual(paths, names | {'Old.txt', 'old.txt', 'type.txt', 'docs/guide.txt'} |
                          {f'many/{n:04}.txt' for n in range(3001)})
@@ -306,24 +307,25 @@ class PlanningTests(unittest.TestCase):
 
     def test_dependency_and_indivisible_step_fixed_point(self):
         obligations = W.plan_obligations(self.workflow, self.catalog)
-        selected = I.dependency_closure({self.suites[0]}, set(), self.catalog, obligations)
+        selected = IMPACT.dependency_closure({self.suites[0]}, set(), self.catalog, obligations)
         self.assertEqual(selected, set(self.suites))
         self.catalog['impact']['dependencies'][self.suites[0]] = ['tests/missing.tests.py']
         with self.assertRaises(ValueError):
-            I.dependency_closure({self.suites[0]}, set(), self.catalog, obligations)
+            IMPACT.dependency_closure({self.suites[0]}, set(), self.catalog, obligations)
 
     def test_definition_hash_excludes_proof_pointers_not_command_definitions(self):
         category = dict(id='guide', paths=['docs/guide.txt'], prefixes=[],
                         suites=[self.suites[0]], groups=[], active=False, evidence=None)
         self.catalog['impact']['categories'] = [category]
-        original = I.rule_digest(self.catalog, self.workflow)
+        original = IMPACT.rule_digest(self.catalog, self.workflow)
         category['active'] = True
-        category['evidence'] = {'path': 'proof.json', 'sha256': '0' * 64}
-        self.assertEqual(I.rule_digest(self.catalog, self.workflow), original)
+        category['evidence'] = {'path': 'proof.json', 'sha256': '0' * 64,
+                                'rule_sha256': '1' * 64, 'baseline_revision': '2' * 40}
+        self.assertEqual(IMPACT.rule_digest(self.catalog, self.workflow), original)
         self.write('docs/guide.txt', 'ordinary product edit')
-        self.assertEqual(I.rule_digest(self.catalog, self.workflow), original)
+        self.assertEqual(IMPACT.rule_digest(self.catalog, self.workflow), original)
         category['suites'] = [self.suites[1]]
-        self.assertNotEqual(I.rule_digest(self.catalog, self.workflow), original)
+        self.assertNotEqual(IMPACT.rule_digest(self.catalog, self.workflow), original)
 
     def test_cli_explicit_plan_and_create_only_output(self):
         output = Path(self.temp.name) / 'plan.json'
@@ -338,5 +340,137 @@ class PlanningTests(unittest.TestCase):
         self.assertEqual(subprocess.run(command, capture_output=True).returncode, 2)
 
 
+
+class ProofTests(PlanningTests):
+    def setUp(self):
+        super().setUp()
+        self.git('checkout', '-q', self.base)
+        self.catalog['impact']['categories'] = [dict(
+            id='guide', paths=['docs/guide.txt'], prefixes=[], suites=[self.suites[0]],
+            groups=[], active=False, evidence=None)]
+        # Declared build command is omittable; opaque integrity stays mandatory.
+        self.catalog['impact']['non_suite_steps'] = [
+            dict(job='optional', step='build', kind='build')]
+        self.write('tests/verification-catalog.json', json.dumps(self.catalog))
+        self.baseline = self.commit('inactive category definition')
+        self.rule = IMPACT.rule_digest(self.catalog, self.workflow)
+        self.full = IMPACT.make_plan(self.root, self.root, 'push', '123', 1,
+                                     self.baseline, self.baseline)
+        self.full_result = self.result(self.full, False)
+        self.git('checkout', '-qb', 'mutation')
+        self.write('docs/guide.txt', 'deliberate broken input')
+        mutation_revision = self.commit('mutation fixture')
+        mutation_plan = IMPACT.make_plan(self.root, self.root, 'push', '124', 1,
+                                         mutation_revision, mutation_revision)
+        mutation_result = self.result(mutation_plan, True)
+        self.git('checkout', '-q', self.baseline)
+        self.proof = dict(schema='verification-ci-activation/v1', category='guide',
+                          rule_sha256=self.rule, baseline_revision=self.baseline,
+                          full_plan=self.ref('proof/full-plan.json', self.full),
+                          full_result=self.ref('proof/full-result.json', self.full_result),
+                          consumer_inventory=self.ref('proof/consumers.json', dict(
+                              schema='verification-ci-consumers/v1', baseline_revision=self.baseline,
+                              rule_sha256=self.rule, consumers=[dict(
+                                  input='docs/guide.txt', suites=[self.suites[0]], groups=[],
+                                  sources=[dict(path='docs/guide.txt', sha256=hashlib.sha256(b'old\n').hexdigest())])])),
+                          mutation_evidence=self.ref('proof/mutations.json', dict(
+                              schema='verification-ci-mutations/v1', baseline_revision=self.baseline,
+                              rule_sha256=self.rule, cases=[dict(input='docs/guide.txt',
+                                  plan=self.ref('proof/mutation-plan.json', mutation_plan),
+                                  result=self.ref('proof/mutation-result.json', mutation_result))])))
+        self.activate()
+
+    def result(self, plan, failing):
+        return dict(schema='verification-ci-result/v1', status='FAIL' if failing else 'PASS',
+                    reason='execution-failed' if failing else 'verified', run_id=plan['run_id'],
+                    api_head_sha=plan['api_head_sha'], tested_revision=plan['tested_revision'],
+                    plan_sha256=plan['plan_sha256'], results=[dict(
+                        obligation_id=o['id'], status='FAIL' if failing and o['step'] == 'a' else 'PASS',
+                        reason='execution-failed' if failing and o['step'] == 'a' else 'verified',
+                        job_id=n + 1, source_attempt=1) for n, o in enumerate(plan['obligations'])])
+
+    def ref(self, path, value):
+        text = json.dumps(value, sort_keys=True) + '\n'
+        self.write(path, text)
+        return dict(path=path, sha256=hashlib.sha256(text.encode()).hexdigest())
+
+    def activate(self):
+        ref = self.ref('proof/activation.json', self.proof)
+        self.catalog['impact']['categories'][0].update(active=True, evidence={
+            **ref, 'rule_sha256': self.rule, 'baseline_revision': self.baseline})
+        self.write('tests/verification-catalog.json', json.dumps(self.catalog))
+        self.base = self.commit('reviewed fixture proof; not hosted evidence')
+        subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q', str(self.root), self.base], check=True)
+        subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', self.base], check=True)
+        self.write('docs/guide.txt', 'ordinary product change')
+        self.head = self.commit('classified change')
+
+    def test_positive_affected_dependency_partition_and_bound_proof(self):
+        p = self.plan()
+        self.assertEqual(p['mode'], 'affected')
+        self.assertEqual({s for o in p['obligations'] for s in o['suites']}, set(self.suites))
+        self.assertEqual(len(p['omissions']), 1)
+        self.assertTrue(all(o['reason'] for o in p['omissions']))
+        self.assertEqual(p['activation_evidence'][0]['rule_sha256'], self.rule)
+        self.assertEqual(p['activation_evidence'][0]['baseline_revision'], self.baseline)
+        self.assertEqual(p['groups'], ['test'])
+        self.assertEqual(len(p['obligations']) + len(p['omissions']), len(self.full['obligations']))
+
+    def test_proof_fields_and_references_must_match(self):
+        category = self.catalog['impact']['categories'][0]
+        expected = IMPACT.validate_activation(category, self.rule, self.root, self.base,
+                                              self.catalog, self.workflow, self.full['obligations'])
+        self.assertEqual(expected['category'], 'guide')
+        for key in self.proof:
+            with self.subTest(field=key):
+                bad = copy.deepcopy(self.proof)
+                bad[key] = 'mismatch' if isinstance(bad[key], str) else {'path': '../escape', 'sha256': '0' * 64}
+                with patch.object(IMPACT, 'read_reference', return_value=bad):
+                    with self.assertRaises(ValueError):
+                        IMPACT.validate_activation(category, self.rule, self.root, self.base,
+                                                   self.catalog, self.workflow, self.full['obligations'])
+        for key in ('path', 'sha256', 'rule_sha256', 'baseline_revision'):
+            bad_category = copy.deepcopy(category)
+            bad_category['evidence'][key] = 'wrong'
+            with self.subTest(reference=key), self.assertRaises(ValueError):
+                IMPACT.validate_activation(bad_category, self.rule, self.root, self.base,
+                                           self.catalog, self.workflow, self.full['obligations'])
+
+    def test_full_result_and_consumer_mutation_records_are_not_success_flags(self):
+        category = self.catalog['impact']['categories'][0]
+        real_reader = IMPACT.read_reference
+        for path, mutate in (
+            ('proof/full-result.json', lambda d: d.update(results=[])),
+            ('proof/full-result.json', lambda d: d.update(plan_sha256='0' * 64)),
+            ('proof/full-result.json', lambda d: d['results'][0].update(status='FAIL')),
+            ('proof/consumers.json', lambda d: d.update(consumers=[])),
+            ('proof/consumers.json', lambda d: d['consumers'][0]['sources'][0].update(sha256='0' * 64)),
+            ('proof/mutations.json', lambda d: d.update(cases=[])),
+            ('proof/mutation-result.json', lambda d: d.update(status='PASS')),
+            ('proof/mutation-result.json', lambda d: d['results'][-1].update(status='FAIL')),
+        ):
+            def reader(root, revision, reference):
+                value = real_reader(root, revision, reference)
+                if reference['path'] == path:
+                    mutate(value)
+                return value
+            with self.subTest(path=path), patch.object(IMPACT, 'read_reference', side_effect=reader):
+                with self.assertRaises(ValueError):
+                    IMPACT.validate_activation(category, self.rule, self.root, self.base,
+                                               self.catalog, self.workflow, self.full['obligations'])
+
+    def test_inactive_corrupt_proof_shared_and_opaque_changes_never_omit(self):
+        for field, value in (('active', False), ('evidence', None)):
+            self.git('checkout', '-q', self.base)
+            self.catalog['impact']['categories'][0][field] = value
+            self.write('tests/verification-catalog.json', json.dumps(self.catalog))
+            base = self.commit('unproven category')
+            subprocess.run(['git', '-C', str(self.trusted), 'fetch', '-q', str(self.root), base], check=True)
+            subprocess.run(['git', '-C', str(self.trusted), 'checkout', '-q', base], check=True)
+            self.write('docs/guide.txt', 'changed')
+            head = self.commit('change')
+            self.assertEqual(self.plan(base=base, head=head, api_head_sha=head, tested_revision=head)['mode'], 'full')
+
+'''
 if __name__ == '__main__':
     unittest.main()

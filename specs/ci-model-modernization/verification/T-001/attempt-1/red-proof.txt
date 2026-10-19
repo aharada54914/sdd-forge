@@ -1,0 +1,4 @@
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 474
+    '''
+    ^
+SyntaxError: unterminated triple-quoted string literal (detected at line 476)
