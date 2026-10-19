@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "tests/verification-ci.tests.py",
+    "Cycle1RegressionTests.test_RT010_finite_duration_integer_and_float_cli_contract",
+    "Cycle1RegressionTests.test_RT010_nonfinite_duration_raw_json_cli_rejected",
+    "Cycle1RegressionTests.test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary",
+    "Cycle1RegressionTests.test_RT011_deep_json_collect_and_hash_bound_aggregate_cli_boundaries",
+    "Cycle1RegressionTests.test_RT013_path_resolution_loop_cli_returns_typed_error"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "TMPDIR": "/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/tmp",
+  "exit": 1,
+  "source_hashes": {
+    "tests/verification-ci.py": "f7f1dab5e7e098b9895213796541617655459edc320a32228ea1aa71ec8a5b10",
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+    "tests/verification-ci.tests.py": "5f09d0d1ab3b09e0c751968debd556616b5f7069a2bd1ef3b787172ac91549d0"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "recorded_at": "2026-10-19T15:04:46.279489+00:00"
+}

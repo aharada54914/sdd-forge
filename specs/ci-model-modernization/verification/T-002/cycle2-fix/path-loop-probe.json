@@ -1,0 +1,72 @@
+{
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "kind": "actual CLI probe, local filesystem only",
+  "results": [
+    {
+      "field": "root",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/tests/verification-ci.py",
+        "aggregate",
+        "--root",
+        "/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/resolve-loop",
+        "--observations",
+        "/tmp/ci-model-t002-cycle2-fix-6dnfx3ic",
+        "--plan",
+        "/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/nonexistent-plan.json",
+        "--run-id",
+        "123",
+        "--api-head-sha",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1250, in resolve\n    p.stat()\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 840, in stat\n    return os.stat(self, follow_symlinks=follow_symlinks)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nOSError: [Errno 40] Too many levels of symbolic links: '/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/resolve-loop'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/workspace/sdd-forge/tests/verification-ci.py\", line 685, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/workspace/sdd-forge/tests/verification-ci.py\", line 671, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1252, in resolve\n    check_eloop(e)\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1237, in check_eloop\n    raise RuntimeError(\"Symlink loop from %r\" % e.filename)\nRuntimeError: Symlink loop from '/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/resolve-loop'\n"
+    },
+    {
+      "field": "observations",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/tests/verification-ci.py",
+        "aggregate",
+        "--root",
+        "/workspace/sdd-forge",
+        "--observations",
+        "/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/resolve-loop",
+        "--plan",
+        "/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/probe-plan.json",
+        "--run-id",
+        "123",
+        "--api-head-sha",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "exit": 2,
+      "stdout": "",
+      "stderr": "{\"message\":\"Invalid or unavailable CI input; check the bound plan and complete observations.\",\"reason\":\"input-invalid\",\"schema\":\"verification-ci-error/v1\"}\n"
+    },
+    {
+      "field": "observations with readable plan",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/tests/verification-ci.py",
+        "aggregate",
+        "--root",
+        "/workspace/sdd-forge",
+        "--observations",
+        "/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/resolve-loop",
+        "--plan",
+        "/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/probe-plan.json",
+        "--run-id",
+        "123",
+        "--api-head-sha",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1250, in resolve\n    p.stat()\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 840, in stat\n    return os.stat(self, follow_symlinks=follow_symlinks)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nOSError: [Errno 40] Too many levels of symbolic links: '/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/resolve-loop'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/workspace/sdd-forge/tests/verification-ci.py\", line 685, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/workspace/sdd-forge/tests/verification-ci.py\", line 671, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1252, in resolve\n    check_eloop(e)\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1237, in check_eloop\n    raise RuntimeError(\"Symlink loop from %r\" % e.filename)\nRuntimeError: Symlink loop from '/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/resolve-loop'\n"
+    }
+  ]
+}

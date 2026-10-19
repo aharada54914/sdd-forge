@@ -1276,5 +1276,102 @@ sys.stdout.buffer.write(b'HTTP/2.0 200 OK\\r\\n\\r\\n'+base64.b64decode(response
         self.aggregate_cli(observations)
 
 
+    def test_RT010_finite_duration_integer_and_float_cli_contract(self):
+        for value, expected in ((10**400, 0), (-(10**400), 1), (0, 0), (0.25, 0),
+                                (1e308, 0), (-0.25, 1), (True, 1)):
+            with self.subTest(seconds=value):
+                self.receipts = copy.deepcopy(self.original_receipts)
+                for _, _, receipt, _, _ in self.receipts:
+                    receipt['results'][0]['seconds'] = value
+                self.aggregate_cli(self.collect_cli(), expected=expected)
+
+    def test_RT010_nonfinite_duration_raw_json_cli_rejected(self):
+        for token in ('NaN', 'Infinity', '-Infinity', '1e999'):
+            with self.subTest(token=token):
+                observations = self.collect_cli()
+                manifest = json.loads((observations / 'collection.json').read_text())
+                ref = manifest['artifacts'][0]
+                path = observations / ref['path']
+                receipt = json.loads(path.read_text())
+                receipt['results'][0]['seconds'] = 'NONFINITE_TOKEN'
+                path.write_text(json.dumps(receipt).replace('"NONFINITE_TOKEN"', token))
+                ref['sha256'] = sha(path.read_bytes())
+                (observations / 'collection.json').write_bytes(P.canonical(manifest))
+                self.aggregate_cli(observations, expected=1)
+
+    def test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary(self):
+        for corrupt in (False, True):
+            with self.subTest(corrupt=corrupt):
+                def mutate(responses):
+                    for endpoint in list(responses):
+                        if not endpoint.endswith('/zip'):
+                            continue
+                        with zipfile.ZipFile(io.BytesIO(responses[endpoint])) as archive:
+                            receipt = archive.read('receipt.json')
+                        stream = io.BytesIO()
+                        with zipfile.ZipFile(stream, 'w', compression=zipfile.ZIP_LZMA) as archive:
+                            archive.writestr('receipt.json', receipt)
+                        raw = bytearray(stream.getvalue())
+                        if corrupt:
+                            offset = 30 + int.from_bytes(raw[26:28], 'little') + int.from_bytes(raw[28:30], 'little')
+                            raw[offset + 4] = 255  # Invalid LZMA properties, within a valid ZIP container.
+                        responses[endpoint] = bytes(raw)
+                observations = self.collect_cli(mutate, expected=2 if corrupt else 0)
+                if not corrupt:
+                    self.aggregate_cli(observations)
+
+    def test_RT011_deep_json_collect_and_hash_bound_aggregate_cli_boundaries(self):
+        deep = b'{"nested":' + b'[' * 10000 + b'0' + b']' * 10000 + b'}'
+        prefix = '/repos/owner/repo/actions/runs/123'
+        for endpoint in (prefix, prefix + '/attempts/1/jobs?per_page=100'):
+            with self.subTest(api=endpoint):
+                self.collect_cli(lambda responses: responses.update({endpoint: deep}), expected=2)
+        for surface in ('run', 'jobs', 'collection'):
+            with self.subTest(surface=surface):
+                observations = self.collect_cli()
+                manifest = json.loads((observations / 'collection.json').read_text())
+                if surface == 'collection':
+                    (observations / 'collection.json').write_bytes(deep)
+                else:
+                    ref = manifest['run'] if surface == 'run' else manifest['jobs'][0]
+                    (observations / ref['path']).write_bytes(deep)
+                    ref['sha256'] = sha(deep)
+                    (observations / 'collection.json').write_bytes(P.canonical(manifest))
+                self.aggregate_cli(observations, expected=2 if surface == 'collection' else 1)
+        self.aggregate_cli(self.collect_cli())
+
+    def test_RT013_path_resolution_loop_cli_returns_typed_error(self):
+        observations = self.collect_cli()
+        loop = self.scratch / 'self-loop'
+        loop.symlink_to(loop.name)
+        plan_path = self.scratch / 'loop-plan.json'
+        plan_path.write_bytes(P.canonical(self.plan))
+        for field, looping in (('root', False), ('observations', False), ('root', True), ('observations', True)):
+            with self.subTest(field=field, looping=looping):
+                resolved_input = loop
+                if not looping:
+                    resolved_input = self.scratch / ('valid-link-' + field)
+                    resolved_input.symlink_to(self.root if field == 'root' else observations, target_is_directory=True)
+                output = self.scratch / ('loop-result-' + field + str(looping) + '.json')
+                command = [sys.executable, '-B', str(SCRIPT), 'aggregate',
+                           '--root', str(resolved_input if field == 'root' else self.root),
+                           '--plan', str(plan_path),
+                           '--observations', str(resolved_input if field == 'observations' else observations),
+                           '--run-id', '123', '--api-head-sha', self.revision, '--output', str(output)]
+                result = subprocess.run(command, capture_output=True, text=True)
+                self.assertNotIn('Traceback', result.stdout + result.stderr)
+                self.assertEqual(result.returncode, 2 if looping else 0, result.stdout + result.stderr)
+                if looping:
+                    self.ci.validate_error(json.loads(result.stderr))
+                    self.assertFalse(result.stdout)
+                    self.assertFalse(output.exists())
+                else:
+                    payload = json.loads(result.stdout)
+                    self.ci.validate_result(payload)
+                    self.assertEqual(payload['status'], 'PASS')
+                    self.assertEqual(json.loads(output.read_text()), payload)
+                    self.assertFalse(result.stderr)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

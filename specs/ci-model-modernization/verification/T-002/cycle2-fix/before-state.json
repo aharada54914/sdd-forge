@@ -1,0 +1,13 @@
+{
+  "actor": "work-agent:root:t002_implementation",
+  "manifest": "specs/ci-model-modernization/verification/T-002/cycle2-fix/task-input-manifest.json",
+  "manifest_sha256": "6613c9e10ae771b11f1fc627a8cdfb6c2f71231ed3096d387a7343e829169ab9",
+  "verified_inputs": 90,
+  "baseline": {
+    "tests/verification-ci.py": "f7f1dab5e7e098b9895213796541617655459edc320a32228ea1aa71ec8a5b10",
+    "tests/verification-ci.tests.py": "63a1c14beb742c930e4a84775f30405583da8c62373bf95ba83e191e06ddd266",
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493"
+  },
+  "before_bytes": "/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/before",
+  "baseline_note": "Current snapshot bytes, not HEAD; existing uncommitted T001/T002 baseline retained"
+}

@@ -1,0 +1,67 @@
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+test_RT010_finite_duration_integer_and_float_cli_contract (__main__.Cycle1RegressionTests.test_RT010_finite_duration_integer_and_float_cli_contract) ... 
+  test_RT010_finite_duration_integer_and_float_cli_contract (__main__.Cycle1RegressionTests.test_RT010_finite_duration_integer_and_float_cli_contract) (seconds=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) ... FAIL
+  test_RT010_finite_duration_integer_and_float_cli_contract (__main__.Cycle1RegressionTests.test_RT010_finite_duration_integer_and_float_cli_contract) (seconds=-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) ... FAIL
+test_RT010_nonfinite_duration_raw_json_cli_rejected (__main__.Cycle1RegressionTests.test_RT010_nonfinite_duration_raw_json_cli_rejected) ... ok
+test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary (__main__.Cycle1RegressionTests.test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary) ... 
+  test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary (__main__.Cycle1RegressionTests.test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary) (corrupt=True) ... FAIL
+test_RT011_deep_json_collect_and_hash_bound_aggregate_cli_boundaries (__main__.Cycle1RegressionTests.test_RT011_deep_json_collect_and_hash_bound_aggregate_cli_boundaries) ... ok
+test_RT013_path_resolution_loop_cli_returns_typed_error (__main__.Cycle1RegressionTests.test_RT013_path_resolution_loop_cli_returns_typed_error) ... 
+  test_RT013_path_resolution_loop_cli_returns_typed_error (__main__.Cycle1RegressionTests.test_RT013_path_resolution_loop_cli_returns_typed_error) (field='root', looping=True) ... FAIL
+  test_RT013_path_resolution_loop_cli_returns_typed_error (__main__.Cycle1RegressionTests.test_RT013_path_resolution_loop_cli_returns_typed_error) (field='observations', looping=True) ... FAIL
+
+======================================================================
+FAIL: test_RT010_finite_duration_integer_and_float_cli_contract (__main__.Cycle1RegressionTests.test_RT010_finite_duration_integer_and_float_cli_contract) (seconds=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1286, in test_RT010_finite_duration_integer_and_float_cli_contract
+    self.aggregate_cli(self.collect_cli(), expected=expected)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 685, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 671, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 638, in aggregate\n    receipt_matches(receipt, obligation, catalog, root, plan, workflow)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 508, in receipt_matches\n    or type(row[\'seconds\']) not in (int, float) or not math.isfinite(row[\'seconds\']) or row[\'seconds\'] < 0\n                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nOverflowError: int too large to convert to float\n'
+
+======================================================================
+FAIL: test_RT010_finite_duration_integer_and_float_cli_contract (__main__.Cycle1RegressionTests.test_RT010_finite_duration_integer_and_float_cli_contract) (seconds=-10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1286, in test_RT010_finite_duration_integer_and_float_cli_contract
+    self.aggregate_cli(self.collect_cli(), expected=expected)
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1143, in aggregate_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 685, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 671, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 638, in aggregate\n    receipt_matches(receipt, obligation, catalog, root, plan, workflow)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 508, in receipt_matches\n    or type(row[\'seconds\']) not in (int, float) or not math.isfinite(row[\'seconds\']) or row[\'seconds\'] < 0\n                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nOverflowError: int too large to convert to float\n'
+
+======================================================================
+FAIL: test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary (__main__.Cycle1RegressionTests.test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary) (corrupt=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1319, in test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary
+    observations = self.collect_cli(mutate, expected=2 if corrupt else 0)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1119, in collect_cli
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 685, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 667, in main\n    collect(args.repository, args.run_id, args.output_dir)\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 327, in collect\n    for path in extract_receipts(raw, target):\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 255, in extract_receipts\n    data = archive.read(member)\n           ^^^^^^^^^^^^^^^^^^^^\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipfile/__init__.py", line 1586, in read\n    return fp.read()\n           ^^^^^^^^^\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipfile/__init__.py", line 994, in read\n    buf += self._read1(self.MAX_N)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipfile/__init__.py", line 1091, in _read1\n    data = self._decompressor.decompress(data)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipfile/__init__.py", line 711, in decompress\n    lzma._decode_filter_properties(lzma.FILTER_LZMA1,\n_lzma.LZMAError: Invalid or unsupported options\n'
+
+======================================================================
+FAIL: test_RT013_path_resolution_loop_cli_returns_typed_error (__main__.Cycle1RegressionTests.test_RT013_path_resolution_loop_cli_returns_typed_error) (field='root', looping=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1362, in test_RT013_path_resolution_loop_cli_returns_typed_error
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1250, in resolve\n    p.stat()\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 840, in stat\n    return os.stat(self, follow_symlinks=follow_symlinks)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nOSError: [Errno 40] Too many levels of symbolic links: \'/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/tmp/tmpn1q4c9fx/self-loop\'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 685, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 671, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n                       ^^^^^^^^^^^^^^^^^^^\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1252, in resolve\n    check_eloop(e)\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1237, in check_eloop\n    raise RuntimeError("Symlink loop from %r" % e.filename)\nRuntimeError: Symlink loop from \'/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/tmp/tmpn1q4c9fx/self-loop\'\n'
+
+======================================================================
+FAIL: test_RT013_path_resolution_loop_cli_returns_typed_error (__main__.Cycle1RegressionTests.test_RT013_path_resolution_loop_cli_returns_typed_error) (field='observations', looping=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci.tests.py", line 1362, in test_RT013_path_resolution_loop_cli_returns_typed_error
+    self.assertNotIn('Traceback', result.stdout + result.stderr)
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1250, in resolve\n    p.stat()\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 840, in stat\n    return os.stat(self, follow_symlinks=follow_symlinks)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nOSError: [Errno 40] Too many levels of symbolic links: \'/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/tmp/tmpn1q4c9fx/self-loop\'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 685, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File "/workspace/sdd-forge/tests/verification-ci.py", line 671, in main\n    result = aggregate(args.root.resolve(), read_json(args.plan), args.observations.resolve(), args.run_id, args.api_head_sha)\n                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1252, in resolve\n    check_eloop(e)\n  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1237, in check_eloop\n    raise RuntimeError("Symlink loop from %r" % e.filename)\nRuntimeError: Symlink loop from \'/tmp/ci-model-t002-cycle2-fix-6dnfx3ic/tmp/tmpn1q4c9fx/self-loop\'\n'
+
+----------------------------------------------------------------------
+Ran 5 tests in 5.314s
+
+FAILED (failures=5)
