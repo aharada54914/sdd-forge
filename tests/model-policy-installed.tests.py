@@ -6431,6 +6431,18 @@ class InstalledDomainCallerTests(unittest.TestCase):
             self.assertNotIn(leaked, summary_text, 'The sanitized summary leaked reviewer A raw content')
         self.assertEqual(self.verified(st, 1)[1], paths)
         sealed = {path: launch.sha_file(path) for path in (raw_a, summary_path)}
+        # A re-pinned summary may not smuggle raw A into B before the canonical finalizer rejects it.
+        summary_raw = summary_path.read_bytes()
+        try:
+            poisoned = json.loads(summary_raw)
+            poisoned['raw_a'] = DOMAIN_PRIVATE['a']
+            summary_path.write_text(json.dumps(poisoned) + '\n')
+            rejected_b = self.case(st, 'domain-b-poisoned-summary', paths=[*paths, summary_rel], letter='b')
+            self.assertEqual(rejected_b['result'].returncode, 1, 'An altered bridge must stop before native B work')
+            self.assertIn('B summary is not exactly derived from reviewer A', rejected_b['result'].stderr)
+            self.assert_blocked(st, rejected_b)
+        finally:
+            summary_path.write_bytes(summary_raw)
         # Reviewer B: fresh request/observation/control/session; only the actual sanitized summary is added.
         b = self.case(st, 'domain-b', paths=[*paths, summary_rel], letter='b')
         self.assertEqual((b['round_rel'], b['records'], b['paths']), (a['round_rel'], after_a, [*a['paths'], summary_rel]))
