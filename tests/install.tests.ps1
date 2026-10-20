@@ -105,6 +105,13 @@ foreach ($relativePath in @(
     ".agents/plugins/marketplace.json",
     "install.sh",
     "install.ps1",
+    "plugins/sdd-implementation/scripts/managed-model-entry.py",
+    "plugins/sdd-implementation/scripts/model-policy.py",
+    "plugins/sdd-implementation/scripts/select-agent-model.sh",
+    "plugins/sdd-implementation/scripts/select-agent-model.ps1",
+    "contracts/agent-model-capabilities.v2.json",
+    "contracts/model-policy.v1.json",
+    "contracts/model-launch-controls.schema.json",
     "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
     "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
     "plugins/sdd-quality-loop/scripts/initialize-review-identity.py",
@@ -128,6 +135,13 @@ foreach ($relativePath in @(
     .agents/plugins/marketplace.json `
     install.sh `
     install.ps1 `
+    plugins/sdd-implementation/scripts/managed-model-entry.py `
+    plugins/sdd-implementation/scripts/model-policy.py `
+    plugins/sdd-implementation/scripts/select-agent-model.sh `
+    plugins/sdd-implementation/scripts/select-agent-model.ps1 `
+    contracts/agent-model-capabilities.v2.json `
+    contracts/model-policy.v1.json `
+    contracts/model-launch-controls.schema.json `
     plugins/sdd-bootstrap/.claude-plugin/plugin.json `
     plugins/sdd-quality-loop/.claude-plugin/plugin.json `
     plugins/sdd-quality-loop/scripts/initialize-review-identity.py `
