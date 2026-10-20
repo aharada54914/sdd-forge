@@ -1683,6 +1683,73 @@ class InstalledClaudeLocalAuthorityTests(unittest.TestCase):
             prep.claude_positive(install_root, prep.output())  # restored owned bytes prepare again: the cause was the settings
 
 
+    def test_installed_claude_prepare_checks_effective_settings_environment(self):
+        """Real file env overrides shell exports; the original seven-key precedence gate must see those values."""
+        prep, case = self.prep, self.case
+        settings = {'user': case.home / '.claude/settings.json', 'project': case.root / '.claude/settings.json',
+                    'local': case.root / '.claude/settings.local.json'}
+        before = {path: path.read_bytes() for path in settings.values()}
+        remap = {'sonnet': 'ANTHROPIC_DEFAULT_SONNET_MODEL', 'opus': 'ANTHROPIC_DEFAULT_OPUS_MODEL',
+                 'haiku': 'ANTHROPIC_DEFAULT_HAIKU_MODEL'}[self.native]
+        other = self.others[0]
+        secret = 'OWNED-SETTINGS-UNRELATED-ENV-CANARY'
+        cases: list[tuple[str, dict, dict, str | None]] = [
+            ('matching-effort', {'CLAUDE_CODE_EFFORT_LEVEL': self.effort}, {}, None),
+            ('lower-effort', {'CLAUDE_CODE_EFFORT_LEVEL': self.lower}, {}, 'native-precedence-conflict'),
+            ('forced-other-model', {'CLAUDE_CODE_SUBAGENT_MODEL': other,
+                                    'CLAUDE_CODE_SUBAGENT_MODEL_FORCE': 'true'}, {}, 'native-precedence-conflict'),
+            ('alias-remap-is-unverifiable', {remap: self.native}, {}, 'native-precedence-conflict'),
+            ('unforced-other-model', {'CLAUDE_CODE_SUBAGENT_MODEL': other,
+                                     'CLAUDE_CODE_SUBAGENT_MODEL_FORCE': 'false'}, {}, None),
+            ('forced-matching-model', {'CLAUDE_CODE_SUBAGENT_MODEL': self.native,
+                                      'CLAUDE_CODE_SUBAGENT_MODEL_FORCE': 'true'}, {}, None),
+            ('malformed-model-env-value', {'CLAUDE_CODE_SUBAGENT_MODEL_FORCE': 17}, {}, 'config-invalid'),
+            ('file-overrides-shell-effort', {'CLAUDE_CODE_EFFORT_LEVEL': self.effort},
+             {'CLAUDE_CODE_EFFORT_LEVEL': self.lower}, None)]
+        for shell in SHELLS:
+            installed = prep.install(shell)
+            prep.claude_positive(installed, prep.output())
+            for tier, path in settings.items():
+                for label, configured, exported, reason in cases:
+                    with self.subTest(shell=shell, tier=tier, settings_env=label):
+                        document = json.loads(before[path])
+                        document['env'] = {**configured, 'SDD_SETTINGS_SECRET_CANARY': secret}
+                        path.write_text(json.dumps(document) + '\n')
+                        prep.home_before = tree(case.home)
+                        output = prep.output()
+                        try:
+                            if reason is None:
+                                value = prep.claude_positive(installed, output, env=exported)
+                                self.assertNotIn(secret, json.dumps(value))
+                            else:
+                                error = prep.claude_rejected(installed, output, reason, env=exported)
+                                self.assertNotIn(secret, json.dumps(error))
+                                self.assertFalse((case.root / output).exists())
+                        finally:
+                            path.write_bytes(before[path])
+                            prep.home_before = tree(case.home)
+            for local_level in (self.effort, self.lower):
+                with self.subTest(shell=shell, scope_precedence='local-over-project-over-user', effort=local_level):
+                    for tier, path in settings.items():
+                        document = json.loads(before[path])
+                        document['env'] = {'CLAUDE_CODE_EFFORT_LEVEL': local_level if tier == 'local' else self.effort}
+                        path.write_text(json.dumps(document) + '\n')
+                    prep.home_before = tree(case.home)
+                    output = prep.output()
+                    try:
+                        if local_level == self.effort:
+                            prep.claude_positive(installed, output)
+                        else:
+                            prep.claude_rejected(installed, output, 'native-precedence-conflict')
+                            self.assertFalse((case.root / output).exists())
+                    finally:
+                        for path, raw in before.items():
+                            path.write_bytes(raw)
+                        prep.home_before = tree(case.home)
+            self.assertEqual({path: path.read_bytes() for path in settings.values()}, before)
+            prep.claude_positive(installed, prep.output())
+
+
 # ---- T-008 installed Codex entry: generated native configuration only (codex-entry batch) ----------------------
 # Proposed public surface (requires primary admission before product work); cwd is the execution-input root:
 #   python3 -I -B <installed>/plugins/sdd-implementation/scripts/managed-model-entry.py codex-entry --request REL
