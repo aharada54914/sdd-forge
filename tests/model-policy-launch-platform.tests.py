@@ -67,14 +67,20 @@ class LaunchPlatformBoundary(unittest.TestCase):
         for name, value in unavailable:
             with self.subTest(primitive=name), mock.patch.object(transport.os, name, value, create=True), \
                     mock.patch.object(transport.os, 'open', side_effect=ValueError('unexpected read')) as opened:
-                if name in ('O_NOFOLLOW', 'O_DIRECTORY', 'O_NONBLOCK'):
-                    delattr(transport.os, name)  # actual absence; restoring mock reinstalls it
-                supported = set(transport.os.supports_dir_fd)
-                support_context = (contextlib.nullcontext() if name == 'supports_dir_fd' else
-                                   mock.patch.object(transport.os, 'supports_dir_fd', supported | {opened}))
-                with support_context, self.assertRaises(ValueError):
-                    transport.read_regular(ROOT / 'missing-sidecar.json', 1024, 'model launch sidecar')
-                opened.assert_not_called()
+                absent_flag = name in ('O_NOFOLLOW', 'O_DIRECTORY', 'O_NONBLOCK')
+                if absent_flag:
+                    delattr(transport.os, name)
+                try:
+                    supported = set(transport.os.supports_dir_fd)
+                    support_context = (contextlib.nullcontext() if name == 'supports_dir_fd' else
+                                       mock.patch.object(transport.os, 'supports_dir_fd', supported | {opened}))
+                    with support_context, self.assertRaises(ValueError):
+                        transport.read_regular(ROOT / 'missing-sidecar.json', 1024, 'model launch sidecar')
+                    opened.assert_not_called()
+                finally:
+                    if absent_flag:
+                        # create=True patch cleanup also works on hosts originally lacking the flag.
+                        setattr(transport.os, name, value)
 
     def test_actual_host_capability_boundary_rejects_missing_controls_without_launch(self):
         spec = importlib.util.spec_from_file_location('launch_platform_actual_helper', HELPER)

@@ -1599,7 +1599,7 @@ class ModelRunRecords(unittest.TestCase):
         self.output = self.root / 'reports/model-fixture'
         self.output.mkdir(parents=True)
 
-    def records(self, role='spec-reviewer-a'):
+    def records(self, role='spec-reviewer-a', *, fixed=False):
         f = self.fixture
         definition = (self.root / 'plugins/sdd-quality-loop/agents/evaluator.md' if role == 'evaluator' else
                       self.root / 'plugins/sdd-review-loop/agents' / (role + '.md'))
@@ -1607,7 +1607,7 @@ class ModelRunRecords(unittest.TestCase):
         definition.write_text('---\nmodel: opus\neffort: high\n---\nFixture review only.\n')
         f.run_id = f.session_id  # Protected adapter keeps its canonical alias rule.
         binding, _ = f.bind(role)
-        command = self.execution_fixture(role, binding, definition)
+        command = self.execution_fixture(role, binding, definition, fixed=fixed)
         with f.model_env(f.active_env), f.in_root():
             self.launch_sha = f.transport.record_model_launch(self.output, binding, command, 'matching')
         self.launch = json.loads((self.output / 'model-launch.json').read_bytes())
@@ -1631,7 +1631,7 @@ class ModelRunRecords(unittest.TestCase):
                                  'selection_sha256': self.selection['selection_sha256']}
         self.delivery_sha = f.write('reports/model-fixture/model-delivery-binding.json', self.delivery_binding)
 
-    def execution_fixture(self, role, binding, definition):
+    def execution_fixture(self, role, binding, definition, *, fixed=False):
         """Real existing manifest/receipt/guard/argv code; only native help is a local fixture."""
         f = self.fixture
         transport = f.transport
@@ -1658,15 +1658,38 @@ class ModelRunRecords(unittest.TestCase):
             record_text += '|allowed-inputs-v1|' + inputs_hash
         f.receipt.write_text('REVIEW_CONTEXT_OK ' + sha_bytes(record_text.encode()) +
                              ' sequence=1 previous_record_sha256=- pre_append_tip_sequence=0 identity_unique=yes\n')
-        policy, settings = transport.launch_policy(self.root, f.invocation, f.receipt, f.launch_policy_file)
+        fixed_data: dict[str, Any] | None = None
+        if fixed:
+            snapshot = self.root / 'fixed-fixture-snapshot'
+            inventory: dict[str, Any] = {'commit': '0' * 40, 'inputs': [
+                {**entry, 'mode': '100644'} for entry in data['allowed_input_manifest']]}
+            for entry in inventory['inputs']:
+                target = snapshot / entry['path']
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(self.root / entry['path'], target)
+                target.chmod(0o444)
+            inventory_path = 'reports/model-fixture/model-fixed-inputs.json'
+            f.write(inventory_path, inventory)
+            fixed_data = {'record': str(self.root / inventory_path), 'snapshot': str(snapshot),
+                          'inventory': inventory,
+                          'state_reference': {'fixture': 'synthetic fixed-rendering context; no Git attestation'}}
+            transport.record_fixed_execution(self.output, f.invocation, data, fixed_data)
+        policy, settings = transport.launch_policy(self.root, f.invocation, f.receipt, f.launch_policy_file,
+                                                   fixed_inputs=fixed_data)
         f.launch_policy_file.write_bytes(policy)
         f.settings.write_bytes(canonical(settings))
         permissions = transport.receipt_control(data, f.receipt.read_text(),
-            f.invocation.relative_to(self.root).as_posix(), root=self.root)['exact_permission_rules']
-        generated = {'description': 'Repository-bound independent implementation reviewer',
+            f.invocation.relative_to(self.root).as_posix(), root=None if fixed else self.root)['exact_permission_rules']
+        if fixed:
+            permissions = ['Read']
+        generated: dict[str, Any] = {'description': 'Repository-bound independent implementation reviewer',
                      'prompt': definition.read_text().split('---', 2)[2].strip(),
                      'model': binding['native_model'], 'effort': binding['effort'],
                      'tools': transport.agent_tools(data['stage']), 'disallowedTools': list(DISALLOWED)}
+        if fixed:
+            generated['prompt'] += ('\nFixed-input route: the launcher verifies input identity. '
+                                    'Do not run hash-only commands or Bash. Read the exact supplied '
+                                    'snapshot paths; retain all substantive review checks.')
         executable = self.root / 'fixture-bin/claude'
         executable.parent.mkdir(exist_ok=True)
         executable.write_text('# fixture command identity; never executed\n')
@@ -1679,15 +1702,19 @@ class ModelRunRecords(unittest.TestCase):
         with f.model_env(f.active_env), f.in_root(), \
                 mock.patch.object(transport.shutil, 'which', side_effect=lambda name:
                                   str(executable) if name == 'claude' else real_which(name)), \
-                mock.patch.object(transport.subprocess, 'run', side_effect=run):
+                mock.patch.object(transport.subprocess, 'run', side_effect=run), \
+                mock.patch.object(transport, 'fixed_input_binding', return_value=fixed_data):
             command = transport.claude_command(self.root, f.session_id, data['role'], generated, permissions,
                         f.settings, f.invocation, f.receipt, f.launch_policy_file,
-                        model_binding=binding, environment=dict(os.environ))
+                        fixed_inputs=fixed_data, model_binding=binding, environment=dict(os.environ))
         dependencies = {str(self.root / ref['path']): ref['sha256'] for ref in
                         [binding['controls'], *binding['pins'], *binding['trusted']]}
         for target in (f.invocation, definition, executable, self.root / transport.BOUNDARY_PATH,
                        self.root / TRANSPORT_SCRIPT.relative_to(ROOT), self.root / data['allowed_input_manifest'][0]['path']):
             dependencies[str(target)] = sha_bytes(target.read_bytes())
+        if fixed_data is not None:
+            for entry in fixed_data['inventory']['inputs']:
+                dependencies[str(Path(fixed_data['snapshot']) / entry['path'])] = entry['sha256']
         f.write('reports/model-fixture/dependencies.json', dependencies)
         self.context = {'schema': 'model-execution-context/v1', 'transport': 'claude-print',
                         'stage': data['stage'], 'role': data['role'], 'run_id': f.run_id,
@@ -1702,6 +1729,11 @@ class ModelRunRecords(unittest.TestCase):
                         'native_overrides': binding['native_overrides'],
                         'executable': {'path': str(executable), 'resolved_path': str(executable),
                                        'sha256': sha_bytes(executable.read_bytes())}}
+        if fixed_data is not None:
+            self.context['fixed_inputs'] = {
+                'inventory': f.ref('reports/model-fixture/model-fixed-inputs.json'),
+                'execution': f.ref('reports/model-fixture/fixed-execution.json'),
+                'snapshot': fixed_data['snapshot']}
         f.write('reports/model-fixture/model-execution-context.json', self.context)
         return command
 
@@ -1737,6 +1769,30 @@ class ModelRunRecords(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(list((self.root / 'reports/runs').glob('RUN-*.json')),
                          'rejected model evidence must not publish a run record')
+
+    def test_fixed_selected_context_rebuilds_readonly_paths_and_rejects_resealed_fixed_fields(self):
+        # Inventory/state are explicit synthetic rendering fixtures, not Git/admission proof.
+        self.records(fixed=True)
+        f = self.fixture
+        self.assertNotIn('--plugin-dir', self.launch['argv'])
+        policy = json.loads((self.root / self.context['policy']['path']).read_bytes())
+        self.assertEqual(policy['bash_commands'], [])
+        self.assertTrue(any('fixed-fixture-snapshot' in path for path in policy['read_paths']))
+        for shell in ('bash', 'powershell'):
+            self.accepted_record(shell)
+        original = copy.deepcopy(self.context)
+        binding = copy.deepcopy(self.delivery_binding)
+        for path in leaf_paths(original['fixed_inputs']):
+            with self.subTest(fixed_leaf='/'.join(map(str, path))):
+                changed = copy.deepcopy(original)
+                set_path(changed['fixed_inputs'], path, altered(get_path(original['fixed_inputs'], path)))
+                f.write('reports/model-fixture/model-execution-context.json', changed)
+                changed_binding = copy.deepcopy(binding)
+                changed_binding['execution_context'] = f.ref('reports/model-fixture/model-execution-context.json')
+                digest = f.write('reports/model-fixture/model-delivery-binding.json', changed_binding)
+                self.reject_record('bash', delivery_sha=digest)
+        f.write('reports/model-fixture/model-execution-context.json', original)
+        f.write('reports/model-fixture/model-delivery-binding.json', binding)
 
     def test_protected_selected_entry_retains_canonical_run_session_alias(self):
         self.records()
