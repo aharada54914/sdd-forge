@@ -107,6 +107,10 @@ foreach ($relativePath in @(
     "install.ps1",
     "plugins/sdd-implementation/scripts/managed-model-entry.py",
     "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-a.md",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-b.md",
+    "plugins/sdd-quality-loop/references/wfi-category-guide.md",
+    "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
     "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
     "plugins/sdd-bootstrap/agents/investigator.md",
     "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
@@ -158,6 +162,10 @@ foreach ($relativePath in @(
     install.ps1 `
     plugins/sdd-implementation/scripts/managed-model-entry.py `
     plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py `
+    plugins/sdd-quality-loop/agents/wfi-auditor-a.md `
+    plugins/sdd-quality-loop/agents/wfi-auditor-b.md `
+    plugins/sdd-quality-loop/references/wfi-category-guide.md `
+    plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs `
     plugins/sdd-bootstrap/skills/bootstrap/SKILL.md `
     plugins/sdd-bootstrap/agents/investigator.md `
     plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md `
