@@ -2175,6 +2175,10 @@ mode = os.environ.get('SDD_TEST_NATIVE_MODE', '')
 if mode == 'fail': raise SystemExit(17)
 if mode == 'timeout': time.sleep(3)
 if mode == 'invalid': print('not a verdict'); raise SystemExit(0)
+# Simulate an external concurrent source change; this stub is not a sandbox proof.
+if mode == 'mutate-source':
+ source = pathlib.Path(os.environ['SDD_TEST_MUTATE_PATH'])
+ source.write_bytes(source.read_bytes() + b'\\n# fixture concurrent source change\\n')
 print(json.dumps({'schema':'cross-model-verdict/v1','task_id':header('task_id'),
  'feature':header('feature'),'vendor':'openai','model':'fixture-self-report-not-attested',
  'verdict':'PASS','findings':[],'blind':True,'input_digest':header('input_digest'),
@@ -2207,7 +2211,7 @@ print(json.dumps({'schema':'cross-model-verdict/v1','task_id':header('task_id'),
                consent='human-flag'):
         script = self.scripts / ('run-panelist-' + vendor + ('.sh' if shell == 'bash' else '.ps1'))
         command = ([BASH, str(script)] if shell == 'bash' else
-                   [os.environ.get('SDD_TEST_PWSH', '/workspace/.tools/sdd-forge-dev/bin/pwsh'),
+                   [os.environ.get('SDD_TEST_PWSH', 'pwsh'),
                     '-NoProfile', '-File', str(script)])
         command += ['--task', self.TASK, '--feature', self.FEATURE, '--input', 'bundle.txt',
                     '--spec-root', 'specs', '--digest', digest or self.bundle_digest, '--consent', consent]
@@ -2390,6 +2394,47 @@ print(json.dumps({'schema':'cross-model-verdict/v1','task_id':header('task_id'),
                     self.assertNotEqual(result.returncode,0)
                     self.assertFalse(self.verdict_path().exists())
                     self.assertFalse((self.artifact_dir()/'model-delivery-binding.json').exists())
+
+    def test_postnative_source_change_never_publishes_accepted_binding_or_verdict(self):
+        for shell in ('bash','powershell'):
+            with self.subTest(shell=shell):
+                self.accepted_panelist(shell)
+                self.reset_run()
+                source = self.scripts/('run-panelist-gpt.'+('sh' if shell=='bash' else 'ps1'))
+                original = source.read_bytes()
+                try:
+                    result = self.runner(shell,env={'SDD_TEST_NATIVE_MODE':'mutate-source',
+                                                    'SDD_TEST_MUTATE_PATH':str(source)})
+                    self.assertTrue(self.audit.is_file(),'Mutation fixture never reached native stub')
+                    self.assertNotEqual(source.read_bytes(),original)
+                    self.assertNotEqual(result.returncode,0)
+                    self.assertFalse(self.verdict_path().exists())
+                    self.assertFalse((self.artifact_dir()/'model-delivery-binding.json').exists(),
+                                     'Rejected source changes left an accepted delivery binding')
+                finally:
+                    source.write_bytes(original)
+
+    def test_output_ancestor_symlinks_cause_no_target_writes_or_native_send(self):
+        for shell in ('bash','powershell'):
+            self.accepted_panelist(shell)
+            for level in ('verification','vendor-base','attempt'):
+                with self.subTest(shell=shell,ancestor=level):
+                    self.reset_run()
+                    outside = self.base/('outside-'+shell+'-'+level)
+                    outside.mkdir()
+                    link = (self.tasks.parent/'verification' if level=='verification' else
+                            self.artifact_dir().parent if level=='vendor-base' else self.artifact_dir())
+                    link.parent.mkdir(parents=True,exist_ok=True)
+                    link.symlink_to(outside,target_is_directory=True)
+                    try:
+                        result = self.runner(shell)
+                        self.assertNotEqual(result.returncode,0)
+                        self.assertFalse(self.audit.exists(),'Output symlink reached native execution')
+                        self.assertEqual(list(outside.iterdir()),[],
+                                         'Rejected output symlink received evidence writes')
+                        self.assertFalse(self.verdict_path().exists())
+                    finally:
+                        link.unlink()
 
     def test_repeated_binding_rejects_and_distinct_attempt_preserves_immutable_evidence(self):
         self.accepted_panelist('bash')
