@@ -636,6 +636,28 @@ JSON
   run_check "${FIXTURE_ROOT}/missing-a" "$o" "$REGISTRY_FIXTURE" '[{"number":93}]' ""
   if [ "$RUN_RC" -eq 0 ] && grep -qF '取得不能' "$GH_LOG" && ! grep -qF "$DIVERGENCE_MARKER" "$GH_LOG"; then ok 'T009: unavailable is fail-soft without fresh comparison'; else fail 'T009: unavailable branch'; fi
   if [ "$hashes" = "$(sha256sum "$POLICY_FIXTURE" "$REGISTRY_FIXTURE")" ] && ! grep -Eq '^gh (pr|api)|^gh issue (edit|close)' "$GH_LOG"; then ok 'T009: inputs read-only and adoption boundary retained'; else fail 'T009: read-only adoption boundary'; fi
+  printf '%s\n' '| gpt-policy-91 | deprecated | 2026-10-19 |' '| gpt-policy-91 | retired | 2026-10-20 |' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'deprecation | gpt-policy-91 | openai | sourceDate=unknown' 'conflicting source dates remain unknown'
+  printf '%s\n' '<meta property="article:published_time" content="2026-10-19">' '<meta property="article:published_time" content="2026-10-20">' 'gpt-new-92' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'candidate | gpt-new-92 | openai | sourceDate=unknown' 'ambiguous publication dates stay unknown'
+  sed 's/2026-10-18T00:00:00Z/poison-date/;s/2026-09-28T00:00:00Z/poison-date/' "$POLICY_FIXTURE" > "${POLICY_FIXTURE}.bad"
+  mv "${POLICY_FIXTURE}.bad" "$POLICY_FIXTURE"
+  printf '%s\n' '| gpt-policy-91 | deprecated | 2026-10-19 |' > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  protocol_expect 'policySourceDate=unknown' 'malformed policy provenance never copied'
+  protocol_expect 'policyModelSourceDate=unknown' 'malformed known-model date remains unknown'
+  printf '%s\n' "gpt-new-92 \$(touch ${FIXTURE_ROOT}/executed)" > "$o"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  if [ ! -e "${FIXTURE_ROOT}/executed" ]; then ok 'T009: source commands never executed'; else fail 'T009: source command executed'; fi
+  sed 's/"current"/"injected-lifecycle"/' "$POLICY_FIXTURE" > "${POLICY_FIXTURE}.bad"
+  mv "${POLICY_FIXTURE}.bad" "$POLICY_FIXTURE"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  if [ "$RUN_RC" -ne 0 ] && [ ! -s "$GH_LOG" ] && printf '%s' "$RUN_OUT" | grep -qF 'comparison unavailable'; then ok 'T009: invalid policy lifecycle stops comparison'; else fail 'T009: invalid policy lifecycle stops comparison'; fi
+  POLICY_FIXTURE="${FIXTURE_ROOT}/missing-policy"
+  run_check "$a" "$o" "$REGISTRY_FIXTURE" "" ""
+  if [ "$RUN_RC" -ne 0 ] && [ ! -s "$GH_LOG" ]; then ok 'T009: missing policy does not imply empty known catalog'; else fail 'T009: missing policy does not imply empty known catalog'; fi
   POLICY_FIXTURE=''
 }
 
