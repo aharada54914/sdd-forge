@@ -10,7 +10,9 @@ Bash commands really run (cwd = the caller's cwd) and admitted files are really 
 in assistant tool_use / user tool_result order to $HOME/.claude/projects/<cwd-slug>/<session>.jsonl, and a
 `--output-format json` wrapper is printed. A reused session exits 1 with the native error, no stdout and
 an untouched transcript. The formal review record is a fixed fixture-only NEEDS_WORK; it is delivery and
-configuration evidence, never a quality verdict. Reading --settings is owned launch configuration, not a
+configuration evidence, never a quality verdict. The quality stage (sdd-evaluator: Read/Bash, no
+StructuredOutput, no --json-schema) returns its plaintext evaluator contract as the final assistant text and
+wrapper.result with no structured_output. Reading --settings is owned launch configuration, not a
 model Read claim. RECORDING_CLAUDE_AUDIT names an owned JSONL audit receiving argv, model/effort/agent,
 session and per-tool decision/command/path/hash metadata only; the environment is never recorded.
 """
@@ -62,6 +64,8 @@ CHECK_IDS = {'spec-reviewer-a': ('REQ-TESTABILITY', 'GOAL-AC-TRACE', 'AC-OBSERVA
               'spec-reviewer-b': ('AMBIGUITY', 'CONTRADICTION', 'EDGE-CASE-COVERAGE', 'ASSUMPTIONS-RESOLVABLE',
                                  'APPROVAL-BOUNDARY', 'DOWNSTREAM-READINESS', 'DOMAIN-CONFORMANCE')}
 FINDING = 'FIXTURE ONLY: a deterministic recording CLI delivered this record; no model reviewed the inputs.'
+EVALUATOR = 'sdd-evaluator'
+DIAGNOSTIC_RESULT = 'FIXTURE ONLY: unreserved diagnostic complete; no review was performed.'
 
 
 class Stop(Exception):
@@ -118,6 +122,7 @@ def settings_controls(path):
 class Session:
     def __init__(self, options, agent, hooks, allow):
         self.session = options['--session-id']
+        self.agent = options['--agent']
         self.cwd = os.getcwd()
         self.tools = set(options['--tools'].split(',')) & set(agent.get('tools', []))
         self.tools -= set(options.get('--disallowedTools', '').split(','))
@@ -220,11 +225,32 @@ def diagnostic(run, prompt):
     run.call('Bash', {'command': lines[end][len('Then Bash '):]})
     run.call('Read', {'file_path': final[0]})
     if 'StructuredOutput' not in run.tools:
-        raise Stop('this fixture implements only JSON review stages')
+        if run.agent != EVALUATOR:
+            raise Stop('this fixture implements only JSON review stages and the quality evaluator')
+        return DIAGNOSTIC_RESULT  # quality probes end at the denied outside Read; there is no output tool
     report = {'checks': [{'id': 'call-%d' % index, 'status': 'ran' if item['decision'] == 'allow' else 'denied'}
                          for index, item in enumerate(run.outcomes, 1)]}
     run.call('StructuredOutput', report)
     return report
+
+
+def evaluator_text(run, invocation, paths):
+    """FIXTURE ONLY evaluator plaintext contract: identities come from the admitted invocation, nothing is judged."""
+    cwd = Path(run.cwd)
+    checked = ['- Read %s (raw SHA-256 %s)' % (Path(path).relative_to(cwd).as_posix(), sha(run.reads[path]))
+               for path in paths]
+    return '\n'.join([
+        'FIXTURE ONLY: a deterministic recording CLI produced this record; no model reviewed the task.',
+        'RUN_ID: ' + invocation['run_id'],
+        'HOST_SESSION_ID: ' + invocation['host_session_id'],
+        'ALLOWED_INPUT_MANIFEST: ' + Path(paths[0]).relative_to(cwd).as_posix() + ' ' + sha(run.reads[paths[0]]),
+        'VERDICT: NEEDS_WORK',
+        'FINDINGS:',
+        '- [Minor] ' + FINDING,
+        'CHECKED:',
+        *checked,
+        '- The pinned launch-control verifier succeeded before every Read.',
+        '- Tests were not rerun; this is not a model review of the task and not a quality verdict.'])
 
 
 def formal(run, prompt, role):
@@ -243,8 +269,12 @@ def formal(run, prompt, role):
             raise Stop('admitted Read failed; stopping without a verdict')
     invocation = json.loads(run.reads[paths[0]])
     if (invocation.get('role') != role or invocation.get('run_id') != run.session
-            or invocation.get('host_session_id') != run.session or role not in CHECK_IDS):
+            or invocation.get('host_session_id') != run.session or (role not in CHECK_IDS and role != EVALUATOR)):
         raise Stop('invocation identity differs from this launch or role is unsupported')
+    if role == EVALUATOR:
+        if invocation.get('stage') != 'quality' or 'StructuredOutput' in run.tools:
+            raise Stop('the quality evaluator is plaintext Read/Bash only')
+        return evaluator_text(run, invocation, paths)
     output = {'schema': role + '/v1', 'stage': invocation['stage'], 'role': role, 'run_id': run.session,
               'host_session_id': run.session, 'allowed_input_manifest': invocation['allowed_input_manifest'],
               'verdict': 'NEEDS_WORK',
@@ -283,10 +313,14 @@ def main(argv):
         raise Stop('unrecognized prompt; only the launcher and probe protocol is implemented')
     run.row('user', prompt)
     output = diagnostic(run, prompt) if mode == 'diagnostic' else formal(run, prompt, options['--agent'])
+    if isinstance(output, str):  # quality: the final assistant text is the result and there is no structured output
+        run.row('assistant', [{'type': 'text', 'text': output}])
     audit(dict(entry, mode=mode, tools=run.outcomes, transcript_sha256=sha(run.transcript.read_bytes())))
     wrapper = {'type': 'result', 'subtype': 'success', 'is_error': False, 'session_id': session,
-               'num_turns': len(run.outcomes) + 1, 'result': json.dumps(output, sort_keys=True),
-               'structured_output': output}
+               'num_turns': len(run.outcomes) + 1,
+               'result': output if isinstance(output, str) else json.dumps(output, sort_keys=True)}
+    if not isinstance(output, str):
+        wrapper['structured_output'] = output
     sys.stdout.write(json.dumps(wrapper, sort_keys=True) + '\n')
     return 0
 
