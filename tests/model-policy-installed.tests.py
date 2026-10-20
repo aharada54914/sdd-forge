@@ -27,6 +27,7 @@ import re
 import shlex
 from typing import Any
 import shutil
+import subprocess
 import sys
 import tomllib
 from typing import TYPE_CHECKING
@@ -6898,7 +6899,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
 
     def setUp(self):
         self.prep = prep = InstalledClaudePreparationTests('runTest')
-        self.addCleanup(lambda: self.assertTrue(prep.doCleanups()))
+        self.addCleanup(lambda: self.assertTrue(getattr(prep, 'doCleanups')()))
         prep.setUp()
         self.case = case = prep.case
         case.request = case.fresh_request('self-improvement')
@@ -7094,6 +7095,156 @@ class InstalledSelfImprovementTests(unittest.TestCase):
                      'bash .github/scripts/self-improvement-pr-guard.sh "$changed"',
                      '- name: Validate audit completion', '- name: Label session PRs that triggered no CI'):
             self.assertIn(text, source)
+
+
+# Add immediately before the maintained module's __main__ block; keep every old test AST.
+_batch_fixture: Any = sys.modules[__name__]
+_BATCH_CALLER = 'plugins/sdd-implementation/skills/implement-tasks/SKILL.md'
+_BATCH_NATIVE_RECORDER = ROOT / 'tests/fixtures/model-policy-installed/recording-batch-agent.py'
+
+class InstalledClaudeBatchTests(unittest.TestCase):
+    def setUp(self):
+        self.fixture = f = _batch_fixture.InstalledEntryTests('runTest')
+        self.addCleanup(lambda: self.assertTrue(getattr(f, 'doCleanups')()))
+        f.extra_runtime = (_BATCH_CALLER,)
+        f.setUp()
+        # Fixture-only trusted full-ID carrier: source helper and installed package share
+        # these exact trusted bytes. This is not a product catalog change or adoption.
+        mapping = {'sonnet': 'claude-sonnet-5-5', 'opus': 'claude-opus-fixture-full-id',
+                   'haiku': 'claude-haiku-fixture-full-id'}
+        for policy in (f.trusted_policy, f.policy):
+            for model in policy['models']:
+                host = model.get('hosts', {}).get('claude-code')
+                if host in mapping:
+                    model['hosts']['claude-code'] = mapping[host]
+        trusted_raw = _batch_fixture.launch.canonical(f.trusted_policy)
+        (f.fixture_repo / _batch_fixture.launch.TRUSTED_POLICY).write_bytes(trusted_raw)
+        for model in f.observation['models']:
+            model['native_id'] = mapping[model['native_id']]
+        fixture_source = f.build_package('trusted-full-id-fixture')
+        (fixture_source / _batch_fixture.launch.TRUSTED_POLICY).write_bytes(trusted_raw)
+        original_source = _batch_fixture.ROOT
+        self.addCleanup(setattr, _batch_fixture, 'ROOT', original_source)
+        _batch_fixture.ROOT = fixture_source
+        f.request = f.fresh_request('implementer')
+        f.request['cli'] = {'model_id': 'anthropic/sonnet', 'policy': 'pinned'}
+        f.save()
+
+    def error(self, result, reason):
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, '')
+        value = json.loads(result.stderr)
+        self.assertEqual(set(value), {'schema', 'reason', 'message'})
+        self.assertEqual(value['schema'], 'model-policy-error/v1')
+        self.assertEqual(value['reason'], reason)
+        return value
+
+    def definition(self, root, output, **options):
+        source = (root / _BATCH_CALLER).read_text()
+        fences = [b for b in re.findall(r'```bash\n(.*?)```', source, re.S)
+                  if 'claude-batch-definition' in b]
+        self.assertEqual(len(fences), 1, 'missing maintained definition preparation fence')
+        command = fences[0]
+        values = {'installed-root': str(root), 'policy-request': 'request.json', 'registry': 'registry.json',
+                  'run-id': self.fixture.run_id, 'session-id': self.fixture.session_id, 'attempt': '1',
+                  'output-dir': output}
+        for key, value in values.items():
+            command = command.replace('"<' + key + '>"', shlex.quote(value))
+        return self.fixture.run_process([_batch_fixture.launch.BASH, '-c', command], label='managed definition fence')
+
+    def test_installed_definition_forwards_bound_full_native_controls_without_per_call_aliases(self):
+        f = self.fixture
+        for shell in _batch_fixture.SHELLS:
+            with self.subTest(shell=shell):
+                root = f.install(shell)
+                expected = f.oracle_selection()['resolved']
+                result = self.definition(root, 'runs/definition-' + shell)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                definitions = json.loads(result.stdout)
+                self.assertEqual(len(definitions), 1)
+                name, definition = next(iter(definitions.items()))
+                self.assertRegex(name, r'^sdd-batch-implementer-[0-9a-f]{16}$')
+                self.assertEqual(definition['model'], expected['native_id'])
+                self.assertEqual(definition['effort'], expected['effort'])
+                self.assertNotIn(definition['model'], ('sonnet', 'opus', 'haiku', 'fable'))
+                self.assertEqual(set(definition), {'description', 'prompt', 'model', 'effort'})
+                source = (root / _BATCH_CALLER).read_text()
+                shapes = [b for b in re.findall(r'```json\n(.*?)```', source, re.S)
+                          if '"subagent_type"' in b]
+                self.assertEqual(len(shapes), 1)
+                call = json.loads(shapes[0].replace('<managed-definition-name>', name))
+                # Recording native boundary: look up exactly the loaded custom definition.
+                # This is allocation/call-shape fixture proof, not a backend execution claim.
+                definition_file = f.root / ('native-definitions-' + shell + '.json')
+                definition_file.write_text(result.stdout)
+                recorder = _BATCH_NATIVE_RECORDER
+                native = subprocess.run([sys.executable, '-I', '-B', str(recorder), str(definition_file)],
+                    input=json.dumps(call), text=True, capture_output=True, check=False)
+                self.assertEqual(native.returncode, 0, native.stderr)
+                recorded = json.loads(native.stdout)
+                broken = dict(call, model='sonnet')
+                rejected = subprocess.run([sys.executable, '-I', '-B', str(recorder), str(definition_file)],
+                    input=json.dumps(broken), text=True, capture_output=True, check=False)
+                self.assertNotEqual(rejected.returncode, 0, 'oracle must detect per-call alias regression')
+                self.assertNotIn('model', recorded['call'])
+                self.assertNotIn('effort', recorded['call'])
+                self.assertEqual(recorded['definition']['model'], expected['native_id'])
+                self.assertEqual(recorded['definition']['effort'], expected['effort'])
+                self.assertFalse(f.marker.exists())
+
+    def test_maintained_unknown_startup_fence_is_typed_and_cannot_enter_fallback_or_work(self):
+        f = self.fixture
+        for shell in _batch_fixture.SHELLS:
+            with self.subTest(shell=shell):
+                root = f.install(shell)
+                source = (root / _BATCH_CALLER).read_text()
+                fences = [b for b in re.findall(r'```bash\n(.*?)```', source, re.S)
+                          if 'unsupported-entry' in b]
+                self.assertEqual(len(fences), 1, 'missing executable unknown/stale-startup branch')
+                command = fences[0].replace('"<installed-root>"', shlex.quote(str(root)))
+                before = _batch_fixture.tree(f.root)
+                result = f.run_process([_batch_fixture.launch.BASH, '-c', command], label='batch unknown startup')
+                value = self.error(result, 'model-unavailable')
+                self.assertIn('matching startup', value['message'])
+                self.assertNotIn('host-does-not-support-implementation-subagents', value['message'])
+                self.assertEqual(_batch_fixture.tree(f.root), before)
+                self.assertFalse(f.marker.exists())
+                self.assertFalse(f.poison.exists())
+
+    def test_definition_reuses_original_selection_errors_and_rejects_missing_forwarding(self):
+        f = self.fixture
+        root = f.install('bash')
+        f.request['role'] = 'investigator'
+        f.save()
+        self.error(self.definition(root, 'runs/wrong-role'), 'scope-mismatch')
+        self.assertFalse((f.root / 'runs/wrong-role').exists())
+        result = f.run_process([sys.executable, '-I', '-B', str(root / _batch_fixture.ADAPTER),
+            'claude-batch-definition'], label='missing forwarding')
+        self.error(result, 'input-invalid')
+        f.request['role'] = 'implementer'
+        f.save()
+        f.request['unexpected'] = 'invalid schema must not become reload fallback'
+        f.save()
+        self.error(self.definition(root, 'runs/invalid-schema'), 'config-invalid')
+        self.assertFalse((f.root / 'runs/invalid-schema').exists())
+
+    def test_generic_unsupported_branch_validates_exact_role_host_grammar_without_effects(self):
+        f = self.fixture
+        root = f.install('bash')
+        prefix = [sys.executable, '-I', '-B', str(root / _batch_fixture.ADAPTER), 'unsupported-entry']
+        before = _batch_fixture.tree(f.root)
+        for host in ('claude-code', 'codex-cli', 'copilot-cli', 'gemini-cli'):
+            result = f.run_process(prefix + ['--role', 'implementer', '--host', host], label='unsupported native caller')
+            value = self.error(result, 'model-unavailable')
+            self.assertIn(host, value['message'])
+            self.assertNotIn('host-does-not-support-implementation-subagents', value['message'])
+        for args in ([], ['--role', 'implementer'], ['--role', 'Implementer', '--host', 'claude-code'],
+                     ['--role', 'implementer', '--host', 'CLAUDE-CODE'],
+                     ['--role', 'implementer', '--host', 'claude-code', '--role', 'implementer'],
+                     ['--role', 'implementer', '--host', 'claude-code', '--fallback', 'true']):
+            self.error(f.run_process(prefix + args, label='unsupported grammar'), 'input-invalid')
+        self.assertEqual(_batch_fixture.tree(f.root), before)
+        self.assertFalse(f.marker.exists())
 
 
 if __name__ == '__main__':
