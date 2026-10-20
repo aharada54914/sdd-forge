@@ -50,6 +50,14 @@ for relative_path in \
     "install.ps1" \
     "plugins/sdd-implementation/scripts/managed-model-entry.py" \
     "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py" \
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md" \
+    "plugins/sdd-bootstrap/agents/investigator.md" \
+    "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md" \
+    "plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md" \
+    "plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md" \
+    "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md" \
+    "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md" \
+    "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md" \
     "plugins/sdd-implementation/scripts/model-policy.py" \
     "plugins/sdd-implementation/scripts/select-agent-model.sh" \
     "plugins/sdd-implementation/scripts/select-agent-model.ps1" \
@@ -79,6 +87,14 @@ git -C "$SOURCE_FIXTURE" add \
     install.ps1 \
     plugins/sdd-implementation/scripts/managed-model-entry.py \
     plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py \
+    plugins/sdd-bootstrap/skills/bootstrap/SKILL.md \
+    plugins/sdd-bootstrap/agents/investigator.md \
+    plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md \
+    plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md \
+    plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md \
+    plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md \
+    plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md \
+    plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md \
     plugins/sdd-implementation/scripts/model-policy.py \
     plugins/sdd-implementation/scripts/select-agent-model.sh \
     plugins/sdd-implementation/scripts/select-agent-model.ps1 \

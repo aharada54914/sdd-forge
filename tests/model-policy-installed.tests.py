@@ -652,6 +652,17 @@ class ManagedCodexRoles(ManagedFixture):
 # Oracle: the unchanged real selector, T-007 launch-controls and T-005 bind CLIs run from the source-copied
 # LaunchFixture repository over the same project bytes. Evidence class: FIXTURE ONLY (verified-configuration
 # observation, fixture adoption, FilesOnly installs). No native model, thread or turn is ever started.
+# Fixed workload fixture closure; old installed-package tests retain all newly required dependencies.
+INVESTIGATION_SKILL = 'plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md'
+INVESTIGATION_AGENT = 'plugins/sdd-bootstrap/agents/investigator.md'
+INVESTIGATION_CALLER = 'plugins/sdd-bootstrap/skills/bootstrap/SKILL.md'
+INVESTIGATION_SOURCES = [INVESTIGATION_SKILL, *[
+    'plugins/sdd-bootstrap/skills/investigate-codebase/' + name for name in (
+        'templates/investigation.template.md', 'templates/codemap.template.md', 'templates/baseline-behavior.template.md',
+        'references/spec-id-rules.md', 'references/investigation-policy.md')]]
+INVESTIGATION_RECORDER = 'tests/fixtures/model-policy-installed/recording-investigator.py'
+
+
 MANAGED_RUNTIME = sorted([ADAPTER, *launch.TRUSTED_PATHS])
 # Union of install.sh REQUIRED_PATHS and install.ps1 Get-RequiredPaths (non-cloud) at authoring time; the positive
 # installs prove this minimal package satisfies the actual installer contract.
@@ -661,7 +672,7 @@ INSTALLER_REQUIRED = sorted({'.agents/plugins/marketplace.json', '.claude-plugin
                                for plugin in ('sdd-bootstrap', 'sdd-implementation', 'sdd-quality-loop', 'sdd-lite',
                                               'sdd-review-loop', 'sdd-ship', 'sdd-domain')
                                for manifest in ('.codex-plugin', '.claude-plugin', '.plugin'))})
-PACKAGE = sorted({'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED, launch.TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()})
+PACKAGE = sorted({'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED, INVESTIGATION_AGENT, *INVESTIGATION_SOURCES, launch.TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()})
 OUTPUT_FILES = ['controls.json', 'selection.json', 'validation.json']
 # Invalid under the existing T-007 identifier grammar without being flag-shaped argument syntax.
 BAD_IDS = ('run id', 'run;id', '.run', 'r' * 129)
@@ -1748,6 +1759,251 @@ class InstalledClaudeLocalAuthorityTests(unittest.TestCase):
                         prep.home_before = tree(case.home)
             self.assertEqual({path: path.read_bytes() for path in settings.values()}, before)
             prep.claude_positive(installed, prep.output())
+
+
+# ---- Ordinary investigator: full workload in one fresh external CLI fixture, not native adoption ----------------
+class InstalledClaudeInvestigatorTests(unittest.TestCase):
+    """Actual maintained caller and installed adapter; external fixture does a real owned read, no backend proof."""
+
+    def setUp(self):
+        self.prep = prep = InstalledClaudePreparationTests('runTest')
+        self.addCleanup(lambda: self.assertTrue(getattr(prep, 'doCleanups')(), 'investigator fixture cleanup failed'))
+        prep.setUp()
+        self.case = case = prep.case
+        case.extra_runtime = tuple(dict.fromkeys((*case.extra_runtime, INVESTIGATION_CALLER, INVESTIGATION_AGENT,
+                                                 *INVESTIGATION_SOURCES)))
+        case.environment['CLAUDE_CONFIG_DIR'] = str(case.home / '.claude')
+        self.log, self.config = case.base / 'investigator-events.jsonl', case.base / 'investigator-config.json'
+        self.prompt = 'work/investigator-instructions.txt'
+        (case.root / 'work').mkdir()
+        (case.root / self.prompt).write_text('Mode: bugfix\nTarget: sample.py\nFeature: fixture-investigation\nReturn findings and baseline without writing.\n')
+        self.target = case.root / 'sample.py'
+        self.target.write_text('def total(value):\n    return value + 1\n')
+        self.initial_inputs = {name: (case.root / name).read_bytes() for name in
+                               ('request.json', 'registry.json', 'policy.json', 'observation.json', self.prompt, 'sample.py')}
+        self.spec: dict[str, Any] = {'log': str(self.log), 'calls': str(prep.calls), 'sessions': str(case.base / 'native-fixture-sessions'), 'version': case.observation['cli_version'],
+                     'help': launch.HELP_TEXT,
+                     'model': case.oracle_selection()['resolved']['native_id'],
+                     'effort': case.oracle_selection()['resolved']['effort'], 'session_id': case.session_id,
+                     'role_body': (ROOT / INVESTIGATION_AGENT).read_text().partition('\n---\n')[2],
+                     'sources': {name: (ROOT / name).read_text() for name in INVESTIGATION_SOURCES},
+                     'instructions': (case.root / self.prompt).read_text(), 'target': str(self.target),
+                     'target_content': self.target.read_text(), 'canary_name': ENV_CANARY, 'canary_value': ENV_CANARY_VALUE}
+        prep.executable.write_bytes((ROOT / INVESTIGATION_RECORDER).read_bytes())
+        prep.executable.chmod(0o755)
+        case.environment['SDD_INVESTIGATOR_FIXTURE'] = str(self.config)
+        self.save_spec()
+
+    def save_spec(self):
+        self.config.write_text(json.dumps(self.spec) + '\n')
+
+    def fresh_session(self):
+        self.case.session_id = str(launch.uuid.uuid4())
+        self.spec['session_id'] = self.case.session_id
+        self.save_spec()
+
+    def events(self):
+        return [json.loads(line) for line in self.log.read_text().splitlines()] if self.log.exists() else []
+
+    def reset_events(self):
+        self.log.unlink(missing_ok=True)
+
+    def invoke(self, installed, output, *, prompt_sha=None, **options):
+        return self.case.prepare(installed, output, role=options.pop('role', 'investigator'),
+                                 host=options.pop('host', 'claude-code'), mode='claude-entry',
+                                 extra=('--executable', str(self.prep.executable), '--prompt-file', self.prompt,
+                                        '--prompt-sha256', prompt_sha or launch.sha_file(self.case.root / self.prompt)),
+                                 **options)
+
+    def assert_work(self, result, output):
+        self.assertEqual(result.returncode, 0, result.stderr[:1000])
+        public = json.loads(result.stdout)
+        self.assertEqual((public['type'], public['is_error']), ('result', False))
+        self.assertIn('INV-001 sample.py:1', public['result'])
+        self.assertEqual(public['session_id'], self.case.session_id)
+        directory = self.case.root / output
+        self.assertEqual(sorted(p.name for p in directory.iterdir()),
+                         ['controls.json', 'native-result.json', 'selection.json', 'validation.json'])
+        self.assertEqual((directory / 'native-result.json').read_text(), result.stdout)
+        validation = json.loads((directory / 'validation.json').read_bytes())
+        controls = self.case.ref(output + '/controls.json')
+        oracle = self.case.oracle_validation(output, controls['sha256'], role='investigator')
+        self.assertEqual(oracle.returncode, 0, oracle.stderr[:1000])
+        self.assertEqual(json.loads(oracle.stdout), validation)
+        self.assertEqual(json.loads((directory / 'selection.json').read_bytes()), validation['selection'])
+        work = [event for event in self.events() if event['event'] == 'work']
+        self.assertEqual(len(work), 1, 'exactly one new native work process, no retry/second role allocation')
+        self.assertEqual(work[0]['agent']['model'], validation['selection']['resolved']['native_id'])
+        self.assertEqual(work[0]['agent']['effort'], validation['selection']['resolved']['effort'])
+        self.assertNotIn('actual_id', public, 'aggregate modelUsage is not backend identity')
+        self.assertNotIn('ready_to_launch', validation)
+        self.assertNotIn('effective_complete', validation, 'private incomplete authority is not a persisted success claim')
+        self.assertEqual({name: (self.case.root / name).read_bytes() for name in self.initial_inputs}, self.initial_inputs)
+        self.prep.assert_unchanged_world()
+        return public
+
+    def assert_blocked(self, installed, output, reason, **options):
+        self.reset_events()
+        result = self.invoke(installed, output, **options)
+        self.case.rejected(result, reason)
+        self.assertEqual([e for e in self.events() if e['event'] == 'work'], [])
+        self.assertFalse((self.case.root / output / 'validation.json').exists())
+        self.assertFalse((self.case.root / output).exists(), 'known invalid inputs must fail before output creation')
+        self.prep.assert_unchanged_world()
+
+    def fence(self, installed, output):
+        source = (installed / INVESTIGATION_CALLER).read_text()
+        fences = [body for body in re.findall(r'```bash\n(.*?)```', source, re.S) if 'claude-entry' in body]
+        self.assertEqual(len(fences), 1, 'maintained bootstrap lacks exactly one pre-allocation investigator fence')
+        script = fences[0]
+        values = {'repository-root': str(self.case.root), 'installed-root': str(installed),
+                  'policy-request': 'request.json', 'registry': 'registry.json', 'run-id': self.case.run_id,
+                  'session-id': self.case.session_id, 'attempt': '1', 'output-dir': output,
+                  'claude-executable': str(self.prep.executable), 'prompt-file': self.prompt,
+                  'prompt-sha256': launch.sha_file(self.case.root / self.prompt)}
+        for key, value in values.items():
+            script = script.replace('"<' + key + '>"', shlex.quote(value)).replace('<' + key + '>', shlex.quote(value))
+        self.assertNotRegex(script, r'<[a-z][a-z-]*>', 'unresolved caller fixture placeholder')
+        return script
+
+    def test_maintained_investigator_entry_selects_before_one_fresh_work_allocation(self):
+        for shell in SHELLS:
+            installed = self.prep.install(shell)
+            self.prep.claude_positive(installed, self.prep.output())  # actual current configuration-only setup positive
+            for name in [INVESTIGATION_AGENT, *INVESTIGATION_SOURCES]:
+                self.assertTrue((installed / name).is_file(), 'installed investigator workload source is missing: ' + name)
+                self.assertEqual((installed / name).read_bytes(), (ROOT / name).read_bytes())
+            self.fresh_session()
+            output = self.prep.output()
+            script = self.fence(installed, output)
+            self.reset_events()
+            result = self.case.run_process([launch.BASH, '-c', script], timeout=120, label='maintained investigator caller')
+            self.assert_work(result, output)
+            self.assertEqual([e['event'] for e in self.events()].count('work'), 1)
+            # A genuine configuration-only call still succeeds, but cannot satisfy the work-result oracle.
+            legacy_output = self.prep.output()
+            legacy = self.fence(installed, legacy_output).replace('claude-entry', 'claude-prepare')
+            legacy = legacy.replace('--prompt-file ' + shlex.quote(self.prompt), '')
+            legacy = legacy.replace('--prompt-sha256 ' + launch.sha_file(self.case.root / self.prompt), '')
+            self.reset_events()
+            legacy_result = self.case.run_process([launch.BASH, '-c', legacy], timeout=120, label='configuration-only counterfactual')
+            self.assertEqual(legacy_result.returncode, 0, legacy_result.stderr[:1000])
+            self.assertNotIn('result', json.loads(legacy_result.stdout))
+            self.assertEqual([e for e in self.events() if e['event'] == 'work'], [])
+
+    def test_investigator_entry_blocks_invalid_bound_inputs_before_work(self):
+        # Installer omissions have independent actual Red even before the new work command exists.
+        installed: dict[str, Path] = {}
+        for shell in SHELLS:
+            installed[shell] = self.prep.install(shell)
+            self.prep.claude_positive(installed[shell], self.prep.output())
+            for index, missing in enumerate([INVESTIGATION_AGENT, *INVESTIGATION_SOURCES]):
+                with self.subTest(shell=shell, missing_dependency=missing):
+                    package = self.case.build_package('missing-inv-' + shell + '-' + str(index), omit=missing)
+                    destination = self.case.base / ('missing-inv-install-' + shell + '-' + str(index))
+                    result = self.case.run_installer(shell, package, destination)
+                    self.assertNotEqual(result.returncode, 0, 'installer accepted an incomplete investigator runtime')
+                    self.assertFalse(destination.exists(), 'incomplete runtime was published')
+        root = installed['bash']
+        self.reset_events()
+        self.fresh_session()
+        output = self.prep.output()
+        self.assert_work(self.invoke(root, output), output)
+        cases = [('wrong-role', {'role': 'evaluator'}, 'model-unavailable'),
+                 ('wrong-host', {'host': 'codex-cli'}, 'model-unavailable'),
+                 ('unsupported-required-identity', {'require_actual_id': 'true'}, 'actual-id-unavailable'),
+                 ('wrong-work-pin', {'prompt_sha': '0' * 64}, 'input-invalid'),
+                 ('invalid-native-session', {'session_id': 'not-a-uuid'}, 'input-invalid')]
+        for label, options, reason in cases:
+            with self.subTest(blocked=label):
+                self.assert_blocked(root, self.prep.output(), reason, **options)
+        setting = self.case.root / '.claude/settings.local.json'
+        original = setting.read_bytes()
+        for key, value, reason in [('maxEffortLevel', 'low', 'effort-unavailable'),
+                                   ('env', {'CLAUDE_CODE_EFFORT_LEVEL': 'low'}, 'native-precedence-conflict')]:
+            with self.subTest(blocked=key):
+                setting.write_text(json.dumps({key: value}) + '\n')
+                try:
+                    self.assert_blocked(root, self.prep.output(), reason)
+                finally:
+                    setting.write_bytes(original)
+        # Missing own installed workload data must not fall back to the project or source package.
+        reference = root / INVESTIGATION_SOURCES[-1]
+        raw, mode = reference.read_bytes(), reference.stat().st_mode & 0o777
+        reference.unlink()
+        try:
+            self.assert_blocked(root, self.prep.output(), 'input-invalid')
+        finally:
+            reference.write_bytes(raw)
+            reference.chmod(mode)
+        for path in (reference, self.case.root / self.prompt):
+            with self.subTest(blocked='source-drift-during-help', path=path.name):
+                raw = path.read_bytes()
+                self.spec['edit_on_help'] = [{'path': str(path), 'text': 'changed during harmless help\n'}]
+                self.save_spec()
+                try:
+                    self.assert_blocked(root, self.prep.output(), 'input-invalid')
+                finally:
+                    path.write_bytes(raw)
+                    self.spec.pop('edit_on_help')
+                    self.save_spec()
+        original_help = self.spec['help']
+        self.spec['help'] = original_help.replace('--tools <tools...>', '--unrelated-carrier <tools...>')
+        self.save_spec()
+        try:
+            self.assert_blocked(root, self.prep.output(), 'config-invalid')
+        finally:
+            self.spec['help'] = original_help
+            self.save_spec()
+        self.prep.write_cli(self_edit=True)  # genuine executable raw drift, not a mocked recheck
+        self.assert_blocked(root, self.prep.output(), 'input-invalid')
+
+    def test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity(self):
+        installed = self.prep.install('bash')
+        permissions = {path: path.read_bytes() for path in (self.case.home / '.claude/settings.json',
+                       self.case.root / '.claude/settings.json', self.case.root / '.claude/settings.local.json')}
+        self.fresh_session()
+        self.reset_events()
+        output = self.prep.output()
+        public = self.assert_work(self.invoke(installed, output), output)
+        self.assertIn('fixture-aggregate-must-not-become-actual-id', public['modelUsage'])
+        work = next(event for event in self.events() if event['event'] == 'work')
+        for flag in ('--allowedTools', '--permission-mode', '--dangerously-skip-permissions', '--settings', '--setting-sources',
+                     '--strict-mcp-config', '--mcp-config', '--continue', '--resume'):
+            self.assertNotIn(flag, work['argv'])
+        self.assertEqual({path: path.read_bytes() for path in permissions}, permissions)
+        self.reset_events()
+        replay_output = self.prep.output()
+        self.case.rejected(self.invoke(installed, replay_output), 'model-unverified')
+        self.assertEqual([e for e in self.events() if e['event'] == 'work'], [], 'existing session must not be resumed')
+        self.assertFalse((self.case.root / replay_output / 'validation.json').exists())
+        self.fresh_session()
+        self.spec['reject_work'] = True
+        self.save_spec()
+        self.reset_events()
+        output = self.prep.output()
+        result = self.invoke(installed, output)
+        self.case.rejected(result, 'model-unverified')
+        self.assertEqual([e['event'] for e in self.events()].count('work'), 1, 'a failed work call must not retry/fallback')
+        self.assertFalse((self.case.root / output / 'validation.json').exists())
+        self.assertFalse((self.case.root / output / 'native-result.json').exists())
+        self.spec.pop('reject_work')
+        for mode in ('malformed', 'error-with-zero-exit', 'empty-result', 'wrong-session', 'overflow'):
+            with self.subTest(public_result=mode):
+                self.spec['reply_mode'] = mode
+                self.spec['other_session_id'] = str(launch.uuid.uuid4())
+                self.fresh_session()
+                self.reset_events()
+                output = self.prep.output()
+                result = self.invoke(installed, output)
+                self.case.rejected(result, 'scope-mismatch' if mode == 'wrong-session' else 'model-unverified')
+                self.assertEqual([e['event'] for e in self.events()].count('work'), 1)
+                self.assertFalse((self.case.root / output / 'validation.json').exists())
+                self.assertFalse((self.case.root / output / 'native-result.json').exists())
+        self.assertEqual({path: path.read_bytes() for path in permissions}, permissions)
+        self.prep.assert_unchanged_world()
+
+
 
 
 # ---- T-008 installed Codex entry: generated native configuration only (codex-entry batch) ----------------------
