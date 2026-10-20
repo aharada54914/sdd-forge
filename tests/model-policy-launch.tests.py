@@ -1737,17 +1737,18 @@ class ModelRunRecords(unittest.TestCase):
         f.write('reports/model-fixture/model-execution-context.json', self.context)
         return command
 
-    def emit(self, shell, slot='reviewers', extra=(), *, selected=True, launch_sha=None, delivery_sha=None):
+    def emit(self, shell, slot='reviewers', extra=(), *, selected=True, launch_sha=None, delivery_sha=None,
+             feature='example'):
         shutil.rmtree(self.root / 'reports/runs', ignore_errors=True)
         script = self.root / 'plugins/sdd-quality-loop/scripts' / ('emit-run-record.' +
                                                                  ('sh' if shell == 'bash' else 'ps1'))
         if shell == 'bash':
-            command = [BASH, str(script), 'example']
+            command = [BASH, str(script), feature]
             names = ['--model-launch', '--model-launch-sha256', '--model-delivery-binding',
                      '--model-delivery-binding-sha256', '--model-slot']
         else:
             command = [os.environ.get('SDD_TEST_PWSH', 'pwsh'), '-NoProfile', '-File', str(script),
-                       '-Feature', 'example']
+                       '-Feature', feature]
             names = ['-ModelLaunch', '-ModelLaunchSha256', '-ModelDeliveryBinding',
                      '-ModelDeliveryBindingSha256', '-ModelSlot']
         if selected:
@@ -1769,6 +1770,14 @@ class ModelRunRecords(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(list((self.root / 'reports/runs').glob('RUN-*.json')),
                          'rejected model evidence must not publish a run record')
+
+    def test_run_record_feature_matches_original_execution_context(self):
+        self.records()
+        self.fixture.write('specs/other-feature/placeholder.json', {})
+        (self.root / 'specs/other-feature/tasks.md').write_text('## T-001 Other fixture\nStatus: In Progress\n')
+        for shell in ('bash', 'powershell'):
+            self.accepted_record(shell)
+            self.reject_record(shell, feature='other-feature')
 
     def test_fixed_selected_context_rebuilds_readonly_paths_and_rejects_resealed_fixed_fields(self):
         # Inventory/state are explicit synthetic rendering fixtures, not Git/admission proof.
