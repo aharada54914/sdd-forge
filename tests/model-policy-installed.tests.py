@@ -2172,5 +2172,496 @@ class InstalledPanelistCallerTests(unittest.TestCase):
                         reader({'path': alias, 'sha256': launch.sha_file(project / relative)})
 
 
+# ---- T-008 ordinary caller: maintained spec-review-loop non-TTY fence (spec-reviewer-a only) ---------------
+# Additive members for tests/model-policy-installed.tests.py; insert before the final unittest.main guard.
+# Uses the existing module imports/constants/helpers and composes (never inherits) the T-007 PairedClaudeLaunch
+# data fixture and the InstalledEntryTests installer/poison/oracle helpers.
+# Same-root installed coverage (not an unrelated-root proof): the real bash FilesOnly installer places PACKAGE plus
+# SPEC_CALLER_RUNTIME into P, project data is rebound into P, and the protected launcher/probe derive runtime=P from
+# their own location. Every gate is the actual installed product (prepare, precheck, conditional resolver, canonical
+# validator, preflight, launcher, probe, Node guard, model-run-record). The ONLY replacement is the external
+# `claude` executable: RECORDING_CLAUDE. Evidence class: FIXTURE ONLY (verified-configuration observation, fixture
+# adoption, no live Claude/backend, fixture NEEDS_WORK review record); it proves delivery/configuration, no verdict.
+SPEC_CALLER_SKILL = 'plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md'
+SPEC_CALLER_LAUNCHER = 'plugins/sdd-review-loop/scripts/launch-impl-review.py'
+SPEC_CALLER_ROLE = 'spec-reviewer-a'
+SPEC_CALLER_BOUNDARY = 'plugins/sdd-review-loop/references/review-context-boundary.md'
+SPEC_CALLER_RUNTIME = sorted({
+    SPEC_CALLER_SKILL, 'plugins/sdd-review-loop/agents/' + SPEC_CALLER_ROLE + '.md',
+    'plugins/sdd-review-loop/references/spec-review-calibration.md', SPEC_CALLER_BOUNDARY,
+    *('plugins/sdd-review-loop/scripts/' + name for name in (
+        'launch-impl-review.py', 'validate-nontty-spec-launch.py', 'preflight-host-review.py',
+        'probe-nontty-review.py', 'nontty-impl-pretool-guard.mjs', 'spec-review-precheck.sh',
+        'review-contract-validate.sh', 'lib/fixed-input-source.sh')),
+    *('plugins/sdd-quality-loop/scripts/' + name for name in (
+        'validate-review-context-set.sh', 'review-conditional-inputs.py'))})
+RECORDING_CLAUDE = 'tests/fixtures/model-policy-installed/recording-claude.py'
+SPEC_CALLER_TOOLS = ('rtk', 'node', 'bash', 'jq', 'git', 'shasum', 'python3')
+SPEC_LEDGER = 'reports/review-context/identity-ledger.json'
+# tests/spec-review-loop.tests.sh:110-130 round-1 constructors.
+SPEC_FEATURE_FILES = {
+    'requirements.md': '# Requirements\n\nSpec-Review-Status: Pending\n\n## Goals\n\n'
+                       '- Demonstrate the spec-review precheck fixture.\n',
+    'acceptance-tests.md': '# Acceptance tests\n\n| AC-ID | Requirement | Status |\n|---|---|---|\n'
+                           '| AC-001 | REQ-001 | Planned |\n',
+    'investigation.md': '# Investigation\n\n- Initial repository observation.\n'}
+SPEC_DELIVERY_FIELDS = {'status', 'session_id', 'prompt_sha256', 'prompt_bytes', 'transcript_sha256', 'wrapper_sha256'}
+SPEC_MODEL_DELIVERY_FIELDS = {'model_launch_sha256', 'model_delivery_binding_sha256'}
+# launcher claude_command help, probe help + diagnostic + collision, launcher argv recheck help, formal send.
+SPEC_NATIVE_MODES = ['help', 'help', 'diagnostic', 'collision', 'help', 'formal']
+
+
+def sha_text(text):
+    return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+
+class InstalledSpecCallerTests(unittest.TestCase):
+    """Execute the maintained spec-review-loop non-TTY fence through a complete same-root installed project."""
+
+    def fixture(self):
+        f = launch.PairedClaudeLaunch(methodName='runTest')
+        self.addCleanup(f.doCleanups)
+        f.setUp()
+        f.helper()  # the unchanged T-007 policy oracle stays in the source-copied fixture repository f.root
+        f.fixture_repo = f.root
+        f.home = f.base / 'caller-home'
+        (f.home / '.codex').mkdir(parents=True)
+        (f.home / '.codex/config.toml').write_text('# caller native configuration canary\n')
+        (f.home / '.claude').mkdir()
+        (f.home / '.claude/settings.json').write_text('{"canary": "user Claude settings; never read"}\n')
+        f.codex_home = tree(f.home / '.codex')
+        f.claude_home = tree(f.home / '.claude')
+        f.poison = f.base / 'caller-source-fallback'
+        f.audit = f.base / 'recording-claude-audit.jsonl'
+        for name in [name for name in f.environment if name.startswith(('ANTHROPIC_', 'CLAUDE_'))]:
+            del f.environment[name]  # native carriers come only from the launcher; nothing is recorded
+        f.environment.update(HOME=str(f.home), XDG_CONFIG_HOME=str(f.home / '.config'),
+                             XDG_DATA_HOME=str(f.home / '.local/share'), XDG_CACHE_HOME=str(f.home / '.cache'),
+                             SDD_CODEX_HOME=str(f.home / '.codex'), SDD_CURSOR_DIR=str(f.base / 'cursor-absent'),
+                             SDD_VSCODE_USER_DIR=str(f.base / 'vscode-absent'), GIT_CONFIG_NOSYSTEM='1',
+                             GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0',
+                             RECORDING_CLAUDE_AUDIT=str(f.audit))
+        for name in SPEC_CALLER_TOOLS:
+            self.assertIsNotNone(shutil.which(name, path=f.environment['PATH']),
+                                 'Required actual tool is absent (setup failure): ' + name)
+        self.assertTrue((ROOT / RECORDING_CLAUDE).is_file(), 'Recording Claude fixture is absent (setup failure)')
+        shim = f.base / 'shims/claude'  # replaces only the T-007 exit-97 canary for this one executable
+        shutil.copyfile(ROOT / RECORDING_CLAUDE, shim)
+        shim.chmod(0o755)
+        declared = self.execute(f, [str(shim), '--help'], cwd=f.base)
+        self.assertEqual((declared.returncode, declared.stdout), (0, launch.HELP_TEXT),
+                         'Recording CLI must declare exactly the T-007 fixture help vocabulary')
+        package, empty = f.base / 'spec-caller-package', f.base / 'empty-git-template'
+        package.mkdir()
+        empty.mkdir()
+        for relative in sorted(set(PACKAGE) | set(SPEC_CALLER_RUNTIME)):
+            source, target = ROOT / relative, package / relative
+            self.assertTrue(source.is_file(), 'Admitted package input missing (setup failure): ' + relative)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(source, target)  # bytes plus the tracked executable bit the precheck relies on
+        for args in (['init', '-q', '--template=' + str(empty)], ['add', '--all'],
+                     ['-c', 'user.name=Spec Caller Fixture', '-c', 'user.email=spec-caller@example.invalid',
+                      '-c', 'gc.auto=0', 'commit', '-qm', 'Explicit current spec caller package']):
+            result = f.run_process(['git', '-C', str(package), *args], label='spec caller package setup')
+            self.assertEqual(result.returncode, 0, 'Package setup failed: ' + result.stderr[-1200:])
+        project = f.base / 'installed-project'
+        result = InstalledEntryTests.run_installer(f, 'bash', package, project)
+        self.assertEqual(result.returncode, 0, 'Installer setup failed: ' + result.stderr[-1600:])
+        for relative in sorted(set(MANAGED_RUNTIME) | set(SPEC_CALLER_RUNTIME)):
+            self.assertTrue((project / relative).is_file(), 'Installed spec caller runtime is missing: ' + relative)
+            self.assertEqual(launch.sha_file(project / relative), launch.sha_file(ROOT / relative))
+        self.assertTrue(os.access(project / 'plugins/sdd-review-loop/scripts/review-contract-validate.sh', os.X_OK),
+                        'Installed precheck foundation is not executable (setup failure)')
+        self.assertFalse((project / 'tests').exists(), 'Test fixtures must never be installed runtime')
+        InstalledEntryTests.poison_source(f, package)
+        runtime = runtime_tree(project)
+        # Project data rebound into the same installed root; history is seeded, the proposed reviewer is not.
+        (project / 'runs').mkdir()
+        (project / 'reports/review-context').mkdir(parents=True)
+        run_id, session_id = 'seed-prior-run-1', 'seed-prior-session-1'  # review-context-boundary.tests.sh:72-80
+        seed = {'sequence': 1, 'stage': 'spec', 'role': SPEC_CALLER_ROLE, 'run_id': run_id,
+                'host_session_id': session_id, 'previous_record_sha256': '',
+                'record_sha256': sha_text('1|spec|' + SPEC_CALLER_ROLE + '|' + run_id + '|' + session_id + '|')}
+        (project / SPEC_LEDGER).write_text(json.dumps({'schema': 'review-identity-ledger/v1', 'records': [seed]}) + '\n')
+        self.chain(project / SPEC_LEDGER)
+        return f, project, runtime
+
+    def execute(self, f, command, *, cwd, stdin=None, timeout=120):
+        try:
+            return launch.subprocess.run(command, cwd=cwd, env=f.environment, input=stdin, text=True,
+                                         capture_output=True, timeout=timeout, check=False)
+        except launch.subprocess.TimeoutExpired:
+            self.fail('Bounded spec caller subprocess timed out: ' + Path(command[0]).name)
+
+    def chain(self, ledger):
+        """Records of a hash-chain-valid ledger, recomputed exactly like the canonical validator."""
+        records = json.loads(ledger.read_bytes())['records']
+        previous = ''
+        for sequence, record in enumerate(records, 1):
+            text = '|'.join((str(sequence), record['stage'], record['role'], record['run_id'],
+                             record['host_session_id'], previous))
+            if 'scratch_declaration_sha256' in record:
+                text += '|scratch-declaration-v1|' + record['scratch_declaration_sha256']
+            if 'allowed_inputs_sha256' in record:
+                text += '|allowed-inputs-v1|' + record['allowed_inputs_sha256']
+            self.assertEqual((record['sequence'], record['previous_record_sha256'], record['record_sha256']),
+                             (sequence, previous, sha_text(text)), 'identity ledger chain is not valid')
+            previous = record['record_sha256']
+        return records
+
+    def fence(self, project):
+        """The installed maintained skill is the oracle; the test authors no replacement command excerpt."""
+        source = (project / SPEC_CALLER_SKILL).read_text(encoding='utf-8')
+        heading = '### Local Claude CLI non-TTY route (opt-in)'
+        self.assertEqual(source.count(heading), 1, 'Maintained non-TTY route heading is missing or repeated')
+        section = source.split(heading, 1)[1].split('\n## ', 1)[0]
+        choices = [body for language, body in re.findall(r'```([^\s`]*)[^\n]*\n(.*?)\n```', section, re.S)
+                   if language.lower() in ('text', 'sh', 'bash') and 'launch-impl-review.py' in body]
+        self.assertEqual(len(choices), 1, 'Expected one maintained Bash/text non-TTY launcher fence')
+        return choices[0]
+
+    def case(self, f, project, runtime, label, *, request_role=SPEC_CALLER_ROLE, mutation=None):
+        """Fresh feature, round-1 precheck, UUIDv4 run=session and exact invocation/v2; then the fence runs once."""
+        session = str(uuid.uuid4())
+        feature = 'spec-caller-' + uuid.uuid4().hex[:12]
+        f.request = f.fresh_request(request_role)
+        f.observation = f.fresh_observation()
+        f.save()
+        for name in sorted({'request.json', 'registry.json', *f.closure()}):
+            shutil.copyfile(f.root / name, project / name)
+        spec_dir = project / 'specs' / feature
+        spec_dir.mkdir(parents=True)
+        for name, text in SPEC_FEATURE_FILES.items():
+            (spec_dir / name).write_text(text)
+        precheck = self.execute(f, [launch.BASH, str(project / 'plugins/sdd-review-loop/scripts/spec-review-precheck.sh'),
+                                    feature, '1', '1'], cwd=project)
+        self.assertEqual(precheck.returncode, 0, 'Actual round-1 precheck failed (setup): ' + precheck.stderr[-800:])
+        round_rel = 'reports/spec-review/' + feature + '/attempt-1/round-1'
+        recorded = json.loads((project / round_rel / 'precheck-result.json').read_bytes())
+        self.assertEqual([recorded[key] for key in ('schema', 'feature', 'attempt', 'round', 'spec_review_status_field',
+                                                    'investigation_sha256')],
+                         ['spec-review-precheck/v1', feature, 1, 1, 'Pending', launch.sha_file(spec_dir / 'investigation.md')])
+        resolved = self.execute(f, ['python3', '-B', str(project / 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'),
+                                    '--root', str(project), '--feature', feature, '--stage', 'spec'], cwd=project)
+        self.assertEqual(resolved.returncode, 0, 'Actual conditional-input resolution failed: ' + resolved.stderr[-800:])
+        conditional = json.loads(resolved.stdout)
+        self.assertEqual((conditional['domain_status'], conditional['design_system_status']), ('skipped', 'not-applicable'),
+                         'This slice admits only the no-domain/no-design-system branch')
+        paths = ['specs/' + feature + '/' + name for name in ('requirements.md', 'acceptance-tests.md', 'investigation.md')]
+        paths += ['plugins/sdd-review-loop/references/spec-review-calibration.md', round_rel + '/precheck-result.json']
+        entries = [{'path': path, 'sha256': launch.sha_file(project / path)} for path in paths]
+        entries += [entry for entry in conditional['inputs'] if entry['path'] not in paths]
+        ledger = project / SPEC_LEDGER
+        records = self.chain(ledger)
+        self.assertFalse([r for r in records if session in (r['run_id'], r['host_session_id'])],
+                         'Proposed identity must be absent before the launcher')
+        transcripts = f.home / '.claude/projects'
+        self.assertFalse(transcripts.is_dir() and list(transcripts.rglob(session + '.jsonl')))
+        invocation = project / round_rel / (SPEC_CALLER_ROLE + '-invocation-' + session + '.json')
+        invocation.write_text(json.dumps({
+            'schema': 'review-context-invocation/v2', 'input_mode': 'file-manifest', 'fallback_mode': 'none',
+            'read_only': True, 'stage': 'spec', 'role': SPEC_CALLER_ROLE, 'feature': feature, 'run_id': session,
+            'host_session_id': session, 'sequence': len(records) + 1, 'identity_ledger_path': SPEC_LEDGER,
+            'identity_ledger_sha256': launch.sha_file(ledger), 'previous_record_sha256': records[-1]['record_sha256'],
+            'allowed_input_manifest': entries}, indent=2) + '\n')
+        output_rel = 'runs/' + SPEC_CALLER_ROLE + '-' + session
+        # Documented placeholders only: the current four plus the managed-prepare vocabulary of the panelist snippets.
+        values = {'<absolute-repository-root>': str(project), '<absolute-invocation-path>': str(invocation),
+                  '<absolute-round-directory>': str(project / round_rel), '<UUID>': session,
+                  '<role>': SPEC_CALLER_ROLE, '<policy-request>': 'request.json', '<registry>': 'registry.json',
+                  '<run-id>': session, '<session-id>': session, '<attempt>': '1', '<output-dir>': output_rel}
+        text = self.fence(project)
+        for old, new in values.items():
+            text = text.replace(old, new)
+        for relative in [ADAPTER, *SPEC_CALLER_RUNTIME]:
+            text = re.sub(r'(?<![\w./-])' + re.escape(relative), lambda _: str(project / relative), text)
+        self.assertIsNone(re.search(r'<[A-Za-z][A-Za-z0-9_-]*>', text), 'Undocumented fixture placeholder')
+        launcher = str(project / SPEC_CALLER_LAUNCHER)
+        lines = text.splitlines(keepends=True)
+        indexes = [index for index, line in enumerate(lines) if launcher in line]
+        self.assertEqual(len(indexes), 1, 'Mutation and oracle need the one actual maintained launcher invocation')
+        start = end = indexes[0]
+        while start and lines[start - 1].rstrip('\n').endswith('\\'):
+            start -= 1
+        while end + 1 < len(lines) and lines[end].rstrip('\n').endswith('\\'):
+            end += 1
+        if mutation == 'remove-forwarding':
+            command, count = re.subn(r'--model-controls(?:-sha256)?(?:[ \t]+|=)(?:"[^"\n]*"|\x27[^\x27\n]*\x27|[^\s`\\]+)',
+                                     '', ''.join(lines[start:end + 1]))
+            self.assertEqual(count, 2, 'Mutation must remove exactly the two launcher control flags, keeping prepare')
+            text = ''.join(lines[:start]) + command + ''.join(lines[end + 1:])
+        elif mutation == 'raw-control-drift':
+            text = ''.join(lines[:start] + ['printf "\\n" >> ' + shlex.quote(output_rel + '/controls.json') + '\n'] +
+                           lines[start:])
+        else:
+            self.assertIsNone(mutation, 'Unknown deliberate fence mutation')
+        script = f.base / ('spec-caller-' + label + '.sh')
+        script.write_text(text + '\n')
+        audit = f.audit.read_bytes() if f.audit.exists() else b''
+        before = ledger.read_bytes()
+        result = self.execute(f, [launch.BASH, str(script)], cwd=project, timeout=900)
+        self.assertFalse(f.poison.exists(), 'Caller used the poisoned source package')
+        after = runtime_tree(project)
+        self.assertEqual({path: after.get(path) for path in runtime}, runtime, 'Caller changed installed runtime')
+        self.assertFalse([path for path in after if path.startswith(('plugins/', 'contracts/')) and path not in runtime],
+                         'Caller added files to the installed runtime')
+        self.assertEqual({entry['path']: launch.sha_file(project / entry['path']) for entry in entries},
+                         {entry['path']: entry['sha256'] for entry in entries}, 'Reviewed sources or status changed')
+        self.assertEqual(tree(f.home / '.codex'), f.codex_home, 'Caller changed user native Codex configuration')
+        self.assertEqual({path: digest for path, digest in tree(f.home / '.claude').items()
+                          if not path.startswith('projects/')}, f.claude_home, 'Caller changed user Claude configuration')
+        return {'session': session, 'feature': feature, 'entries': entries, 'paths': paths, 'invocation': invocation,
+                'output_rel': output_rel, 'launch': project / round_rel / ('launch-' + session), 'result': result,
+                'records': records, 'ledger': before, 'audit': audit}
+
+    def native_calls(self, f, case):
+        raw = f.audit.read_bytes() if f.audit.exists() else b''
+        self.assertEqual(raw[:len(case['audit'])], case['audit'], 'Native audit history was rewritten')
+        return [json.loads(line) for line in raw[len(case['audit']):].decode('utf-8').splitlines()]
+
+    def assert_delivered(self, f, project, case):
+        """Route-independent complete positive: genuine probe, one launcher reservation, verified delivery."""
+        session, output, result = case['session'], case['launch'], case['result']
+        self.assertEqual(result.returncode, 0, 'Valid maintained fence failed: ' + result.stderr[-2400:])
+        delivery = json.loads((output / 'delivery.json').read_bytes())
+        self.assertEqual({key: delivery.get(key) for key in SPEC_DELIVERY_FIELDS},
+                         {'status': 'DELIVERY_OK', 'session_id': session,
+                          'prompt_sha256': launch.sha_file(output / 'prompt.txt'),
+                          'prompt_bytes': len((output / 'prompt.txt').read_bytes()),
+                          'transcript_sha256': launch.sha_file(output / (session + '.jsonl')),
+                          'wrapper_sha256': launch.sha_file(output / 'wrapper.json')})
+        before, records = case['records'], self.chain(project / SPEC_LEDGER)
+        self.assertEqual(records[:-1], before, 'Exactly one record may be appended to the prior chain')
+        inputs = sha_text('\n'.join(entry['path'] + '\t' + entry['sha256'] for entry in case['entries']))
+        sequence, previous = len(before) + 1, before[-1]['record_sha256']
+        digest = sha_text('|'.join((str(sequence), 'spec', SPEC_CALLER_ROLE, session, session, previous,
+                                    'allowed-inputs-v1', inputs)))
+        self.assertEqual(records[-1], {'sequence': sequence, 'stage': 'spec', 'role': SPEC_CALLER_ROLE,
+                                       'run_id': session, 'host_session_id': session,
+                                       'previous_record_sha256': previous, 'record_sha256': digest,
+                                       'allowed_inputs_sha256': inputs})
+        receipt = ('REVIEW_CONTEXT_OK %s sequence=%d previous_record_sha256=%s pre_append_tip_sequence=%d '
+                   'identity_unique=yes\n' % (digest, sequence, previous, sequence - 1))
+        self.assertEqual({name: (output / name).read_text() for name in
+                          ('preview.txt', 'preview-after.txt', 'reserved.txt', 'receipt.txt')},
+                         dict.fromkeys(('preview.txt', 'preview-after.txt', 'reserved.txt', 'receipt.txt'), receipt))
+        native = [json.loads(line) for line in (output / 'native.jsonl').read_text().splitlines()]
+        diagnostic = native[0].get('diagnostic_session')
+        self.assertEqual(native[:2], [{'diagnostic_session': diagnostic, 'reservation': 'not performed'},
+                                      {'session': diagnostic, 'exit': 0, 'stderr_present': False}])
+        self.assertNotEqual(diagnostic, session)
+        self.assertFalse([r for r in records if diagnostic in (r['run_id'], r['host_session_id'])], 'The probe reserved')
+        proof = native[-1]
+        guard = project / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
+        self.assertEqual({key: proof.get(key) for key in (
+            'admitted_read_executed', 'outside_read_pretool_denied', 'chained_bash_pretool_denied',
+            'existing_session_collision_rejected', 'control_reads_executed', 'source_invocation_read_executed',
+            'source_invocation_sha256', 'admitted_paths', 'ordered_hashes_verified', 'fixed_input_record_sha256',
+            'guard_sha256')},
+            {'admitted_read_executed': True, 'outside_read_pretool_denied': True, 'chained_bash_pretool_denied': True,
+             'existing_session_collision_rejected': True, 'control_reads_executed': True,
+             'source_invocation_read_executed': True, 'source_invocation_sha256': launch.sha_file(case['invocation']),
+             'admitted_paths': case['paths'], 'ordered_hashes_verified': len(case['entries']) + 5,
+             'fixed_input_record_sha256': None, 'guard_sha256': launch.sha_file(guard)})
+        homes = sorted((f.home / '.claude/projects').rglob('*.jsonl'))
+        formal_home = [path for path in homes if path.name == session + '.jsonl']
+        diagnostic_home = [path for path in homes if path.name == diagnostic + '.jsonl']
+        self.assertEqual((len(formal_home), len(diagnostic_home)), (1, 1), 'Native transcripts missing or ambiguous')
+        self.assertEqual(formal_home[0].read_bytes(), (output / (session + '.jsonl')).read_bytes())
+        self.assertEqual(launch.sha_file(diagnostic_home[0]), proof['transcript_sha256'],
+                         'Duplicate-session rejection changed the diagnostic transcript')
+        calls = self.native_calls(f, case)
+        self.assertEqual([call['mode'] for call in calls], SPEC_NATIVE_MODES)
+        probe_call, collision, formal = calls[2], calls[3], calls[5]
+        self.assertEqual((probe_call['session_id'], collision['session_id'], collision['argv'], formal['session_id']),
+                         (diagnostic, diagnostic, probe_call['argv'], session))
+        plugin_dir = str(project / 'plugins/sdd-review-loop')  # protected launcher and probe derive runtime=P
+        for call in (probe_call, formal):
+            argv = call['argv']
+            self.assertEqual((argv[:3], argv[argv.index('--plugin-dir') + 1]),
+                             (['-p', '--session-id', call['session_id']], plugin_dir))
+        self.assertEqual(Path(formal['argv'][formal['argv'].index('--settings') + 1]), output / 'settings.json')
+        self.assertEqual([(t['tool'], t['decision'], t['is_error']) for t in probe_call['tools']],
+                         [('Bash', 'allow', False)] + [('Read', 'allow', False)] * len(proof['native_read_paths']) +
+                         [('Bash', 'deny', True), ('Read', 'deny', True), ('StructuredOutput', 'allow', False)])
+        reads = [str((project / path).resolve()) for path in
+                 [case['invocation'].relative_to(project).as_posix(), SPEC_CALLER_BOUNDARY, *case['paths']]]
+        self.assertEqual([(t['tool'], t['decision'], t['is_error'], t.get('path'), t.get('sha256')) for t in formal['tools']],
+                         [('Bash', 'allow', False, None, None)] +
+                         [('Read', 'allow', False, path, launch.sha_file(Path(path))) for path in reads] +
+                         [('StructuredOutput', 'allow', False, None, None)])
+        wrapper = json.loads((output / 'wrapper.json').read_bytes())
+        review = wrapper['structured_output']
+        self.assertEqual((wrapper['type'], wrapper['is_error'], wrapper['session_id'], json.loads(wrapper['result'])),
+                         ('result', False, session, review))
+        self.assertEqual({key: review[key] for key in ('schema', 'stage', 'role', 'run_id', 'host_session_id',
+                                                       'allowed_input_manifest', 'verdict')},
+                         {'schema': SPEC_CALLER_ROLE + '/v1', 'stage': 'spec', 'role': SPEC_CALLER_ROLE,
+                          'run_id': session, 'host_session_id': session, 'allowed_input_manifest': case['entries'],
+                          'verdict': 'NEEDS_WORK'}, 'Fixture-only delivery record, never an approval')
+        return delivery, calls
+
+    def assert_managed(self, f, project, case, calls):
+        """Managed oracle: real installed prepare controls forwarded, generated native role and bound delivery."""
+        session, output = case['session'], case['launch']
+        directory = project / case['output_rel']
+        self.assertTrue((directory / 'validation.json').is_file(), 'Maintained caller omitted installed prepare')
+        self.assertEqual(sorted(path.name for path in directory.iterdir()), OUTPUT_FILES)
+        controls, selection, validation = [json.loads((directory / name).read_bytes()) for name in OUTPUT_FILES]
+
+        def ref(path):
+            return {'path': path, 'sha256': launch.sha_file(project / path)}
+        self.assertEqual(controls, {'schema': 'model-launch-controls/v1', 'role': SPEC_CALLER_ROLE, 'host': launch.HOST,
+                                    'attempt': 1, 'require_actual_id': False,
+                                    'selection': ref(case['output_rel'] + '/selection.json'),
+                                    'request': ref('request.json'), 'registry': ref('registry.json'),
+                                    'inputs': [ref(path) for path in sorted(f.closure())]})
+        self.assertEqual(set(validation), launch.VALIDATION_FIELDS)
+        self.assertEqual(validation['controls'], ref(case['output_rel'] + '/controls.json'))
+        self.assertEqual(validation['pins'], sorted([controls['selection'], controls['request'], controls['registry'],
+                                                    *controls['inputs']], key=lambda item: item['path']))
+        self.assertEqual(validation['trusted'], [ref(path) for path in launch.TRUSTED_PATHS])
+        self.assertEqual(validation['trusted'], [{'path': path, 'sha256': launch.sha_file(ROOT / path)}
+                                                 for path in launch.TRUSTED_PATHS], 'trusted runtime is current bytes')
+        self.assertEqual([validation[key] for key in ('role', 'host', 'run_id', 'session_id', 'attempt', 'require_actual_id')],
+                         [SPEC_CALLER_ROLE, launch.HOST, session, session, 1, False])
+        self.assertEqual(validation['selection'], selection)
+        self.assertEqual(selection, f.helper().bind_selection(InstalledEntryTests.oracle_selection(f), run_id=session,
+                                                              session_id=session, attempt=1))
+        native, effort = selection['resolved']['native_id'], selection['resolved']['effort']
+        trusted = next(m for m in f.trusted_policy['models'] if m['id'] == selection['resolved']['catalog_id'])
+        self.assertEqual(native, trusted['hosts'][launch.HOST], 'trusted mapping only')
+        launch_path = output / 'model-launch.json'
+        self.assertTrue(launch_path.is_file(), 'Launcher did not bind the forwarded model controls')
+        launch_raw = launch_path.read_bytes()
+        record = json.loads(launch_raw)
+        self.assertEqual(set(record), launch.LAUNCH_FIELDS)
+        # The forwarded pin is the validated one; a fresh unchecked rehash is caught by the raw-drift case.
+        self.assertEqual([record[key] for key in ('controls', 'pins', 'trusted')],
+                         [validation[key] for key in ('controls', 'pins', 'trusted')])
+        self.assertEqual({key: record[key] for key in (
+            'schema', 'role', 'transport_role', 'host', 'run_id', 'session_id', 'attempt', 'require_actual_id',
+            'selection_sha256', 'native_model', 'effort', 'effort_control', 'effort_carrier', 'native_alignment',
+            'transport', 'native_overrides', 'model_argv', 'effort_argv', 'agent_model', 'agent_effort')},
+            {'schema': 'model-launch-binding/v1', 'role': SPEC_CALLER_ROLE, 'transport_role': SPEC_CALLER_ROLE,
+             'host': launch.HOST, 'run_id': session, 'session_id': session, 'attempt': 1, 'require_actual_id': False,
+             'selection_sha256': selection['selection_sha256'], 'native_model': native, 'effort': effort,
+             'effort_control': selection['resolved']['effort_control'], 'effort_carrier': 'flag+frontmatter',
+             'native_alignment': 'generated', 'transport': 'claude-print',
+             'native_overrides': dict.fromkeys(launch.NATIVE_OVERRIDES), 'model_argv': ['--model', native],
+             'effort_argv': ['--effort', effort], 'agent_model': native, 'agent_effort': effort})
+        probe_call, formal = calls[2], calls[5]
+        argv = formal['argv']
+        self.assertEqual(record['argv'], ['rtk', 'proxy', str(f.base / 'shims/claude'), *argv],
+                         'Recorded launch argv must be the actual native argv')
+        self.assertEqual(record['argv_sha256'], launch.sha_bytes(launch.canonical(record['argv'])))
+        self.assertEqual([argv[argv.index(flag) + 1] for flag in ('--model', '--effort', '--setting-sources', '--agent')],
+                         [native, effort, '', SPEC_CALLER_ROLE])
+        self.assertEqual([formal[key] for key in ('model', 'effort', 'agent', 'agent_model', 'agent_effort')],
+                         [native, effort, SPEC_CALLER_ROLE, native, effort])
+        role_text = (project / 'plugins/sdd-review-loop/agents' / (SPEC_CALLER_ROLE + '.md')).read_text()
+        self.assertEqual(json.loads(argv[argv.index('--agents') + 1]), {SPEC_CALLER_ROLE: {
+            'description': 'Repository-bound independent implementation reviewer',
+            'prompt': role_text.split('---', 2)[2].strip(), 'model': native,
+            'tools': ['Read', 'Bash', 'StructuredOutput'], 'disallowedTools': launch.DISALLOWED, 'effort': effort}},
+            'Generated native role must carry the selection; the trusted role file is never edited')
+        self.assertEqual((probe_call['model'], probe_call['effort']), ('sonnet', None),
+                         'The unreserved probe stays the unselected permission diagnostic')
+        delivery = json.loads((output / 'delivery.json').read_bytes())
+        self.assertEqual(set(delivery), SPEC_DELIVERY_FIELDS | SPEC_MODEL_DELIVERY_FIELDS)
+        binding_path = output / 'model-delivery-binding.json'
+        self.assertEqual([delivery['model_launch_sha256'], delivery['model_delivery_binding_sha256']],
+                         [launch.sha_bytes(launch_raw), launch.sha_file(binding_path)])
+
+        def local(name):
+            return ref((output / name).relative_to(project).as_posix())
+        binding = json.loads(binding_path.read_bytes())
+        self.assertEqual(binding, {'schema': 'model-delivery-binding/v1', 'launch_sha256': launch.sha_bytes(launch_raw),
+                                   'transport': 'claude-print', 'selection': local('model-selection.json'),
+                                   'events': local('model-events.json'), 'delivery': local('model-delivery.json'),
+                                   'execution_context': local('model-execution-context.json'), 'run_id': session,
+                                   'session_id': session, 'attempt': 1, 'selection_sha256': selection['selection_sha256']})
+        model_delivery = {'schema': 'model-delivery/v1', 'selection_sha256': selection['selection_sha256'],
+                          'run_id': session, 'session_id': session, 'turn_id': 'local-review-attempt-1',
+                          'configured_id': native, 'actual_id': None, 'proof': 'unverified', 'source': 'unsupported',
+                          'reroutes': [], 'status': 'accepted', 'reason': 'identity-unverified'}
+        self.assertEqual([json.loads((output / name).read_bytes()) for name in ('model-selection.json', 'model-delivery.json')],
+                         [selection, model_delivery], 'Delivery must bind the exact prepared selection')
+        consumed = self.execute(f, [sys.executable, '-I', '-B', str(project / CALLER_DRIVER), 'model-run-record',
+                                    str(project), '--launch', local('model-launch.json')['path'],
+                                    '--launch-sha256', delivery['model_launch_sha256'],
+                                    '--delivery-binding', local('model-delivery-binding.json')['path'],
+                                    '--delivery-binding-sha256', delivery['model_delivery_binding_sha256'],
+                                    '--slot', 'reviewers', '--feature', case['feature']], cwd=project,
+                                stdin=json.dumps({'schema': 'sdd-run-record/v1', 'feature': case['feature'],
+                                                  'model_ids': {'main': 'unknown', 'reviewers': 'unknown'}}))
+        self.assertEqual(consumed.returncode, 0, 'Installed run-record consumer rejected delivery: ' + consumed.stderr[-1200:])
+        run_record = json.loads(consumed.stdout)
+        self.assertEqual(run_record['model_policy'], {
+            'actor_slot': 'reviewers', 'transport': 'claude-print', 'launch_sha256': delivery['model_launch_sha256'],
+            'delivery_binding_sha256': delivery['model_delivery_binding_sha256'], 'selection': selection,
+            'delivery': model_delivery, 'events_sha256': binding['events']['sha256']})
+        self.assertEqual((run_record['model_ids']['reviewers'], run_record['effort']['reviewers']),
+                         (native, {'effort_requested': effort, 'effort_applied': effort, 'effort_degraded_reason': None}))
+        # shortcut: mtimes prove only non-decreasing write order on one filesystem; upgrade with a launcher event log.
+        order = [output / name for name in ('model-launch.json', 'native.jsonl', 'reserved.txt', 'prompt.txt',
+                                            'wrapper.json', 'delivery.json')]
+        self.assertEqual([path.stat().st_mtime_ns for path in order], sorted(path.stat().st_mtime_ns for path in order),
+                         'Model launch binding must precede the probe, reservation and native send')
+
+    def assert_blocked(self, f, project, case):
+        """Stopped before reservation and native send: no launch output, ledger and native audit unchanged."""
+        self.assertFalse(case['launch'].exists(), 'A blocked caller created launch output')
+        self.assertFalse([path.name for path in case['launch'].parent.iterdir() if path.name.startswith('reviewer-')],
+                         'A blocked caller wrote preflight or allocation evidence')
+        self.assertEqual((project / SPEC_LEDGER).read_bytes(), case['ledger'], 'A blocked caller changed the ledger')
+        self.assertEqual(self.native_calls(f, case), [], 'A blocked caller reached the native CLI')
+        transcripts = f.home / '.claude/projects'
+        self.assertFalse(transcripts.is_dir() and list(transcripts.rglob(case['session'] + '.jsonl')))
+
+    def positive(self):
+        f, project, runtime = self.fixture()
+        case = self.case(f, project, runtime, 'positive')
+        _, calls = self.assert_delivered(f, project, case)
+        self.assert_managed(f, project, case, calls)
+        return f, project, runtime
+
+    def test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation(self):
+        self.positive()
+
+    def test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle(self):
+        f, project, runtime = self.positive()
+        case = self.case(f, project, runtime, 'missing-forwarding', mutation='remove-forwarding')
+        # Legacy standalone launch stays compatible: real reservation and delivery with the unselected Sonnet argv.
+        delivery, calls = self.assert_delivered(f, project, case)
+        self.assertTrue((project / case['output_rel'] / 'validation.json').is_file(), 'Mutation must keep real prepare')
+        self.assertEqual(set(delivery), SPEC_DELIVERY_FIELDS)
+        self.assertFalse((case['launch'] / 'model-launch.json').exists())
+        argv = calls[5]['argv']
+        self.assertEqual((argv[argv.index('--model') + 1], '--effort' in argv, '--setting-sources' in argv),
+                         ('sonnet', False, False))
+        with self.assertRaises(AssertionError):
+            self.assert_managed(f, project, case, calls)
+
+    def test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation(self):
+        f, project, runtime = self.positive()
+        case = self.case(f, project, runtime, 'wrong-role', request_role='spec-reviewer-b')
+        self.assertEqual(case['result'].returncode, 2, 'Expected the typed prepare failure: ' + case['result'].stderr[-1600:])
+        self.assertEqual(json.loads(case['result'].stderr),
+                         {'schema': 'model-policy-error/v1', 'reason': 'scope-mismatch',
+                          'message': 'Policy request role or host differs from the actual invocation.'},
+                         'The fence must stop on the preparation error alone')
+        self.assertFalse((project / case['output_rel'] / 'validation.json').exists())
+        self.assert_blocked(f, project, case)
+        case = self.case(f, project, runtime, 'raw-control-drift', mutation='raw-control-drift')
+        self.assertEqual((case['result'].returncode, case['result'].stderr),
+                         (1, 'LAUNCH_STOPPED: input-invalid: Controls bytes do not match the supplied raw SHA-256 pin.\n'))
+        directory = project / case['output_rel']
+        validation = json.loads((directory / 'validation.json').read_bytes())
+        self.assertNotEqual(validation['controls']['sha256'], launch.sha_file(directory / 'controls.json'),
+                            'Mutation must follow real prepare and drift the validated raw controls')
+        self.assert_blocked(f, project, case)
+
+
 if __name__ == '__main__':
     unittest.main()
