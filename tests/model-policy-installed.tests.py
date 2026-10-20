@@ -2048,7 +2048,7 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
         self.assertEqual(reverse.count('Use the domain-reverse skill.'), 1)
         self.assertNotIn('claude-entry', reverse, 'router and reverse child must not allocate twice')
         self.assertIn('Seed-Source: reverse (investigate-codebase, <feature>)', reverse)
-        self.assertIn('do not fall through to `domain-interviewer` with fabricated content', reverse)
+        self.assertIn('do not fall through to `domain-interviewer` with fabricated content', ' '.join(reverse.split()))
         self.assertIn('Use the domain-interviewer skill.', reverse)
 
 
