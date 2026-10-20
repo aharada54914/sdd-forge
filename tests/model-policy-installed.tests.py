@@ -7198,7 +7198,9 @@ class InstalledClaudeBatchTests(unittest.TestCase):
             with self.subTest(shell=shell):
                 root = f.install(shell)
                 source = (root / _BATCH_CALLER).read_text()
-                fences = [b for b in re.findall(r'```bash\n(.*?)```', source, re.S)
+                section = source.split('### Managed Claude batch model routing\n', 1)[1]
+                section = section.split('\n## ', 1)[0]
+                fences = [b for b in re.findall(r'```bash\n(.*?)```', section, re.S)
                           if 'unsupported-entry' in b]
                 self.assertEqual(len(fences), 1, 'missing executable unknown/stale-startup branch')
                 command = fences[0].replace('"<installed-root>"', shlex.quote(str(root)))
@@ -7247,8 +7249,6 @@ class InstalledClaudeBatchTests(unittest.TestCase):
         self.assertFalse(f.marker.exists())
 
 
-if __name__ == '__main__':
-    unittest.main()
 
 # Fixed 65 + 17 semantic-inventory boundary map; source roles are not inferred from Skill text.
 # All existing supported-route fixtures and old test ASTs remain unchanged.
@@ -7350,3 +7350,6 @@ class InstalledDefaultNativeCallerCandidateTests(unittest.TestCase):
                     self.boundary(source.replace('--role "<policy-role>"', '--role evaluator', 1), rel)
         self.assertFalse(f.marker.exists())
 
+
+if __name__ == '__main__':
+    unittest.main()
