@@ -1212,6 +1212,470 @@ class InstalledClaudePreparationTests(unittest.TestCase):
                 self.assertFalse(install_root.exists(), 'claude-prepare was deployed without its original driver')
 
 
+# ---- T-008 ordinary Claude local configuration authority: private collector/check/recheck, configuration only ------
+# Private API of managed-model-entry.py (no public flag, no system-root override; production derives fixed paths):
+#   _collect_local_authority(helper, sources, *, unresolved_tiers=()) -> snapshot dict
+#   _check_local_authority(snapshot, native_id, effort, *, explicit_model=True, explicit_effort=True) -> verdict dict
+#   _recheck_local_authority(helper, snapshot) -> {'reason': None | 'input-invalid', 'drift': [{'path', 'change'}]}
+# Unit methods use owned fixture files and privately injected source descriptors; the fourth method drives both real
+# installers and the installed entry. Evidence class: FIXTURE ONLY. No remote/MDM/WSL/parent/policyHelper adapter,
+# availability producer or native-ready claim is exercised; only owned settings JSON is read, never .claude.json.
+LOCAL_MANAGED = 'etc/claude-code/managed-settings.json'
+LOCAL_DROPINS = 'etc/claude-code/managed-settings.d/'
+LOCAL_USER, LOCAL_PROJECT = 'home/.claude/settings.json', 'repo/.claude/settings.json'
+LOCAL_LOCAL = 'repo/.claude/settings.local.json'
+LOCAL_FILES = (('managed', 'file', LOCAL_MANAGED), ('managed', 'dropin-dir', LOCAL_DROPINS.rstrip('/')),
+               ('user', 'file', LOCAL_USER), ('project', 'file', LOCAL_PROJECT), ('local', 'file', LOCAL_LOCAL))
+LOCAL_ALIASES = ('opus', 'sonnet', 'haiku')
+
+
+class InstalledClaudeLocalAuthorityTests(unittest.TestCase):
+    """Local authority checks over the composed InstalledClaudePreparationTests fixture (genuine setUp and cleanups)."""
+
+    def setUp(self):
+        self.prep = prep = InstalledClaudePreparationTests('runTest')  # composed, never aliased: no inherited tests
+        self.addCleanup(lambda: self.assertTrue(getattr(prep, 'doCleanups')(), 'composed InstalledClaudePreparationTests cleanup failed'))
+        prep.setUp()
+        self.case = case = prep.case
+        # Normalize without inspecting the inherited value: native-style lookup can only land in the owned HOME.
+        case.environment['CLAUDE_CONFIG_DIR'] = str(case.home / '.claude')
+        self.owned = case.base / 'local-authority'
+        self.owned.mkdir()
+        self.serial = 0
+        resolved = case.oracle_selection()['resolved']
+        self.native, self.effort = resolved['native_id'], resolved['effort']
+        self.assertIn(self.native, LOCAL_ALIASES, 'fixture setup: trusted native alias expected')
+        self.assertGreater(launch.EFFORTS.index(self.effort), 0, 'fixture setup: a lower effort level must exist')
+        self.assertLess(launch.EFFORTS.index(self.effort), len(launch.EFFORTS) - 1, 'fixture setup: a higher level must exist')
+        self.lower = launch.EFFORTS[launch.EFFORTS.index(self.effort) - 1]
+        self.higher = launch.EFFORTS[launch.EFFORTS.index(self.effort) + 1]
+        self.api = {}
+        self.others = [alias for alias in LOCAL_ALIASES if alias != self.native]
+
+    # ---- owned source fixtures --------------------------------------------------------------------------------
+
+    def fresh(self):
+        self.serial += 1
+        return self.owned / ('case-%02d' % self.serial)
+
+    def put(self, base, rel, document=None, raw=None):
+        path = base / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(raw if raw is not None else json.dumps(document, sort_keys=True).encode() + b'\n')
+        return path
+
+    def sources(self, base, extra=()):
+        return [{'tier': tier, 'kind': kind, 'path': str(base / rel)} for tier, kind, rel in LOCAL_FILES] + list(extra)
+
+    @staticmethod
+    def injected(tier, document):
+        """Hypothetical remote/MDM tier for composition only; it never authenticates or clears 'remote'."""
+        return {'tier': tier, 'kind': 'injected', 'path': 'injected:' + tier, 'document': document}
+
+    def private(self, name):
+        if 'module' not in self.api:
+            try:
+                self.api['module'] = launch.load_module(ROOT / ADAPTER, 'local_authority_adapter')
+            except Exception as error:  # a broken import is still the intended product RED, never a setup exception
+                self.fail('the installed adapter cannot be loaded: %s' % type(error).__name__)
+            self.addCleanup(sys.modules.pop, self.api['module'].__name__, None)
+        function = getattr(self.api['module'], name, None)
+        self.assertTrue(callable(function), 'private local-authority API is missing: ' + name)
+        return function
+
+    def collect(self, base, *, extra=(), unresolved=(), sources=None):
+        snapshot = self.private('_collect_local_authority')(
+            self.case.helper(), self.sources(base, extra) if sources is None else sources, unresolved_tiers=unresolved)
+        self.assertIsInstance(snapshot, dict)
+        self.assertIs(snapshot['effective_complete'], False, 'local files can never establish complete authority')
+        return snapshot
+
+    def check(self, snapshot, **options):
+        before = copy.deepcopy(snapshot)
+        verdict = self.private('_check_local_authority')(snapshot, self.native, self.effort, **options)
+        self.assertEqual(snapshot, before, 'the check must not modify the captured snapshot')
+        self.assertIs(verdict['effective_complete'], False, 'no complete effective/native-ready verdict is possible')
+        return verdict
+
+    def tree_of(self, base):
+        return {p.relative_to(base).as_posix(): p.read_bytes() for p in base.rglob('*') if p.is_file() and not p.is_symlink()}
+
+    @staticmethod
+    def sorted_lists(authority):
+        """Union lists carry no documented order; sorting also proves duplicates were removed."""
+        return {key: sorted(value) if key == 'deniedModels' else value for key, value in authority.items()}
+
+    # ---- the four bounded acceptance methods -----------------------------------------------------------------
+
+    def test_local_authority_source_composition_preserves_documented_exceptions(self):
+        native, (other, third) = self.native, self.others
+        picker_one = {'replaceBuiltInOptions': False, 'rows': [{'label': 'One', 'model': native}]}
+        picker_two = {'replaceBuiltInOptions': True, 'rows': [{'label': 'Two', 'model': other}]}
+        main = {'model': native, 'deniedModels': ['a'], 'env': {'A': '1', 'B': '1'}, 'fallbackModel': ['x', 'y'],
+                'modelPicker': picker_one, 'modelSettings': {native: {'maxEffortLevel': 'high'}},
+                'permissions': {'allow': ['unrelated']}, 'x-sdd-canary': 'unrelated ordinary key'}
+        first = {'model': other, 'deniedModels': ['b', 'a'], 'env': {'B': '2', 'C': '3'}, 'fallbackModel': ['z'],
+                 'modelPicker': picker_two, 'modelSettings': {native: {'effortLevel': 'high'}, other: {'effortLevel': 'low'}}}
+        second = {'deniedModels': ['c'], 'maxEffortLevel': 'high'}
+        composed = {'model': other, 'deniedModels': ['a', 'b', 'c'], 'env': {'A': '1', 'B': '2', 'C': '3'},
+                    'fallbackModel': ['z'], 'modelPicker': picker_two, 'maxEffortLevel': 'high',
+                    'modelSettings': {native: {'maxEffortLevel': 'high', 'effortLevel': 'high'}, other: {'effortLevel': 'low'}}}
+        table: list[tuple[str, dict | None, list[tuple[str, dict]], dict, list[str]]] = [  # file-tier composition
+            ('main-then-ordered-dropins', main, [('10-a.json', first), ('20-b.json', second)], composed,
+             ['', '10-a.json', '20-b.json']),
+            ('alphabetical-not-creation-order', {'model': native}, [('20-b.json', {'model': third}), ('10-a.json', {'model': other})],
+             {'model': third}, ['', '10-a.json', '20-b.json']),
+            ('later-scalar-replaces', {'model': native}, [('10-a.json', {'model': other})], {'model': other}, ['', '10-a.json']),
+            ('fallback-whole-replacement', {'fallbackModel': ['a', 'b']}, [('10-a.json', {'fallbackModel': ['c']})],
+             {'fallbackModel': ['c']}, ['', '10-a.json']),
+            ('model-picker-whole-replacement', {'modelPicker': picker_one}, [('10-a.json', {'modelPicker': picker_two})],
+             {'modelPicker': picker_two}, ['', '10-a.json']),
+            ('hidden-and-nonjson-ignored', {'model': native},
+             [('.hidden.json', {'model': third}), ('30-notes.txt', {'model': third}), ('40-x.json.bak', {'model': third})],
+             {'model': native}, ['']),
+            ('absent-main-with-dropin', None, [('10-a.json', {'deniedModels': ['q']})], {'deniedModels': ['q']}, ['10-a.json'])]
+        for label, document, dropins, expected, order in table:
+            with self.subTest(file_tier=label):
+                base = self.fresh()
+                if document is not None:
+                    self.put(base, LOCAL_MANAGED, document)
+                for name, content in dropins:
+                    self.put(base, LOCAL_DROPINS + name, content)
+                raw = self.tree_of(base)
+                snapshot = self.collect(base)
+                self.assertIsNone(snapshot['reason'], snapshot.get('failures'))
+                self.assertEqual(self.sorted_lists(snapshot['tiers']['managed']), expected)
+                considered = [str(base / (LOCAL_MANAGED if not name else LOCAL_DROPINS + name)) for name in order]
+                self.assertEqual(snapshot['order'], considered, 'main file first, then nonhidden .json drop-ins alphabetically')
+                self.assertEqual(snapshot['documents'], {path: launch.sha_bytes(Path(path).read_bytes()) for path in considered})
+                self.assertEqual(self.tree_of(base), raw, 'collection must not write, repair or rename a source')
+        admin_file = {'model': native, 'deniedModels': ['x'], 'env': {'X': 'file', 'Y': 'file'}, 'maxEffortLevel': self.effort}
+        cross: list[tuple[str, dict[str, dict], dict, str, list[str], dict]] = [  # hypothetical composition only
+            ('first-wins-fills-only-env-and-cap', {'mdm': {'model': other, 'env': {'X': 'mdm'}, 'maxEffortLevel': self.higher}}, admin_file,
+             'first-wins', ['mdm'], {'model': other, 'env': {'X': 'mdm', 'Y': 'file'}, 'maxEffortLevel': self.effort}),
+            ('control-only-mdm-is-not-a-policy-source',
+             {'mdm': {'managedSourcesBehavior': 'first-wins', 'wslInheritsWindowsSettings': True}}, admin_file,
+             'first-wins', ['managed'], admin_file),
+            ('merge-unions-lists-but-takes-allowlist-whole',
+             {'mdm': {'managedSourcesBehavior': 'merge', 'model': other, 'availableModels': [native, other],
+                      'deniedModels': ['m'], 'env': {'X': 'mdm'}}},
+             {'model': native, 'availableModels': [third], 'deniedModels': ['x'], 'env': {'X': 'file', 'Y': 'file'}},
+             'merge', ['mdm', 'managed'], {'model': other, 'availableModels': [native, other], 'deniedModels': ['m', 'x'],
+                                          'env': {'X': 'mdm', 'Y': 'file'}}),
+            ('remote-outranks-mdm-and-files-without-authenticating',
+             {'remote': {'model': third}, 'mdm': {'model': other}}, {'model': native}, 'first-wins', ['remote'], {'model': third})]
+        for label, tiers, document, behavior, selected, managed in cross:
+            with self.subTest(cross_source=label):
+                base = self.fresh()
+                self.put(base, LOCAL_MANAGED, document)
+                snapshot = self.collect(base, extra=[self.injected(tier, content) for tier, content in tiers.items()])
+                verdict = self.check(snapshot)
+                self.assertIsNone(verdict['reason'], verdict.get('conflicts'))
+                self.assertEqual((verdict['effective']['behavior'], verdict['effective']['selected_tiers']), (behavior, selected))
+                self.assertEqual(self.sorted_lists(verdict['effective']['managed']), managed)
+                self.assertIn('remote', verdict['unresolved'], 'an injected tier is composition only, never real remote authority')
+        base = self.fresh()
+        self.put(base, LOCAL_MANAGED, {'maxEffortLevel': self.higher})
+        verdict = self.check(self.collect(base, extra=[self.injected('mdm', {'maxEffortLevel': self.effort})]))
+        self.assertEqual(verdict['effective']['max_effort_cap'], {'level': self.effort, 'tier': 'mdm'},
+                         'the lowest admin cap applies even though first-wins selected one source')
+
+    def test_local_authority_caps_allowlists_and_remaps_match_selected_controls(self):
+        native, (other, third), lower = self.native, self.others, self.lower
+        remapped = 'bedrock-fixture/' + other
+        baseline = {'managed': {'availableModels': [native, other], 'deniedModels': [third], 'maxEffortLevel': self.effort},
+                    'user': {'model': other, 'effortLevel': lower}}
+
+        def verdict_for(change, **options):
+            """The baseline with exactly one tier-level change; a None value deletes that baseline key."""
+            base = self.fresh()
+            for tier, rel in (('managed', LOCAL_MANAGED), ('user', LOCAL_USER), ('project', LOCAL_PROJECT), ('local', LOCAL_LOCAL)):
+                merged = {key: value for key, value in {**baseline.get(tier, {}), **change.get(tier, {})}.items() if value is not None}
+                if merged:
+                    self.put(base, rel, merged)
+            return self.check(self.collect(base), **options)
+
+        positive = verdict_for({})
+        self.assertEqual((positive['reason'], positive['conflicts']), (None, []))
+        self.assertIn('remote', positive['unresolved'])
+        # differing file defaults are overridden by the intended explicit --model/--effort, never a constraint
+        for label, options in (('explicit-model-and-effort', {}), ('explicit-flags-spelled', {'explicit_model': True, 'explicit_effort': True})):
+            with self.subTest(defaults=label):
+                self.assertIsNone(verdict_for({}, **options)['reason'])
+        for label, options, key in (('model-default-without-explicit-model', {'explicit_model': False}, 'model'),
+                                    ('effort-default-without-explicit-effort', {'explicit_effort': False}, 'effortLevel')):
+            with self.subTest(defaults=label):
+                verdict = verdict_for({}, **options)
+                self.assertEqual(verdict['reason'], 'native-precedence-conflict', verdict['conflicts'])
+                self.assertIn({'key': key, 'tier': 'user', 'reason': 'native-precedence-conflict'}, verdict['conflicts'])
+        with self.subTest(defaults='enforceAvailableModels-does-not-reach-explicit-id'):
+            self.assertIsNone(verdict_for({'managed': {'enforceAvailableModels': True}})['reason'])
+        negatives = [  # one change from the baseline each: label, documents, reason, conflicting key, tier
+            ('denylist', {'managed': {'deniedModels': [native]}}, 'model-unavailable', 'deniedModels', 'managed'),
+            ('excluding-allowlist', {'managed': {'availableModels': [other]}}, 'model-unavailable', 'availableModels', 'managed'),
+            ('lower-global-cap-user', {'user': {'maxEffortLevel': lower}}, 'effort-unavailable', 'maxEffortLevel', 'user'),
+            ('lower-global-cap-local', {'local': {'maxEffortLevel': lower}},
+             'effort-unavailable', 'maxEffortLevel', 'local'),
+            ('matching-per-model-cap', {'project': {'modelSettings': {native: {'maxEffortLevel': lower}}}},
+             'effort-unavailable', 'modelSettings.%s.maxEffortLevel' % native, 'project'),
+            ('remap-to-another-provider-id', {'managed': {'availableModels': None}, 'user': {'modelOverrides': {native: remapped}}},
+             'native-precedence-conflict', 'modelOverrides', 'user'),
+            ('managed-allowlist-not-widened-by-user', {'managed': {'availableModels': [other]}, 'user': {'availableModels': [native]}},
+             'model-unavailable', 'availableModels', 'managed'),
+            ('nonmanaged-allowlists-without-entry',
+             {'managed': {'availableModels': None}, 'user': {'availableModels': [other]}, 'project': {'availableModels': [third]}},
+             'model-unavailable', 'availableModels', 'user')]
+        for label, documents, reason, key, tier in negatives:
+            with self.subTest(negative=label):
+                verdict = verdict_for(documents)
+                self.assertEqual(verdict['reason'], reason, verdict['conflicts'])
+                self.assertIn({'key': key, 'tier': tier, 'reason': reason}, verdict['conflicts'])
+        positives = [
+            ('nonmanaged-allowlists-union-includes-entry',
+             {'managed': {'availableModels': None}, 'user': {'availableModels': [other]}, 'project': {'availableModels': [native]}}),
+            ('cap-max-sets-no-cap', {'managed': {'maxEffortLevel': 'max'}}),
+            ('cap-equal-to-selected', {'user': {'maxEffortLevel': self.effort}}),
+            ('per-model-max-exempts-its-own-source', {'user': {'maxEffortLevel': lower, 'modelSettings': {native: {'maxEffortLevel': 'max'}}}}),
+            ('higher-allowlist-without-overrides-suppresses-lower-remap',
+             {'managed': {'availableModels': [native]}, 'user': {'modelOverrides': {native: remapped}}}),
+            ('remap-for-another-model', {'user': {'modelOverrides': {other: remapped}}})]
+        for label, documents in positives:
+            with self.subTest(positive=label):
+                self.assertEqual(verdict_for(documents)['conflicts'], [])
+                self.assertIsNone(verdict_for(documents)['reason'])
+        with self.subTest(positive='suppressed-remap-is-not-effective'):
+            verdict = verdict_for({'managed': {'availableModels': [native]}, 'user': {'modelOverrides': {native: remapped}}})
+            self.assertIsNone(verdict['effective']['model_overrides'])
+        with self.subTest(cap='per-model-max-never-exempts-another-source'):
+            verdict = verdict_for({'user': {'modelSettings': {native: {'maxEffortLevel': 'max'}}},
+                                   'project': {'maxEffortLevel': lower}})
+            self.assertEqual((verdict['reason'], verdict['effective']['max_effort_cap']), ('effort-unavailable', {'level': lower, 'tier': 'project'}))
+        with self.subTest(cap='lowest-cap-across-admin-and-developer-sources'):
+            verdict = verdict_for({'managed': {'maxEffortLevel': self.higher}, 'user': {'maxEffortLevel': lower}})
+            self.assertEqual(verdict['effective']['max_effort_cap'], {'level': lower, 'tier': 'user'})
+        for label, documents, key in (
+                ('allowlist-version-form-entry', {'managed': {'availableModels': ['claude-%s-5-5' % native]}}, 'availableModels'),
+                ('allowlist-prefix-guess', {'managed': {'availableModels': [native[:-1]]}}, 'availableModels'),
+                ('denylist-full-id-entry', {'managed': {'deniedModels': ['claude-%s-5-5' % native]}}, 'deniedModels'),
+                ('remap-keyed-by-full-id', {'managed': {'availableModels': None}, 'user': {'modelOverrides': {'claude-%s-5-5' % native: remapped}}}, 'modelOverrides')):
+            with self.subTest(unresolved=label):  # explicit unresolved: neither guessed-allowed nor guessed-denied
+                verdict = verdict_for(documents)
+                self.assertIsNone(verdict['reason'], 'no guessed canonicalization may create a conflict')
+                self.assertIn('alias-canonicalization:' + key, verdict['unresolved'])
+
+        # Exact full IDs require no alias inference: equality with the selected ID is sufficient.
+        exact_id = 'claude-sonnet-fixture-1'
+        for key, value, expected_reason in (('availableModels', [exact_id], None),
+                                   ('deniedModels', [exact_id], 'model-unavailable'),
+                                   ('maxEffortLevel', lower, 'effort-unavailable'),
+                                   ('modelSettings', {exact_id: {'maxEffortLevel': lower}}, 'effort-unavailable')):
+            with self.subTest(exact_full_id=key):
+                work = self.fresh()
+                self.put(work, LOCAL_USER, {key: value})
+                result = self.private('_check_local_authority')(self.collect(work), exact_id, self.effort)
+                self.assertEqual(result['reason'], expected_reason)
+                self.assertNotIn('alias-canonicalization:' + key, result['unresolved'])
+
+    def test_local_authority_rechecks_sources_and_rejects_unresolved_resolution(self):
+        case, native, lower = self.case, self.native, self.lower
+        recheck = self.private('_recheck_local_authority')
+        clean: dict[str, object] = {'reason': None, 'drift': []}
+        dropin = LOCAL_DROPINS + '20-b.json'
+        documents = {LOCAL_MANAGED: {'model': native}, LOCAL_DROPINS + '10-a.json': {'deniedModels': ['q']},
+                     dropin: {'env': {'A': '1'}}}
+
+        def layout():
+            work = self.fresh()
+            for rel, document in documents.items():
+                self.put(work, rel, document)
+            return work
+
+        def managed_only(work):
+            return [source for source in self.sources(work) if source['tier'] == 'managed']
+
+        # real fixture canaries: unknown ordinary keys are compatible, and only owned settings JSON participates
+        canary_sources = [{'tier': tier, 'kind': 'file', 'path': str(path)} for tier, path in (
+            ('user', case.home / '.claude/settings.json'), ('project', case.root / '.claude/settings.json'),
+            ('local', case.root / '.claude/settings.local.json'))]
+        canaries = {source['path']: Path(source['path']).read_bytes() for source in canary_sources}
+        work = layout()
+        snapshot = self.collect(work, sources=managed_only(work) + canary_sources)
+        self.assertIsNone(snapshot['reason'], snapshot.get('failures'))
+        for source in canary_sources:
+            self.assertEqual(snapshot['tiers'][source['tier']], {}, 'unknown ordinary keys never enter the decision projection')
+        self.assertIsNone(self.check(snapshot)['reason'])
+        self.assertEqual({path: Path(path).read_bytes() for path in canaries}, canaries)
+        self.assertEqual(recheck(case.helper(), snapshot), clean)
+
+        def same_length_bytes(work):
+            main = work / LOCAL_MANAGED
+            main.write_bytes(main.read_bytes().replace(b'"model"', b'"modeL"'))
+
+        def longer_bytes(work):
+            main = work / LOCAL_MANAGED
+            main.write_bytes(main.read_bytes() + b' ')
+
+        def add_dropin(work):
+            self.put(work, LOCAL_DROPINS + '15-new.json', {'model': 'late'})
+
+        def delete_dropin(work):
+            (work / dropin).unlink()
+
+        def link(rel):  # identical bytes behind a link: only identity, not content, can detect the change
+            def mutation(work):
+                original, target = work / rel, work / 'linked-copy.json'
+                target.write_bytes(original.read_bytes())
+                original.unlink()
+                original.symlink_to(target)
+            return mutation
+
+        def delete_main(work):
+            (work / LOCAL_MANAGED).unlink()
+
+        drift = [('same-length-bytes', same_length_bytes, LOCAL_MANAGED, 'bytes-changed'),
+                 ('longer-bytes', longer_bytes, LOCAL_MANAGED, 'bytes-changed'),
+                 ('dropin-added', add_dropin, LOCAL_DROPINS + '15-new.json', 'added'),
+                 ('dropin-deleted', delete_dropin, dropin, 'deleted'),
+                 ('dropin-replaced-by-symlink', link(dropin), dropin, 'symlink'),
+                 ('main-replaced-by-symlink', link(LOCAL_MANAGED), LOCAL_MANAGED, 'symlink'),
+                 ('main-deleted', delete_main, LOCAL_MANAGED, 'disappeared')]
+        for label, mutation, rel, change in drift:
+            with self.subTest(drift=label):
+                work = layout()
+                captured = self.collect(work, sources=managed_only(work))
+                self.assertIsNone(captured['reason'])
+                self.assertEqual(recheck(case.helper(), captured), clean)
+                mutation(work)
+                result = recheck(case.helper(), captured)
+                self.assertEqual(result['reason'], 'input-invalid', result)
+                self.assertIn({'path': str(work / rel), 'change': change}, result['drift'])
+        with self.subTest(drift='absent-to-present'):
+            work = self.fresh()
+            captured = self.collect(work)  # every source absent is valid and is not a failure
+            self.assertIsNone(captured['reason'])
+            self.assertEqual({source['state'] for source in captured['sources']}, {'absent'})
+            self.assertEqual(recheck(case.helper(), captured), clean)
+            for rel in (LOCAL_MANAGED, LOCAL_DROPINS + '10-a.json', LOCAL_USER, LOCAL_PROJECT, LOCAL_LOCAL):
+                with self.subTest(appears=rel):
+                    path = self.put(work, rel, {'model': native})
+                    result = recheck(case.helper(), captured)
+                    path.unlink()
+                    if rel.startswith(LOCAL_DROPINS):
+                        path.parent.rmdir()
+                    self.assertEqual(result['reason'], 'input-invalid', result)
+                    self.assertIn({'path': str(path), 'change': 'added' if rel.startswith(LOCAL_DROPINS) else 'appeared'},
+                                  result['drift'])
+                    self.assertEqual(recheck(case.helper(), captured), clean)
+        # present-but-unusable authority is failure, never absence
+        bad: list[tuple[str, str, dict, str]] = [('malformed', LOCAL_MANAGED, {'raw': b'{"model": '}, 'malformed'),
+               ('duplicate-key', LOCAL_USER, {'raw': b'{"model": "opus", "model": "sonnet"}'}, 'duplicate-key'),
+               ('nested-duplicate-key', LOCAL_PROJECT, {'raw': b'{"env": {"A": "1", "A": "2"}}'}, 'duplicate-key'),
+               ('not-an-object', LOCAL_LOCAL, {'raw': b'[]'}, 'not-object'),
+               ('directory-at-file-path', LOCAL_USER, {'directory': True}, 'unreadable'),
+               ('file-as-parent-directory', LOCAL_PROJECT, {'parent_file': True}, 'unreadable')]
+        for label, rel, how, kind in bad:
+            with self.subTest(unusable=label):
+                work = self.fresh()
+                path = work / rel
+                if how.get('directory'):
+                    path.mkdir(parents=True)  # genuine EISDIR on read; chmod 000 proves nothing when running as root
+                elif how.get('parent_file'):
+                    path.parent.parent.mkdir(parents=True, exist_ok=True)
+                    path.parent.write_text('not a directory\n')  # genuine ENOTDIR for the settings path below it
+                else:
+                    self.put(work, rel, raw=how['raw'])
+                result = self.collect(work)
+                self.assertEqual(result['reason'], 'config-invalid', result)
+                self.assertIn(kind, {failure['kind'] for failure in result['failures'] if failure['path'] == str(path)})
+                self.assertNotIn(str(path), [source['path'] for source in result['sources'] if source['state'] == 'absent'])
+        with self.subTest(unusable='symlink-at-capture'):
+            work = self.fresh()
+            target = self.put(work, 'elsewhere/real.json', {'model': native})
+            (work / LOCAL_USER).parent.mkdir(parents=True)
+            (work / LOCAL_USER).symlink_to(target)
+            self.assertEqual(self.collect(work)['reason'], 'input-invalid')
+        # unresolved authority never yields a complete verdict; known local conflicts still reject
+        marker, helper_script = self.owned / 'policy-helper-ran', self.owned / 'policy-helper'
+        helper_script.write_text('#!/bin/sh\necho ran >> %s\nexit 0\n' % shlex.quote(str(marker)))
+        helper_script.chmod(0o755)
+        contexts = [('policy-helper-active', {LOCAL_MANAGED: {'policyHelper': str(helper_script)}}, (), 'policy-helper'),
+                    ('parent-managed-unresolved', {}, ('parent',), 'parent'),
+                    ('mdm-lookup-unresolved', {}, ('mdm',), 'mdm'),
+                    ('wsl-lookup-unresolved', {}, ('wsl',), 'wsl'),
+                    ('remote-unobserved', {}, (), 'remote')]
+        for label, files, extra, name in contexts:
+            with self.subTest(unresolved=label):
+                work = self.fresh()
+                for rel, document in files.items():
+                    self.put(work, rel, document)
+                snapshot = self.collect(work, unresolved=extra)
+                self.assertIn(name, snapshot['unresolved'])
+                verdict = self.check(snapshot)
+                self.assertIsNone(verdict['reason'], 'no local conflict exists, so this is incompleteness, not rejection')
+                self.assertIn(name, verdict['unresolved'])
+            with self.subTest(known_conflict_with_unknown_tiers=label):
+                work = self.fresh()
+                for rel, document in {**files, LOCAL_USER: {'maxEffortLevel': lower}}.items():
+                    self.put(work, rel, document)
+                verdict = self.check(self.collect(work, unresolved=extra))
+                self.assertEqual(verdict['reason'], 'effort-unavailable', verdict)
+                self.assertIn({'key': 'maxEffortLevel', 'tier': 'user', 'reason': 'effort-unavailable'}, verdict['conflicts'])
+        self.assertFalse(marker.exists(), 'the policy helper must never be executed')
+
+    def test_installed_claude_prepare_rejects_owned_local_conflicts_without_rewriting_state(self):
+        prep, case, native, effort = self.prep, self.case, self.native, self.effort
+        other_model = self.others[0]
+        other_effort = next(item for item in launch.EFFORTS if item != effort)
+        settings = {'user': case.home / '.claude/settings.json', 'project': case.root / '.claude/settings.json',
+                    'local': case.root / '.claude/settings.local.json'}
+        untouched = [case.home / '.claude.json', case.home / '.claude/projects/canary/session.jsonl']
+        names = ('request.json', 'registry.json', 'policy.json', 'observation.json')
+        supplied = {name: (case.root / name).read_bytes() for name in names}
+        canaries = {path: path.read_bytes() for path in [*settings.values(), *untouched]}
+        self.assertTrue(all(b'x-sdd-canary' in raw for raw in canaries.values()), 'fixture setup: canaries expected')
+
+        def write_setting(path, change):
+            document = json.loads(canaries[path])
+            document.update(change)
+            path.write_text(json.dumps(document) + '\n')
+            prep.home_before = tree(case.home)  # fixture bookkeeping for the one deliberate owned edit
+
+        def restore(path):
+            path.write_bytes(canaries[path])
+            prep.home_before = tree(case.home)
+
+        def assert_state_intact():
+            self.assertEqual({path: path.read_bytes() for path in canaries}, canaries, 'settings or canary bytes changed')
+            self.assertEqual({name: (case.root / name).read_bytes() for name in names}, supplied)
+            self.assertFalse(prep.work.exists(), 'a model or work invocation reached the fixture CLI')
+            self.assertFalse(case.marker.exists(), 'a native model executable was invoked')
+
+        for shell in SHELLS:
+            install_root = self.prep.install(shell)
+            prep.claude_positive(install_root, prep.output())  # limited baseline: no readiness or remote-absence claim
+            for tier, path in settings.items():
+                with self.subTest(shell=shell, tier=tier, defaults='differing-model-and-effort-defaults'):
+                    write_setting(path, {'model': other_model, 'effortLevel': other_effort})
+                    try:  # defaults are overridden by the explicit --model/--effort the launch supplies
+                        prep.claude_positive(install_root, prep.output())
+                    finally:
+                        restore(path)
+            conflicts = [('cap-below-selected-effort', {'maxEffortLevel': self.lower}, 'effort-unavailable'),
+                         ('exact-selected-id-denial', {'deniedModels': [native]}, 'model-unavailable')]
+            for tier, path in settings.items():
+                for label, change, reason in conflicts:
+                    with self.subTest(shell=shell, tier=tier, conflict=label):
+                        output = prep.output()
+                        write_setting(path, change)
+                        try:
+                            prep.claude_rejected(install_root, output, reason)
+                            self.assertFalse((case.root / output).exists(), 'a rejected preparation created an output directory')
+                        finally:
+                            restore(path)
+            assert_state_intact()
+            prep.claude_positive(install_root, prep.output())  # restored owned bytes prepare again: the cause was the settings
+
+
 # ---- T-008 installed Codex entry: generated native configuration only (codex-entry batch) ----------------------
 # Proposed public surface (requires primary admission before product work); cwd is the execution-input root:
 #   python3 -I -B <installed>/plugins/sdd-implementation/scripts/managed-model-entry.py codex-entry --request REL
