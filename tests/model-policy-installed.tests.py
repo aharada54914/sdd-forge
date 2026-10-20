@@ -481,6 +481,39 @@ class ManagedClaudeRoles(ManagedFixture):
                             target.write_bytes(original)
 
 
+    def test_crlf_claude_native_fields_preserve_body_bytes(self):
+        rel = 'plugins/sdd-quality-loop/agents/evaluator.md'
+        resolved = self.bind('evaluator')
+        original = self.originals[rel].replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
+        original_body = original.split(b'---\r\n', 2)[2]
+        for shell in SHELLS:
+            with self.subTest(shell=shell):
+                (self.root / rel).write_bytes(original)
+                result = self.render(shell, rel)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr[-1200:])
+                generated = (self.root / rel).read_bytes()
+                self.assertNotIn(b'\n', generated.replace(b'\r\n', b''), 'CRLF style must be preserved')
+                self.assertGreaterEqual(generated.count(b'---\r\n'), 2, 'frontmatter delimiters must remain present')
+                self.assertEqual(generated.split(b'---\r\n', 2)[2], original_body)
+                fields = frontmatter(generated.decode('utf-8').replace('\r\n', '\n'))[0]
+                self.assertEqual((fields.get('model'), fields.get('effort')),
+                                 (resolved['native_id'], resolved['effort']))
+                self.assertEqual(self.render(shell, rel, check=True).returncode, 0)
+                self.assertEqual((self.root / rel).read_bytes(), generated)
+
+    def test_unknown_managed_arguments_are_typed_rejections(self):
+        rel = 'plugins/sdd-quality-loop/agents/evaluator.md'
+        self.bind('evaluator')
+        for shell in SHELLS:
+            with self.subTest(shell=shell):
+                positive = self.render(shell, rel)
+                self.assertEqual(positive.returncode, 0, positive.stdout + positive.stderr[-1200:])
+                before = tree(self.root)
+                unknown = '--unexpected-managed-input' if shell == 'bash' else '-UnexpectedManagedInput'
+                self.rejected(self.render(shell, rel, extra=(unknown, 'canary')), 'input-invalid')
+                self.assertEqual(tree(self.root), before, 'unknown managed arguments must write nothing')
+
+
 class ManagedCodexRoles(ManagedFixture):
     host = 'codex-cli'
 
@@ -580,6 +613,31 @@ class ManagedCodexRoles(ManagedFixture):
                     self.assertTrue(self.text(rel).startswith('# x-sdd-model: '))
                     self.assertFalse(set(RUNTIME_TOML) & set(self.toml(rel)), 'legacy mode adds no runtime keys')
 
+
+
+    def test_crlf_codex_native_fields_preserve_instructions(self):
+        rel = '.codex/agents/sdd-evaluator.toml'
+        resolved = self.bind('evaluator')
+        original = self.originals[rel].replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
+        prior = tomllib.loads(original.decode('utf-8'))
+        instruction_marker = b'developer_instructions = '
+        original_instructions = original.split(instruction_marker, 1)[1]
+        for shell in SHELLS:
+            with self.subTest(shell=shell):
+                (self.root / rel).write_bytes(original)
+                result = self.render(shell, rel)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr[-1200:])
+                generated = (self.root / rel).read_bytes()
+                self.assertNotIn(b'\n', generated.replace(b'\r\n', b''), 'CRLF style must be preserved')
+                self.assertIn(instruction_marker, generated)
+                self.assertEqual(generated.split(instruction_marker, 1)[1], original_instructions)
+                parsed = tomllib.loads(generated.decode('utf-8'))
+                self.assertEqual([parsed.get(key) for key in RUNTIME_TOML],
+                                 [resolved['native_id'], resolved['effort']])
+                self.assertEqual({k: v for k, v in parsed.items() if k not in RUNTIME_TOML},
+                                 {k: v for k, v in prior.items() if k not in RUNTIME_TOML})
+                self.assertEqual(self.render(shell, rel, check=True).returncode, 0)
+                self.assertEqual((self.root / rel).read_bytes(), generated)
 
 
 if __name__ == '__main__':
