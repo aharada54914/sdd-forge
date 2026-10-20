@@ -1829,6 +1829,49 @@ class ModelRunRecords(unittest.TestCase):
                          'rejected model evidence must not publish a run record')
 
 
+    def test_protected_output_scope_copied_context_cannot_outlive_owner(self):
+        import errno
+        transport = self.fixture.transport
+        first = self.root / 'reports/scope-first'
+        second = self.root / 'reports/scope-second'
+        with transport.protected_output_scope(first):
+            transport.create_launch_output(first)
+            retained = contextvars.copy_context()
+            retained.run(transport.check_launch_output)
+            state = transport._PROTECTED_OUTPUT.get()
+            self.assertIsNotNone(state)
+            original_fd = state[first]
+        # An independent live scope remains valid after the first owner's cleanup.
+        with transport.protected_output_scope(second):
+            transport.create_launch_output(second)
+            transport.check_launch_output()
+            transport.write_launch_bytes(second / 'positive.json', b'{}')
+        self.assertEqual((second / 'positive.json').read_bytes(), b'{}')
+        with self.assertRaises(OSError) as closed:
+            os.fstat(original_fd)
+        self.assertEqual(closed.exception.errno, errno.EBADF)
+        reopened_fd = os.open(first, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        owned = {reopened_fd}
+        try:
+            if reopened_fd != original_fd:
+                # Never dup2 over a live unrelated descriptor, including one opened by this fixture.
+                with self.assertRaises(OSError) as still_closed:
+                    os.fstat(original_fd)
+                self.assertEqual(still_closed.exception.errno, errno.EBADF)
+                os.dup2(reopened_fd, original_fd)
+                owned.add(original_fd)
+            self.assertEqual(os.fstat(original_fd).st_ino, first.stat().st_ino)
+            caught = None
+            try:
+                retained.run(transport.write_launch_bytes, first / 'stale.json', b'{}')
+            except ValueError as error:
+                caught = error
+            self.assertFalse((first / 'stale.json').exists(), 'closed scope revived write authority via fd reuse')
+            self.assertIsNotNone(caught, 'copied closed scope must reject even when its fd and inode match')
+        finally:
+            for descriptor in owned:
+                os.close(descriptor)
+
     def test_protected_model_writers_reject_initial_output_ancestor_alias(self):
         for fixed, writer in itertools.product((False, True), ('launch', 'execution', 'delivery')):
             with self.subTest(fixed=fixed, writer=writer):
