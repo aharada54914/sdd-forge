@@ -369,15 +369,18 @@ class PlanningTests(GitFixture):
         catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
         workload = W.plan_obligations(live, catalog)
         controls = W.control_dispositions(live, catalog)
-        self.assertEqual(len(controls), 1)
-        self.assertEqual(controls[0]['job'], 'required-checks')
-        self.assertEqual(controls[0]['disposition'], 'orchestration-verifier')
+        self.assertEqual([row['step'] for row in controls], [
+            'Install structural YAML parser', 'Download original same-run CI plan',
+            'Collect actual same-run execution observations', 'Check all required tests passed'])
+        self.assertTrue(all(row['job'] == 'required-checks' and
+                            row['disposition'] == 'orchestration-verifier' for row in controls))
         self.assertNotIn('required-checks', {r['job'] for r in workload})
         self.assertEqual({r['runner'] for r in workload if r['job'] == 'test'},
                          {'ubuntu-latest', 'macos-latest', 'windows-latest'})
         aggregate = 'python3 -B tests/verification-ci.py aggregate --root . --plan plan.json --observations observations --run-id "$GITHUB_RUN_ID" --api-head-sha "$API_HEAD_SHA"'
         future = copy.deepcopy(live)
-        future['jobs']['required-checks']['steps'][0]['run'] = aggregate
+        future['jobs']['required-checks']['steps'] = [
+            {'name': 'Check all required tests passed', 'shell': 'bash', 'run': aggregate}]
         self.assertEqual(len(W.control_dispositions(future, catalog)), 1)
         for mutate in (
             lambda w: w['jobs']['required-checks']['steps'].append(
@@ -1291,7 +1294,8 @@ class PreparedVerifierTests(unittest.TestCase):
         live['jobs']['ci-plan'] = self.workflow['jobs']['ci-plan']
         live['jobs']['required-checks'] = prepared_verifier([n for n in live['jobs'] if n != 'required-checks'])
         after, controls = W.plan_inventory(live, catalog)
-        self.assertEqual([o for o in after if o['job'] != 'ci-plan'], before)
+        self.assertEqual([o for o in after if o['job'] != 'ci-plan'],
+                         [o for o in before if o['job'] != 'ci-plan'])
         self.assertEqual({n: live['jobs'][n] for n in a9}, a9)
         self.assertEqual(len(controls), 4)
         for step, row in zip(live['jobs']['required-checks']['steps'][1:], controls):
@@ -1506,6 +1510,81 @@ class PreparedVerifierIntegrationTests(unittest.TestCase):
             self.assertEqual(len(failed), 1)
             self.assertTrue(failed[0]['obligation_id'].startswith('collect:'))
             self.assertEqual(failed[0]['reason'], 'evidence-missing')
+
+
+_T011_CLI_SETUP = 'npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code\nclaude --version'
+
+
+class OmissionReadinessTests(unittest.TestCase):
+    def fixture(self, raw=False):
+        unrelated = 'cli-hook-enforcement' if raw else 'optional'
+        suites = ['tests/a.tests.py', 'tests/cli-hook-enforcement.ps1' if raw else 'tests/b.tests.py']
+        catalog = {'schema': 'verification-catalog/v1', 'suites': [
+            {'path': suites[0], 'runtime': 'python'},
+            {'path': suites[1], 'runtime': 'pwsh' if raw else 'python'}],
+            'profiles': {'fixture': suites},
+            'impact': {'schema': 'verification-impact-rules/v1', 'categories': [{
+                'id': 'readme-contract', 'paths': ['README.md'], 'prefixes': [],
+                'suites': [suites[0]], 'groups': ['test'], 'active': False, 'evidence': None}],
+                'dependencies': {}}}
+        workflow: dict[str, Any] = {'jobs': {
+            'test': {'runs-on': 'ubuntu-latest', 'steps': [{'name': 'related', 'run': 'python3 ' + suites[0]}]},
+            unrelated: {'runs-on': 'ubuntu-latest', 'if': "needs.ci-plan.outputs.run_" + unrelated.replace('-', '_') + " == 'true'",
+                'steps': ([{'name': 'Install Claude Code CLI', 'shell': 'bash', 'run': _T011_CLI_SETUP}] if raw else []) +
+                    [{'name': 'unrelated', 'shell': 'pwsh' if raw else 'bash', 'run': './' + suites[1] if raw else 'python3 ' + suites[1]}]},
+            'ci-plan': {'runs-on': 'ubuntu-latest', 'steps': [], 'outputs': {}}}}
+        workflow['jobs']['ci-plan']['outputs'] = {
+            'run_' + name.replace('-', '_'): '${{ steps.plan.outputs.run_' + name.replace('-', '_') + ' }}'
+            for name in workflow['jobs']}
+        self.assertIsNotNone(W.planner_outputs(workflow))
+        return catalog, workflow, unrelated
+
+    def select(self, catalog, workflow):
+        full = W.plan_obligations(workflow, catalog)
+        chosen = IMPACT.selected_obligations(catalog['impact']['categories'], catalog, workflow, full)
+        return full, chosen
+
+    def test_validated_generated_gate_does_not_itself_force_unrelated_suite(self):
+        catalog, workflow, job = self.fixture()
+        full, chosen = self.select(catalog, workflow)
+        self.assertTrue(any(o['job'] == job for o in full))
+        self.assertFalse(any(o['job'] == job for o in chosen))
+        self.assertEqual(IMPACT.condition_outputs({'groups': sorted({o['job'] for o in chosen})}, sorted(workflow['jobs']))['run_optional'], 'false')
+
+    def test_exact_declared_cli_setup_can_leave_unrelated_cli_job_unselected(self):
+        catalog, workflow, job = self.fixture(raw=True)
+        catalog['impact']['non_suite_steps'] = [{'job': job, 'step': 'Install Claude Code CLI', 'kind': 'setup'}]
+        IMPACT.rules(catalog, workflow)
+        full, chosen = self.select(catalog, workflow)
+        self.assertEqual(len([o for o in full if o['job'] == job]), 2)
+        self.assertFalse(any(o['job'] == job for o in chosen))
+
+    def test_unknown_predicates_and_missing_matrix_keys_stay_mandatory(self):
+        catalog, workflow, job = self.fixture()
+        for condition in ("needs.external.outputs.ready == 'true'",
+                          "needs.ci-plan.outputs.run_optional == 'true' && matrix.missing == 'yes'",
+                          "needs.ci-plan.outputs.run_optional == 'true' || false"):
+            with self.subTest(condition=condition):
+                probe = copy.deepcopy(workflow)
+                probe['jobs'][job]['if'] = condition
+                full, chosen = self.select(catalog, probe)
+                self.assertEqual({o['id'] for o in full}, {o['id'] for o in chosen})
+
+    def test_setup_declaration_does_not_admit_another_raw_command_or_site(self):
+        for mutation in ('body', 'job', 'step'):
+            catalog, workflow, job = self.fixture(raw=True)
+            catalog['impact']['non_suite_steps'] = [{'job': job, 'step': 'Install Claude Code CLI', 'kind': 'setup'}]
+            if mutation == 'body':
+                workflow['jobs'][job]['steps'][0]['run'] += '\npython3 unproven.py'
+            elif mutation == 'job':
+                workflow['jobs']['elsewhere'] = workflow['jobs'].pop(job)
+                catalog['impact']['non_suite_steps'][0]['job'] = 'elsewhere'
+            else:
+                workflow['jobs'][job]['steps'][0]['name'] = 'other setup'
+                catalog['impact']['non_suite_steps'][0]['step'] = 'other setup'
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                IMPACT.rules(catalog, workflow)
+
 
 
 if __name__ == '__main__':
