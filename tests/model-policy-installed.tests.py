@@ -1830,6 +1830,347 @@ class InstalledPanelistCallerTests(unittest.TestCase):
                 self.assertFalse((f.root / output / 'selection.json').exists(), 'Gemini must not receive a fake selection')
                 self.assertFalse((f.root / output / 'validation.json').exists())
 
+    # T-008 split-root additions: append these members to InstalledPanelistCallerTests.
+    def root_positive(self, shell):
+        f, installed = self.fixture(shell)
+        result, output = self.run_snippet(f, installed, shell, 'root-positive')
+        self.accepted(f, result, output)
+        return f, installed
+
+    def root_prepare(self, f, installed, label):
+        f.session_id = str(uuid.uuid4())
+        f.request.update(role='panelist-gpt', host='codex-cli', requested_effort='high',
+                         cli={'model_id': 'gpt-6-astra', 'policy': 'pinned'}, policy_path='policy.json')
+        f.observation = f.fresh_observation()
+        f.save()
+        f.task_consent(True)
+        (f.root / 'SDD_SUDO').unlink(missing_ok=True)
+        output = 'runs/' + label
+        result = f.run_process([sys.executable, '-I', '-B', str(installed / ADAPTER), 'prepare',
+            '--request', 'request.json', '--registry', 'registry.json', '--role', 'panelist-gpt',
+            '--host', 'codex-cli', '--run-id', f.run_id, '--session-id', f.session_id, '--attempt', '1',
+            '--output-dir', output, '--require-actual-id', 'false'], label='real split-root preparation')
+        self.assertEqual(result.returncode, 0, result.stderr[-1800:])
+        controls = f.root / output / 'controls.json'
+        self.assertTrue(controls.is_file(), 'Real prepare did not create controls')
+        value = json.loads(result.stdout)
+        self.assertEqual(value['controls'], {'path': output + '/controls.json', 'sha256': launch.sha_file(controls)})
+        self.assertEqual(value['selection']['resolved']['native_id'], 'gpt-6-astra')
+        return output, json.loads(controls.read_bytes())
+
+    def root_selected(self, f, shell, controls, *, env=None):
+        f.audit.unlink(missing_ok=True)
+        f.verdict_path().unlink(missing_ok=True)
+        script = f.scripts / ('run-panelist-gpt.' + ('sh' if shell == 'bash' else 'ps1'))
+        command = [launch.BASH, str(script)] if shell == 'bash' else [PWSH, '-NoProfile', '-File', str(script)]
+        command += ['--task', f.TASK, '--feature', f.FEATURE,
+                    '--input', f.bundle.relative_to(f.root).as_posix(), '--spec-root', 'specs',
+                    '--digest', f.bundle_digest, '--consent', 'human-flag', '--model-controls', controls,
+                    '--model-controls-sha256', launch.sha_file(f.root / controls),
+                    '--run-id', f.run_id, '--session-id', f.session_id]
+        result = f.run_process(command, env, timeout=60, label='real installed selected runner')
+        self.assertFalse(f.poison.exists(), 'Installed boundary fell back to poisoned package')
+        return result
+
+    def root_record(self, f, driver, output, *, mode='model-installed-run-record', feature=None):
+        binding = output / 'model-delivery-binding.json'
+        launch_path = output / 'model-launch.json'
+        self.assertTrue(binding.is_file(), 'A complete positive must precede retrospective consumption')
+        args = [sys.executable, '-I', '-B', str(driver), mode, str(f.root),
+                '--launch', launch_path.relative_to(f.root).as_posix(), '--launch-sha256', launch.sha_file(launch_path),
+                '--delivery-binding', binding.relative_to(f.root).as_posix(),
+                '--delivery-binding-sha256', launch.sha_file(binding), '--slot', 'reviewers',
+                '--feature', feature or f.FEATURE]
+        record = {'schema': 'sdd-run-record/v1', 'feature': feature or f.FEATURE,
+                  'model_ids': {'main': 'unknown', 'reviewers': 'unknown'}}
+        try:
+            return launch.subprocess.run(args, input=json.dumps(record), cwd=f.root, env=f.environment,
+                                         text=True, capture_output=True, timeout=60, check=False)
+        except launch.subprocess.TimeoutExpired:
+            self.fail('Bounded retrospective CLI timed out')
+
+    def root_record_accepted(self, f, installed, output, policy):
+        audit = f.audit.read_bytes() if f.audit.exists() else None
+        result = self.root_record(f, installed / CALLER_DRIVER, output)
+        self.assertEqual(result.returncode, 0, result.stderr[-1800:])
+        record = json.loads(result.stdout)
+        self.assertEqual(record['schema'], 'sdd-run-record/v2')
+        self.assertEqual(record['model_policy'], policy)
+        self.assertEqual(f.audit.read_bytes() if f.audit.exists() else None, audit,
+                         'Retrospective CLI invoked a vendor')
+        return record
+
+    def test_installed_panelist_rejects_runtime_alias_and_postsend_drift_with_project_decoys(self):
+        for shell in SHELLS:
+            with self.subTest(shell=shell):
+                f, installed = self.root_positive(shell)
+                extension = 'sh' if shell == 'bash' else 'ps1'
+                gate_rel = CALLER_SCRIPTS + 'prepare-panelist-input.' + extension
+                gate, decoy = installed / gate_rel, f.root / gate_rel
+                original, mode = gate.read_bytes(), gate.stat().st_mode & 0o777
+                decoy.parent.mkdir(parents=True)
+                decoy.write_bytes(original)
+                outside = f.base / ('outside-consent.' + extension)
+                outside.write_bytes(original)
+                output, _ = self.root_prepare(f, installed, 'gate-alias')
+                try:
+                    gate.unlink()
+                    gate.symlink_to(outside)
+                    result = self.root_selected(f, shell, output + '/controls.json')
+                    error = self.rejected(f, result, {'input-invalid'})
+                    self.assertIn('consent', error['message'].lower(), 'Failure must be at installed consent authority')
+                    self.assertEqual(outside.read_bytes(), original)
+                    self.assertEqual(decoy.read_bytes(), original)
+                finally:
+                    gate.unlink()
+                    gate.write_bytes(original)
+                    gate.chmod(mode)
+                # A real current-byte positive after restoring the gate distinguishes source rejection from setup.
+                output, _ = self.root_prepare(f, installed, 'gate-restored')
+                result = self.root_selected(f, shell, output + '/controls.json')
+                self.accepted(f, result, output)
+                for target in (gate_rel, CALLER_SCRIPTS + 'run-panelist-gpt.' + extension):
+                    with self.subTest(postsend_source=target):
+                        source, project_decoy = installed / target, f.root / target
+                        raw, permission = source.read_bytes(), source.stat().st_mode & 0o777
+                        project_decoy.parent.mkdir(parents=True, exist_ok=True)
+                        project_decoy.write_bytes(raw)
+                        output, _ = self.root_prepare(f, installed, 'drift-' + Path(target).stem)
+                        try:
+                            result = self.root_selected(f, shell, output + '/controls.json', env={
+                                'SDD_TEST_NATIVE_MODE': 'mutate-source', 'SDD_TEST_MUTATE_PATH': str(source)})
+                            self.assertTrue(f.audit.is_file(), 'Existing fixture CLI must actually perform the mutation')
+                            self.assertNotEqual(source.read_bytes(), raw)
+                            self.assertEqual(project_decoy.read_bytes(), raw, 'Project decoy changed')
+                            self.assertEqual(result.returncode, 2, result.stderr[-1800:])
+                            self.assertFalse(f.verdict_path().exists())
+                            self.assertFalse((f.artifact_dir() / 'model-delivery-binding.json').exists(),
+                                             'Runtime drift published accepted delivery')
+                        finally:
+                            source.write_bytes(raw)
+                            source.chmod(permission)
+
+    def test_installed_record_reconstructs_fixed_runtime_and_keeps_generic_and_protected_roots(self):
+        f, installed = self.root_positive('bash')
+        output = f.artifact_dir()
+        policy = json.loads(f.verdict_path().read_bytes())['model_policy']
+        self.root_record_accepted(f, installed, output, policy)
+        for shell in SHELLS:
+            with self.subTest(installed_emitter=shell):
+                shutil.rmtree(f.root / 'reports/runs', ignore_errors=True)
+                script = installed / (CALLER_SCRIPTS + 'emit-run-record.' + ('sh' if shell == 'bash' else 'ps1'))
+                if shell == 'bash':
+                    command = [launch.BASH, str(script), f.FEATURE]
+                    names = ['--model-launch', '--model-launch-sha256', '--model-delivery-binding',
+                             '--model-delivery-binding-sha256', '--model-slot']
+                else:
+                    command = [PWSH, '-NoProfile', '-File', str(script), '-Feature', f.FEATURE]
+                    names = ['-ModelLaunch', '-ModelLaunchSha256', '-ModelDeliveryBinding',
+                             '-ModelDeliveryBindingSha256', '-ModelSlot']
+                values = [(output / 'model-launch.json').relative_to(f.root).as_posix(),
+                          launch.sha_file(output / 'model-launch.json'),
+                          (output / 'model-delivery-binding.json').relative_to(f.root).as_posix(),
+                          launch.sha_file(output / 'model-delivery-binding.json'), 'reviewers']
+                for name, value in zip(names, values):
+                    command.extend([name, value])
+                audit = f.audit.read_bytes()
+                emitted = f.run_process(command, timeout=60, label='actual installed selected emitter')
+                self.assertEqual(emitted.returncode, 0, emitted.stderr[-1800:])
+                records = list((f.root / 'reports/runs').glob('RUN-*.json'))
+                self.assertEqual(len(records), 1, 'Installed emitter did not publish exactly one bound record')
+                self.assertEqual(json.loads(records[0].read_text(encoding='utf-8-sig'))['model_policy'], policy)
+                self.assertEqual(f.audit.read_bytes(), audit, 'Retrospective emitter invoked the native CLI')
+        binding_path, context_path = output / 'model-delivery-binding.json', output / 'model-execution-context.json'
+        binding_raw, context_raw = binding_path.read_bytes(), context_path.read_bytes()
+        context, binding = json.loads(context_raw), json.loads(binding_raw)
+        deps_path, consent_path = f.root / context['dependencies']['path'], f.root / context['consent_result']['path']
+        originals = {path: path.read_bytes() for path in (deps_path, consent_path, output / 'model-launch.json')}
+        for case in ('dependency-project-root', 'gate-project-pin', 'wrapper-project-pin', 'trusted-project-pin'):
+            with self.subTest(resealed=case):
+                changed_context, changed_binding = copy.deepcopy(context), copy.deepcopy(binding)
+                if case == 'dependency-project-root':
+                    value = json.loads(originals[deps_path])
+                    old = str(installed / launch.HELPER)
+                    self.assertIn(old, value)
+                    value[str(f.root / launch.HELPER)] = value.pop(old)
+                    deps_path.write_bytes(launch.canonical(value))
+                    changed_context['dependencies']['sha256'] = launch.sha_file(deps_path)
+                elif case in ('gate-project-pin', 'wrapper-project-pin'):
+                    value = json.loads(originals[consent_path])
+                    key = 'gate' if case.startswith('gate') else 'wrapper'
+                    rel = value[key]['path']
+                    decoy = f.root / rel
+                    decoy.parent.mkdir(parents=True, exist_ok=True)
+                    decoy.write_bytes((installed / rel).read_bytes() + b'\n# project decoy\n')
+                    value[key]['sha256'] = launch.sha_file(decoy)
+                    consent_path.write_bytes(launch.canonical(value))
+                    changed_context['consent_result']['sha256'] = launch.sha_file(consent_path)
+                else:
+                    launch_path = output / 'model-launch.json'
+                    value = json.loads(originals[launch_path])
+                    ref = next(ref for ref in value['trusted'] if ref['path'] == launch.HELPER)
+                    decoy = f.root / ref['path']
+                    decoy.parent.mkdir(parents=True, exist_ok=True)
+                    decoy.write_bytes((installed / ref['path']).read_bytes() + b'\n# project decoy\n')
+                    ref['sha256'] = launch.sha_file(decoy)
+                    launch_path.write_bytes(launch.canonical(value))
+                    changed_binding['launch_sha256'] = launch.sha_file(launch_path)
+                context_path.write_bytes(launch.canonical(changed_context))
+                changed_binding['execution_context']['sha256'] = launch.sha_file(context_path)
+                binding_path.write_bytes(launch.canonical(changed_binding))
+                try:
+                    before = f.audit.read_bytes()
+                    result = self.root_record(f, installed / CALLER_DRIVER, output)
+                    self.assertNotEqual(result.returncode, 0, 'Resealed runtime substitution was accepted')
+                    self.assertEqual(result.stdout, '')
+                    self.assertEqual(f.audit.read_bytes(), before)
+                finally:
+                    for path, raw in originals.items():
+                        path.write_bytes(raw)
+                    context_path.write_bytes(context_raw)
+                    binding_path.write_bytes(binding_raw)
+                self.root_record_accepted(f, installed, output, policy)
+        # Existing explicit-root CLI and direct API intentionally use a verifier from another source tree.
+        legacy = launch.SelectedPanelistLaunch(methodName='runTest')
+        self.addCleanup(legacy.doCleanups)
+        legacy.setUp()
+        verdict, _ = legacy.accepted_panelist('bash')
+        result = self.root_record(legacy, ROOT / CALLER_DRIVER, legacy.artifact_dir(), mode='model-run-record')
+        self.assertEqual(result.returncode, 0, result.stderr[-1600:])
+        self.assertEqual(json.loads(result.stdout)['model_policy'], verdict['model_policy'])
+        transport = launch.load_module(ROOT / CALLER_DRIVER, 'root_compatibility')
+        self.addCleanup(sys.modules.pop, transport.__name__, None)
+        artifact = legacy.artifact_dir()
+        self.assertEqual(transport.verify_model_run(legacy.root,
+            (artifact / 'model-launch.json').relative_to(legacy.root).as_posix(), launch.sha_file(artifact / 'model-launch.json'),
+            (artifact / 'model-delivery-binding.json').relative_to(legacy.root).as_posix(),
+            launch.sha_file(artifact / 'model-delivery-binding.json'), 'reviewers', feature=legacy.FEATURE),
+            verdict['model_policy'])
+        protected = launch.ModelRunRecords(methodName='runTest')
+        self.addCleanup(protected.doCleanups)
+        protected.setUp()
+        protected.records('spec-reviewer-a')
+        result = self.root_record(protected.fixture, installed / CALLER_DRIVER, protected.output, feature='example')
+        self.assertEqual(result.returncode, 0, 'Fixed mode redirected protected roots: ' + result.stderr[-1600:])
+        self.assertEqual(json.loads(result.stdout)['model_policy']['selection'], protected.selection)
+        self.assertFalse(protected.fixture.marker.exists(), 'Protected retrospective consumption invoked a native host')
+
+    def test_installed_controls_allow_distinct_namespace_names_but_reject_snapshot_collisions(self):
+        f, installed = self.root_positive('bash')
+        output, controls = self.root_prepare(f, installed, 'allowed-aliases')
+        selected_raw = (f.root / output / 'selection.json').read_bytes()
+        selection_alias, controls_alias = launch.HELPER, launch.TRUSTED_POLICY
+        for relative in (selection_alias, controls_alias):
+            (f.root / relative).parent.mkdir(parents=True, exist_ok=True)
+        (f.root / selection_alias).write_bytes(selected_raw)
+        controls['selection'] = {'path': selection_alias, 'sha256': launch.sha_file(f.root / selection_alias)}
+        (f.root / controls_alias).write_bytes(launch.canonical(controls))
+        runtime_before = runtime_tree(installed)
+        result = self.root_selected(f, 'bash', controls_alias)
+        self.assertEqual(result.returncode, 0, 'Separate-root controls/selection names were conflated: ' + result.stderr[-1600:])
+        self.assertTrue(f.audit.is_file())
+        verdict = json.loads(f.verdict_path().read_bytes())
+        self.assertEqual(verdict['model_policy']['selection'], json.loads(selected_raw))
+        self.root_record_accepted(f, installed, f.artifact_dir(), verdict['model_policy'])
+        self.assertEqual(runtime_tree(installed), runtime_before)
+        for kind in ('request', 'registry', 'input-policy'):
+            with self.subTest(snapshot_collision=kind):
+                output, controls = self.root_prepare(f, installed, 'conflict-' + kind)
+                if kind in ('request', 'registry'):
+                    alias = launch.HELPER
+                    (f.root / alias).write_bytes((f.root / (kind + '.json')).read_bytes())
+                    controls[kind] = {'path': alias, 'sha256': launch.sha_file(f.root / alias)}
+                else:
+                    alias = launch.TRUSTED_POLICY
+                    (f.root / alias).write_bytes((f.root / 'policy.json').read_bytes())
+                    request = json.loads((f.root / 'request.json').read_bytes())
+                    request['policy_path'] = alias
+                    (f.root / 'request.json').write_bytes(launch.canonical(request))
+                    controls['request']['sha256'] = launch.sha_file(f.root / 'request.json')
+                    controls['inputs'] = sorted([
+                        {'path': alias, 'sha256': launch.sha_file(f.root / alias)} if ref['path'] == 'policy.json' else ref
+                        for ref in controls['inputs']], key=lambda ref: ref['path'])
+                (f.root / output / 'controls.json').write_bytes(launch.canonical(controls))
+                result = self.root_selected(f, 'bash', output + '/controls.json')
+                self.rejected(f, result, {'config-conflict'})
+                self.assertEqual(runtime_tree(installed), runtime_before)
+
+    def test_evidence_capture_reads_both_namespaces_and_keeps_budget_and_alias_guards(self):
+        import inspect
+        import tempfile
+        transport = launch.load_module(ROOT / CALLER_DRIVER, 'namespace_capture')
+        self.addCleanup(sys.modules.pop, transport.__name__, None)
+        self.assertIn('runtime_root', inspect.signature(transport.EvidenceCapture).parameters,
+                      'Capture lacks explicit installed-runtime namespace support')
+        self.assertTrue(callable(getattr(transport.EvidenceCapture, 'read_runtime', None)),
+                        'Capture lacks a distinct bounded runtime read')
+        with tempfile.TemporaryDirectory(prefix='t008-namespace-capture-') as temporary:
+            base = Path(temporary)
+            project, runtime = base / 'project', base / 'installed'
+            project.mkdir()
+            runtime.mkdir()
+            relative = 'same-name.txt'
+            (project / relative).write_bytes(b'project evidence')
+            (runtime / relative).write_bytes(b'installed source')
+            def ref(root, path=relative):
+                return {'path': path, 'sha256': launch.sha_file(root / path)}
+            for runtime_first in (False, True):
+                with self.subTest(runtime_first=runtime_first):
+                    capture = transport.EvidenceCapture(project, runtime_root=runtime)
+                    order = [(capture.read, project), (capture.read_runtime, runtime)]
+                    if runtime_first:
+                        order.reverse()
+                    for reader, origin in order:
+                        self.assertEqual(reader(ref(origin)), (origin / relative).read_bytes())
+                    self.assertEqual(capture.remaining, transport.MAX_LAUNCH_RECORD -
+                                     len((project / relative).read_bytes()) - len((runtime / relative).read_bytes()))
+                    remaining = capture.remaining
+                    for reader, origin in order:
+                        self.assertEqual(reader(ref(origin)), (origin / relative).read_bytes())
+                    self.assertEqual(capture.remaining, remaining)
+                    for reader, origin in order:
+                        changed = {**ref(origin), 'sha256': launch.flip(ref(origin)['sha256'])}
+                        with self.assertRaises(ValueError):
+                            reader(changed)
+            same = transport.EvidenceCapture(project, runtime_root=project)
+            self.assertEqual(same.read(ref(project)), b'project evidence')
+            remaining = same.remaining
+            self.assertEqual(same.read_runtime(ref(project)), b'project evidence')
+            self.assertEqual(same.remaining, remaining, 'Same physical root was charged twice')
+            with self.assertRaises(ValueError):
+                same.read_runtime({**ref(project), 'sha256': launch.flip(ref(project)['sha256'])})
+            # Real aggregate bytes, not a mocked read or bypassed budget implementation.
+            for origin in (project, runtime):
+                (origin / 'large.bin').write_bytes(b'x' * (transport.MAX_LAUNCH_RECORD // 2 + 1))
+            for runtime_first in (False, True):
+                with self.subTest(aggregate_runtime_first=runtime_first):
+                    capture = transport.EvidenceCapture(project, runtime_root=runtime)
+                    order = [(capture.read, project), (capture.read_runtime, runtime)]
+                    if runtime_first:
+                        order.reverse()
+                    order[0][0](ref(order[0][1], 'large.bin'))
+                    with self.assertRaises(ValueError):
+                        order[1][0](ref(order[1][1], 'large.bin'))
+            for runtime_side in (False, True):
+                for ancestor in (False, True):
+                    with self.subTest(runtime_side=runtime_side, ancestor=ancestor):
+                        origin = runtime if runtime_side else project
+                        target = origin / ('linked-dir' if ancestor else 'linked.txt')
+                        target.symlink_to(base if ancestor else project / relative, target_is_directory=ancestor)
+                        capture = transport.EvidenceCapture(project, runtime_root=runtime)
+                        reader = capture.read_runtime if runtime_side else capture.read
+                        name = 'linked-dir/project/' + relative if ancestor else 'linked.txt'
+                        try:
+                            with self.assertRaises(ValueError):
+                                reader({'path': name, 'sha256': launch.sha_file(project / relative)})
+                        finally:
+                            target.unlink()
+                capture = transport.EvidenceCapture(project, runtime_root=runtime)
+                reader = capture.read_runtime if runtime_side else capture.read
+                for alias in ('../same-name.txt', './same-name.txt', 'folder//file', str(project / relative)):
+                    with self.subTest(runtime_side=runtime_side, path_alias=alias), self.assertRaises(ValueError):
+                        reader({'path': alias, 'sha256': launch.sha_file(project / relative)})
+
 
 if __name__ == '__main__':
     unittest.main()
