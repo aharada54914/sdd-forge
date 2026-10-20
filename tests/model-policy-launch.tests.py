@@ -1801,6 +1801,35 @@ class ModelRunRecords(unittest.TestCase):
         self.assertFalse(list((self.root / 'reports/runs').glob('RUN-*.json')),
                          'rejected model evidence must not publish a run record')
 
+    def test_protected_producer_rejects_changed_context_before_binding_publication(self):
+        for fixed in (False,True):
+            with self.subTest(fixed=fixed):
+                case = ModelRunRecords(methodName='runTest')
+                case.setUp()
+                try:
+                    case.records(fixed=fixed)
+                    transport = case.fixture.transport
+                    binding = {key:case.launch[key] for key in transport.BINDING_FIELDS if key!='selection'}
+                    binding.update(schema='model-launch-validation/v1',selection=case.selection)
+                    def clear_postrecords():
+                        for name in ('selection','events','delivery','delivery-binding'):
+                            (case.output/('model-'+name+'.json')).unlink()
+                    def produce():
+                        return transport.record_model_delivery(case.root,case.output,binding,case.launch_sha,
+                            sha_file(case.output/'model-execution-context.json'))
+                    clear_postrecords()
+                    digest = produce()
+                    self.assertEqual(digest,sha_file(case.output/'model-delivery-binding.json'))
+                    clear_postrecords()
+                    settings = case.root/case.context['settings']['path']
+                    settings.write_bytes(settings.read_bytes()+b' ')
+                    with self.assertRaises(ValueError):
+                        produce()
+                    self.assertFalse((case.output/'model-delivery-binding.json').exists(),
+                                     'Rejected protected context left an accepted delivery binding')
+                finally:
+                    case.doCleanups()
+
     def test_run_record_feature_matches_original_execution_context(self):
         self.records()
         self.fixture.write('specs/other-feature/placeholder.json', {})
