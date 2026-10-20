@@ -1603,6 +1603,33 @@ class PairedClaudeLaunch(LaunchFixture):
         self.assertFalse((legacy['output'] / 'model-launch.json').exists())
 
 
+    def test_selected_quality_initial_output_ancestor_alias_has_no_side_effects(self):
+        self.active_env = {'SDD_MODEL_EVALUATOR': 'anthropic/sonnet'}
+        self.run_id = self.session_id
+        self.request = self.fresh_request('evaluator', 'medium')
+        self.select('evaluator', risk='medium', env=self.active_env)
+        good = self.controls()
+        self.accepted(self.cli(sha=good, env=self.active_env))
+        positive = self.exercise_bound_quality_launch(controls_sha=good, complete=True)
+        self.assertIsNone(positive['error'], 'genuine selected controller positive')
+        self.assertEqual(len(positive['native_calls']), 1)
+        self.assertTrue((positive['output'] / 'model-delivery-binding.json').is_file())
+        shutil.rmtree(positive['output'])
+        parent = positive['output'].parent
+        original = self.root / 'original-quality-output-parent'
+        parent.rename(original)
+        outside = self.root / 'quality-output-target'
+        outside.mkdir()
+        parent.symlink_to(outside, target_is_directory=True)
+        result = self.exercise_bound_quality_launch(controls_sha=good, complete=True)
+        self.assertEqual(list(outside.iterdir()), [], 'selected quality launch created redirected artifacts')
+        self.assertIsNotNone(result['error'])
+        for event in ('native.jsonl', 'reserved.txt', 'wrapper.json'):
+            self.assertNotIn(event, result['events'])
+        self.assertEqual(result['native_calls'], [])
+        self.assertFalse((original / positive['output'].name).exists())
+
+
 class ModelRunRecords(unittest.TestCase):
     """Both shell emitters consume pinned execution records; fixtures claim no native run."""
     launch: dict[str, Any]
@@ -1800,6 +1827,157 @@ class ModelRunRecords(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(list((self.root / 'reports/runs').glob('RUN-*.json')),
                          'rejected model evidence must not publish a run record')
+
+
+    def test_protected_model_writers_reject_initial_output_ancestor_alias(self):
+        for fixed, writer in itertools.product((False, True), ('launch', 'execution', 'delivery')):
+            with self.subTest(fixed=fixed, writer=writer):
+                case = ModelRunRecords(methodName='runTest')
+                case.setUp()
+                try:
+                    case.records(fixed=fixed)
+                    f, transport = case.fixture, case.fixture.transport
+                    binding = {key: case.launch[key] for key in transport.BINDING_FIELDS if key != 'selection'}
+                    binding.update(schema='model-launch-validation/v1', selection=case.selection)
+                    context_sha = sha_file(case.output / 'model-execution-context.json')
+                    fixed_data = None
+                    if fixed:
+                        inventory = json.loads((case.output / 'model-fixed-inputs.json').read_bytes())
+                        inventory_source = case.root / 'original-fixed-inventory.json'
+                        inventory_source.write_bytes(canonical(inventory))
+                        fixed_data = {'record': str(inventory_source), 'inventory': inventory,
+                                      'snapshot': case.context['fixed_inputs']['snapshot']}
+                    names = {'launch': ('model-launch.json',),
+                             'execution': ('model-execution-context.json',) +
+                                          (('model-fixed-inputs.json',) if fixed else ()),
+                             'delivery': tuple('model-' + name + '.json' for name in
+                                               ('selection', 'events', 'delivery', 'delivery-binding'))}[writer]
+                    def clear() -> None:
+                        for name in names:
+                            (case.output / name).unlink()
+                    def produce() -> str:
+                        if writer == 'launch':
+                            return transport.record_model_launch(case.output, binding, case.launch['argv'], 'matching')
+                        if writer == 'execution':
+                            return transport.record_model_execution(case.root, case.output,
+                                json.loads(f.invocation.read_bytes()), f.invocation,
+                                case.root / case.context['role_definition']['path'], f.launch_policy_file,
+                                f.settings, f.receipt, binding, case.launch['argv'], dict(f.active_env), fixed_data)
+                        return transport.record_model_delivery(case.root, case.output, binding,
+                                                               case.launch_sha, context_sha)
+                    clear()
+                    with f.model_env(f.active_env), f.in_root():
+                        digest = produce()
+                    final_name = {'launch': 'model-launch.json', 'execution': 'model-execution-context.json',
+                                  'delivery': 'model-delivery-binding.json'}[writer]
+                    self.assertEqual(digest, sha_file(case.output / final_name), 'genuine producer positive')
+                    clear()
+                    original = case.root / 'original-output'
+                    case.output.rename(original)
+                    outside = case.root / 'alias-target'
+                    outside.mkdir()
+                    case.output.symlink_to(outside, target_is_directory=True)
+                    caught = None
+                    with f.model_env(f.active_env), f.in_root():
+                        try:
+                            produce()
+                        except ValueError as error:
+                            caught = error
+                    self.assertEqual(list(outside.iterdir()), [], 'protected producer wrote through output alias')
+                    self.assertIsNotNone(caught, 'selected protected output alias must reject')
+                    if writer == 'delivery':
+                        self.assertFalse((original / 'model-delivery-binding.json').exists())
+                finally:
+                    case.doCleanups()
+
+    def test_protected_delivery_rejects_ancestor_swap_before_first_artifact(self):
+        for fixed in (False, True):
+            with self.subTest(fixed=fixed):
+                case = ModelRunRecords(methodName='runTest')
+                case.setUp()
+                try:
+                    case.records(fixed=fixed)
+                    transport = case.fixture.transport
+                    binding = {key: case.launch[key] for key in transport.BINDING_FIELDS if key != 'selection'}
+                    binding.update(schema='model-launch-validation/v1', selection=case.selection)
+                    context_sha = sha_file(case.output / 'model-execution-context.json')
+                    for name in ('selection', 'events', 'delivery', 'delivery-binding'):
+                        (case.output / ('model-' + name + '.json')).unlink()
+                    # records() provides the genuine launch/context; prove the actual postproducer first.
+                    digest = transport.record_model_delivery(case.root, case.output, binding,
+                                                              case.launch_sha, context_sha)
+                    self.assertEqual(digest, sha_file(case.output / 'model-delivery-binding.json'))
+                    for name in ('selection', 'events', 'delivery', 'delivery-binding'):
+                        (case.output / ('model-' + name + '.json')).unlink()
+                    original = case.root / 'original-output'
+                    outside = case.root / 'swap-target'
+                    outside.mkdir()
+                    real_write = transport.write_model_record
+                    swapped = False
+                    def swap_then_write(*args: Any, **kwargs: Any) -> str:
+                        nonlocal swapped
+                        if not swapped:
+                            case.output.rename(original)
+                            case.output.symlink_to(outside, target_is_directory=True)
+                            swapped = True
+                        return real_write(*args, **kwargs)
+                    caught = None
+                    with mock.patch.object(transport, 'write_model_record', side_effect=swap_then_write):
+                        try:
+                            transport.record_model_delivery(case.root, case.output, binding,
+                                                            case.launch_sha, context_sha)
+                        except ValueError as error:
+                            caught = error
+                    self.assertTrue(swapped, 'mutation reached the real producer write boundary')
+                    self.assertEqual(list(outside.iterdir()), [], 'swapped ancestor received model artifacts')
+                    self.assertIsNotNone(caught)
+                    self.assertFalse((original / 'model-delivery-binding.json').exists())
+                finally:
+                    case.doCleanups()
+
+    def test_protected_delivery_rejects_ancestor_swap_before_binding_publication(self):
+        for fixed in (False, True):
+            with self.subTest(fixed=fixed):
+                case = ModelRunRecords(methodName='runTest')
+                case.setUp()
+                try:
+                    case.records(fixed=fixed)
+                    transport = case.fixture.transport
+                    binding = {key: case.launch[key] for key in transport.BINDING_FIELDS if key != 'selection'}
+                    binding.update(schema='model-launch-validation/v1', selection=case.selection)
+                    context_sha = sha_file(case.output / 'model-execution-context.json')
+                    def clear() -> None:
+                        for name in ('selection', 'events', 'delivery', 'delivery-binding'):
+                            (case.output / ('model-' + name + '.json')).unlink()
+                    clear()
+                    digest = transport.record_model_delivery(case.root, case.output, binding,
+                                                              case.launch_sha, context_sha)
+                    self.assertEqual(digest, sha_file(case.output / 'model-delivery-binding.json'))
+                    clear()
+                    original = case.root / 'original-output'
+                    outside = case.root / 'publication-target'
+                    outside.mkdir()
+                    real_verify = transport.verify_captured_model_run
+                    verified = []
+                    def verify_then_swap(*args: Any, **kwargs: Any) -> dict[str, Any]:
+                        result = real_verify(*args, **kwargs)
+                        verified.append(True)
+                        case.output.rename(original)
+                        case.output.symlink_to(outside, target_is_directory=True)
+                        return result
+                    caught = None
+                    with mock.patch.object(transport, 'verify_captured_model_run', side_effect=verify_then_swap):
+                        try:
+                            transport.record_model_delivery(case.root, case.output, binding,
+                                                            case.launch_sha, context_sha)
+                        except ValueError as error:
+                            caught = error
+                    self.assertEqual(verified, [True], 'genuine verification completed before the swap')
+                    self.assertEqual(list(outside.iterdir()), [], 'accepted binding escaped to swapped ancestor')
+                    self.assertIsNotNone(caught)
+                    self.assertFalse((original / 'model-delivery-binding.json').exists())
+                finally:
+                    case.doCleanups()
 
     def test_protected_producer_rejects_changed_context_before_binding_publication(self):
         for fixed in (False,True):
