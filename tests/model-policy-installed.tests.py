@@ -6910,7 +6910,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
                                 SDD_ACTION_FIXTURE_VERSION=case.observation['cli_version'],
                                 SDD_ACTION_FIXTURE_RECORD=str(self.record), SDD_ACTION_FIXTURE_CANARY='kept')
 
-    def maintained_prepare(self, installed, *, request='request.json'):
+    def maintained_prepare(self, installed, *, request='request.json', rejected=False):
         case = self.case
         source = (ROOT / '.github/workflows/self-improvement.yml').read_text()
         marker = '- name: Prepare managed self-improvement session'
@@ -6926,6 +6926,12 @@ class InstalledSelfImprovementTests(unittest.TestCase):
                            GITHUB_RUN_ATTEMPT='1', RUNNER_TEMP=str(case.base), GITHUB_OUTPUT=str(output))
         result = case.run_process([launch.BASH, '-e', '-o', 'pipefail', '-c', script], environment,
                                   timeout=120, label='maintained self-improvement prepare fixture')
+        if rejected:
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr[-1500:])
+            self.assertEqual(json.loads(result.stderr)['schema'], 'model-policy-error/v1')
+            self.assertFalse(self.record.exists())
+            self.assertFalse(output.exists(), 'a rejected prepare emitted GitHub managed outputs')
+            return result
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr[-1500:])
         values = dict(line.split('=', 1) for line in output.read_text().splitlines())
         wrapper = Path(values['executable'])
@@ -6985,7 +6991,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         self.action_settings()
         original = self.sdk_argv(prepared)
         mutations = []
-        for flag, replacement in [('--model', 'wrong-model'), ('--effort', 'low'), ('--session-id', 'wrong-session')]:
+        for flag, replacement in [('--model', 'wrong-model'), ('--effort', 'medium' if prepared['effort'] == 'low' else 'low'), ('--session-id', 'wrong-session')]:
             args = original[:]
             args[args.index(flag) + 1] = replacement
             mutations.append(args)
@@ -6998,7 +7004,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
                 self.assertFalse(self.record.exists(), 'invalid argv reached native work')
         settings_path = self.case.home / '.claude/settings.json'
         before = settings_path.read_bytes()
-        self.action_settings({'model': 'wrong-model'})
+        self.action_settings({'availableModels': [next(model for model in ('opus', 'sonnet', 'haiku') if model != prepared['model'])]})
         result, _ = self.native(prepared)
         self.assertEqual(result.returncode, 2, result.stderr.decode())
         self.assertFalse(self.record.exists(), 'action-owned final model conflict reached native work')
@@ -7010,9 +7016,65 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2, result.stderr.decode())
         self.assertFalse(self.record.exists(), 'raw request drift reached native work')
         path.write_bytes(raw)
-        result, _ = self.native(prepared, extra_env={'ANTHROPIC_MODEL': 'wrong-model'})
+        # Pinned action promotes ANTHROPIC_MODEL into SDK options.model before spawning.
+        action_argv = self.sdk_argv(prepared)
+        action_argv[action_argv.index('--model') + 1] = 'wrong-model'
+        result, _ = self.native(prepared, action_argv, extra_env={'ANTHROPIC_MODEL': 'wrong-model'})
         self.assertEqual(result.returncode, 2, result.stderr.decode())
         self.assertFalse(self.record.exists(), 'SDK model environment conflict reached native work')
+
+    def test_self_improvement_uses_original_default_latest_and_explicit_pin_selection(self):
+        installed = self.prep.install('bash')
+        for policy, model in ((None, None), ('latest-compatible', None), ('pinned', 'anthropic/sonnet')):
+            with self.subTest(policy=policy):
+                self.case.request['cli'] = {'policy': policy, 'model_id': model}
+                self.case.save()
+                oracle = self.case.oracle_selection()
+                prepared = self.maintained_prepare(installed)
+                self.assertEqual((prepared['model'], prepared['effort']),
+                                 (oracle['resolved']['native_id'], oracle['resolved']['effort']))
+                self.action_settings()
+                # Public SDK 0.3.296 uses = for its own value flags, ordinary pairs for extraArgs.
+                argv, sdk = [], self.sdk_argv(prepared)
+                index = 0
+                while index < len(sdk):
+                    if sdk[index] in ('--model', '--max-turns', '--allowedTools', '--setting-sources'):
+                        argv.append(sdk[index] + '=' + sdk[index + 1])
+                        index += 2
+                    else:
+                        argv.append(sdk[index])
+                        index += 1
+                result, payload = self.native(prepared, argv)
+                self.assertEqual((result.returncode, result.stdout), (0, payload), result.stderr.decode())
+                self.assertEqual(json.loads(self.record.read_bytes())['argv'], argv)
+                self.record.unlink()
+
+    def test_self_improvement_rejects_absent_stale_scope_and_executable_drift(self):
+        installed = self.prep.install('bash')
+        self.maintained_prepare(installed, request='', rejected=True)
+        self.case.observation['observed_at'] = '2020-01-01T00:00:00Z'
+        self.case.save()
+        self.maintained_prepare(installed, rejected=True)
+        self.case.observation = self.case.fresh_observation()
+        self.case.request['role'] = 'investigator'
+        self.case.save()
+        self.maintained_prepare(installed, rejected=True)
+        self.case.request['role'] = 'self-improvement'
+        self.case.save()
+        prepared = self.maintained_prepare(installed)
+        self.action_settings()
+        path = self.case.root / prepared['output_dir'] / 'controls.json'
+        raw = path.read_bytes()
+        path.write_bytes(raw + b'\n')
+        result, _ = self.native(prepared)
+        self.assertEqual(result.returncode, 2, result.stderr.decode())
+        self.assertFalse(self.record.exists())
+        path.write_bytes(raw)
+        executable = self.prep.executable
+        executable.write_bytes(executable.read_bytes() + b'\n# post-prepare native drift\n')
+        result, _ = self.native(prepared)
+        self.assertEqual(result.returncode, 2, result.stderr.decode())
+        self.assertFalse(self.record.exists())
 
     def test_self_improvement_preserves_native_failure_and_action_safeguards(self):
         installed = self.prep.install('bash')
