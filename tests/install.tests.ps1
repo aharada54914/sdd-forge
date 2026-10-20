@@ -115,6 +115,11 @@ foreach ($relativePath in @(
     "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md",
     "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md",
     "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md",
+    "plugins/sdd-implementation/skills/diagnose/SKILL.md",
+    "plugins/sdd-implementation/skills/diagnose/references/diagnosis-loop-policy.md",
+    "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh",
+    "plugins/sdd-implementation/templates/diagnosis-report.template.md",
+    "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
     "plugins/sdd-implementation/scripts/model-policy.py",
     "plugins/sdd-implementation/scripts/select-agent-model.sh",
     "plugins/sdd-implementation/scripts/select-agent-model.ps1",
@@ -154,6 +159,11 @@ foreach ($relativePath in @(
     plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md `
     plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md `
     plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md `
+    plugins/sdd-implementation/skills/diagnose/SKILL.md `
+    plugins/sdd-implementation/skills/diagnose/references/diagnosis-loop-policy.md `
+    plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh `
+    plugins/sdd-implementation/templates/diagnosis-report.template.md `
+    plugins/sdd-quality-loop/references/risk-gate-matrix.md `
     plugins/sdd-implementation/scripts/model-policy.py `
     plugins/sdd-implementation/scripts/select-agent-model.sh `
     plugins/sdd-implementation/scripts/select-agent-model.ps1 `

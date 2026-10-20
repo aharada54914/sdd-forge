@@ -662,6 +662,8 @@ INVESTIGATION_SOURCES = [INVESTIGATION_SKILL, *[
         'references/spec-id-rules.md', 'references/investigation-policy.md')]]
 INVESTIGATION_RECORDER = 'tests/fixtures/model-policy-installed/recording-investigator.py'
 
+DIAGNOSIS_SOURCES = ['plugins/sdd-implementation/skills/diagnose/SKILL.md', 'plugins/sdd-implementation/skills/diagnose/references/diagnosis-loop-policy.md', 'plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh', 'plugins/sdd-implementation/templates/diagnosis-report.template.md', 'plugins/sdd-quality-loop/references/risk-gate-matrix.md']
+DIAGNOSIS_RECORDER = 'tests/fixtures/model-policy-installed/recording-diagnosis.py'
 
 MANAGED_RUNTIME = sorted([ADAPTER, *launch.TRUSTED_PATHS])
 # Union of install.sh REQUIRED_PATHS and install.ps1 Get-RequiredPaths (non-cloud) at authoring time; the positive
@@ -672,7 +674,7 @@ INSTALLER_REQUIRED = sorted({'.agents/plugins/marketplace.json', '.claude-plugin
                                for plugin in ('sdd-bootstrap', 'sdd-implementation', 'sdd-quality-loop', 'sdd-lite',
                                               'sdd-review-loop', 'sdd-ship', 'sdd-domain')
                                for manifest in ('.codex-plugin', '.claude-plugin', '.plugin'))})
-PACKAGE = sorted({'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED, INVESTIGATION_AGENT, *INVESTIGATION_SOURCES, launch.TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()})
+PACKAGE = sorted({'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED, INVESTIGATION_AGENT, *INVESTIGATION_SOURCES, *DIAGNOSIS_SOURCES, launch.TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()})
 OUTPUT_FILES = ['controls.json', 'selection.json', 'validation.json']
 # Invalid under the existing T-007 identifier grammar without being flag-shaped argument syntax.
 BAD_IDS = ('run id', 'run;id', '.run', 'r' * 129)
@@ -2050,6 +2052,195 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
         self.assertIn('Seed-Source: reverse (investigate-codebase, <feature>)', reverse)
         self.assertIn('do not fall through to `domain-interviewer` with fabricated content', ' '.join(reverse.split()))
         self.assertIn('Use the domain-interviewer skill.', reverse)
+
+
+class InstalledClaudeDiagnosisTests(unittest.TestCase):
+    """Maintained diagnosis dispatcher, real installers, public CLI fixture and actual Red reproduction."""
+
+    def setUp(self):
+        self.prep = prep = InstalledClaudePreparationTests('runTest')
+        self.addCleanup(lambda: self.assertTrue(getattr(prep, 'doCleanups')(), 'diagnosis fixture cleanup failed'))
+        prep.setUp()
+        self.case = case = prep.case
+        case.extra_runtime = (*case.extra_runtime, *DIAGNOSIS_SOURCES)
+        case.request = case.fresh_request('diagnosis')
+        case.save()
+        self.prompt = 'work/diagnosis-instructions.txt'
+        (case.root / 'work').mkdir()
+        (case.root / self.prompt).write_text('Symptom: total(1) returns0 instead of2. Reproduce with a failing test and report; do not fix product.\n')
+        self.target = case.root / 'work/sample.py'
+        self.target.write_text('def total(value):\n    return value - 1\n')
+        self.harness, self.report = case.root / 'work/regression.py', case.root / 'work/diagnosis.md'
+        self.log, self.config = case.base / 'diagnosis-events.jsonl', case.base / 'diagnosis-config.json'
+        self.spec: dict[str, Any] = {'log': str(self.log), 'sessions': str(case.base / 'diagnosis-sessions'),
+            'version': case.observation['cli_version'], 'help': launch.HELP_TEXT,
+            'model': case.oracle_selection()['resolved']['native_id'],
+            'effort': case.oracle_selection()['resolved']['effort'], 'session_id': case.session_id,
+            'other_session_id': str(uuid.uuid4()), 'target': str(self.target), 'target_content': self.target.read_text(),
+            'harness': str(self.harness), 'report': str(self.report),
+            'sources': {p: (ROOT / p).read_text() for p in DIAGNOSIS_SOURCES},
+            'instructions': (case.root / self.prompt).read_text(),
+            'canary_name': ENV_CANARY, 'canary_value': ENV_CANARY_VALUE}
+        prep.executable.write_bytes((ROOT / DIAGNOSIS_RECORDER).read_bytes())
+        prep.executable.chmod(0o755)
+        case.environment['SDD_DIAGNOSIS_FIXTURE'] = str(self.config)
+        self.save_spec()
+        self.before = {p: (case.root / p).read_bytes() for p in
+                       ('request.json', 'registry.json', 'policy.json', 'observation.json', self.prompt, 'work/sample.py')}
+
+    def save_spec(self):
+        self.config.write_text(json.dumps(self.spec) + '\n')
+
+    def fresh(self):
+        self.case.session_id = str(uuid.uuid4())
+        self.spec['session_id'] = self.case.session_id
+        self.save_spec()
+        self.log.unlink(missing_ok=True)
+
+    def events(self):
+        return [json.loads(line) for line in self.log.read_text().splitlines()] if self.log.exists() else []
+
+    def invoke(self, installed, output, **options):
+        return self.case.prepare(installed, output, role=options.pop('role', 'diagnosis'),
+            host=options.pop('host', 'claude-code'), mode='claude-entry',
+            extra=('--executable', str(self.prep.executable), '--prompt-file', self.prompt,
+                   '--prompt-sha256', options.pop('prompt_sha', launch.sha_file(self.case.root / self.prompt))), **options)
+
+    def fence(self, installed, output):
+        source = (installed / DIAGNOSIS_SOURCES[0]).read_text()
+        self.assertNotRegex(source.split('---', 2)[1], r'(?m)^model:', 'static model overrides selection before dispatch')
+        fences = [b for b in re.findall(r'```bash\n(.*?)```', source, re.S) if 'claude-entry' in b]
+        self.assertEqual(len(fences), 1, 'diagnose lacks one maintained pre-work managed dispatcher')
+        script = fences[0]
+        values = {'repository-root': str(self.case.root), 'installed-root': str(installed),
+                  'policy-request': 'request.json', 'registry': 'registry.json', 'run-id': self.case.run_id,
+                  'session-id': self.case.session_id, 'attempt': '1', 'output-dir': output,
+                  'claude-executable': str(self.prep.executable), 'prompt-file': self.prompt,
+                  'prompt-sha256': launch.sha_file(self.case.root / self.prompt)}
+        for key, value in values.items():
+            script = script.replace('"<' + key + '>"', shlex.quote(value)).replace('<' + key + '>', shlex.quote(value))
+        self.assertNotRegex(script, r'<[a-z][a-z-]*>')
+        return script
+
+    def assert_preserved(self):
+        self.assertEqual({p: (self.case.root / p).read_bytes() for p in self.before}, self.before)
+        self.prep.assert_unchanged_world()
+
+    def assert_work(self, result, output):
+        self.assertEqual(result.returncode, 0, result.stderr[:1000])
+        public = json.loads(result.stdout)
+        self.assertEqual((public['type'], public['is_error'], public['session_id']),
+                         ('result', False, self.case.session_id))
+        self.assertIn('Diagnosis reproduction failed as expected', public['result'])
+        folder = self.case.root / output
+        self.assertEqual(sorted(p.name for p in folder.iterdir()),
+                         ['controls.json', 'native-result.json', 'selection.json', 'validation.json'])
+        self.assertEqual((folder / 'native-result.json').read_text(), result.stdout)
+        validation = json.loads((folder / 'validation.json').read_bytes())
+        oracle = self.case.oracle_validation(output, self.case.ref(output + '/controls.json')['sha256'], role='diagnosis')
+        self.assertEqual(oracle.returncode, 0, oracle.stderr[:1000])
+        self.assertEqual(json.loads(oracle.stdout), validation)
+        work = [e for e in self.events() if e['event'] == 'work']
+        self.assertEqual(len(work), 1)
+        self.assertEqual(work[0]['loop_exit_code'], 1)
+        self.assertEqual((work[0]['model'], work[0]['effort']),
+                         (validation['selection']['resolved']['native_id'], validation['selection']['resolved']['effort']))
+        self.assertIn('assert total(1) == 2', self.harness.read_text())
+        self.assertIn('Product fix deferred to approved implement-task', self.report.read_text())
+        self.assertNotIn('actual_id', public)
+        self.assertNotIn('effective_complete', validation)
+        self.assert_preserved()
+
+    def blocked(self, installed, output, reason, **options):
+        self.fresh()
+        self.case.rejected(self.invoke(installed, output, **options), reason)
+        self.assertEqual([e for e in self.events() if e['event'] == 'work'], [])
+        self.assertFalse((self.case.root / output).exists())
+        self.assert_preserved()
+
+    def test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure(self):
+        for shell in SHELLS:
+            installed = self.prep.install(shell)
+            self.fresh()
+            output = self.prep.output()
+            script = self.fence(installed, output)
+            self.assert_work(self.case.run_process([launch.BASH, '-c', script], timeout=120,
+                                                  label='maintained installed diagnosis'), output)
+            self.harness.unlink()
+            self.report.unlink()
+            self.fresh()
+            legacy_output = self.prep.output()
+            legacy = self.case.prepare(installed, legacy_output, role='diagnosis', host='claude-code')
+            self.assertEqual(legacy.returncode, 0, legacy.stderr[:1000])
+            self.assertNotIn('result', json.loads(legacy.stdout))
+            self.assertFalse(self.harness.exists() or self.report.exists())
+            self.assertEqual(self.events(), [], 'configuration-only preparation must not perform diagnosis')
+
+    def test_diagnosis_installers_and_entry_reject_missing_or_changed_workload_before_work(self):
+        for shell in SHELLS:
+            installed = self.prep.install(shell)
+            for index, missing in enumerate(DIAGNOSIS_SOURCES):
+                with self.subTest(installer=shell, missing=missing):
+                    package = self.case.build_package('missing-diag-' + shell + '-' + str(index), omit=missing)
+                    destination = self.case.base / ('missing-diag-install-' + shell + '-' + str(index))
+                    result = self.case.run_installer(shell, package, destination)
+                    self.assertNotEqual(result.returncode, 0, 'installer accepted incomplete diagnosis workload')
+                    self.assertFalse(destination.exists())
+        self.fresh()
+        output = self.prep.output()
+        self.assert_work(self.invoke(installed, output), output)
+        for options, reason in [({'role': 'evaluator'}, 'model-unavailable'),
+                                ({'host': 'codex-cli'}, 'model-unavailable'),
+                                ({'require_actual_id': 'true'}, 'actual-id-unavailable'),
+                                ({'prompt_sha': '0' * 64}, 'input-invalid'),
+                                ({'session_id': 'not-a-uuid'}, 'input-invalid')]:
+            with self.subTest(options=options):
+                self.blocked(installed, self.prep.output(), reason, **options)
+        setting = self.case.root / '.claude/settings.local.json'
+        raw = setting.read_bytes()
+        for key, value, reason in [('maxEffortLevel', 'low', 'effort-unavailable'),
+                                  ('env', {'CLAUDE_CODE_EFFORT_LEVEL': 'low'}, 'native-precedence-conflict')]:
+            with self.subTest(settings=key):
+                try:
+                    setting.write_text(json.dumps({key: value}) + '\n')
+                    self.blocked(installed, self.prep.output(), reason)
+                finally:
+                    setting.write_bytes(raw)
+        reference = installed / DIAGNOSIS_SOURCES[-1]
+        for path in (reference, self.case.root / self.prompt):
+            with self.subTest(drift=path.name):
+                raw = path.read_bytes()
+                self.spec['edit_on_help'] = [{'path': str(path), 'text': 'changed source\n'}]
+                self.save_spec()
+                try:
+                    self.blocked(installed, self.prep.output(), 'input-invalid')
+                finally:
+                    path.write_bytes(raw)
+                    self.spec.pop('edit_on_help')
+                    self.save_spec()
+
+    def test_diagnosis_native_default_tools_and_failed_public_results_never_publish_success(self):
+        installed = self.prep.install('bash')
+        # --agent(s)/tool-override support is irrelevant for diagnosis; use ordinary native defaults and permissions.
+        self.spec['help'] = '--print  print\n--output-format <format>  result format\n--model <model>  model\n--effort <effort>  effort\n--session-id <id>  UUID\n'
+        self.save_spec()
+        self.fresh()
+        output = self.prep.output()
+        self.assert_work(self.invoke(installed, output), output)
+        for mode, reason in [('malformed', 'model-unverified'), ('error-with-zero-exit', 'model-unverified'),
+                             ('wrong-session', 'scope-mismatch'), ('native-failure', 'model-unverified')]:
+            with self.subTest(mode=mode):
+                self.spec['reply_mode'] = mode
+                self.spec['reject_work'] = mode == 'native-failure'
+                self.save_spec()
+                self.fresh()
+                output = self.prep.output()
+                self.case.rejected(self.invoke(installed, output), reason)
+                self.assertEqual(len([e for e in self.events() if e['event'] == 'work']), 1)
+                self.assertFalse((self.case.root / output / 'validation.json').exists())
+                self.assertFalse((self.case.root / output / 'native-result.json').exists())
+                self.assert_preserved()
+
 
 
 
