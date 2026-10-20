@@ -382,6 +382,10 @@ class QualityTransport(unittest.TestCase):
                     mock.patch.object(LAUNCH.transport, 'record_model_launch',
                                       return_value='d' * 64, create=True), \
                     mock.patch.object(LAUNCH.transport, 'verify_model_launch', create=True), \
+                    mock.patch.object(LAUNCH.transport, 'record_model_execution',
+                                      return_value='e' * 64, create=True), \
+                    mock.patch.object(LAUNCH.transport, 'record_model_delivery',
+                                      return_value='f' * 64, create=True), \
                     (mock.patch.dict(os.environ, {'CLAUDE_CODE_EFFORT_LEVEL': 'high'})
                      if selected is not None else contextlib.nullcontext()), \
                     mock.patch.object(LAUNCH.transport, 'expected_prompt', return_value=b'prompt'), \

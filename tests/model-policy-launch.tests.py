@@ -1414,7 +1414,8 @@ class PairedClaudeLaunch(LaunchFixture):
         with self.model_env(self.active_env), self.in_root():
             self.transport.verify_model_launch(self.root, output, launch_sha, binding, command)
 
-    def exercise_bound_quality_launch(self, *, controls_sha=None, binding_controls='controls.json', legacy=False):
+    def exercise_bound_quality_launch(self, *, controls_sha=None, binding_controls='controls.json', legacy=False,
+                                      complete=False):
         """Adapted from QualityTransport.exercise_quality_launch; real claude_command and controls."""
         launcher = load_module(LAUNCHER_SCRIPT, 'launcher')
         self.addCleanup(sys.modules.pop, launcher.__name__, None)
@@ -1443,11 +1444,33 @@ class PairedClaudeLaunch(LaunchFixture):
         transcript = root / '.claude/projects' / (session + '.jsonl')
         transcript.parent.mkdir(parents=True, exist_ok=True)
         transcript.write_text('{}')
-        data = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example', 'task_id': 'T-001',
+        data: dict[str, Any] = {'stage': 'quality', 'role': 'sdd-evaluator', 'feature': 'example', 'task_id': 'T-001',
                 'run_id': session, 'host_session_id': session, 'scratch_root': str(root / 'scratch'),
                 'allowed_input_manifest': manifest}
         receipt = ('REVIEW_CONTEXT_OK ' + 'b' * 64 + ' sequence=2 previous_record_sha256=' + 'a' * 64 +
                    ' pre_append_tip_sequence=1 identity_unique=yes\n')
+        if complete:
+            # Successful wiring fixture: preserve genuine controls and pure guard/receipt rendering.
+            # Native probe, reservation and delivery remain explicitly synthetic controller fixtures.
+            data.update(schema='review-context-invocation/v2', read_only=True, input_mode='file-manifest',
+                        fallback_mode='none', sequence=2, previous_record_sha256='a' * 64,
+                        identity_ledger_path='reports/review-context/identity-ledger.json',
+                        identity_ledger_sha256=sha_file(ledger))
+            self.invocation.write_bytes(canonical(data))
+            for relative in (transport.BOUNDARY_PATH, TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()):
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / relative, target)
+            inputs_hash = sha_bytes('\n'.join(entry['path'] + '\t' + entry['sha256']
+                                              for entry in manifest).encode())
+            record_text = '|'.join(['2', 'quality', 'sdd-evaluator', session, session, 'a' * 64])
+            record_text += '|scratch-declaration-v1|' + sha_bytes(
+                (data['feature'] + '\n' + data['scratch_root']).encode())
+            if transport.inputs_bound(data):
+                record_text += '|allowed-inputs-v1|' + inputs_hash
+            receipt = ('REVIEW_CONTEXT_OK ' + sha_bytes(record_text.encode()) +
+                       ' sequence=2 previous_record_sha256=' + 'a' * 64 +
+                       ' pre_append_tip_sequence=1 identity_unique=yes\n')
         events, native_calls = [], []
         real_run, real_which = subprocess.run, shutil.which
 
@@ -1495,11 +1518,15 @@ class PairedClaudeLaunch(LaunchFixture):
         with self.model_env(self.active_env), \
                 mock.patch.object(transport, 'manifest', return_value=(data, {})), \
                 mock.patch.object(transport, 'preflight', side_effect=preflight), \
-                mock.patch.object(transport, 'launch_policy', return_value=(b'{}', {})), \
-                mock.patch.object(transport, 'receipt_control', return_value={'exact_permission_rules': []}), \
-                mock.patch.object(transport, 'admitted_raw_hashes', return_value={}), \
+                (contextlib.nullcontext() if complete else
+                 mock.patch.object(transport, 'launch_policy', return_value=(b'{}', {}))), \
+                (contextlib.nullcontext() if complete else
+                 mock.patch.object(transport, 'receipt_control', return_value={'exact_permission_rules': []})), \
+                (contextlib.nullcontext() if complete else
+                 mock.patch.object(transport, 'admitted_raw_hashes', return_value={})), \
                 mock.patch.object(transport, 'expected_prompt', return_value=b'prompt'), \
-                mock.patch.object(transport, 'postflight', side_effect=ValueError('fixture stop after native call')), \
+                mock.patch.object(transport, 'postflight', return_value={'status': 'DELIVERY_OK'},
+                    side_effect=None if complete else ValueError('fixture stop after native call')), \
                 mock.patch.object(launcher.shutil, 'which',
                                   side_effect=lambda name: real_which(name) if name in ('bash', 'pwsh')
                                   else str(executable)), \
@@ -2021,7 +2048,11 @@ class ModelRunRecords(unittest.TestCase):
 
     def test_protected_controller_publishes_generated_delivery_links_after_bound_execution(self):
         f = self.fixture
-        result = f.exercise_bound_quality_launch()
+        f.run_id = f.session_id
+        _, controls_sha = f.bind('evaluator', risk='medium', env={'SDD_MODEL_EVALUATOR': 'anthropic/sonnet'})
+        result = f.exercise_bound_quality_launch(controls_sha=controls_sha, complete=True)
+        self.assertIsNone(result['error'], str(result['error']))
+        self.assertEqual(len(result['native_calls']), 1)
         output = result['output']
         self.assertTrue((output / 'model-delivery-binding.json').is_file(),
                         'successful selected controller must publish its delivery linkage')
