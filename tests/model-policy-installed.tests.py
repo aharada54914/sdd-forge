@@ -2151,12 +2151,17 @@ class InstalledClaudeDiagnosisTests(unittest.TestCase):
         self.assertNotIn('effective_complete', validation)
         self.assert_preserved()
 
-    def blocked(self, installed, output, reason, **options):
+    def blocked(self, installed, output, reason, *, prompt_attack=False, **options):
         self.fresh()
         self.case.rejected(self.invoke(installed, output, **options), reason)
         self.assertEqual([e for e in self.events() if e['event'] == 'work'], [])
         self.assertFalse((self.case.root / output).exists())
-        self.assert_preserved()
+        if prompt_attack:
+            expected = {p: raw for p, raw in self.before.items() if p != self.prompt}
+            self.assertEqual({p: (self.case.root / p).read_bytes() for p in expected}, expected)
+            self.prep.assert_unchanged_world()
+        else:
+            self.assert_preserved()
 
     def test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure(self):
         for shell in SHELLS:
@@ -2213,11 +2218,13 @@ class InstalledClaudeDiagnosisTests(unittest.TestCase):
                 self.spec['edit_on_help'] = [{'path': str(path), 'text': 'changed source\n'}]
                 self.save_spec()
                 try:
-                    self.blocked(installed, self.prep.output(), 'input-invalid')
+                    self.blocked(installed, self.prep.output(), 'input-invalid',
+                                 prompt_attack=path == self.case.root / self.prompt)
                 finally:
                     path.write_bytes(raw)
                     self.spec.pop('edit_on_help')
                     self.save_spec()
+                self.assert_preserved()
 
     def test_diagnosis_native_default_tools_and_failed_public_results_never_publish_success(self):
         installed = self.prep.install('bash')
