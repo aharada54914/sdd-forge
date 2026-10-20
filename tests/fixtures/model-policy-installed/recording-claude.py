@@ -58,7 +58,9 @@ READ_ORDER = 'Then Read each of these files with limit=1, in this order:'
 FORMAL_READS = 'Read tool file_path values (canonical absolute paths):'
 FORMAL_RESULT = 'Require exactly this result (one trailing newline allowed):'
 CHECK_IDS = {'spec-reviewer-a': ('REQ-TESTABILITY', 'GOAL-AC-TRACE', 'AC-OBSERVABLE', 'SCOPE-BOUNDARY',
-                                 'CONSTRAINTS-EXPLICIT', 'RISK-VALIDATION-SURFACE', 'DOMAIN-CONFORMANCE')}
+                                 'CONSTRAINTS-EXPLICIT', 'RISK-VALIDATION-SURFACE', 'DOMAIN-CONFORMANCE'),
+              'spec-reviewer-b': ('AMBIGUITY', 'CONTRADICTION', 'EDGE-CASE-COVERAGE', 'ASSUMPTIONS-RESOLVABLE',
+                                 'APPROVAL-BOUNDARY', 'DOWNSTREAM-READINESS', 'DOMAIN-CONFORMANCE')}
 FINDING = 'FIXTURE ONLY: a deterministic recording CLI delivered this record; no model reviewed the inputs.'
 
 
