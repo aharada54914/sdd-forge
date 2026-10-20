@@ -678,7 +678,11 @@ INSTALLER_REQUIRED = sorted({'.agents/plugins/marketplace.json', '.claude-plugin
                                for plugin in ('sdd-bootstrap', 'sdd-implementation', 'sdd-quality-loop', 'sdd-lite',
                                               'sdd-review-loop', 'sdd-ship', 'sdd-domain')
                                for manifest in ('.codex-plugin', '.claude-plugin', '.plugin'))})
-PACKAGE = sorted({'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED, INVESTIGATION_AGENT, *INVESTIGATION_SOURCES, *DIAGNOSIS_SOURCES, *IMPLEMENTER_SOURCES, launch.TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()})
+WFI_INSTALLER_SOURCES = ['plugins/sdd-quality-loop/agents/wfi-auditor-a.md',
+                         'plugins/sdd-quality-loop/agents/wfi-auditor-b.md',
+                         'plugins/sdd-quality-loop/references/wfi-category-guide.md',
+                         'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs']
+PACKAGE = sorted({*WFI_INSTALLER_SOURCES, 'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED, INVESTIGATION_AGENT, *INVESTIGATION_SOURCES, *DIAGNOSIS_SOURCES, *IMPLEMENTER_SOURCES, launch.TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()})
 OUTPUT_FILES = ['controls.json', 'selection.json', 'validation.json']
 # Invalid under the existing T-007 identifier grammar without being flag-shaped argument syntax.
 BAD_IDS = ('run id', 'run;id', '.run', 'r' * 129)
