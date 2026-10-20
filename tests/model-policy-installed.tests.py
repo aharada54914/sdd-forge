@@ -2058,6 +2058,48 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
         self.assertIn('Use the domain-interviewer skill.', reverse)
 
 
+class InstalledClaudeDelegationTests(unittest.TestCase):
+    """Secondary survey allocation from implement-task uses the existing selected read-only carrier."""
+
+    def test_implementation_delegation_executes_selected_readonly_investigation(self):
+        fixture = InstalledClaudeInvestigatorTests('runTest')
+        self.addCleanup(lambda: self.assertTrue(getattr(fixture, 'doCleanups')(), 'delegation fixture cleanup failed'))
+        fixture.setUp()
+        caller = 'plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md'
+        fixture.case.extra_runtime = (*fixture.case.extra_runtime, caller)
+        for shell in SHELLS:
+            installed = fixture.prep.install(shell)
+            fixture.prep.claude_positive(installed, fixture.prep.output())
+            with self.subTest(installer=shell):
+                fixture.fresh_session()
+                output = fixture.prep.output()
+                script = fixture.fence(installed, output, caller)
+                fixture.reset_events()
+                result = fixture.case.run_process([launch.BASH, '-c', script], timeout=120,
+                                                  label='installed implementation delegation')
+                fixture.assert_work(result, output)
+                source = (installed / caller).read_text()
+                self.assertIn('Done When', source)
+                self.assertIn("Edits to `tasks.md`", source)
+                self.assertIn('The final scoped self-review', source)
+                self.assertIn('`Blocked` judgments', source)
+                setting = fixture.case.root / '.claude/settings.local.json'
+                raw = setting.read_bytes()
+                try:
+                    setting.write_text('{"maxEffortLevel":"low"}\n')
+                    fixture.fresh_session()
+                    output = fixture.prep.output()
+                    fixture.reset_events()
+                    result = fixture.case.run_process([launch.BASH, '-c', fixture.fence(installed, output, caller)],
+                                                      timeout=120, label='implementation delegation conflict')
+                    fixture.case.rejected(result, 'effort-unavailable')
+                    self.assertFalse((fixture.case.root / output).exists())
+                    self.assertEqual([e for e in fixture.events() if e['event'] == 'work'], [])
+                finally:
+                    setting.write_bytes(raw)
+                fixture.prep.assert_unchanged_world()
+
+
 class InstalledClaudeDiagnosisTests(unittest.TestCase):
     """Maintained diagnosis dispatcher, real installers, public CLI fixture and actual Red reproduction."""
 
