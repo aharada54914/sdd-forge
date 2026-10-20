@@ -1644,7 +1644,8 @@ class ModelRunRecords(unittest.TestCase):
         f.write(data['identity_ledger_path'], {'schema': 'review-identity-ledger/v1', 'records': []})
         data['identity_ledger_sha256'] = f.ref(data['identity_ledger_path'])['sha256']
         f.invocation.write_bytes(canonical(data))
-        for relative in (transport.BOUNDARY_PATH, TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()):
+        for relative in (transport.BOUNDARY_PATH, TRANSPORT_SCRIPT.relative_to(ROOT).as_posix(),
+                         'plugins/sdd-review-loop/scripts/fixed-review-inputs.py'):
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / relative, target)
@@ -1710,7 +1711,9 @@ class ModelRunRecords(unittest.TestCase):
         dependencies = {str(self.root / ref['path']): ref['sha256'] for ref in
                         [binding['controls'], *binding['pins'], *binding['trusted']]}
         for target in (f.invocation, definition, executable, self.root / transport.BOUNDARY_PATH,
-                       self.root / TRANSPORT_SCRIPT.relative_to(ROOT), self.root / data['allowed_input_manifest'][0]['path']):
+                       self.root / TRANSPORT_SCRIPT.relative_to(ROOT),
+                       self.root / 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py',
+                       self.root / data['allowed_input_manifest'][0]['path']):
             dependencies[str(target)] = sha_bytes(target.read_bytes())
         if fixed_data is not None:
             for entry in fixed_data['inventory']['inputs']:
