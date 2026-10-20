@@ -6682,7 +6682,6 @@ class InstalledProtectedCallerTests(unittest.TestCase):
     native_calls = _spec.native_calls
     assert_managed = _spec.assert_managed
     assert_run_record = _spec.assert_run_record
-    assert_blocked = _spec.assert_blocked
     pin = _domain.pin
     generated_guard = _domain.generated_guard
     hook = _domain.hook
@@ -6784,6 +6783,7 @@ class InstalledProtectedCallerTests(unittest.TestCase):
         script.write_text(text + '\n')
         before, audit = ledger.read_bytes(), f.audit.read_bytes()
         registry_before = (project / 'specs/workflow-state-registry.json').read_bytes()
+        round_before = tree(round_dir)
         result = self.execute(f, ['bash', str(script)], cwd=project, timeout=900)
         self.assertFalse(f.poison.exists())
         after = runtime_tree(project)
@@ -6798,7 +6798,17 @@ class InstalledProtectedCallerTests(unittest.TestCase):
         return {'session': session, 'feature': feature, 'role': role, 'stage': stage, 'entries': entries, 'paths': paths,
                 'invocation': invocation, 'output_rel': output_rel, 'launch': round_dir / ('launch-' + session),
                 'result': result, 'records': records, 'ledger': before, 'audit': audit, 'request': request,
-                'closure': closure, 'oracle': oracle, 'round_rel': round_rel, 'precheck': precheck}
+                'closure': closure, 'oracle': oracle, 'round_rel': round_rel, 'precheck': precheck,
+                'round_before': round_before}
+
+    def assert_blocked(self, f, project, case):
+        self.assertFalse(case['launch'].exists(), 'Blocked caller created launch output')
+        self.assertEqual(tree(case['launch'].parent), case['round_before'],
+                         'Blocked caller changed round data or wrote preflight/allocation evidence')
+        self.assertEqual((project / SPEC_LEDGER).read_bytes(), case['ledger'], 'Blocked caller changed ledger')
+        self.assertEqual(self.native_calls(f, case), [], 'Blocked caller reached native CLI')
+        transcripts = f.home / '.claude/projects'
+        self.assertFalse(transcripts.is_dir() and list(transcripts.rglob(case['session'] + '.jsonl')))
 
     def delivered(self, state, case, *, managed=True):
         f, project, _, _ = state
