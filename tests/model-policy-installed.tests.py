@@ -7249,3 +7249,104 @@ class InstalledClaudeBatchTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+# Fixed 65 + 17 semantic-inventory boundary map; source roles are not inferred from Skill text.
+# All existing supported-route fixtures and old test ASTs remain unchanged.
+_default_native_fixture: Any = sys.modules[__name__]
+_DEFAULT_NATIVE_BOUNDARIES = {'plugins/sdd-bootstrap/skills/bootstrap/SKILL.md': ('investigator',),
+ 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md': ('investigator',),
+ 'plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md': ('investigator',),
+ 'plugins/sdd-domain/skills/domain-model/SKILL.md': ('investigator',),
+ 'plugins/sdd-domain/skills/domain-reverse/SKILL.md': ('investigator',),
+ 'plugins/sdd-domain/skills/domain-review-loop/SKILL.md': ('domain-reviewer-a', 'domain-reviewer-b'),
+ 'plugins/sdd-implementation/skills/diagnose/SKILL.md': ('diagnosis',),
+ 'plugins/sdd-implementation/skills/implement-task/SKILL.md': ('implementer', 'investigator'),
+ 'plugins/sdd-implementation/skills/implement-tasks/SKILL.md': ('implementer',),
+ 'plugins/sdd-ship/skills/ship/SKILL.md': ('implementer',),
+ 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md': ('evaluator',),
+ 'plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md': ('workflow-auditor-a', 'workflow-auditor-b'),
+ 'plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md': ('evaluator',),
+ 'plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md': ('spec-reviewer-a', 'spec-reviewer-b'),
+ 'plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md': ('impl-reviewer-a', 'impl-reviewer-b'),
+ 'plugins/sdd-review-loop/skills/task-review-loop/SKILL.md': ('task-reviewer-a', 'task-reviewer-b')}
+_DEFAULT_NATIVE_FIRST_SECTIONS = {'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md': '## Preconditions',
+ 'plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md': '## Prerequisites'}
+_DEFAULT_NATIVE_HOSTS = ('claude-code', 'codex-cli', 'copilot-cli', 'gemini-cli')
+
+
+class InstalledDefaultNativeCallerCandidateTests(unittest.TestCase):
+    def setUp(self):
+        self.fixture: Any = _default_native_fixture.InstalledEntryTests('runTest')
+        self.addCleanup(lambda: self.assertTrue(self.fixture.doCleanups()))
+        self.fixture.extra_runtime = tuple(_DEFAULT_NATIVE_BOUNDARIES)
+        self.fixture.setUp()
+
+    def boundary(self, source, rel):
+        title = '## Managed allocation boundary\n'
+        self.assertEqual(source.count(title), 1, 'missing unique executable allocation boundary: ' + rel)
+        start = source.index(title)
+        self.assertLess(start, source.index(_DEFAULT_NATIVE_FIRST_SECTIONS.get(rel, '## Invocation') + '\n'))
+        section = source[start:].split('\n## ', 1)[0]
+        declared = re.search(r'^Affected policy roles: (.+)\.$', section, re.M)
+        self.assertIsNotNone(declared, 'boundary must declare its exact semantic roles')
+        assert declared is not None
+        self.assertEqual(tuple(re.findall(r'`([^`]+)`', declared.group(1))), _DEFAULT_NATIVE_BOUNDARIES[rel])
+        fences = re.findall(r'```bash\n(.*?)```', section, re.S)
+        fences = [b for b in fences if ' unsupported-entry ' in b]
+        self.assertEqual(len(fences), 1, 'comments or model hints cannot replace the executable refusal')
+        self.assertIn('--role "<policy-role>" --host "<host>"', fences[0])
+        return fences[0]
+
+    def test_each_admitted_caller_role_and_host_executes_installed_typed_stop_before_any_work(self):
+        f = self.fixture
+        for shell in _default_native_fixture.SHELLS:
+            root = f.install(shell)
+            world = _default_native_fixture.tree(f.root)
+            source_bytes = {rel: (root / rel).read_bytes() for rel in _DEFAULT_NATIVE_BOUNDARIES}
+            for rel, roles in _DEFAULT_NATIVE_BOUNDARIES.items():
+                fence = self.boundary(source_bytes[rel].decode(), rel)
+                for role in roles:
+                    for host in _DEFAULT_NATIVE_HOSTS:
+                        with self.subTest(shell=shell, caller=rel, role=role, host=host):
+                            command = fence
+                            for key, value in {'installed-root': str(root), 'policy-role': role, 'host': host}.items():
+                                command = command.replace('"<' + key + '>"', shlex.quote(value))
+                            self.assertNotRegex(command, r'<[a-z][a-z-]*>')
+                            result = f.run_process([_default_native_fixture.launch.BASH, '-c', command], label='default native boundary')
+                            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                            self.assertEqual(result.stdout, '')
+                            error = json.loads(result.stderr)
+                            self.assertEqual(set(error), {'schema', 'reason', 'message'})
+                            self.assertEqual(error['schema'], 'model-policy-error/v1')
+                            self.assertEqual(error['reason'], 'model-unavailable')
+                            self.assertIn(role, error['message'])
+                            self.assertIn(host, error['message'])
+                            self.assertNotIn('host-does-not-support-implementation-subagents', error['message'])
+                            self.assertFalse(f.marker.exists(), 'native client allocation escaped the typed boundary')
+                            self.assertFalse(f.poison.exists(), 'installed entry fell back to the poisoned source package')
+            self.assertEqual(_default_native_fixture.tree(f.root), world, 'refusal created evidence/output/shared state')
+            self.assertEqual({rel: (root / rel).read_bytes() for rel in _DEFAULT_NATIVE_BOUNDARIES}, source_bytes)
+
+    def test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch(self):
+        f = self.fixture
+        root = f.install('bash')
+        self.assertEqual(len(_DEFAULT_NATIVE_BOUNDARIES), 16)
+        self.assertEqual(sum(len(v) for v in _DEFAULT_NATIVE_BOUNDARIES.values()), 22)
+        self.assertEqual(len(_DEFAULT_NATIVE_HOSTS), 4)
+        for rel in _DEFAULT_NATIVE_BOUNDARIES:
+            source = (root / rel).read_text()
+            fence = self.boundary(source, rel)
+            title = '## Managed allocation boundary\n'
+            start = source.index(title)
+            end = source.index(_DEFAULT_NATIVE_FIRST_SECTIONS.get(rel, '## Invocation') + '\n', start)
+            with self.subTest(caller=rel, defect='missing-section'):
+                with self.assertRaises(AssertionError):
+                    self.boundary(source[:start] + source[end:], rel)
+            with self.subTest(caller=rel, defect='only-comment'):
+                with self.assertRaises(AssertionError):
+                    self.boundary(source.replace('```bash\n' + fence + '```', '<!-- unsupported-entry hint only -->', 1), rel)
+            with self.subTest(caller=rel, defect='wrong-role'):
+                with self.assertRaises(AssertionError):
+                    self.boundary(source.replace('--role "<policy-role>"', '--role evaluator', 1), rel)
+        self.assertFalse(f.marker.exists())
+
