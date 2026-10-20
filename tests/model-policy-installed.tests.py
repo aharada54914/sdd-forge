@@ -6089,13 +6089,13 @@ class InstalledDomainCallerTests(unittest.TestCase):
     def native_audit(self, st, case):
         return self.native_calls(st['f'], case)
 
-    def assert_blocked(self, st, case):
+    def assert_blocked(self, st, case, prior_evidence=()):
         """Stopped before allocation, reservation and any native send: nothing durable changed."""
         f, project = st['f'], st['project']
         round_dir = project / case['round_rel']
         self.assertFalse(case['launch'].exists(), 'A blocked caller created launch output')
         self.assertEqual(sorted(path.name for path in round_dir.iterdir()
-                                if path.name.startswith('launch-') or DOMAIN_LAUNCH_EVIDENCE.fullmatch(path.name)), [],
+                                if path.name.startswith('launch-') or DOMAIN_LAUNCH_EVIDENCE.fullmatch(path.name)), list(prior_evidence),
                          'A blocked caller wrote launch, preflight or allocation evidence')
         self.assertEqual((project / SPEC_LEDGER).read_bytes(), case['ledger'], 'A blocked caller changed the ledger')
         self.assertEqual(self.native_audit(st, case), [], 'A blocked caller reached the native CLI')
@@ -6433,6 +6433,8 @@ class InstalledDomainCallerTests(unittest.TestCase):
         sealed = {path: launch.sha_file(path) for path in (raw_a, summary_path)}
         # A re-pinned summary may not smuggle raw A into B before the canonical finalizer rejects it.
         summary_raw = summary_path.read_bytes()
+        prior_evidence = sorted(path.name for path in round_dir.iterdir()
+                                if path.name.startswith('launch-') or DOMAIN_LAUNCH_EVIDENCE.fullmatch(path.name))
         try:
             poisoned = json.loads(summary_raw)
             poisoned['raw_a'] = DOMAIN_PRIVATE['a']
@@ -6440,7 +6442,7 @@ class InstalledDomainCallerTests(unittest.TestCase):
             rejected_b = self.case(st, 'domain-b-poisoned-summary', paths=[*paths, summary_rel], letter='b')
             self.assertEqual(rejected_b['result'].returncode, 1, 'An altered bridge must stop before native B work')
             self.assertIn('B summary is not exactly derived from reviewer A', rejected_b['result'].stderr)
-            self.assert_blocked(st, rejected_b)
+            self.assert_blocked(st, rejected_b, prior_evidence=prior_evidence)
         finally:
             summary_path.write_bytes(summary_raw)
         # Reviewer B: fresh request/observation/control/session; only the actual sanitized summary is added.
