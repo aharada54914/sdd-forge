@@ -2077,5 +2077,436 @@ class ModelRunRecords(unittest.TestCase):
         self.assertEqual(summary['model_delivery_binding_sha256'], sha_file(output / 'model-delivery-binding.json'))
 
 
+class SelectedPanelistLaunch(LaunchFixture):
+    """Real selectors/consent gates and both wrappers; native commands are recording stubs only."""
+    TASK = 'T-007'
+    FEATURE = 'panelist-fixture'
+    KEY = 'fixture-sudo-key-not-a-real-secret'
+
+    def fixture_policy(self):
+        policy = copy.deepcopy(self.trusted_policy)
+        model = next(m for m in policy['models'] if m['id'] == 'gpt-6-astra')
+        evidence = canonical({'fixture_only': True, 'claim': 'transport fixture, no model adoption or inference'})
+        (self.root / 'gpt-fixture-adoption.json').write_bytes(evidence)
+        model['lifecycle'] = 'current'
+        model['adoption'] = [{'role': role, 'path': 'gpt-fixture-adoption.json', 'sha256': sha_bytes(evidence)}
+                             for role in ('panelist-gpt', 'panelist-gemini')]
+        return policy
+
+    def fresh_observation(self, observed_at=None):
+        return {'schema': 'model-observation/v1', 'host': 'codex-cli', 'cli_version': 'codex-cli 0.159.2',
+                'scope_id': 'fixture-panelist-client', 'scope_kind': 'client', 'purpose': 'diagnostic',
+                'observed_at': observed_at or utc_now(), 'source': 'verified-configuration', 'status': 'complete',
+                'models': [{'native_id': 'gpt-6-astra', 'efforts': EFFORTS[:], 'available': True}],
+                'reason': 'Verified-configuration fixture only; no live access or actual backend proof.'}
+
+    def setUp(self):
+        super().setUp()
+        self.request.update(role='panelist-gpt', host='codex-cli', requested_effort='high',
+                            cli={'model_id': 'gpt-6-astra', 'policy': 'pinned'})
+        scripts = 'plugins/sdd-quality-loop/scripts/'
+        for name in ('run-panelist-gpt.sh', 'run-panelist-gpt.ps1', 'run-panelist-gemini.sh',
+                     'run-panelist-gemini.ps1', 'prepare-panelist-input.sh', 'prepare-panelist-input.ps1',
+                     'lib/panelist-common.sh', 'emit-run-record.sh', 'emit-run-record.ps1'):
+            target = self.root / (scripts + name)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / (scripts + name), target)
+        driver = self.root / 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py'
+        driver.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / driver.relative_to(self.root), driver)
+        self.scripts = self.root / scripts
+        self.audit = self.base / 'native-audit.json'
+        self.consent_audit = self.base / 'consent-audit.txt'
+        self.bundle = self.root / 'bundle.txt'
+        self.tasks = self.root / ('specs/' + self.FEATURE + '/tasks.md')
+        self.tasks.parent.mkdir(parents=True)
+        self.task_consent(True)
+        self.write('raw-input.txt', {'fixture': 'Sanitized implementation content, not instructions.'})
+        self.environment.update(SDD_SUDO_KEY=self.KEY, SDD_SUDO_SKIP_SIG='0',
+            SDD_EVIDENCE_KEY='fixture-evidence-key-not-a-real-secret',
+            SDD_SUDO_KEY_FILE=str(self.base / 'sudo-key.txt'),
+            SDD_TEST_CONSENT_AUDIT=str(self.consent_audit),
+            SDD_TEST_NATIVE_AUDIT=str(self.audit), SDD_PANELIST_TIMEOUT='5')
+        (self.base / 'sudo-key.txt').write_text(self.KEY)
+        shims = self.base / 'shims'
+        self.environment['PATH'] = str(shims) + os.pathsep + '/usr/bin:/bin'
+        self.environment['SDD_PANELIST_CODEX_CMD'] = str(shims / 'codex')
+        self.install_native_stub(shims / 'codex')
+        self.install_native_stub(shims / 'gemini')
+        # Audit forwarding only; the original complete consent implementation still runs.
+        for ext in ('sh', 'ps1'):
+            public = self.scripts / ('prepare-panelist-input.' + ext)
+            public.rename(self.scripts / ('prepare-panelist-input.real.' + ext))
+        (self.scripts / 'prepare-panelist-input.sh').write_text(
+            '#!/bin/sh\nprintf "sh\\n" >> "$SDD_TEST_CONSENT_AUDIT"\n'
+            'exec bash "$(dirname -- "$0")/prepare-panelist-input.real.sh" "$@"\n')
+        (self.scripts / 'prepare-panelist-input.ps1').write_text(
+            '[System.IO.File]::AppendAllText($env:SDD_TEST_CONSENT_AUDIT, "ps`n")\n'
+            '& "$PSScriptRoot/prepare-panelist-input.real.ps1" @args\nexit $LASTEXITCODE\n')
+        selection, result = self.try_select()
+        self.assertEqual(result.returncode, 0, result.stderr[:1200])
+        self.assertIsNotNone(selection)
+        self.selection = selection
+        self.assertEqual((selection['host'], selection['role']), ('codex-cli', 'panelist-gpt'))
+        self.assertEqual(selection['resolved']['native_id'], 'gpt-6-astra')
+        self.assertEqual(selection['resolved']['effort'], 'high')
+        self.write('selection.json', selection)
+        self.controls_sha = self.controls(mutate=lambda d: d.update(host='codex-cli'))
+        self.prepare_bundle()
+        self.original_bundle = self.bundle.read_bytes()
+
+    def install_native_stub(self, path):
+        path.write_text('''#!/usr/bin/env python3
+import json, os, pathlib, re, sys, time
+args = sys.argv[1:]
+if args == ['--version']:
+ print('codex-cli 0.159.2'); raise SystemExit(0)
+if '--help' in args:
+ print('Usage: codex exec --model MODEL -c CONFIG --sandbox read-only --skip-git-repo-check -C DIR -')
+ raise SystemExit(0)
+text = sys.stdin.read()
+def header(name):
+ values = re.findall(r'^# ' + re.escape(name) + r': (.*)$', text, re.MULTILINE)
+ return values[-1] if values else 'fixture-missing'
+pathlib.Path(os.environ['SDD_TEST_NATIVE_AUDIT']).write_text(json.dumps({
+ 'argv': args, 'stdin': text, 'cwd': os.getcwd(),
+ 'key_presence': {k: k in os.environ for k in ('SDD_EVIDENCE_KEY','SDD_SUDO_KEY','SDD_SUDO_KEY_FILE')}}))
+mode = os.environ.get('SDD_TEST_NATIVE_MODE', '')
+if mode == 'fail': raise SystemExit(17)
+if mode == 'timeout': time.sleep(3)
+if mode == 'invalid': print('not a verdict'); raise SystemExit(0)
+print(json.dumps({'schema':'cross-model-verdict/v1','task_id':header('task_id'),
+ 'feature':header('feature'),'vendor':'openai','model':'fixture-self-report-not-attested',
+ 'verdict':'PASS','findings':[],'blind':True,'input_digest':header('input_digest'),
+ 'consent':{'kind':header('consent'),'ref':'fixture task or signed-token consent'}}))
+''')
+        path.chmod(0o700)
+
+    def task_consent(self, enabled, *, task=None):
+        self.tasks.write_text('# Tasks\n\n## ' + (task or self.TASK) + ' Fixture\n\nStatus: In Progress\n' +
+                              ('Cross-Model: enabled\n' if enabled else ''))
+
+    def prepare_bundle(self):
+        result = self.run_process([BASH, str(self.scripts / 'prepare-panelist-input.sh'),
+            '--task', self.TASK, '--feature', self.FEATURE, '--input', 'raw-input.txt',
+            '--tasks-file', str(self.tasks), '--project-root', str(self.root), '--out', str(self.bundle)],
+            label='real fixture bundle preparation')
+        self.assertEqual(result.returncode, 0, result.stderr[:1400])
+        self.bundle_digest = result.stdout.splitlines()[0]
+        self.assertEqual(len(self.bundle_digest), 64)
+        header, body = self.bundle.read_bytes().split(b'\n\n', 1)
+        self.assertIn(('# input_digest: ' + self.bundle_digest).encode(), header)
+        self.assertEqual(sha_bytes(body[:-1] if body.endswith(b'\n') else body), self.bundle_digest)
+
+    def reset_run(self):
+        shutil.rmtree(self.tasks.parent / 'verification', ignore_errors=True)
+        self.audit.unlink(missing_ok=True)
+        self.consent_audit.write_text('')
+
+    def runner(self, shell, *, vendor='gpt', extra=(), env=None, selected=True, digest=None,
+               consent='human-flag'):
+        script = self.scripts / ('run-panelist-' + vendor + ('.sh' if shell == 'bash' else '.ps1'))
+        command = ([BASH, str(script)] if shell == 'bash' else
+                   [os.environ.get('SDD_TEST_PWSH', '/workspace/.tools/sdd-forge-dev/bin/pwsh'),
+                    '-NoProfile', '-File', str(script)])
+        command += ['--task', self.TASK, '--feature', self.FEATURE, '--input', 'bundle.txt',
+                    '--spec-root', 'specs', '--digest', digest or self.bundle_digest, '--consent', consent]
+        if selected:
+            command += ['--model-controls', 'controls.json', '--model-controls-sha256', self.controls_sha,
+                        '--run-id', self.run_id, '--session-id', self.session_id]
+        command += list(extra)
+        return self.run_process(command, env, timeout=20, label='selected fixture panelist ' + shell)
+
+    def verdict_path(self, vendor='gpt'):
+        name = 'openai' if vendor == 'gpt' else 'google'
+        return self.tasks.parent / 'verification' / (self.TASK + '.panelist-' + name + '.verdict.json')
+
+    def artifact_dir(self, vendor='gpt'):
+        name = 'openai' if vendor == 'gpt' else 'google'
+        attempt_key = sha_bytes(canonical({'run_id':self.run_id,'session_id':self.session_id,
+                                           'attempt':getattr(self,'panelist_attempt',1)}))
+        return self.tasks.parent / 'verification' / (self.TASK + '.panelist-' + name) / attempt_key
+
+    def accepted_panelist(self, shell, **options):
+        self.reset_run()
+        result = self.runner(shell, **options)
+        self.assertEqual(result.returncode, 0, result.stderr[:1800])
+        self.assertTrue(self.audit.is_file(), 'Selected panelist never reached the recording stub')
+        self.assertTrue(self.verdict_path().is_file())
+        return json.loads(self.verdict_path().read_bytes()), json.loads(self.audit.read_bytes())
+
+    def rejected_panelist(self, shell, *, vendor='gpt', message=None, **options):
+        self.reset_run()
+        result = self.runner(shell, vendor=vendor, **options)
+        self.assertNotEqual(result.returncode, 0, 'Rejected selected panelist unexpectedly succeeded')
+        self.assertFalse(self.audit.exists(), 'Rejected selection/consent reached a vendor')
+        self.assertFalse(self.verdict_path(vendor).exists())
+        self.assertEqual(result.returncode, 2, result.stderr[:1400])
+        self.assertTrue(result.stderr.lstrip().startswith('{'), 'Expected typed model-policy rejection: ' + result.stderr[:500])
+        error = json.loads(result.stderr)
+        self.assertEqual(error['schema'], 'model-policy-error/v1')
+        self.assertIn(error['reason'], REASONS)
+        if message:
+            self.assertIn(message, error['message'].lower())
+        return error
+
+    def signed_sudo(self, *, valid=True, repo=None, expired=False):
+        import hmac
+        now = int(datetime.now(timezone.utc).timestamp())
+        values = ['fixture-operator', 'a' * 32, str(repo or self.root), str(now - 10),
+                  str(now - 1 if expired else now + 600)]
+        sig = hmac.new(self.KEY.encode(), '\n'.join(values).encode(), hashlib.sha256).hexdigest()
+        if not valid:
+            sig = flip(sig)
+        (self.root / 'SDD_SUDO').write_text('\n'.join(k + ': ' + v for k, v in
+            zip(['issuer','nonce','repo','issued-epoch','expires-epoch','sig'], values + [sig])) + '\n')
+
+    def gemini_controls(self):
+        # Typed unavailable configuration, not a fabricated trusted Gemini mapping.
+        self.request.update(role='panelist-gemini', host='gemini-cli')
+        self.observation['host'] = 'gemini-cli'
+        self.observation['cli_version'] = 'fixture-gemini-cli'
+        self.save()
+        selection = copy.deepcopy(self.selection)
+        selection.update(host='gemini-cli', role='panelist-gemini', cli_version='fixture-gemini-cli',
+                         observation_sha256=self.observation['observation_sha256'])
+        selection['selection_sha256'] = digest(selection, 'selection_sha256')
+        self.write('selection.json', selection)
+        self.controls_sha = self.controls(role='panelist-gemini', mutate=lambda d:d.update(host='gemini-cli'))
+
+    def test_both_shells_apply_selected_gpt_configuration_isolation_and_no_actual_id_claim(self):
+        for shell in ('bash', 'powershell'):
+            with self.subTest(shell=shell):
+                verdict, audit = self.accepted_panelist(shell)
+                argv = audit['argv']
+                scratch = argv[argv.index('-C') + 1]
+                self.assertEqual(argv, ['exec', '--model', 'gpt-6-astra', '-c',
+                    'model_reasoning_effort=high', '--sandbox', 'read-only', '--skip-git-repo-check', '-C', scratch, '-'])
+                self.assertEqual(audit['cwd'], scratch)
+                self.assertNotEqual(Path(scratch), self.root)
+                self.assertFalse(Path(scratch).exists(), 'Native scratch was not cleaned')
+                self.assertFalse(any(audit['key_presence'].values()))
+                self.assertEqual(audit['stdin'].count('# Panelist Input Bundle'), 1)
+                self.assertIn(self.original_bundle.decode(), audit['stdin'])
+                self.assertTrue(self.consent_audit.read_text().strip(), 'Existing consent authority was not rechecked')
+                policy = verdict['model_policy']
+                self.assertEqual(policy['actor_slot'], 'reviewers')
+                self.assertEqual(policy['transport'], 'codex-exec')
+                self.assertEqual(policy['selection']['binding'], {'run_id':self.run_id,
+                    'session_id':self.session_id,'attempt':1})
+                self.assertEqual(policy['selection']['resolved']['native_id'], 'gpt-6-astra')
+                self.assertIsNone(policy['delivery']['actual_id'])
+                self.assertEqual(policy['delivery']['proof'], 'unverified')
+                self.assertEqual(policy['delivery']['source'], 'codex-exec')
+                self.assertEqual(verdict['model'], 'fixture-self-report-not-attested')
+                self.assertEqual(verdict['consent']['kind'], 'human-flag')
+
+    def test_both_vendors_recheck_real_task_consent_before_any_send(self):
+        for vendor in ('gpt', 'gemini'):
+            if vendor == 'gemini':
+                self.gemini_controls()
+            for shell in ('bash', 'powershell'):
+                with self.subTest(vendor=vendor, shell=shell):
+                    for authority in ('disabled', 'different-task'):
+                        with self.subTest(authority=authority):
+                            self.task_consent(authority == 'different-task', task='T-999' if authority == 'different-task' else None)
+                            self.rejected_panelist(shell, vendor=vendor, message='consent')
+                            self.assertTrue(self.consent_audit.read_text().strip())
+                    self.task_consent(True)
+
+    def test_both_shells_reject_bundle_identity_body_digest_and_consent_substitution(self):
+        mutations: list[tuple[str, Callable[[bytes], bytes]]] = [('task', lambda b:b.replace(b'# task_id: T-007',b'# task_id: T-999')),
+                     ('feature',lambda b:b.replace(b'# feature: panelist-fixture',b'# feature: other-feature')),
+                     ('body',lambda b:b+b'changed body\n'),
+                     ('extra-newline',lambda b:b+b'\n'),
+                     ('header-consent',lambda b:b.replace(b'# consent: human-flag',b'# consent: sudo')),
+                     ('duplicate-header',lambda b:b.replace(b'# task_id: T-007',b'# task_id: T-007\n# task_id: T-999'))]
+        for shell in ('bash','powershell'):
+            self.accepted_panelist(shell)
+            for label, mutate in mutations:
+                with self.subTest(shell=shell, mutation=label):
+                    self.bundle.write_bytes(mutate(self.original_bundle))
+                    try:
+                        self.rejected_panelist(shell)
+                    finally:
+                        self.bundle.write_bytes(self.original_bundle)
+            self.rejected_panelist(shell, digest='0' * 64)
+            self.rejected_panelist(shell, consent='sudo')
+
+    def test_both_shells_retain_real_signed_sudo_and_block_invalid_tokens(self):
+        self.task_consent(False)
+        self.signed_sudo()
+        self.prepare_bundle()
+        self.original_bundle = self.bundle.read_bytes()
+        for shell in ('bash','powershell'):
+            verdict,_ = self.accepted_panelist(shell, consent='sudo')
+            self.assertEqual(verdict['consent']['kind'],'sudo')
+            token_cases: list[tuple[str, dict[str, Any]]] = [('signature',{'valid':False}),
+                ('repo',{'repo':self.base}),('expired',{'expired':True})]
+            for label, options in token_cases:
+                with self.subTest(shell=shell, token=label):
+                    self.signed_sudo(**options)
+                    self.rejected_panelist(shell, consent='sudo', message='consent')
+                    self.signed_sudo()
+
+    def test_both_shells_block_conflicting_options_actual_id_and_persisted_live_controls(self):
+        for shell in ('bash','powershell'):
+            self.accepted_panelist(shell,extra=('--model','gpt-6-astra','--effort','high'))
+            for args in [('--model','other-model'),('--effort','medium')]:
+                self.rejected_panelist(shell,extra=args)
+            self.controls_sha = self.controls(require_actual_id=True,mutate=lambda d:d.update(host='codex-cli'))
+            error = self.rejected_panelist(shell)
+            self.assertEqual(error['reason'],'actual-id-unavailable')
+            self.controls_sha = self.controls(mutate=lambda d:d.update(host='codex-cli'))
+        live = copy.deepcopy(self.observation)
+        live.update(source='live-discovery',purpose='launch')
+        self.seal(live)
+        self.write('observation.json',live)
+        selected = copy.deepcopy(self.selection)
+        selected['observation_sha256'] = live['observation_sha256']
+        selected['reason'] = selected['reason'].replace('verified-configuration','live-discovery')
+        selected['selection_sha256'] = digest(selected,'selection_sha256')
+        self.write('selection.json',selected)
+        for shell in ('bash','powershell'):
+            self.controls_sha = self.controls(mutate=lambda d:d.update(host='codex-cli'))
+            error = self.rejected_panelist(shell)
+            self.assertEqual(error['reason'], 'scope-mismatch')
+
+    def test_both_shells_gemini_is_explicitly_unavailable_after_valid_consent(self):
+        self.gemini_controls()
+        for shell in ('bash','powershell'):
+            with self.subTest(shell=shell):
+                error = self.rejected_panelist(shell,vendor='gemini')
+                self.assertEqual(error['reason'],'model-unavailable')
+                self.assertTrue(self.consent_audit.read_text().strip())
+
+    def test_native_failures_never_publish_a_verdict_or_accepted_delivery(self):
+        for shell in ('bash','powershell'):
+            self.accepted_panelist(shell)
+            for mode in ('fail','invalid','timeout'):
+                with self.subTest(shell=shell, mode=mode):
+                    self.reset_run()
+                    result = self.runner(shell,env={'SDD_TEST_NATIVE_MODE':mode,'SDD_PANELIST_TIMEOUT':'1'})
+                    self.assertNotEqual(result.returncode,0)
+                    self.assertFalse(self.verdict_path().exists())
+                    self.assertFalse((self.artifact_dir()/'model-delivery-binding.json').exists())
+
+    def test_repeated_binding_rejects_and_distinct_attempt_preserves_immutable_evidence(self):
+        self.accepted_panelist('bash')
+        first_output = self.artifact_dir()
+        before = {p.relative_to(first_output).as_posix():p.read_bytes()
+                  for p in first_output.rglob('*') if p.is_file()}
+        self.assertIn('model-delivery-binding.json',before)
+        verdict_before = self.verdict_path().read_bytes()
+        self.audit.unlink()
+        result = self.runner('bash')
+        self.assertNotEqual(result.returncode,0,'Same immutable binding was reused')
+        self.assertFalse(self.audit.exists(),'Repeated binding reached native execution')
+        self.assertEqual(self.verdict_path().read_bytes(),verdict_before)
+        self.assertEqual({p.relative_to(first_output).as_posix():p.read_bytes()
+                          for p in first_output.rglob('*') if p.is_file()},before)
+        self.panelist_attempt = 2
+        self.controls_sha = self.controls(mutate=lambda d:d.update(host='codex-cli',attempt=2))
+        result = self.runner('powershell')
+        self.assertEqual(result.returncode,0,result.stderr[:1800])
+        self.assertTrue(self.audit.exists())
+        self.assertNotEqual(self.artifact_dir(),first_output)
+        selected = json.loads((self.artifact_dir()/'model-selection.json').read_bytes())
+        self.assertEqual(selected['binding']['attempt'],2)
+        self.assertEqual({p.relative_to(first_output).as_posix():p.read_bytes()
+                          for p in first_output.rglob('*') if p.is_file()},before)
+
+    def test_panelist_postbindings_and_every_context_leaf_are_checked_retrospectively(self):
+        verdict,_ = self.accepted_panelist('bash')
+        output = self.artifact_dir()
+        binding = json.loads((output/'model-delivery-binding.json').read_bytes())
+        context_path = self.root/binding['execution_context']['path']
+        context = json.loads(context_path.read_bytes())
+        selection = json.loads((self.root/binding['selection']['path']).read_bytes())
+        events = json.loads((self.root/binding['events']['path']).read_bytes())
+        delivery = json.loads((self.root/binding['delivery']['path']).read_bytes())
+        self.helper().validate_delivery_record(delivery,selection=selection,events=events,
+                                              require_actual_id=False,transport='codex-exec')
+        for key in ('selection','events','delivery','execution_context'):
+            self.assertEqual(sha_file(self.root/binding[key]['path']),binding[key]['sha256'])
+        self.assertEqual(binding['launch_sha256'],sha_file(output/'model-launch.json'))
+        self.assertEqual(verdict['model_policy']['delivery_binding_sha256'],sha_file(output/'model-delivery-binding.json'))
+        transport = load_module(ROOT/'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py','panelist_retro')
+        launch_rel = (output/'model-launch.json').relative_to(self.root).as_posix()
+        bind_rel = (output/'model-delivery-binding.json').relative_to(self.root).as_posix()
+        expected = verdict['model_policy']
+        def consume(raw_sha, launch_sha=None):
+            return transport.verify_model_run(self.root,launch_rel,launch_sha or binding['launch_sha256'],bind_rel,
+                                              raw_sha,'reviewers',feature=self.FEATURE)
+        with mock.patch.object(transport.subprocess,'run',side_effect=AssertionError('retrospective native call')):
+            self.assertEqual(consume(sha_file(output/'model-delivery-binding.json')),expected)
+            for path in leaf_paths(context):
+                with self.subTest(panelist_context_leaf='/'.join(map(str,path))):
+                    changed = copy.deepcopy(context)
+                    set_path(changed,path,altered(get_path(context,path)))
+                    context_path.write_bytes(canonical(changed))
+                    updated = copy.deepcopy(binding)
+                    updated['execution_context']['sha256']=sha_file(context_path)
+                    (output/'model-delivery-binding.json').write_bytes(canonical(updated))
+                    with self.assertRaises(ValueError):
+                        consume(sha_file(output/'model-delivery-binding.json'))
+        context_path.write_bytes(canonical(context))
+        (output/'model-delivery-binding.json').write_bytes(canonical(binding))
+        with mock.patch.object(transport.subprocess,'run',side_effect=AssertionError('retrospective native call')):
+            for document in ('consent_result','dependencies'):
+                target = self.root/context[document]['path']
+                original_raw = target.read_bytes()
+                original_document = json.loads(original_raw)
+                for path in leaf_paths(original_document):
+                    with self.subTest(panelist_artifact=document,resealed_leaf='/'.join(map(str,path))):
+                        changed = copy.deepcopy(original_document)
+                        set_path(changed,path,altered(get_path(original_document,path)))
+                        target.write_bytes(canonical(changed))
+                        updated_context = copy.deepcopy(context)
+                        updated_context[document]['sha256'] = sha_file(target)
+                        context_path.write_bytes(canonical(updated_context))
+                        updated_binding = copy.deepcopy(binding)
+                        updated_binding['execution_context']['sha256'] = sha_file(context_path)
+                        (output/'model-delivery-binding.json').write_bytes(canonical(updated_binding))
+                        with self.assertRaises(ValueError):
+                            consume(sha_file(output/'model-delivery-binding.json'))
+                target.write_bytes(original_raw)
+                context_path.write_bytes(canonical(context))
+                (output/'model-delivery-binding.json').write_bytes(canonical(binding))
+        original_launch = json.loads((output/'model-launch.json').read_bytes())
+        with mock.patch.object(transport.subprocess,'run',side_effect=AssertionError('retrospective native call')):
+            for path in leaf_paths(original_launch):
+                with self.subTest(panelist_launch_leaf='/'.join(map(str,path))):
+                    changed = copy.deepcopy(original_launch)
+                    set_path(changed,path,altered(get_path(original_launch,path)))
+                    if path != ('argv_sha256',):
+                        changed['argv_sha256'] = sha_bytes(canonical(changed['argv']))
+                    (output/'model-launch.json').write_bytes(canonical(changed))
+                    launch_sha = sha_file(output/'model-launch.json')
+                    updated = {**binding,'launch_sha256':launch_sha}
+                    (output/'model-delivery-binding.json').write_bytes(canonical(updated))
+                    with self.assertRaises(ValueError):
+                        consume(sha_file(output/'model-delivery-binding.json'),launch_sha)
+            (output/'model-launch.json').write_bytes(canonical(original_launch))
+            for path in leaf_paths(binding):
+                with self.subTest(panelist_binding_leaf='/'.join(map(str,path))):
+                    updated = copy.deepcopy(binding)
+                    set_path(updated,path,altered(get_path(binding,path)))
+                    (output/'model-delivery-binding.json').write_bytes(canonical(updated))
+                    with self.assertRaises(ValueError):
+                        consume(sha_file(output/'model-delivery-binding.json'))
+            (output/'model-delivery-binding.json').write_bytes(canonical(binding))
+            for name in ('selection','events','delivery'):
+                with self.subTest(panelist_raw_link=name):
+                    target = self.root/binding[name]['path']
+                    raw = target.read_bytes()
+                    target.write_bytes(raw+b' ')
+                    try:
+                        with self.assertRaises(ValueError):
+                            consume(sha_file(output/'model-delivery-binding.json'))
+                    finally:
+                        target.write_bytes(raw)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
