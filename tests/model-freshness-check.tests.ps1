@@ -495,6 +495,10 @@ try {
     Test-016
     Test-020
     Test-021
+    # New protocol checks exercise the canonical Ubuntu Bash product with fixtures.
+    & bash (Join-Path $repoRoot 'tests/model-freshness-check.tests.sh') --protocol-only
+    if ($LASTEXITCODE -eq 0) { Ok 'T009: canonical Bash protocol fixtures' }
+    else { Fail 'T009: canonical Bash protocol fixtures' }
 
     Write-Output ""
     Write-Output "model-freshness-check.tests.ps1: $($script:passCount) passed, $($script:failCount) failed"
