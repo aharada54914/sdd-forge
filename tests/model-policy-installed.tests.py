@@ -661,7 +661,7 @@ INSTALLER_REQUIRED = sorted({'.agents/plugins/marketplace.json', '.claude-plugin
                                for plugin in ('sdd-bootstrap', 'sdd-implementation', 'sdd-quality-loop', 'sdd-lite',
                                               'sdd-review-loop', 'sdd-ship', 'sdd-domain')
                                for manifest in ('.codex-plugin', '.claude-plugin', '.plugin'))})
-PACKAGE = sorted({'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED})
+PACKAGE = sorted({'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED, launch.TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()})
 OUTPUT_FILES = ['controls.json', 'selection.json', 'validation.json']
 # Invalid under the existing T-007 identifier grammar without being flag-shaped argument syntax.
 BAD_IDS = ('run id', 'run;id', '.run', 'r' * 129)
@@ -677,6 +677,7 @@ class InstalledEntryTests(LaunchFixture):
     """Installed prepare entry from an unrelated cwd plus the installers' managed runtime closure."""
 
     root: Path
+    extra_runtime: tuple[str, ...] = ()  # additional real runtime files packaged before install; default is the minimal PACKAGE
 
     def setUp(self):
         self.assertTrue(PWSH and os.access(PWSH, os.X_OK), 'PowerShell is required; fixture setup failure')
@@ -710,8 +711,9 @@ class InstalledEntryTests(LaunchFixture):
         """Explicit current working-tree byte overlay, Git-tracked only inside this disposable source."""
         package = self.base / ('package-' + label)
         package.mkdir()
-        for rel in PACKAGE:
-            if rel in MANAGED_RUNTIME:
+        extra = getattr(self, 'extra_runtime', ())  # InstalledNativeEntryTests aliases this helper without the option
+        for rel in [*PACKAGE, *extra]:
+            if rel in MANAGED_RUNTIME or rel in extra:
                 self.assertTrue((ROOT / rel).is_file(), 'managed runtime source is missing: ' + rel)
             if rel == omit or not (ROOT / rel).is_file():
                 continue  # an absent installer-required file is the installer's own rejection to report
@@ -745,7 +747,7 @@ class InstalledEntryTests(LaunchFixture):
         result = self.run_installer(shell, package, install_root)
         self.assertEqual(result.returncode, 0, result.stdout[-800:] + result.stderr[-1500:])
         self.assertIn('SDD plugins installed at: ' + str(install_root), result.stdout)
-        for rel in MANAGED_RUNTIME + sorted(CODEX):
+        for rel in MANAGED_RUNTIME + sorted(CODEX) + list(getattr(self, 'extra_runtime', ())):
             self.assertTrue((install_root / rel).is_file(), 'installed package lacks ' + rel)
             self.assertEqual(launch.sha_file(install_root / rel), launch.sha_file(ROOT / rel),
                              'installed bytes must be the current-byte overlay: ' + rel)
@@ -764,13 +766,13 @@ class InstalledEntryTests(LaunchFixture):
     # ---- installed prepare entry and unchanged T-005/T-007 oracles ---------------------------------------------
 
     def prepare(self, install_root, output, *, role='evaluator', host=launch.HOST, run_id=None, session_id=None,
-                attempt='1', require_actual_id='false'):
-        command = [sys.executable, '-I', '-B', str(install_root / ADAPTER), 'prepare', '--request', 'request.json',
+                attempt='1', require_actual_id='false', mode='prepare', extra=(), env=None):
+        command = [sys.executable, '-I', '-B', str(install_root / ADAPTER), mode, '--request', 'request.json',
                    '--registry', 'registry.json', '--role', role, '--host', host,
                    '--run-id', self.run_id if run_id is None else run_id,
                    '--session-id', self.session_id if session_id is None else session_id,
-                   '--attempt', attempt, '--output-dir', output, '--require-actual-id', require_actual_id]
-        result = self.run_process(command, timeout=120, label='installed prepare entry')
+                   '--attempt', attempt, '--output-dir', output, '--require-actual-id', require_actual_id, *extra]
+        result = self.run_process(command, env, timeout=120, label='installed prepare entry')
         self.assertFalse(self.marker.exists(), 'prepare allocated or invoked a native model executable')
         self.assertFalse(self.poison.exists(), 'the installed entry fell back to the removed source package')
         return result
@@ -788,10 +790,10 @@ class InstalledEntryTests(LaunchFixture):
                                  '--session-id', self.session_id if session_id is None else session_id],
                                 label='T-007 launch-controls oracle')
 
-    def assert_prepared(self, install_root, output, *, role='evaluator', host=launch.HOST, attempt=1):
+    def assert_prepared(self, install_root, output, *, role='evaluator', host=launch.HOST, attempt=1, **entry):
         """Complete positive: exact outputs, every raw pin, installed trusted bytes and the T-007 recomputation."""
         project, installed = tree(self.root), runtime_tree(install_root)
-        value = self.accepted(self.prepare(install_root, output, role=role, host=host, attempt=str(attempt)))
+        value = self.accepted(self.prepare(install_root, output, role=role, host=host, attempt=str(attempt), **entry))
         helper, out = self.helper(), self.root / output
         self.assertEqual(sorted(path.name for path in out.iterdir()), OUTPUT_FILES)
         after = tree(self.root)
@@ -957,6 +959,257 @@ class InstalledEntryTests(LaunchFixture):
                     self.assertNotEqual(result.returncode, 0, 'installer accepted a package without ' + rel)
                     self.assertNotIn('SDD plugins installed at:', result.stdout)
                     self.assertFalse(install_root.exists(), 'an incomplete managed runtime was left installed')
+
+
+# ---- T-008 ordinary Claude preparation: observation-preserving claude-prepare, configuration only -----------------
+# Proposed public surface (requires primary admission before product work); cwd is the execution-input root:
+#   python3 -I -B <installed>/plugins/sdd-implementation/scripts/managed-model-entry.py claude-prepare
+#       <the nine prepare options> --executable ABS          (host claude-code; investigator first)
+# Oracle: the installed prepare plus the unchanged real selector and T-007 launch-controls CLIs over the same project
+# bytes. The entry consumes the request's supplied observation UNCHANGED, observes only the executable's --help/--version
+# and the seven T-007 native override keys, and publishes only selection/controls/validation. Evidence class: FIXTURE ONLY
+# (verified-configuration observation, fixture adoption, discovery-only fixture CLI). Nothing here shows Claude availability,
+# provenance authentication, managed/remote policy, native allocation, an actual backend ID or a ready_to_launch claim.
+CLAUDE_DRIVER = 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py'
+ENV_CANARY = 'SDD_UNRELATED_ENVIRONMENT_CANARY'
+ENV_CANARY_VALUE = 'unrelated-environment-canary-value'
+# Discovery-only fixture CLI: logs every invocation, answers only --help/--version, any other argv is model work.
+CLAUDE_CLI = '''#!/bin/sh
+printf '%s\\n' "$*" >> {calls}
+case "$*" in
+--help) printf '%s' {help}{edit}; exit {help_exit} ;;
+--version) printf '%s\\n' {version}; exit {version_exit} ;;
+*) printf '%s\\n' "$0 $*" >> {work}; exit 97 ;;
+esac
+'''
+
+
+class InstalledClaudePreparationTests(unittest.TestCase):
+    """claude-prepare over an actual InstalledEntryTests instance: its genuine setUp, helpers and cleanups."""
+
+    def setUp(self):
+        self.case = case = InstalledEntryTests('runTest')  # composed, never aliased: no inherited test methods
+        self.addCleanup(lambda: self.assertTrue(case.doCleanups(), 'composed InstalledEntryTests cleanup failed'))
+        case.extra_runtime = (CLAUDE_DRIVER,)  # the original driver joins the fixture package BEFORE install
+        case.setUp()
+        case.request = case.fresh_request('investigator')
+        case.environment[ENV_CANARY] = ENV_CANARY_VALUE
+        case.save()
+        self.assertFalse(set(launch.NATIVE_OVERRIDES) & set(case.environment), 'baseline carries a native override')
+        self.serial = 0
+        self.calls, self.work = case.base / 'claude-cli-calls', case.base / 'claude-cli-work'
+        self.executable = case.base / 'claude-cli' / 'claude'
+        self.write_cli()
+        for path in (case.home / '.claude/settings.json', case.home / '.claude.json',
+                     case.home / '.claude/projects/canary/session.jsonl', case.root / '.claude/settings.json',
+                     case.root / '.claude/settings.local.json'):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('{"x-sdd-canary": "%s: claude-prepare must neither read-modify nor write it"}\n' % path.name)
+        self.home_before = tree(case.home)
+
+    # ---- discovery-only fixture CLI and fixture-wide invariants ------------------------------------------------
+
+    def write_cli(self, *, version=None, help_text=None, self_edit=False, help_exit=0, version_exit=0):
+        script = CLAUDE_CLI.format(
+            calls=shlex.quote(str(self.calls)), work=shlex.quote(str(self.work)),
+            help=shlex.quote(launch.HELP_TEXT if help_text is None else help_text),
+            version=shlex.quote(self.case.observation['cli_version'] if version is None else version),
+            edit=" ; printf '# self-edit\\n' >> \"$0\"" if self_edit else '',
+            help_exit=help_exit, version_exit=version_exit)
+        self.executable.parent.mkdir(parents=True, exist_ok=True)
+        self.executable.write_text(script)
+        self.executable.chmod(0o755)
+
+    def reset_calls(self):
+        self.calls.unlink(missing_ok=True)
+
+    def cli_calls(self):
+        return self.calls.read_text().splitlines() if self.calls.exists() else []
+
+    def assert_discovery_only(self):
+        self.assertFalse(self.work.exists(), 'a model or work invocation reached the fixture CLI')
+        self.assertFalse(self.case.marker.exists(), 'a native model executable was invoked')
+        self.assertLessEqual(set(self.cli_calls()), {'--help', '--version'})
+
+    def assert_unchanged_world(self):
+        case = self.case
+        self.assertEqual(tree(case.home), self.home_before, 'user or native Claude/Codex state changed')
+        leaked = [path for path in tree(case.root) if ENV_CANARY_VALUE.encode() in (case.root / path).read_bytes()]
+        self.assertEqual(leaked, [], 'unrelated environment values were written')
+
+    def output(self):
+        self.serial += 1
+        return 'runs/case-%02d' % self.serial
+
+    def install(self, shell):
+        install_root = self.case.install(shell)  # both official installers; source is poisoned afterwards
+        self.assertEqual(launch.sha_file(install_root / CLAUDE_DRIVER), launch.sha_file(ROOT / CLAUDE_DRIVER),
+                         'the installed original driver must be the current bytes')
+        return install_root
+
+    def entry(self, env=None):
+        return {'role': 'investigator', 'mode': 'claude-prepare', 'extra': ('--executable', str(self.executable)),
+                'env': env}
+
+    def claude_positive(self, install_root, output, *, env=None):
+        """Complete positive through the new mode: the actual prepare oracle plus discovery-only CLI use."""
+        self.reset_calls()
+        value = self.case.assert_prepared(install_root, output, **self.entry(env))
+        self.assertEqual(set(self.cli_calls()), {'--help', '--version'},
+                         'the entry must observe only the actual executable help and version')
+        self.assert_discovery_only()
+        self.assert_unchanged_world()
+        return value
+
+    def claude_rejected(self, install_root, output, reasons, *, env=None):
+        self.reset_calls()
+        error = self.case.assert_prepare_rejected(install_root, output, reasons, **self.entry(env))
+        self.assertFalse((self.case.root / output / 'validation.json').exists())
+        self.assertNotIn(ENV_CANARY_VALUE, error['message'])
+        self.assert_discovery_only()
+        self.assert_unchanged_world()
+        return error
+
+    def assert_corresponding(self, legacy, new):
+        """Existing prepare and claude-prepare outputs differ only by their deliberate output path and hash."""
+        helper, root = self.case.helper(), self.case.root
+        old = {name: helper.strict_json((root / legacy / name).read_bytes()) for name in OUTPUT_FILES}
+        now = {name: helper.strict_json((root / new / name).read_bytes()) for name in OUTPUT_FILES}
+        self.assertEqual((root / legacy / 'selection.json').read_bytes(), (root / new / 'selection.json').read_bytes())
+        for name, deliberate in (('controls.json', {'selection'}), ('validation.json', {'controls', 'pins'})):
+            self.assertEqual({k: v for k, v in old[name].items() if k not in deliberate},
+                             {k: v for k, v in now[name].items() if k not in deliberate}, name)
+        self.assertEqual(now['controls.json']['selection'], self.case.ref(new + '/selection.json'))
+        self.assertEqual(old['controls.json']['selection']['sha256'], now['controls.json']['selection']['sha256'])
+
+        def others(output, pins):
+            return [pin for pin in pins if pin['path'] != output + '/selection.json']
+
+        self.assertEqual(others(legacy, old['validation.json']['pins']), others(new, now['validation.json']['pins']))
+
+    # ---- the four bounded acceptance methods -----------------------------------------------------------------
+
+    def test_claude_prepare_preserves_supplied_observation_and_core_evidence(self):
+        case = self.case
+        names = ('request.json', 'registry.json', 'policy.json', 'observation.json')
+        raw, observation = {name: (case.root / name).read_bytes() for name in names}, copy.deepcopy(case.observation)
+        for shell in SHELLS:
+            install_root = self.install(shell)
+            self.reset_calls()
+            legacy = case.assert_prepared(install_root, 'runs/prepare-' + shell, role='investigator')
+            self.assertEqual(self.cli_calls(), [], 'the existing prepare must not run the external CLI')
+            value = self.claude_positive(install_root, 'runs/claude-' + shell)
+            self.assert_corresponding('runs/prepare-' + shell, 'runs/claude-' + shell)
+            self.assertEqual(value['selection'], legacy['selection'])
+            self.assertEqual(value['selection']['observation_sha256'], observation['observation_sha256'])
+            self.assertEqual({name: (case.root / name).read_bytes() for name in names}, raw,
+                             'the supplied request, policy or observation bytes changed')
+            self.assertEqual(case.helper().strict_json(raw['observation.json']), observation)
+            self.assertEqual((observation['source'], observation['status']), ('verified-configuration', 'complete'))
+
+    def test_claude_prepare_does_not_repair_unusable_observation(self):
+        case = self.case
+        install_root = self.install('bash')
+        self.claude_positive(install_root, 'runs/positive')
+        prior = tree(case.root / 'runs/positive')
+        stale = launch.utc_now(launch.timedelta(seconds=-(case.policy['observation_max_age_seconds'] + 120)))
+        # A well-formed forged record is outside what the core can reject; only existing typed reasons are claimed.
+        cases = [('missing', None, 'input-invalid'),
+                 ('stale', {'observed_at': stale}, 'discovery-stale'),
+                 ('unsupported', {'source': 'unsupported', 'status': 'unavailable', 'models': []},
+                  'discovery-unavailable'),
+                 ('unavailable', {'status': 'unavailable', 'models': []}, 'discovery-unavailable'),
+                 ('incomplete', {'status': 'incomplete'}, 'discovery-incomplete'),
+                 ('relabelled-live', {'source': 'live-discovery', 'purpose': 'launch'}, 'scope-mismatch')]
+        for label, changes, reason in cases:
+            with self.subTest(observation=label):
+                case.observation = dict(case.fresh_observation(), **(changes or {}))
+                case.save()  # fixture code deliberately seals the unusable record; the product must not touch it
+                if changes is None:
+                    (case.root / 'observation.json').unlink()
+                self.claude_rejected(install_root, self.output(), reason)
+                self.assertEqual(tree(case.root / 'runs/positive'), prior, 'a prior positive changed')
+        case.observation = case.fresh_observation()
+        case.save()
+        self.claude_positive(install_root, 'runs/recovered')
+
+    def test_claude_prepare_checks_executable_and_environment_before_publication(self):
+        case = self.case
+        install_root = self.install('pwsh')
+        self.claude_positive(install_root, 'runs/positive')
+        prior, version = tree(case.root / 'runs/positive'), case.observation['cli_version']
+
+        def without(prefix):
+            return '\n'.join(line for line in launch.HELP_TEXT.split('\n') if not line.lstrip().startswith(prefix))
+
+        cli_cases: list[tuple[str, dict[str, str | int | bool], str]] = [
+            ('version-mismatch', {'version': 'fixture-claude 9.9'}, 'scope-mismatch'),
+                     ('help-failure', {'help_exit': 7}, 'discovery-unavailable'),
+                     ('version-failure', {'version_exit': 7}, 'discovery-unavailable'),
+                     ('help-without-model', {'help_text': without('--model <model>')}, 'config-invalid'),
+                     ('help-without-effort', {'help_text': launch.HELP_WITHOUT_EFFORT}, 'config-invalid'),
+                     ('help-without-agents', {'help_text': without('--agents <json-or-file>')}, 'config-invalid'),
+                     ('help-without-agent', {'help_text': without('--agent <agent>')}, 'config-invalid'),
+                     ('version-empty', {'version': ''}, 'config-invalid'),
+                     ('version-multiline', {'version': version + '\nsecond line'}, 'config-invalid'),
+                     ('version-overlong', {'version': 'v' * 129}, 'config-invalid'),
+                     ('self-edit-during-help', {'self_edit': True}, 'input-invalid')]
+        for label, options, reason in cli_cases:
+            with self.subTest(cli=label):
+                if 'help_text' in options:
+                    self.assertNotEqual(options['help_text'], launch.HELP_TEXT)
+                self.write_cli(**options)
+                original = self.executable.read_bytes()
+                self.claude_rejected(install_root, self.output(), reason)
+                if options.get('self_edit'):
+                    self.assertIn('--help', self.cli_calls())
+                    self.assertNotEqual(self.executable.read_bytes(), original, 'the fixture CLI did not self-edit')
+                self.assertEqual(tree(case.root / 'runs/positive'), prior, 'a prior positive changed')
+        self.write_cli()
+        original_executable = self.executable
+        linked = original_executable.with_name('claude-link')
+        linked.symlink_to(original_executable)
+        try:
+            for path in (Path('relative/claude'), original_executable.with_name('missing'), linked):
+                with self.subTest(executable=str(path)):
+                    self.executable = path
+                    self.claude_rejected(install_root, self.output(), 'input-invalid')
+        finally:
+            self.executable = original_executable
+        resolved = case.oracle_selection()['resolved']
+        native, effort = resolved['native_id'], resolved['effort']
+        other_effort = next(item for item in launch.EFFORTS if item != effort)
+        other_model = next(item for item in ('opus', 'sonnet', 'haiku') if item != native)
+        conflicts = [('effort-mismatch', {'CLAUDE_CODE_EFFORT_LEVEL': other_effort}),
+                     ('forced-subagent-mismatch', {'CLAUDE_CODE_SUBAGENT_MODEL_FORCE': '1',
+                                                   'CLAUDE_CODE_SUBAGENT_MODEL': other_model}),
+                     ('alias-remap', {'ANTHROPIC_DEFAULT_%s_MODEL' % native.upper(): 'claude-%s-fixture' % other_model})]
+        for label, env in conflicts:
+            with self.subTest(override=label):
+                self.claude_rejected(install_root, self.output(), 'native-precedence-conflict', env=env)
+        for label, env in (('equal-effort', {'CLAUDE_CODE_EFFORT_LEVEL': effort}),
+                           ('equal-forced-subagent', {'CLAUDE_CODE_SUBAGENT_MODEL_FORCE': '1',
+                                                      'CLAUDE_CODE_SUBAGENT_MODEL': native})):
+            with self.subTest(override=label):
+                self.claude_positive(install_root, self.output(), env=env)
+        self.assertEqual(tree(case.root / 'runs/positive'), prior, 'a prior positive changed')
+
+    def test_installers_require_original_driver_for_claude_prepare(self):
+        case = self.case
+        for shell in SHELLS:
+            self.assertTrue((self.install(shell) / CLAUDE_DRIVER).is_file())  # actual positive with the driver
+            with self.subTest(shell=shell, missing=CLAUDE_DRIVER):
+                install_root = case.base / ('driver-missing-' + shell)
+                package = case.build_package(shell + '-driver-missing', omit=CLAUDE_DRIVER)
+                expected = {rel for rel in [*PACKAGE, *case.extra_runtime]
+                            if rel != CLAUDE_DRIVER and (ROOT / rel).is_file()}
+                present = {path.relative_to(package).as_posix() for path in package.rglob('*')
+                           if path.is_file() and '.git' not in path.relative_to(package).parts}
+                self.assertEqual(present, expected, 'only the original driver may be missing from this package')
+                result = case.run_installer(shell, package, install_root)
+                self.assertNotEqual(result.returncode, 0, 'installer accepted a package without ' + CLAUDE_DRIVER)
+                self.assertNotIn('SDD plugins installed at:', result.stdout)
+                self.assertFalse(install_root.exists(), 'claude-prepare was deployed without its original driver')
 
 
 # ---- T-008 installed Codex entry: generated native configuration only (codex-entry batch) ----------------------

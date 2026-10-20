@@ -106,6 +106,7 @@ foreach ($relativePath in @(
     "install.sh",
     "install.ps1",
     "plugins/sdd-implementation/scripts/managed-model-entry.py",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
     "plugins/sdd-implementation/scripts/model-policy.py",
     "plugins/sdd-implementation/scripts/select-agent-model.sh",
     "plugins/sdd-implementation/scripts/select-agent-model.ps1",
@@ -136,6 +137,7 @@ foreach ($relativePath in @(
     install.sh `
     install.ps1 `
     plugins/sdd-implementation/scripts/managed-model-entry.py `
+    plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py `
     plugins/sdd-implementation/scripts/model-policy.py `
     plugins/sdd-implementation/scripts/select-agent-model.sh `
     plugins/sdd-implementation/scripts/select-agent-model.ps1 `
