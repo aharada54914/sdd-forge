@@ -6365,19 +6365,31 @@ class InstalledDomainCallerTests(unittest.TestCase):
         calls_before = len(self.native_audit(st, b))
         for path in reads:
             self.assert_guard(st, b, command, 'Read', {'file_path': path}, True, 'admitted Read ' + Path(path).name)
-        hashes = [text for text in policy['bash_commands'] if summary_rel in text]
-        self.assertGreaterEqual(len(hashes), 1, 'The admitted hash work must cover the sanitized summary')
+        hashes = [text for text in policy['bash_commands'] if text != 'rtk proxy test -d domain']
+        self.assertEqual(len(hashes), 1, 'Only the existing compact input verifier may hash the admitted closure')
         for text in policy['bash_commands']:
             self.assert_guard(st, b, command, 'Bash', {'command': text}, True, 'admitted Bash ' + text[:48])
         executed = self.execute(f, [launch.BASH, '-c', hashes[0]], cwd=project)
         self.assertEqual(executed.returncode, 0, 'Admitted hash command did not run: ' + executed.stderr[-400:])
-        self.assertIn(launch.sha_file(project / summary_rel), executed.stdout)
+        compact = json.loads(executed.stdout)
+        self.assertEqual((compact['status'], compact['input_count'], compact['invocation_sha256'], compact['boundary_sha256']),
+                         ('REVIEW_INPUTS_OK', len(b['paths']), launch.sha_file(b['invocation']),
+                          launch.sha_file(project / SPEC_CALLER_BOUNDARY)))
+        # The existing compact command refers to the pinned invocation, not literal filenames.
+        # Alter the real summary without rebinding its pin to prove that this command covers it.
+        saved_summary = (project / summary_rel).read_bytes()
+        try:
+            (project / summary_rel).write_bytes(saved_summary + b'\n')
+            altered = self.execute(f, [launch.BASH, '-c', hashes[0]], cwd=project)
+            self.assertNotEqual(altered.returncode, 0, 'The real compact verifier accepted changed summary bytes')
+        finally:
+            (project / summary_rel).write_bytes(saved_summary)
         forbidden = [project / raw_rel, project / a['round_rel'] / 'report.md', a['invocation'], a['launch'] / 'wrapper.json',
                      a['launch'] / (a['session'] + '.jsonl'), project / 'domain/../' / raw_rel, outside]
         for path in forbidden:
             self.assert_guard(st, b, command, 'Read', {'file_path': str(path)}, False, 'Read ' + path.name)
-        raw_hash = hashes[0].replace(summary_rel, raw_rel)
-        self.assertNotEqual(raw_hash, hashes[0])
+        raw_hash = 'rtk proxy shasum -a 256 ' + shlex.quote(raw_rel)
+        self.assertNotIn(raw_hash, policy['bash_commands'])
         target = project / 'domain/domain-story.md'
         denied = [raw_hash, hashes[0] + ' && printf compound', hashes[0] + '; printf compound', hashes[0] + ' | cat',
                   hashes[0] + ' $(printf substitution)', hashes[0] + ' `printf substitution`',
