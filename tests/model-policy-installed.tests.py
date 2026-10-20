@@ -3789,7 +3789,7 @@ def sha_text(text):
 class InstalledSpecCallerTests(unittest.TestCase):
     """Execute the maintained spec-review-loop non-TTY fence through a complete same-root installed project."""
 
-    def fixture(self, extra_runtime=()):
+    def fixture(self, extra_runtime=(), shell='bash'):
         f = launch.PairedClaudeLaunch(methodName='runTest')
         self.addCleanup(f.doCleanups)
         f.setUp()
@@ -3836,7 +3836,7 @@ class InstalledSpecCallerTests(unittest.TestCase):
             result = f.run_process(['git', '-C', str(package), *args], label='spec caller package setup')
             self.assertEqual(result.returncode, 0, 'Package setup failed: ' + result.stderr[-1200:])
         project = f.base / 'installed-project'
-        result = InstalledEntryTests.run_installer(f, 'bash', package, project)
+        result = InstalledEntryTests.run_installer(f, shell, package, project)
         self.assertEqual(result.returncode, 0, 'Installer setup failed: ' + result.stderr[-1600:])
         for relative in sorted(set(MANAGED_RUNTIME) | set(SPEC_CALLER_RUNTIME) | set(extra_runtime)):
             self.assertTrue((project / relative).is_file(), 'Installed spec caller runtime is missing: ' + relative)
@@ -5732,6 +5732,897 @@ class InstalledClaudeWfiTests(unittest.TestCase):
         self.assertEqual(path.read_text(), 'changed during harmless help\n', 'the fixture edit did not happen')
         self.assertEqual(self.work_events(), [])
         self.assertFalse((case.root / output).exists())
+
+
+# ---- T-008 ordinary caller: maintained domain-review-loop non-TTY A/B fence (domain-reviewer-a/b, same-root installed) ----
+# Additive members for tests/model-policy-installed.tests.py; inserted before the final unittest.main guard.
+# FIRST same-root installed domain path (P=R), like InstalledSpecCallerTests: the real Bash installer AND the official
+# PowerShell installer place PACKAGE plus DOMAIN_CALLER_RUNTIME into P, project data lives in P and the protected
+# launcher/probe derive runtime=P from their own location. This is NOT an unrelated-root proof: no root projection, no
+# --verify-inputs, no schema/approval bypass and no new universal envelope is exercised or implied.
+# Real: installer, initialize-review-identity.py, the original domain-review-precheck shell (exactly once per round),
+# Review.precheck()/unchanged() of the installed finalizer, prepare, shared context validator, preflight, launcher,
+# probe, Node guard, finalize-domain-review (summary/finalize/verify) and model-run-record. The ONLY replacement is the
+# external `claude` executable: DOMAIN_RECORDER (original domain reviewer schema, identities/hashes from real inputs).
+# Evidence class: FIXTURE ONLY (verified-configuration observation, fixture adoption, fixture PASS records, no live
+# Claude/Copilot/backend). It proves delivery/configuration; it is no review verdict, no cross-model result, no approval.
+# Domain eligibility stays Pending: the contract keeps cross_model_required and human_approval Pending, never Approved.
+DOMAIN_CALLER_SKILL = 'plugins/sdd-domain/skills/domain-review-loop/SKILL.md'
+DOMAIN_CALLER_CALIBRATION = 'plugins/sdd-domain/references/domain-review-calibration.md'
+DOMAIN_CALLER_ROLES = ('domain-reviewer-a', 'domain-reviewer-b')
+# Minimal actual closure beyond PACKAGE: skill, both roles, calibration, both initializer shells, finalizer trio, shared
+# validator twins, the bash/PowerShell python dispatchers, host registration, review boundary, launcher/probe/guard.
+DOMAIN_CALLER_RUNTIME = sorted({
+    DOMAIN_CALLER_SKILL, DOMAIN_CALLER_CALIBRATION,
+    *('plugins/sdd-domain/agents/' + role + '.md' for role in DOMAIN_CALLER_ROLES),
+    *('plugins/sdd-domain/scripts/' + name for name in (
+        'domain-review-precheck.sh', 'domain-review-precheck.ps1', 'finalize-domain-review.py',
+        'finalize-domain-review.sh', 'finalize-domain-review.ps1')),
+    *('plugins/sdd-quality-loop/scripts/' + name for name in (
+        'initialize-review-identity.py', 'validate-review-context-set.sh', 'validate-review-context-set.ps1',
+        'lib/py-dispatch.sh', 'lib/py-dispatch.ps1')),
+    SPEC_CALLER_BOUNDARY,
+    *('plugins/sdd-review-loop/scripts/' + name for name in (
+        'launch-impl-review.py', 'validate-nontty-spec-launch.py', 'preflight-host-review.py',
+        'probe-nontty-review.py', 'nontty-impl-pretool-guard.mjs'))})
+DOMAIN_RECORDER = 'tests/fixtures/model-policy-installed/recording-domain.py'
+DOMAIN_FEATURE = 'sdd-domain-model'  # canonical pseudo-feature of the manifest only; never a specs/ directory
+DOMAIN_ROUND = 'reports/domain-review/attempt-1/round-%d'  # no feature segment
+DOMAIN_FENCE_HEADING = '### Local Claude CLI non-TTY route (opt-in)'
+DOMAIN_PRIVATE = {'a': 'DOMAIN-A-PRIVATE-FINDING', 'b': 'DOMAIN-B-PRIVATE-FINDING'}
+DOMAIN_LAUNCH_EVIDENCE = re.compile(r'reviewer-[ab]-(?:nontty-preflight|host-allocation)\.json')
+DOMAIN_STOPPED = 'LAUNCH_STOPPED: '
+DOMAIN_DENIAL = {'hookSpecificOutput': {'hookEventName': 'PreToolUse', 'permissionDecision': 'deny',
+                                        'permissionDecisionReason': 'Impl non-TTY tool call differs from caller-pinned inputs'}}
+# Original Copilot allocation/route documentation of the ordinary skill: retained as data, never a managed fallback.
+DOMAIN_LEGACY_COPILOT = (
+    "copilot --model auto --output-format json --disable-builtin-mcps --no-remote --no-remote-export "
+    "--no-custom-instructions --no-ask-user --available-tools= -p 'Initialize an empty runtime session only. Do not use "
+    "tools, inspect project files, perform a review, or infer any task. Reply exactly READY.'",
+    "--model auto --output-format json --disable-builtin-mcps --no-remote --no-remote-export --no-custom-instructions "
+    "--available-tools=view,rg,glob,bash --allow-tool='shell(sha256sum)' --allow-tool='shell(printf)' --deny-tool=write "
+    "--no-ask-user --plugin-dir <installed-domain-plugin> --agent sdd-domain:domain-reviewer-a")
+_DOMAIN_FINALIZER: Any = None
+
+
+def domain_finalizer_tests():
+    """The existing domain finalizer test module (canonical data and Fixture APIs), loaded once and never rediscovered."""
+    global _DOMAIN_FINALIZER
+    if _DOMAIN_FINALIZER is None:
+        spec = importlib.util.spec_from_file_location('t008_domain_finalizer_fixture',
+                                                      ROOT / 'tests/domain-review-finalize.tests.py')
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        _DOMAIN_FINALIZER = module
+    return _DOMAIN_FINALIZER
+
+
+class InstalledDomainCallerTests(unittest.TestCase):
+    """Execute the maintained domain-review-loop non-TTY A/B fence through a complete same-root installed project."""
+
+    # Compose shared test support without inheriting and rediscovering its tests.
+    _spec_helpers: Any = InstalledSpecCallerTests
+    execute = _spec_helpers.execute
+    chain = _spec_helpers.chain
+    native_calls = _spec_helpers.native_calls
+    assert_run_record = _spec_helpers.assert_run_record
+
+    # ---- installed project, real host registration and canonical domain data ----------------------------------------
+
+    def fixture(self, shell='bash'):
+        """The spec-caller installed project (real installer for `shell`) + recorder + real initializer prerequisites."""
+        finalizer = domain_finalizer_tests()
+        if shell == 'pwsh':
+            self.assertTrue(PWSH and os.access(PWSH, os.X_OK), 'PowerShell is required; fixture setup failure')
+        for relative in (DOMAIN_RECORDER, *DOMAIN_CALLER_RUNTIME):
+            self.assertTrue((ROOT / relative).is_file(), 'Admitted domain caller input missing (setup failure): ' + relative)
+        f, project, runtime = self._spec_helpers.fixture(self, extra_runtime=DOMAIN_CALLER_RUNTIME, shell=shell)
+        self.addCleanup(lambda: self.assertTrue(getattr(f, 'doCleanups')(), 'domain caller fixture cleanup failed'))
+        shim = f.base / 'shims/claude'  # replaces the spec recorder for this project; the executable is still pinned per launch
+        shutil.copyfile(ROOT / DOMAIN_RECORDER, shim)
+        shim.chmod(0o755)
+        declared = self.execute(f, [str(shim), '--help'], cwd=f.base)
+        self.assertEqual((declared.returncode, declared.stdout), (0, launch.HELP_TEXT),
+                         'Domain recorder must declare exactly the T-007 fixture help vocabulary')
+        copilot = f.base / 'shims/copilot'  # any provider fallback is observable through the shared marker
+        copilot.write_text('#!/bin/sh\necho "$0 $*" >> "' + str(f.marker) + '"\nexit 97\n')
+        copilot.chmod(0o755)
+        # The shared fixture seeds a spec-stage ledger; the real initializer refuses prior evidence, so that scaffolding goes.
+        ledger = project / SPEC_LEDGER
+        self.assertEqual([record['stage'] for record in self.chain(ledger)], ['spec'], 'Only the fixture seed may precede host registration')
+        ledger.unlink()
+        session, event_id, native = 'domain-host-session-1', 'domain-host-event-1', f.base / 'copilot-native'
+        events = native / 'session-state' / session / 'events.jsonl'
+        events.parent.mkdir(parents=True)
+        events.write_text(json.dumps({'type': 'session.start', 'id': event_id, 'parentId': None,
+                                      'data': {'producer': 'copilot-agent', 'version': 1, 'sessionId': session,
+                                               'context': {'cwd': str(project)}}}) + '\n')
+        environment = dict(f.environment, COPILOT_HOME=str(native))  # only this one initializer call sees it
+        registered = launch.subprocess.run(
+            [sys.executable, '-B', str(project / 'plugins/sdd-quality-loop/scripts/initialize-review-identity.py'),
+             '--root', str(project), '--copilot-events', str(events)],
+            cwd=project, env=environment, text=True, capture_output=True, timeout=120, check=False)
+        self.assertEqual((registered.returncode, registered.stdout), (0, 'REVIEW_HOST_REGISTERED\n'),
+                         'Actual host registration failed (setup): ' + registered.stderr[-800:])
+        host = self.chain(ledger)
+        self.assertEqual([(r['stage'], r['role'], r['run_id'], r['host_session_id']) for r in host],
+                         [('host', 'orchestrator', event_id, session)])
+        # Canonical domain data from the existing finalizer Fixture (its own temporary root; never reserved there).
+        data = finalizer.Fixture(self, reserve=False)
+        for relative in data.files:
+            if relative.startswith('domain/'):
+                target = project / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(data.root / relative, target)
+        self.assertEqual(launch.sha_file(project / DOMAIN_CALLER_CALIBRATION), launch.sha_file(data.root / DOMAIN_CALLER_CALIBRATION))
+        self.assertFalse((project / 'specs').exists(), 'No specs/ input may be fabricated for the domain gate')
+        state: dict[str, Any] = {'f': f, 'project': project, 'runtime': runtime, 'data': data, 'shell': shell,
+                                 'runtime_name': 'bash' if shell == 'bash' else 'powershell', 'host': host[0],
+                                 'audit': f.audit.read_bytes()}
+        return state
+
+    def installed_review(self, st, round_number):
+        """The installed finalizer's own Review (source compiled in memory, so no bytecode enters the runtime tree)."""
+        path = st['project'] / 'plugins/sdd-domain/scripts/finalize-domain-review.py'
+        module = type(sys)('t008_installed_domain_finalizer_' + uuid.uuid4().hex)
+        exec(compile(path.read_text(encoding='utf-8'), str(path), 'exec'), module.__dict__)
+        return module.Review(st['project'], 1, round_number, st['runtime_name'])
+
+    def verified(self, st, round_number):
+        """Original Review.precheck()/unchanged(): read-only validators, genuinely executed (never the CLI verify mode)."""
+        review = self.installed_review(st, round_number)
+        precheck, paths = review.precheck()
+        review.unchanged()
+        return precheck, paths
+
+    def initialize_round(self, st, round_number):
+        """The original initializer shell runs exactly once for this round, with its original arguments."""
+        f, project, finalizer = st['f'], st['project'], domain_finalizer_tests()
+        round_rel = DOMAIN_ROUND % round_number
+        self.assertFalse((project / round_rel).exists(), 'The round must be created only by the actual initializer')
+        if round_number > 1:
+            with (project / 'domain/domain-story.md').open('a', encoding='utf-8') as stream:
+                stream.write('Round %d substantive fixture change.\n' % round_number)
+        scripts = project / 'plugins/sdd-domain/scripts'
+        if st['shell'] == 'bash':
+            command = [launch.BASH, str(scripts / 'domain-review-precheck.sh'), '1', str(round_number)]
+            command += ['--edit-summary=synthetic fixture edit'] if round_number > 1 else []
+        else:
+            command = [PWSH, '-NoProfile', '-File', str(scripts / 'domain-review-precheck.ps1'), '-Attempt', '1',
+                       '-Round', str(round_number)]
+            command += ['-EditSummary', 'synthetic fixture edit'] if round_number > 1 else []
+        result = self.execute(f, command, cwd=project)
+        self.assertEqual(result.returncode, 0, 'Actual domain initializer failed (setup): ' + (result.stdout + result.stderr)[-800:])
+        precheck = finalizer.read(project / round_rel / 'precheck-result.json')
+        self.assertEqual(set(precheck), {'schema', 'stage', 'attempt', 'round', 'domain_model_status_field', 'calibration_sha256',
+                                         'input_sha256', 'edit_summary', 'reset', 'generated_at'},
+                         'The domain precheck has no feature field and no invented members')
+        self.assertEqual([precheck[key] for key in ('schema', 'stage', 'attempt', 'round', 'domain_model_status_field', 'reset')],
+                         ['domain-review-precheck/v1', 'domain', 1, round_number, 'Pending', False])
+        self.assertFalse((project / 'reports/domain-review/last-approved-fingerprint.json').exists())
+        self.assertFalse((project / 'reports/domain-review/.domain-review.lock').exists(), 'Initializer lock was left behind')
+        checked, paths = self.verified(st, round_number)
+        self.assertEqual(checked, precheck)
+        self.assertEqual(paths, [*finalizer.FILES, round_rel + '/precheck-result.json'],
+                         'Review.precheck() must return the exact canonical required paths')
+        return precheck, paths
+
+    def run_finalizer(self, st, mode, round_number=1):
+        scripts = st['project'] / 'plugins/sdd-domain/scripts'
+        arguments = ['--root', str(st['project']), '--attempt', '1', '--round', str(round_number), '--mode', mode]
+        command = ([launch.BASH, str(scripts / 'finalize-domain-review.sh'), *arguments] if st['shell'] == 'bash' else
+                   [PWSH, '-NoProfile', '-File', str(scripts / 'finalize-domain-review.ps1'), *arguments])
+        return self.execute(st['f'], command, cwd=st['project'])
+
+    # ---- the maintained fence and one launch case --------------------------------------------------------------------
+
+    def fence(self, project):
+        """The installed maintained skill is the oracle; the test authors no replacement command excerpt."""
+        source = (project / DOMAIN_CALLER_SKILL).read_text(encoding='utf-8')
+        self.assertEqual(source.count(DOMAIN_FENCE_HEADING), 1, 'Maintained non-TTY route heading is missing or repeated')
+        section = source.split(DOMAIN_FENCE_HEADING, 1)[1].split('\n## ', 1)[0]
+        choices = [body for language, body in re.findall(r'```([^\s`]*)[^\n]*\n(.*?)\n```', section, re.S)
+                   if language.lower() in ('text', 'sh', 'bash') and 'launch-impl-review.py' in body]
+        self.assertEqual(len(choices), 1, 'Expected one maintained Bash/text non-TTY launcher fence')
+        return choices[0]
+
+    @staticmethod
+    def live(project):
+        """Reviewed domain data and durable review state; reviewer invocation files are written by the caller itself."""
+        return {path: digest for path, digest in tree(project).items()
+                if path.startswith(('domain/', 'reports/')) and not path.endswith('-invocation.json')}
+
+    def apply_defect(self, project, defect, round_rel):
+        """Mutate real live state after the genuine precheck; returns the restore list and extra manifest paths."""
+        restores: list[tuple[Path, bytes | None]] = []
+        extra: list[str] = []
+
+        def edit(relative, change):
+            path = project / relative
+            restores.append((path, path.read_bytes()))
+            path.write_bytes(change(path.read_bytes()))
+
+        def flipped(raw):
+            document = json.loads(raw)
+            document['input_sha256'] = launch.flip(document['input_sha256'])
+            return (json.dumps(document, indent=2) + '\n').encode()
+
+        if defect == 'canonical-drift':
+            edit('domain/concept-model.md', lambda raw: raw + b'Drift after the recorded precheck.\n')
+        elif defect == 'aggregate-added':
+            late = project / 'domain/aggregates/Late.md'
+            restores.append((late, None))
+            late.write_text('Late unreviewed aggregate card\n')
+            extra.append('domain/aggregates/Late.md')
+        elif defect == 'calibration-drift':
+            edit(DOMAIN_CALLER_CALIBRATION, lambda raw: raw + b'\nCalibration drift after the recorded precheck.\n')
+        elif defect == 'precheck-drift':
+            edit(round_rel + '/precheck-result.json', flipped)
+        elif defect == 'status-reviewed':
+            edit('domain/context-map.md', lambda raw: raw.replace(b'Domain-Model-Status: Pending', b'Domain-Model-Status: Reviewed'))
+        else:
+            self.assertIsNone(defect, 'Unknown deliberate defect')
+        return restores, extra
+
+    def case(self, st, label, *, paths, letter='a', round_number=1, request_role=None, mutation=None, defect=None,
+             session=None, output_rel=None, request_host=launch.HOST, run=True):
+        """Fresh immutable request/observation, exact invocation/v2 from the genuine precheck paths; the fence runs once.
+
+        `paths` come from Review.precheck() (plus B's summary); `defect` rebinds the manifest to drifted live state."""
+        f, project, runtime = st['f'], st['project'], st['runtime']
+        role = DOMAIN_CALLER_ROLES[0 if letter == 'a' else 1]
+        reused = session is not None
+        session = session or str(uuid.uuid4())
+        request_name, observation_name = 'request-%s.json' % label, 'observation-%s.json' % label
+        round_rel = DOMAIN_ROUND % round_number
+        f.request = f.fresh_request(request_role or role)
+        f.request['observation_path'] = observation_name
+        f.request['host'] = request_host
+        f.observation = f.fresh_observation()
+        f.observation['host'] = request_host
+        f.save()
+        shutil.copyfile(f.root / 'observation.json', f.root / observation_name)
+        closure = sorted(f.closure())
+        # Captured while this case's mutable oracle state is current; an unsupported host has no oracle selection.
+        oracle = InstalledEntryTests.oracle_selection(f) if request_host == launch.HOST else None
+        for name in sorted({'registry.json', *closure}):
+            if (project / name).exists():  # shared policy/registry/adoption bytes stay exactly as published
+                self.assertEqual((project / name).read_bytes(), (f.root / name).read_bytes(), 'Shared input drifted: ' + name)
+            else:
+                shutil.copyfile(f.root / name, project / name)
+        self.assertFalse((project / request_name).exists(), 'Per-role request must be fresh and immutable')
+        shutil.copyfile(f.root / 'request.json', project / request_name)
+        ledger = project / SPEC_LEDGER
+        records = self.chain(ledger)
+        if not reused:
+            self.assertFalse([r for r in records if session in (r['run_id'], r['host_session_id'])],
+                             'Proposed identity must be absent before the launcher')
+            transcripts = f.home / '.claude/projects'
+            self.assertFalse(transcripts.is_dir() and list(transcripts.rglob(session + '.jsonl')))
+        baseline = {path: launch.sha_file(project / path) for path in paths}
+        live_before = self.live(project)
+        output_rel = output_rel or 'runs/' + role + '-' + session
+        restores, extra = self.apply_defect(project, defect, round_rel)
+        try:
+            manifest_paths = list(paths)
+            if extra:
+                index = manifest_paths.index(DOMAIN_CALLER_CALIBRATION)
+                manifest_paths[index:index] = extra
+            entries = [{'path': path, 'sha256': launch.sha_file(project / path)} for path in manifest_paths]
+            invocation = project / round_rel / ('reviewer-%s-invocation.json' % letter)
+            invocation.write_text(json.dumps({
+                'schema': 'review-context-invocation/v2', 'input_mode': 'file-manifest', 'fallback_mode': 'none',
+                'read_only': True, 'stage': 'domain', 'role': role, 'feature': DOMAIN_FEATURE, 'run_id': session,
+                'host_session_id': session, 'sequence': len(records) + 1, 'identity_ledger_path': SPEC_LEDGER,
+                'identity_ledger_sha256': launch.sha_file(ledger), 'previous_record_sha256': records[-1]['record_sha256'],
+                'allowed_input_manifest': entries}, indent=2) + '\n')
+            # Documented placeholders only: the spec/quality vocabulary plus the domain round counters.
+            values: dict[str, str] = {
+                '<absolute-repository-root>': str(project), '<absolute-invocation-path>': str(invocation),
+                '<absolute-round-directory>': str(project / round_rel), '<UUID>': session, '<role>': role,
+                '<policy-request>': request_name, '<registry>': 'registry.json', '<run-id>': session,
+                '<session-id>': session, '<attempt>': '1', '<round>': str(round_number), '<M>': '1',
+                '<N>': str(round_number), '<host>': launch.HOST, '<output-dir>': output_rel,
+                '<absolute-claude-executable>': str(f.base / 'shims/claude'),
+                '<claude-executable>': str(f.base / 'shims/claude')}
+            text = self.fence(project)
+            for old, new in values.items():
+                text = text.replace(old, new)
+            for relative in [ADAPTER, *SPEC_CALLER_RUNTIME, *DOMAIN_CALLER_RUNTIME]:
+                text = re.sub(r'(?<![\w./-])' + re.escape(relative), lambda _: str(project / relative), text)
+            self.assertIsNone(re.search(r'<[A-Za-z][A-Za-z0-9_-]*>', text), 'Undocumented fixture placeholder')
+            if mutation == 'flag-host-copilot':
+                text, count = re.subn(r'(--host(?:[ \t]+|=))claude-code(?![A-Za-z0-9_-])', r'\1copilot-cli', text)
+                self.assertGreaterEqual(count, 1, 'The maintained fence must pass its managed host explicitly')
+            launcher = str(project / SPEC_CALLER_LAUNCHER)
+            lines = text.splitlines(keepends=True)
+            indexes = [index for index, line in enumerate(lines) if launcher in line]
+            self.assertEqual(len(indexes), 1, 'Mutation and oracle need the one actual maintained launcher invocation')
+            start = end = indexes[0]
+            while start and lines[start - 1].rstrip('\n').endswith('\\'):
+                start -= 1
+            while end + 1 < len(lines) and lines[end].rstrip('\n').endswith('\\'):
+                end += 1
+            if mutation == 'remove-forwarding':
+                command, count = QUALITY_FORWARDING.subn('', ''.join(lines[start:end + 1]))
+                self.assertEqual(count, 2, 'Mutation must remove exactly the two launcher control flags, keeping prepare')
+                text = ''.join(lines[:start]) + command + ''.join(lines[end + 1:])
+            elif mutation == 'raw-control-drift':
+                text = ''.join(lines[:start] + ['printf "\\n" >> ' + shlex.quote(output_rel + '/controls.json') + ' &&\n'] +
+                               lines[start:])
+            else:
+                self.assertIn(mutation, (None, 'flag-host-copilot'), 'Unknown deliberate fence mutation')
+            script = f.base / ('domain-caller-' + label + '.sh')
+            script.write_text(text + '\n')
+            audit = f.audit.read_bytes() if f.audit.exists() else b''
+            before = ledger.read_bytes()
+            result = self.execute(f, [launch.BASH, str(script)], cwd=project, timeout=900) if run else None
+        finally:
+            for path, original in reversed(restores):
+                if original is None:
+                    path.unlink()
+                else:
+                    path.write_bytes(original)
+        self.assertEqual({path: launch.sha_file(project / path) for path in baseline}, baseline,
+                         'Restoring the deliberate defect must leave the reviewed state byte-identical')
+        self.assertFalse(f.poison.exists(), 'Caller used the poisoned source package')
+        after = runtime_tree(project)
+        self.assertEqual({path: after.get(path) for path in runtime}, runtime, 'Caller changed installed runtime')
+        self.assertFalse([path for path in after if path.startswith(('plugins/', 'contracts/')) and path not in runtime],
+                         'Caller added files to the installed runtime')
+        if not defect:
+            self.assertEqual({entry['path']: launch.sha_file(project / entry['path']) for entry in entries},
+                             {entry['path']: entry['sha256'] for entry in entries}, 'Reviewed sources or status changed')
+        self.assertEqual(tree(f.home / '.codex'), f.codex_home, 'Caller changed user native Codex configuration')
+        self.assertEqual({path: digest for path, digest in tree(f.home / '.claude').items()
+                          if not path.startswith('projects/')}, f.claude_home, 'Caller changed user Claude configuration')
+        case: dict[str, Any] = {
+            'session': session, 'feature': DOMAIN_FEATURE, 'entries': entries, 'paths': manifest_paths,
+            'invocation': invocation, 'output_rel': output_rel, 'launch': project / round_rel / ('launch-' + session),
+            'result': result, 'records': records, 'ledger': before, 'audit': audit, 'role': role, 'letter': letter,
+            'round_rel': round_rel, 'round_number': round_number, 'request': request_name, 'closure': closure,
+            'oracle': oracle, 'reused': reused, 'live_before': live_before, 'live_after': self.live(project)}
+        return case
+
+    def native_audit(self, st, case):
+        return self.native_calls(st['f'], case)
+
+    def assert_blocked(self, st, case):
+        """Stopped before allocation, reservation and any native send: nothing durable changed."""
+        f, project = st['f'], st['project']
+        round_dir = project / case['round_rel']
+        self.assertFalse(case['launch'].exists(), 'A blocked caller created launch output')
+        self.assertEqual(sorted(path.name for path in round_dir.iterdir()
+                                if path.name.startswith('launch-') or DOMAIN_LAUNCH_EVIDENCE.fullmatch(path.name)), [],
+                         'A blocked caller wrote launch, preflight or allocation evidence')
+        self.assertEqual((project / SPEC_LEDGER).read_bytes(), case['ledger'], 'A blocked caller changed the ledger')
+        self.assertEqual(self.native_audit(st, case), [], 'A blocked caller reached the native CLI')
+        self.assertEqual(case['live_after'], case['live_before'], 'A blocked caller changed live inputs or review state')
+        self.assertFalse(f.marker.exists(), 'A blocked caller reached a provider executable')
+        if not case['reused']:
+            transcripts = f.home / '.claude/projects'
+            self.assertFalse(transcripts.is_dir() and list(transcripts.rglob(case['session'] + '.jsonl')))
+
+    def assert_typed(self, result, reason):
+        """The existing closed typed preparation error and nothing else on stdout."""
+        self.assertEqual((result.returncode, result.stdout), (2, ''), 'Expected the typed prepare failure: ' + result.stderr[-1600:])
+        error = json.loads(result.stderr)
+        self.assertEqual((error['schema'], error['reason']), ('model-policy-error/v1', reason))
+
+    # ---- positive oracles --------------------------------------------------------------------------------------------
+
+    def assert_delivered(self, st, case):
+        """Route-independent complete positive: genuine probe, one launcher reservation, verified delivery."""
+        f, project, finalizer = st['f'], st['project'], domain_finalizer_tests()
+        session, output, result, role = case['session'], case['launch'], case['result'], case['role']
+        self.assertEqual(result.returncode, 0, 'Valid maintained domain fence failed: ' + result.stderr[-2400:])
+        delivery = json.loads((output / 'delivery.json').read_bytes())
+        self.assertEqual({key: delivery.get(key) for key in SPEC_DELIVERY_FIELDS},
+                         {'status': 'DELIVERY_OK', 'session_id': session,
+                          'prompt_sha256': launch.sha_file(output / 'prompt.txt'),
+                          'prompt_bytes': len((output / 'prompt.txt').read_bytes()),
+                          'transcript_sha256': launch.sha_file(output / (session + '.jsonl')),
+                          'wrapper_sha256': launch.sha_file(output / 'wrapper.json')})
+        before, records = case['records'], self.chain(project / SPEC_LEDGER)
+        self.assertEqual(records[:-1], before, 'Exactly one record may be appended to the prior chain')
+        inputs = sha_text('\n'.join(entry['path'] + '\t' + entry['sha256'] for entry in case['entries']))
+        sequence, previous = len(before) + 1, before[-1]['record_sha256']
+        digest = sha_text('|'.join((str(sequence), 'domain', role, session, session, previous, 'allowed-inputs-v1', inputs)))
+        self.assertEqual(records[-1], {'sequence': sequence, 'stage': 'domain', 'role': role, 'run_id': session,
+                                       'host_session_id': session, 'previous_record_sha256': previous,
+                                       'record_sha256': digest, 'allowed_inputs_sha256': inputs})
+        receipt = ('REVIEW_CONTEXT_OK %s sequence=%d previous_record_sha256=%s pre_append_tip_sequence=%d '
+                   'identity_unique=yes\n' % (digest, sequence, previous, sequence - 1))
+        names = ('preview.txt', 'preview-after.txt', 'reserved.txt', 'receipt.txt')
+        self.assertEqual({name: (output / name).read_text() for name in names}, dict.fromkeys(names, receipt))
+        native = [json.loads(line) for line in (output / 'native.jsonl').read_text().splitlines()]
+        diagnostic = native[0].get('diagnostic_session')
+        self.assertEqual(native[:2], [{'diagnostic_session': diagnostic, 'reservation': 'not performed'},
+                                      {'session': diagnostic, 'exit': 0, 'stderr_present': False}])
+        self.assertNotEqual(diagnostic, session)
+        self.assertFalse([r for r in records if diagnostic in (r['run_id'], r['host_session_id'])], 'The probe reserved')
+        proof = native[-1]
+        guard = project / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
+        self.assertEqual({key: proof.get(key) for key in (
+            'admitted_read_executed', 'outside_read_pretool_denied', 'chained_bash_pretool_denied',
+            'existing_session_collision_rejected', 'control_reads_executed', 'source_invocation_read_executed',
+            'source_invocation_sha256', 'admitted_paths', 'ordered_hashes_verified', 'fixed_input_record_sha256',
+            'guard_sha256')},
+            {'admitted_read_executed': True, 'outside_read_pretool_denied': True, 'chained_bash_pretool_denied': True,
+             'existing_session_collision_rejected': True, 'control_reads_executed': True,
+             'source_invocation_read_executed': True, 'source_invocation_sha256': launch.sha_file(case['invocation']),
+             'admitted_paths': case['paths'], 'ordered_hashes_verified': len(case['entries']) + 5,
+             'fixed_input_record_sha256': None, 'guard_sha256': launch.sha_file(guard)})
+        homes = sorted((f.home / '.claude/projects').rglob('*.jsonl'))
+        formal_home = [path for path in homes if path.name == session + '.jsonl']
+        diagnostic_home = [path for path in homes if path.name == diagnostic + '.jsonl']
+        self.assertEqual((len(formal_home), len(diagnostic_home)), (1, 1), 'Native transcripts missing or ambiguous')
+        self.assertEqual(formal_home[0].read_bytes(), (output / (session + '.jsonl')).read_bytes())
+        self.assertEqual(launch.sha_file(diagnostic_home[0]), proof['transcript_sha256'],
+                         'Duplicate-session rejection changed the diagnostic transcript')
+        calls = self.native_audit(st, case)
+        self.assertEqual([call['mode'] for call in calls], SPEC_NATIVE_MODES)
+        probe_call, collision, formal = calls[2], calls[3], calls[5]
+        self.assertEqual((probe_call['session_id'], collision['session_id'], collision['argv'], formal['session_id']),
+                         (diagnostic, diagnostic, probe_call['argv'], session))
+        plugin_dir = str(project / 'plugins/sdd-review-loop')  # the unchanged argv renderer; runtime=P
+        for call in (probe_call, formal):
+            argv = call['argv']
+            self.assertEqual((argv[:3], argv[argv.index('--plugin-dir') + 1]),
+                             (['-p', '--session-id', call['session_id']], plugin_dir))
+        self.assertEqual(Path(formal['argv'][formal['argv'].index('--settings') + 1]), output / 'settings.json')
+        self.assertEqual([(t['tool'], t['decision'], t['is_error']) for t in probe_call['tools']],
+                         [('Bash', 'allow', False)] + [('Read', 'allow', False)] * len(proof['native_read_paths']) +
+                         [('Bash', 'deny', True), ('Read', 'deny', True), ('StructuredOutput', 'allow', False)])
+        reads = [str((project / path).resolve()) for path in
+                 [case['invocation'].relative_to(project).as_posix(), SPEC_CALLER_BOUNDARY, *case['paths']]]
+        self.assertEqual([(t['tool'], t['decision'], t['is_error'], t.get('path'), t.get('sha256')) for t in formal['tools']],
+                         [('Bash', 'allow', False, None, None)] +
+                         [('Read', 'allow', False, path, launch.sha_file(Path(path))) for path in reads] +
+                         [('StructuredOutput', 'allow', False, None, None)])
+        wrapper = json.loads((output / 'wrapper.json').read_bytes())
+        review = wrapper['structured_output']
+        self.assertEqual((wrapper['type'], wrapper['is_error'], wrapper['session_id'], json.loads(wrapper['result'])),
+                         ('result', False, session, review))
+        self.assertEqual(set(review), {'schema', 'stage', 'role', 'run_id', 'host_session_id', 'allowed_input_manifest',
+                                       'verdict', 'checks'})
+        self.assertEqual({key: review[key] for key in ('schema', 'stage', 'role', 'run_id', 'host_session_id',
+                                                       'allowed_input_manifest', 'verdict')},
+                         {'schema': role + '/v1', 'stage': 'domain', 'role': role, 'run_id': session,
+                          'host_session_id': session, 'allowed_input_manifest': case['entries'], 'verdict': 'PASS'},
+                         'Fixture-only delivery record, never an approval')
+        expected = finalizer.A if case['letter'] == 'a' else finalizer.B
+        self.assertEqual([check['id'] for check in review['checks']], list(expected), 'Original full check coverage')
+        self.assertEqual((len(expected), {check['result'] for check in review['checks']}),
+                         (10 if case['letter'] == 'a' else 6, {'PASS'}))
+        return delivery, calls
+
+    def assert_managed(self, st, case, calls):
+        """Managed oracle: real installed prepare controls forwarded, generated native role and bound delivery."""
+        f, project = st['f'], st['project']
+        session, output, role = case['session'], case['launch'], case['role']
+        directory = project / case['output_rel']
+        self.assertTrue((directory / 'validation.json').is_file(), 'Maintained caller omitted installed prepare')
+        self.assertEqual(sorted(path.name for path in directory.iterdir()), OUTPUT_FILES)
+        controls, selection, validation = [json.loads((directory / name).read_bytes()) for name in OUTPUT_FILES]
+
+        def ref(path):
+            return {'path': path, 'sha256': launch.sha_file(project / path)}
+        self.assertEqual(controls, {'schema': 'model-launch-controls/v1', 'role': role, 'host': launch.HOST,
+                                    'attempt': 1, 'require_actual_id': False,
+                                    'selection': ref(case['output_rel'] + '/selection.json'),
+                                    'request': ref(case['request']), 'registry': ref('registry.json'),
+                                    'inputs': [ref(path) for path in case['closure']]})
+        self.assertEqual(set(validation), launch.VALIDATION_FIELDS)
+        self.assertEqual(validation['controls'], ref(case['output_rel'] + '/controls.json'))
+        self.assertEqual(validation['pins'], sorted([controls['selection'], controls['request'], controls['registry'],
+                                                    *controls['inputs']], key=lambda item: item['path']))
+        self.assertEqual(validation['trusted'], [{'path': path, 'sha256': launch.sha_file(ROOT / path)}
+                                                 for path in launch.TRUSTED_PATHS], 'trusted runtime is current bytes')
+        self.assertEqual([validation[key] for key in ('role', 'host', 'run_id', 'session_id', 'attempt', 'require_actual_id')],
+                         [role, launch.HOST, session, session, 1, False])
+        self.assertEqual(validation['selection'], selection)
+        self.assertEqual(selection, f.helper().bind_selection(case['oracle'] or InstalledEntryTests.oracle_selection(f),
+                                                              run_id=session, session_id=session, attempt=1))
+        native, effort = selection['resolved']['native_id'], selection['resolved']['effort']
+        trusted = next(m for m in f.trusted_policy['models'] if m['id'] == selection['resolved']['catalog_id'])
+        self.assertEqual(native, trusted['hosts'][launch.HOST], 'trusted mapping only')
+        launch_path = output / 'model-launch.json'
+        self.assertTrue(launch_path.is_file(), 'Launcher did not bind the forwarded model controls')
+        launch_raw = launch_path.read_bytes()
+        record = json.loads(launch_raw)
+        self.assertEqual(set(record), launch.LAUNCH_FIELDS)
+        self.assertEqual([record[key] for key in ('controls', 'pins', 'trusted')],
+                         [validation[key] for key in ('controls', 'pins', 'trusted')])
+        self.assertEqual({key: record[key] for key in (
+            'schema', 'role', 'transport_role', 'host', 'run_id', 'session_id', 'attempt', 'require_actual_id',
+            'selection_sha256', 'native_model', 'effort', 'effort_control', 'effort_carrier', 'native_alignment',
+            'transport', 'native_overrides', 'model_argv', 'effort_argv', 'agent_model', 'agent_effort')},
+            {'schema': 'model-launch-binding/v1', 'role': role, 'transport_role': role,
+             'host': launch.HOST, 'run_id': session, 'session_id': session, 'attempt': 1, 'require_actual_id': False,
+             'selection_sha256': selection['selection_sha256'], 'native_model': native, 'effort': effort,
+             'effort_control': selection['resolved']['effort_control'], 'effort_carrier': 'flag+frontmatter',
+             'native_alignment': 'generated', 'transport': 'claude-print',
+             'native_overrides': dict.fromkeys(launch.NATIVE_OVERRIDES), 'model_argv': ['--model', native],
+             'effort_argv': ['--effort', effort], 'agent_model': native, 'agent_effort': effort})
+        probe_call, formal = calls[2], calls[5]
+        argv = formal['argv']
+        self.assertEqual(record['argv'], ['rtk', 'proxy', str(f.base / 'shims/claude'), *argv],
+                         'Recorded launch argv must be the actual native argv')
+        self.assertEqual(record['argv_sha256'], launch.sha_bytes(launch.canonical(record['argv'])))
+        self.assertEqual([argv[argv.index(flag) + 1] for flag in ('--model', '--effort', '--setting-sources', '--agent')],
+                         [native, effort, '', role])
+        self.assertEqual([formal[key] for key in ('model', 'effort', 'agent', 'agent_model', 'agent_effort')],
+                         [native, effort, role, native, effort])
+        role_rel = 'plugins/sdd-domain/agents/' + role + '.md'
+        self.assertEqual(launch.sha_file(project / role_rel), launch.sha_file(ROOT / role_rel), 'Source role body is unchanged')
+        role_text = (project / role_rel).read_text()
+        agents = json.loads(argv[argv.index('--agents') + 1])
+        self.assertEqual(list(agents), [role])
+        agent = agents[role]
+        self.assertTrue(isinstance(agent['description'], str) and agent['description'].strip())
+        self.assertEqual({key: value for key, value in agent.items() if key != 'description'},
+                         {'prompt': role_text.split('---', 2)[2].strip(), 'model': native,
+                          'tools': ['Read', 'Bash', 'StructuredOutput'], 'disallowedTools': launch.DISALLOWED,
+                          'effort': effort},
+                         'Generated native role must carry the full original body and the selection; the role file is never edited')
+        schema = json.loads(argv[argv.index('--json-schema') + 1])
+        self.assertTrue(schema['type'] == 'object' and {'checks', 'verdict', 'allowed_input_manifest'} <= set(schema['properties']))
+        self.assertEqual((probe_call['model'], probe_call['effort']), ('sonnet', None),
+                         'The unreserved probe stays the unselected permission diagnostic')
+        delivery = json.loads((output / 'delivery.json').read_bytes())
+        self.assertEqual(set(delivery), SPEC_DELIVERY_FIELDS | SPEC_MODEL_DELIVERY_FIELDS)
+        binding_path = output / 'model-delivery-binding.json'
+        self.assertEqual([delivery['model_launch_sha256'], delivery['model_delivery_binding_sha256']],
+                         [launch.sha_bytes(launch_raw), launch.sha_file(binding_path)])
+
+        def local(name):
+            return ref((output / name).relative_to(project).as_posix())
+        binding = json.loads(binding_path.read_bytes())
+        self.assertEqual(binding, {'schema': 'model-delivery-binding/v1', 'launch_sha256': launch.sha_bytes(launch_raw),
+                                   'transport': 'claude-print', 'selection': local('model-selection.json'),
+                                   'events': local('model-events.json'), 'delivery': local('model-delivery.json'),
+                                   'execution_context': local('model-execution-context.json'), 'run_id': session,
+                                   'session_id': session, 'attempt': 1, 'selection_sha256': selection['selection_sha256']})
+        model_delivery = {'schema': 'model-delivery/v1', 'selection_sha256': selection['selection_sha256'],
+                          'run_id': session, 'session_id': session, 'turn_id': 'local-review-attempt-1',
+                          'configured_id': native, 'actual_id': None, 'proof': 'unverified', 'source': 'unsupported',
+                          'reroutes': [], 'status': 'accepted', 'reason': 'identity-unverified'}
+        self.assertEqual([json.loads((output / name).read_bytes()) for name in ('model-selection.json', 'model-delivery.json')],
+                         [selection, model_delivery], 'Delivery must bind the exact prepared selection')
+        self.assert_run_record(f, project, case, selection, model_delivery)
+        order = [output / name for name in ('model-launch.json', 'native.jsonl', 'reserved.txt', 'prompt.txt',
+                                            'wrapper.json', 'delivery.json')]
+        self.assertEqual([path.stat().st_mtime_ns for path in order], sorted(path.stat().st_mtime_ns for path in order),
+                         'Model launch binding must precede the probe, reservation and native send')
+        return {'model': native, 'effort': effort}
+
+    def assert_pending(self, st):
+        """No approval, no cross-model artifact, no spec input and no provider send: the model stays Pending."""
+        f, project, data = st['f'], st['project'], st['data']
+        context = (project / 'domain/context-map.md').read_bytes()
+        self.assertEqual(context, (data.root / 'domain/context-map.md').read_bytes())
+        self.assertEqual(re.findall(rb'^Domain-Model-Status:[ \t]*([^\r\n]*)\r?$', context, re.M), [b'Pending'])
+        self.assertFalse((project / 'reports/domain-review/last-approved-fingerprint.json').exists())
+        self.assertFalse((project / 'reports/domain-review/.domain-review.lock').exists(), 'A review lock was left behind')
+        self.assertEqual(sorted(path.name for path in (project / 'reports').iterdir()), ['domain-review', 'review-context'],
+                         'No cross-model, approval or other report may appear')
+        self.assertFalse((project / 'specs').exists(), 'No specs/ input may be fabricated for the domain gate')
+        self.assertFalse(f.marker.exists(), 'A provider or external executable was invoked')
+
+    def pin(self, project, case):
+        """Complete persisted closure of one launch plus every request, input and policy it pinned."""
+        files = {case['invocation'].relative_to(project).as_posix(), case['request'], 'registry.json',
+                 *case['closure'], *case['paths']}
+        return {'outputs': tree(project / case['output_rel']), 'launch': tree(case['launch']),
+                'files': {path: launch.sha_file(project / path) for path in sorted(files)}}
+
+    # ---- real generated guard ----------------------------------------------------------------------------------------
+
+    def generated_guard(self, project, case):
+        settings = json.loads((case['launch'] / 'settings.json').read_bytes())
+        hooks = [hook['command'] for group in settings['hooks']['PreToolUse'] for hook in group['hooks']]
+        self.assertEqual(len(hooks), 1)
+        guard = project / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
+        parts = shlex.split(hooks[0])
+        self.assertEqual((parts[:4], parts[6:]), (['rtk', 'proxy', 'node', str(guard)], ['||', 'exit', '2']))
+        policy_raw = Path(parts[4]).read_bytes()
+        self.assertEqual(parts[5], hashlib.sha256(policy_raw).hexdigest(), 'Hook must pin the exact raw policy bytes')
+        policy = json.loads(policy_raw)
+        self.assertEqual((sorted(policy), policy['schema'], policy['output_tool']),
+                         (['bash_commands', 'output_tool', 'read_paths', 'schema'], 'impl-nontty-pretool/v1', 'StructuredOutput'))
+        return hooks[0], policy
+
+    def hook(self, st, case, command, tool, tool_input):
+        event = json.dumps({'session_id': case['session'], 'transcript_path': str(case['launch'] / (case['session'] + '.jsonl')),
+                            'cwd': str(st['project']), 'hook_event_name': 'PreToolUse', 'tool_name': tool,
+                            'tool_input': tool_input})
+        return self.execute(st['f'], [launch.BASH, '-c', command], cwd=st['project'], stdin=event)
+
+    def assert_guard(self, st, case, command, tool, tool_input, allowed, label):
+        result = self.hook(st, case, command, tool, tool_input)
+        self.assertEqual(result.returncode, 0, label + ': guard failed closed with a non-decision')
+        if allowed:
+            self.assertEqual((result.stdout, result.stderr), ('', ''), label + ' must be admitted')
+        else:
+            self.assertEqual((json.loads(result.stdout), result.stderr), (DOMAIN_DENIAL, ''), label + ' must be denied')
+
+    def assert_guard_matrix(self, st, a, b):
+        """The real generated B hook and the real Node guard: admitted work passes, every raw-A/write/escape path is denied."""
+        f, project = st['f'], st['project']
+        command, policy = self.generated_guard(project, b)
+        summary_rel = a['round_rel'] + '/integrated-summary.json'
+        raw_rel = a['round_rel'] + '/reviewer-a.json'
+        reads = [str((project / path).resolve()) for path in
+                 [b['invocation'].relative_to(project).as_posix(), SPEC_CALLER_BOUNDARY, *b['paths']]]
+        self.assertEqual(policy['read_paths'], reads, 'Generated policy must be the exact B closure')
+        self.assertIn(str((project / summary_rel).resolve()), policy['read_paths'])
+        outside = f.base / 'outside-read.txt'
+        outside.write_text('outside the admitted inputs\n')
+        ledger, tree_before = (project / SPEC_LEDGER).read_bytes(), tree(project)
+        calls_before = len(self.native_audit(st, b))
+        for path in reads:
+            self.assert_guard(st, b, command, 'Read', {'file_path': path}, True, 'admitted Read ' + Path(path).name)
+        hashes = [text for text in policy['bash_commands'] if summary_rel in text]
+        self.assertGreaterEqual(len(hashes), 1, 'The admitted hash work must cover the sanitized summary')
+        for text in policy['bash_commands']:
+            self.assert_guard(st, b, command, 'Bash', {'command': text}, True, 'admitted Bash ' + text[:48])
+        executed = self.execute(f, [launch.BASH, '-c', hashes[0]], cwd=project)
+        self.assertEqual(executed.returncode, 0, 'Admitted hash command did not run: ' + executed.stderr[-400:])
+        self.assertIn(launch.sha_file(project / summary_rel), executed.stdout)
+        forbidden = [project / raw_rel, project / a['round_rel'] / 'report.md', a['invocation'], a['launch'] / 'wrapper.json',
+                     a['launch'] / (a['session'] + '.jsonl'), project / 'domain/../' / raw_rel, outside]
+        for path in forbidden:
+            self.assert_guard(st, b, command, 'Read', {'file_path': str(path)}, False, 'Read ' + path.name)
+        raw_hash = hashes[0].replace(summary_rel, raw_rel)
+        self.assertNotEqual(raw_hash, hashes[0])
+        target = project / 'domain/domain-story.md'
+        denied = [raw_hash, hashes[0] + ' && printf compound', hashes[0] + '; printf compound', hashes[0] + ' | cat',
+                  hashes[0] + ' $(printf substitution)', hashes[0] + ' `printf substitution`',
+                  hashes[0] + ' > ' + shlex.quote(str(target)), 'printf changed > ' + shlex.quote(str(target)),
+                  'tee ' + shlex.quote(str(target)), "bash -c 'printf nested'", 'cat ' + shlex.quote(str(project / raw_rel)),
+                  'jq . ' + shlex.quote(str(project / summary_rel))]
+        for text in denied:
+            self.assert_guard(st, b, command, 'Bash', {'command': text}, False, 'Bash ' + text[:48])
+        self.assert_guard(st, b, command, 'Write', {'file_path': str(target), 'content': 'x'}, False, 'Write tool')
+        self.assertEqual(tree(project), tree_before, 'Guard probes must not write')
+        self.assertEqual(((project / SPEC_LEDGER).read_bytes(), len(self.native_audit(st, b))), (ledger, calls_before),
+                         'Guard probes must not send or reserve')
+
+    # ---- one complete real A -> finalizer summary -> fresh B -> finalizer pair ------------------------------------------
+
+    def run_pair(self, st):
+        f, project, data, finalizer = st['f'], st['project'], st['data'], domain_finalizer_tests()
+        ledger = project / SPEC_LEDGER
+        precheck, paths = self.initialize_round(st, 1)
+        expected = finalizer.read(data.round / 'precheck-result.json')
+        self.assertEqual((precheck['input_sha256'], precheck['calibration_sha256']),
+                         (expected['input_sha256'], expected['calibration_sha256']),
+                         'The installed initializer must hash the canonical data exactly like the original fixture')
+        a = self.case(st, 'domain-a', paths=paths, letter='a')
+        _, calls_a = self.assert_delivered(st, a)
+        selected_a = self.assert_managed(st, a, calls_a)
+        self.assertEqual(self.verified(st, 1)[1], paths, 'Review.precheck()/unchanged() must still hold after reviewer A')
+        after_a = self.chain(ledger)
+        round_dir = project / a['round_rel']
+        raw_a, summary_path = round_dir / 'reviewer-a.json', round_dir / 'integrated-summary.json'
+        summary_rel = a['round_rel'] + '/integrated-summary.json'
+        self.assertFalse(raw_a.exists() or summary_path.exists(), 'Round already holds reviewer output before A is persisted')
+        wrapper_a = json.loads((a['launch'] / 'wrapper.json').read_bytes())
+        review_a = wrapper_a['structured_output']
+        raw_a.write_text(wrapper_a['result'] + '\n')  # the actual returned raw JSON; nothing is invented or repaired
+        self.assertEqual(json.loads(raw_a.read_bytes()), review_a)
+        self.assertIn(DOMAIN_PRIVATE['a'], raw_a.read_text())
+        a_pin = self.pin(project, a)
+        diagnostic_a = json.loads((a['launch'] / 'native.jsonl').read_text().splitlines()[0])['diagnostic_session']
+        summarized = self.run_finalizer(st, 'summary')
+        self.assertEqual(summarized.returncode, 0, 'Actual finalizer summary failed: ' + summarized.stderr[-800:])
+        self.assertIn('DOMAIN_REVIEW_SUMMARY_READY', summarized.stdout)
+        bridge = finalizer.read(summary_path)
+        self.assertEqual(set(bridge), {'checks', 'counts'})
+        self.assertEqual(bridge['counts'], {'PASS': 10, 'FAIL': 0, 'SKIP': 0})
+        self.assertEqual([check['id'] for check in bridge['checks']], finalizer.A)
+        self.assertTrue(all(set(check) == {'id', 'severity', 'counts'} for check in bridge['checks']))
+        summary_text = summary_path.read_text()
+        for leaked in (DOMAIN_PRIVATE['a'], 'FIXTURE ONLY', a['session'], 'finding', 'allowed_input_manifest', 'sha256',
+                       'run_id', 'host_session_id'):
+            self.assertNotIn(leaked, summary_text, 'The sanitized summary leaked reviewer A raw content')
+        self.assertEqual(self.verified(st, 1)[1], paths)
+        sealed = {path: launch.sha_file(path) for path in (raw_a, summary_path)}
+        # Reviewer B: fresh request/observation/control/session; only the actual sanitized summary is added.
+        b = self.case(st, 'domain-b', paths=[*paths, summary_rel], letter='b')
+        self.assertEqual((b['round_rel'], b['records'], b['paths']), (a['round_rel'], after_a, [*a['paths'], summary_rel]))
+        self.assertEqual(len({a['session'], diagnostic_a, b['session']}), 3, 'B identity must be disjoint from A and its probe')
+        self.assertEqual(len({a['request'], b['request']}) + len({a['output_rel'], b['output_rel']}), 4)
+        _, calls_b = self.assert_delivered(st, b)
+        selected_b = self.assert_managed(st, b, calls_b)
+        after_b = self.chain(ledger)
+        self.assertEqual([(r['stage'], r['role']) for r in after_b],
+                         [('host', 'orchestrator'), ('domain', 'domain-reviewer-a'), ('domain', 'domain-reviewer-b')],
+                         'Exactly one canonical reservation per formal role')
+        self.assertEqual((after_b[:-1], after_b[-1]['previous_record_sha256'], after_b[-1]['run_id']),
+                         (after_a, after_a[-1]['record_sha256'], b['session']))
+        diagnostic_b = json.loads((b['launch'] / 'native.jsonl').read_text().splitlines()[0])['diagnostic_session']
+        self.assertFalse([r for r in after_b if {r['run_id'], r['host_session_id']} & {diagnostic_a, diagnostic_b}],
+                         'Probe identities must stay unreserved')
+        review_b = json.loads((b['launch'] / 'wrapper.json').read_bytes())['structured_output']
+        self.assertEqual([check['id'] for check in review_b['checks']], finalizer.B)
+        manifest_b = json.loads(b['invocation'].read_bytes())['allowed_input_manifest']
+        self.assertEqual((manifest_b, manifest_b[-1]), (b['entries'], {'path': summary_rel, 'sha256': launch.sha_file(summary_path)}))
+        a_launch = a['launch'].relative_to(project).as_posix()
+        excluded = [a['round_rel'] + '/reviewer-a.json', a_launch + '/wrapper.json', a_launch + '/' + a['session'] + '.jsonl']
+        self.assertFalse(set(excluded) & {entry['path'] for entry in manifest_b})
+        for name in ('prompt.txt', 'policy.json', 'settings.json', 'wrapper.json', b['session'] + '.jsonl'):
+            text = (b['launch'] / name).read_text()
+            self.assertNotIn(DOMAIN_PRIVATE['a'], text, 'Reviewer A private content crossed into B: ' + name)
+            self.assertNotIn(a['session'], text, 'Reviewer A identity crossed into B: ' + name)
+        self.assertIn(DOMAIN_PRIVATE['b'], (b['launch'] / 'wrapper.json').read_text())
+        self.assertEqual(self.verified(st, 1)[1], paths)
+        raw_b = round_dir / 'reviewer-b.json'
+        wrapper_b = json.loads((b['launch'] / 'wrapper.json').read_bytes())
+        raw_b.write_text(wrapper_b['result'] + '\n')
+        finalized = self.run_finalizer(st, 'finalize')
+        self.assertEqual(finalized.returncode, 0, 'Actual finalizer failed: ' + (finalized.stdout + finalized.stderr)[-800:])
+        outputs = {name: (round_dir / name).read_bytes() for name in ('integrated-verdict.json', 'report.md', 'domain-review-contract.json')}
+        verified = self.run_finalizer(st, 'verify')
+        self.assertEqual((verified.returncode, verified.stdout), (0, 'DOMAIN_REVIEW_VERIFIED\n'), verified.stderr[-800:])
+        self.assertEqual({name: (round_dir / name).read_bytes() for name in outputs}, outputs, 'Verify must not rewrite evidence')
+        self.assertEqual(self.verified(st, 1)[1], paths)
+        host, record_a, record_b = after_b
+        contract = finalizer.read(round_dir / 'domain-review-contract.json')
+        identity = ('role', 'run_id', 'host_session_id', 'sequence')
+        self.assertEqual(contract, {
+            'schema': 'domain-review-contract/v1', 'stage': 'domain', 'attempt': 1, 'round': 1,
+            'run_id': host['run_id'], 'host_session_id': host['host_session_id'],
+            'input_sha256': precheck['input_sha256'], 'calibration_sha256': precheck['calibration_sha256'],
+            'precheck_sha256': launch.sha_file(round_dir / 'precheck-result.json'), 'verdict': 'PASS', 'warningCount': 0,
+            'findings': {'Critical': 0, 'Major': 0, 'Minor': 0},
+            'reviewers': [dict({key: record[key] for key in identity}, invocation_sha256=launch.sha_file(item['invocation']),
+                               output_sha256=launch.sha_file(output))
+                          for record, item, output in ((record_a, a, raw_a), (record_b, b, raw_b))],
+            'cross_model_required': True, 'human_approval': 'Pending'})
+        self.assertEqual(finalizer.read(round_dir / 'integrated-verdict.json'), {
+            'schema': 'domain-review-integrated/v1', 'stage': 'domain', 'attempt': 1, 'round': 1, 'verdict': 'PASS',
+            'warningCount': 0, 'findings': {'Critical': 0, 'Major': 0, 'Minor': 0},
+            'reviewer_verdicts': {'a': 'PASS', 'b': 'PASS'}})
+        self.assertIn('Cross-model verification is still required. Human approval: Pending.', (round_dir / 'report.md').read_text())
+        self.assert_pending(st)
+        # B is independent of A: A's complete persisted closure is unchanged and both delivery bindings still verify.
+        self.assertEqual(self.pin(project, a), a_pin, 'Reviewer B or the finalizer changed reviewer A persisted closure')
+        self.assertEqual({path: launch.sha_file(path) for path in (raw_a, summary_path)}, sealed)
+        self.assert_run_record(f, project, a)
+        self.assert_run_record(f, project, b)
+        calls = self.native_calls(f, {'audit': st['audit']})
+        self.assertEqual([call['mode'] for call in calls], SPEC_NATIVE_MODES * 2, 'Only the two formal launches reached the recorder')
+        self.assertEqual([call['agent'] for call in calls if call['mode'] == 'formal'], list(DOMAIN_CALLER_ROLES))
+        return {'a': a, 'b': b, 'paths': paths, 'precheck': precheck, 'selected': (selected_a, selected_b),
+                'raw_a': raw_a, 'summary': summary_path, 'round_dir': round_dir}
+
+    # ---- the three bounded acceptance methods -------------------------------------------------------------------------
+
+    def test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending(self):
+        hashes = []
+        for shell in SHELLS:
+            with self.subTest(shell=shell):
+                st = self.fixture(shell)
+                pair = self.run_pair(st)
+                self.assertEqual(st['shell'], shell)
+                hashes.append(pair['precheck']['input_sha256'])
+                self.assert_guard_matrix(st, pair['a'], pair['b'])
+        self.assertEqual(len(set(hashes)), 1, 'Both installed shells must bind the identical canonical input hash')
+
+    def test_maintained_domain_fence_blocks_drift_identity_and_guard_violations_and_keeps_legacy_without_forwarding(self):
+        st = self.fixture('bash')
+        f, project = st['f'], st['project']
+        pair = self.run_pair(st)  # the complete positive fixture
+        a, b, round_dir = pair['a'], pair['b'], pair['round_dir']
+        self.assert_guard_matrix(st, a, b)
+        # Original replay behavior remains: initializer, finalizer and the verified evidence reject a repeat without change.
+        evidence = tree(round_dir)
+        replay = self.execute(f, [launch.BASH, str(project / 'plugins/sdd-domain/scripts/domain-review-precheck.sh'), '1', '1'], cwd=project)
+        self.assertEqual(replay.returncode, 1)
+        self.assertIn('round destination already exists (replay is forbidden)', replay.stderr)
+        again = self.run_finalizer(st, 'finalize')
+        self.assertNotEqual(again.returncode, 0)
+        self.assertIn('DOMAIN_REVIEW_BLOCKED', again.stderr)
+        self.assertEqual(self.run_finalizer(st, 'verify').returncode, 0)
+        self.assertEqual(tree(round_dir), evidence, 'A replay changed existing evidence')
+        # A fresh real round 2 (changed domain content, real initializer) carries every pre-reservation negative.
+        precheck2, paths2 = self.initialize_round(st, 2)
+        self.assertNotEqual(precheck2['input_sha256'], pair['precheck']['input_sha256'])
+        for label, role in (('wrong-role-b', 'domain-reviewer-b'), ('wrong-role-spec', 'spec-reviewer-a')):
+            with self.subTest(blocked=label):
+                case = self.case(st, label, paths=paths2, round_number=2, request_role=role)
+                self.assert_typed(case['result'], 'scope-mismatch')
+                self.assertEqual(json.loads(case['result'].stderr)['message'],
+                                 'Policy request role or host differs from the actual invocation.')
+                self.assertFalse((project / case['output_rel'] / 'validation.json').exists())
+                self.assert_blocked(st, case)
+        with self.subTest(blocked='raw-control-drift'):
+            case = self.case(st, 'raw-control-drift', paths=paths2, round_number=2, mutation='raw-control-drift')
+            self.assertEqual((case['result'].returncode, case['result'].stderr),
+                             (1, 'LAUNCH_STOPPED: input-invalid: Controls bytes do not match the supplied raw SHA-256 pin.\n'))
+            directory = project / case['output_rel']
+            validation = json.loads((directory / 'validation.json').read_bytes())
+            self.assertNotEqual(validation['controls']['sha256'], launch.sha_file(directory / 'controls.json'),
+                                'Mutation must follow real prepare and drift the validated raw controls')
+            self.assert_blocked(st, case)
+        for defect in ('canonical-drift', 'aggregate-added', 'calibration-drift', 'precheck-drift', 'status-reviewed'):
+            with self.subTest(blocked=defect):
+                case = self.case(st, defect, paths=paths2, round_number=2, defect=defect)
+                self.assertEqual(case['result'].returncode, 1, 'Drifted state must stop the launcher: ' + case['result'].stderr[-800:])
+                self.assertTrue(case['result'].stderr.startswith(DOMAIN_STOPPED), case['result'].stderr[-400:])
+                self.assert_blocked(st, case)
+                self.assertEqual(self.verified(st, 2)[1], paths2, 'The genuine precheck must hold again once the drift is restored')
+        with self.subTest(blocked='duplicate-identity'):
+            case = self.case(st, 'duplicate-identity', paths=paths2, round_number=2, session=a['session'],
+                             output_rel='runs/domain-reviewer-a-duplicate-' + uuid.uuid4().hex[:8])
+            self.assertEqual(case['result'].returncode, 1, 'A persisted identity must not reserve twice: ' + case['result'].stderr[-800:])
+            self.assertTrue(case['result'].stderr.startswith(DOMAIN_STOPPED), case['result'].stderr[-400:])
+            self.assertEqual([r['run_id'] for r in self.chain(project / SPEC_LEDGER)].count(a['session']), 1)
+            self.assert_blocked(st, case)
+        # Counterfactual: without the real forwarding the actual fence stays legacy and fails the managed oracle.
+        case = self.case(st, 'missing-forwarding', paths=paths2, round_number=2, mutation='remove-forwarding')
+        delivery, calls = self.assert_delivered(st, case)
+        self.assertTrue((project / case['output_rel'] / 'validation.json').is_file(), 'Mutation must keep real prepare')
+        self.assertEqual(set(delivery), SPEC_DELIVERY_FIELDS)
+        self.assertFalse((case['launch'] / 'model-launch.json').exists())
+        argv = calls[5]['argv']
+        self.assertEqual((argv[argv.index('--model') + 1], '--effort' in argv, '--setting-sources' in argv), ('sonnet', False, False))
+        with self.assertRaises(AssertionError):
+            self.assert_managed(st, case, calls)
+        self.assertEqual(self.verified(st, 2)[1], paths2)
+        self.assert_pending(st)
+
+    def test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation(self):
+        st = self.fixture('bash')
+        f, project = st['f'], st['project']
+        _, paths = self.initialize_round(st, 1)
+        skill = (project / DOMAIN_CALLER_SKILL).read_text(encoding='utf-8')
+        for fragment in DOMAIN_LEGACY_COPILOT:
+            self.assertEqual(skill.count(fragment), 1, 'Original Copilot legacy documentation must remain as data: ' + fragment[:40])
+        self.assertIsNone(re.search(r'(?m)(?:^|[\s;&|(])copilot[ \t]+(?:-|--)|--model[ \t]+auto', self.fence(project)),
+                          'The managed Claude fence must never fall back to the Copilot --model auto route')
+        self.assertFalse([m['id'] for m in f.trusted_policy['models'] if 'copilot-cli' in m['hosts']],
+                         'A trusted Copilot mapping exists now: replace this branch with a supported test')
+        role_rel = 'plugins/sdd-domain/agents/domain-reviewer-a.md'
+        raw_role = (project / role_rel).read_bytes()
+        # Renderer-style comments are data only: they must not close (or open) the caller, nor change the typed outcome.
+        rendered = f.base / 'rendered-domain-reviewer-a.md'
+        rendered.write_bytes(raw_role + b'\n<!-- x-sdd-effort: high -->\n<!-- x-sdd-model: opus -->\n')
+        for label, options in (
+                ('copilot-host', {'request_host': 'copilot-cli', 'mutation': 'flag-host-copilot', 'reason': 'model-unavailable'}),
+                ('request-copilot-flag-claude', {'request_host': 'copilot-cli', 'reason': 'scope-mismatch'}),
+                ('request-claude-flag-copilot', {'mutation': 'flag-host-copilot', 'reason': 'scope-mismatch'})):
+            with self.subTest(maintained=label):
+                reason = options.pop('reason')
+                case = self.case(st, label, paths=paths, **options)
+                self.assert_typed(case['result'], reason)
+                self.assertFalse((project / case['output_rel'] / 'validation.json').exists())
+                self.assert_blocked(st, case)
+        for label, comments in (('direct-claude-prepare', False), ('direct-claude-prepare-rendered-comments', True)):
+            with self.subTest(entry=label):
+                case = self.case(st, label, paths=paths, request_host='copilot-cli', run=False)
+                if comments:
+                    self.assertTrue(rendered.read_bytes().startswith(raw_role) and b'x-sdd-effort' in rendered.read_bytes())
+                result = self.execute(f, [sys.executable, '-I', '-B', str(project / ADAPTER), 'claude-prepare', '--request',
+                                          case['request'], '--registry', 'registry.json', '--role', case['role'], '--host',
+                                          'copilot-cli', '--run-id', case['session'], '--session-id', case['session'],
+                                          '--attempt', '1', '--output-dir', case['output_rel'], '--require-actual-id', 'false',
+                                          '--executable', str(f.base / 'shims/claude')], cwd=project)
+                self.assert_typed(result, 'model-unavailable')
+                self.assertFalse((project / case['output_rel'] / 'validation.json').exists())
+                self.assertEqual(self.live(project), case['live_before'], 'The closed error changed live inputs or state')
+                self.assert_blocked(st, dict(case, live_after=self.live(project)))
+        self.assertEqual((project / role_rel).read_bytes(), raw_role, 'The source role body must never be edited')
+        # Claude domains stay enabled and the round is untouched: the real positive A still delivers after every rejection.
+        case = self.case(st, 'claude-after-copilot', paths=paths)
+        _, calls = self.assert_delivered(st, case)
+        self.assert_managed(st, case, calls)
+        self.assertEqual(self.verified(st, 1)[1], paths)
+        self.assert_pending(st)
 
 
 if __name__ == '__main__':
