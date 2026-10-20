@@ -6893,5 +6893,146 @@ class InstalledProtectedCallerTests(unittest.TestCase):
                     self.assert_managed(f, project, legacy, calls)
 
 
+class InstalledSelfImprovementTests(unittest.TestCase):
+    """Local fixture of the pinned public action sequence; never an actual GitHub Action run."""
+
+    def setUp(self):
+        self.prep = prep = InstalledClaudePreparationTests('runTest')
+        self.addCleanup(lambda: self.assertTrue(prep.doCleanups()))
+        prep.setUp()
+        self.case = case = prep.case
+        case.request = case.fresh_request('self-improvement')
+        case.save()
+        prep.executable.write_bytes((ROOT / 'tests/fixtures/model-policy-installed/recording-self-improvement.py').read_bytes())
+        prep.executable.chmod(0o755)
+        self.record = case.base / 'self-improvement-native.json'
+        case.environment.update(SDD_ACTION_FIXTURE_HELP=launch.HELP_TEXT + '\n--session-id --output-format --input-format',
+                                SDD_ACTION_FIXTURE_VERSION=case.observation['cli_version'],
+                                SDD_ACTION_FIXTURE_RECORD=str(self.record), SDD_ACTION_FIXTURE_CANARY='kept')
+
+    def maintained_prepare(self, installed, *, request='request.json'):
+        case = self.case
+        source = (ROOT / '.github/workflows/self-improvement.yml').read_text()
+        marker = '- name: Prepare managed self-improvement session'
+        self.assertIn(marker, source, 'maintained action must prepare and forward a real managed SDK executable')
+        block = source.split(marker, 1)[1].split('\n      - name:', 1)[0]
+        self.assertIn('        run: |\n', block)
+        script = '\n'.join(line[10:] for line in block.split('        run: |\n', 1)[1].splitlines())
+        output = case.base / 'github-output'
+        output.unlink(missing_ok=True)
+        environment = dict(case.environment, SDD_MANAGED_ENTRY=str(installed / ADAPTER),
+                           SDD_SELF_IMPROVEMENT_REQUEST=request, SDD_SELF_IMPROVEMENT_REGISTRY='registry.json',
+                           CLAUDE_NATIVE_EXECUTABLE=str(self.prep.executable), GITHUB_RUN_ID=case.run_id,
+                           GITHUB_RUN_ATTEMPT='1', RUNNER_TEMP=str(case.base), GITHUB_OUTPUT=str(output))
+        result = case.run_process([launch.BASH, '-e', '-o', 'pipefail', '-c', script], environment,
+                                  timeout=120, label='maintained self-improvement prepare fixture')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr[-1500:])
+        values = dict(line.split('=', 1) for line in output.read_text().splitlines())
+        wrapper = Path(values['executable'])
+        self.assertTrue(wrapper.is_file() and os.access(wrapper, os.X_OK))
+        return values
+
+    def action_settings(self, patch=None):
+        # Pinned setupClaudeCodeSettings merges input and enables project MCP servers, after preparation.
+        settings = self.case.home / '.claude/settings.json'
+        value = json.loads(settings.read_bytes())
+        value.update(patch or {})
+        value['enableAllProjectMcpServers'] = True
+        settings.write_text(json.dumps(value))
+        return value
+
+    def sdk_argv(self, prepared):
+        return ['--output-format', 'stream-json', '--verbose', '--input-format', 'stream-json',
+                '--model', prepared['model'], '--effort', prepared['effort'], '--session-id', prepared['session_id'],
+                '--max-turns', '75', '--allowedTools', 'Bash,Read,Write,Edit,MultiEdit,Glob,Grep,WebFetch,TodoWrite',
+                '--setting-sources', 'user,project,local']
+
+    def native(self, prepared, argv=None, *, extra_env=None):
+        import subprocess
+        environment = dict(self.case.environment, **(extra_env or {}))
+        payload = b'{"type":"user","message":{"role":"user","content":"fixture"}}\n'
+        result = subprocess.run([prepared['executable'], *(argv or self.sdk_argv(prepared))], cwd=self.case.root,
+                                env=environment, input=payload, capture_output=True, timeout=120)
+        return result, payload
+
+    def test_maintained_self_improvement_action_uses_installed_sdk_stream_boundary(self):
+        for shell in SHELLS:
+            with self.subTest(shell=shell):
+                installed = self.prep.install(shell)
+                prepared = self.maintained_prepare(installed)
+                settings = self.action_settings({'hooks': {'fixture-canary': []}, 'permissions': {'deny': ['fixture']}})
+                result, payload = self.native(prepared)
+                self.assertEqual(result.returncode, 0, result.stderr.decode())
+                self.assertEqual(result.stdout, payload, 'SDK stdout must contain native stream bytes only')
+                self.assertEqual(result.stderr, b'fixture-native-stderr\n')
+                record = json.loads(self.record.read_bytes())
+                self.assertEqual(record['argv'], self.sdk_argv(prepared))
+                self.assertEqual(record['stdin_hex'], payload.hex())
+                self.assertEqual(record['settings'], settings)
+                self.assertEqual(record['canary'], 'kept')
+                self.assertEqual(record['evidence'], 'fixture-only')
+                self.record.unlink()
+                # Independent unchanged T007 oracle over the persisted selection/controls.
+                output = prepared['output_dir']
+                controls = self.case.root / output / 'controls.json'
+                oracle = self.case.oracle_validation(output, launch.sha_file(controls), role='self-improvement',
+                                                    session_id=prepared['session_id'])
+                self.assertEqual(oracle.returncode, 0, oracle.stderr)
+
+    def test_self_improvement_blocks_final_settings_argv_and_raw_pin_drift_before_work(self):
+        installed = self.prep.install('bash')
+        prepared = self.maintained_prepare(installed)
+        self.action_settings()
+        original = self.sdk_argv(prepared)
+        mutations = []
+        for flag, replacement in [('--model', 'wrong-model'), ('--effort', 'low'), ('--session-id', 'wrong-session')]:
+            args = original[:]
+            args[args.index(flag) + 1] = replacement
+            mutations.append(args)
+        mutations += [original + ['--model', prepared['model']], original + ['--resume', 'other'],
+                      original + ['--settings', '{"model":"wrong-model"}']]
+        for args in mutations:
+            with self.subTest(args=args):
+                result, _ = self.native(prepared, args)
+                self.assertEqual(result.returncode, 2, result.stderr.decode())
+                self.assertFalse(self.record.exists(), 'invalid argv reached native work')
+        settings_path = self.case.home / '.claude/settings.json'
+        before = settings_path.read_bytes()
+        self.action_settings({'model': 'wrong-model'})
+        result, _ = self.native(prepared)
+        self.assertEqual(result.returncode, 2, result.stderr.decode())
+        self.assertFalse(self.record.exists(), 'action-owned final model conflict reached native work')
+        settings_path.write_bytes(before)
+        path = self.case.root / 'request.json'
+        raw = path.read_bytes()
+        path.write_bytes(raw + b'\n')
+        result, _ = self.native(prepared)
+        self.assertEqual(result.returncode, 2, result.stderr.decode())
+        self.assertFalse(self.record.exists(), 'raw request drift reached native work')
+        path.write_bytes(raw)
+        result, _ = self.native(prepared, extra_env={'ANTHROPIC_MODEL': 'wrong-model'})
+        self.assertEqual(result.returncode, 2, result.stderr.decode())
+        self.assertFalse(self.record.exists(), 'SDK model environment conflict reached native work')
+
+    def test_self_improvement_preserves_native_failure_and_action_safeguards(self):
+        installed = self.prep.install('bash')
+        prepared = self.maintained_prepare(installed)
+        self.action_settings()
+        result, payload = self.native(prepared, extra_env={'SDD_ACTION_FIXTURE_EXIT': '23'})
+        self.assertEqual((result.returncode, result.stdout), (23, payload), result.stderr.decode())
+        source = (ROOT / '.github/workflows/self-improvement.yml').read_text()
+        for text in ('anthropics/claude-code-action@1d6de8cb0c237e7c15e9e1bdf973826ebae490cc',
+                     'path_to_claude_code_executable: ${{ steps.managed_self_improvement.outputs.executable }}',
+                     '--model ${{ steps.managed_self_improvement.outputs.model }}',
+                     '--effort ${{ steps.managed_self_improvement.outputs.effort }}',
+                     '--max-turns 75', '--allowedTools "Bash,Read,Write,Edit,MultiEdit,Glob,Grep,WebFetch,TodoWrite"',
+                     'cron: "0 0 * * 1"', 'workflow_dispatch: {}',
+                     'claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}',
+                     'github_token: ${{ secrets.SDD_SESSION_PR_TOKEN || secrets.GITHUB_TOKEN }}',
+                     'bash .github/scripts/self-improvement-pr-guard.sh "$changed"',
+                     '- name: Validate audit completion', '- name: Label session PRs that triggered no CI'):
+            self.assertIn(text, source)
+
+
 if __name__ == '__main__':
     unittest.main()
