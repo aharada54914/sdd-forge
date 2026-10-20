@@ -700,7 +700,8 @@ class InstalledEntryTests(LaunchFixture):
         (codex / 'config.toml').write_text('# user configuration canary\nmodel = "user-choice"\n')
         (codex / 'agents' / 'sdd-evaluator.toml').write_text('# user agent canary; never replaced\n')
         self.codex_home = tree(codex)
-        self.environment.update(HOME=str(self.home), XDG_DATA_HOME=str(self.home / '.local/share'),
+        self.environment.update(HOME=str(self.home), CLAUDE_CONFIG_DIR=str(self.home / '.claude'),
+                                XDG_DATA_HOME=str(self.home / '.local/share'),
                                 SDD_CODEX_HOME=str(codex), SDD_CURSOR_DIR=str(self.base / 'cursor-absent'),
                                 SDD_VSCODE_USER_DIR=str(self.base / 'vscode-absent'),
                                 GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
@@ -1431,6 +1432,7 @@ class InstalledClaudeLocalAuthorityTests(unittest.TestCase):
                 self.assertEqual(verdict['reason'], reason, verdict['conflicts'])
                 self.assertIn({'key': key, 'tier': tier, 'reason': reason}, verdict['conflicts'])
         positives = [
+            ('developer-deniedModels-is-managed-only', {'user': {'deniedModels': [native]}}),
             ('nonmanaged-allowlists-union-includes-entry',
              {'managed': {'availableModels': None}, 'user': {'availableModels': [other]}, 'project': {'availableModels': [native]}}),
             ('cap-max-sets-no-cap', {'managed': {'maxEffortLevel': 'max'}}),
@@ -1443,6 +1445,11 @@ class InstalledClaudeLocalAuthorityTests(unittest.TestCase):
             with self.subTest(positive=label):
                 self.assertEqual(verdict_for(documents)['conflicts'], [])
                 self.assertIsNone(verdict_for(documents)['reason'])
+        with self.subTest(unresolved='empty-managed-allowlist-is-not-guessed'):
+            verdict = verdict_for({'managed': {'availableModels': []}, 'user': {'availableModels': [other]}})
+            self.assertIsNone(verdict['reason'])
+            self.assertIn('empty-allowlist:availableModels', verdict['unresolved'])
+            self.assertIs(verdict['effective_complete'], False)
         with self.subTest(positive='suppressed-remap-is-not-effective'):
             verdict = verdict_for({'managed': {'availableModels': [native]}, 'user': {'modelOverrides': {native: remapped}}})
             self.assertIsNone(verdict['effective']['model_overrides'])
@@ -1471,7 +1478,7 @@ class InstalledClaudeLocalAuthorityTests(unittest.TestCase):
                                    ('modelSettings', {exact_id: {'maxEffortLevel': lower}}, 'effort-unavailable')):
             with self.subTest(exact_full_id=key):
                 work = self.fresh()
-                self.put(work, LOCAL_USER, {key: value})
+                self.put(work, LOCAL_MANAGED, {key: value})
                 result = self.private('_check_local_authority')(self.collect(work), exact_id, self.effort)
                 self.assertEqual(result['reason'], expected_reason)
                 self.assertNotIn('alias-canonicalization:' + key, result['unresolved'])
@@ -1623,7 +1630,7 @@ class InstalledClaudeLocalAuthorityTests(unittest.TestCase):
         self.assertFalse(marker.exists(), 'the policy helper must never be executed')
 
     def test_installed_claude_prepare_rejects_owned_local_conflicts_without_rewriting_state(self):
-        prep, case, native, effort = self.prep, self.case, self.native, self.effort
+        prep, case, effort = self.prep, self.case, self.effort
         other_model = self.others[0]
         other_effort = next(item for item in launch.EFFORTS if item != effort)
         settings = {'user': case.home / '.claude/settings.json', 'project': case.root / '.claude/settings.json',
@@ -1661,7 +1668,7 @@ class InstalledClaudeLocalAuthorityTests(unittest.TestCase):
                     finally:
                         restore(path)
             conflicts = [('cap-below-selected-effort', {'maxEffortLevel': self.lower}, 'effort-unavailable'),
-                         ('exact-selected-id-denial', {'deniedModels': [native]}, 'model-unavailable')]
+                         ('excluding-model-allowlist', {'availableModels': [other_model]}, 'model-unavailable')]
             for tier, path in settings.items():
                 for label, change, reason in conflicts:
                     with self.subTest(shell=shell, tier=tier, conflict=label):
@@ -1895,7 +1902,8 @@ class InstalledNativeEntryTests(LaunchFixture):
         (codex / 'config.toml').write_text('# user configuration canary\nmodel = "user-choice"\n')
         (codex / 'agents' / 'sdd-evaluator.toml').write_text('# user agent canary; never replaced\n')
         self.codex_home = tree(codex)
-        self.environment.update(HOME=str(self.home), XDG_DATA_HOME=str(self.home / '.local/share'),
+        self.environment.update(HOME=str(self.home), CLAUDE_CONFIG_DIR=str(self.home / '.claude'),
+                                XDG_DATA_HOME=str(self.home / '.local/share'),
                                 SDD_CODEX_HOME=str(codex), SDD_CURSOR_DIR=str(self.base / 'cursor-absent'),
                                 SDD_VSCODE_USER_DIR=str(self.base / 'vscode-absent'),
                                 GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
