@@ -1565,5 +1565,271 @@ class InstalledNativeEntryTests(LaunchFixture):
         self.assert_reaped(run.probe)
 
 
+# Additive T-008 maintained caller tests. Insert before the existing unittest.main guard.
+# Uses the existing module imports/constants and composes (never inherits) the T-007 fixture.
+CALLER_SKILL = 'plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md'
+CALLER_SCRIPTS = 'plugins/sdd-quality-loop/scripts/'
+CALLER_DRIVER = 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py'
+CALLER_RUNTIME = sorted({CALLER_DRIVER, CALLER_SKILL,
+    *(CALLER_SCRIPTS + name for name in ('run-panelist-gpt.sh', 'run-panelist-gpt.ps1',
+        'run-panelist-gemini.sh', 'run-panelist-gemini.ps1', 'prepare-panelist-input.sh',
+        'prepare-panelist-input.ps1', 'lib/panelist-common.sh', 'emit-run-record.sh', 'emit-run-record.ps1'))})
+
+
+class InstalledPanelistCallerTests(unittest.TestCase):
+    """Execute maintained fences with real installed preparation/consent/runners and a recording native CLI."""
+
+    def fixture(self, shell):
+        self.assertTrue(PWSH and os.access(PWSH, os.X_OK), 'Official PowerShell is required for both-shell coverage')
+        f = launch.SelectedPanelistLaunch(methodName='runTest')
+        self.addCleanup(f.doCleanups)
+        f.setUp()
+        f.helper()  # keep the unchanged policy oracle in its separate source-copied fixture
+        oracle = f.root
+        project = f.base / 'unrelated-project'
+        project.mkdir()
+        for name in ('request.json', 'registry.json', 'policy.json', 'observation.json',
+                     'gpt-fixture-adoption.json', 'raw-input.txt'):
+            shutil.copyfile(oracle / name, project / name)
+        shutil.copytree(oracle / 'specs', project / 'specs')
+        f.root = project
+        f.tasks = project / 'specs' / f.FEATURE / 'tasks.md'
+        f.bundle = f.tasks.parent / 'verification' / (f.TASK + '.panelist-input.txt')
+        f.bundle.parent.mkdir(parents=True, exist_ok=True)
+        f.bundle.write_bytes(f.original_bundle)
+        (project / 'runs').mkdir()
+        self.assertFalse((project / 'plugins').exists(), 'Execution inputs must contain no runtime fallback')
+        self.assertFalse((project / 'contracts').exists(), 'Execution inputs must contain no trusted runtime copy')
+        f.home = f.base / 'caller-home'
+        (f.home / '.codex').mkdir(parents=True)
+        (f.home / '.codex/config.toml').write_text('# caller native configuration canary\n')
+        f.codex_home = tree(f.home / '.codex')
+        f.poison = f.base / 'caller-source-fallback'
+        f.environment.update(HOME=str(f.home), SDD_CODEX_HOME=str(f.home / '.codex'),
+                             SDD_CURSOR_DIR=str(f.base / 'cursor-absent'),
+                             SDD_VSCODE_USER_DIR=str(f.base / 'vscode-absent'), SDD_TEST_PWSH=str(PWSH),
+                             GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
+        package = f.base / 'caller-package'
+        package.mkdir()
+        empty = f.base / 'empty-git-template'
+        empty.mkdir()
+        for relative in sorted(set(PACKAGE) | set(CALLER_RUNTIME)):
+            source, target = ROOT / relative, package / relative
+            self.assertTrue(source.is_file(), 'Admitted package input missing: ' + relative)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
+        for args in (['init', '-q', '--template=' + str(empty)], ['add', '--all'],
+                     ['-c', 'user.name=Caller Fixture', '-c', 'user.email=caller@example.invalid',
+                      '-c', 'gc.auto=0', 'commit', '-qm', 'Explicit current caller package']):
+            result = f.run_process(['git', '-C', str(package), *args], label='caller package setup')
+            self.assertEqual(result.returncode, 0, 'Package setup failed: ' + result.stderr[-1200:])
+        installed = f.base / ('caller-installed-' + shell)
+        result = InstalledEntryTests.run_installer(f, shell, package, installed)
+        self.assertEqual(result.returncode, 0, 'Installer setup failed: ' + result.stderr[-1600:])
+        for relative in sorted(set(MANAGED_RUNTIME) | set(CALLER_RUNTIME)):
+            self.assertTrue((installed / relative).is_file(), 'Installed caller runtime is missing: ' + relative)
+            self.assertEqual(launch.sha_file(installed / relative), launch.sha_file(ROOT / relative))
+        # The installed consent authorities are original product bytes, not the T-007 audit forwarding wrappers.
+        InstalledEntryTests.poison_source(f, package)
+        f.scripts = installed / CALLER_SCRIPTS
+        return f, installed
+
+    def snippet(self, installed, vendor, shell):
+        """The maintained skill is the oracle; no replacement implementation excerpt is authored by the test."""
+        source = (installed / CALLER_SKILL).read_text(encoding='utf-8')
+        heading = '**GPT panelist**' if vendor == 'gpt' else '**Gemini panelist**'
+        self.assertIn(heading, source)
+        section = source.split(heading, 1)[1]
+        if vendor == 'gpt':
+            section = section.split('**Gemini panelist**', 1)[0]
+        else:
+            section = section.split('Each runner writes', 1)[0]
+        languages = ('sh', 'bash') if shell == 'bash' else ('powershell', 'pwsh', 'ps1')
+        choices = [body for language, body in re.findall(r'```([^\s`]*)[^\n]*\n(.*?)\n```', section, re.S)
+                   if language.lower() in languages and 'run-panelist-' + vendor in body]
+        self.assertEqual(len(choices), 1, 'Expected one maintained ' + shell + ' ' + vendor + ' command fence')
+        return choices[0]
+
+    def run_snippet(self, f, installed, shell, label, *, vendor='gpt', request=None,
+                    stale=False, consent='enabled', mutation=None):
+        f.request.update(role='panelist-' + vendor, host='codex-cli' if vendor == 'gpt' else 'gemini-cli',
+                         requested_effort='high', cli={'model_id': 'gpt-6-astra', 'policy': 'pinned'})
+        f.request.update(request or {})
+        f.observation = f.fresh_observation('2000-01-01T00:00:00Z' if stale else None)
+        if vendor == 'gemini':
+            f.observation.update(host='gemini-cli', cli_version='fixture-gemini-cli', models=[])
+        f.save()
+        f.task_consent(consent == 'enabled' or consent == 'changed-task',
+                       task='T-999' if consent == 'changed-task' else None)
+        (f.root / 'SDD_SUDO').unlink(missing_ok=True)
+        if consent in ('sudo', 'sudo-invalid'):
+            f.signed_sudo()
+            f.prepare_bundle()
+            f.original_bundle = f.bundle.read_bytes()
+            if consent == 'sudo-invalid':
+                f.signed_sudo(valid=False)
+        f.audit.unlink(missing_ok=True)
+        f.verdict_path(vendor).unlink(missing_ok=True)
+        f.session_id = str(uuid.uuid4())
+        output = 'runs/' + label
+        text = self.snippet(installed, vendor, shell)
+        replacements = {'<T-NNN>': f.TASK, '<feature>': f.FEATURE, '<policy-request>': 'request.json',
+                        '<registry>': 'registry.json', '<run-id>': f.run_id, '<session-id>': f.session_id,
+                        '<output-dir>': output}
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        for relative in [ADAPTER, *CALLER_RUNTIME]:
+            text = text.replace(relative, str(installed / relative))
+        self.assertIsNone(re.search(r'<[A-Za-z][A-Za-z0-9_-]*>', text), 'Undocumented fixture placeholder')
+        runner = str(installed / (CALLER_SCRIPTS + 'run-panelist-' + vendor +
+                                  ('.sh' if shell == 'bash' else '.ps1')))
+        if mutation:
+            lines = text.splitlines(keepends=True)
+            indexes = [index for index, line in enumerate(lines) if runner in line]
+            self.assertEqual(len(indexes), 1, 'Mutation needs the actual maintained runner invocation')
+            index = indexes[0]
+            if mutation == 'remove-forwarding':
+                tail = ''.join(lines[index:])
+                pattern = r'--(?:model-controls-sha256|model-controls|run-id|session-id)\s+(?:"[^"\n]*"|\x27[^\x27\n]*\x27|[^\s`\\]+)'
+                tail, count = re.subn(pattern, '', tail)
+                self.assertEqual(count, 4, 'Mutation must remove exactly the four runner controls, leaving prepare intact')
+                text = ''.join(lines[:index]) + tail
+            elif mutation == 'raw-control-drift':
+                target = output + '/controls.json'
+                if shell == 'bash':
+                    injection = 'printf "\\n" >> ' + shlex.quote(target) + '\n'
+                else:
+                    injection = '[System.IO.File]::AppendAllText(\'' + target + '\', "`n")\n'
+                text = ''.join(lines[:index]) + injection + ''.join(lines[index:])
+            else:
+                self.fail('Unknown deliberate snippet mutation')
+        script = f.base / ('caller-' + label + ('.sh' if shell == 'bash' else '.ps1'))
+        script.write_text(text + '\n')
+        command = [launch.BASH, str(script)] if shell == 'bash' else [PWSH, '-NoProfile', '-File', str(script)]
+        installed_before = runtime_tree(installed)
+        result = f.run_process(command, timeout=120, label='maintained ' + shell + ' panelist snippet')
+        self.assertFalse(f.poison.exists(), 'Caller used the poisoned source package')
+        self.assertEqual(runtime_tree(installed), installed_before, 'Caller changed installed runtime')
+        self.assertFalse((f.root / 'plugins').exists(), 'Caller copied runtime into the execution-input project')
+        self.assertFalse((f.root / 'contracts').exists(), 'Caller copied trusted runtime into the project')
+        self.assertEqual(tree(f.home / '.codex'), f.codex_home, 'Caller changed user native configuration')
+        return result, output
+
+    def accepted(self, f, result, output, *, consent='human-flag'):
+        self.assertEqual(result.returncode, 0, 'Valid maintained snippet failed: ' + result.stderr[-1800:])
+        self.assertTrue(f.audit.is_file(), 'Valid snippet never reached the recording native CLI')
+        self.assertTrue(f.verdict_path().is_file(), 'Valid snippet did not publish a verdict')
+        # Baseline valid Bash legacy command reaches this meaningful missing-managed-output assertion first.
+        directory = f.root / output
+        self.assertTrue((directory / 'controls.json').is_file(), 'Maintained caller omitted installed prepare controls')
+        self.assertTrue((directory / 'selection.json').is_file(), 'Maintained caller omitted a bound selection')
+        self.assertTrue((directory / 'validation.json').is_file(), 'Maintained caller omitted real controls validation')
+        controls = json.loads((directory / 'controls.json').read_bytes())
+        selection = json.loads((directory / 'selection.json').read_bytes())
+        validation = json.loads((directory / 'validation.json').read_bytes())
+        expected_inputs = sorted({'policy.json', 'observation.json', 'gpt-fixture-adoption.json'})
+        def ref(path):
+            return {'path': path, 'sha256': launch.sha_file(f.root / path)}
+        self.assertEqual(controls, {'schema': 'model-launch-controls/v1', 'role': 'panelist-gpt', 'host': 'codex-cli',
+            'attempt': 1, 'require_actual_id': False, 'selection': ref(output + '/selection.json'),
+            'request': ref('request.json'), 'registry': ref('registry.json'),
+            'inputs': [ref(path) for path in expected_inputs]})
+        self.assertEqual(set(validation), launch.VALIDATION_FIELDS)
+        self.assertEqual(validation['schema'], 'model-launch-validation/v1')
+        self.assertEqual(validation['controls'], ref(output + '/controls.json'))
+        self.assertEqual(validation['pins'], sorted([controls['selection'], controls['request'], controls['registry'],
+                                                    *controls['inputs']], key=lambda item: item['path']))
+        self.assertEqual(validation['trusted'], [{'path': path, 'sha256': launch.sha_file(f.scripts.parents[2] / path)}
+                                                 for path in launch.TRUSTED_PATHS])
+        self.assertEqual(validation['selection'], selection)
+        self.assertEqual(selection['binding'], {'run_id': f.run_id, 'session_id': f.session_id, 'attempt': 1})
+        self.assertEqual((selection['resolved']['catalog_id'], selection['resolved']['native_id'],
+                          selection['resolved']['effort']), ('gpt-6-astra', 'gpt-6-astra', 'high'))
+        verdict, audit = json.loads(f.verdict_path().read_bytes()), json.loads(f.audit.read_bytes())
+        self.assertIn('model_policy', verdict, 'Maintained caller did not forward selected controls')
+        policy = verdict['model_policy']
+        self.assertEqual(policy['selection'], selection, 'Runner verdict must bind the exact prepared selection')
+        self.assertEqual(policy['transport'], 'codex-exec')
+        self.assertEqual(policy['actor_slot'], 'reviewers')
+        self.assertIsNone(policy['delivery']['actual_id'])
+        self.assertEqual(policy['delivery']['proof'], 'unverified')
+        argv = audit['argv']
+        self.assertIn('-C', argv)
+        scratch = argv[argv.index('-C') + 1]
+        self.assertEqual(argv, ['exec', '--model', 'gpt-6-astra', '-c', 'model_reasoning_effort=high',
+                               '--sandbox', 'read-only', '--skip-git-repo-check', '-C', scratch, '-'])
+        self.assertEqual(audit['cwd'], scratch)
+        self.assertNotEqual(Path(scratch), f.root)
+        self.assertFalse(Path(scratch).exists(), 'Native scratch leaked')
+        self.assertFalse(any(audit['key_presence'].values()))
+        self.assertIn(f.original_bundle.decode(), audit['stdin'])
+        self.assertEqual(audit['stdin'].count('# Panelist Input Bundle'), 1)
+        self.assertEqual(verdict['consent']['kind'], consent)
+        self.assertEqual(verdict['model'], 'fixture-self-report-not-attested')
+
+    def rejected(self, f, result, reasons, vendor='gpt'):
+        self.assertEqual(result.returncode, 2, 'Expected typed failure: ' + result.stderr[-1600:])
+        error = json.loads(result.stderr)
+        self.assertEqual(error['schema'], 'model-policy-error/v1')
+        self.assertIn(error['reason'], reasons)
+        self.assertFalse(f.audit.exists(), 'Rejected preparation or consent reached a native CLI')
+        self.assertFalse(f.verdict_path(vendor).exists(), 'Rejected caller published a verdict')
+        return error
+
+    def test_maintained_panelist_snippets_prepare_and_forward_installed_controls(self):
+        for shell in SHELLS:
+            with self.subTest(shell=shell):
+                f, installed = self.fixture(shell)
+                result, output = self.run_snippet(f, installed, shell, 'happy')
+                self.accepted(f, result, output)
+                result, output = self.run_snippet(f, installed, shell, 'missing-forwarding', mutation='remove-forwarding')
+                # Deliberately remove only runner forwarding from the actual maintained command. Legacy standalone
+                # runner compatibility remains valid, but that legacy result cannot satisfy the managed oracle.
+                self.assertEqual(result.returncode, 0, result.stderr[-1200:])
+                self.assertTrue(f.audit.is_file())
+                with self.assertRaises(AssertionError):
+                    self.accepted(f, result, output)
+                self.assertNotIn('model_policy', json.loads(f.verdict_path().read_bytes()))
+
+    def test_maintained_panelist_snippets_stop_on_preparation_failure(self):
+        for shell in SHELLS:
+            with self.subTest(shell=shell):
+                f, installed = self.fixture(shell)
+                result, output = self.run_snippet(f, installed, shell, 'positive')
+                self.accepted(f, result, output)
+                cases = [('wrong-role', {'role': 'investigator'}, False, {'model-unverified'}),
+                         ('wrong-host', {'host': 'claude-code'}, False, {'scope-mismatch'}),
+                         ('stale-observation', {}, True, {'discovery-stale'})]
+                for label, request, stale, reasons in cases:
+                    with self.subTest(case=label):
+                        result, output = self.run_snippet(f, installed, shell, label, request=request, stale=stale)
+                        self.rejected(f, result, reasons)
+                        self.assertFalse((f.root / output / 'validation.json').exists())
+                result, output = self.run_snippet(f, installed, shell, 'raw-control-drift', mutation='raw-control-drift')
+                self.rejected(f, result, {'input-invalid'})
+                self.assertTrue((f.root / output / 'validation.json').is_file(), 'Mutation must follow real prepare')
+
+    def test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host(self):
+        for shell in SHELLS:
+            with self.subTest(shell=shell):
+                f, installed = self.fixture(shell)
+                result, output = self.run_snippet(f, installed, shell, 'positive')
+                self.accepted(f, result, output)
+                for consent in ('disabled', 'changed-task'):
+                    with self.subTest(consent=consent):
+                        result, output = self.run_snippet(f, installed, shell, 'consent-' + consent, consent=consent)
+                        error = self.rejected(f, result, {'input-invalid'})
+                        self.assertIn('consent', error['message'].lower())
+                result, output = self.run_snippet(f, installed, shell, 'consent-sudo', consent='sudo')
+                self.accepted(f, result, output, consent='sudo')
+                result, output = self.run_snippet(f, installed, shell, 'consent-sudo-invalid', consent='sudo-invalid')
+                error = self.rejected(f, result, {'input-invalid'})
+                self.assertIn('consent', error['message'].lower())
+                result, output = self.run_snippet(f, installed, shell, 'gemini', vendor='gemini')
+                self.rejected(f, result, {'model-unavailable'}, vendor='gemini')
+                self.assertFalse((f.root / output / 'selection.json').exists(), 'Gemini must not receive a fake selection')
+                self.assertFalse((f.root / output / 'validation.json').exists())
+
+
 if __name__ == '__main__':
     unittest.main()
