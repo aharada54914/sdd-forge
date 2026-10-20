@@ -115,6 +115,13 @@ foreach ($relativePath in @(
     "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md",
     "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md",
     "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md",
+    "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+    "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+    "plugins/sdd-quality-loop/references/sudo-mode-policy.md",
+    "plugins/sdd-quality-loop/references/debugging-recovery-policy.md",
+    "plugins/sdd-implementation/templates/implementation-report.template.md",
     "plugins/sdd-implementation/skills/diagnose/SKILL.md",
     "plugins/sdd-implementation/skills/diagnose/references/diagnosis-loop-policy.md",
     "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh",
@@ -159,6 +166,13 @@ foreach ($relativePath in @(
     plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md `
     plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md `
     plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md `
+    plugins/sdd-implementation/skills/implement-task/SKILL.md `
+    plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md `
+    plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md `
+    plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md `
+    plugins/sdd-quality-loop/references/sudo-mode-policy.md `
+    plugins/sdd-quality-loop/references/debugging-recovery-policy.md `
+    plugins/sdd-implementation/templates/implementation-report.template.md `
     plugins/sdd-implementation/skills/diagnose/SKILL.md `
     plugins/sdd-implementation/skills/diagnose/references/diagnosis-loop-policy.md `
     plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh `

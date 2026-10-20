@@ -664,6 +664,10 @@ INVESTIGATION_RECORDER = 'tests/fixtures/model-policy-installed/recording-invest
 
 DIAGNOSIS_SOURCES = ['plugins/sdd-implementation/skills/diagnose/SKILL.md', 'plugins/sdd-implementation/skills/diagnose/references/diagnosis-loop-policy.md', 'plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh', 'plugins/sdd-implementation/templates/diagnosis-report.template.md', 'plugins/sdd-quality-loop/references/risk-gate-matrix.md']
 DIAGNOSIS_RECORDER = 'tests/fixtures/model-policy-installed/recording-diagnosis.py'
+IMPLEMENTER_SOURCES = ['plugins/sdd-implementation/skills/implement-task/SKILL.md', 'plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md', 'plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md', 'plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md', 'plugins/sdd-quality-loop/references/sudo-mode-policy.md', 'plugins/sdd-quality-loop/references/debugging-recovery-policy.md', 'plugins/sdd-implementation/templates/implementation-report.template.md', 'plugins/sdd-quality-loop/references/risk-gate-matrix.md']
+IMPLEMENTER_RECORDER = 'tests/fixtures/model-policy-installed/recording-implementation.py'
+SHIP_CALLER = 'plugins/sdd-ship/skills/ship/SKILL.md'
+
 
 MANAGED_RUNTIME = sorted([ADAPTER, *launch.TRUSTED_PATHS])
 # Union of install.sh REQUIRED_PATHS and install.ps1 Get-RequiredPaths (non-cloud) at authoring time; the positive
@@ -674,7 +678,7 @@ INSTALLER_REQUIRED = sorted({'.agents/plugins/marketplace.json', '.claude-plugin
                                for plugin in ('sdd-bootstrap', 'sdd-implementation', 'sdd-quality-loop', 'sdd-lite',
                                               'sdd-review-loop', 'sdd-ship', 'sdd-domain')
                                for manifest in ('.codex-plugin', '.claude-plugin', '.plugin'))})
-PACKAGE = sorted({'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED, INVESTIGATION_AGENT, *INVESTIGATION_SOURCES, *DIAGNOSIS_SOURCES, launch.TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()})
+PACKAGE = sorted({'install.sh', 'install.ps1', *INSTALLER_REQUIRED, *MANAGED_RUNTIME, *launch.COPIED, INVESTIGATION_AGENT, *INVESTIGATION_SOURCES, *DIAGNOSIS_SOURCES, *IMPLEMENTER_SOURCES, launch.TRANSPORT_SCRIPT.relative_to(ROOT).as_posix()})
 OUTPUT_FILES = ['controls.json', 'selection.json', 'validation.json']
 # Invalid under the existing T-007 identifier grammar without being flag-shaped argument syntax.
 BAD_IDS = ('run id', 'run;id', '.run', 'r' * 129)
@@ -2227,6 +2231,232 @@ class InstalledClaudeDiagnosisTests(unittest.TestCase):
                 self.assert_preserved()
 
     def test_diagnosis_native_default_tools_and_failed_public_results_never_publish_success(self):
+        installed = self.prep.install('bash')
+        # --agent(s)/tool-override support is irrelevant for diagnosis; use ordinary native defaults and permissions.
+        self.spec['help'] = '--print  print\n--output-format <format>  result format\n--model <model>  model\n--effort <effort>  effort\n--session-id <id>  UUID\n'
+        self.save_spec()
+        self.fresh()
+        output = self.prep.output()
+        self.assert_work(self.invoke(installed, output), output)
+        for mode, reason in [('malformed', 'model-unverified'), ('error-with-zero-exit', 'model-unverified'),
+                             ('wrong-session', 'scope-mismatch'), ('native-failure', 'model-unverified')]:
+            with self.subTest(mode=mode):
+                self.spec['reply_mode'] = mode
+                self.spec['reject_work'] = mode == 'native-failure'
+                self.save_spec()
+                self.fresh()
+                output = self.prep.output()
+                self.case.rejected(self.invoke(installed, output), reason)
+                self.assertEqual(len([e for e in self.events() if e['event'] == 'work']), 1)
+                self.assertFalse((self.case.root / output / 'validation.json').exists())
+                self.assertFalse((self.case.root / output / 'native-result.json').exists())
+                self.assert_preserved()
+
+
+class InstalledClaudeImplementerTests(unittest.TestCase):
+    """Actual maintained ship Lite dispatch, selected fresh single-task orchestrator and public CLI fixture."""
+
+    def setUp(self):
+        self.prep = prep = InstalledClaudePreparationTests('runTest')
+        self.addCleanup(lambda: self.assertTrue(getattr(prep, 'doCleanups')(), 'implementation fixture cleanup failed'))
+        prep.setUp()
+        self.case = case = prep.case
+        case.extra_runtime = (*case.extra_runtime, *IMPLEMENTER_SOURCES, SHIP_CALLER)
+        case.request = case.fresh_request('implementer')
+        case.save()
+        self.prompt = 'work/implementation-instructions.txt'
+        (case.root / 'work').mkdir()
+        self.task_ref = 'specs/fixture/tasks.md#T-999'
+        (case.root / self.prompt).write_text('Implement exactly the approved task ' + self.task_ref
+            + '. Scope: work/sample.py. Return its report; do not run an independent gate or start another task.\n')
+        self.target = case.root / 'work/sample.py'
+        self.target_before = 'def total(value):\n    return value - 1\n'
+        self.task_file = case.root / 'specs/fixture/tasks.md'
+        self.task_file.parent.mkdir(parents=True)
+        self.tasks_before = ('# Fixture tasks\n\n## T-998\nApproval: Approved\nStatus: Done\n'
+            '\n## T-999\nApproval: Approved\nStatus: In Progress\nScope: work/sample.py\n'
+            'Done When: total(value) returns value + 1 and regression passes.\n')
+        for name in ('requirements.md', 'design.md', 'acceptance-tests.md', 'traceability.md'):
+            (self.task_file.parent / name).write_text('# Fixture contract\nTask T-999 changes only total(value) to value + 1.\n')
+        (case.root / 'AGENTS.md').write_text('Implement one Approved task. Preserve approval. Only independent quality gate may set Done.\n')
+        (case.root / 'scripts').mkdir()
+        self.precheck = case.root / 'scripts/check-sdd-structure.sh'
+        self.precheck.write_text('#!/bin/sh\ntest -f AGENTS.md && test -f specs/fixture/tasks.md && test -f specs/fixture/requirements.md\n')
+        (case.root / 'tests').mkdir()
+        self.public_test = case.root / 'tests/regression.py'
+        self.public_test.write_text('from pathlib import Path\nimport sys\nsys.path.insert(0, str(Path(__file__).resolve().parents[1] / "work"))\nfrom sample import total\nassert total(1) == 2\n')
+        self.heldout = case.root / 'tests/heldout.py'
+        self.heldout.write_text('from pathlib import Path\nimport sys\nsys.path.insert(0, str(Path(__file__).resolve().parents[1] / "work"))\nfrom sample import total\nassert [total(n) for n in (-3, 0, 7)] == [-2, 1, 8]\n')
+        self.report = case.root / 'work/implementation-report.md'
+        self.log, self.config = case.base / 'implementation-events.jsonl', case.base / 'implementation-config.json'
+        self.spec: dict[str, Any] = {'log': str(self.log), 'sessions': str(case.base / 'implementation-sessions'),
+            'version': case.observation['cli_version'], 'help': launch.HELP_TEXT,
+            'model': case.oracle_selection()['resolved']['native_id'],
+            'effort': case.oracle_selection()['resolved']['effort'], 'session_id': case.session_id,
+            'other_session_id': str(uuid.uuid4()), 'target': str(self.target), 'target_content': self.target_before,
+            'report': str(self.report), 'task_ref': self.task_ref, 'task_file': str(self.task_file),
+            'tasks_before': self.tasks_before, 'project_root': str(case.root), 'run_id': case.run_id,
+            'public_test': str(self.public_test), 'precheck': str(self.precheck),
+            'sources': {p: (ROOT / p).read_text() for p in IMPLEMENTER_SOURCES},
+            'instructions': (case.root / self.prompt).read_text(),
+            'canary_name': ENV_CANARY, 'canary_value': ENV_CANARY_VALUE}
+        prep.executable.write_bytes((ROOT / IMPLEMENTER_RECORDER).read_bytes())
+        prep.executable.chmod(0o755)
+        case.environment['SDD_IMPLEMENTER_FIXTURE'] = str(self.config)
+        self.before = {p: (case.root / p).read_bytes() for p in
+            ('request.json', 'registry.json', 'policy.json', 'observation.json', self.prompt, 'AGENTS.md',
+             'specs/fixture/requirements.md', 'specs/fixture/design.md', 'specs/fixture/acceptance-tests.md',
+             'specs/fixture/traceability.md', 'tests/regression.py', 'tests/heldout.py', 'scripts/check-sdd-structure.sh')}
+        self.fresh()
+
+    def save_spec(self):
+        self.config.write_text(json.dumps(self.spec) + '\n')
+
+    def fresh(self):
+        self.case.session_id = str(uuid.uuid4())
+        self.spec['session_id'] = self.case.session_id
+        self.target.write_text(self.target_before)
+        self.task_file.write_text(self.tasks_before)
+        self.report.unlink(missing_ok=True)
+        self.save_spec()
+        self.log.unlink(missing_ok=True)
+
+    def events(self):
+        return [json.loads(line) for line in self.log.read_text().splitlines()] if self.log.exists() else []
+
+    def invoke(self, installed, output, **options):
+        return self.case.prepare(installed, output, role=options.pop('role', 'implementer'),
+            host=options.pop('host', 'claude-code'), mode='claude-entry',
+            extra=('--executable', str(self.prep.executable), '--prompt-file', self.prompt,
+                   '--prompt-sha256', options.pop('prompt_sha', launch.sha_file(self.case.root / self.prompt))), **options)
+
+    def fence(self, installed, output):
+        source = (installed / SHIP_CALLER).read_text()
+        lite = source.split('### Lite track', 1)[1].split('### Resume behaviour', 1)[0]
+        fences = [b for b in re.findall(r'```bash\n(.*?)```', lite, re.S) if 'claude-entry' in b]
+        self.assertEqual(len(fences), 1, 'ship Lite lacks one actual pre-Skill managed implementer dispatch')
+        script = fences[0]
+        values = {'repository-root': str(self.case.root), 'installed-root': str(installed),
+                  'policy-request': 'request.json', 'registry': 'registry.json', 'run-id': self.case.run_id,
+                  'session-id': self.case.session_id, 'attempt': '1', 'output-dir': output,
+                  'claude-executable': str(self.prep.executable), 'prompt-file': self.prompt,
+                  'prompt-sha256': launch.sha_file(self.case.root / self.prompt)}
+        for key, value in values.items():
+            script = script.replace('"<' + key + '>"', shlex.quote(value)).replace('<' + key + '>', shlex.quote(value))
+        self.assertNotRegex(script, r'<[a-z][a-z-]*>')
+        return script
+
+    def assert_preserved(self):
+        self.assertEqual({p: (self.case.root / p).read_bytes() for p in self.before}, self.before)
+        worked = any(e['event'] == 'work' for e in self.events())
+        expected_tasks = self.tasks_before.replace('Status: In Progress', 'Status: Implementation Complete', 1) if worked else self.tasks_before
+        self.assertEqual(self.task_file.read_text(), expected_tasks)
+        self.assertEqual(self.target.read_text(), 'def total(value):\n    return value + 1\n' if worked else self.target_before)
+        self.prep.assert_unchanged_world()
+
+    def assert_work(self, result, output):
+        self.assertEqual(result.returncode, 0, result.stderr[:1000])
+        public = json.loads(result.stdout)
+        self.assertEqual((public['type'], public['is_error'], public['session_id']),
+                         ('result', False, self.case.session_id))
+        self.assertIn('Selected single-task implementation completed', public['result'])
+        folder = self.case.root / output
+        self.assertEqual(sorted(p.name for p in folder.iterdir()),
+                         ['controls.json', 'native-result.json', 'selection.json', 'validation.json'])
+        self.assertEqual((folder / 'native-result.json').read_text(), result.stdout)
+        validation = json.loads((folder / 'validation.json').read_bytes())
+        oracle = self.case.oracle_validation(output, self.case.ref(output + '/controls.json')['sha256'], role='implementer')
+        self.assertEqual(oracle.returncode, 0, oracle.stderr[:1000])
+        self.assertEqual(json.loads(oracle.stdout), validation)
+        work = [e for e in self.events() if e['event'] == 'work']
+        self.assertEqual(len(work), 1)
+        self.assertEqual((work[0]['loop_exit_code'], work[0]['task_ref']), (0, self.task_ref))
+        self.assertEqual((work[0]['model'], work[0]['effort']),
+                         (validation['selection']['resolved']['native_id'], validation['selection']['resolved']['effort']))
+        self.assertIn('independent quality gate remains separate', self.report.read_text())
+        self.assertIn('- Model: ' + validation['selection']['resolved']['native_id'], self.report.read_text())
+        heldout = self.case.run_process([sys.executable, '-B', str(self.heldout)], label='independent owned implementation assertions')
+        self.assertEqual(heldout.returncode, 0, heldout.stderr[:1000])
+        self.assertNotIn('actual_id', public)
+        self.assertNotIn('effective_complete', validation)
+        self.assert_preserved()
+
+    def blocked(self, installed, output, reason, *, prompt_attack=False, **options):
+        self.fresh()
+        self.case.rejected(self.invoke(installed, output, **options), reason)
+        self.assertEqual([e for e in self.events() if e['event'] == 'work'], [])
+        self.assertFalse((self.case.root / output).exists())
+        if prompt_attack:
+            expected = {p: raw for p, raw in self.before.items() if p != self.prompt}
+            self.assertEqual({p: (self.case.root / p).read_bytes() for p in expected}, expected)
+            self.prep.assert_unchanged_world()
+        else:
+            self.assert_preserved()
+
+    def test_ship_lite_dispatches_one_selected_single_task_implementation(self):
+        for shell in SHELLS:
+            installed = self.prep.install(shell)
+            self.fresh()
+            output = self.prep.output()
+            script = self.fence(installed, output)
+            self.assert_work(self.case.run_process([launch.BASH, '-c', script], timeout=120,
+                                                  label='maintained ship Lite implementer'), output)
+            for name in IMPLEMENTER_SOURCES:
+                self.assertEqual((installed / name).read_bytes(), (ROOT / name).read_bytes())
+            self.fresh()
+            legacy = self.case.prepare(installed, self.prep.output(), role='implementer', host='claude-code')
+            self.assertEqual(legacy.returncode, 0, legacy.stderr[:1000])
+            self.assertNotIn('result', json.loads(legacy.stdout))
+            self.assertFalse(self.report.exists())
+            self.assertEqual(self.events(), [], 'configuration-only allocation is not task implementation')
+            self.assert_preserved()
+
+    def test_implementer_installers_and_entry_reject_missing_or_changed_workload_before_work(self):
+        for shell in SHELLS:
+            installed = self.prep.install(shell)
+            for index, missing in enumerate(IMPLEMENTER_SOURCES):
+                with self.subTest(installer=shell, missing=missing):
+                    package = self.case.build_package('missing-impl-' + shell + '-' + str(index), omit=missing)
+                    destination = self.case.base / ('missing-impl-install-' + shell + '-' + str(index))
+                    result = self.case.run_installer(shell, package, destination)
+                    self.assertNotEqual(result.returncode, 0, 'installer accepted incomplete diagnosis workload')
+                    self.assertFalse(destination.exists())
+        self.fresh()
+        output = self.prep.output()
+        self.assert_work(self.invoke(installed, output), output)
+        for options, reason in [({'role': 'evaluator'}, 'model-unavailable'),
+                                ({'host': 'codex-cli'}, 'model-unavailable'),
+                                ({'require_actual_id': 'true'}, 'actual-id-unavailable'),
+                                ({'prompt_sha': '0' * 64}, 'input-invalid'),
+                                ({'session_id': 'not-a-uuid'}, 'input-invalid')]:
+            with self.subTest(options=options):
+                self.blocked(installed, self.prep.output(), reason, **options)
+        setting = self.case.root / '.claude/settings.local.json'
+        raw = setting.read_bytes()
+        for key, value, reason in [('maxEffortLevel', 'low', 'effort-unavailable'),
+                                  ('env', {'CLAUDE_CODE_EFFORT_LEVEL': 'low'}, 'native-precedence-conflict')]:
+            with self.subTest(settings=key):
+                try:
+                    setting.write_text(json.dumps({key: value}) + '\n')
+                    self.blocked(installed, self.prep.output(), reason)
+                finally:
+                    setting.write_bytes(raw)
+        reference = installed / IMPLEMENTER_SOURCES[-1]
+        for path in (reference, self.case.root / self.prompt):
+            with self.subTest(drift=path.name):
+                raw = path.read_bytes()
+                self.spec['edit_on_help'] = [{'path': str(path), 'text': 'changed source\n'}]
+                self.save_spec()
+                try:
+                    self.blocked(installed, self.prep.output(), 'input-invalid',
+                                 prompt_attack=path == self.case.root / self.prompt)
+                finally:
+                    path.write_bytes(raw)
+                    self.spec.pop('edit_on_help')
+                    self.save_spec()
+                self.assert_preserved()
+
+    def test_implementer_native_default_tools_and_failed_public_results_never_publish_success(self):
         installed = self.prep.install('bash')
         # --agent(s)/tool-override support is irrelevant for diagnosis; use ordinary native defaults and permissions.
         self.spec['help'] = '--print  print\n--output-format <format>  result format\n--model <model>  model\n--effort <effort>  effort\n--session-id <id>  UUID\n'
