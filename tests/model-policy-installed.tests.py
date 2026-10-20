@@ -20,9 +20,12 @@ SDD_TEST_PWSH or pwsh on PATH. Both shells are required; absence is a setup fail
 import copy
 import hashlib
 import importlib.util
+import json
 import os
 from pathlib import Path
 import re
+import shlex
+from typing import Any
 import shutil
 import sys
 import tomllib
@@ -954,6 +957,612 @@ class InstalledEntryTests(LaunchFixture):
                     self.assertNotEqual(result.returncode, 0, 'installer accepted a package without ' + rel)
                     self.assertNotIn('SDD plugins installed at:', result.stdout)
                     self.assertFalse(install_root.exists(), 'an incomplete managed runtime was left installed')
+
+
+# ---- T-008 installed Codex entry: generated native configuration only (codex-entry batch) ----------------------
+# Proposed public surface (requires primary admission before product work); cwd is the execution-input root:
+#   python3 -I -B <installed>/plugins/sdd-implementation/scripts/managed-model-entry.py codex-entry --request REL
+#       --registry REL --role ROLE --host codex-cli --run-id ID --session-id ID --attempt N --output-dir REL
+#       --require-actual-id true|false
+# Oracle: independent recomputation from the pinned installed bytes plus the recorded JSONL transcript of a real
+# fixture `codex` child process (version + app-server) that the product's genuine CodexClient spawns through PATH.
+# Nothing is mocked inside the product. Evidence class: FIXTURE ONLY (configured response shapes, no model, no
+# inference, no actual backend ID, no T-010 adoption and no organization access). A turn is never started.
+NATIVE_HOST = 'codex-cli'
+NATIVE_VERSION = 'codex-cli 0.159.2'
+NATIVE_FILES = ['agent.toml', 'controls.json', 'observation.json', 'selection.json', 'validation.json']
+NATIVE_METHODS = {'initialize', 'initialized', 'account/read', 'model/list', 'thread/start'}
+NATIVE_INIT = {'codexHome': '/fixture/codex-home', 'platformFamily': 'unix', 'platformOs': 'linux',
+               'userAgent': 'codex_cli_rs/0.159.2'}
+NATIVE_ACCOUNT = {'requiresOpenaiAuth': True, 'account': None, 'workspaceRouting': None}
+OTHER_ACCOUNT = {'requiresOpenaiAuth': False, 'account': {'type': 'amazonBedrock'}}
+CODEX_TEMPLATE = '.codex/agents/sdd-evaluator.toml'
+THREAD_START_SCHEMA = ('specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/native-readonly/'
+                       'generated-schema/v2/ThreadStartParams.json')
+
+# Fixture `codex`: `--version` prints the configured version; `app-server` speaks JSON-lines JSON-RPC (no jsonrpc
+# header). Every process start and every request (with the generated config's existence) is logged BEFORE replying.
+# The mutation fires once, at the first account/read that finds the generated config on disk, and is logged
+# before the otherwise valid reply is written, so the drift is deterministic without sleeps or polling.
+FAKE_CODEX = r'''
+import hashlib, json, os, re, sys, tomllib
+
+CONFIG = json.load(open(sys.argv[1], encoding='utf-8'))
+ARGV = sys.argv[2:]
+LOG = open(CONFIG['log'], 'a', encoding='utf-8')
+
+
+def note(**entry):
+    LOG.write(json.dumps(dict(entry, pid=os.getpid()), sort_keys=True) + '\n')
+    LOG.flush()
+
+
+def reply(value):
+    sys.stdout.buffer.write(json.dumps(value).encode('utf-8') + b'\n')
+    sys.stdout.buffer.flush()
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def semantic(raw):
+    try:
+        return tomllib.loads(raw.decode('utf-8'))
+    except (tomllib.TOMLDecodeError, UnicodeDecodeError):
+        return None
+
+
+def mutate(spec):
+    edits = []
+    for edit in spec['edits']:
+        raw = open(edit['file'], 'rb').read()
+        text, counts = raw.decode('utf-8'), []
+        for op in edit['ops']:
+            if 'sub' in op:
+                text, count = re.subn(op['sub'][0], op['sub'][1], text, count=1)
+            elif 'append' in op:
+                text, count = text + op['append'], 1
+            else:
+                text, count = op['prepend'] + text, 1
+            counts.append(count)
+        changed = text.encode('utf-8')
+        with open(edit['file'], 'wb') as stream:
+            stream.write(changed)
+        record = {'label': edit['label'], 'counts': counts, 'before': sha(raw), 'after': sha(changed),
+                  'semantic_same': None}
+        if edit['file'].endswith('.toml'):
+            record['semantic_same'] = semantic(raw) is not None and semantic(raw) == semantic(changed)
+        edits.append(record)
+    return edits
+
+
+def model_page():
+    efforts = CONFIG['efforts']
+    return {'data': [{'id': name, 'model': name, 'displayName': name, 'description': 'Fixture model.',
+                      'hidden': False, 'isDefault': False, 'defaultReasoningEffort': efforts[0],
+                      'supportedReasoningEfforts': [{'reasoningEffort': e, 'description': e + ' effort'}
+                                                    for e in efforts]} for name in CONFIG['models']]}
+
+
+def thread_result(params):
+    cwd = params.get('cwd')
+    return {'activePermissionProfile': None, 'approvalPolicy': 'never', 'approvalsReviewer': 'user', 'cwd': cwd,
+            'disabledPluginIds': [], 'instructionSources': [], 'model': params.get('model'),
+            'modelProvider': 'openai', 'multiAgentMode': 'explicitRequestOnly',
+            'reasoningEffort': (params.get('config') or {}).get('model_reasoning_effort'),
+            'runtimeWorkspaceRoots': [], 'sandbox': {'type': 'readOnly', 'networkAccess': False},
+            'serviceTier': None,
+            'thread': {'cliVersion': CONFIG['version'].split()[-1], 'createdAt': 1, 'cwd': cwd, 'ephemeral': True,
+                       'id': 'thread-fixture-1', 'modelProvider': 'openai', 'preview': '', 'projectId': None,
+                       'sessionId': 'session-fixture-1', 'source': 'appServer', 'status': {'type': 'idle'},
+                       'turns': [], 'updatedAt': 1}}
+
+
+def patched(value, patch):
+    for op in patch:
+        target = value
+        for key in op['path'][:-1]:
+            target = target[key]
+        if op.get('delete'):
+            target.pop(op['path'][-1], None)
+        else:
+            target[op['path'][-1]] = op['value']
+    return value
+
+
+if ARGV == ['--version']:
+    note(event='version', argv=ARGV)
+    print(CONFIG['version'], flush=True)
+    sys.exit(0)
+if ARGV != ['app-server']:
+    note(event='unsupported', argv=ARGV)
+    sys.exit(3)
+note(event='server', argv=ARGV)
+ACCOUNT, FIRED, THREAD = CONFIG['account'], False, CONFIG['thread'] or {}
+for raw in sys.stdin.buffer:
+    try:
+        message = json.loads(raw)
+    except ValueError:
+        message = None
+    if not isinstance(message, dict):
+        note(event='invalid')
+        continue
+    exists = bool(CONFIG['trigger']) and os.path.isfile(CONFIG['trigger'])
+    note(event='request', message=message, config_exists=exists)
+    if 'id' not in message:
+        continue
+    method, rid, params = message.get('method'), message['id'], message.get('params')
+    if method == 'initialize':
+        result = CONFIG['init']
+    elif method == 'account/read':
+        spec = CONFIG['mutation']
+        if spec and not FIRED and exists:
+            FIRED = True
+            edits = mutate(spec)
+            changed_account = spec.get('account') is not None
+            if changed_account:
+                ACCOUNT = spec['account']
+            note(event='mutation', edits=edits, account_changed=changed_account, config_exists=exists)
+        result = ACCOUNT
+    elif method == 'model/list':
+        result = model_page()
+    elif method == 'thread/start' and not THREAD.get('error'):
+        result = patched(thread_result(params), THREAD.get('patch', []))
+    elif method == 'thread/start':
+        reply({'id': rid, 'error': THREAD['error']})
+        continue
+    else:
+        reply({'id': rid, 'error': {'code': -32601, 'message': 'method not found'}})
+        continue
+    reply({'id': rid, 'result': result})
+'''
+
+
+class NativeProbe:
+    """One fixture `codex` executable on its own PATH entry and the JSONL transcript it appends to."""
+
+    def __init__(self, path, log):
+        self.path, self.log = path, log
+
+    def entries(self, event=None):
+        lines = self.log.read_text(encoding='utf-8').splitlines() if self.log.exists() else []
+        records = [json.loads(line) for line in lines]
+        return [record for record in records if event is None or record['event'] == event]
+
+    def requests(self):
+        return self.entries('request')
+
+    def methods(self):
+        return [record['message'].get('method') for record in self.requests()]
+
+    def starts(self):
+        return [record for record in self.requests() if record['message'].get('method') == 'thread/start']
+
+
+class NativeRun:
+    """One installed codex-entry invocation with the byte snapshots taken after staging and before launch."""
+
+    def __init__(self, result, output, request, probe, session_id, before, installed):
+        self.result, self.output, self.request, self.probe = result, output, request, probe
+        self.session_id, self.before, self.installed = session_id, before, installed
+
+
+class InstalledNativeEntryTests(LaunchFixture):
+    """Installed codex-entry from an unrelated cwd: ONE genuine product client against a fixture `codex` child."""
+
+    root: Path
+    # Explicit reuse of the admitted fixtures' helpers; no inherited test methods, so discovery stays unduplicated.
+    codex_model = ManagedCodexRoles.codex_model
+    fixture_policy = ManagedCodexRoles.fixture_policy
+    build_package = InstalledEntryTests.build_package
+    run_installer = InstalledEntryTests.run_installer
+    install = InstalledEntryTests.install
+    poison_source = InstalledEntryTests.poison_source
+
+    def setUp(self):
+        self.assertTrue(PWSH and os.access(PWSH, os.X_OK), 'PowerShell is required; fixture setup failure')
+        super().setUp()
+        copilot = self.base / 'shims' / 'copilot'
+        copilot.write_text('#!/bin/sh\necho "$0 $*" >> "' + str(self.marker) + '"\nexit 97\n')
+        copilot.chmod(0o755)
+        self.fixture_repo = self.root
+        self.helper()  # the T-007 oracle module stays bound to the source-copied fixture repository
+        self.root = self.base / 'project'  # unrelated execution-input root: no product copies live here
+        (self.root / 'runs').mkdir(parents=True)
+        self.policy = self.fixture_policy()  # trusted policy; only the Codex mapping's lifecycle/adoption differ
+        self.poison = self.base / 'source-package-used'
+        self.home = self.base / 'home'
+        codex = self.home / '.codex'
+        (codex / 'agents').mkdir(parents=True)
+        (codex / 'config.toml').write_text('# user configuration canary\nmodel = "user-choice"\n')
+        (codex / 'agents' / 'sdd-evaluator.toml').write_text('# user agent canary; never replaced\n')
+        self.codex_home = tree(codex)
+        self.environment.update(HOME=str(self.home), XDG_DATA_HOME=str(self.home / '.local/share'),
+                                SDD_CODEX_HOME=str(codex), SDD_CURSOR_DIR=str(self.base / 'cursor-absent'),
+                                SDD_VSCODE_USER_DIR=str(self.base / 'vscode-absent'),
+                                GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
+        self.probes = 0
+
+    # ---- fixture codex executable, staged inputs and the installed entry ---------------------------------------
+
+    def native_probe(self, *, trigger=None, mutation=None, thread=None):
+        """Fresh isolated `codex`: its own PATH directory, scenario file and append-only transcript."""
+        self.probes += 1
+        folder = self.base / ('native-%02d' % self.probes)
+        (folder / 'bin').mkdir(parents=True)
+        config = {'log': str(folder / 'log.jsonl'), 'version': NATIVE_VERSION, 'init': NATIVE_INIT,
+                  'account': NATIVE_ACCOUNT, 'models': [self.codex_model()['hosts'][NATIVE_HOST]],
+                  'efforts': launch.EFFORTS, 'trigger': trigger, 'mutation': mutation, 'thread': thread}
+        (folder / 'config.json').write_text(json.dumps(config), encoding='utf-8')
+        (folder / 'server.py').write_text(FAKE_CODEX, encoding='utf-8')
+        executable = folder / 'bin' / 'codex'
+        executable.write_text('#!/bin/sh\nexec %s -I -B %s %s "$@"\n' % (
+            shlex.quote(sys.executable), shlex.quote(str(folder / 'server.py')), shlex.quote(str(folder / 'config.json'))))
+        executable.chmod(0o755)
+        return NativeProbe(str(folder / 'bin') + os.pathsep + self.environment['PATH'], folder / 'log.jsonl')
+
+    def stage(self, label, output, *, role='evaluator', host=NATIVE_HOST, observation_path=None):
+        """Per-run request and policy; the request declares the observation the entry will own inside OUTPUT."""
+        request = self.fresh_request(role)
+        request.update(host=host, policy_path='policy-' + label + '.json',
+                       observation_path=output + '/observation.json' if observation_path is None else observation_path)
+        path = 'request-' + label + '.json'
+        self.write(path, request)
+        self.write(request['policy_path'], self.policy)
+        (self.root / 'registry.json').write_bytes(self.registry_raw)
+        return path
+
+    def launch_entry(self, install_root, label, *, probe=None, output=None, request=None, mutation=None, thread=None,
+                     **flags):
+        """Stage inputs, snapshot bytes, then run the installed codex-entry once from the unrelated project."""
+        output = output or 'runs/' + label
+        request_path = self.stage(label, output, **(request or {}))
+        if probe is None:
+            targets = {name: str(self.root / output / name) for name in NATIVE_FILES}
+            targets.update(policy=str(self.root / ('policy-' + label + '.json')), request=str(self.root / request_path))
+            if mutation is not None:
+                mutation = dict(mutation, edits=[{'label': edit['target'], 'file': targets[edit['target']],
+                                                  'ops': edit['ops']} for edit in mutation['edits']])
+            probe = self.native_probe(trigger=targets['agent.toml'], mutation=mutation, thread=thread)
+        options = dict({'role': 'evaluator', 'host': NATIVE_HOST, 'run_id': self.run_id,
+                        'session_id': str(uuid.uuid4()), 'attempt': '1', 'require_actual_id': 'false'}, **flags)
+        before, installed = tree(self.root), runtime_tree(install_root)
+        command = [sys.executable, '-I', '-B', str(install_root / ADAPTER), 'codex-entry', '--request', request_path,
+                   '--registry', 'registry.json', '--role', options['role'], '--host', options['host'],
+                   '--run-id', options['run_id'], '--session-id', options['session_id'],
+                   '--attempt', options['attempt'], '--output-dir', output,
+                   '--require-actual-id', options['require_actual_id']]
+        result = self.run_process(command, env={'PATH': probe.path}, timeout=300, label='installed codex entry')
+        self.assertFalse(self.marker.exists(), 'codex-entry invoked an unsupported native executable')
+        self.assertFalse(self.poison.exists(), 'the installed entry fell back to the removed source package')
+        return NativeRun(result, output, request_path, probe, options['session_id'], before, installed)
+
+    # ---- assertions shared by the five methods ------------------------------------------------------------------
+
+    def assert_reaped(self, probe):
+        for server in probe.entries('server'):
+            with self.assertRaises(ProcessLookupError, msg='the owned app-server child outlived the entry'):
+                os.kill(server['pid'], 0)
+
+    def assert_entry_accepted(self, install_root, run):
+        """Complete positive: success first, then outputs, every raw pin, the generated config and the transcript."""
+        value = self.accepted(run.result)
+        helper, out = self.helper(), self.root / run.output
+        self.assertEqual(sorted(path.name for path in out.iterdir()), NATIVE_FILES)
+        after = tree(self.root)
+        self.assertEqual({path: after.get(path) for path in run.before}, run.before,
+                         'codex-entry changed an existing input')
+        self.assertEqual(sorted(set(after) - set(run.before)), [run.output + '/' + name for name in NATIVE_FILES])
+        self.assertEqual(runtime_tree(install_root), run.installed, 'codex-entry changed installed templates or runtime')
+        self.assertEqual(tree(self.home / '.codex'), self.codex_home, 'native/global Codex configuration changed')
+        validation_raw = (out / 'validation.json').read_bytes()
+        self.assertEqual(helper.strict_json(validation_raw), value, 'the saved validation must equal stdout')
+        self.assertEqual(validation_raw, run.result.stdout.rstrip('\n').encode('utf-8'))
+        request = helper.strict_json((self.root / run.request).read_bytes())
+        self.assertEqual(request['observation_path'], run.output + '/observation.json')
+        closure = {request['policy_path'], request['observation_path'],
+                   *(ref['path'] for model in self.policy['models'] for ref in model['adoption'])}
+        controls_raw = (out / 'controls.json').read_bytes()
+        controls = helper.strict_json(controls_raw)
+        self.assertEqual(controls, {'schema': 'model-launch-controls/v1', 'role': 'evaluator', 'host': NATIVE_HOST,
+                                    'attempt': 1, 'require_actual_id': False,
+                                    'selection': self.ref(run.output + '/selection.json'),
+                                    'request': self.ref(run.request), 'registry': self.ref('registry.json'),
+                                    'inputs': [self.ref(path) for path in sorted(closure)]},
+                         'controls must raw-pin the exact sorted request/policy/observation/adoption closure')
+        self.assertEqual(set(value), launch.VALIDATION_FIELDS)
+        self.assertEqual(value['controls'], {'path': run.output + '/controls.json',
+                                             'sha256': launch.sha_bytes(controls_raw)})
+        self.assertEqual(value['pins'], self.expected_pins(controls))
+        self.assertEqual(value['trusted'], [{'path': path, 'sha256': launch.sha_file(install_root / path)}
+                                            for path in launch.TRUSTED_PATHS], 'trusted runtime is the installed copy')
+        for entry in value['trusted']:
+            self.assertEqual(entry['sha256'], launch.sha_file(ROOT / entry['path']), 'installed bytes are current')
+        self.assertEqual([value[key] for key in ('role', 'host', 'run_id', 'session_id', 'attempt')],
+                         ['evaluator', NATIVE_HOST, self.run_id, run.session_id, 1])
+        self.assertIs(type(value['attempt']), int)
+        self.assertIs(value['require_actual_id'], False)
+        # The live observation the entry owns: complete, launch-purpose, client-scoped and the one the controls pin.
+        trusted = self.codex_model()
+        observation = helper.strict_json((out / 'observation.json').read_bytes())
+        helper.validate_observation_record(observation)
+        self.assertEqual({key: observation[key] for key in ('schema', 'host', 'cli_version', 'scope_kind', 'purpose',
+                                                            'source', 'status')},
+                         {'schema': 'model-observation/v1', 'host': NATIVE_HOST, 'cli_version': NATIVE_VERSION,
+                          'scope_kind': 'client', 'purpose': 'launch', 'source': 'live-discovery',
+                          'status': 'complete'})
+        self.assertTrue(observation['scope_id'].startswith('client-'))
+        self.assertEqual(observation['models'], [{'native_id': trusted['hosts'][NATIVE_HOST],
+                                                  'efforts': launch.EFFORTS, 'available': True}])
+        self.assertIn(self.ref(run.output + '/observation.json'), controls['inputs'])
+        selection = helper.strict_json((out / 'selection.json').read_bytes())
+        helper.validate_selection_record(selection, require_bound=True)
+        self.assertEqual(selection, value['selection'])
+        self.assertEqual(selection['binding'], {'run_id': self.run_id, 'session_id': run.session_id, 'attempt': 1})
+        for field in ('observation_sha256', 'observed_at', 'scope_id', 'cli_version'):
+            self.assertEqual(selection[field], observation[field], 'selection must come from the pinned live observation')
+        self.assertIn('live-discovery', selection['reason'])
+        resolved = selection['resolved']
+        self.assertEqual((resolved['catalog_id'], resolved['native_id'], resolved['effort_control']),
+                         (trusted['id'], trusted['hosts'][NATIVE_HOST], 'flag'), 'trusted mapping only')
+        self.assertIn(resolved['effort'], launch.EFFORTS)
+        expected_effort = helper.strict_json(self.registry_raw)['role_defaults']['sdd-evaluator']['default_effort']
+        self.assertEqual(expected_effort, 'high', 'the trusted evaluator default changed; review this fixture')
+        self.assertEqual(resolved['effort'], expected_effort, 'the selected effort must obey the trusted evaluator default')
+        # Generated native configuration: parsed fields, never comments or the raw selection.
+        generated = tomllib.loads((out / 'agent.toml').read_text(encoding='utf-8'))
+        template = tomllib.loads((install_root / CODEX_TEMPLATE).read_text(encoding='utf-8'))
+        self.assertEqual([generated.get(key) for key in RUNTIME_TOML], [resolved['native_id'], resolved['effort']])
+        self.assertEqual({k: v for k, v in generated.items() if k not in RUNTIME_TOML},
+                         {k: v for k, v in template.items() if k not in RUNTIME_TOML},
+                         'name, description, instructions, sandbox and unrelated fields stay the installed role')
+        self.assertEqual((generated['name'], generated['sandbox_mode']), ('sdd-evaluator', 'read-only'))
+        self.assertTrue(generated['developer_instructions'].strip())
+        self.assert_transcript(run, generated, resolved)
+        return value
+
+    def assert_transcript(self, run, generated, resolved):
+        """One genuine client, in order, and the exact native thread/start request produced from the parsed config."""
+        probe = run.probe
+        servers, requests = probe.entries('server'), probe.requests()
+        self.assertEqual((len(servers), len(probe.entries('version'))), (1, 1),
+                         'exactly one genuine client: one version read and one app-server child')
+        self.assertEqual((probe.entries('unsupported'), probe.entries('invalid')), ([], []))
+        self.assertEqual({record['pid'] for record in requests}, {servers[0]['pid']}, 'one server process only')
+        methods = probe.methods()
+        self.assertEqual(methods[:5], ['initialize', 'initialized', 'account/read', 'model/list', 'account/read'])
+        self.assertLessEqual(set(methods), NATIVE_METHODS, 'only discovery and one thread/start are ever sent')
+        self.assertEqual(methods.count('initialize'), 1)
+        self.assertEqual(requests[0]['message']['params'], {'clientInfo': self.helper().CLIENT_INFO})
+        self.assertEqual(requests[1]['message'], {'method': 'initialized', 'params': {}})
+        ids = [record['message']['id'] for record in requests if 'id' in record['message']]
+        self.assertEqual(ids, list(range(len(ids))), 'request IDs are correlated and strictly increasing')
+        for record in requests:
+            method, params = record['message'].get('method'), record['message'].get('params')
+            if method == 'model/list':
+                self.assertEqual(params, {'includeHidden': True})
+            elif method == 'account/read':
+                self.assertEqual(params, {'refreshToken': False})
+        flags = [bool(record['config_exists']) for record in requests]
+        self.assertIn(True, flags, 'the entry never revalidated after generating the config')
+        first = flags.index(True)
+        self.assertLess(methods.index('model/list'), first, 'live capture precedes config generation')
+        self.assertEqual(methods[first], 'account/read', 'the same client revalidates after the config exists')
+        self.assertTrue(all(flags[first:]))
+        self.assertEqual(methods.count('thread/start'), 1)
+        self.assertEqual(methods.index('thread/start'), len(methods) - 1)
+        self.assertGreater(methods.index('thread/start'), first)
+        params = probe.starts()[0]['message']['params']
+        self.assertEqual(params, {'model': generated['model'],
+                                  'config': {'model_reasoning_effort': generated['model_reasoning_effort']},
+                                  'developerInstructions': generated['developer_instructions'],
+                                  'sandbox': generated['sandbox_mode'], 'cwd': str(self.root),
+                                  'approvalPolicy': 'never', 'ephemeral': True, 'allowProviderModelFallback': False})
+        self.assertEqual((params['model'], params['config']['model_reasoning_effort']),
+                         (resolved['native_id'], resolved['effort']))
+        schema_path = ROOT / THREAD_START_SCHEMA
+        self.assertTrue(schema_path.is_file(), 'the admitted ThreadStartParams schema is missing')
+        self.assertLessEqual(set(params), set(json.loads(schema_path.read_text(encoding='utf-8'))['properties']))
+        self.assert_reaped(probe)
+
+    def assert_entry_rejected(self, install_root, run, reasons, *, changed=()):
+        """Typed rejection: no stdout, no new validation, existing bytes (except declared mutations) unchanged."""
+        error = self.rejected(run.result, reasons)
+        after = tree(self.root)
+        kept = {path: digest for path, digest in run.before.items() if path not in changed}
+        self.assertEqual({path: after.get(path) for path in kept}, kept, 'a rejected entry changed an existing input')
+        self.assertFalse([path for path in set(after) - set(run.before) if path.endswith('validation.json')],
+                         'a rejected entry published a validation receipt')
+        self.assertEqual(runtime_tree(install_root), run.installed, 'codex-entry wrote into the installed package')
+        self.assertEqual(tree(self.home / '.codex'), self.codex_home, 'native/global Codex configuration changed')
+        return error
+
+    def assert_blocked_before_thread(self, run):
+        self.assertEqual(run.probe.starts(), [], 'thread/start was sent although the configuration drifted')
+        self.assertLessEqual(set(run.probe.methods()), NATIVE_METHODS)
+        self.assertFalse((self.root / run.output / 'validation.json').exists())
+        self.assert_reaped(run.probe)
+
+    def assert_mutated(self, run, labels):
+        """The deterministic post-config mutation really ran exactly once, so an inert canary can never pass."""
+        marks = run.probe.entries('mutation')
+        self.assertEqual(len(marks), 1, 'the post-config mutation must fire exactly once')
+        self.assertTrue(marks[0]['config_exists'])
+        self.assertEqual([edit['label'] for edit in marks[0]['edits']], list(labels))
+        for edit in marks[0]['edits']:
+            self.assertTrue(all(count >= 1 for count in edit['counts']), 'a mutation pattern matched nothing')
+            self.assertNotEqual(edit['before'], edit['after'], 'the mutation changed no bytes')
+        return marks[0]
+
+    # ---- the five bounded acceptance methods -------------------------------------------------------------------
+
+    def test_codex_entry_uses_one_installed_client_and_generated_native_config(self):
+        resolved = {}
+        installed = {}
+        for shell in SHELLS:
+            install_root = self.install(shell)
+            run = self.launch_entry(install_root, 'native-' + shell)
+            value = self.assert_entry_accepted(install_root, run)
+            resolved[shell] = value['selection']['resolved']
+            installed[shell] = runtime_tree(install_root)
+        self.assertEqual(resolved['bash'], resolved['pwsh'], 'both installations must select identically')
+        self.assertEqual(installed['bash'], installed['pwsh'], 'both installers must place identical package bytes')
+
+    def test_codex_entry_rejects_unsafe_or_unsupported_preflight(self):
+        install_root = self.install('bash')
+        positive = self.launch_entry(install_root, 'positive')
+        self.assert_entry_accepted(install_root, positive)  # a missing codex-entry fails here, never as a negative
+        probe = positive.probe
+        allocated = len(probe.entries())
+        cases: list[tuple[str, dict[str, str], dict[str, str], str]] = []
+        for field in ('run_id', 'session_id'):
+            cases += [('bad-%s-%d' % (field, index), {}, {field: value}, 'input-invalid')
+                      for index, value in enumerate(BAD_IDS)]
+        cases += [('bad-attempt-%d' % index, {}, {'attempt': value}, 'input-invalid')
+                  for index, value in enumerate(BAD_ATTEMPTS)]
+        cases += [('request-role', {'role': 'investigator'}, {}, 'scope-mismatch'),
+                  ('actual-role', {}, {'role': 'investigator'}, 'scope-mismatch'),
+                  ('request-host', {'host': 'claude-code'}, {}, 'scope-mismatch'),
+                  ('actual-host-claude', {'host': 'claude-code'}, {'host': 'claude-code'}, 'model-unavailable'),
+                  ('actual-host-copilot', {'host': 'copilot-cli'}, {'host': 'copilot-cli'}, 'model-unavailable'),
+                  ('role-without-template', {'role': 'spec-reviewer-a'}, {'role': 'spec-reviewer-a'},
+                   'model-unavailable')]
+        for label, request, flags, reason in cases:
+            with self.subTest(case=label):
+                run = self.launch_entry(install_root, label, probe=probe, request=request, **flags)
+                self.assert_entry_rejected(install_root, run, reason)
+                self.assertFalse((self.root / run.output / 'validation.json').exists())
+        with self.subTest(case='foreign-observation-path'):
+            foreign = 'foreign-observation.json'
+            canary = (self.root / positive.output / 'observation.json').read_bytes()
+            (self.root / foreign).write_bytes(canary)  # valid observation bytes; rejection must be path authorization
+            run = self.launch_entry(install_root, 'foreign-observation', probe=probe,
+                                    request={'observation_path': foreign})
+            self.assert_entry_rejected(install_root, run, 'input-invalid')
+            self.assertEqual((self.root / foreign).read_bytes(), canary, 'a foreign observation was overwritten')
+        for case, link_rel, output in (('symlink-ancestor', 'linked-runs', 'linked-runs/entry'),
+                                       ('symlink-target', 'runs/linked-target', 'runs/linked-target')):
+            with self.subTest(case=case):
+                outside = self.base / ('outside-' + case)
+                outside.mkdir()
+                (outside / 'canary.txt').write_text('external canary\n')
+                canary = tree(outside)
+                (self.root / link_rel).symlink_to(outside, target_is_directory=True)
+                run = self.launch_entry(install_root, case, probe=probe, output=output)
+                self.assert_entry_rejected(install_root, run, 'input-invalid')
+                self.assertTrue((self.root / link_rel).is_symlink())
+                self.assertEqual(sorted(path.name for path in outside.iterdir()), ['canary.txt'])
+                self.assertEqual(tree(outside), canary, 'a rejected output symlink received writes')
+        reused = tree(self.root / positive.output)
+        for case, flags in (('identical', {'session_id': positive.session_id}), ('other-session', {})):
+            with self.subTest(case='reused-' + case):
+                run = self.launch_entry(install_root, 'positive', probe=probe, output=positive.output, **flags)
+                self.assert_entry_rejected(install_root, run, 'input-invalid')
+                self.assertEqual(tree(self.root / positive.output), reused, 'a reused output was overwritten')
+        self.assertEqual(len(probe.entries()), allocated, 'a preflight guard allocated or used a native client')
+        with self.subTest(case='require-actual-id'):
+            run = self.launch_entry(install_root, 'actual-id', require_actual_id='true')
+            self.assert_entry_rejected(install_root, run, 'actual-id-unavailable')
+            self.assert_blocked_before_thread(run)
+
+    def test_codex_entry_rejects_generated_config_drift_before_thread_start(self):
+        install_root = self.install('pwsh')
+        baseline = self.launch_entry(install_root, 'baseline')
+        value = self.assert_entry_accepted(install_root, baseline)  # fresh success precedes every mutation
+        resolved = value['selection']['resolved']
+        other_effort = next(effort for effort in launch.EFFORTS if effort != resolved['effort'])
+
+        def key_line(key, end='$'):
+            return r'(?m)^' + key + r'[ \t]*=.*' + end
+
+        cases = [
+            ('wrong-model', [{'sub': [key_line('model'), 'model = "wrong-fixture-model"']}], False),
+            ('wrong-effort', [{'sub': [key_line('model_reasoning_effort'),
+                                       'model_reasoning_effort = "' + other_effort + '"']}], False),
+            ('runtime-keys-removed-comments-kept',
+             [{'sub': [key_line('model', r'\r?\n'), '']},
+              {'sub': [key_line('model_reasoning_effort', r'\r?\n'), '']},
+              {'prepend': '# x-sdd-model: ' + resolved['native_id'] + '\n# x-sdd-effort: ' + resolved['effort'] + '\n'}],
+             False),
+            ('altered-instructions',
+             [{'sub': [r'''(?m)^(developer_instructions[ \t]*=[ \t]*["']{1,3})''',
+                       r'\g<1>ALTERED FIXTURE INSTRUCTIONS ']}], False),
+            ('sandbox-workspace-write', [{'sub': [key_line('sandbox_mode'), 'sandbox_mode = "workspace-write"']}],
+             False),
+            ('comment-only-raw-drift', [{'append': '\n# comment-only raw drift after generation\n'}], True),
+        ]
+        for label, ops, comment_only in cases:
+            with self.subTest(case=label):
+                run = self.launch_entry(install_root, label, mutation={'edits': [{'target': 'agent.toml', 'ops': ops}]})
+                self.assert_entry_rejected(install_root, run, 'config-conflict')
+                mark = self.assert_mutated(run, ['agent.toml'])
+                self.assertIs(mark['edits'][0]['semantic_same'], comment_only,
+                              'only the comment-only case may leave the parsed configuration unchanged')
+                self.assertFalse(mark['account_changed'])
+                self.assert_blocked_before_thread(run)
+
+    def test_codex_entry_rejects_context_or_pinned_input_drift(self):
+        install_root = self.install('bash')
+        baseline = self.launch_entry(install_root, 'baseline')
+        self.assert_entry_accepted(install_root, baseline)  # fresh success precedes every mutation
+        cases: list[tuple[str, dict[str, Any], str, tuple[str, ...], tuple[str, ...]]] = [
+            ('account-context', {'account': OTHER_ACCOUNT, 'edits': []}, 'scope-mismatch', (), ())]
+        for target in ('policy', 'request', 'observation.json', 'selection.json', 'controls.json'):
+            cases.append(('pinned-' + target.split('.')[0],
+                          {'edits': [{'target': target, 'ops': [{'append': '\n'}]}]}, 'input-invalid',
+                          (target,), (target,)))
+        for label, mutation, reason, labels, rewritten in cases:
+            with self.subTest(case=label):
+                run = self.launch_entry(install_root, label, mutation=mutation)
+                changed = {'policy': 'policy-' + label + '.json', 'request': run.request}
+                self.assert_entry_rejected(install_root, run, reason,
+                                           changed={changed[target] for target in rewritten if target in changed})
+                mark = self.assert_mutated(run, labels)
+                self.assertIs(mark['account_changed'], label == 'account-context')
+                self.assert_blocked_before_thread(run)
+
+    def test_codex_entry_rejects_native_response_mismatches_without_turns(self):
+        install_root = self.install('pwsh')
+        baseline = self.launch_entry(install_root, 'baseline')
+        value = self.assert_entry_accepted(install_root, baseline)  # fresh success precedes every response variant
+        resolved = value['selection']['resolved']
+        other_effort = next(effort for effort in launch.EFFORTS if effort != resolved['effort'])
+        turn = {'id': 'turn-fixture-1', 'items': [], 'status': 'completed'}
+        cases = [
+            ('model', [{'path': ['model'], 'value': 'gpt-fixture-other'}], 'config-conflict'),
+            ('effort', [{'path': ['reasoningEffort'], 'value': other_effort}], 'config-conflict'),
+            ('effort-missing', [{'path': ['reasoningEffort'], 'delete': True}], 'config-conflict'),
+            ('effort-null', [{'path': ['reasoningEffort'], 'value': None}], 'config-conflict'),
+            ('cwd', [{'path': ['cwd'], 'value': str(self.base / 'other-project')}], 'config-conflict'),
+            ('approval-policy', [{'path': ['approvalPolicy'], 'value': 'on-request'}], 'config-conflict'),
+            ('sandbox-type', [{'path': ['sandbox'], 'value': {'type': 'dangerFullAccess'}}], 'config-conflict'),
+            ('sandbox-network', [{'path': ['sandbox'], 'value': {'type': 'readOnly', 'networkAccess': True}}],
+             'config-conflict'),
+            ('thread-id-empty', [{'path': ['thread', 'id'], 'value': ''}], 'config-conflict'),
+            ('thread-turns-nonempty', [{'path': ['thread', 'turns'], 'value': [turn]}], 'config-conflict'),
+        ]
+        for label, patch, reason in cases:
+            with self.subTest(case=label):
+                run = self.launch_entry(install_root, label, thread={'patch': patch})
+                self.assert_entry_rejected(install_root, run, reason)
+                self.assert_response_rejected(run, resolved)
+        with self.subTest(case='json-rpc-error'):
+            error = {'code': -32603, 'message': 'fixture thread/start failure'}
+            run = self.launch_entry(install_root, 'rpc-error', thread={'error': error})
+            self.assert_entry_rejected(install_root, run, 'discovery-unavailable')
+            self.assert_response_rejected(run, resolved)
+
+    def assert_response_rejected(self, run, resolved):
+        """Post-send failure: exactly one thread/start for the intended config, never a turn, no success artifact."""
+        starts = run.probe.starts()
+        self.assertEqual(len(starts), 1, 'exactly one thread/start precedes a response rejection')
+        self.assertEqual(starts[0]['message']['params']['model'], resolved['native_id'])
+        self.assertEqual(starts[0]['message']['params']['cwd'], str(self.root))
+        self.assertLessEqual(set(run.probe.methods()), NATIVE_METHODS, 'no turn or thread method beyond thread/start')
+        self.assertEqual(run.probe.entries('mutation'), [])
+        self.assertFalse((self.root / run.output / 'validation.json').exists())
+        self.assert_reaped(run.probe)
 
 
 if __name__ == '__main__':
