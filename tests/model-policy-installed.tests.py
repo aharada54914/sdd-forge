@@ -1772,6 +1772,7 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
         self.case = case = prep.case
         case.extra_runtime = tuple(dict.fromkeys((*case.extra_runtime, INVESTIGATION_CALLER, INVESTIGATION_AGENT,
                                                  *INVESTIGATION_SOURCES)))
+        case.extra_runtime = (*case.extra_runtime, 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md', 'plugins/sdd-domain/skills/domain-reverse/SKILL.md', 'plugins/sdd-domain/skills/domain-model/SKILL.md')
         case.environment['CLAUDE_CONFIG_DIR'] = str(case.home / '.claude')
         self.log, self.config = case.base / 'investigator-events.jsonl', case.base / 'investigator-config.json'
         self.prompt = 'work/investigator-instructions.txt'
@@ -1851,8 +1852,8 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
         self.assertFalse((self.case.root / output).exists(), 'known invalid inputs must fail before output creation')
         self.prep.assert_unchanged_world()
 
-    def fence(self, installed, output):
-        source = (installed / INVESTIGATION_CALLER).read_text()
+    def fence(self, installed, output, caller=INVESTIGATION_CALLER):
+        source = (installed / caller).read_text()
         fences = [body for body in re.findall(r'```bash\n(.*?)```', source, re.S) if 'claude-entry' in body]
         self.assertEqual(len(fences), 1, 'maintained bootstrap lacks exactly one pre-allocation investigator fence')
         script = fences[0]
@@ -2002,6 +2003,53 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
                 self.assertFalse((self.case.root / output / 'native-result.json').exists())
         self.assertEqual({path: path.read_bytes() for path in permissions}, permissions)
         self.prep.assert_unchanged_world()
+
+
+    def test_indirect_investigator_callers_execute_one_managed_work_handoff(self):
+        callers = ('plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md',
+                   'plugins/sdd-domain/skills/domain-reverse/SKILL.md')
+        for shell in SHELLS:
+            installed = self.prep.install(shell)
+            self.prep.claude_positive(installed, self.prep.output())
+            for caller in callers:
+                with self.subTest(installer=shell, caller=caller):
+                    self.fresh_session()
+                    output = self.prep.output()
+                    script = self.fence(installed, output, caller)
+                    self.reset_events()
+                    result = self.case.run_process([launch.BASH, '-c', script], timeout=120,
+                                                   label='indirect installed investigation caller')
+                    self.assert_work(result, output)
+                    self.assertEqual([e['event'] for e in self.events()].count('work'), 1)
+                    # Same maintained invocation must fail closed before any work for a policy conflict.
+                    setting = self.case.root / '.claude/settings.local.json'
+                    raw = setting.read_bytes()
+                    try:
+                        setting.write_text('{"maxEffortLevel":"low"}\n')
+                        self.fresh_session()
+                        blocked_output = self.prep.output()
+                        blocked_script = self.fence(installed, blocked_output, caller)
+                        self.reset_events()
+                        blocked = self.case.run_process([launch.BASH, '-c', blocked_script], timeout=120,
+                                                        label='indirect investigation conflict')
+                        self.case.rejected(blocked, 'effort-unavailable')
+                        self.assertFalse((self.case.root / blocked_output).exists())
+                        self.assertEqual([e for e in self.events() if e['event'] == 'work'], [])
+                    finally:
+                        setting.write_bytes(raw)
+                    self.prep.assert_unchanged_world()
+
+    def test_domain_reverse_router_preserves_single_delegation_and_seed_failure_boundary(self):
+        installed = self.prep.install('bash')
+        source = (installed / 'plugins/sdd-domain/skills/domain-model/SKILL.md').read_text()
+        reverse = source.split('### `reverse` mode', 1)[1].split('### `update` mode', 1)[0]
+        self.assertNotIn('/sdd-bootstrap:investigate-codebase', reverse,
+                         'router must not bypass domain-reverse with an unmanaged investigation allocation')
+        self.assertEqual(reverse.count('Use the domain-reverse skill.'), 1)
+        self.assertNotIn('claude-entry', reverse, 'router and reverse child must not allocate twice')
+        self.assertIn('Seed-Source: reverse (investigate-codebase, <feature>)', reverse)
+        self.assertIn('do not fall through to `domain-interviewer` with fabricated content', reverse)
+        self.assertIn('Use the domain-interviewer skill.', reverse)
 
 
 
