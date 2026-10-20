@@ -6651,5 +6651,237 @@ class InstalledDomainCallerTests(unittest.TestCase):
         self.assert_pending(st)
 
 
+
+
+# Actual installed protected review callers; only the external native CLI is a recording fixture.
+PROTECTED_CALLER_RUNTIME: tuple[str, ...] = ('contracts/agent-model-capabilities.v2.json', 'contracts/approval-sidecar.schema.json', 'contracts/approver-registry.schema.json', 'contracts/concept-test.v1.schema.json', 'contracts/domain-contract.v1.schema.json', 'contracts/domain-contract.v2.schema.json', 'contracts/model-launch-controls.schema.json', 'contracts/model-policy.v1.json', 'contracts/workflow-state-registry.schema.json', 'plugins/sdd-domain/scripts/validate-concept-test.py', 'plugins/sdd-domain/scripts/validate-domain-contract.ps1', 'plugins/sdd-domain/scripts/validate-domain-contract.sh', 'plugins/sdd-implementation/scripts/model-policy.py', 'plugins/sdd-implementation/scripts/select-agent-model.ps1', 'plugins/sdd-implementation/scripts/select-agent-model.sh', 'plugins/sdd-quality-loop/references/risk-classification-policy.md', 'plugins/sdd-quality-loop/references/risk-gate-matrix.md', 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py', 'plugins/sdd-quality-loop/scripts/check-risk.sh', 'plugins/sdd-quality-loop/scripts/check-workflow-state.sh', 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py', 'plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py', 'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py', 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh', 'plugins/sdd-review-loop/references/review-context-boundary.md', 'plugins/sdd-review-loop/references/reviewer-calibration.md', 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py', 'plugins/sdd-review-loop/scripts/fixed-review-state.py', 'plugins/sdd-review-loop/scripts/impl-review-precheck.sh', 'plugins/sdd-review-loop/scripts/launch-impl-review.py', 'plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh', 'plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh', 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs', 'plugins/sdd-review-loop/scripts/preflight-host-review.py', 'plugins/sdd-review-loop/scripts/probe-nontty-review.py', 'plugins/sdd-review-loop/scripts/task-review-precheck.sh', 'plugins/sdd-review-loop/scripts/validate-layer-traceability.py', 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py', 'plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md', 'plugins/sdd-review-loop/skills/task-review-loop/SKILL.md', 'specs/workflow-state-registry.json')
+PROTECTED_CALLER_RUNTIME += tuple('plugins/sdd-review-loop/agents/' + role + '.md' for role in
+                                  ('impl-reviewer-a', 'impl-reviewer-b', 'task-reviewer-a', 'task-reviewer-b'))
+PROTECTED_RECORDER = 'tests/fixtures/model-policy-installed/recording-protected.py'
+PROTECTED_SEED = 'tests/fixtures/model-policy-installed/protected-review-data.py'
+PROTECTED_CALLER_SKILLS = {
+    'impl': ('plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md', '## Local Claude CLI non-TTY route (opt-in)'),
+    'task': ('plugins/sdd-review-loop/skills/task-review-loop/SKILL.md', '## Claude non-TTY shared launch'),
+}
+
+
+def protected_test_module(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+class InstalledProtectedCallerTests(unittest.TestCase):
+    _spec: Any = InstalledSpecCallerTests
+    _domain: Any = InstalledDomainCallerTests
+    execute = _spec.execute
+    chain = _spec.chain
+    native_calls = _spec.native_calls
+    assert_managed = _spec.assert_managed
+    assert_run_record = _spec.assert_run_record
+    assert_blocked = _spec.assert_blocked
+    pin = _domain.pin
+    generated_guard = _domain.generated_guard
+    hook = _domain.hook
+    assert_guard = _domain.assert_guard
+
+    def fixture(self, shell):
+        f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+        self.addCleanup(lambda: self.assertTrue(getattr(f, 'doCleanups')(), 'protected caller cleanup failed'))
+        shim = f.base / 'shims/claude'
+        shutil.copyfile(ROOT / PROTECTED_RECORDER, shim)
+        shim.chmod(0o755)
+        registry = project / 'specs/workflow-state-registry.json'
+        document = json.loads(registry.read_bytes())
+        document['entries'] = []  # A new owned fixture project has none of the source repository's feature directories.
+        registry.write_text(json.dumps(document) + '\n')
+        loader_name = 'protected_seed_' + uuid.uuid4().hex
+        seed = protected_test_module(ROOT / PROTECTED_SEED, loader_name)
+        self.addCleanup(sys.modules.pop, loader_name, None)
+        return f, project, runtime, seed
+
+    def fence(self, project, stage):
+        relative, heading = PROTECTED_CALLER_SKILLS[stage]
+        source = (project / relative).read_text()
+        self.assertEqual(source.count(heading), 1)
+        section = source.split(heading, 1)[1].split('\n## ', 1)[0]
+        candidates = [body for language, body in re.findall(r'```([^\s`]*)[^\n]*\n(.*?)\n```', section, re.S)
+                      if language.lower() in ('text', 'sh', 'bash') and 'launch-impl-review.py' in body]
+        self.assertEqual(len(candidates), 1)
+        return candidates[0]
+
+    def case(self, state, stage, label, *, letter='a', shared=None, mutation=None, request_role=None):
+        f, project, runtime, seed = state
+        role = stage + '-reviewer-' + letter
+        session = str(uuid.uuid4())
+        feature = shared['feature'] if shared else 'protected-' + stage + '-' + uuid.uuid4().hex[:10]
+        request, observation = 'request-' + label + '.json', 'observation-' + label + '.json'
+        f.request = f.fresh_request(request_role or role)
+        f.request['observation_path'] = observation
+        f.observation = f.fresh_observation()
+        f.save()
+        shutil.copyfile(f.root / 'observation.json', f.root / observation)
+        closure = sorted(f.closure())
+        oracle = InstalledEntryTests.oracle_selection(f)
+        for name in sorted({'registry.json', *closure}):
+            target = project / name
+            if target.exists():
+                self.assertEqual(target.read_bytes(), (f.root / name).read_bytes(), 'Shared policy closure drift')
+            else:
+                shutil.copyfile(f.root / name, target)
+        shutil.copyfile(f.root / 'request.json', project / request)
+        round_rel = f'reports/{stage}-review/{feature}/attempt-1/round-1'
+        if shared is None:
+            seed.seed(project, feature, stage)
+            initialized = self.execute(f, ['bash', str(project / f'plugins/sdd-review-loop/scripts/{stage}-review-precheck.sh'),
+                                           feature, '1', '1'], cwd=project)
+            self.assertEqual((initialized.returncode, initialized.stderr), (0, ''), initialized.stdout[-1000:])
+        round_dir = project / round_rel
+        precheck = json.loads((round_dir / 'precheck-result.json').read_bytes())
+        name = 'protected_launcher_' + uuid.uuid4().hex
+        compiler = protected_test_module(project / 'plugins/sdd-review-loop/scripts/launch-impl-review.py', name)
+        self.addCleanup(sys.modules.pop, name, None)
+        ledger = project / SPEC_LEDGER
+        records = self.chain(ledger)
+        data: dict[str, Any] = {
+            'schema': 'review-context-invocation/v2', 'input_mode': 'file-manifest', 'fallback_mode': 'none',
+            'read_only': True, 'stage': stage, 'role': role, 'feature': feature, 'run_id': session,
+            'host_session_id': session, 'sequence': len(records) + 1, 'identity_ledger_path': SPEC_LEDGER,
+            'identity_ledger_sha256': launch.sha_file(ledger), 'previous_record_sha256': records[-1]['record_sha256']}
+        conditional = protected_test_module(project / 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py', name + '_conditional')
+        self.addCleanup(sys.modules.pop, name + '_conditional', None)
+        data['allowed_input_manifest'] = conditional.resolve(project, feature, stage)['inputs']
+        paths = sorted(compiler.required_input_paths(project, data, project / round_rel / 'precheck-result.json', 1, 1))
+        entries = [{'path': path, 'sha256': (precheck['tasks_sha256'] if stage == 'task' and
+                    path == f'specs/{feature}/tasks.md' and precheck.get('tasks_sha256_form') == 'normalized'
+                    else launch.sha_file(project / path))} for path in paths]
+        data['allowed_input_manifest'] = entries
+        invocation = round_dir / ('reviewer-' + letter + '-invocation.json')
+        invocation.write_text(json.dumps(data, indent=2) + '\n')
+        output_rel = 'runs/' + role + '-' + session
+        replacements = {'<absolute-repository-root>': str(project), '<absolute-invocation-path>': str(invocation),
+                        '<absolute-round-directory>': str(round_dir), '<UUID>': session, '<role>': role,
+                        '<policy-request>': request, '<registry>': 'registry.json', '<run-id>': session,
+                        '<session-id>': session, '<attempt>': '1', '<output-dir>': output_rel}
+        text = self.fence(project, stage)
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        self.assertNotRegex(text, r'<[A-Za-z][^>\n]*>', 'Unsubstituted maintained fence placeholder')
+        if mutation == 'remove-forwarding':
+            text, count = QUALITY_FORWARDING.subn('', text)
+            self.assertEqual(count, 2, 'Remove the two forwarding flags only')
+        elif mutation == 'raw-control-drift':
+            lines = text.splitlines(True)
+            index = next(i for i, line in enumerate(lines) if 'launch-impl-review.py' in line)
+            lines.insert(index, 'printf "\\n" >> ' + shlex.quote(output_rel + '/controls.json') + ' &&\n')
+            text = ''.join(lines)
+        else:
+            self.assertIsNone(mutation)
+        script = f.base / (label + '.sh')
+        script.write_text(text + '\n')
+        before, audit = ledger.read_bytes(), f.audit.read_bytes()
+        registry_before = (project / 'specs/workflow-state-registry.json').read_bytes()
+        result = self.execute(f, ['bash', str(script)], cwd=project, timeout=900)
+        self.assertFalse(f.poison.exists())
+        after = runtime_tree(project)
+        installed_runtime = {path: digest for path, digest in runtime.items()
+                             if path != 'specs/workflow-state-registry.json'}
+        self.assertEqual({path: after.get(path) for path in installed_runtime}, installed_runtime,
+                         'Caller changed installed runtime')
+        self.assertEqual((project / 'specs/workflow-state-registry.json').read_bytes(), registry_before,
+                         'Launch changed the seeded project registry')
+        self.assertFalse([path for path in after if path.startswith(('plugins/', 'contracts/')) and path not in runtime],
+                         'Caller added files to the installed runtime')
+        return {'session': session, 'feature': feature, 'role': role, 'stage': stage, 'entries': entries, 'paths': paths,
+                'invocation': invocation, 'output_rel': output_rel, 'launch': round_dir / ('launch-' + session),
+                'result': result, 'records': records, 'ledger': before, 'audit': audit, 'request': request,
+                'closure': closure, 'oracle': oracle, 'round_rel': round_rel, 'precheck': precheck}
+
+    def delivered(self, state, case, *, managed=True):
+        f, project, _, _ = state
+        result = case['result']
+        self.assertEqual(result.returncode, 0, result.stderr[-1800:])
+        receipt = (case['launch'] / 'receipt.txt').read_text()
+        self.assertRegex(receipt, r'^REVIEW_CONTEXT_OK [0-9a-f]{64} sequence=[1-9][0-9]* ')
+        self.assertEqual({(case['launch'] / name).read_text() for name in
+                          ('preview.txt', 'preview-after.txt', 'reserved.txt', 'receipt.txt')}, {receipt})
+        delivery = json.loads((case['launch'] / 'delivery.json').read_bytes())
+        self.assertEqual((delivery['status'], delivery['session_id']), ('DELIVERY_OK', case['session']))
+        for file, field in (('prompt.txt', 'prompt_sha256'), ('wrapper.json', 'wrapper_sha256'),
+                            (case['session'] + '.jsonl', 'transcript_sha256')):
+            self.assertEqual(launch.sha_file(case['launch'] / file), delivery[field])
+        calls = self.native_calls(f, case)
+        self.assertEqual([call['mode'] for call in calls], SPEC_NATIVE_MODES)
+        self.assertEqual(self.chain(project / SPEC_LEDGER)[:-1], case['records'])
+        record = self.chain(project / SPEC_LEDGER)[-1]
+        self.assertEqual((record['stage'], record['role'], record['run_id']),
+                         (case['stage'], case['role'], case['session']))
+        wrapper = json.loads((case['launch'] / 'wrapper.json').read_bytes())
+        output = wrapper['structured_output']
+        self.assertEqual(json.loads(wrapper['result']), output)
+        expected = {'impl-reviewer-a': 11, 'impl-reviewer-b': 11, 'task-reviewer-a': 14, 'task-reviewer-b': 9}
+        self.assertEqual(len(output['checks']), expected[case['role']])
+        self.assertTrue(all('FIXTURE ONLY' in row['finding'] for row in output['checks']))
+        if managed:
+            self.assert_managed(f, project, case, calls)
+            self.assert_run_record(f, project, case)
+        return output, calls
+
+    def test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval(self):
+        for shell in SHELLS:
+            for stage in ('impl', 'task'):
+                with self.subTest(shell=shell, stage=stage):
+                    state = self.fixture(shell)
+                    f, project, _, _ = state
+                    a = self.case(state, stage, stage + '-a')
+                    output, _ = self.delivered(state, a)
+                    round_dir = a['launch'].parent
+                    (round_dir / 'reviewer-a.json').write_text(json.dumps(output) + '\n')
+                    summary = {'schema': 'integrated-summary/v1', 'round': 1, 'attempt': 1,
+                               'reviewer_a_check_ids': [row['id'] for row in output['checks']],
+                               'reviewer_a_fail_count': 0, 'reviewer_a_pass_count': len(output['checks']),
+                               'reviewer_a_skip_count': 0, 'generated_at': '2026-10-20T00:00:00Z'}
+                    (round_dir / 'integrated-summary.json').write_text(json.dumps(summary) + '\n')
+                    a_pin = self.pin(project, a)
+                    b = self.case(state, stage, stage + '-b', letter='b', shared=a)
+                    self.delivered(state, b)
+                    self.assertNotEqual(a['session'], b['session'])
+                    self.assertEqual(self.pin(project, a), a_pin)
+                    self.assert_run_record(f, project, a)
+                    guard, policy = self.generated_guard(project, b)
+                    self.assertNotIn(str(round_dir / 'reviewer-a.json'), policy['read_paths'])
+                    self.assert_guard({'f': f, 'project': project}, b, guard, 'Read', {'file_path': str(round_dir / 'reviewer-a.json')}, False, 'raw A')
+                    self.assert_guard({'f': f, 'project': project}, b, guard, 'Read', {'file_path': str(round_dir / 'integrated-summary.json')}, True, 'summary')
+                    current = project / 'specs' / a['feature'] / ('design.md' if stage == 'impl' else 'tasks.md')
+                    self.assertIn(('Impl' if stage == 'impl' else 'Task') + '-Review-Status: Pending', current.read_text())
+                    if stage == 'task':
+                        self.assertNotIn('Approval: Approved', current.read_text())
+
+    def test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding(self):
+        for stage in ('impl', 'task'):
+            with self.subTest(stage=stage):
+                state = self.fixture('bash')
+                f, project, _, _ = state
+                positive = self.case(state, stage, stage + '-positive')
+                self.delivered(state, positive)
+                wrong = self.case(state, stage, stage + '-wrong-role', request_role='spec-reviewer-a')
+                self.assertEqual(wrong['result'].returncode, 2)
+                self.assertEqual(json.loads(wrong['result'].stderr)['reason'], 'scope-mismatch')
+                self.assert_blocked(f, project, wrong)
+                drift = self.case(state, stage, stage + '-drift', mutation='raw-control-drift')
+                self.assertEqual(drift['result'].returncode, 1)
+                self.assertIn('input-invalid', drift['result'].stderr)
+                self.assert_blocked(f, project, drift)
+                legacy = self.case(state, stage, stage + '-legacy', mutation='remove-forwarding')
+                _, calls = self.delivered(state, legacy, managed=False)
+                self.assertFalse((legacy['launch'] / 'model-launch.json').exists())
+                self.assertEqual((calls[-1]['model'], calls[-1]['effort']), ('sonnet', None))
+                with self.assertRaises(AssertionError):
+                    self.assert_managed(f, project, legacy, calls)
+
+
 if __name__ == '__main__':
     unittest.main()
