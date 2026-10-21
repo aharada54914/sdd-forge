@@ -8,6 +8,12 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 
 if ($Lane -in @('all', 'core')) {
+    # Registered black-box payload checks with isolated local/archive fixtures.
+    $payloadPython = Get-Command python3 -ErrorAction SilentlyContinue
+    if (-not $payloadPython) { $payloadPython = Get-Command python -ErrorAction Stop }
+    & $payloadPython.Source (Join-Path $repositoryRoot 'tests/lib/install-payload-check.py') --runtime powershell
+    if ($LASTEXITCODE -ne 0) { throw 'Installer payload regression failed.' }
+
 # Exercise the production archive-download branch without network or host install
 # writes. A failed tar may still leave a marketplace-shaped partial directory.
 & {
@@ -100,6 +106,11 @@ function New-TrackedFixture {
 # than cloning local Git objects, which can invoke a host credential helper.
 $installerSourceRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-source-" + [guid]::NewGuid())
 New-TrackedFixture -Source $repositoryRoot -Destination $installerSourceRoot
+if (Test-Path -LiteralPath (Join-Path $repositoryRoot 'install-payload.txt')) {
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot 'install-payload.txt') -Destination $installerSourceRoot
+    & git -C $installerSourceRoot add install-payload.txt
+    if ($LASTEXITCODE -ne 0) { throw 'Unable to track fixture payload manifest.' }
+}
 foreach ($relativePath in @(
     ".claude-plugin/marketplace.json",
     ".agents/plugins/marketplace.json",

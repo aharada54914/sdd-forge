@@ -89,10 +89,13 @@ def fixture(root: Path) -> None:
         shutil.copytree(ROOT / directory, root / directory, ignore=shutil.ignore_patterns('__pycache__', 'node_modules'))
     for name in ('README.md', 'CHANGELOG.md', 'install.sh', 'install.ps1', 'uninstall.sh', 'uninstall.ps1'):
         shutil.copy2(ROOT / name, root / name)
+    payload_manifest = ROOT / 'install-payload.txt'
+    if payload_manifest.is_file():
+        shutil.copy2(payload_manifest, root / payload_manifest.name)
     (root / 'tests').mkdir()
     shutil.copy2(ROOT / 'tests/validate-repository.ps1', root / 'tests/validate-repository.ps1')
     # Commit explicit fixture directories; never touches the real index.
-    for args in (['git', 'init', '-q'], ['git', 'add', '--', 'plugins', 'contracts', '.agents', '.claude-plugin', '.codex', 'README.md', 'CHANGELOG.md', 'install.sh', 'install.ps1', 'uninstall.sh', 'uninstall.ps1', 'tests'],
+    for args in (['git', 'init', '-q'], ['git', 'add', '--', 'plugins', 'contracts', '.agents', '.claude-plugin', '.codex', 'README.md', 'CHANGELOG.md', 'install.sh', 'install.ps1', 'uninstall.sh', 'uninstall.ps1', 'tests', *(['install-payload.txt'] if payload_manifest.is_file() else [])],
                  ['git', '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'isolated packaging fixture']):
         p = run(args, root)
         if p.returncode:

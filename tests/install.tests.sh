@@ -11,6 +11,9 @@ ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite
 PASS=0
 FAIL=0
 
+# Registered black-box payload checks include fake development state in each fixture.
+python3 "${REPO_ROOT}/tests/lib/install-payload-check.py" --runtime bash
+
 clone_fixture() {
     local source_root="$1"
     local destination="$2"
@@ -144,6 +147,10 @@ git -C "$SOURCE_FIXTURE" add \
     plugins/sdd-domain/templates/domain-review-contract.template.json \
     plugins/sdd-domain/templates/domain-review-report.template.md \
     plugins/sdd-review-loop
+if [[ -f "${REPO_ROOT}/install-payload.txt" ]]; then
+    cp -p "${REPO_ROOT}/install-payload.txt" "${SOURCE_FIXTURE}/install-payload.txt"
+    git -C "$SOURCE_FIXTURE" add install-payload.txt
+fi
 git -C "$SOURCE_FIXTURE" diff --cached --quiet || git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
 
 # Cloud packaging is exercised from current candidate bytes, including files
