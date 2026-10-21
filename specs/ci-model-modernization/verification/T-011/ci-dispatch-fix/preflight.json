@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-21T12:14:18.659195+00:00",
+  "head": "e6bc5f5a91483f0755d3a13eca9b371ddddc4030",
+  "source_sha256": {
+    ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+    "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6"
+  },
+  "defect": "GitHub job-level env cannot access runner context; actionlint finds three npm_config_cache uses; CI run39597029062 has zero jobs",
+  "persisted_field_preflight": [
+    {
+      "field": "npm_config_cache runtime location",
+      "counterpart": "actions/cache with.path runner.temp/npm-cache/_cacache",
+      "mismatch_test": "regression rejects job-level runner context, absent runtime binding, incorrect or late runtime binding"
+    },
+    {
+      "field": "workflow validity",
+      "counterpart": "actionlint GitHub expression context table",
+      "mismatch_test": "before workflow produces exactly three forbidden runner context diagnostics"
+    },
+    {
+      "field": "source/test result provenance",
+      "counterpart": "unchanged-source hashes, Red-before-product chronology and before/after rollback",
+      "mismatch_test": "hash mismatch stops apply; actual prior source must fail regression and restored source must pass"
+    }
+  ],
+  "scope": "Only three existing MCP cache initialization steps/job env and focused catalog regression; no policy or dependency algorithm change",
+  "rollback": "Restore exact two before files in disposable comparison tree; baseline old tests pass; new regression fails; candidate test/sources restored pass. Preserve source/report before hashes."
+}

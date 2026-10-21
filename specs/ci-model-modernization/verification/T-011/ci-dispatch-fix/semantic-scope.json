@@ -1,0 +1,12 @@
+{
+  "only_changed_jobs": [
+    "ci-mcp-tests",
+    "local-env-mcp-tests",
+    "mcp-tests"
+  ],
+  "only_changed_fields": [
+    "existing node-runtime run body",
+    "obsolete job env mapping"
+  ],
+  "all_cache_keys_paths_conditions_and_other_steps_preserved": true
+}

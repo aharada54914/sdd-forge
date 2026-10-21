@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-21T12:16:01.903992+00:00",
+  "old_methods_preserved": 56,
+  "test_before_sha256": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+  "test_after_sha256": "64bf678a8c15176d38e14a209fee4c1e354bcc3290ec1053e4e7a7dba20fbc38",
+  "workflow_before_sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+  "workflow_unchanged": true
+}

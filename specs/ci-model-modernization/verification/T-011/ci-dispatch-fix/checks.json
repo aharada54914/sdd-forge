@@ -1,0 +1,73 @@
+[
+  {
+    "label": "catalog45",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/verification-catalog.tests.py",
+      "-v"
+    ],
+    "at": "2026-10-21T12:17:16.616860+00:00",
+    "exit_code": 0,
+    "seconds": 2.748
+  },
+  {
+    "label": "actionlint",
+    "argv": [
+      "/workspace/.tools/ci-audit-bin/actionlint",
+      "-shellcheck=",
+      "-pyflakes=",
+      ".github/workflows/test.yml"
+    ],
+    "at": "2026-10-21T12:17:16.626045+00:00",
+    "exit_code": 0,
+    "seconds": 0.009
+  },
+  {
+    "label": "planner54",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/verification-ci-plan.tests.py",
+      "-v"
+    ],
+    "at": "2026-10-21T12:17:35.634389+00:00",
+    "exit_code": 0,
+    "seconds": 19.008
+  },
+  {
+    "label": "wiring",
+    "argv": [
+      "bash",
+      "tests/ci-suite-wiring.tests.sh"
+    ],
+    "at": "2026-10-21T12:17:38.381704+00:00",
+    "exit_code": 0,
+    "seconds": 2.747
+  },
+  {
+    "label": "ruff",
+    "argv": [
+      "/workspace/.tools/sdd-forge-python/bin/ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-catalog.tests.py"
+    ],
+    "at": "2026-10-21T12:17:38.393844+00:00",
+    "exit_code": 0,
+    "seconds": 0.012
+  },
+  {
+    "label": "mypy",
+    "argv": [
+      "/workspace/.tools/sdd-forge-python/bin/mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-catalog.tests.py"
+    ],
+    "at": "2026-10-21T12:17:38.776129+00:00",
+    "exit_code": 0,
+    "seconds": 0.382
+  }
+]

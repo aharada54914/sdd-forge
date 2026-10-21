@@ -1,0 +1,51 @@
+{
+  "rows": [
+    {
+      "label": "baseline44",
+      "exit_code": 0,
+      "seconds": 2.732,
+      "hashes": {
+        ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+        "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6"
+      }
+    },
+    {
+      "label": "candidate45",
+      "exit_code": 0,
+      "seconds": 2.81,
+      "hashes": {
+        ".github/workflows/test.yml": "4eda63b687b0178ea83fa7fff7bda866dd0fd691a72bbc2f451bacd18c753893",
+        "tests/verification-catalog.tests.py": "64bf678a8c15176d38e14a209fee4c1e354bcc3290ec1053e4e7a7dba20fbc38"
+      }
+    },
+    {
+      "label": "reverted44",
+      "exit_code": 0,
+      "seconds": 2.811,
+      "hashes": {
+        ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+        "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6"
+      }
+    },
+    {
+      "label": "restoredfocused",
+      "exit_code": 0,
+      "seconds": 0.172,
+      "hashes": {
+        ".github/workflows/test.yml": "4eda63b687b0178ea83fa7fff7bda866dd0fd691a72bbc2f451bacd18c753893",
+        "tests/verification-catalog.tests.py": "64bf678a8c15176d38e14a209fee4c1e354bcc3290ec1053e4e7a7dba20fbc38"
+      }
+    }
+  ],
+  "root_before": {
+    ".github/workflows/test.yml": "4eda63b687b0178ea83fa7fff7bda866dd0fd691a72bbc2f451bacd18c753893",
+    "tests/verification-catalog.tests.py": "64bf678a8c15176d38e14a209fee4c1e354bcc3290ec1053e4e7a7dba20fbc38"
+  },
+  "root_after": {
+    ".github/workflows/test.yml": "4eda63b687b0178ea83fa7fff7bda866dd0fd691a72bbc2f451bacd18c753893",
+    "tests/verification-catalog.tests.py": "64bf678a8c15176d38e14a209fee4c1e354bcc3290ec1053e4e7a7dba20fbc38"
+  },
+  "root_unchanged": true,
+  "dependency_source": "existing pinned mcp/sdd-forge-mcp/node_modules read-only reference, no product source fallback",
+  "scope": "two owned paths restored in disposable git archive; root source untouched"
+}

@@ -1,0 +1,12 @@
+.github/workflows/test.yml:1164:29: context "runner" is not allowed here. available contexts are "github", "inputs", "matrix", "needs", "secrets", "strategy", "vars". see https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability for more details [expression]
+     |
+1164 |       npm_config_cache: ${{ runner.temp }}/npm-cache
+     |                             ^~~~~~~~~~~
+.github/workflows/test.yml:1217:29: context "runner" is not allowed here. available contexts are "github", "inputs", "matrix", "needs", "secrets", "strategy", "vars". see https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability for more details [expression]
+     |
+1217 |       npm_config_cache: ${{ runner.temp }}/npm-cache
+     |                             ^~~~~~~~~~~
+.github/workflows/test.yml:1270:29: context "runner" is not allowed here. available contexts are "github", "inputs", "matrix", "needs", "secrets", "strategy", "vars". see https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability for more details [expression]
+     |
+1270 |       npm_config_cache: ${{ runner.temp }}/npm-cache
+     |                             ^~~~~~~~~~~

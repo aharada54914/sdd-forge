@@ -1,0 +1,57 @@
+test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install (__main__.WorkflowIntegrationTests.test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install) ... 
+  test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install (__main__.WorkflowIntegrationTests.test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install) (job='mcp-tests') ... FAIL
+  test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install (__main__.WorkflowIntegrationTests.test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install) (job='local-env-mcp-tests') ... FAIL
+  test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install (__main__.WorkflowIntegrationTests.test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install) (job='ci-mcp-tests') ... FAIL
+
+======================================================================
+FAIL: test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install (__main__.WorkflowIntegrationTests.test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install) (job='mcp-tests')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 770, in test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install
+    self.assertEqual(self.npm_cache_binding_errors(self.workflow['jobs'][name]), [])
+AssertionError: Lists differ: ['job env must not use the runner context'[66 chars]ENV'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'job env must not use the runner context'
+
++ []
+- ['job env must not use the runner context',
+-  'bind step must export the actual npm cache directory to GITHUB_ENV']
+
+======================================================================
+FAIL: test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install (__main__.WorkflowIntegrationTests.test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install) (job='local-env-mcp-tests')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 770, in test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install
+    self.assertEqual(self.npm_cache_binding_errors(self.workflow['jobs'][name]), [])
+AssertionError: Lists differ: ['job env must not use the runner context'[66 chars]ENV'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'job env must not use the runner context'
+
++ []
+- ['job env must not use the runner context',
+-  'bind step must export the actual npm cache directory to GITHUB_ENV']
+
+======================================================================
+FAIL: test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install (__main__.WorkflowIntegrationTests.test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install) (job='ci-mcp-tests')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 770, in test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install
+    self.assertEqual(self.npm_cache_binding_errors(self.workflow['jobs'][name]), [])
+AssertionError: Lists differ: ['job env must not use the runner context'[66 chars]ENV'] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+'job env must not use the runner context'
+
++ []
+- ['job env must not use the runner context',
+-  'bind step must export the actual npm cache directory to GITHUB_ENV']
+
+----------------------------------------------------------------------
+Ran 1 test in 0.075s
+
+FAILED (failures=3)

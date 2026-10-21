@@ -1,0 +1,6 @@
+test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install (__main__.WorkflowIntegrationTests.test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.070s
+
+OK

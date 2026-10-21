@@ -1132,7 +1132,9 @@ jobs:
       - name: Bind npm cache to actual Node runtime
         id: node-runtime
         shell: bash
-        run: printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+        run: |
+          printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+          printf 'npm_config_cache=%s\n' "$RUNNER_TEMP/npm-cache" >> "$GITHUB_ENV"
       - name: Reuse integrity-checked npm download bytes
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
@@ -1160,8 +1162,6 @@ jobs:
     needs:
       - ci-plan
     if: needs.ci-plan.outputs.run_mcp_tests == 'true'
-    env:
-      npm_config_cache: ${{ runner.temp }}/npm-cache
   local-env-mcp-tests:
     name: local-env-mcp-tests (${{ matrix.os }})
     strategy:
@@ -1185,7 +1185,9 @@ jobs:
       - name: Bind npm cache to actual Node runtime
         id: node-runtime
         shell: bash
-        run: printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+        run: |
+          printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+          printf 'npm_config_cache=%s\n' "$RUNNER_TEMP/npm-cache" >> "$GITHUB_ENV"
       - name: Reuse integrity-checked npm download bytes
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
@@ -1213,8 +1215,6 @@ jobs:
     needs:
       - ci-plan
     if: needs.ci-plan.outputs.run_local_env_mcp_tests == 'true'
-    env:
-      npm_config_cache: ${{ runner.temp }}/npm-cache
   ci-mcp-tests:
     name: ci-mcp-tests (${{ matrix.os }})
     strategy:
@@ -1238,7 +1238,9 @@ jobs:
       - name: Bind npm cache to actual Node runtime
         id: node-runtime
         shell: bash
-        run: printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+        run: |
+          printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+          printf 'npm_config_cache=%s\n' "$RUNNER_TEMP/npm-cache" >> "$GITHUB_ENV"
       - name: Reuse integrity-checked npm download bytes
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
@@ -1266,8 +1268,6 @@ jobs:
     needs:
       - ci-plan
     if: needs.ci-plan.outputs.run_ci_mcp_tests == 'true'
-    env:
-      npm_config_cache: ${{ runner.temp }}/npm-cache
   cli-hook-enforcement:
     name: cli-hook-enforcement (${{ matrix.os }})
     strategy:

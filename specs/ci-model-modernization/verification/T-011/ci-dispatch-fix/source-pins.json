@@ -1,0 +1,4 @@
+{
+  ".github/workflows/test.yml": "4eda63b687b0178ea83fa7fff7bda866dd0fd691a72bbc2f451bacd18c753893",
+  "tests/verification-catalog.tests.py": "64bf678a8c15176d38e14a209fee4c1e354bcc3290ec1053e4e7a7dba20fbc38"
+}

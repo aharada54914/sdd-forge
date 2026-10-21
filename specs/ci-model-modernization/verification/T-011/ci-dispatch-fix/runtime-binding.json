@@ -1,0 +1,27 @@
+{
+  "platform": "Linux Bash/node/npm, not native Windows/macOS proof",
+  "checks": [
+    {
+      "job": "mcp-tests",
+      "bash_exit_code": 0,
+      "cache_path_with_space_preserved": true,
+      "npm_actual_config_matches": true,
+      "node_version_output_preserved": true
+    },
+    {
+      "job": "local-env-mcp-tests",
+      "bash_exit_code": 0,
+      "cache_path_with_space_preserved": true,
+      "npm_actual_config_matches": true,
+      "node_version_output_preserved": true
+    },
+    {
+      "job": "ci-mcp-tests",
+      "bash_exit_code": 0,
+      "cache_path_with_space_preserved": true,
+      "npm_actual_config_matches": true,
+      "node_version_output_preserved": true
+    }
+  ],
+  "workflow_sha256": "4eda63b687b0178ea83fa7fff7bda866dd0fd691a72bbc2f451bacd18c753893"
+}

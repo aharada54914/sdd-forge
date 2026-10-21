@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-21T12:17:04.885028+00:00",
+  "commit": "61e831b5f15ae24a985f77539a6f83446d14063e",
+  "files": [
+    "tests/verification-catalog.tests.py"
+  ],
+  "red_result": "1 test, 3 failing MCP job subtests",
+  "workflow_still_before": true
+}

@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-21T12:17:04.886064+00:00",
+  "test_first_commit": "61e831b5f15ae24a985f77539a6f83446d14063e",
+  "path": ".github/workflows/test.yml",
+  "before_sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+  "after_sha256": "4eda63b687b0178ea83fa7fff7bda866dd0fd691a72bbc2f451bacd18c753893",
+  "actual_claude_candidate_exact": true
+}
