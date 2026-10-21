@@ -1,0 +1,19 @@
+test_matched_control (__main__.ManifestBoundary.test_matched_control) ... FAIL
+
+======================================================================
+FAIL: test_matched_control (__main__.ManifestBoundary.test_matched_control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-consumer-fixture/tests/install-cloud.tests.py", line 145, in test_matched_control
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : [31;1mException: [0m/workspace/.task-scratch/ci-model-modernization/cloud-package-fields-0_za0drd/boundary.ps1:34[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m  34 | [0m     [36;1mthrow "README.md current release must be v1.20.0."[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mREADME.md current release must be v1.20.0.[0m
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.555s
+
+FAILED (failures=1)

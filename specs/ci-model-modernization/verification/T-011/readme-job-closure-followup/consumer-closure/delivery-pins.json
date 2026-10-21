@@ -1,0 +1,41 @@
+{
+  "files": [
+    {
+      "path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cli-six-closure.json",
+      "sha256": "3d244c1b83b84970536eb00de48c8f9b810b275c257c26858a10b82df94ded90"
+    },
+    {
+      "path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/readme-consumer-sources.json",
+      "sha256": "8a43cbc36faf6819bd57d5cae9f20ccd0baa4091cfdded76f26f9f197345826e"
+    },
+    {
+      "path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/combined-source-pins.json",
+      "sha256": "fe05447dcd61a5e0824a871f6732c747b120e60e48628df5be386376b153ed5e"
+    },
+    {
+      "path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/closure-notes.md",
+      "sha256": "b28b6374730ab4b10e8084ee294764e76d4519034ac8ed2e7a1cf508904bc556"
+    },
+    {
+      "path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-B-M-commands.json",
+      "sha256": "ba7c6f7fbbe11b92ba8eb45b898f0a77c54fa73b664c0e6c432bb52f8e4b67d7"
+    },
+    {
+      "path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-B-matched-control.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-B-matched-control.stderr.log",
+      "sha256": "8569c84cc5a84a3f2f1fe0f54039299e03e35c939ad8daa0ed9d6e961b30151c"
+    },
+    {
+      "path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-M-matched-control.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-M-matched-control.stderr.log",
+      "sha256": "36d54704d99b26eab61560db097bc837fda2510dec372be24e63c4ac7a2c7660"
+    }
+  ],
+  "scoped_result": "CLI6independence supported; originalselectionunsafe, conservative443/6proposed; actualchangedcatalogbaseline still required"
+}

@@ -1,0 +1,15 @@
+# Inactive README category: conservative job closure
+
+Prior full Bc747/run39638386400 was accepted by its actual strict aggregate:449obligations,448verified and1advisory-inactive. The corrected catalog is new source and requires a fresh exact-commit baseline; old B hashes/results are not restamped to it.
+
+The README mutation revealed a separate missing consumer. Intended Ubuntu version validation fails on the README marker, and actual M Ubuntu cloud job119378793620 runs14tests/5failures with `README.md current release must be v1.20.0.` A bounded existing cloud matched-control passes1 on B and fails1 when only actualMREADME is substituted; exact532source fixture bytes are restored. Those local results complement, rather than replace, hosted cloud evidence.
+
+The correction retains all16non-CLI obligation groups and the PowerShell bump suite. At449full obligations it selects443 and omits only6CLI obligations (setup/enforcement across3OS). Active remainsfalse and evidence remainsnull. Unknown or additional README consumers in other groups stay selected, as do whole-job failure siblings. No aggregation rule is weakened, and no literal-reference scan is treated as proof that only five suites consume README.
+
+Tests were committed first at9b3410db064f2e4f5ae54b59d0d3d840a7fe78bb. Catalog47 and planner54 pass; the new regression retains its executed subcase controls. Omitting nothing or retaining only partial version-job closure fails as expected. Executed rollback loads exact old/current categories in isolated in-memory fixtures: old produces expectedRed, candidate restoresGreen. This is not a filesystem rollback or root source restoration.
+
+The six CLI omissions have16actual execution-source pins plus workflow, static read/write edges and actual oldMCLI successes: macOS119378793927, Windows119378794133, Ubuntu119378794406. The combined44source set and consumer notes record broader consumers and exceptions. Installed global package behavior is not an immutable backend/provider identity claim. Actual newbaseline and current gates still decide activation; no formal finalQA is supplied by this source investigation.
+
+Old M39645148185/df47ab70 is represented only by a fixed in-progress snapshot:26success,1skip,8failure,10notcompleted. Individual completed failed jobs are observed evidence; no finalMaggregate or successful overallM is claimed. NewBmaystart while oldMfinishes. Later finaloldMreports remain external/passive support unless separately admitted.
+
+Logs use LF, trim trailing ASCII spaces/tabs and redundant final blanklines; original hashes/selectedline numbers are in the receipt. Raw API actors/URLs/headers, private source maps/sessions, executable snapshots and ZIPpayloads stay external. Copied factual reports may reference those retained external inputs; fullcat snapshots are not distributed. Categorypatch uses zero context. Curation executes no tests and edits no catalog/journal or Gitindex. Fresh fullbaseline, subsequentmutation/restore/selectedrollout and finalquality acceptance remain pending.

@@ -1,0 +1,42 @@
+{
+  "scope": "one existing offline manifest validator test at Bsourcefixture then only actualMREADME; no cloud/model/network/auth; no root edit",
+  "B": "c747b59e28649c94e1309bab67885182e3e8cfea",
+  "M": "df47ab705377e29e5094892e4f1040b9ab9e139e",
+  "actual_git_changed_paths": [
+    "README.md"
+  ],
+  "commands": [
+    {
+      "label": "cloud-B-matched-control",
+      "source_readme_revision": "c747b59e28649c94e1309bab67885182e3e8cfea",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install-cloud.tests.py",
+        "ManifestBoundary.test_matched_control",
+        "-v"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-21T17:42:11.534334+00:00",
+      "finished_at": "2026-10-21T17:42:12.301001+00:00",
+      "README_sha256": "bbd703d774e703e60d91ec39aa04c1154fc9c7367a6933383a3719ca09d23fc9"
+    },
+    {
+      "label": "cloud-M-matched-control",
+      "source_readme_revision": "df47ab705377e29e5094892e4f1040b9ab9e139e",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install-cloud.tests.py",
+        "ManifestBoundary.test_matched_control",
+        "-v"
+      ],
+      "exit_code": 1,
+      "started_at": "2026-10-21T17:42:12.303707+00:00",
+      "finished_at": "2026-10-21T17:42:12.971820+00:00",
+      "README_sha256": "4f2b70d01c698cb0455d0435225d19935baa6f145e16c63a4862b60e3fe96d6c"
+    }
+  ],
+  "exact_B_source_restored": true,
+  "fixture_source_files": 532
+}

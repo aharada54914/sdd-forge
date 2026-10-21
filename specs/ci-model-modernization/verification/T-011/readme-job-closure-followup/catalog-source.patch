@@ -1,0 +1,26 @@
+diff --git a/tests/verification-catalog.json b/tests/verification-catalog.json
+index 91a640e7..b0e0c15a 100644
+--- a/tests/verification-catalog.json
++++ b/tests/verification-catalog.json
+@@ -17 +17,2 @@
+-          "tests/spec-review-loop.tests.sh"
++          "tests/spec-review-loop.tests.sh",
++          "tests/bump-version-gate.tests.ps1"
+@@ -19,0 +21,11 @@
++          "a9-advisory",
++          "a9-advisory-inputs",
++          "ci-mcp-tests",
++          "ci-plan",
++          "cloud-native",
++          "installers",
++          "local-env-mcp-tests",
++          "loops-routing",
++          "mcp-tests",
++          "posix-regression",
++          "posix-unwired-sharded",
+@@ -21 +33,4 @@
+-          "posix-regression"
++          "test-windows-heavy",
++          "version-gates",
++          "version-gates-windows-bump",
++          "version-gates-windows-lanes"

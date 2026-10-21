@@ -1,0 +1,318 @@
+{
+  "schema": "readme-job-closure-public-evidence/v1",
+  "at": "2026-10-21T17:52:24.686548+00:00",
+  "observed_head": "9b3410db064f2e4f5ae54b59d0d3d840a7fe78bb",
+  "tests_first_commit": "9b3410db064f2e4f5ae54b59d0d3d840a7fe78bb",
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "tests/verification-catalog.json",
+      "before_commit": "9b3410db064f2e4f5ae54b59d0d3d840a7fe78bb",
+      "before_sha256": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+      "after_candidate_sha256": "d771c913ec79e345c6cb4a16087bc0a80fc8dc6001fd3a6dfd272a5d553ba2eb",
+      "privacy_scope": "Exactbytes"
+    },
+    {
+      "path": "reports/verification/ci-model-modernization-continuation-20261019.json",
+      "before_commit": "9b3410db064f2e4f5ae54b59d0d3d840a7fe78bb",
+      "before_sha256": "93235fe90ebf0d00342a0c80f88ec32718dad8f9182317c2b10458b1f8aec4ff",
+      "after_candidate_sha256": "4ff4bfa65df63fe1349c0b7c1357e4ba95ea3289d368a811c31c27a43e608c14",
+      "privacy_scope": "Journaldiffonly; unchangedpublishedhistoricalmetadata Rootadjudicated"
+    }
+  ],
+  "records": [
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/final-pins.json",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/final-pins.json",
+      "source_sha256": "e9b4312720abf474af6c75597a9eb7d3dad97dab592f809dd294978e0621f7e2",
+      "published_sha256": "e9b4312720abf474af6c75597a9eb7d3dad97dab592f809dd294978e0621f7e2",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/focused-results.json",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/focused-results.json",
+      "source_sha256": "0f2307ce6ceeaf7894849b7fcc2e13d32ebc3e812c24029b2d389139ecfa87db",
+      "published_sha256": "0f2307ce6ceeaf7894849b7fcc2e13d32ebc3e812c24029b2d389139ecfa87db",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/negative-controls.json",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/negative-controls.json",
+      "source_sha256": "52e4448ae81f2b8b721129512b3ec495a630f56bcc4f1396dc0e3111ffb88756",
+      "published_sha256": "52e4448ae81f2b8b721129512b3ec495a630f56bcc4f1396dc0e3111ffb88756",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/rollback-results.json",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/rollback-results.json",
+      "source_sha256": "0a84cf0f79fd408c1815e95e6ee6b29d425f49718a0e5ec61652c6a1f46fca1f",
+      "published_sha256": "0a84cf0f79fd408c1815e95e6ee6b29d425f49718a0e5ec61652c6a1f46fca1f",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/rollback-old-catalog.json",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/rollback-old-catalog.json",
+      "source_sha256": "d307390fabf4fd7be4c50c40b31a7564f37f69bb9c01542ac722b98a714805c0",
+      "published_sha256": "d307390fabf4fd7be4c50c40b31a7564f37f69bb9c01542ac722b98a714805c0",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/restore-candidate-catalog.json",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/restore-candidate-catalog.json",
+      "source_sha256": "865fd1dc1b20209a40cf8b1fd0b590addaf0610f5f3f638424ea8aeaf774972e",
+      "published_sha256": "865fd1dc1b20209a40cf8b1fd0b590addaf0610f5f3f638424ea8aeaf774972e",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/red-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/red.log",
+      "source_sha256": "cc8f151cd265957c1aabdbeca5c8dae77e7a967139ecfbd57af807fae9a8d362",
+      "source_line_numbers_1_based": [
+        1,
+        4,
+        9,
+        237
+      ],
+      "published_sha256": "8e2b3deb7f76fa8845d23b3912134819d905a25c6d548edb65e8d6255d662d2b",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/proposal-green-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/proposal-green.log",
+      "source_sha256": "a784dfffe92e837cabe8a71dfb21883cc04ebabfd3ff5bc8287d646f1eea5eeb",
+      "source_line_numbers_1_based": [
+        1,
+        6
+      ],
+      "published_sha256": "6f0d0fe58fa7f0ec3edee5a2807ad5d0cebfb8dfa5264fe700761ea92065e45d",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/catalog-green-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/catalog-green.log",
+      "source_sha256": "79967721e433baaf54572708fdc474221249ff6e19814add347af4f84d750a8c",
+      "source_line_numbers_1_based": [
+        28,
+        30
+      ],
+      "published_sha256": "35fa7065196c3164819911bd3d14fa330824940066e82a63797930c063a2d986",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/ci-plan-green-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/ci-plan-green.log",
+      "source_sha256": "a38aafda775c39ddb3d58435d6f9bd18504f17fa2a4c54711f9256187e607a98",
+      "source_line_numbers_1_based": [
+        7,
+        9
+      ],
+      "published_sha256": "05c33056c0deaa25257d351c417f334fa682a9097869852c6dcc45a0bdcf1d74",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/rollback-old-catalog-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/rollback-old-catalog.log",
+      "source_sha256": "12fd43288e3d5cf87be5f5122ced8bae15a368b1e61b6df687eb8a251545efe3",
+      "source_line_numbers_1_based": [
+        1,
+        4,
+        9,
+        237
+      ],
+      "published_sha256": "8e2b3deb7f76fa8845d23b3912134819d905a25c6d548edb65e8d6255d662d2b",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/restore-candidate-catalog-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/restore-candidate-catalog.log",
+      "source_sha256": "a784dfffe92e837cabe8a71dfb21883cc04ebabfd3ff5bc8287d646f1eea5eeb",
+      "source_line_numbers_1_based": [
+        1,
+        6
+      ],
+      "published_sha256": "6f0d0fe58fa7f0ec3edee5a2807ad5d0cebfb8dfa5264fe700761ea92065e45d",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/partial-version-job-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/partial-version-job.log",
+      "source_sha256": "4c9764f971f0c5295498e70e603d336e7d3f67a5c5fde18188b0d7aec781ea29",
+      "source_line_numbers_1_based": [
+        1,
+        4,
+        9,
+        156
+      ],
+      "published_sha256": "8e2b3deb7f76fa8845d23b3912134819d905a25c6d548edb65e8d6255d662d2b",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/omit-nothing-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/readme-job-closure/omit-nothing.log",
+      "source_sha256": "f5dac8daff026b5db90701abb0f3623dd14258ecb097965559bf4c166141a5fb",
+      "source_line_numbers_1_based": [
+        1,
+        4,
+        9,
+        20
+      ],
+      "published_sha256": "c85bc78d5bbbef0a14a0e75a09d596f7841e80c639002c8401edd8c8a5195025",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cli-six-closure.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cli-six-closure.json",
+      "source_sha256": "3d244c1b83b84970536eb00de48c8f9b810b275c257c26858a10b82df94ded90",
+      "published_sha256": "3d244c1b83b84970536eb00de48c8f9b810b275c257c26858a10b82df94ded90",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/readme-consumer-sources.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/readme-consumer-sources.json",
+      "source_sha256": "8a43cbc36faf6819bd57d5cae9f20ccd0baa4091cfdded76f26f9f197345826e",
+      "published_sha256": "8a43cbc36faf6819bd57d5cae9f20ccd0baa4091cfdded76f26f9f197345826e",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/combined-source-pins.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/combined-source-pins.json",
+      "source_sha256": "fe05447dcd61a5e0824a871f6732c747b120e60e48628df5be386376b153ed5e",
+      "published_sha256": "fe05447dcd61a5e0824a871f6732c747b120e60e48628df5be386376b153ed5e",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/closure-notes.md",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/closure-notes.md",
+      "source_sha256": "b28b6374730ab4b10e8084ee294764e76d4519034ac8ed2e7a1cf508904bc556",
+      "published_sha256": "b28b6374730ab4b10e8084ee294764e76d4519034ac8ed2e7a1cf508904bc556",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-B-M-commands.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-B-M-commands.json",
+      "source_sha256": "ba7c6f7fbbe11b92ba8eb45b898f0a77c54fa73b664c0e6c432bb52f8e4b67d7",
+      "published_sha256": "ba7c6f7fbbe11b92ba8eb45b898f0a77c54fa73b664c0e6c432bb52f8e4b67d7",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-B-matched-control.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-B-matched-control.stdout.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-B-matched-control.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-B-matched-control.stderr.log",
+      "source_sha256": "8569c84cc5a84a3f2f1fe0f54039299e03e35c939ad8daa0ed9d6e961b30151c",
+      "published_sha256": "8569c84cc5a84a3f2f1fe0f54039299e03e35c939ad8daa0ed9d6e961b30151c",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-M-matched-control.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-M-matched-control.stdout.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-M-matched-control.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/cloud-M-matched-control.stderr.log",
+      "source_sha256": "36d54704d99b26eab61560db097bc837fda2510dec372be24e63c4ac7a2c7660",
+      "published_sha256": "36d54704d99b26eab61560db097bc837fda2510dec372be24e63c4ac7a2c7660",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/delivery-pins.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/delivery-pins.json",
+      "source_sha256": "9a7c36a7a07163f9e2e0f8de470dfd7e90f7f1e7d9c8777587d2d3516f553312",
+      "published_sha256": "9a7c36a7a07163f9e2e0f8de470dfd7e90f7f1e7d9c8777587d2d3516f553312",
+      "derivation": "Exact bytes",
+      "external_original_retained": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/observed-M/mutation-version-ubuntu-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/c747b59e2864/mutation-version-ubuntu.log",
+      "source_sha256": "43fc174a0272665d8b721440a2fddf19cc48d333ea640f6ff4ec596ed2b8c4c7",
+      "source_line_numbers_1_based": [
+        151,
+        178
+      ],
+      "published_sha256": "bbc4acc04c13481d44c8e6b2d4423dfe0223caefc1584db74de9ffb5145e4f77",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/observed-M/mutation-cloud-ubuntu-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/c747b59e2864/mutation-cloud-ubuntu.log",
+      "source_sha256": "6e7aaaa9bfbfe0df767ddbb806ee44f9f8df68570a73927b2cb0890b08f457e1",
+      "source_line_numbers_1_based": [
+        775,
+        878,
+        972,
+        1118,
+        1348,
+        1353,
+        1356,
+        1361,
+        1364,
+        1369,
+        1371,
+        1373,
+        1377,
+        1382,
+        1384,
+        1386,
+        1390,
+        1395,
+        1397,
+        1399,
+        1403,
+        1405,
+        1464
+      ],
+      "published_sha256": "1d5fe768a6dab1e5fadb887af81d89f6d011c038479165e04e8d8a668ecaea0a",
+      "derivation": "Bounded failure/test/count diagnostics only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/observed-M/fixed-partial-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/c747b59e2864/mutation-partial-eight-failures.json",
+      "source_sha256": "15f2d480976f2b0957feb3d6ffe41a18063ee91705da5ec4dce16511ee08109f",
+      "derivation": "Run/job public status whitelist only; URLs, actors, steps and rawheaders excluded"
+    }
+  ],
+  "accepted_prior_B_original_sources": [
+    {
+      "path": "/workspace/t011-rollout/outputs/c747b59e2864/39638386400/final-run.json",
+      "sha256": "b8d328c66db877d680d6b3c5314910520dfb4369144941dffb7a9bc672e73ff7"
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/c747b59e2864/39638386400/aggregate.json",
+      "sha256": "14746b394b69ba6d3cea9123aa6ddf75f90a545ba22a080979cc5a42f3cf6b4d"
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/c747b59e2864/39638386400/observations/jobs/1-1.json",
+      "sha256": "82618df0ba1e9e25b6f88415a4964d863ba05fb234fc7d678ec91d831942fbc9"
+    }
+  ],
+  "fixed_partial_M_sha256": "15f2d480976f2b0957feb3d6ffe41a18063ee91705da5ec4dce16511ee08109f",
+  "B_M_and_rollback_scope": "PriorBfullPASS and oldMpartialjobfailures do not satisfy correctedcategoryactivation; rollback is executedin-memory only",
+  "catalog_sources_external": {
+    "baseline": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+    "candidate": "d771c913ec79e345c6cb4a16087bc0a80fc8dc6001fd3a6dfd272a5d553ba2eb"
+  },
+  "no_source_or_index_mutations_by_curator": true
+}

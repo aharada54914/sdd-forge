@@ -1,0 +1,2 @@
+2026-10-21T17:38:25.7831307Z FAIL: TEST-001 (AC-001): README.md current-release line does not carry 9.9.9
+2026-10-21T17:38:27.0240107Z not ok: bump-version-gate suite FAILED (1 failures)

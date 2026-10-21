@@ -1,0 +1,66 @@
+{
+  "baseline_catalog_sha256": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+  "candidate_catalog_sha256": "d771c913ec79e345c6cb4a16087bc0a80fc8dc6001fd3a6dfd272a5d553ba2eb",
+  "before_category": {
+    "id": "readme-contract",
+    "paths": [
+      "README.md"
+    ],
+    "prefixes": [],
+    "suites": [
+      "tests/workflow-documentation.tests.sh",
+      "tests/design-system-contract.tests.sh",
+      "tests/repository-release-validation.tests.sh",
+      "tests/bump-version-gate.tests.sh",
+      "tests/spec-review-loop.tests.sh"
+    ],
+    "groups": [
+      "test",
+      "posix-regression"
+    ],
+    "active": false,
+    "evidence": null
+  },
+  "after_category": {
+    "id": "readme-contract",
+    "paths": [
+      "README.md"
+    ],
+    "prefixes": [],
+    "suites": [
+      "tests/workflow-documentation.tests.sh",
+      "tests/design-system-contract.tests.sh",
+      "tests/repository-release-validation.tests.sh",
+      "tests/bump-version-gate.tests.sh",
+      "tests/spec-review-loop.tests.sh",
+      "tests/bump-version-gate.tests.ps1"
+    ],
+    "groups": [
+      "a9-advisory",
+      "a9-advisory-inputs",
+      "ci-mcp-tests",
+      "ci-plan",
+      "cloud-native",
+      "installers",
+      "local-env-mcp-tests",
+      "loops-routing",
+      "mcp-tests",
+      "posix-regression",
+      "posix-unwired-sharded",
+      "test",
+      "test-windows-heavy",
+      "version-gates",
+      "version-gates-windows-bump",
+      "version-gates-windows-lanes"
+    ],
+    "active": false,
+    "evidence": null
+  },
+  "local_candidate_full_obligations": 449,
+  "selected": 443,
+  "omitted": 6,
+  "omitted_job_only": "cli-hook-enforcement",
+  "active": false,
+  "evidence": null,
+  "scope": "Categorygroups/suites only; wholecatalogcopies retainedexternal, no activation/missingconsumer waiver"
+}

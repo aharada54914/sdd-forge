@@ -1,0 +1,92 @@
+{
+  "tests_first_commit": "9b3410db064f2e4f5ae54b59d0d3d840a7fe78bb",
+  "source_hashes": {
+    "tests/verification-catalog.json": "d771c913ec79e345c6cb4a16087bc0a80fc8dc6001fd3a6dfd272a5d553ba2eb",
+    "tests/verification-catalog.tests.py": "bb4f9be71db9fee475fdba6b7417731e355c5cd6817889510009e4b011fa8f91",
+    ".github/workflows/test.yml": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e"
+  },
+  "active": false,
+  "evidence": null,
+  "selected": 443,
+  "omitted": [
+    {
+      "id": "cli-hook-enforcement:c537447c11bb41c47d6d345b722cef9308811288ed4f3c0041c35de4ad346f7b",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "windows-latest"
+      },
+      "runner": "windows-latest",
+      "step": "Install Claude Code CLI",
+      "command_sha256": "c162e8d733973654bf6c16aeab392be8388b215fb2a6971976d1ae26f4ba9156",
+      "suites": [],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:609ea72ccea38d717895bdef39e1b9ade2c26e42c3bb7b848dbbe163fb506ba3",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "windows-latest"
+      },
+      "runner": "windows-latest",
+      "step": "CLI hook enforcement (real toolchain present)",
+      "command_sha256": "1474f028762ed0960c6c7ce940871708e9f28c0934054bc4a9c8183e5a6cab2e",
+      "suites": [
+        "tests/cli-hook-enforcement.ps1"
+      ],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:f39ddbbf6a05a15bd869bc39277f813c86a3aca0d181b68e45899c87e9f1b447",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "macos-latest"
+      },
+      "runner": "macos-latest",
+      "step": "Install Claude Code CLI",
+      "command_sha256": "c162e8d733973654bf6c16aeab392be8388b215fb2a6971976d1ae26f4ba9156",
+      "suites": [],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:9b7a56b482b580206b7601f716c2ad8f9f5e061ca46bd3a3bc9b679779c9010b",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "macos-latest"
+      },
+      "runner": "macos-latest",
+      "step": "CLI hook enforcement (real toolchain present)",
+      "command_sha256": "1474f028762ed0960c6c7ce940871708e9f28c0934054bc4a9c8183e5a6cab2e",
+      "suites": [
+        "tests/cli-hook-enforcement.ps1"
+      ],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:ad8361b6700c207dbb7193648403a691dbd3ba8b505dc138c13dbc3de2149cc8",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "ubuntu-latest"
+      },
+      "runner": "ubuntu-latest",
+      "step": "Install Claude Code CLI",
+      "command_sha256": "c162e8d733973654bf6c16aeab392be8388b215fb2a6971976d1ae26f4ba9156",
+      "suites": [],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:d6c30b38a8d2aec2434b7d21479b1a9ff735223cd3935be66b86832bc40a8010",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "ubuntu-latest"
+      },
+      "runner": "ubuntu-latest",
+      "step": "CLI hook enforcement (real toolchain present)",
+      "command_sha256": "1474f028762ed0960c6c7ce940871708e9f28c0934054bc4a9c8183e5a6cab2e",
+      "suites": [
+        "tests/cli-hook-enforcement.ps1"
+      ],
+      "receipt_required": false
+    }
+  ],
+  "scope": "Only readme-contract groups/suites changed; activation and other catalog contents unchanged"
+}

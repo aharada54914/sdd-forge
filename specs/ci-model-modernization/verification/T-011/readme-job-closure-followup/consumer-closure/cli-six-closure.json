@@ -1,0 +1,225 @@
+{
+  "baseline_revision": "c747b59e28649c94e1309bab67885182e3e8cfea",
+  "observed_at": "2026-10-21T17:48:19.107651+00:00",
+  "scope": "Independent source closure for only6CLIomissions on rootREADME-only changes; not fullconsumer inventory",
+  "omitted_obligations": [
+    {
+      "id": "cli-hook-enforcement:c537447c11bb41c47d6d345b722cef9308811288ed4f3c0041c35de4ad346f7b",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "windows-latest"
+      },
+      "runner": "windows-latest",
+      "step": "Install Claude Code CLI",
+      "command_sha256": "c162e8d733973654bf6c16aeab392be8388b215fb2a6971976d1ae26f4ba9156",
+      "suites": [],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:609ea72ccea38d717895bdef39e1b9ade2c26e42c3bb7b848dbbe163fb506ba3",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "windows-latest"
+      },
+      "runner": "windows-latest",
+      "step": "CLI hook enforcement (real toolchain present)",
+      "command_sha256": "1474f028762ed0960c6c7ce940871708e9f28c0934054bc4a9c8183e5a6cab2e",
+      "suites": [
+        "tests/cli-hook-enforcement.ps1"
+      ],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:f39ddbbf6a05a15bd869bc39277f813c86a3aca0d181b68e45899c87e9f1b447",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "macos-latest"
+      },
+      "runner": "macos-latest",
+      "step": "Install Claude Code CLI",
+      "command_sha256": "c162e8d733973654bf6c16aeab392be8388b215fb2a6971976d1ae26f4ba9156",
+      "suites": [],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:9b7a56b482b580206b7601f716c2ad8f9f5e061ca46bd3a3bc9b679779c9010b",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "macos-latest"
+      },
+      "runner": "macos-latest",
+      "step": "CLI hook enforcement (real toolchain present)",
+      "command_sha256": "1474f028762ed0960c6c7ce940871708e9f28c0934054bc4a9c8183e5a6cab2e",
+      "suites": [
+        "tests/cli-hook-enforcement.ps1"
+      ],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:ad8361b6700c207dbb7193648403a691dbd3ba8b505dc138c13dbc3de2149cc8",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "ubuntu-latest"
+      },
+      "runner": "ubuntu-latest",
+      "step": "Install Claude Code CLI",
+      "command_sha256": "c162e8d733973654bf6c16aeab392be8388b215fb2a6971976d1ae26f4ba9156",
+      "suites": [],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:d6c30b38a8d2aec2434b7d21479b1a9ff735223cd3935be66b86832bc40a8010",
+      "job": "cli-hook-enforcement",
+      "matrix": {
+        "os": "ubuntu-latest"
+      },
+      "runner": "ubuntu-latest",
+      "step": "CLI hook enforcement (real toolchain present)",
+      "command_sha256": "1474f028762ed0960c6c7ce940871708e9f28c0934054bc4a9c8183e5a6cab2e",
+      "suites": [
+        "tests/cli-hook-enforcement.ps1"
+      ],
+      "receipt_required": false
+    }
+  ],
+  "workflow_source": {
+    "path": ".github/workflows/test.yml",
+    "sha256": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e"
+  },
+  "repository_source_closure": [
+    {
+      "path": "tests/cli-hook-enforcement.ps1",
+      "sha256": "343aa50f12d790619dc5d636831d6f1c7d1559745b9ca289ad67fb28564a3bec"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+      "sha256": "09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/hooks.json",
+      "sha256": "9035e3d5035ccdd093adc634f42fb3686e3a02ab2c7104d26ed15076dfc09b40"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+      "sha256": "6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
+      "sha256": "d62d3accc7fe28a3fe0ca0d6fd1ca739918d0b9878d3f6da05682523d0ee2238"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/readonly-input-contracts.json",
+      "sha256": "4527e0d33080d59c9ac95b89bc8e78b3d2932e897bd75b6688b388f830189fb9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "76b30eff02a75f3e4b5e3ae9d72e9e7f6e4da759d93c41060035fb8d273558e0"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "ba14efb4c6cc13ec45a58adb785f6c06804ada1fdeebc5841e7244f525161c0b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "sha256": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "21953fae0208632708f96cbfda5dbd60854bf6c23c4c02c059e79404dd340873"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d18aadc27964c71afa6ac682757ac624978419b7affd13b5ca3a5579c690cbad"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "025be50870db080685a9a51801df1ad708db99ec526bd6e8cc1165b0126321b8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "31f8676bb0d682b8d851ee5e376e65e7da913321871e4d88b0e055ccd8fd1fba"
+    }
+  ],
+  "path_list_origin": "Historical local preparation only supplied16filenames; every actual sourcehash independently recomputed from exactB Gitblob. No historicalartifact is presented as committedB authority.",
+  "edges": [
+    [
+      "tests/cli-hook-enforcement.ps1",
+      "3hookconfigs: actual text drift checks, not config execution"
+    ],
+    [
+      "tests/cli-hook-enforcement.ps1",
+      "JS/PS/shguards: direct syntheticTMPtasks/src.js payloads"
+    ],
+    [
+      "sdd-hook-guard.sh",
+      "Python/PowerShell fallback"
+    ],
+    [
+      "JS/Python/PSguards",
+      "own generatedmodule and conditional classify-readonly-inputs.py"
+    ],
+    [
+      "classify-readonly-inputs.py",
+      "readonly-input-contracts.json grammar data; never executes referenced argv"
+    ],
+    [
+      "generatedmodules",
+      "canonical guard-invariants.json +generator +all4 counterparts provenance"
+    ]
+  ],
+  "independence": [
+    "Suite134lines uses only synthetic TMPtask/source/config payloads and hookconfig/guardinputs; no rootREADME content.",
+    "CLIs only Get-Command informationalpresence; no plugin/LLM invocation; no install.sh/install.ps1 call.",
+    "Global npm install and claude--version receive no README/source path; actualtoolchainobservations do not prove future upstream package identity.",
+    "Configkill-switch strings are driftdata only; test invokes guardexecutables directly, never kill-switch executables.",
+    "Conditional sudo/project/control runtime data and environment are not rootREADME; this review does not inspect/copy ambient authority/userdata."
+  ],
+  "actual_mutation_jobs": {
+    "M": "df47ab705377e29e5094892e4f1040b9ab9e139e",
+    "run_id": 39645148185,
+    "metadata_source": "/workspace/.task-scratch/ci-model-modernization/t011-readme-consumer-closure/observed-M-jobs-source.private.json",
+    "metadata_sha256": "41da21c4b3a36800496c7761fb30997423dbc4fbac888fed8f5c058879ef1565",
+    "observed_run_status": "in_progress",
+    "three_cli_jobs": [
+      {
+        "databaseId": 119378793927,
+        "name": "cli-hook-enforcement (macos-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-10-21T17:40:52Z",
+        "completedAt": "2026-10-21T17:41:20Z"
+      },
+      {
+        "databaseId": 119378794133,
+        "name": "cli-hook-enforcement (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-10-21T17:35:51Z",
+        "completedAt": "2026-10-21T17:36:50Z"
+      },
+      {
+        "databaseId": 119378794406,
+        "name": "cli-hook-enforcement (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-10-21T17:42:21Z",
+        "completedAt": "2026-10-21T17:42:52Z"
+      }
+    ],
+    "limit": "Fixed latest partial metadata copy, not final aggregate; mutableorigin updates allowed; raw job payload retained private only.",
+    "metadata_origin_mutable_path": "/workspace/t011-rollout/outputs/c747b59e2864/mutation-run-latest.json",
+    "observed_at": "2026-10-21T17:50:15.373529+00:00"
+  }
+}

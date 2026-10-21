@@ -1,0 +1,22 @@
+{
+  "category": {
+    "id": "readme-contract",
+    "paths": [
+      "README.md"
+    ],
+    "prefixes": [],
+    "suites": [
+      "tests/workflow-documentation.tests.sh",
+      "tests/design-system-contract.tests.sh",
+      "tests/repository-release-validation.tests.sh",
+      "tests/bump-version-gate.tests.sh",
+      "tests/spec-review-loop.tests.sh"
+    ],
+    "groups": [
+      "test",
+      "posix-regression"
+    ],
+    "active": false,
+    "evidence": null
+  }
+}

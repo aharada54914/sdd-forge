@@ -1,0 +1,57 @@
+{
+  "run_id": 39638386400,
+  "head_sha": "c747b59e28649c94e1309bab67885182e3e8cfea",
+  "status": "completed",
+  "conclusion": "success",
+  "strict_aggregate": {
+    "status": "PASS",
+    "total": 449,
+    "reason": "verified",
+    "counts": {
+      "verified": 448,
+      "advisory-inactive": 1
+    },
+    "plan_sha256": "45c6a3d1dcc5aca975577651bbe77a8254209aee73fa15e9bfe8b14802aa7432"
+  },
+  "observed_cloud_jobs": [
+    {
+      "id": 119355362254,
+      "name": "cloud-native (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-21T16:51:00Z",
+      "completed_at": "2026-10-21T17:02:55Z"
+    },
+    {
+      "id": 119355362264,
+      "name": "cloud-native (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-21T17:00:04Z",
+      "completed_at": "2026-10-21T17:06:13Z"
+    },
+    {
+      "id": 119355362451,
+      "name": "cloud-native (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-21T16:55:07Z",
+      "completed_at": "2026-10-21T17:05:32Z"
+    }
+  ],
+  "original_sources": [
+    {
+      "path": "/workspace/t011-rollout/outputs/c747b59e2864/39638386400/final-run.json",
+      "sha256": "b8d328c66db877d680d6b3c5314910520dfb4369144941dffb7a9bc672e73ff7"
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/c747b59e2864/39638386400/aggregate.json",
+      "sha256": "14746b394b69ba6d3cea9123aa6ddf75f90a545ba22a080979cc5a42f3cf6b4d"
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/c747b59e2864/39638386400/observations/jobs/1-1.json",
+      "sha256": "82618df0ba1e9e25b6f88415a4964d863ba05fb234fc7d678ec91d831942fbc9"
+    }
+  ],
+  "scope": "Accepted priorfullB at original catalog only; correctedcatalogrequires freshbaseline. Not acceptance of newselection or activation."
+}

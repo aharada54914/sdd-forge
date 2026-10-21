@@ -1,0 +1,23 @@
+2026-10-21T17:39:21.1821127Z Ran 34 tests in 0.774s
+2026-10-21T17:40:53.7632336Z Ran 96 tests in 92.517s
+2026-10-21T17:41:05.8203589Z Ran 87 tests in 11.964s
+2026-10-21T17:43:56.2111753Z Ran 109 tests in 170.278s
+2026-10-21T17:46:24.5857830Z FAIL: test_existing_name_and_version_guards (__main__.ManifestBoundary.test_existing_name_and_version_guards) (key='name')
+2026-10-21T17:46:24.5862006Z AssertionError: 'differ' not found in '\x1b[31;1mException: \x1b[0m/tmp/cloud-package-fields-7blzntex/boundary.ps1:34\x1b[0m\n\x1b[31;1m\x1b[0m\x1b[36;1mLine |\x1b[0m\n\x1b[31;1m\x1b[0m\x1b[36;1m\x1b[36;1m  34 | \x1b[0m     \x1b[36;1mthrow "README.md current release must be v1.20.0."\x1b[0m\n\x1b[31;1m\x1b[0m\x1b[36;1m\x1b[36;1m\x1b[0m\x1b[36;1m\x1b[0m\x1b[36;1m     | \x1b[31;1m     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\x1b[0m\n\x1b[31;1m\x1b[0m\x1b[36;1m\x1b[36;1m\x1b[0m\x1b[36;1m\x1b[0m\x1b[36;1m\x1b[31;1m\x1b[31;1m\x1b[36;1m     | \x1b[31;1mREADME.md current release must be v1.20.0.\x1b[0m\n'
+2026-10-21T17:46:24.5864425Z FAIL: test_existing_name_and_version_guards (__main__.ManifestBoundary.test_existing_name_and_version_guards) (key='version')
+2026-10-21T17:46:24.5868304Z AssertionError: 'differ' not found in '\x1b[31;1mException: \x1b[0m/tmp/cloud-package-fields-7blzntex/boundary.ps1:34\x1b[0m\n\x1b[31;1m\x1b[0m\x1b[36;1mLine |\x1b[0m\n\x1b[31;1m\x1b[0m\x1b[36;1m\x1b[36;1m  34 | \x1b[0m     \x1b[36;1mthrow "README.md current release must be v1.20.0."\x1b[0m\n\x1b[31;1m\x1b[0m\x1b[36;1m\x1b[36;1m\x1b[0m\x1b[36;1m\x1b[0m\x1b[36;1m     | \x1b[31;1m     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\x1b[0m\n\x1b[31;1m\x1b[0m\x1b[36;1m\x1b[36;1m\x1b[0m\x1b[36;1m\x1b[0m\x1b[36;1m\x1b[31;1m\x1b[31;1m\x1b[36;1m     | \x1b[31;1mREADME.md current release must be v1.20.0.\x1b[0m\n'
+2026-10-21T17:46:24.5870346Z FAIL: test_matched_control (__main__.ManifestBoundary.test_matched_control)
+2026-10-21T17:46:24.5872939Z AssertionError: 1 != 0 : [31;1mException: [0m/tmp/cloud-package-fields-7blzntex/boundary.ps1:34[0m
+2026-10-21T17:46:24.5873800Z [31;1m[0m[36;1m[36;1m  34 | [0m     [36;1mthrow "README.md current release must be v1.20.0."[0m
+2026-10-21T17:46:24.5874998Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mREADME.md current release must be v1.20.0.[0m
+2026-10-21T17:46:24.5876083Z FAIL: test_real_export_consumer_ignores_upstream_reference_skills (__main__.SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills)
+2026-10-21T17:46:24.5878757Z AssertionError: 1 != 0 : [31;1mException: [0m/tmp/cloud-skill-exports-do4x5pfr/boundary.ps1:34[0m
+2026-10-21T17:46:24.5879707Z [31;1m[0m[36;1m[36;1m  34 | [0m     [36;1mthrow "README.md current release must be v1.20.0."[0m
+2026-10-21T17:46:24.5880907Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mREADME.md current release must be v1.20.0.[0m
+2026-10-21T17:46:24.5882027Z FAIL: test_visibility_guards_with_matched_controls (__main__.SkillVisibility.test_visibility_guards_with_matched_controls)
+2026-10-21T17:46:24.5884545Z AssertionError: 1 != 0 : [31;1mException: [0m/tmp/cloud-visibility-guards-55gijaqj/boundary.ps1:34[0m
+2026-10-21T17:46:24.5885399Z [31;1m[0m[36;1m[36;1m  34 | [0m     [36;1mthrow "README.md current release must be v1.20.0."[0m
+2026-10-21T17:46:24.5886600Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mREADME.md current release must be v1.20.0.[0m
+2026-10-21T17:46:24.5887322Z Ran 14 tests in 148.293s
+2026-10-21T17:46:24.5887523Z FAILED (failures=5)
+2026-10-21T17:46:25.5711127Z Ran 54 tests in 0.933s

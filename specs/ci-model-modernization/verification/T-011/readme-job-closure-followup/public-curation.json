@@ -1,0 +1,149 @@
+{
+  "schema": "readme-job-closure-public-curation/v1",
+  "files": {
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/README.md": {
+      "sha256": "2ba49b7827bf5063c3fe077bdc73d287a204d484b81dd01abdc06b09b4616713",
+      "bytes": 3051
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/accepted-prior-B-summary.json": {
+      "sha256": "690327ae63eaed968e0d2a48d671585352f434bc8c7ab1f0643dc023e74967df",
+      "bytes": 1868
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/catalog-green-excerpt.log": {
+      "sha256": "35fa7065196c3164819911bd3d14fa330824940066e82a63797930c063a2d986",
+      "bytes": 26
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/ci-plan-green-excerpt.log": {
+      "sha256": "05c33056c0deaa25257d351c417f334fa682a9097869852c6dcc45a0bdcf1d74",
+      "bytes": 27
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/final-pins.json": {
+      "sha256": "e9b4312720abf474af6c75597a9eb7d3dad97dab592f809dd294978e0621f7e2",
+      "bytes": 3365
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/focused-results.json": {
+      "sha256": "0f2307ce6ceeaf7894849b7fcc2e13d32ebc3e812c24029b2d389139ecfa87db",
+      "bytes": 279
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/negative-controls.json": {
+      "sha256": "52e4448ae81f2b8b721129512b3ec495a630f56bcc4f1396dc0e3111ffb88756",
+      "bytes": 168
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/omit-nothing-excerpt.log": {
+      "sha256": "c85bc78d5bbbef0a14a0e75a09d596f7841e80c639002c8401edd8c8a5195025",
+      "bytes": 428
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/partial-version-job-excerpt.log": {
+      "sha256": "8e2b3deb7f76fa8845d23b3912134819d905a25c6d548edb65e8d6255d662d2b",
+      "bytes": 428
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/proposal-green-excerpt.log": {
+      "sha256": "6f0d0fe58fa7f0ec3edee5a2807ad5d0cebfb8dfa5264fe700761ea92065e45d",
+      "bytes": 177
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/red-excerpt.log": {
+      "sha256": "8e2b3deb7f76fa8845d23b3912134819d905a25c6d548edb65e8d6255d662d2b",
+      "bytes": 428
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/restore-candidate-catalog-excerpt.log": {
+      "sha256": "6f0d0fe58fa7f0ec3edee5a2807ad5d0cebfb8dfa5264fe700761ea92065e45d",
+      "bytes": 177
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/restore-candidate-catalog.json": {
+      "sha256": "865fd1dc1b20209a40cf8b1fd0b590addaf0610f5f3f638424ea8aeaf774972e",
+      "bytes": 869
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/rollback-old-catalog-excerpt.log": {
+      "sha256": "8e2b3deb7f76fa8845d23b3912134819d905a25c6d548edb65e8d6255d662d2b",
+      "bytes": 428
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/rollback-old-catalog.json": {
+      "sha256": "d307390fabf4fd7be4c50c40b31a7564f37f69bb9c01542ac722b98a714805c0",
+      "bytes": 470
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/rollback-results.json": {
+      "sha256": "0a84cf0f79fd408c1815e95e6ee6b29d425f49718a0e5ec61652c6a1f46fca1f",
+      "bytes": 655
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-source.patch": {
+      "sha256": "4a0dd3573860771d530db6f61dbacd3efc8c205b41a2314b2a88305aaccecee5",
+      "bytes": 862
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/category-before-after.json": {
+      "sha256": "fd755eaa1b2108a761833a48d3c530a381df14d045cdd69252b7e5a4e053dc5a",
+      "bytes": 1823
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cli-six-closure.json": {
+      "sha256": "3d244c1b83b84970536eb00de48c8f9b810b275c257c26858a10b82df94ded90",
+      "bytes": 9046
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/closure-notes.md": {
+      "sha256": "b28b6374730ab4b10e8084ee294764e76d4519034ac8ed2e7a1cf508904bc556",
+      "bytes": 7973
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-B-M-commands.json": {
+      "sha256": "ba7c6f7fbbe11b92ba8eb45b898f0a77c54fa73b664c0e6c432bb52f8e4b67d7",
+      "bytes": 1420
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-B-matched-control.stderr.log": {
+      "sha256": "8569c84cc5a84a3f2f1fe0f54039299e03e35c939ad8daa0ed9d6e961b30151c",
+      "bytes": 174
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-B-matched-control.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-M-matched-control.stderr.log": {
+      "sha256": "36d54704d99b26eab61560db097bc837fda2510dec372be24e63c4ac7a2c7660",
+      "bytes": 1207
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/cloud-M-matched-control.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/combined-source-pins.json": {
+      "sha256": "fe05447dcd61a5e0824a871f6732c747b120e60e48628df5be386376b153ed5e",
+      "bytes": 7048
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/delivery-pins.json": {
+      "sha256": "9a7c36a7a07163f9e2e0f8de470dfd7e90f7f1e7d9c8777587d2d3516f553312",
+      "bytes": 2133
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/consumer-closure/readme-consumer-sources.json": {
+      "sha256": "8a43cbc36faf6819bd57d5cae9f20ccd0baa4091cfdded76f26f9f197345826e",
+      "bytes": 4439
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/evidence-receipt.json": {
+      "sha256": "a9c7a6931f87b868bd3b4b85b8d2fda87b26a0ec4ad4d9dc64f88f5a0c30e471",
+      "bytes": 17705
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/observed-M/fixed-partial-status.json": {
+      "sha256": "74ed4eb72f54ae0fb8c2cd6200391d15be52a6b96c23b531fc4f89b2bf17c709",
+      "bytes": 2653
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/observed-M/mutation-cloud-ubuntu-excerpt.log": {
+      "sha256": "1d5fe768a6dab1e5fadb887af81d89f6d011c038479165e04e8d8a668ecaea0a",
+      "bytes": 3669
+    },
+    "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/observed-M/mutation-version-ubuntu-excerpt.log": {
+      "sha256": "bbc4acc04c13481d44c8e6b2d4423dfe0223caefc1584db74de9ffb5145e4f77",
+      "bytes": 187
+    }
+  },
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "tests/verification-catalog.json",
+      "before_commit": "9b3410db064f2e4f5ae54b59d0d3d840a7fe78bb",
+      "before_sha256": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+      "after_candidate_sha256": "d771c913ec79e345c6cb4a16087bc0a80fc8dc6001fd3a6dfd272a5d553ba2eb",
+      "privacy_scope": "Exactbytes"
+    },
+    {
+      "path": "reports/verification/ci-model-modernization-continuation-20261019.json",
+      "before_commit": "9b3410db064f2e4f5ae54b59d0d3d840a7fe78bb",
+      "before_sha256": "93235fe90ebf0d00342a0c80f88ec32718dad8f9182317c2b10458b1f8aec4ff",
+      "after_candidate_sha256": "4ff4bfa65df63fe1349c0b7c1357e4ba95ea3289d368a811c31c27a43e608c14",
+      "privacy_scope": "Journaldiffonly; unchangedpublishedhistoricalmetadata Rootadjudicated"
+    }
+  ]
+}

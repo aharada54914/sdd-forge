@@ -1,0 +1,83 @@
+{
+  "run_id": 39645148185,
+  "head_sha": "df47ab705377e29e5094892e4f1040b9ab9e139e",
+  "event": "workflow_dispatch",
+  "status_at_fixed_snapshot": "in_progress",
+  "conclusion_at_fixed_snapshot": "",
+  "observed_jobs": 45,
+  "job_conclusion_counts": {
+    "success": 26,
+    "skipped": 1,
+    "failure": 8,
+    "not_completed": 10
+  },
+  "observed_failed_jobs": [
+    {
+      "databaseId": 119378793211,
+      "name": "version-gates-windows-bump (bash)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T17:35:51Z",
+      "completedAt": "2026-10-21T17:40:12Z"
+    },
+    {
+      "databaseId": 119378793348,
+      "name": "test (windows-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T17:35:50Z",
+      "completedAt": "2026-10-21T17:44:42Z"
+    },
+    {
+      "databaseId": 119378793352,
+      "name": "test (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T17:38:12Z",
+      "completedAt": "2026-10-21T17:41:53Z"
+    },
+    {
+      "databaseId": 119378793382,
+      "name": "version-gates-windows-bump (powershell)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T17:35:52Z",
+      "completedAt": "2026-10-21T17:39:39Z"
+    },
+    {
+      "databaseId": 119378793620,
+      "name": "cloud-native (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T17:38:33Z",
+      "completedAt": "2026-10-21T17:46:30Z"
+    },
+    {
+      "databaseId": 119378793650,
+      "name": "cloud-native (windows-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T17:40:16Z",
+      "completedAt": "2026-10-21T17:45:51Z"
+    },
+    {
+      "databaseId": 119378793656,
+      "name": "test (macos-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T17:39:41Z",
+      "completedAt": "2026-10-21T17:45:56Z"
+    },
+    {
+      "databaseId": 119378793763,
+      "name": "version-gates (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T17:38:09Z",
+      "completedAt": "2026-10-21T17:38:30Z"
+    }
+  ],
+  "source_sha256": "15f2d480976f2b0957feb3d6ffe41a18063ee91705da5ec4dce16511ee08109f",
+  "identity_source_sha256": "097d59a7e6294343c294c4c8032cbaf9876e9466eb7152301b83fe31cace8672",
+  "scope": "Fixed partial observation26success/1skip/8failure/10notcompleted; not latestliveAPI or final aggregate. Later oldM completion may be retained externally as passive support."
+}

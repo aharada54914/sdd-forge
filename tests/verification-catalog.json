@@ -14,11 +14,26 @@
           "tests/design-system-contract.tests.sh",
           "tests/repository-release-validation.tests.sh",
           "tests/bump-version-gate.tests.sh",
-          "tests/spec-review-loop.tests.sh"
+          "tests/spec-review-loop.tests.sh",
+          "tests/bump-version-gate.tests.ps1"
         ],
         "groups": [
+          "a9-advisory",
+          "a9-advisory-inputs",
+          "ci-mcp-tests",
+          "ci-plan",
+          "cloud-native",
+          "installers",
+          "local-env-mcp-tests",
+          "loops-routing",
+          "mcp-tests",
+          "posix-regression",
+          "posix-unwired-sharded",
           "test",
-          "posix-regression"
+          "test-windows-heavy",
+          "version-gates",
+          "version-gates-windows-bump",
+          "version-gates-windows-lanes"
         ],
         "active": false,
         "evidence": null

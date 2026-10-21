@@ -1,0 +1,12 @@
+[
+  {
+    "mutation": "partial-version-job",
+    "exit": 1,
+    "expected_exit": 1
+  },
+  {
+    "mutation": "omit-nothing",
+    "exit": 1,
+    "expected_exit": 1
+  }
+]

@@ -356,7 +356,7 @@
     "current_fix_report_sha256": "0fcea36984f07a1f6fb1a62c4503e5e8cfc7444cf28f85843e74681f9f237710",
     "current_helper_sha256": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894"
   },
-  "updated_at": "2026-10-21T16:47:06.730152+00:00",
+  "updated_at": "2026-10-21T17:48:52.529593+00:00",
   "t005_current_gate": {
     "state": "Done after actual QA2 PASS0 and generated/checked evidence bundle",
     "actual_context": "/root/t005_cycle2_evaluator",
@@ -1909,7 +1909,7 @@
     "version_tag": "1.20.0 candidate metadata prepared; no new tag published; v1.19.0 preserved.",
     "checkpoint_scope": "Historical readiness checkpoint; current continuation_20261021 and hosted_rebaseline_20261021 below supersede its pre-T010 model/release status."
   },
-  "latest_checkpoint_at": "2026-10-21T16:47:06.730152+00:00",
+  "latest_checkpoint_at": "2026-10-21T17:48:52.529593+00:00",
   "continuation_20261021": {
     "updated_at": "2026-10-21T14:51:53.082371+00:00",
     "codex_device_auth": "completed successfully; no credentials recorded",
@@ -2206,6 +2206,70 @@
       "T011 remains In Progress; no measured omission, final F or new tag claimed",
       "Real cloud validation remains blocked by missing authorized sandbox; existing tags unchanged",
       "Private identity ledger and raw authentication/session records excluded"
+    ]
+  },
+  "readme_activation_closure_followup_20261021": {
+    "recorded_at": "2026-10-21T17:48:52.529593+00:00",
+    "accepted_prior_baseline": {
+      "commit": "c747b59e28649c94e1309bab67885182e3e8cfea",
+      "run_id": 39638386400,
+      "hosted": "SUCCESS including required-checks",
+      "strict_aggregate": {
+        "result": "PASS",
+        "total": 449,
+        "verified": 448,
+        "advisory_inactive": 1
+      },
+      "actual_receipt_zips": 14
+    },
+    "old_mutation": {
+      "commit": "df47ab705377e29e5094892e4f1040b9ab9e139e",
+      "run_id": 39645148185,
+      "change": "README current release v1.20.0 to v0.0.0 only",
+      "status": "In progress at bounded evidence snapshot; no final aggregate claimed",
+      "observed_jobs": {
+        "success": 26,
+        "skipped": 1,
+        "failure": 8,
+        "in_progress": 10
+      },
+      "meaning": "Actual selected bump-version failure invalidates the whole job including omitted siblings; additional cloud installer validates README release and fails. Existing 220-selected/229-omitted candidate is insufficient.",
+      "cli_hook_jobs": "All three OS jobs succeeded at this mutation; source inspection separately establishes bounded independence"
+    },
+    "restore": {
+      "commit": "8f086ec539dc8e43ad8ee0726b7e5ad3d8ac59e6",
+      "tree_identical_to_prior_B": true
+    },
+    "correction": {
+      "tests_first_commit": "9b3410db064f2e4f5ae54b59d0d3d840a7fe78bb",
+      "test_sha256": "bb4f9be71db9fee475fdba6b7417731e355c5cd6817889510009e4b011fa8f91",
+      "catalog_sha256": "d771c913ec79e345c6cb4a16087bc0a80fc8dc6001fd3a6dfd272a5d553ba2eb",
+      "scope": "Select all existing non-CLI workflow groups plus the PowerShell bump-version counterpart using the existing category configuration. Planner, collector and failure criteria unchanged.",
+      "active": false,
+      "evidence": null,
+      "full_obligations": 449,
+      "selected": 443,
+      "omitted": 6,
+      "omissions": "Only CLI-hook setup and enforcement on each of three OSes",
+      "validation": {
+        "catalog_tests_passed": 47,
+        "ci_plan_tests_passed": 54,
+        "ci_plan_bounded_mutations": 460,
+        "negative_controls": "Partial version job coverage and omitting nothing are both rejected",
+        "rollback": "Executable isolated in-memory old-category substitution reproduces Red, then exact corrected category restores Green; not a filesystem checkout rollback."
+      }
+    },
+    "consumer_evidence": {
+      "cli": "Three-OS suite calls direct guards and reads temporary project fixtures/hook configs; it does not invoke installers or consume root README. Repository execution source closure plus workflow is pinned separately.",
+      "cloud": "Existing ManifestBoundary.test_matched_control passes with exact B README and fails with exact M README in otherwise identical offline fixture.",
+      "scope": "Actual old-M native observations and bounded static/local evidence support the category correction; they do not substitute for new exact-B/M hosted proof."
+    },
+    "evidence": "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup",
+    "next": "Commit inactive category correction and evidence as new B; require new actual full B and matching M proof before activation. Preserve old-M final diagnostic results separately. No main merge, existing tag change or live cloud operation.",
+    "remaining": [
+      "New actual B/M/R/A with committed complete activation authority",
+      "Four actual PR/full comparison pairs and exact candidate-F complete local/hosted checks",
+      "Annotated v1.20.0, final installed audit and independent T011 quality gate"
     ]
   }
 }
