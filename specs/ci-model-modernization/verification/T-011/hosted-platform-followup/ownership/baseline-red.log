@@ -1,0 +1,28 @@
+FF.
+======================================================================
+FAIL: test_candidate_contract_rejects_inventory_classification_and_ownership_drift (__main__.CandidatePackTests.test_candidate_contract_rejects_inventory_classification_and_ownership_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/a9-dogfood.tests.py", line 148, in test_candidate_contract_rejects_inventory_classification_and_ownership_drift
+    self.assertEqual(checker.validate(doc, tracked)[0], [])
+AssertionError: Lists differ: ['UNOWNED: install-payload.txt'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'UNOWNED: install-payload.txt'
+
+- ['UNOWNED: install-payload.txt']
++ []
+
+======================================================================
+FAIL: test_candidate_has_complete_nonoverlapping_tracked_ownership (__main__.CandidatePackTests.test_candidate_has_complete_nonoverlapping_tracked_ownership)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/a9-dogfood.tests.py", line 133, in test_candidate_has_complete_nonoverlapping_tracked_ownership
+    self.assertFalse([r for r in result["records"] if r["classification"] in ("UNOWNED", "OVERLAP")])
+AssertionError: [{'raw_path': 'install-payload.txt', 'normalized_path': 'install-payload.txt', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}] is not false
+
+----------------------------------------------------------------------
+Ran 3 tests in 10.043s
+
+FAILED (failures=2)

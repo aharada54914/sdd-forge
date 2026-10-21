@@ -1,0 +1,6 @@
+test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.092s
+
+OK

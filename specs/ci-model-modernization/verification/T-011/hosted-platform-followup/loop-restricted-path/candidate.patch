@@ -1,0 +1,10 @@
+diff --git a/tests/loop-escalation.tests.sh b/tests/loop-escalation.tests.sh
+index 1fad8a06..7d7d76a7 100755
+--- a/tests/loop-escalation.tests.sh
++++ b/tests/loop-escalation.tests.sh
+@@ -603 +603,4 @@ CLEANUP_ROOTS+=("$RESTRICTED_DIR")
+-ln -s "$(command -v dirname)" "${RESTRICTED_DIR}/dirname"
++# Git Bash can copy an executable for ln -s, separating it from its runtime DLLs.
++# Forward to the original executable without exposing the rest of its PATH.
++printf '#!%s\nexec %q "$@"\n' "$BASH_BIN" "$(command -v dirname)" > "${RESTRICTED_DIR}/dirname"
++chmod +x "${RESTRICTED_DIR}/dirname"

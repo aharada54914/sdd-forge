@@ -1,0 +1,32 @@
+{
+  "git_version": "git version 2.52.0",
+  "description": "Tiny local Git write-tree archive vs Python default PAX and USTAR controls; not downloaded GitHub archive and not native Windows execution",
+  "members": {
+    "pax": [
+      {
+        "name": "top/日本語.txt",
+        "pax_headers": {
+          "path": "top/日本語.txt"
+        }
+      }
+    ],
+    "ustar": [
+      {
+        "name": "top/日本語.txt",
+        "pax_headers": {}
+      }
+    ],
+    "git": [
+      {
+        "name": "日本語.txt",
+        "pax_headers": {}
+      },
+      {
+        "name": "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt",
+        "pax_headers": {
+          "path": "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt"
+        }
+      }
+    ]
+  }
+}

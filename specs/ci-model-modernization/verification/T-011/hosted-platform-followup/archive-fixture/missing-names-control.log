@@ -1,0 +1,33 @@
+test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) ...
+  test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='archive', path='plugins/sdd-bootstrap/日本語.txt') ... FAIL
+  test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='archive', path='plugins/sdd-bootstrap/quoted"name.txt') ... FAIL
+  test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='archive', path='plugins/sdd-bootstrap/tab\tname.txt') ... FAIL
+
+======================================================================
+FAIL: test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='archive', path='plugins/sdd-bootstrap/日本語.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/native-ci-failures/windows-archive/missing-names-control.py", line 580, in test_tracked_special_names_survive_local_and_archive
+    self.assertTrue((root / rel).is_file(), rel)
+AssertionError: False is not true : plugins/sdd-bootstrap/日本語.txt
+
+======================================================================
+FAIL: test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='archive', path='plugins/sdd-bootstrap/quoted"name.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/native-ci-failures/windows-archive/missing-names-control.py", line 580, in test_tracked_special_names_survive_local_and_archive
+    self.assertTrue((root / rel).is_file(), rel)
+AssertionError: False is not true : plugins/sdd-bootstrap/quoted"name.txt
+
+======================================================================
+FAIL: test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='archive', path='plugins/sdd-bootstrap/tab\tname.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/native-ci-failures/windows-archive/missing-names-control.py", line 580, in test_tracked_special_names_survive_local_and_archive
+    self.assertTrue((root / rel).is_file(), rel)
+AssertionError: False is not true : plugins/sdd-bootstrap/tab	name.txt
+
+----------------------------------------------------------------------
+Ran 1 test in 1.050s
+
+FAILED (failures=3)

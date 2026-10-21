@@ -600,7 +600,10 @@ CLEANUP_ROOTS+=("$RESTRICTED_DIR")
 # it ever parses --risk/--candidate) -- no python3 (or python3-adjacent)
 # binary is placed on it, so `command -v python3` fails inside the driven
 # script exactly as it would on a host without python3 installed.
-ln -s "$(command -v dirname)" "${RESTRICTED_DIR}/dirname"
+# Git Bash can copy an executable for ln -s, separating it from its runtime DLLs.
+# Forward to the original executable without exposing the rest of its PATH.
+printf '#!%s\nexec %q "$@"\n' "$BASH_BIN" "$(command -v dirname)" > "${RESTRICTED_DIR}/dirname"
+chmod +x "${RESTRICTED_DIR}/dirname"
 
 if OUT="$(PATH="$RESTRICTED_DIR" "$BASH_BIN" "$RESUME_SH" \
   --evidence x --blocked-state x --tasks x --repo-root x --expected-task "$RESUME_TASK" 2>&1)"; then RC=0; else RC=$?; fi

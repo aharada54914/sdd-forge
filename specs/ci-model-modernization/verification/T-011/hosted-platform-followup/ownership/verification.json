@@ -1,0 +1,58 @@
+{
+  "recorded_at": "2026-10-21T14:26:45.888083+00:00",
+  "source_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "scope": "Register exact installer manifest path in existing A9 candidate installer ownership; validator and tests unchanged. Paired Windows test fixture correction is recorded separately.",
+  "source_pins": {
+    "specs/epic-197-a9-dogfood/candidate/project-context.yaml": "7997eae6c9d2277ef62394c34756671c401fd7b96cb492fbc8324433f3fed212",
+    "tests/a9-dogfood.tests.py": "366d90bc9aaf7ff386d971410451ec066e42ad6cf8a2253b66959911882f7cba",
+    "tests/lib/install-payload-check.py": "d1520349af500e824cb9df8c9d9cc0dfdf2e5f25293f1c31cd7e1e6ef5bbb0aa"
+  },
+  "baseline_regression": {
+    "command": [
+      "python3",
+      "-B",
+      "tests/a9-dogfood.tests.py",
+      "CandidatePackTests"
+    ],
+    "exit_code": 1,
+    "tests": 3,
+    "failed": 2,
+    "log": "baseline-red.log"
+  },
+  "green": {
+    "command": [
+      "python3",
+      "-B",
+      "tests/a9-dogfood.tests.py"
+    ],
+    "exit_code": 0,
+    "tests": 32,
+    "failed": 0,
+    "log": "candidate-green.log"
+  },
+  "reversion": "candidate-reversion.json",
+  "checks": [
+    {
+      "name": "ruff",
+      "command": [
+        "/workspace/.tools/sdd-forge-python/bin/ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/lib/install-payload-check.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "exploratory_typecheck": "mypy-comparison.json",
+  "native_revalidation": "pending new exact-commit CI; failed B6c2 preserved"
+}

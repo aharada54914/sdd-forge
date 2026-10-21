@@ -1,0 +1,16 @@
+{
+  "files": {
+    "candidate.patch": "b7a008418121c719e282946d130025c9ee21106880ed7ffee70416fd4f1b3232",
+    "hosted-errors.log": "7fc57ac652e1fd6a2d2d71bdf6980275fa9473e49c2da62918f10ae7f09b850c",
+    "syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verification.json": "da0d9ef86027b244de2e42a854af4f497c0a29104abbb91c05d9c83af80c2548",
+    "green.log": "fd4185083b05628736b54348617190614d46551fd85bba5b6b2901fe9033717a"
+  },
+  "source_original_retained_outside_repository": true,
+  "public_derivation": {
+    "candidate.patch": "Exact staged source diff regenerated with --unified=0; no test/source edits",
+    "patch_before_public_sha256": "0f259c4c694c020cd38b43d51cc8c8aee07788796f492379cb1a9bef89a4baed",
+    "patch_published_sha256": "b7a008418121c719e282946d130025c9ee21106880ed7ffee70416fd4f1b3232",
+    "raw_external_sources_unchanged": true
+  }
+}

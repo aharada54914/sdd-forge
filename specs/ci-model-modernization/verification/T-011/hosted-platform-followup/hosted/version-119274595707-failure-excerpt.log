@@ -1,0 +1,69 @@
+2026-10-21T14:19:21.2981760Z FAIL: test_candidate_contract_rejects_inventory_classification_and_ownership_drift (__main__.CandidatePackTests.test_candidate_contract_rejects_inventory_classification_and_ownership_drift)
+2026-10-21T14:19:21.2982560Z ----------------------------------------------------------------------
+2026-10-21T14:19:21.2982930Z Traceback (most recent call last):
+2026-10-21T14:19:21.2983580Z   File "/Users/runner/work/sdd-forge/sdd-forge/tests/a9-dogfood.tests.py", line 148, in test_candidate_contract_rejects_inventory_classification_and_ownership_drift
+2026-10-21T14:19:21.2984210Z     self.assertEqual(checker.validate(doc, tracked)[0], [])
+2026-10-21T14:19:21.2984520Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-21T14:19:21.2984850Z AssertionError: Lists differ: ['UNOWNED: install-payload.txt'] != []
+2026-10-21T14:19:21.2985130Z
+2026-10-21T14:19:21.2985240Z First list contains 1 additional elements.
+2026-10-21T14:19:21.2985490Z First extra element 0:
+2026-10-21T14:19:21.2985690Z 'UNOWNED: install-payload.txt'
+2026-10-21T14:19:21.2985830Z
+2026-10-21T14:19:21.2985900Z - ['UNOWNED: install-payload.txt']
+2026-10-21T14:19:21.2986130Z + []
+2026-10-21T14:19:21.2986220Z
+2026-10-21T14:19:21.2986320Z ======================================================================
+2026-10-21T14:19:21.2986920Z FAIL: test_candidate_has_complete_nonoverlapping_tracked_ownership (__main__.CandidatePackTests.test_candidate_has_complete_nonoverlapping_tracked_ownership)
+2026-10-21T14:19:21.2987550Z ----------------------------------------------------------------------
+2026-10-21T14:19:21.2987840Z Traceback (most recent call last):
+2026-10-21T14:19:21.2988360Z   File "/Users/runner/work/sdd-forge/sdd-forge/tests/a9-dogfood.tests.py", line 133, in test_candidate_has_complete_nonoverlapping_tracked_ownership
+2026-10-21T14:19:21.2989050Z     self.assertFalse([r for r in result["records"] if r["classification"] in ("UNOWNED", "OVERLAP")])
+2026-10-21T14:19:21.2989500Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-21T14:19:21.2990240Z AssertionError: [{'raw_path': 'install-payload.txt', 'normalized_path': 'install-payload.txt', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}] is not false
+2026-10-21T14:19:21.2991400Z
+2026-10-21T14:19:21.2991520Z ======================================================================
+2026-10-21T14:19:21.2992180Z FAIL: test_cli_missing_or_duplicate_documents_reject_without_activation (__main__.PromotionGitBoundaryTests.test_cli_missing_or_duplicate_documents_reject_without_activation)
+2026-10-21T14:19:21.2992840Z ----------------------------------------------------------------------
+2026-10-21T14:19:21.2993140Z Traceback (most recent call last):
+2026-10-21T14:19:21.2993660Z   File "/Users/runner/work/sdd-forge/sdd-forge/tests/a9-dogfood.tests.py", line 645, in test_cli_missing_or_duplicate_documents_reject_without_activation
+2026-10-21T14:19:21.2994250Z     self.assertEqual(result.returncode, 0, result.stderr)
+2026-10-21T14:19:21.2994550Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-21T14:19:21.2994800Z AssertionError: 1 != 0 :
+2026-10-21T14:19:21.2994920Z
+2026-10-21T14:19:21.2995020Z ======================================================================
+2026-10-21T14:19:21.2997640Z FAIL: test_complete_scoped_preflight (__main__.PromotionPreflightTests.test_complete_scoped_preflight)
+2026-10-21T14:19:21.2998250Z ----------------------------------------------------------------------
+2026-10-21T14:19:21.2998600Z Traceback (most recent call last):
+2026-10-21T14:19:21.2999070Z   File "/Users/runner/work/sdd-forge/sdd-forge/tests/a9-dogfood.tests.py", line 456, in test_complete_scoped_preflight
+2026-10-21T14:19:21.2999570Z     self.assertEqual(self.check(), [])
+2026-10-21T14:19:21.2999810Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+2026-10-21T14:19:21.3000210Z AssertionError: Lists differ: ['UNOWNED: install-payload.txt', 'baseline: UNOWNED: install-payload.txt'] != []
+2026-10-21T14:19:21.3000540Z
+2026-10-21T14:19:21.3000640Z First list contains 2 additional elements.
+2026-10-21T14:19:21.3000860Z First extra element 0:
+2026-10-21T14:19:21.3001030Z 'UNOWNED: install-payload.txt'
+2026-10-21T14:19:21.3001180Z
+2026-10-21T14:19:21.3001350Z - ['UNOWNED: install-payload.txt', 'baseline: UNOWNED: install-payload.txt']
+2026-10-21T14:19:21.3001650Z + []
+2026-10-21T14:19:21.3001730Z
+2026-10-21T14:19:21.3001830Z ======================================================================
+2026-10-21T14:19:21.3002310Z FAIL: test_old_green_cannot_hide_latest_failure (__main__.PromotionPreflightTests.test_old_green_cannot_hide_latest_failure)
+2026-10-21T14:19:21.3002790Z ----------------------------------------------------------------------
+2026-10-21T14:19:21.3003070Z Traceback (most recent call last):
+2026-10-21T14:19:21.3003490Z   File "/Users/runner/work/sdd-forge/sdd-forge/tests/a9-dogfood.tests.py", line 580, in test_old_green_cannot_hide_latest_failure
+2026-10-21T14:19:21.3003960Z     self.assertEqual(self.check(), [])
+2026-10-21T14:19:21.3004160Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+2026-10-21T14:19:21.3004550Z AssertionError: Lists differ: ['UNOWNED: install-payload.txt', 'baseline: UNOWNED: install-payload.txt'] != []
+2026-10-21T14:19:21.3004900Z
+2026-10-21T14:19:21.3004980Z First list contains 2 additional elements.
+2026-10-21T14:19:21.3005210Z First extra element 0:
+2026-10-21T14:19:21.3005390Z 'UNOWNED: install-payload.txt'
+2026-10-21T14:19:21.3005510Z
+2026-10-21T14:19:21.3005680Z - ['UNOWNED: install-payload.txt', 'baseline: UNOWNED: install-payload.txt']
+2026-10-21T14:19:21.3005980Z + []
+2026-10-21T14:19:21.3006060Z
+2026-10-21T14:19:21.3006170Z ----------------------------------------------------------------------
+2026-10-21T14:19:21.3006430Z Ran 32 tests in 164.157s
+2026-10-21T14:19:21.3006550Z
+2026-10-21T14:19:21.3006630Z FAILED (failures=5)

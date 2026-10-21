@@ -1,0 +1,29 @@
+--- a/tests/lib/install-payload-check.py
++++ b/tests/lib/install-payload-check.py
+@@ -564,11 +564,15 @@
+         for rel in paths:
+             self.fx.write(rel, "tracked UTF-8 payload\n")
+         self.fx.git("add", "--", *paths)
+-        original_tracked = self.fx.tracked
+-        self.fx.tracked = original_tracked + paths
+         try:
++            # Match the Git archive producer: Python PAX encodes even short Unicode
++            # names differently, exercising native tar charset handling instead.
++            archive = self.fx.base / "special-names.tar.gz"
++            tree = self.fx.git("write-tree").stdout.strip()
++            self.fx.git("archive", "--format=tar.gz", "--prefix=aharada54914-sdd-forge-0123abc/",
++                        "--output=" + str(archive), tree)
+             for label, kwargs in (("local", {"source": self.fx.path}),
+-                                  ("archive", {"archive": self.fx.archive(omit=["special-name-fixture-cache-key"])})):
++                                  ("archive", {"archive": archive})):
+                 root = self.root_for("names-" + label)
+                 self.install_ok(root, skip_mcp=True, **kwargs)
+                 for rel in paths:
+@@ -576,7 +580,6 @@
+                         self.assertTrue((root / rel).is_file(), rel)
+                         self.assertEqual((root / rel).read_bytes(), (self.fx.path / rel).read_bytes())
+         finally:
+-            self.fx.tracked = original_tracked
+             self.fx.git("rm", "--cached", "-q", "--", *paths)
+             for rel in paths:
+                 (self.fx.path / rel).unlink()

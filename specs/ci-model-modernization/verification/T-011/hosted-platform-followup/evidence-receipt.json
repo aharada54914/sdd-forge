@@ -1,0 +1,313 @@
+{
+  "schema": "hosted-platform-followup-evidence/v1",
+  "recorded_at": "2026-10-21T14:28:51.757384+00:00",
+  "failed_hosted_baseline_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "current_observed_head": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "source_pins": [
+    {
+      "path": "specs/epic-197-a9-dogfood/candidate/project-context.yaml",
+      "baseline_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+      "before_sha256": "57178adcee2d11ccb8660c6127cf395177ee9129cd25a2e19557c1f95f50cd10",
+      "working_candidate_sha256": "7997eae6c9d2277ef62394c34756671c401fd7b96cb492fbc8324433f3fed212",
+      "changed": true
+    },
+    {
+      "path": "tests/lib/install-payload-check.py",
+      "baseline_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+      "before_sha256": "984c4800e0d4a9ce7a1b4d68bbc70fa7f0553433e82a42f83ddddd93bc20075a",
+      "working_candidate_sha256": "d1520349af500e824cb9df8c9d9cc0dfdf2e5f25293f1c31cd7e1e6ef5bbb0aa",
+      "changed": true
+    },
+    {
+      "path": "tests/a9-dogfood.tests.py",
+      "baseline_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+      "before_sha256": "366d90bc9aaf7ff386d971410451ec066e42ad6cf8a2253b66959911882f7cba",
+      "working_candidate_sha256": "366d90bc9aaf7ff386d971410451ec066e42ad6cf8a2253b66959911882f7cba",
+      "changed": false
+    },
+    {
+      "path": "install.sh",
+      "baseline_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+      "before_sha256": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a",
+      "working_candidate_sha256": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a",
+      "changed": false
+    },
+    {
+      "path": "install.ps1",
+      "baseline_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+      "before_sha256": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f",
+      "working_candidate_sha256": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f",
+      "changed": false
+    }
+  ],
+  "evidence_copies": [
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/verification.json",
+      "source_path": "/workspace/t011-ownership-followup/verification.json",
+      "source_sha256": "950aea5e166e10a51bcc8fb30604e84507677586b3048a3316c259996a083d97",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/candidate-reversion.json",
+      "source_path": "/workspace/t011-ownership-followup/candidate-reversion.json",
+      "source_sha256": "0bd0821f7096123ec9aca28c31f3877925b2097dfc6805af553510f6cabb5591",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/candidate.patch",
+      "source_path": "/workspace/t011-ownership-followup/candidate.patch",
+      "source_sha256": "c22b464ac4fa797f37d0cf259dcf2c97196b982f2bbec82f63c3d5bd1654d22b",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/baseline-red.log",
+      "source_path": "/workspace/t011-ownership-followup/baseline-red.log",
+      "source_sha256": "84fce9982f4773ab4ac51dabf45917eb54ab1001b852c055f508348ea7ec0d0b",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/candidate-green.log",
+      "source_path": "/workspace/t011-ownership-followup/candidate-green.log",
+      "source_sha256": "a846a517c3084b2d3457ba4ef63878b9f99ce380b0d2117910f6e3a4af9bf681",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/revert.log",
+      "source_path": "/workspace/t011-ownership-followup/revert.log",
+      "source_sha256": "6bc36db2287d6924a0de46abf26ce0f74035d0de47512685f615679ec586142d",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/restore.log",
+      "source_path": "/workspace/t011-ownership-followup/restore.log",
+      "source_sha256": "d712c188974ab35b534be1f172a858520983896dc30dd74c6233fe0cef31ce38",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/ruff.log",
+      "source_path": "/workspace/t011-ownership-followup/ruff.log",
+      "source_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/diff.log",
+      "source_path": "/workspace/t011-ownership-followup/diff.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/mypy-comparison.json",
+      "source_path": "/workspace/t011-ownership-followup/mypy-comparison.json",
+      "source_sha256": "ce1065ed3babd531b5f38ae23f535840356a3e133886df80977fd2f35ab87132",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/mypy-baseline.log",
+      "source_path": "/workspace/t011-ownership-followup/mypy-baseline.log",
+      "source_sha256": "73a6c12d3d3c045aa09e3424d002008a3364eef55c1a6f899dcd48c48b9a15bf",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/mypy-candidate.log",
+      "source_path": "/workspace/t011-ownership-followup/mypy-candidate.log",
+      "source_sha256": "20bbdc93ffb63b510a77fd02e9a1ce66f7407a482f09ae193bd5d9e117cca5c8",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/verification.json",
+      "source_path": "/workspace/native-ci-failures/windows-archive/verification.json",
+      "source_sha256": "5ba11351ddcfa989b79321e9863bcc76b84ce2db92e6a8239939ac81145d6310",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/candidate.patch",
+      "source_path": "/workspace/native-ci-failures/windows-archive/candidate.patch",
+      "source_sha256": "7d3892ee3375d726f188e9cd1fcdef845f4d46759e7aa693ff3e28606bb3077f",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/producer-comparison.json",
+      "source_path": "/workspace/native-ci-failures/windows-archive/producer-comparison.json",
+      "source_sha256": "4cd0d4d08053e12c373beba727b17c73e72627e9c1cccbdc6b5c3b3632053e68",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/green-bash.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive/green-bash.log",
+      "source_sha256": "ee8a95c2360707b2360566fe9ffe49246d0acad68a8e2db13c93801f15130bfc",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/green-powershell.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive/green-powershell.log",
+      "source_sha256": "5a5378a545cf5dad09b36d621a77b0696c3fdeca7cc1a942f62b8507a5867705",
+      "exact_copy": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/missing-names-control.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive/missing-names-control.log",
+      "source_sha256": "e952bd488a0325e152bdc8ca11b6abecf1a78f49f8c7683251d87a9a042a4999",
+      "exact_copy": false,
+      "public_derivation": "CRLF/CR to LF; strip trailing ASCII spaces/tabs from each line; retain all line content/order and final-newline state",
+      "published_sha256": "b532499307c4c02de4689977b241733f8390635771421a6a92bcaff8fee34c7d"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/supersession.json",
+      "source_path": "/workspace/t011-rollout/outputs/6c2b4e713915/supersession.json",
+      "source_sha256": "56aa97f3bc2e6d38c860c3b633288bf00301d49c88e4550cff9dc2b13a8c4c46",
+      "exact_copy": true
+    }
+  ],
+  "hosted_excerpts": [
+    {
+      "source_path": "/workspace/t011-rollout/outputs/6c2b4e713915/installer-windows-core-connector.log",
+      "source_sha256": "f738750509ec3259378c626e47cf2a3476411e993355bcf95e73ffb0bc521c70",
+      "source_bytes": 25091,
+      "source_lines_1_based_inclusive": [
+        217,
+        243
+      ],
+      "excerpt_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/installer-windows-core-failure-excerpt.log",
+      "excerpt_sha256": "8b875ab34c8038bc0ba7148a2c3587751168cf8964a0b697f9c1b5dc596bd66a",
+      "excerpt_bytes": 2573,
+      "scope": "Same contiguous error-only source line range, publicly derived by LF normalization and trailing ASCII whitespace removal; original raw log retained unchanged outside Git.",
+      "raw_excerpt_sha256": "314e29eeefe604f9c5068c16438f51c1d834480a368a9e584d9c967fcb8ea6e9",
+      "raw_excerpt_bytes": 2604
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/6c2b4e713915/version-119274595707-connector.log",
+      "source_sha256": "ebaf869e6fda622280ee55e9b44efdcc010c56b20d0469490e445cd70281dd4f",
+      "source_bytes": 61554,
+      "source_lines_1_based_inclusive": [
+        560,
+        628
+      ],
+      "excerpt_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/version-119274595707-failure-excerpt.log",
+      "excerpt_sha256": "65fb913590f2999a21e461562473d6a2bec0db56348b72e8d58308a2b62f9e5b",
+      "excerpt_bytes": 6007,
+      "scope": "Same contiguous error-only source line range, publicly derived by LF normalization and trailing ASCII whitespace removal; original raw log retained unchanged outside Git.",
+      "raw_excerpt_sha256": "05dd2ff1169f8dda40202d62adb95e6837babac01e26c79c58f516215db98f80",
+      "raw_excerpt_bytes": 6020
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/6c2b4e713915/version-119274595820-connector.log",
+      "source_sha256": "b98aec08c34b7b5b3276864afe58a7e00105b03eb030c29e6046a95f20200331",
+      "source_bytes": 58825,
+      "source_lines_1_based_inclusive": [
+        538,
+        601
+      ],
+      "excerpt_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/version-119274595820-failure-excerpt.log",
+      "excerpt_sha256": "bf369635c1b494fa81c76d2d09bc13a494cd8c618d95433c5cb16acbc737388c",
+      "excerpt_bytes": 5559,
+      "scope": "Same contiguous error-only source line range, publicly derived by LF normalization and trailing ASCII whitespace removal; original raw log retained unchanged outside Git.",
+      "raw_excerpt_sha256": "4f5d60ed77228ceb60b349b1b59a690e4f9a6a1fc9a8a16c602f1904622557e2",
+      "raw_excerpt_bytes": 5572
+    }
+  ],
+  "chronology": [
+    {
+      "observed": "2026-10-21T14:18:09Z",
+      "event": "Actual Windows hosted installer suite failed special-name archive test (1 of9)."
+    },
+    {
+      "observed": "2026-10-21T14:19:21Z /14:19:35Z",
+      "event": "Actual version validation jobs failed5 of32 A9 tests; focused reproduction later isolates2 of3 CandidatePack tests to unowned install-payload.txt."
+    },
+    {
+      "observed": "2026-10-21T14:22:21Z",
+      "event": "Root superseded B/mutation/restore chain as diagnostic only; no activation or acceptance."
+    },
+    {
+      "observed": "2026-10-21T14:24:49Z",
+      "event": "Explicit original/restored candidate CLI-input reversion: original fails, fixed input passes."
+    },
+    {
+      "observed": "2026-10-21T14:26:45Z",
+      "event": "Ownership verification records full32 green, focused Red2/3, Ruff/diff pass and exploratory mypy failure comparison."
+    }
+  ],
+  "local_results": {
+    "ownership": "Focused baseline2 failures of3; fixed full32PASS; explicit candidate-input revertFAIL/restorePASS. Validator/tests unchanged.",
+    "archive_fixture": "Target special-name test1PASS under LinuxBash and LinuxPowerShell; missing-names control fails as expected. Actual Git write-tree/archive producer replaces PythonPAX fixture producer; installer production code unchanged.",
+    "ruff_and_diff": "PASS per original ownership verification; no independent reexecution asserted by curation.",
+    "exploratory_mypy": {
+      "baseline_exit": 1,
+      "baseline_errors": 53,
+      "candidate_exit": 1,
+      "candidate_errors": 52,
+      "new_diagnostics": 0,
+      "status": "FAIL, not passing required typecheck; outside configured typed-source list"
+    }
+  },
+  "pending": [
+    "Native Windows rerun of corrected source",
+    "Fresh exact-commit fullCI baseline before any hosted acceptance/activation",
+    "Long Unicode Git archives may still require PAX; native Windows PAX charset behavior unresolved",
+    "Actual GitHub archive was not downloaded; local Git archive producer only"
+  ],
+  "excluded": [
+    "Raw full hosted logs/tool headers",
+    "Private review/identity ledger and native/account/auth data",
+    "Archive binary fixtures and executable probe copies",
+    "Unrelated source changes"
+  ],
+  "source_mutations_by_curator": false,
+  "git_stage_or_commit_by_curator": false,
+  "public_text_normalization": {
+    "at": "2026-10-21T14:33:00.185892+00:00",
+    "reason": "Portable Git blobs and whitespace-clean public derived evidence; original external logs not edited",
+    "transformations": [
+      {
+        "path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/missing-names-control.log",
+        "before_public_sha256": "e952bd488a0325e152bdc8ca11b6abecf1a78f49f8c7683251d87a9a042a4999",
+        "published_sha256": "b532499307c4c02de4689977b241733f8390635771421a6a92bcaff8fee34c7d",
+        "before_bytes": 2808,
+        "published_bytes": 2807,
+        "transformation": "CRLF/CR to LF; strip trailing ASCII spaces/tabs from each line; retain all line content/order and final-newline state",
+        "original_external_bytes": "Unmodified and retained at source paths in evidence_copies/hosted_excerpts or loop verification."
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/installer-windows-core-failure-excerpt.log",
+        "before_public_sha256": "314e29eeefe604f9c5068c16438f51c1d834480a368a9e584d9c967fcb8ea6e9",
+        "published_sha256": "8b875ab34c8038bc0ba7148a2c3587751168cf8964a0b697f9c1b5dc596bd66a",
+        "before_bytes": 2604,
+        "published_bytes": 2573,
+        "transformation": "CRLF/CR to LF; strip trailing ASCII spaces/tabs from each line; retain all line content/order and final-newline state",
+        "original_external_bytes": "Unmodified and retained at source paths in evidence_copies/hosted_excerpts or loop verification."
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/version-119274595707-failure-excerpt.log",
+        "before_public_sha256": "05dd2ff1169f8dda40202d62adb95e6837babac01e26c79c58f516215db98f80",
+        "published_sha256": "65fb913590f2999a21e461562473d6a2bec0db56348b72e8d58308a2b62f9e5b",
+        "before_bytes": 6020,
+        "published_bytes": 6007,
+        "transformation": "CRLF/CR to LF; strip trailing ASCII spaces/tabs from each line; retain all line content/order and final-newline state",
+        "original_external_bytes": "Unmodified and retained at source paths in evidence_copies/hosted_excerpts or loop verification."
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/version-119274595820-failure-excerpt.log",
+        "before_public_sha256": "4f5d60ed77228ceb60b349b1b59a690e4f9a6a1fc9a8a16c602f1904622557e2",
+        "published_sha256": "bf369635c1b494fa81c76d2d09bc13a494cd8c618d95433c5cb16acbc737388c",
+        "before_bytes": 5572,
+        "published_bytes": 5559,
+        "transformation": "CRLF/CR to LF; strip trailing ASCII spaces/tabs from each line; retain all line content/order and final-newline state",
+        "original_external_bytes": "Unmodified and retained at source paths in evidence_copies/hosted_excerpts or loop verification."
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/loop-restricted-path/candidate.patch",
+        "before_public_sha256": "0f259c4c694c020cd38b43d51cc8c8aee07788796f492379cb1a9bef89a4baed",
+        "published_sha256": "b7a008418121c719e282946d130025c9ee21106880ed7ffee70416fd4f1b3232",
+        "transformation": "Regenerated from exact staged ordinary source diff with --unified=0 to omit blank context; no source edits",
+        "command": [
+          "git",
+          "diff",
+          "--cached",
+          "--unified=0",
+          "--",
+          "tests/loop-escalation.tests.sh"
+        ]
+      }
+    ]
+  }
+}

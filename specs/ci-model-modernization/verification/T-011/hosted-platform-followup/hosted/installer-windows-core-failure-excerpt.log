@@ -1,0 +1,27 @@
+2026-10-21T14:18:09.1876771Z FAIL: test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive)
+2026-10-21T14:18:09.1877843Z ----------------------------------------------------------------------
+2026-10-21T14:18:09.1878438Z Traceback (most recent call last):
+2026-10-21T14:18:09.1879404Z   File "D:\a\sdd-forge\sdd-forge\tests\lib\install-payload-check.py", line 573, in test_tracked_special_names_survive_local_and_archive
+2026-10-21T14:18:09.1880468Z     self.install_ok(root, skip_mcp=True, **kwargs)
+2026-10-21T14:18:09.1881193Z   File "D:\a\sdd-forge\sdd-forge\tests\lib\install-payload-check.py", line 431, in install_ok
+2026-10-21T14:18:09.1881999Z     self.assertEqual(result.returncode, 0, describe(result))
+2026-10-21T14:18:09.1883529Z AssertionError: 1 != 0 : argv: ['C:\\Program Files\\PowerShell\\7\\pwsh.EXE', '-NoLogo', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sdd-payload-run-j23qavyb\\archive-wrapper.ps1']
+2026-10-21T14:18:09.1884879Z exit: 1
+2026-10-21T14:18:09.1885117Z stdout:
+2026-10-21T14:18:09.1886196Z [33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+2026-10-21T14:18:09.1887439Z Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+2026-10-21T14:18:09.1888065Z
+2026-10-21T14:18:09.1888170Z stderr:
+2026-10-21T14:18:09.1888546Z tar.exe: Archive entry has empty or unreadable filename ... skipping
+2026-10-21T14:18:09.1889120Z tar.exe: Error exit delayed from previous errors
+2026-10-21T14:18:09.1889764Z [31;1mException: [0mD:\a\sdd-forge\sdd-forge\install.ps1:779[0m
+2026-10-21T14:18:09.1890341Z [31;1m[0m[36;1mLine |[0m
+2026-10-21T14:18:09.1891380Z [31;1m[0m[36;1m[36;1m 779 | [0m             [36;1mthrow "Downloaded archive extraction failed with exit cod[0m …[0m
+2026-10-21T14:18:09.1892465Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-21T14:18:09.1893602Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mDownloaded archive extraction failed with exit code 1.[0m
+2026-10-21T14:18:09.1894146Z
+2026-10-21T14:18:09.1894150Z
+2026-10-21T14:18:09.1894301Z ----------------------------------------------------------------------
+2026-10-21T14:18:09.1894974Z Ran 9 tests in 128.440s
+2026-10-21T14:18:09.1895120Z
+2026-10-21T14:18:09.1895193Z FAILED (failures=1)

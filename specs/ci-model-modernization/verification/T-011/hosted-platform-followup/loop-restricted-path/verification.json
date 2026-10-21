@@ -1,0 +1,35 @@
+{
+  "recorded_at": "2026-10-21T14:30:46.690892+00:00",
+  "baseline": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "source": "tests/loop-escalation.tests.sh",
+  "before_sha256": "29793d24a93e27c193bfe82cfe89cf93adb2b9dd7e951e173a8fe1b1ed893111",
+  "after_sha256": "77613b2b25c67147d00aeb43baf1053aa245002125301e03ff1038d4b726cbd3",
+  "hosted_red": {
+    "run_id": 39615251761,
+    "job_id": 119274596009,
+    "log_sha256": "98e23433b89fdaab603b17514df8d6c6b2ea7d952aa19de3032140057a70e114",
+    "excerpt": "hosted-errors.log",
+    "observed_failure": "TEST-013.2 expected deterministic-runtime-unavailable; native helper path computation got cd: null directory"
+  },
+  "diagnosis": "Restricted PATH fixture links dirname executable. Git Bash ln -s can copy executable away from runtime DLLs. Replace with shell forwarding to original absolute executable, preserving no-python PATH. Native Windows must verify this diagnosis/fix.",
+  "scope": "Fixture only; no product selector edits, missing-python assertions unchanged.",
+  "green": {
+    "command": "PATH=<mandated pwsh and RTK>:$PATH TMPDIR=<task scratch> bash tests/loop-escalation.tests.sh",
+    "exit_code": 0,
+    "passed": 37,
+    "failed": 0,
+    "existing_skips_preserved": true,
+    "log": "green.log"
+  },
+  "syntax": {
+    "command": [
+      "bash",
+      "-n",
+      "tests/loop-escalation.tests.sh"
+    ],
+    "exit_code": 0
+  },
+  "limitations": [
+    "Actual Windows rerun pending; local Linux did not reproduce Windows native executable failure."
+  ]
+}

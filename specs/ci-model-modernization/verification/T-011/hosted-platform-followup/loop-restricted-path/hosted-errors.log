@@ -1,0 +1,5 @@
+736: 2026-10-21T14:20:31.6702547Z === TEST-013: python3-absent degradation (restricted PATH) ===
+737: 2026-10-21T14:20:31.6720657Z ok: TEST-013.0: python3 is present under this suite's normal PATH (the restricted-PATH legs below are a deliberate simulation, not an accidental gap)
+738: 2026-10-21T14:20:31.7465248Z SKIP: TEST-013.1: check-terminal-tier-resume.sh reports deterministic-runtime-unavailable under a restricted PATH lacking python3 (INV-017); recorded degradation, rc=1
+739: 2026-10-21T14:20:31.8037422Z FAIL: TEST-013.2: select-agent-model.sh did not report deterministic-runtime-unavailable when python3 was absent (silent green or unrelated failure: rc=1, out=/d/a/sdd-forge/sdd-forge/plugins/sdd-implementation/scripts/select-agent-model.sh: line 7: cd: null directory)
+764: 2026-10-21T14:20:43.0682957Z loop-escalation.tests.sh: 37 passed, 1 failed, 24s elapsed

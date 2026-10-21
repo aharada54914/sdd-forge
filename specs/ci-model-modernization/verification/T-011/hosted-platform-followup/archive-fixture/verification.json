@@ -1,0 +1,23 @@
+{
+  "source_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "source_path": "tests/lib/install-payload-check.py",
+  "baseline_sha256": "984c4800e0d4a9ce7a1b4d68bbc70fa7f0553433e82a42f83ddddd93bc20075a",
+  "candidate_sha256": "d1520349af500e824cb9df8c9d9cc0dfdf2e5f25293f1c31cd7e1e6ef5bbb0aa",
+  "actual_hosted_red": {
+    "job_id": 119274596017,
+    "source_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+    "log": "/workspace/t011-rollout/outputs/6c2b4e713915/installer-windows-core-connector.log",
+    "error": "Native tar.exe rejected Python PAX Unicode path as empty or unreadable filename"
+  },
+  "scope": "Special-name test fixture producer only; actual installer code unchanged; Unicode/quote/tab exact filename and byte assertions unchanged. Removed unused synthetic tracked-list mutation.",
+  "checks": {
+    "linux_powershell": "green-powershell.log: 1 test PASS",
+    "linux_bash": "green-bash.log: 1 test PASS",
+    "missing_names_negative": "missing-names-control.log: expected failure of archive filename assertions using HEAD tree rather than staged write-tree"
+  },
+  "limitations": [
+    "Native Windows rerun required.",
+    "Actual GitHub tarball was not downloaded; local git archive producer is used.",
+    "Long Unicode names can require PAX under Git too; native Windows PAX charset behavior remains an unresolved preexisting limitation, not claimed fixed."
+  ]
+}

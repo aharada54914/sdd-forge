@@ -1,0 +1,12 @@
+diff --git a/specs/epic-197-a9-dogfood/candidate/project-context.yaml b/specs/epic-197-a9-dogfood/candidate/project-context.yaml
+index 968c944f..ad999417 100644
+--- a/specs/epic-197-a9-dogfood/candidate/project-context.yaml
++++ b/specs/epic-197-a9-dogfood/candidate/project-context.yaml
+@@ -138,6 +138,7 @@ components:
+       include:
+         - "install.sh"
+         - "install.ps1"
++        - "install-payload.txt"
+         - "uninstall.sh"
+         - "uninstall.ps1"
+         - "scripts/bump-version.sh"

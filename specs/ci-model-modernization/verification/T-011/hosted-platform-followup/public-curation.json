@@ -1,0 +1,126 @@
+{
+  "schema": "hosted-platform-followup-public-curation/v1",
+  "scope": "Exact bounded public facts/patches/local receipts and hosted failure excerpts only; text normalization declared in evidence receipt",
+  "files": {
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/README.md": {
+      "sha256": "7b3e4138d15ae7398a13721e160d23a2fa4bfb8a806efac4ba6448ed605a6cbe",
+      "bytes": 2470
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/candidate.patch": {
+      "sha256": "7d3892ee3375d726f188e9cd1fcdef845f4d46759e7aa693ff3e28606bb3077f",
+      "bytes": 1608
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/green-bash.log": {
+      "sha256": "ee8a95c2360707b2360566fe9ffe49246d0acad68a8e2db13c93801f15130bfc",
+      "bytes": 235
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/green-powershell.log": {
+      "sha256": "5a5378a545cf5dad09b36d621a77b0696c3fdeca7cc1a942f62b8507a5867705",
+      "bytes": 235
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/missing-names-control.log": {
+      "sha256": "b532499307c4c02de4689977b241733f8390635771421a6a92bcaff8fee34c7d",
+      "bytes": 2807
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/producer-comparison.json": {
+      "sha256": "4cd0d4d08053e12c373beba727b17c73e72627e9c1cccbdc6b5c3b3632053e68",
+      "bytes": 1023
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/archive-fixture/verification.json": {
+      "sha256": "5ba11351ddcfa989b79321e9863bcc76b84ce2db92e6a8239939ac81145d6310",
+      "bytes": 1400
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/evidence-receipt.json": {
+      "sha256": "6e9b9699316355baa9e50757fd4be6cc98eaa1c06f42871e5f22c7c782b72f4f",
+      "bytes": 17388
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/installer-windows-core-failure-excerpt.log": {
+      "sha256": "8b875ab34c8038bc0ba7148a2c3587751168cf8964a0b697f9c1b5dc596bd66a",
+      "bytes": 2573
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/supersession.json": {
+      "sha256": "56aa97f3bc2e6d38c860c3b633288bf00301d49c88e4550cff9dc2b13a8c4c46",
+      "bytes": 1131
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/version-119274595707-failure-excerpt.log": {
+      "sha256": "65fb913590f2999a21e461562473d6a2bec0db56348b72e8d58308a2b62f9e5b",
+      "bytes": 6007
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/hosted/version-119274595820-failure-excerpt.log": {
+      "sha256": "bf369635c1b494fa81c76d2d09bc13a494cd8c618d95433c5cb16acbc737388c",
+      "bytes": 5559
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/loop-restricted-path/candidate.patch": {
+      "sha256": "b7a008418121c719e282946d130025c9ee21106880ed7ffee70416fd4f1b3232",
+      "bytes": 590
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/loop-restricted-path/green.log": {
+      "sha256": "fd4185083b05628736b54348617190614d46551fd85bba5b6b2901fe9033717a",
+      "bytes": 5360
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/loop-restricted-path/hosted-errors.log": {
+      "sha256": "7fc57ac652e1fd6a2d2d71bdf6980275fa9473e49c2da62918f10ae7f09b850c",
+      "bytes": 880
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/loop-restricted-path/manifest.json": {
+      "sha256": "b4d0e3145f6889671e5bdaa7827c060ab805ae76770090690f288b1544d4d147",
+      "bytes": 898
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/loop-restricted-path/syntax.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/loop-restricted-path/verification.json": {
+      "sha256": "da0d9ef86027b244de2e42a854af4f497c0a29104abbb91c05d9c83af80c2548",
+      "bytes": 1521
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/baseline-red.log": {
+      "sha256": "84fce9982f4773ab4ac51dabf45917eb54ab1001b852c055f508348ea7ec0d0b",
+      "bytes": 1672
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/candidate-green.log": {
+      "sha256": "a846a517c3084b2d3457ba4ef63878b9f99ce380b0d2117910f6e3a4af9bf681",
+      "bytes": 133
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/candidate-reversion.json": {
+      "sha256": "0bd0821f7096123ec9aca28c31f3877925b2097dfc6805af553510f6cabb5591",
+      "bytes": 586
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/candidate.patch": {
+      "sha256": "c22b464ac4fa797f37d0cf259dcf2c97196b982f2bbec82f63c3d5bd1654d22b",
+      "bytes": 507
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/mypy-baseline.log": {
+      "sha256": "73a6c12d3d3c045aa09e3424d002008a3364eef55c1a6f899dcd48c48b9a15bf",
+      "bytes": 7207
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/mypy-candidate.log": {
+      "sha256": "20bbdc93ffb63b510a77fd02e9a1ce66f7407a482f09ae193bd5d9e117cca5c8",
+      "bytes": 5410
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/mypy-comparison.json": {
+      "sha256": "ce1065ed3babd531b5f38ae23f535840356a3e133886df80977fd2f35ab87132",
+      "bytes": 7684
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/restore.log": {
+      "sha256": "d712c188974ab35b534be1f172a858520983896dc30dd74c6233fe0cef31ce38",
+      "bytes": 601
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/revert.log": {
+      "sha256": "6bc36db2287d6924a0de46abf26ce0f74035d0de47512685f615679ec586142d",
+      "bytes": 632
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/ruff.log": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/ownership/verification.json": {
+      "sha256": "950aea5e166e10a51bcc8fb30604e84507677586b3048a3316c259996a083d97",
+      "bytes": 1698
+    }
+  }
+}

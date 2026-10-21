@@ -1,0 +1,31 @@
+{
+  "status": "SUPERSEDED_DIAGNOSTIC_ONLY_NOT_ACCEPTANCE",
+  "baseline": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "mutation": "67f66723ab98ffab6aeef220fee4a942c8f2a821",
+  "restore": "651151c61956437f70069d95a70e4055d9a93359",
+  "reason": "Actual hosted Windows archive special-name failure and A9 installer payload ownership omission require source correction and fresh baseline.",
+  "runs": [
+    39615251761,
+    39615327268
+  ],
+  "activation_performed": false,
+  "observed_at": "2026-10-21T14:22:21.077493+00:00",
+  "logs": [
+    {
+      "path": "version-119274595707-connector.log",
+      "sha256": "ebaf869e6fda622280ee55e9b44efdcc010c56b20d0469490e445cd70281dd4f"
+    },
+    {
+      "path": "version-119274595820-connector.log",
+      "sha256": "b98aec08c34b7b5b3276864afe58a7e00105b03eb030c29e6046a95f20200331"
+    },
+    {
+      "path": "mutation-version-connector.log",
+      "sha256": "6492752586c90f1c0bb9aa12296362639df4162daa8166503b36581b320efcde"
+    },
+    {
+      "path": "installer-windows-core-connector.log",
+      "sha256": "f738750509ec3259378c626e47cf2a3476411e993355bcf95e73ffb0bc521c70"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "method": "CLI explicit candidate input; original and restored candidate bytes in external scratch; repository source unchanged during comparison",
+  "observed_at": "2026-10-21T14:24:49.691703+00:00",
+  "checks": [
+    {
+      "phase": "revert",
+      "exit_code": 1,
+      "candidate_sha256": "57178adcee2d11ccb8660c6127cf395177ee9129cd25a2e19557c1f95f50cd10",
+      "log": "revert.log"
+    },
+    {
+      "phase": "restore",
+      "exit_code": 0,
+      "candidate_sha256": "7997eae6c9d2277ef62394c34756671c401fd7b96cb492fbc8324433f3fed212",
+      "log": "restore.log"
+    }
+  ]
+}
