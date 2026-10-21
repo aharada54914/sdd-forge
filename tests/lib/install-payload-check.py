@@ -655,7 +655,11 @@ class PayloadChecks(unittest.TestCase):
             with self.subTest(unsafe_name=name):
                 archive = windows_zip_archive(self.fx.archive(), self.tmp / f"unsafe-{index}.zip")
                 with zipfile.ZipFile(archive, "a") as target:
-                    target.writestr(name, b"untrusted fixture bytes")
+                    item = zipfile.ZipInfo(name)
+                    item.filename = name  # Bypass Windows separator normalization for this negative fixture.
+                    target.writestr(item, b"untrusted fixture bytes")
+                with zipfile.ZipFile(archive) as target:
+                    self.assertIn(name, [item.orig_filename for item in target.infolist()])
                 root = self.root_for("zip-unsafe-" + str(index))
                 self.precreate_install(root)
                 self.install_fails(root, archive=archive, skip_mcp=True)

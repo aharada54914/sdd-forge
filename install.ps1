@@ -323,7 +323,7 @@ function Test-PlainItem {
     param([Parameter(Mandatory)][string]$Path)
 
     try {
-        if ($archiveSymlinkPaths.Contains([System.IO.Path]::GetFullPath($Path))) { return $false }
+        if ($archiveSymlinkPaths.Contains([System.IO.Path]::GetFullPath($Path).TrimEnd([char[]]@('\', '/')))) { return $false }
         return (([System.IO.File]::GetAttributes($Path) -band [System.IO.FileAttributes]::ReparsePoint) -eq 0)
     }
     catch {
@@ -607,7 +607,7 @@ function Expand-DownloadedZipArchive {
                 # the existing admitted-payload and MCP symlink checks.
                 if ((($entry.ExternalAttributes -shr 16) -band 0xF000) -eq 0xA000) {
                     $path = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($DestinationPath, $entry.FullName))
-                    [void]$archiveSymlinkPaths.Add($path)
+                    [void]$archiveSymlinkPaths.Add($path.TrimEnd([char[]]@('\', '/')))
                 }
             }
         } finally { $archive.Dispose() }
@@ -825,6 +825,9 @@ try {
             Select-Object -First 1 -ExpandProperty FullName
         if (-not $sourceRoot) {
             throw "The downloaded archive does not contain an SDD plugin marketplace."
+        }
+        if (-not (Test-PlainItem $sourceRoot)) {
+            throw "Refusing downloaded source root with symlink/reparse metadata."
         }
     }
 
