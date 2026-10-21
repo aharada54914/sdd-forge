@@ -1,0 +1,131 @@
+FFFFFF
+======================================================================
+FAIL: test_core_required_files_fail_closed (payload.PayloadChecks.test_core_required_files_fail_closed) (path='plugins/sdd-bootstrap/.claude-plugin/plugin.json', source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 598, in test_core_required_files_fail_closed
+    self.install_fails(root, skip_mcp=True, **kwargs)
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 436, in install_fails
+    self.assertNotEqual(result.returncode, 0, "installer unexpectedly succeeded\n" + describe(result))
+AssertionError: 0 == 0 : installer unexpectedly succeeded
+argv: ['/usr/bin/bash', '/workspace/distribution-audit/followup-candidate/install.sh', '--install-root', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-0-archive/sdd-plugins', '--target', 'FilesOnly', '--skip-plugin-install', '--skip-agent-install', '--skip-mcp']
+exit: 0
+stdout:
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+
+SDD plugins installed at: /workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-0-archive/sdd-plugins
+Plugin registration was skipped because --target=FilesOnly.
+
+stderr:
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+
+======================================================================
+FAIL: test_core_required_files_fail_closed (payload.PayloadChecks.test_core_required_files_fail_closed) (path='plugins/sdd-implementation/.claude-plugin/plugin.json', source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 598, in test_core_required_files_fail_closed
+    self.install_fails(root, skip_mcp=True, **kwargs)
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 436, in install_fails
+    self.assertNotEqual(result.returncode, 0, "installer unexpectedly succeeded\n" + describe(result))
+AssertionError: 0 == 0 : installer unexpectedly succeeded
+argv: ['/usr/bin/bash', '/workspace/distribution-audit/followup-candidate/install.sh', '--install-root', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-1-archive/sdd-plugins', '--target', 'FilesOnly', '--skip-plugin-install', '--skip-agent-install', '--skip-mcp']
+exit: 0
+stdout:
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+
+SDD plugins installed at: /workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-1-archive/sdd-plugins
+Plugin registration was skipped because --target=FilesOnly.
+
+stderr:
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+
+======================================================================
+FAIL: test_core_required_files_fail_closed (payload.PayloadChecks.test_core_required_files_fail_closed) (path='plugins/sdd-quality-loop/.claude-plugin/plugin.json', source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 598, in test_core_required_files_fail_closed
+    self.install_fails(root, skip_mcp=True, **kwargs)
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 436, in install_fails
+    self.assertNotEqual(result.returncode, 0, "installer unexpectedly succeeded\n" + describe(result))
+AssertionError: 0 == 0 : installer unexpectedly succeeded
+argv: ['/usr/bin/bash', '/workspace/distribution-audit/followup-candidate/install.sh', '--install-root', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-2-archive/sdd-plugins', '--target', 'FilesOnly', '--skip-plugin-install', '--skip-agent-install', '--skip-mcp']
+exit: 0
+stdout:
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+
+SDD plugins installed at: /workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-2-archive/sdd-plugins
+Plugin registration was skipped because --target=FilesOnly.
+
+stderr:
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+
+======================================================================
+FAIL: test_core_required_files_fail_closed (payload.PayloadChecks.test_core_required_files_fail_closed) (path='plugins/sdd-lite/.claude-plugin/plugin.json', source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 598, in test_core_required_files_fail_closed
+    self.install_fails(root, skip_mcp=True, **kwargs)
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 436, in install_fails
+    self.assertNotEqual(result.returncode, 0, "installer unexpectedly succeeded\n" + describe(result))
+AssertionError: 0 == 0 : installer unexpectedly succeeded
+argv: ['/usr/bin/bash', '/workspace/distribution-audit/followup-candidate/install.sh', '--install-root', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-3-archive/sdd-plugins', '--target', 'FilesOnly', '--skip-plugin-install', '--skip-agent-install', '--skip-mcp']
+exit: 0
+stdout:
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+
+SDD plugins installed at: /workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-3-archive/sdd-plugins
+Plugin registration was skipped because --target=FilesOnly.
+
+stderr:
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+
+======================================================================
+FAIL: test_core_required_files_fail_closed (payload.PayloadChecks.test_core_required_files_fail_closed) (path='plugins/sdd-bootstrap/skills/bootstrap/SKILL.md', source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 598, in test_core_required_files_fail_closed
+    self.install_fails(root, skip_mcp=True, **kwargs)
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 436, in install_fails
+    self.assertNotEqual(result.returncode, 0, "installer unexpectedly succeeded\n" + describe(result))
+AssertionError: 0 == 0 : installer unexpectedly succeeded
+argv: ['/usr/bin/bash', '/workspace/distribution-audit/followup-candidate/install.sh', '--install-root', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-4-archive/sdd-plugins', '--target', 'FilesOnly', '--skip-plugin-install', '--skip-agent-install', '--skip-mcp']
+exit: 0
+stdout:
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+
+SDD plugins installed at: /workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-4-archive/sdd-plugins
+Plugin registration was skipped because --target=FilesOnly.
+
+stderr:
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+
+======================================================================
+FAIL: test_core_required_files_fail_closed (payload.PayloadChecks.test_core_required_files_fail_closed) (path='plugins/sdd-ship/skills/ship/SKILL.md', source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 598, in test_core_required_files_fail_closed
+    self.install_fails(root, skip_mcp=True, **kwargs)
+  File "/workspace/distribution-audit/followup-candidate/install-payload-check.py", line 436, in install_fails
+    self.assertNotEqual(result.returncode, 0, "installer unexpectedly succeeded\n" + describe(result))
+AssertionError: 0 == 0 : installer unexpectedly succeeded
+argv: ['/usr/bin/bash', '/workspace/distribution-audit/followup-candidate/install.sh', '--install-root', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-5-archive/sdd-plugins', '--target', 'FilesOnly', '--skip-plugin-install', '--skip-agent-install', '--skip-mcp']
+exit: 0
+stdout:
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+
+SDD plugins installed at: /workspace/.task-scratch/ci-model-modernization/sdd-payload-run-no_gpn10/required-5-archive/sdd-plugins
+Plugin registration was skipped because --target=FilesOnly.
+
+stderr:
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 6.332s
+
+FAILED (failures=6)

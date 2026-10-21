@@ -1,0 +1,11 @@
+{
+  "recorded_at": "2026-10-21T13:46:13.733703+00:00",
+  "tests_first_commit": "88c150aa75d37046a55b0c00dabe05d1699b312c",
+  "product_not_yet_applied": {
+    "install.sh": "2bbeaa197eaa62df351d8c0412fc3eae748f3e8ec61f4bd5d19b94a25f28f94b",
+    "install.ps1": "8960c8e16318e919ee9bc3419b7dac7b7bce64f427015af1551e8e48335b81aa",
+    "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a"
+  },
+  "root_red_receipt": "root-red.json",
+  "origin": "User-forwarded Claude cloud read-only audit of 80b7dff0; independently reproduced against current source"
+}

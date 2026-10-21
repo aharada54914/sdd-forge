@@ -1,0 +1,96 @@
+--- a/install.sh
++++ b/install.sh
+@@ -842,17 +842,23 @@
+ # Validate required paths
+ # ---------------------------------------------------------------------------
+ REQUIRED_PATHS=(
++    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
++    "plugins/sdd-ship/skills/ship/SKILL.md"
+     ".agents/plugins/marketplace.json"
+     ".claude-plugin/marketplace.json"
++    "plugins/sdd-bootstrap/.claude-plugin/plugin.json"
+     "plugins/sdd-bootstrap/.codex-plugin/plugin.json"
+     "plugins/sdd-bootstrap/.plugin/plugin.json"
+     "plugins/sdd-ship/.claude-plugin/plugin.json"
+     "plugins/sdd-ship/.codex-plugin/plugin.json"
+     "plugins/sdd-ship/.plugin/plugin.json"
++    "plugins/sdd-implementation/.claude-plugin/plugin.json"
+     "plugins/sdd-implementation/.codex-plugin/plugin.json"
+     "plugins/sdd-implementation/.plugin/plugin.json"
++    "plugins/sdd-quality-loop/.claude-plugin/plugin.json"
+     "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
+     "plugins/sdd-quality-loop/.plugin/plugin.json"
++    "plugins/sdd-lite/.claude-plugin/plugin.json"
+     "plugins/sdd-lite/.codex-plugin/plugin.json"
+     "plugins/sdd-lite/.plugin/plugin.json"
+     "plugins/sdd-review-loop/.claude-plugin/plugin.json"
+--- a/install.ps1
++++ b/install.ps1
+@@ -884,9 +884,29 @@
+     # (dist/index.js + package.json only, gated by -SkipMcp / -Mcp / the
+     # Node >= 22.19.0 check).
+     if ($isLocalSource) {
+-        $candidatePaths = @(& git -C $sourceRoot ls-files)
+-        if ($LASTEXITCODE -ne 0) {
+-            throw "Unable to enumerate Git-tracked source files."
++        # Read the NUL-delimited UTF-8 stream directly: PowerShell's native
++        # pipeline splits lines, while Git's ordinary output quotes special names.
++        # Fixed arguments and WorkingDirectory also avoid shell/path quoting.
++        $gitInfo = New-Object System.Diagnostics.ProcessStartInfo
++        $gitInfo.FileName = @(Get-Command git -CommandType Application -ErrorAction Stop)[0].Source
++        $gitInfo.Arguments = "ls-files -z"
++        $gitInfo.WorkingDirectory = $sourceRoot
++        $gitInfo.UseShellExecute = $false
++        $gitInfo.RedirectStandardOutput = $true
++        $gitInfo.StandardOutputEncoding = [System.Text.Encoding]::UTF8
++        $gitProcess = New-Object System.Diagnostics.Process
++        $gitProcess.StartInfo = $gitInfo
++        try {
++            [void]$gitProcess.Start()
++            $trackedOutput = $gitProcess.StandardOutput.ReadToEnd()
++            $gitProcess.WaitForExit()
++            if ($gitProcess.ExitCode -ne 0) {
++                throw "Unable to enumerate Git-tracked source files."
++            }
++            $candidatePaths = $trackedOutput.Split([char]0, [System.StringSplitOptions]::RemoveEmptyEntries)
++        }
++        finally {
++            $gitProcess.Dispose()
+         }
+     }
+     else {
+--- a/install-payload.txt
++++ b/install-payload.txt
+@@ -1,4 +1,4 @@
+-# install-payload.txt — what install.sh / install.ps1 copy into the install root.
++# install-payload.txt — runtime and user reference documents copied by both installers.
+ #
+ # Consumed by BOTH installers for local Git sources and for downloaded archives.
+ # One entry per line; blank lines and '#' comments are ignored.
+@@ -23,7 +23,6 @@
+ plugins/
+ contracts/
+ templates/cloud/
+-skills/adversarial-review/
+ scripts/check-sdd-structure.sh
+ install.sh
+ install.ps1
+@@ -48,5 +47,5 @@
+ docs/workflow-guide.md
+ docs/architecture/
+ docs/adr/
+-docs/contributor/
+-docs/workflow-improvements/retention-checklist.md
++docs/contributor/workflow-detail.md
++docs/contributor/skill-reference-detail.md
+--- a/docs/contributor/workflow-detail.md
++++ b/docs/contributor/workflow-detail.md
+@@ -551,7 +551,7 @@
+ 2026-10-05の確認では [週次 Actions](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/workflows/self-improvement.yml) は `active` で、
+ [Actions 用指示](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/self-improvement-prompt.md) に従って稼働しています。
+ ローカル Codex 監査も2026-10-05に実行され、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。
+-日付付きの根拠、移行時の記録、両経路の実行前確認は [週次ローカル監査](weekly-local-codex-audit.md) を参照してください。
++日付付きの根拠、移行時の記録、両経路の実行前確認は [週次ローカル監査](https://github.com/aharada54914/sdd-forge/blob/work/docs/contributor/weekly-local-codex-audit.md) を参照してください。
+ 過去の「無効化済み」を現在の設定と扱わず、正本の選択やスケジュール変更は所有者が判断します。
+ 以下の表と調停ルールは、WFI と**ローカル Codex の週次監査**の境界を示します。Actions 経路の変更・投稿権限は [Actions 用指示](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/self-improvement-prompt.md) とワークフローのガードが定めており、ここでローカル専用の承認済みタスク限定・外部投稿禁止を Actions に適用するものではありません。
+ 

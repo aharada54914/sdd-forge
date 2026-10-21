@@ -884,9 +884,29 @@ try {
     # (dist/index.js + package.json only, gated by -SkipMcp / -Mcp / the
     # Node >= 22.19.0 check).
     if ($isLocalSource) {
-        $candidatePaths = @(& git -C $sourceRoot ls-files)
-        if ($LASTEXITCODE -ne 0) {
-            throw "Unable to enumerate Git-tracked source files."
+        # Read the NUL-delimited UTF-8 stream directly: PowerShell's native
+        # pipeline splits lines, while Git's ordinary output quotes special names.
+        # Fixed arguments and WorkingDirectory also avoid shell/path quoting.
+        $gitInfo = New-Object System.Diagnostics.ProcessStartInfo
+        $gitInfo.FileName = @(Get-Command git -CommandType Application -ErrorAction Stop)[0].Source
+        $gitInfo.Arguments = "ls-files -z"
+        $gitInfo.WorkingDirectory = $sourceRoot
+        $gitInfo.UseShellExecute = $false
+        $gitInfo.RedirectStandardOutput = $true
+        $gitInfo.StandardOutputEncoding = [System.Text.Encoding]::UTF8
+        $gitProcess = New-Object System.Diagnostics.Process
+        $gitProcess.StartInfo = $gitInfo
+        try {
+            [void]$gitProcess.Start()
+            $trackedOutput = $gitProcess.StandardOutput.ReadToEnd()
+            $gitProcess.WaitForExit()
+            if ($gitProcess.ExitCode -ne 0) {
+                throw "Unable to enumerate Git-tracked source files."
+            }
+            $candidatePaths = $trackedOutput.Split([char]0, [System.StringSplitOptions]::RemoveEmptyEntries)
+        }
+        finally {
+            $gitProcess.Dispose()
         }
     }
     else {

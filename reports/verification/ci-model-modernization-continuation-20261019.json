@@ -52,7 +52,7 @@
       {
         "task": "T-010",
         "title": "Controlled model adoption evaluation",
-        "status": "Planned"
+        "status": "Done"
       },
       {
         "task": "T-011",
@@ -129,12 +129,12 @@
     ]
   },
   "latest_completed": {
-    "task_id": "T-008",
-    "quality_report": "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
-    "bundle": "specs/ci-model-modernization/verification/T-008.evidence.json",
-    "actual_review": "QA2 PASS 0C/0M/0m"
+    "task_id": "T-010",
+    "quality_report": "reports/quality-gate/20261021-ci-model-modernization-T-010-cycle-1.md",
+    "bundle": "specs/ci-model-modernization/verification/T-010.evidence.json",
+    "actual_review": "QA1 PASS 0C/0M/0m"
   },
-  "active": "T008 Done after independent QA2 PASS and checked evidence bundle; T010 controlled adoption is next, not completed.",
+  "active": "T010 Done after actual independent QA1 PASS and checked bundle; T011 hosted/installer/documentation/final exact-revision release remains In Progress.",
   "cloud_release": {
     "tag": "v1.19.0",
     "tested_commit": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
@@ -200,7 +200,7 @@
     "question": "Dedicated EXPECTED_SKIP (null execution IDs) plus independent A9 activation proof, versus explicit A9-only NOT_SELECTED exception. Both require approved contract/counterpart review.",
     "state": "Approved and fully accepted; actual T0019/T0023 PASS0 with validatedbundles. RT007resolved.",
     "downstream": "T003 Done; T004 In Progress; no pending A9 permission.",
-    "latest_user_message_interpretation": "Actual user said よい in response to the EXPECTED_SKIP proposal; approved amendment is recorded, not pending permission."
+    "latest_user_message_interpretation": "Actual user said \u3088\u3044 in response to the EXPECTED_SKIP proposal; approved amendment is recorded, not pending permission."
   },
   "read_only_native_acquisition": {
     "evidence": "specs/ci-model-modernization/verification/T-002/read-only-api-smoke/execution.json",
@@ -356,7 +356,7 @@
     "current_fix_report_sha256": "0fcea36984f07a1f6fb1a62c4503e5e8cfc7444cf28f85843e74681f9f237710",
     "current_helper_sha256": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894"
   },
-  "updated_at": "2026-10-20T18:24:43Z",
+  "updated_at": "2026-10-21T13:48:51Z",
   "t005_current_gate": {
     "state": "Done after actual QA2 PASS0 and generated/checked evidence bundle",
     "actual_context": "/root/t005_cycle2_evaluator",
@@ -1770,7 +1770,7 @@
     "focused": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
     "legacy": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json",
     "full_running": "specs/ci-model-modernization/verification/T-008/root-current-installed-11",
-    "remaining": "Batch implementation, self-improvement actual action boundary, default/otherhost inventory closure, wholeT008rollback, finalreport/independentQA0, T009–T011.",
+    "remaining": "Batch implementation, self-improvement actual action boundary, default/otherhost inventory closure, wholeT008rollback, finalreport/independentQA0, T009\u2013T011.",
     "boundary": "Plugin AGENTS are product data per user; approved development Skill2 edits authorized. Runtime protected renderer/installer/human-copy behavior retained.",
     "full_evidence": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json"
   },
@@ -1908,5 +1908,76 @@
     "model_adoption": "none",
     "version_tag": "no new version/tag; v1.19.0 remote tag object preserved"
   },
-  "latest_checkpoint_at": "2026-10-20T19:30:30.664905+00:00"
+  "latest_checkpoint_at": "2026-10-20T19:30:30.664905+00:00",
+  "continuation_20261021": {
+    "updated_at": "2026-10-21T13:48:47.344605+00:00",
+    "codex_device_auth": "completed successfully; no credentials recorded",
+    "github_force_full_variable": "user confirmed false; effective PR plan still to verify",
+    "model_trials": {
+      "attempt": 3,
+      "completed": 19,
+      "total": 20,
+      "harbor_deterministic_pass": 4,
+      "orchard_deterministic_fail": 4,
+      "meadow_deterministic_pass": 4,
+      "status": "Actual independent T010 QA PASS, zero Critical/Major/Minor; 424 input pins unchanged; formal bundle/Done integration in progress",
+      "deterministic_pass": 9,
+      "deterministic_fail": 11
+    },
+    "hosted_full_run": {
+      "id": 39598838307,
+      "revision": "e845fbc8942b7ee496b9f9928e5ada61443048d9",
+      "status": "completed failure; fixes committed through 593a7e98; next exact-commit full hosted run pending"
+    },
+    "distribution": {
+      "baseline_files": 16408,
+      "baseline_bytes": 189910946,
+      "candidate_files": 614,
+      "candidate_bytes": 6942395,
+      "status": "product committed 2b3d444d; both native installers and runtime callers passed; final released audit pending",
+      "followup": {
+        "tests_first_commit": "88c150aa",
+        "root_red": "Bash 13 failing assertions, PowerShell 10; meaningful missing guards/quoted names/developer payload reproductions",
+        "root_green": "9/9 tests passed in each runtime, source pins unchanged",
+        "fixes": [
+          "Six missing Bash core required-file guards",
+          "NUL-delimited UTF-8 tracked paths in PowerShell",
+          "Exclude four maintainer docs, populated retention checklist and manual-only standalone skill"
+        ],
+        "retained_user_references": [
+          "Normative/indexed ADR documents",
+          "CHANGELOG migration history",
+          "Documented reproducible private-ec2 example lockfile"
+        ],
+        "final_committed_install_audit": "pending"
+      }
+    },
+    "task_plan": "attempt4round3 actual A14/B9 PASS; workflow gate PASS",
+    "release": "1.20.0 candidate version surfaces prepared; no new tag; v1.19.0 unchanged",
+    "pushed_head": "593a7e98",
+    "claude_delegation": {
+      "local_limit_reset_utc": "2026-10-21T16:00:00Z",
+      "cloud_session_creation": "succeeded",
+      "cloud_result": "User forwarded completed read-only source audit of 80b7dff0; no installer execution claimed",
+      "private_session_metadata": "retained outside public repository"
+    },
+    "artifact_transport": {
+      "gh_download": "HTTP403 at artifact storage redirect",
+      "authorized_github_connector": "successful probe download; GitHub SHA256 verified; external transport adapter prepared and 8 synthetic controller checks passed; actual collection pending"
+    },
+    "head": "2b814eee"
+  },
+  "t010_final": {
+    "status": "Done",
+    "recorded_at": "2026-10-21T13:48:51Z",
+    "quality_report": "reports/quality-gate/20261021-ci-model-modernization-T-010-cycle-1.md",
+    "bundle": "specs/ci-model-modernization/verification/T-010.evidence.json",
+    "independent_actual_context": "/root/t010_cycle1_evaluator",
+    "reviewer_model": "unknown",
+    "reviewer_effort": "unknown",
+    "input_pins_verified": 424,
+    "input_mismatches": 0,
+    "scope": "T010 controlled adoption subset Done after actual fresh independent implementation QA1 PASS (0 Critical, 0 Major, 0 Minor), verified424-input delivery and generated/checked evidence bundle. Current registered Astra implementer receives scoped evidence reference only; experimental Sol pass remains withheld as unregistered and failed reviewer/investigator/skill roles remain withheld. Two repetitions and fixture-only installed availability do not claim universal quality or actual backend identity. Shared downstream T011 hosted activation/final release scope remains incomplete; shared requirement status is not promoted by this scoped completion.",
+    "commands_receipt": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/results.json"
+  }
 }

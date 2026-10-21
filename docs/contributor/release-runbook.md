@@ -173,14 +173,15 @@ failure()` を追加することで、このゲートを無効化できる可能
 
 順序の補足（最終コミットを F とする）:
 
-現在、ci-model-modernization の T-010 比較試行は認証エラーで停止しており、
-T-011 は進行中です。候補モデルの採用、CI カテゴリの有効化、新しいバージョンや
-タグの公開は未実施です。以下は、残る検証を終えて公開するときの手順です。
+モデル採用の状態は対象 revision の [model-policy.v1.json](../../contracts/model-policy.v1.json)
+と採用証跡、CI カテゴリの適格性はリポジトリの対象 revision にある `tests/verification-catalog.json`
+と検証済みの `evidence` 参照で確認します。実行・公開の完了は、その revision に
+結び付いた実際の CI 結果とタグ・配布記録が示します。手順の記載自体は完了の証明ではありません。
 新しい CI 設定を使う PR では、先に信頼済みベースの planner を対応版へ更新します。
 旧版による設定の拒否は full 強制でも解消しないため、対応するツールを揃えた
 revision で手動 full を確認してください。
 
-1. docs と version（CHANGELOG の Unreleased を含む）を先に確定し、curated な最終コミット F を作ります。
+1. docs・version・通常のコードとテスト定義を比較ベースライン B より前に確定します。有効化する場合は B の実際の full 結果、失敗 mutation と復元、検証済みの証跡を揃え、許可された証跡と catalog の有効化参照だけを追加して最終コミット F を作ります。B 後に通常の文書や実装を変更した場合は、既存の freshness 検証に従ってベースラインを取り直します。測定結果と公開記録は revision に結び付いた証跡に残します。
 2. F で、隔離した checkout のローカル full と、実際の hosted full を実行します。fixture の結果は hosted の観測の代わりになりません。
 3. リリース対象コードの必須チェックを通してから、F に新しい注釈付き不変タグ `v<version>` を作ります。既存タグは変更せず、リモートの既存タグが変わっていないことも確認します。
 4. PR のテスト済みマージ revision と release F は別物です。branch 名での `workflow_dispatch` は raw SHA の指定ではないため、対象 ref が F を指し、実際の CI head SHA も F と一致することを確認します。merge_group の限界（OQ-001）は残ります。

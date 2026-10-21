@@ -1,0 +1,183 @@
+F.F..FFF.FFFFF
+======================================================================
+FAIL: test_archive_source_installs_the_same_payload (__main__.PayloadChecks.test_archive_source_installs_the_same_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 501, in test_archive_source_installs_the_same_payload
+    self.assert_payload(root)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 465, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['docs/contributor/release-runbook.md', 'd[235 chars].md'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'docs/contributor/release-runbook.md'
+
++ []
+- ['docs/contributor/release-runbook.md',
+-  'docs/contributor/weekly-local-codex-audit.md',
+-  'docs/contributor/self-improvement-measurement-proposal.md',
+-  'docs/contributor/shared-file-mirrors.md',
+-  'docs/workflow-improvements/retention-checklist.md',
+-  'skills/adversarial-review/SKILL.md'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_local_source_installs_only_the_payload (__main__.PayloadChecks.test_local_source_installs_only_the_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 491, in test_local_source_installs_only_the_payload
+    self.assert_payload(root)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 465, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['docs/contributor/release-runbook.md', 'd[235 chars].md'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'docs/contributor/release-runbook.md'
+
++ []
+- ['docs/contributor/release-runbook.md',
+-  'docs/contributor/weekly-local-codex-audit.md',
+-  'docs/contributor/self-improvement-measurement-proposal.md',
+-  'docs/contributor/shared-file-mirrors.md',
+-  'docs/workflow-improvements/retention-checklist.md',
+-  'skills/adversarial-review/SKILL.md'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_mcp_placement_is_exactly_index_and_package (__main__.PayloadChecks.test_mcp_placement_is_exactly_index_and_package) (source='local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 518, in test_mcp_placement_is_exactly_index_and_package
+    self.assert_payload(root, mcp=MCP)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 465, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['docs/contributor/release-runbook.md', 'd[235 chars].md'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'docs/contributor/release-runbook.md'
+
++ []
+- ['docs/contributor/release-runbook.md',
+-  'docs/contributor/weekly-local-codex-audit.md',
+-  'docs/contributor/self-improvement-measurement-proposal.md',
+-  'docs/contributor/shared-file-mirrors.md',
+-  'docs/workflow-improvements/retention-checklist.md',
+-  'skills/adversarial-review/SKILL.md'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_mcp_placement_is_exactly_index_and_package (__main__.PayloadChecks.test_mcp_placement_is_exactly_index_and_package) (source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 518, in test_mcp_placement_is_exactly_index_and_package
+    self.assert_payload(root, mcp=MCP)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 465, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['docs/contributor/release-runbook.md', 'd[235 chars].md'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'docs/contributor/release-runbook.md'
+
++ []
+- ['docs/contributor/release-runbook.md',
+-  'docs/contributor/weekly-local-codex-audit.md',
+-  'docs/contributor/self-improvement-measurement-proposal.md',
+-  'docs/contributor/shared-file-mirrors.md',
+-  'docs/workflow-improvements/retention-checklist.md',
+-  'skills/adversarial-review/SKILL.md'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_mcp_placement_is_exactly_index_and_package (__main__.PayloadChecks.test_mcp_placement_is_exactly_index_and_package)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 521, in test_mcp_placement_is_exactly_index_and_package
+    self.assert_payload(selected, mcp=["local-env-mcp"])
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 465, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['docs/contributor/release-runbook.md', 'd[235 chars].md'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'docs/contributor/release-runbook.md'
+
++ []
+- ['docs/contributor/release-runbook.md',
+-  'docs/contributor/weekly-local-codex-audit.md',
+-  'docs/contributor/self-improvement-measurement-proposal.md',
+-  'docs/contributor/shared-file-mirrors.md',
+-  'docs/workflow-improvements/retention-checklist.md',
+-  'skills/adversarial-review/SKILL.md'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='local', path='plugins/sdd-bootstrap/日本語.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 576, in test_tracked_special_names_survive_local_and_archive
+    self.assertTrue((root / rel).is_file(), rel)
+AssertionError: False is not true : plugins/sdd-bootstrap/日本語.txt
+
+======================================================================
+FAIL: test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='local', path='plugins/sdd-bootstrap/quoted"name.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 576, in test_tracked_special_names_survive_local_and_archive
+    self.assertTrue((root / rel).is_file(), rel)
+AssertionError: False is not true : plugins/sdd-bootstrap/quoted"name.txt
+
+======================================================================
+FAIL: test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='local', path='plugins/sdd-bootstrap/tab\tname.txt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 576, in test_tracked_special_names_survive_local_and_archive
+    self.assertTrue((root / rel).is_file(), rel)
+AssertionError: False is not true : plugins/sdd-bootstrap/tab	name.txt
+
+======================================================================
+FAIL: test_upgrade_removes_formerly_distributed_development_payload (__main__.PayloadChecks.test_upgrade_removes_formerly_distributed_development_payload) (source='local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 532, in test_upgrade_removes_formerly_distributed_development_payload
+    self.assert_payload(root)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 465, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['docs/contributor/release-runbook.md', 'd[235 chars].md'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'docs/contributor/release-runbook.md'
+
++ []
+- ['docs/contributor/release-runbook.md',
+-  'docs/contributor/weekly-local-codex-audit.md',
+-  'docs/contributor/self-improvement-measurement-proposal.md',
+-  'docs/contributor/shared-file-mirrors.md',
+-  'docs/workflow-improvements/retention-checklist.md',
+-  'skills/adversarial-review/SKILL.md'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_upgrade_removes_formerly_distributed_development_payload (__main__.PayloadChecks.test_upgrade_removes_formerly_distributed_development_payload) (source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 532, in test_upgrade_removes_formerly_distributed_development_payload
+    self.assert_payload(root)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 465, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['docs/contributor/release-runbook.md', 'd[235 chars].md'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'docs/contributor/release-runbook.md'
+
++ []
+- ['docs/contributor/release-runbook.md',
+-  'docs/contributor/weekly-local-codex-audit.md',
+-  'docs/contributor/self-improvement-measurement-proposal.md',
+-  'docs/contributor/shared-file-mirrors.md',
+-  'docs/workflow-improvements/retention-checklist.md',
+-  'skills/adversarial-review/SKILL.md'] : development payload leaked into the install
+
+----------------------------------------------------------------------
+Ran 9 tests in 30.847s
+
+FAILED (failures=10)

@@ -41,10 +41,13 @@ tested revision and uploads it as an artifact. On pull requests the planner is
 taken from the trusted base revision when that revision provides it.
 
 Unknown changes, missing comparison revisions, test infrastructure changes, and
-shared or sensitive changes retain the full profile. No narrower rollout
-category is active: the only catalog category (`readme-contract`) has
-`active: false`, so planned runs currently take the full profile. This
-document makes no measured-savings claim and schedules no activation.
+shared or sensitive changes retain the full profile. At the 2026-10-21
+pre-activation checkpoint, the only catalog category (`readme-contract`) had
+`active: false`. For any repository revision, use `tests/verification-catalog.json` at that revision
+and its validated `evidence` references to determine eligible categories; the
+actual uploaded plan and execution records establish what that run selected or
+omitted. Catalog eligibility at an experiment base does not establish rollout to
+main. This document alone establishes neither activation nor measured savings.
 
 `SDD_CI_FORCE_FULL` (a repository variable passed as `--force-full`) is a
 recovery switch. `true` forces the full profile. An absent or invalid value
@@ -58,8 +61,10 @@ trusted-base planners reject the new catalog's `setup` descriptors with
 Upgrade the trusted base to matching planner and catalog tooling before using
 the new CI configuration. For recovery, repair the incompatible inputs and run
 full manually on a revision with matching tooling; forcing full alone does not
-repair this parser incompatibility. The live repository variable's value has
-not been verified.
+repair this parser incompatibility. At the 2026-10-21 pre-activation checkpoint,
+the live repository variable's value had not been verified. Later setting
+observations must be dated and bound to the actual run; catalog eligibility alone
+does not establish the remote setting or selective execution.
 
 Receipts can be compared with the proposal to find failures it would have missed.
 Missing, skipped, or mismatched observations are not successful comparisons.
@@ -112,6 +117,7 @@ UNSUPPORTED_FILESYSTEM. Linux fixtures do not prove native Windows junction cove
 record that branch only after real CI execution. See [operator guide](cloud-orchestration.md).
 
 CI-efficiency research is not achieved savings. The legacy observation interface
-remains observational and no rollout category is active; skipped/planned checks
-are never PASS.
+remains observational. Category eligibility comes from the revision-bound catalog
+and validated proof, while actual CI behavior comes from its plan and execution
+records; skipped/planned checks are never PASS.
 Keep required-checks and native Windows compatibility/gate/A9 obligations intact.

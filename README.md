@@ -293,7 +293,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 ## モデルポリシーと CI 運用（概要）
 
 - **管理されたモデル選択**: 実装・調査・レビュー・ドメイン・監査・診断・自動化の各エントリは、共有モデルポリシーから互換な候補を解決します。`latest-compatible` は日付付きの観測と登録済みポリシーの優先順に基づく互換候補、`pinned` は明示指定です。導入済みホストに反映できない場合は `model-policy-error/v1` の typed stop で止まり、成功扱いにしません。設定・解決したモデルと実ターンで報告されたモデル ID は別物です。
-- **CI**: PR は信頼済みベースの planner で計画され、分類できない変更は保守的な full 計画になります。計画ジョブの失敗や破損した計画は必須チェックを失敗させます。新しい CI 設定を使う前に、信頼済みベースの planner を対応版へ更新する必要があります。現時点でロールアウトが有効なカテゴリはなく、削減率や実環境での採用は主張しません。復旧と必須コンテキストは [contributor/workflow-detail.md](docs/contributor/workflow-detail.md)、リリース手順は [contributor/release-runbook.md](docs/contributor/release-runbook.md) を参照してください。
+- **CI**: PR は信頼済みベースの planner で計画され、分類できない変更は保守的な full 計画になります。計画ジョブの失敗や破損した計画は必須チェックを失敗させます。新しい CI 設定を使う前に、信頼済みベースの planner を対応版へ更新する必要があります。カテゴリの有効性はリポジトリの対象 revision にある `tests/verification-catalog.json` と、その `evidence` が参照する検証結果で確認してください。2026-10-21 の有効化前チェックポイントでは全カテゴリが未有効であり、削減率や適用範囲は実際の計画・実行記録なしには主張しません。復旧と必須コンテキストは [contributor/workflow-detail.md](docs/contributor/workflow-detail.md)、リリース手順は [contributor/release-runbook.md（リポジトリ）](https://github.com/aharada54914/sdd-forge/blob/work/docs/contributor/release-runbook.md) を参照してください。
 - **範囲**: ChatGPT UI の親セッションや非管理の呼び出しは制御外です。外部送信の同意と独立レビューは変わりません。実クラウド受け入れ（#911）は未了のままで、ネイティブ実行の証明はホストごとに別です。
 
 詳細: [docs/workflow-guide.md](docs/workflow-guide.md#managed-model-operation)、[docs/agent-capability-matrix.md](docs/agent-capability-matrix.md)、[docs/verification.md](docs/verification.md)。公開済みタグから導入する場合は上記の `--ref <ref>` に注釈付きタグを指定します（`--source-directory` は Git 追跡済みファイルのみを読みます）。
@@ -315,14 +315,14 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |
 | [docs/adr/README.md](docs/adr/README.md) | ADR 索引と採番規約 |
-| [docs/contributor/](docs/contributor/) | 貢献者向け詳細（[workflow-detail.md](docs/contributor/workflow-detail.md) / [skill-reference-detail.md](docs/contributor/skill-reference-detail.md) / [release-runbook.md](docs/contributor/release-runbook.md)） |
+| [docs/contributor/](docs/contributor/) | 貢献者向け詳細（[workflow-detail.md](docs/contributor/workflow-detail.md) / [skill-reference-detail.md](docs/contributor/skill-reference-detail.md) / [release-runbook.md（リポジトリ）](https://github.com/aharada54914/sdd-forge/blob/work/docs/contributor/release-runbook.md)） |
 | [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
 | [specs/sdd-lite/design.md](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/specs/sdd-lite/design.md) | sdd-lite 設計 |
 | [plugins/sdd-lite/references/lite-flow-policy.md](plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |
 
 ## 週次セルフ改善 (自動運用)
 
-2026-10-05 の確認では、[GitHub Actions の週次監査](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/workflows/self-improvement.yml)は有効で、2026-09-28 と 2026-10-05 の定期実行が成功しています。ローカルCodex監査も 2026-10-05 に実行されており、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。根拠・実行前の確認手順・移行時の記録は[週次監査ガイド](docs/contributor/weekly-local-codex-audit.md)を参照してください。
+2026-10-05 の確認では、[GitHub Actions の週次監査](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/workflows/self-improvement.yml)は有効で、2026-09-28 と 2026-10-05 の定期実行が成功しています。ローカルCodex監査も 2026-10-05 に実行されており、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。根拠・実行前の確認手順・移行時の記録は[リポジトリの週次監査ガイド](https://github.com/aharada54914/sdd-forge/blob/work/docs/contributor/weekly-local-codex-audit.md)を参照してください。
 
 過去の「Actions 無効化済み」という移行記録を現在の状態と扱わず、新規登録や変更の前に両経路の設定・実行履歴を確認してください。今後の正本の選択やスケジュール変更は所有者が判断します。
 

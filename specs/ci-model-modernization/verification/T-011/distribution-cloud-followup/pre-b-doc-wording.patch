@@ -1,0 +1,132 @@
+--- a/README.md
++++ b/README.md
+@@ -293,7 +293,7 @@
+ ## モデルポリシーと CI 運用（概要）
+ 
+ - **管理されたモデル選択**: 実装・調査・レビュー・ドメイン・監査・診断・自動化の各エントリは、共有モデルポリシーから互換な候補を解決します。`latest-compatible` は日付付きの観測と登録済みポリシーの優先順に基づく互換候補、`pinned` は明示指定です。導入済みホストに反映できない場合は `model-policy-error/v1` の typed stop で止まり、成功扱いにしません。設定・解決したモデルと実ターンで報告されたモデル ID は別物です。
+-- **CI**: PR は信頼済みベースの planner で計画され、分類できない変更は保守的な full 計画になります。計画ジョブの失敗や破損した計画は必須チェックを失敗させます。新しい CI 設定を使う前に、信頼済みベースの planner を対応版へ更新する必要があります。現時点でロールアウトが有効なカテゴリはなく、削減率や実環境での採用は主張しません。復旧と必須コンテキストは [contributor/workflow-detail.md](docs/contributor/workflow-detail.md)、リリース手順は [contributor/release-runbook.md](docs/contributor/release-runbook.md) を参照してください。
++- **CI**: PR は信頼済みベースの planner で計画され、分類できない変更は保守的な full 計画になります。計画ジョブの失敗や破損した計画は必須チェックを失敗させます。新しい CI 設定を使う前に、信頼済みベースの planner を対応版へ更新する必要があります。カテゴリの有効性はリポジトリの対象 revision にある `tests/verification-catalog.json` と、その `evidence` が参照する検証結果で確認してください。2026-10-21 の有効化前チェックポイントでは全カテゴリが未有効であり、削減率や適用範囲は実際の計画・実行記録なしには主張しません。復旧と必須コンテキストは [contributor/workflow-detail.md](docs/contributor/workflow-detail.md)、リリース手順は [contributor/release-runbook.md（リポジトリ）](https://github.com/aharada54914/sdd-forge/blob/work/docs/contributor/release-runbook.md) を参照してください。
+ - **範囲**: ChatGPT UI の親セッションや非管理の呼び出しは制御外です。外部送信の同意と独立レビューは変わりません。実クラウド受け入れ（#911）は未了のままで、ネイティブ実行の証明はホストごとに別です。
+ 
+ 詳細: [docs/workflow-guide.md](docs/workflow-guide.md#managed-model-operation)、[docs/agent-capability-matrix.md](docs/agent-capability-matrix.md)、[docs/verification.md](docs/verification.md)。公開済みタグから導入する場合は上記の `--ref <ref>` に注釈付きタグを指定します（`--source-directory` は Git 追跡済みファイルのみを読みます）。
+@@ -315,14 +315,14 @@
+ | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
+ | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |
+ | [docs/adr/README.md](docs/adr/README.md) | ADR 索引と採番規約 |
+-| [docs/contributor/](docs/contributor/) | 貢献者向け詳細（[workflow-detail.md](docs/contributor/workflow-detail.md) / [skill-reference-detail.md](docs/contributor/skill-reference-detail.md) / [release-runbook.md](docs/contributor/release-runbook.md)） |
++| [docs/contributor/](docs/contributor/) | 貢献者向け詳細（[workflow-detail.md](docs/contributor/workflow-detail.md) / [skill-reference-detail.md](docs/contributor/skill-reference-detail.md) / [release-runbook.md（リポジトリ）](https://github.com/aharada54914/sdd-forge/blob/work/docs/contributor/release-runbook.md)） |
+ | [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
+ | [specs/sdd-lite/design.md](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/specs/sdd-lite/design.md) | sdd-lite 設計 |
+ | [plugins/sdd-lite/references/lite-flow-policy.md](plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |
+ 
+ ## 週次セルフ改善 (自動運用)
+ 
+-2026-10-05 の確認では、[GitHub Actions の週次監査](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/workflows/self-improvement.yml)は有効で、2026-09-28 と 2026-10-05 の定期実行が成功しています。ローカルCodex監査も 2026-10-05 に実行されており、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。根拠・実行前の確認手順・移行時の記録は[週次監査ガイド](docs/contributor/weekly-local-codex-audit.md)を参照してください。
++2026-10-05 の確認では、[GitHub Actions の週次監査](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/workflows/self-improvement.yml)は有効で、2026-09-28 と 2026-10-05 の定期実行が成功しています。ローカルCodex監査も 2026-10-05 に実行されており、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。根拠・実行前の確認手順・移行時の記録は[リポジトリの週次監査ガイド](https://github.com/aharada54914/sdd-forge/blob/work/docs/contributor/weekly-local-codex-audit.md)を参照してください。
+ 
+ 過去の「Actions 無効化済み」という移行記録を現在の状態と扱わず、新規登録や変更の前に両経路の設定・実行履歴を確認してください。今後の正本の選択やスケジュール変更は所有者が判断します。
+ 
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -11,7 +11,7 @@
+ - Filter local and archive installations through a shared runtime payload manifest; remove development records on upgrade and copy only each selected MCP's bundled entrypoint and package metadata.
+ 
+ ### Verification and release limits
+-- No rollout category is active; no savings figure is claimed. The fixed 20-trial model/skill comparison ran after native authentication and tool-host repairs: 19 completed turns and one interrupted for an out-of-scope tool call; deterministic scoring produced 9 passes and 11 failures. Four blinded semantic judgments completed and preserved every deterministic failure. Sol passed both implementation trials but remains unadopted because it is absent from the capability registry; review, investigation and skill candidates remain withheld. Registered preferences and capability floors are retained; the existing Astra implementer entry receives the measured evidence reference. Fixture results are not hosted CI or native backend proof.
++- At the 2026-10-21 pre-activation checkpoint, no rollout category was active and no savings figure was claimed. For each revision, rollout status is defined by `tests/verification-catalog.json` and its validated `evidence` references; measured scope and savings require the corresponding actual plan and execution records. The fixed 20-trial model/skill comparison ran after native authentication and tool-host repairs: 19 completed turns and one interrupted for an out-of-scope tool call; deterministic scoring produced 9 passes and 11 failures. Four blinded semantic judgments completed and preserved every deterministic failure. Sol passed both implementation trials but remains unadopted because it is absent from the capability registry; review, investigation and skill candidates remain withheld. Registered preferences and capability floors are retained; the existing Astra implementer entry receives the measured evidence reference. Fixture results are not hosted CI or native backend proof.
+ - Live cloud acceptance (#911) remains pending; no cloud-readiness claim.
+ 
+ ## v1.19.0 (2026-10-18)
+--- a/docs/verification.md
++++ b/docs/verification.md
+@@ -41,10 +41,13 @@
+ taken from the trusted base revision when that revision provides it.
+ 
+ Unknown changes, missing comparison revisions, test infrastructure changes, and
+-shared or sensitive changes retain the full profile. No narrower rollout
+-category is active: the only catalog category (`readme-contract`) has
+-`active: false`, so planned runs currently take the full profile. This
+-document makes no measured-savings claim and schedules no activation.
++shared or sensitive changes retain the full profile. At the 2026-10-21
++pre-activation checkpoint, the only catalog category (`readme-contract`) had
++`active: false`. For any repository revision, use `tests/verification-catalog.json` at that revision
++and its validated `evidence` references to determine eligible categories; the
++actual uploaded plan and execution records establish what that run selected or
++omitted. Catalog eligibility at an experiment base does not establish rollout to
++main. This document alone establishes neither activation nor measured savings.
+ 
+ `SDD_CI_FORCE_FULL` (a repository variable passed as `--force-full`) is a
+ recovery switch. `true` forces the full profile. An absent or invalid value
+@@ -58,8 +61,10 @@
+ Upgrade the trusted base to matching planner and catalog tooling before using
+ the new CI configuration. For recovery, repair the incompatible inputs and run
+ full manually on a revision with matching tooling; forcing full alone does not
+-repair this parser incompatibility. The live repository variable's value has
+-not been verified.
++repair this parser incompatibility. At the 2026-10-21 pre-activation checkpoint,
++the live repository variable's value had not been verified. Later setting
++observations must be dated and bound to the actual run; catalog eligibility alone
++does not establish the remote setting or selective execution.
+ 
+ Receipts can be compared with the proposal to find failures it would have missed.
+ Missing, skipped, or mismatched observations are not successful comparisons.
+@@ -112,6 +117,7 @@
+ record that branch only after real CI execution. See [operator guide](cloud-orchestration.md).
+ 
+ CI-efficiency research is not achieved savings. The legacy observation interface
+-remains observational and no rollout category is active; skipped/planned checks
+-are never PASS.
++remains observational. Category eligibility comes from the revision-bound catalog
++and validated proof, while actual CI behavior comes from its plan and execution
++records; skipped/planned checks are never PASS.
+ Keep required-checks and native Windows compatibility/gate/A9 obligations intact.
+--- a/docs/contributor/workflow-detail.md
++++ b/docs/contributor/workflow-detail.md
+@@ -722,8 +722,12 @@
+ 計画ジョブ（`ci-plan`）自体の失敗や計画ファイルの破損は、必須の集約チェックを失敗させます。
+ 対応する planner と設定が揃っている場合は、復旧時に
+ `SDD_CI_FORCE_FULL=true` を設定して full を強制できます。未設定や不正な値でも full
+-であり、リテラルの `false` だけでは未証明のカテゴリは有効になりません。現時点で
+-ロールアウトが有効なカテゴリはなく、リポジトリ変数の実際の設定値も未確認です。
++であり、リテラルの `false` だけでは未証明のカテゴリは有効になりません。
++リポジトリの対象 revision にある `tests/verification-catalog.json` と
++検証済みの `evidence` 参照がカテゴリの適格性を示し、実際の計画・実行記録が
++その run の選択・省略を示します。2026-10-21 の有効化前チェックポイントでは
++全カテゴリが未有効で、変数の実際の設定値も未確認でした。以後の状態は日時と
++revision を伴う観測で確認し、実験用ベースでの成功を main への展開と同一視しません。
+ 上の必須コンテキスト名は変更しません。
+ 
+ 新しい CI 設定を導入する前に、PR の信頼済みベースを対応する planner へ更新してください。
+--- a/docs/contributor/release-runbook.md
++++ b/docs/contributor/release-runbook.md
+@@ -173,14 +173,15 @@
+ 
+ 順序の補足（最終コミットを F とする）:
+ 
+-現在、ci-model-modernization の T-010 比較試行は認証エラーで停止しており、
+-T-011 は進行中です。候補モデルの採用、CI カテゴリの有効化、新しいバージョンや
+-タグの公開は未実施です。以下は、残る検証を終えて公開するときの手順です。
++モデル採用の状態は対象 revision の [model-policy.v1.json](../../contracts/model-policy.v1.json)
++と採用証跡、CI カテゴリの適格性はリポジトリの対象 revision にある `tests/verification-catalog.json`
++と検証済みの `evidence` 参照で確認します。実行・公開の完了は、その revision に
++結び付いた実際の CI 結果とタグ・配布記録が示します。手順の記載自体は完了の証明ではありません。
+ 新しい CI 設定を使う PR では、先に信頼済みベースの planner を対応版へ更新します。
+ 旧版による設定の拒否は full 強制でも解消しないため、対応するツールを揃えた
+ revision で手動 full を確認してください。
+ 
+-1. docs と version（CHANGELOG の Unreleased を含む）を先に確定し、curated な最終コミット F を作ります。
++1. docs・version・通常のコードとテスト定義を比較ベースライン B より前に確定します。有効化する場合は B の実際の full 結果、失敗 mutation と復元、検証済みの証跡を揃え、許可された証跡と catalog の有効化参照だけを追加して最終コミット F を作ります。B 後に通常の文書や実装を変更した場合は、既存の freshness 検証に従ってベースラインを取り直します。測定結果と公開記録は revision に結び付いた証跡に残します。
+ 2. F で、隔離した checkout のローカル full と、実際の hosted full を実行します。fixture の結果は hosted の観測の代わりになりません。
+ 3. リリース対象コードの必須チェックを通してから、F に新しい注釈付き不変タグ `v<version>` を作ります。既存タグは変更せず、リモートの既存タグが変わっていないことも確認します。
+ 4. PR のテスト済みマージ revision と release F は別物です。branch 名での `workflow_dispatch` は raw SHA の指定ではないため、対象 ref が F を指し、実際の CI head SHA も F と一致することを確認します。merge_group の限界（OQ-001）は残ります。
+--- a/docs/workflow-guide.md
++++ b/docs/workflow-guide.md
+@@ -516,7 +516,7 @@
+ 3 段のゲート連鎖（spec / implementation-policy / task review）は変更しません。以下は、各エントリがモデルを決める経路の補足です。
+ 
+ - **対象エントリ**: 実装、調査、レビュー、ドメイン、監査、診断、自動化。いずれも共有モデルポリシーから、role・risk・effort の制限を満たす互換候補を解決します。レビュアーの独立性と外部送信の同意は変わりません。
+-- **`latest-compatible` と `pinned`**: `latest-compatible` は、その時点で観測・設定された互換候補から登録済みポリシーの優先順で選びます。`pinned` は明示指定した ID を使い、候補が使えなければ代替せず止まります。可用性の観測は日付とホストに限定され、ポリシーの `source_date` や過去のネイティブ試行を恒久的な可用性・実ターンのモデル ID・価格・品質比較の根拠にはしません。ci-model-modernization の T-010 比較試行は認証エラーで停止しており、候補の採用や品質比較の結論はありません。
++- **`latest-compatible` と `pinned`**: `latest-compatible` は、その時点で観測・設定された互換候補から登録済みポリシーの優先順で選びます。`pinned` は明示指定した ID を使い、候補が使えなければ代替せず止まります。可用性の観測は日付とホストに限定され、ポリシーの `source_date` や過去のネイティブ試行を恒久的な可用性・実ターンのモデル ID・価格・品質比較の根拠にはしません。候補の採否と品質比較の結論は、対象 revision の [model-policy.v1.json](../contracts/model-policy.v1.json) と、その採用証跡が参照する固定条件の比較結果で確認します。
+ - **導入済みキャリアか typed stop**: 解決結果は、検証済みの model controls を `render-agent-frontmatter.sh` の `--model-controls` / `--model-controls-sha256` / `--run-id` / `--session-id` / `--managed-target` に渡して導入済みのネイティブホスト定義に反映します。反映先（キャリア）が無い、または controls が検証できない場合は作業前に `model-policy-error/v1`（`reason` は同スキーマの列挙値）で止まります。ネイティブ証明が無いことは成功ではありません。
+ - **再開と子**: 現在束縛されたワーカーは、その束縛のまま継続できます。新しい子ワーカーは、自身の束縛（run/session と controls）を必要とし、親の束縛を暗黙に継承しません。
+ - **制御外**: ChatGPT UI の親や非管理の呼び出しは本ポリシーの制御外です。設定・解決したモデルを、実際に報告されたモデル ID と同一視しません。

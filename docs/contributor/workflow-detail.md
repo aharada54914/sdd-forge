@@ -551,7 +551,7 @@ sdd-forge リポジトリ自体には、WFI ループとは別に週次セルフ
 2026-10-05の確認では [週次 Actions](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/workflows/self-improvement.yml) は `active` で、
 [Actions 用指示](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/self-improvement-prompt.md) に従って稼働しています。
 ローカル Codex 監査も2026-10-05に実行され、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。
-日付付きの根拠、移行時の記録、両経路の実行前確認は [週次ローカル監査](weekly-local-codex-audit.md) を参照してください。
+日付付きの根拠、移行時の記録、両経路の実行前確認は [週次ローカル監査](https://github.com/aharada54914/sdd-forge/blob/work/docs/contributor/weekly-local-codex-audit.md) を参照してください。
 過去の「無効化済み」を現在の設定と扱わず、正本の選択やスケジュール変更は所有者が判断します。
 以下の表と調停ルールは、WFI と**ローカル Codex の週次監査**の境界を示します。Actions 経路の変更・投稿権限は [Actions 用指示](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/self-improvement-prompt.md) とワークフローのガードが定めており、ここでローカル専用の承認済みタスク限定・外部投稿禁止を Actions に適用するものではありません。
 
@@ -722,8 +722,12 @@ GitHub 上の `main` ブランチは以下の保護ルールでガード され�
 計画ジョブ（`ci-plan`）自体の失敗や計画ファイルの破損は、必須の集約チェックを失敗させます。
 対応する planner と設定が揃っている場合は、復旧時に
 `SDD_CI_FORCE_FULL=true` を設定して full を強制できます。未設定や不正な値でも full
-であり、リテラルの `false` だけでは未証明のカテゴリは有効になりません。現時点で
-ロールアウトが有効なカテゴリはなく、リポジトリ変数の実際の設定値も未確認です。
+であり、リテラルの `false` だけでは未証明のカテゴリは有効になりません。
+リポジトリの対象 revision にある `tests/verification-catalog.json` と
+検証済みの `evidence` 参照がカテゴリの適格性を示し、実際の計画・実行記録が
+その run の選択・省略を示します。2026-10-21 の有効化前チェックポイントでは
+全カテゴリが未有効で、変数の実際の設定値も未確認でした。以後の状態は日時と
+revision を伴う観測で確認し、実験用ベースでの成功を main への展開と同一視しません。
 上の必須コンテキスト名は変更しません。
 
 新しい CI 設定を導入する前に、PR の信頼済みベースを対応する planner へ更新してください。

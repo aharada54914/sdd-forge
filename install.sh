@@ -842,17 +842,23 @@ fi
 # Validate required paths
 # ---------------------------------------------------------------------------
 REQUIRED_PATHS=(
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
+    "plugins/sdd-ship/skills/ship/SKILL.md"
     ".agents/plugins/marketplace.json"
     ".claude-plugin/marketplace.json"
+    "plugins/sdd-bootstrap/.claude-plugin/plugin.json"
     "plugins/sdd-bootstrap/.codex-plugin/plugin.json"
     "plugins/sdd-bootstrap/.plugin/plugin.json"
     "plugins/sdd-ship/.claude-plugin/plugin.json"
     "plugins/sdd-ship/.codex-plugin/plugin.json"
     "plugins/sdd-ship/.plugin/plugin.json"
+    "plugins/sdd-implementation/.claude-plugin/plugin.json"
     "plugins/sdd-implementation/.codex-plugin/plugin.json"
     "plugins/sdd-implementation/.plugin/plugin.json"
+    "plugins/sdd-quality-loop/.claude-plugin/plugin.json"
     "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
     "plugins/sdd-quality-loop/.plugin/plugin.json"
+    "plugins/sdd-lite/.claude-plugin/plugin.json"
     "plugins/sdd-lite/.codex-plugin/plugin.json"
     "plugins/sdd-lite/.plugin/plugin.json"
     "plugins/sdd-review-loop/.claude-plugin/plugin.json"

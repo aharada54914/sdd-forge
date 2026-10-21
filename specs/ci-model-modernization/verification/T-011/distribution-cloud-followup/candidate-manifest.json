@@ -1,0 +1,27 @@
+[
+  {
+    "path": "tests/lib/install-payload-check.py",
+    "before_sha256": "436d097522e2f21b09878fc7fda2886897035416132ed72307f00969aafb8de0",
+    "candidate_sha256": "984c4800e0d4a9ce7a1b4d68bbc70fa7f0553433e82a42f83ddddd93bc20075a"
+  },
+  {
+    "path": "install.sh",
+    "before_sha256": "2bbeaa197eaa62df351d8c0412fc3eae748f3e8ec61f4bd5d19b94a25f28f94b",
+    "candidate_sha256": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a"
+  },
+  {
+    "path": "install.ps1",
+    "before_sha256": "8960c8e16318e919ee9bc3419b7dac7b7bce64f427015af1551e8e48335b81aa",
+    "candidate_sha256": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f"
+  },
+  {
+    "path": "install-payload.txt",
+    "before_sha256": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a",
+    "candidate_sha256": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93"
+  },
+  {
+    "path": "docs/contributor/workflow-detail.md",
+    "before_sha256": "4f256155b88e667f2bc7c97f92f1684060116c50188e39a24093b674f9ecd315",
+    "candidate_sha256": "a72dfa40ed2525b31e2fc4539d1b6d57920f47b9df3a601e3bfa2cf13d0e681b"
+  }
+]

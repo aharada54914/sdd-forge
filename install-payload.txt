@@ -1,4 +1,4 @@
-# install-payload.txt — what install.sh / install.ps1 copy into the install root.
+# install-payload.txt — runtime and user reference documents copied by both installers.
 #
 # Consumed by BOTH installers for local Git sources and for downloaded archives.
 # One entry per line; blank lines and '#' comments are ignored.
@@ -23,7 +23,6 @@ install-payload.txt
 plugins/
 contracts/
 templates/cloud/
-skills/adversarial-review/
 scripts/check-sdd-structure.sh
 install.sh
 install.ps1
@@ -48,5 +47,5 @@ docs/verification.md
 docs/workflow-guide.md
 docs/architecture/
 docs/adr/
-docs/contributor/
-docs/workflow-improvements/retention-checklist.md
+docs/contributor/workflow-detail.md
+docs/contributor/skill-reference-detail.md

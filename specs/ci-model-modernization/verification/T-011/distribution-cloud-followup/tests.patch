@@ -1,0 +1,68 @@
+--- a/tests/lib/install-payload-check.py
++++ b/tests/lib/install-payload-check.py
+@@ -56,6 +56,13 @@
+ # Tracked development content that must never be installed (every value is FAKE).
+ TRACKED_SEEDS = {
+     "specs/fake/private.txt": "FAKE development spec\n",
++    'docs/contributor/release-runbook.md': "FAKE repository-only development document\n",
++    'docs/contributor/weekly-local-codex-audit.md': "FAKE repository-only development document\n",
++    'docs/contributor/self-improvement-measurement-proposal.md': "FAKE repository-only development document\n",
++    'docs/contributor/shared-file-mirrors.md': "FAKE repository-only development document\n",
++    'docs/workflow-improvements/retention-checklist.md': "FAKE repository-only development document\n",
++    'skills/adversarial-review/SKILL.md': "FAKE repository-only development document\n",
++
+     "reports/review-context/identity-ledger.json": '{"reviewer": "FAKE-IDENTITY-LEDGER-VALUE"}\n',
+     "tests/private.txt": "FAKE test data\n",
+     ".github/workflows/private.yml": "name: FAKE\n",
+@@ -548,6 +555,51 @@
+         self.assertRegex(result.stdout + result.stderr, r"(?i)symlink")
+         self.assert_previous_intact(root)
+ 
++    def test_tracked_special_names_survive_local_and_archive(self):
++        names = ["日本語.txt"]
++        if os.name != "nt":
++            names += ['quoted"name.txt', "tab\tname.txt"]
++        paths = ["plugins/sdd-bootstrap/" + name for name in names]
++        self.fx.git("config", "core.quotePath", "true")
++        for rel in paths:
++            self.fx.write(rel, "tracked UTF-8 payload\n")
++        self.fx.git("add", "--", *paths)
++        original_tracked = self.fx.tracked
++        self.fx.tracked = original_tracked + paths
++        try:
++            for label, kwargs in (("local", {"source": self.fx.path}),
++                                  ("archive", {"archive": self.fx.archive(omit=["special-name-fixture-cache-key"])})):
++                root = self.root_for("names-" + label)
++                self.install_ok(root, skip_mcp=True, **kwargs)
++                for rel in paths:
++                    with self.subTest(source=label, path=rel):
++                        self.assertTrue((root / rel).is_file(), rel)
++                        self.assertEqual((root / rel).read_bytes(), (self.fx.path / rel).read_bytes())
++        finally:
++            self.fx.tracked = original_tracked
++            self.fx.git("rm", "--cached", "-q", "--", *paths)
++            for rel in paths:
++                (self.fx.path / rel).unlink()
++
++    def test_core_required_files_fail_closed(self):
++        paths = ["plugins/" + plugin + "/.claude-plugin/plugin.json"
++                 for plugin in ("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite")]
++        paths += ["plugins/sdd-bootstrap/skills/bootstrap/SKILL.md", "plugins/sdd-ship/skills/ship/SKILL.md"]
++        for index, rel in enumerate(paths):
++            path = self.fx.path / rel
++            original = path.read_bytes()
++            archive = self.fx.archive(omit=[rel])
++            try:
++                path.unlink()
++                for label, kwargs in (("local", {"source": self.fx.path}), ("archive", {"archive": archive})):
++                    with self.subTest(path=rel, source=label):
++                        root = self.root_for(f"required-{index}-{label}")
++                        self.precreate_install(root)
++                        self.install_fails(root, skip_mcp=True, **kwargs)
++                        self.assert_previous_intact(root)
++            finally:
++                path.write_bytes(original)
++
+     def test_manifest_is_required(self):
+         # Separate contract: a tree without the manifest must fail the install and keep the old one.
+         for label, kwargs in (("local-removed", {"source": self.fx.path}),

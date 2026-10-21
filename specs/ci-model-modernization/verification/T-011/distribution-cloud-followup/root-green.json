@@ -1,0 +1,47 @@
+{
+  "before": {
+    "tests/lib/install-payload-check.py": "984c4800e0d4a9ce7a1b4d68bbc70fa7f0553433e82a42f83ddddd93bc20075a",
+    "install.sh": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a",
+    "install.ps1": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f",
+    "install-payload.txt": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93"
+  },
+  "after": {
+    "tests/lib/install-payload-check.py": "984c4800e0d4a9ce7a1b4d68bbc70fa7f0553433e82a42f83ddddd93bc20075a",
+    "install.sh": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a",
+    "install.ps1": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f",
+    "install-payload.txt": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93"
+  },
+  "runs": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/lib/install-payload-check.py",
+        "--runtime",
+        "bash"
+      ],
+      "start": "2026-10-21T13:46:31.484456+00:00",
+      "end": "2026-10-21T13:46:42.316822+00:00",
+      "seconds": 10.83237524901051,
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-011/distribution-cloud-followup/green-bash.log",
+      "log_sha256": "67ba7bcafa63f7efc71b7b86dc9dab64e234d24a9268b9239806685237afef1d"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/lib/install-payload-check.py",
+        "--runtime",
+        "powershell"
+      ],
+      "start": "2026-10-21T13:46:31.484624+00:00",
+      "end": "2026-10-21T13:47:02.860540+00:00",
+      "seconds": 31.375929671979975,
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-011/distribution-cloud-followup/green-powershell.log",
+      "log_sha256": "8019444c1b2811ca01c1c0029adedb5965ddf2c1f917ae49c2683144492b5f60"
+    }
+  ],
+  "source_unchanged": true
+}
