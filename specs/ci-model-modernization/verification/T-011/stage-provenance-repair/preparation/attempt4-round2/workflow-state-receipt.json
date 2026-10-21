@@ -1,0 +1,50 @@
+{
+  "argv": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "--feature",
+    "ci-model-modernization"
+  ],
+  "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+  "started_at": "2026-10-21T12:52:36Z",
+  "elapsed_seconds": 1.0722048050083686,
+  "exit_code": 0,
+  "source_pins_before": {
+    "specs/ci-model-modernization/design.md": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b",
+    "specs/ci-model-modernization/security-spec.md": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48",
+    "specs/ci-model-modernization/tasks.md": "35b1b4189aa526d233d1a284ed0f1df82f3ed4086875e76b723444a77659cd41",
+    "plugins/sdd-review-loop/references/reviewer-calibration.md": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+    "plugins/sdd-quality-loop/references/risk-gate-matrix.md": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725",
+    "specs/ci-model-modernization/ux-spec.md": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b",
+    "specs/ci-model-modernization/frontend-spec.md": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657",
+    "reports/task-review/ci-model-modernization/attempt-4/round-2/integrated-summary.json": "f31e498be7cc550679ba19f25a6202546653a2cef748208b0f7d8d8aad862dc2",
+    "reports/task-review/ci-model-modernization/attempt-4/round-2/precheck-result.json": "52c457b61142957826dc225a037f16b4ac567fd572871b1255ffa7edbd73985e",
+    "plugins/sdd-quality-loop/references/risk-classification-policy.md": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305",
+    "reports/task-review/ci-model-modernization/attempt-4/round-2/dependency-graph.json": "e8bcf30c0415f8ae056c6f5bcc327562e2ac5f66fe73c6982f3a82d7bb4a51f9",
+    "specs/ci-model-modernization/traceability.md": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd",
+    "specs/ci-model-modernization/acceptance-tests.md": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1",
+    "specs/ci-model-modernization/infra-spec.md": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c",
+    "specs/ci-model-modernization/requirements.md": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+  },
+  "source_pins_after": {
+    "specs/ci-model-modernization/design.md": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b",
+    "specs/ci-model-modernization/security-spec.md": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48",
+    "specs/ci-model-modernization/tasks.md": "35b1b4189aa526d233d1a284ed0f1df82f3ed4086875e76b723444a77659cd41",
+    "plugins/sdd-review-loop/references/reviewer-calibration.md": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+    "plugins/sdd-quality-loop/references/risk-gate-matrix.md": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725",
+    "specs/ci-model-modernization/ux-spec.md": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b",
+    "specs/ci-model-modernization/frontend-spec.md": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657",
+    "reports/task-review/ci-model-modernization/attempt-4/round-2/integrated-summary.json": "f31e498be7cc550679ba19f25a6202546653a2cef748208b0f7d8d8aad862dc2",
+    "reports/task-review/ci-model-modernization/attempt-4/round-2/precheck-result.json": "52c457b61142957826dc225a037f16b4ac567fd572871b1255ffa7edbd73985e",
+    "plugins/sdd-quality-loop/references/risk-classification-policy.md": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305",
+    "reports/task-review/ci-model-modernization/attempt-4/round-2/dependency-graph.json": "e8bcf30c0415f8ae056c6f5bcc327562e2ac5f66fe73c6982f3a82d7bb4a51f9",
+    "specs/ci-model-modernization/traceability.md": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd",
+    "specs/ci-model-modernization/acceptance-tests.md": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1",
+    "specs/ci-model-modernization/infra-spec.md": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c",
+    "specs/ci-model-modernization/requirements.md": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+  },
+  "source_unchanged": true,
+  "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "Current task-plan workflow gate only; no implementation/adoption/hosted/release acceptance inferred"
+}

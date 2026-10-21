@@ -490,7 +490,7 @@ T-006
 ## T-010 Controlled model adoption evaluation
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: Blocked
+Status: In Progress
 Risk: medium
 Risk Rationale: Runs controlled evaluation and updates reviewed adoption references without changing capability or authorization algorithms.
 Required Workflow: acceptance-first
@@ -544,7 +544,7 @@ T-008
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
 Status: In Progress
 Risk: high
-Risk Rationale: Necessary TEST-017 readiness repair changes runtime obligation selection and exact setup declaration/schema parsing; requires tests-first Red/Green, conservative unknown handling, compatibility review and subset rollback before measured rollout.
+Risk Rationale: Readiness repairs change runtime obligation selection, workflow context/cache binding and installer payload boundaries; require tests-first Red/Green, conservative unknown handling, platform and runtime dependency parity, compatibility review and subset rollback before measured rollout.
 Required Workflow: tdd
 Data Migration: None
 Breaking API: No
@@ -561,6 +561,19 @@ Publish measured rollout evidence and complete current user/contributor document
 
 ### Planned Files
 
+- tests/phase2-guard-invariants.tests.sh and tests/phase2-guard-invariants.tests.ps1 (current ci-plan predicate and explicit ship successor checks)
+
+- .github/workflows/test.yml (legal npm-cache context binding and actual CI validation)
+- tests/verification-catalog.tests.py (workflow cache-context regressions)
+- install.sh and install.ps1 (shared explicit distribution boundary for local and archive inputs)
+- install-payload.txt (runtime file and directory allowlist, distributed with installers)
+- tests/install.tests.sh and tests/install.tests.ps1 (payload, upgrade and required-runtime regressions)
+- tests/lib/install-payload-check.py (shared assertion helper invoked by existing Bash/PowerShell installer suites)
+- tests/model-policy-installed.tests.py and tests/install-cloud.tests.py (minimal install fixtures include the payload manifest)
+- tests/loop-consistency.tests.sh and tests/loop-consistency.tests.ps1 (current anchor coordinates, preserving historical content hashes)
+- tests/sdd-domain-multitarget-foundation.tests.py and specs/sdd-domain-multitarget/verification/T-001/current-consumer-inventory.json (current references and planner-dependent fixture)
+- tests/ship-track-selection-migration.tests.sh and tests/ship-track-selection-migration.tests.ps1; tests/fixtures/ship-track-selection-current-publication.json (successor publication regression with historical evidence preserved)
+- PLUGIN-CONTRACTS.md, docs/THREAT-MODEL.md, docs/architecture/overview.md, docs/cloud-orchestration.md and docs/contributor/weekly-local-codex-audit.md (installed documentation references and current installer contract)
 - README.md
 - CHANGELOG.md
 - docs/verification.md
@@ -578,6 +591,8 @@ Publish measured rollout evidence and complete current user/contributor document
 
 ### Scope
 
+User-authorized continuation on 2026-10-21: complete remaining work 1–7 and audit installed plugin contents. Correct the observed pre-job GitHub Actions context rejection and unnecessary repository-history distribution in both installers, including archive/local parity and minimal MCP bundles. Preserve all required plugin/shared runtime dependencies, existing installation authorization and atomic rollback semantics. These additional corrections remain part of the named independent implementation review and final exact-revision verification.
+
 Root-authorized necessary continuation: integrate the reviewed bounded omission-readiness correction independently of T-010 execution. Final rollout, model adoption and immutable release remain blocked on T-010; this scope amendment does not mark either task Done or waive any acceptance case. Existing approval timestamp is preserved.
 
 Publish measured rollout evidence and complete current user/contributor documentation for the already verified implementation; activate only proven categories and release one exact-tested immutable version. No main merge, tag move or live cloud operation is included.
@@ -588,8 +603,16 @@ Publish measured rollout evidence and complete current user/contributor document
 - Verify the causal boundary before choosing the minimal correction: trace validated generated `ci-plan` predicates returning unknown from `condition_value`, plus the undeclared exact CLI setup command forcing mandatory work. Use the recorded before bytes and regression controls to distinguish those causes from truly unknown predicates, missing matrix values or an unrecognized raw command, which must remain mandatory. Record producer/counterpart/mismatch evidence, including the old-parser/new-setup typed rejection rather than claiming a full fallback.
 - Link diagnosis to the four tests-first regressions in `tests/verification-ci-plan.tests.py`; retain the meaningful baseline Red, the full prior50 plus new4 Green, source-consumer proof and exact subset rollback. Reuse the timestamped diagnostic and before-source records in `verification/T-011/preparation/rollout-comparison/` and `verification/T-011/readiness-implementation/`; this post-implementation provenance repair does not backdate or replace them.
 
+### Additional correction diagnostics and chronology
+
+- Before selecting the installer correction, retain source-bound measured inventories and trace unwanted specs/reports/tests/ledger files to the local Git-tracked broad-copy and remote recursive archive-copy producers in both installers. Inspect actual runtime callers and shared/plugin/contract/rendering/document dependencies to distinguish required payload from development records. Trace MCP recursive dist copying against the actual esbuild output and runtime entrypoint. Link those causal findings and before-source hashes to local/archive, upgrade, rollback and installed-caller controls; private candidate preparation is not product application.
+- For each newly added runtime correction (workflow context/cache binding and installer payload selection), require its own meaningful failing regression, a separately identified failing-test commit before applying the product correction, source hashes, subsequent Green and subset rollback. Workflow regression commit 61e831b5f15ae24a985f77539a6f83446d14063e precedes product commit e845fbc8942b7ee496b9f9928e5ada61443048d9; record equivalent actual installer chronology before integration. Preserve real timestamps, including privately prepared candidates, without backdating. The original readiness commit does not substitute for these independent records. Require the named independent high-risk implementation verdict over each correction and the combined final scope.
+- Diagnose current-test drift using exact failing commands and source hashes before fixing references or fixtures: preserve frozen historical evidence, verify unchanged anchor content, retain required ci-plan dependencies in synthetic workflows, and make successor publication checks sensitive to unauthorized current changes. Record Red/Green and disposable rollback; a reference repair must not delete a required behavior assertion. Re-run actual hosted native wrappers at the final revision.
+
 ### Done When
 
+- Reproduce and retain the CI pre-job rejection: job-level `npm_config_cache` may not reference `runner.temp`. Preserve tests-first failure, move binding to a legal runtime context with the same cache path, verify all workflow syntax and real hosted startup, and retain cache key/path and platform parity.
+- Reproduce the measured unnecessary installer payload (16,408 files / 189,910,946 bytes in both original local paths). Ship only the explicit runtime/user-documentation allowlist through both Git-tracked local and archive installs; exclude repository specs, reports, tests, workflow/developer state, credentials and caches. Preserve the shared plugin/contract/rendering dependencies and selection/Node gates; MCP payloads contain only required `dist/index.js` and `package.json`. Test local/archive parity, removal of old development payload on upgrade, rollback and actual installed callers on supported platforms. Record final file counts/bytes and inspect the final released installation again.
 - Preserve and link the real failing-test commit `a72eab2ec5e5362f635b4814fecd9e791a300e68` committed before the readiness implementation, its recorded baseline Red, subsequent Green and product-application chronology (`verification/T-011/readiness-implementation/test-first-commit.json`, `focused-red.json`, `full54.json` and `product-apply.json`). Require a named independent reviewer verdict for the high-risk readiness correction and final task scope, with pinned reviewed inputs, requirement traceability and spec/environment provenance; an implementation report or this task-plan review cannot substitute for that implementation quality verdict. Preserve original timestamps and evidence without backdating.
 - All assigned acceptance cases are linked to actual saved results. Compare docs/configuration, MCP, cloud and shared representative changes against full results and source-consumer/mutation evidence. Unproven classes remain full; record exact revision, selections, omissions, measured wall/job time and observed cache hits.
 - Observe actual hosted small-change PR required contexts/native wrappers and selected omissions plus manual full execution; separate local fixtures and disclose unavailable real merge_group per OQ-001. Do not label fixture-only evidence hosted. If a required external action cannot proceed under existing authorization, record the concrete prepared action and blocker.

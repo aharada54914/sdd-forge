@@ -1,0 +1,128 @@
+{
+  "attempt": 4,
+  "checks": [
+    {
+      "finding": "PASS: tasks.md T-001–T-009 identify CI evidence/public contracts, model discovery/identity, protected launch/installed paths and untrusted external notifications as high risk (lines 27–29, 78–80, 127–129, 178–180, 227–229, 276–278, 332–334, 386–388, 445–447). T-010 is a bounded medium-risk adoption experiment that cannot change capability or authorization algorithms (494–503, 519–527). Changed T-011 is high/tdd for obligation selection, workflow context/cache binding and installer payload boundaries (546–550, 594, 608–616), consistent with risk-classification-policy.md sensitive-surface criteria and security-spec.md existing authorization/supply-chain boundaries. No regulated, irreversible-destructive or other critical surface is introduced; no critical-tier overclassification is needed.",
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "finding": "PASS: each high-risk T-001–T-009 Done When explicitly requires meaningful Red→Green, failing tests committed before implementation, persisted-field/counterpart/mismatch preflight, a named independent reviewer and formal quality gate (tasks.md 63, 112, 163, 212, 261, 317, 371, 430, 479). Changed T-011 preserves the readiness failing-test commit a72eab2ec5e5362f635b4814fecd9e791a300e68 and its Red/Green/product chronology (602–604, 616), and separately requires a meaningful failing regression and identified failing-test commit before each workflow/installer correction, subsequent Green, source pins, subset rollback and named independent verdict over each correction and the combined scope (608–609). Its requirement traceability and spec/environment provenance are explicit at 616; implementation claims and this task-plan verdict cannot substitute for that quality verdict. No critical-risk task exists, so second approval and signed critical bundle are not applicable. This assesses inspectable planned evidence without claiming the referenced implementation evidence has been independently executed or validated here.",
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical"
+    },
+    {
+      "finding": "PASS: tasks.md shared ownership (13–21) separates planning, aggregation, wiring, discovery, binding, selection, transport, installed entries, maintenance and adoption. T-011 remains a bounded final delivery integration unit: exact omission-readiness parser/setup correction, one workflow context binding correction, a shared installer payload boundary, current-test/reference repairs, followed by final docs/activation/release verification (564–590, 594–622). Each runtime correction has an independently identifiable failing-test chronology, review obligation and subset rollback (602–610); local/archive and Bash/PowerShell/MCP payload work share the same distribution boundary and required-runtime oracle (608, 615), so splitting by host or copy path would fragment one compatibility change. The expanded file set does not leave an undifferentiated implementation or verification unit; unrelated algorithms remain excluded (626).",
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "finding": "PASS: tasks.md T-001–T-009 Done When and the Test Ownership table connect actual negative cases in acceptance-tests.md: incomplete/invalid diff and trust input, missing/malformed/duplicate/wrong-native/rerun evidence, cache corruption, stale/partial discovery, changed resume identity, malformed shadowed configuration, native precedence and consent, and failed/untrusted freshness inputs. Changed T-011 specifically retains unknown-predicate, missing-matrix and unrecognized-command conservative controls plus old-parser/new-setup typed rejection (602–604); workflow pre-job syntax, identical cache path/key and platform parity (614); installer local/archive parity, old-payload cleanup on upgrade, rollback, required installed callers, selection/Node gates and minimal MCP bundles (608–615). Current-test repairs preserve historical hashes, ci-plan dependencies and unauthorized-current-publication sensitivity (564, 573–575, 610). Unproven categories remain full and unavailable hosted branches are disclosed (617–621); no graphical frontend exists per frontend-spec.md.",
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "finding": "PASS: tasks.md assigns exact TEST/AC ownership (634–797), with unit/schema and deterministic protocol integration for T-001/T-002/T-004–T-006, workflow/native inventory integration for T-003, protected transport and installed-entry integration for T-007/T-008, fixture-driven maintenance for T-009, and actual controlled artifacts for T-010. For changed T-011, tests/verification-ci-plan.tests.py and workflow/catalog regressions cover parser and legal-context behavior; existing Bash/PowerShell installer suites invoke the shared tests/lib/install-payload-check.py assertions, and model-policy-installed/install-cloud fixtures carry the payload manifest (564–588). Local/archive, upgrade and actual installed-caller checks test the changed distribution boundary (608–615). Actual hosted startup/native wrappers, selected omission and manual full execution remain explicit acceptance evidence, with exact final local/hosted revision checks before release (614, 617–620), matching AC-004/006/009/010/020 and TEST-016/017/027/034–038/075–077/128–130. Fixture results cannot substitute for hosted, native-model or adoption evidence (acceptance-tests.md 194–200).",
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "finding": "PASS: tasks.md 17 requires task-owned before/source hashes, disposable restoration and baseline reruns while preserving identity ledgers and frozen history; CI force-full and model explicit-pin/prior-release recovery retain their safeguards. Every high task explicitly requires documented tested rollback with before/after hashes and actual baseline results (64, 113, 164, 213, 262, 318, 372, 431, 480). T-011 adds exact readiness subset rollback (604), installer local/archive/upgrade/installed-caller rollback controls and atomic rollback preservation (594, 608–615), separate workflow/installer chronology and subset rollback (609), current-test disposable rollback (610), and a final documented rollback check (622). infra-spec.md Release and Rollback/Rollback sections preserve full coverage, prior immutable tags, pin validation and new-attempt identity.",
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "finding": "PASS: tasks.md 9 and 13–21 serialize execution and shared catalog/helper edits with explicit producer/consumer ownership; T-004/T-005/T-006/T-007 limit their shared model-policy.py functions, and T-008 owns install/render/entry integration after transports. T-009 maintenance and T-010 adoption do not concurrently own the same purpose. Changed T-011 explicitly owns its bounded tests/verification-impact.py/catalog/schema readiness correction, legal workflow context binding, shared install-payload.txt and both installers, shared payload assertion helper, listed current-test fixtures and final documentation (562–610). These amend completed predecessor surfaces under one serialized final integration owner, with no simultaneous competing task. Its final release does not change T-010 adoption algorithms or impersonate adoption/quality acceptance (596, 616, 621).",
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "finding": "PASS: tasks.md 13–21 and Blockers fields form the actual contract chain T-001 planner → T-002 aggregate → T-003 workflow integration → T-004 observation → T-005 binding → T-006 selection → T-007 transport → T-008 installed entries. T-009 consumes T-006 policy; T-010 consumes T-008 installed entries and uses controlled adoption to update references; neither invents a dependency on the other. T-011 joins T-009 and T-010 (630) for final delivery. Its explicitly authorized bounded readiness integration can proceed independently of T-010 execution, while rollout, adoption and immutable release remain blocked on T-010 (594–596); this scoped exception does not make the final blocker disappear. Installer changes build on the completed T-008 distribution/entry surface and require installed-runtime regression proof (608–615). Precheck reports workflow pairing and blocker format PASS; no distinct substantive missing or spurious dependency is present.",
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "finding": "PASS: tasks.md 600–604 identifies the exact original readme-contract symptom (443 full and 443 selected obligations), retained pre-correction bytes/commands/hashes, causal investigation of unknown generated ci-plan predicates and undeclared exact CLI setup, meaningful controls and four failing-then-passing regressions. Additional corrections explicitly require installer source-bound measured inventory and investigation of local Git-tracked broad-copy, recursive archive-copy, actual runtime consumer dependencies and MCP esbuild entrypoint before selecting a correction (608); the original measured payload is 16,408 files / 189,910,946 bytes, with local/archive, upgrade, rollback and installed-caller regression outcomes (615). The workflow symptom is a pre-job runner.temp rejection in job-level npm_config_cache, with legal-context diagnosis, separate failing-test chronology and real hosted startup plus unchanged cache/platform contracts (609, 614). Current-test drift requires exact failing commands/source hashes before reference/fixture repair and Red/Green controls preserving historical anchor content, ci-plan dependency and unauthorized-publication sensitivity (610). The plan therefore retains symptom → causal investigation → correction → original-failure/regression proof for every changed bugfix surface; its timestamped evidence is not replaced or backdated.",
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major"
+    }
+  ],
+  "feature": "ci-model-modernization",
+  "findings": [],
+  "host_session_id": "work-agent:root:t011_completion_plan2_b",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/ci-model-modernization/requirements.md",
+        "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+      },
+      {
+        "path": "specs/ci-model-modernization/acceptance-tests.md",
+        "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+      },
+      {
+        "path": "specs/ci-model-modernization/design.md",
+        "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+      },
+      {
+        "path": "specs/ci-model-modernization/tasks.md",
+        "sha256": "3f3912a29f7b95769102fae6a5e23b6bb3766f6ba317c342e49a34a215ef7812"
+      },
+      {
+        "path": "specs/ci-model-modernization/traceability.md",
+        "sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+      },
+      {
+        "path": "specs/ci-model-modernization/ux-spec.md",
+        "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+      },
+      {
+        "path": "specs/ci-model-modernization/frontend-spec.md",
+        "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+      },
+      {
+        "path": "specs/ci-model-modernization/infra-spec.md",
+        "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+      },
+      {
+        "path": "specs/ci-model-modernization/security-spec.md",
+        "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-4/round-2/precheck-result.json",
+        "sha256": "52c457b61142957826dc225a037f16b4ac567fd572871b1255ffa7edbd73985e"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-4/round-2/integrated-summary.json",
+        "sha256": "f31e498be7cc550679ba19f25a6202546653a2cef748208b0f7d8d8aad862dc2"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      }
+    ]
+  },
+  "role": "task-reviewer-b",
+  "round": 2,
+  "run_id": "work-agent:root:t011_completion_plan2_b",
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "verdict": "PASS"
+}

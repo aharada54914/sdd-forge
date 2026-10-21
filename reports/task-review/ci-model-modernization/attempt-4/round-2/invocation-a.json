@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "ci-model-modernization",
+  "run_id": "work-agent:root:t011_completion_plan2_a",
+  "host_session_id": "work-agent:root:t011_completion_plan2_a",
+  "sequence": 1302,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "5bf63092c6eba29fbd314a67ef8cb04b642dfb3e3f0946e5349143faf1f141d2",
+  "previous_record_sha256": "9ca2a9d9429ac7254344762aaeb4c97e6209d53a4ebcb2337b04b35df1f9fa18",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "sha256": "3f3912a29f7b95769102fae6a5e23b6bb3766f6ba317c342e49a34a215ef7812"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.md",
+      "sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-4/round-2/precheck-result.json",
+      "sha256": "52c457b61142957826dc225a037f16b4ac567fd572871b1255ffa7edbd73985e"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-4/round-2/dependency-graph.json",
+      "sha256": "e8bcf30c0415f8ae056c6f5bcc327562e2ac5f66fe73c6982f3a82d7bb4a51f9"
+    }
+  ]
+}

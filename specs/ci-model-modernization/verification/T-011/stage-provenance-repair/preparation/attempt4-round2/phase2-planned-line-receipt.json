@@ -1,0 +1,8 @@
+{
+  "recorded_at": "2026-10-21T12:42:57Z",
+  "authorization": "Root authorized exact phase2 plannedfiles line before freeze",
+  "before_sha256": "28c9ebb3b3b00811a28376e9c91e26e629bb61f89907cc04c3c226a8b7c9371f",
+  "after_sha256": "35b1b4189aa526d233d1a284ed0f1df82f3ed4086875e76b723444a77659cd41",
+  "only_added_bytes": "\n- tests/phase2-guard-invariants.tests.sh and tests/phase2-guard-invariants.tests.ps1 (current ci-plan predicate and explicit ship successor checks)\n",
+  "all_other_bytes_unchanged": true
+}

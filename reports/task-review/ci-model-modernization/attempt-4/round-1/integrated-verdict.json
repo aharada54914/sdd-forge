@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "ci-model-modernization",
+  "run_id": "taskplan-ci-model-modernization-attempt4-round1-integration",
+  "verdict": "BLOCKED",
+  "round": 1,
+  "attempt": 4,
+  "findings_critical": 1,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "BLOCKED"
+}
