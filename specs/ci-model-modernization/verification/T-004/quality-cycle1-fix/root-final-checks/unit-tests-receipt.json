@@ -1,0 +1,28 @@
+{
+  "selected_actual_command_receipt": {
+    "name": "model-observation",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/attempt-1/trace-model-suite.py",
+      "--root",
+      "/workspace/sdd-forge",
+      "--output",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/model-line-coverage.json"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T19:01:55Z",
+    "finished_at": "2026-10-19T19:02:13Z",
+    "exit_code": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e763c1a9444127e8de5dec638116b3621b8c92e3c3836e64a3b8d13c82b4c9cc"
+  },
+  "full_scope_receipts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/results.json",
+      "sha256": "1a0310e7bba20c45041a27d1cbfc2866547eb01fea9637a7693bd11aa05a0c60",
+      "scope": "model51: Schema5/Error3/Observation8/NativeFixture3/newversion1; shared execution counted once"
+    }
+  ],
+  "interpretation": "Selected command actually executed as recorded; all scope receipts separately hash-verified. Shared model50 execution is not multiplied. Regression selected command is one of the recorded final candidate family, whose complete245 tests passed via unchanged194 plus current51, with failed initial f05 static results explicitly excluded."
+}

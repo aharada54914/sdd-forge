@@ -3,7 +3,9 @@ name: Model Freshness Check
 # 週次モデル鮮度チェック (T-003 / Issue #157 / epic-159-pillar-d REQ-002)。
 # .github/scripts/check-model-freshness.sh を実行し、Anthropic/OpenAI の
 # 公式ソースを best-effort で取得して contracts/agent-model-capabilities.v2.json
-# との乖離を検出する。取得失敗時は "取得不能" issue コメントを残して
+# と read-only shared policy (contracts/model-policy.v1.json) を消費する。
+# Python 標準ライブラリで出典日・候補・明示的廃止候補を区別し、
+# 公開日不明は unknown とする。取得失敗時は "取得不能" issue コメントを残して
 # exit 0 (fail-soft, INV-009) -- 外部ソース障害でこの CI ジョブ自体を
 # 失敗させることはない。乖離検出時は [model-freshness-divergence] マーカー
 # 付き issue を起票(重複排除つき、AC-007)。self-improvement.yml とは

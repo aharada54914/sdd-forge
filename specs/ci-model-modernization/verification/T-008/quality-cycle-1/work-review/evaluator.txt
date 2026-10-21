@@ -1,0 +1,36 @@
+VERDICT: FAIL — NEEDS_WORK
+Critical: 0 · Major: 1 · Minor: 0
+
+Evaluator: `work-agent:root:t008_cycle1_evaluator`
+Reviewed report SHA-256: `eef500e6dcdbed4236bdc356645c2e7abe41e39729b7ca8ff4f169cfca4fc280`
+
+FINDINGS:
+
+- **[Major] Incomplete frozen review evidence.** `specs/ci-model-modernization/verification/T-008.contract.json:52` marks required tests passing using a raw log absent from the authorized delivery. `assembled-current-application/full-effective-evidence.json:17` and `:21` likewise reference absent execution receipts. Consequently, the current full78/shared54, final default Red and associated checks cannot earn independent acceptance from this frozen set. This is an evidence-access failure; it does **not** establish that the tests were never executed.
+
+  Missing paths under `specs/ci-model-modernization/verification/T-008/`:
+
+  | Evidence | Missing paths |
+  |---|---|
+  | Current installed execution | `root-current-installed-13/results.json`, `installed-result.json`, `1.stderr.log` |
+  | Current shared execution | `root-current-shared-54/results.json`, `shared-result.json`, `1.stderr.log` |
+  | Execution completion | `assembled-current-application/full13-subreaper.json`, `shared54-subreaper.json` |
+  | Current installer regression | `root-current-legacy-installers-10/results.json` and its referenced raw logs |
+  | Current lint/typecheck | `root-investigator-combined-green-1/1.stdout.log`, `2.stdout.log` |
+  | Final default Red | `root-investigator-default-red-1/5.stderr.log` |
+  | Prechecks | `assembled-prechecks/placeholder-all-products.log`, `component-coverage.log` |
+
+  The task’s original inventory, `reports/verification/model-selection-callers-20261018.json`, is also absent. The delivered 65+17 disposition documents reconcile internally, but direct comparison against that original report is unavailable.
+
+  **Acceptance impact:** T-008’s current acceptance/regression, Red→Green verification and complete original-caller closure remain unverified for this cycle. Supply a new pinned delivery containing the actual receipts, referenced logs/source-binding records and original inventory. No product repair or test rerun is implied merely by this delivery defect.
+
+CHECKED:
+
+- Verified the invocation hash and all **1,853 input hashes** initially and again after review; no changes. Independently verified all **224 report Output hashes**.
+- Reconciled all **65 primary + 17 indirect** delivered inventory paths, their current source hashes and all 82 canonical original-source-reference digests. Confirmed 78 test methods by AST inspection; discovery is not execution proof.
+- Traced assigned acceptance branches through renderer/native fields, both installers, managed entry, caller fences and behavior-focused tests. Inspected selected-control forwarding, role/host mismatch handling, native precedence, immutable controls, protected A/B separation, consent, original procedures and typed refusal before unbound allocation. No separate functional blocker identified in inspected source.
+- Inspected actual installed Codex configuration receipts and native trace: one client, one read-only `thread/start`, selected `gpt-6-astra`/`high`, **zero turns**, `actual_id: null`, proof unverified. This supports configured native delivery only.
+- Inspected original renderer Red logs, available historical Green evidence, persisted-field/counterpart preflights and self-improvement Red/five-method Green logs. Final default Red and current aggregate execution remain blocked by the finding above. Git ancestry was not independently queried.
+- Inspected rollback results and raw logs; verified all **70 v2 + 32 v3 log hashes** and identical before/after current, admitted and baseline maps. V2 contains nineteen successful baseline commands and the retained catalog failure; V3 contains the successful **44-test catalog** rerun. Both record full rollback/exact restoration and T-009 preservation. This is scoped aggregate evidence, not one twenty-suite invocation.
+
+Review remained read-only within the frozen scratch. No tests, Git commands, provider calls or mutations were performed. No backend identity, actual applied backend effort, model quality/adoption, hosted Action or cloud verification is asserted.

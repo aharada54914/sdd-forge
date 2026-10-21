@@ -1,0 +1,34 @@
+{
+  "actual_command": {
+    "name": "mypy",
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-implementation/scripts/model-policy.py",
+      "tests/model-policy.tests.py",
+      "tests/model-identity.tests.py",
+      "tests/verification-catalog.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T21:49:26.650417+00:00",
+    "elapsed_seconds": 0.373,
+    "exit_code": 0,
+    "stdout": {
+      "path": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/static-verification/mypy.stdout",
+      "sha256": "71144743c83babea384888a735db0c4daba3d4d7b7942b6839984bd5c21b52bb"
+    },
+    "stderr": {
+      "path": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/static-verification/mypy.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "supporting_evidence": [
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/final-proof-summary.json",
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json"
+  ],
+  "finish_time_basis": "Derived from recorded wall start + measured elapsed, normalized to seconds; not independent sampled finish."
+}

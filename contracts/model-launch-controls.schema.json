@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "model-launch-controls/v1",
+  "description": "Closed launch configuration; it is not a substantive reviewer input and carries no command, executable or native switch. Runtime additionally rejects duplicate keys, nonfinite numbers, non-integer or boolean attempt values and conflicting pins for one path; compares every raw pin before parsing; requires inputs sorted by path with unique paths and exactly equal to the request policy/observation/project/resume references plus every policy adoption path; opens each path component descriptor-relative without following symlinks under the caller working directory; bounds the aggregate unique bytes; and recomputes the selection with the trusted installed policy, registry and selectors.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "role",
+    "host",
+    "attempt",
+    "require_actual_id",
+    "selection",
+    "request",
+    "registry",
+    "inputs"
+  ],
+  "properties": {
+    "schema": {
+      "const": "model-launch-controls/v1"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "implementer",
+        "investigator",
+        "spec-reviewer-a",
+        "spec-reviewer-b",
+        "impl-reviewer-a",
+        "impl-reviewer-b",
+        "task-reviewer-a",
+        "task-reviewer-b",
+        "evaluator",
+        "domain-reviewer-a",
+        "domain-reviewer-b",
+        "workflow-auditor-a",
+        "workflow-auditor-b",
+        "diagnosis",
+        "self-improvement",
+        "panelist-gpt",
+        "panelist-gemini"
+      ]
+    },
+    "host": {
+      "type": "string",
+      "enum": [
+        "claude-code",
+        "codex-cli",
+        "copilot-cli",
+        "gemini-cli"
+      ]
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "require_actual_id": {
+      "type": "boolean"
+    },
+    "selection": {
+      "$ref": "#/$defs/reference"
+    },
+    "request": {
+      "$ref": "#/$defs/reference"
+    },
+    "registry": {
+      "$ref": "#/$defs/reference"
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "path": {
+      "description": "Canonical relative path: '/'-separated nonempty components, exact case, no '.', '..', trailing dot or space, backslash, colon, drive, absolute prefix or control character.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^[^/\\\\:\\x00-\\x1f\\x7f]{0,254}[^/\\\\:\\x00-\\x1f\\x7f. ](?:/[^/\\\\:\\x00-\\x1f\\x7f]{0,254}[^/\\\\:\\x00-\\x1f\\x7f. ])*(?![\\s\\S])"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    }
+  }
+}

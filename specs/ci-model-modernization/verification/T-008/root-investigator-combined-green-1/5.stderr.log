@@ -1,0 +1,11 @@
+test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch (t008_spec_root_actual.InstalledDefaultNativeCallerCandidateTests.test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch) ... ok
+test_each_admitted_caller_role_and_host_executes_installed_typed_stop_before_any_work (t008_spec_root_actual.InstalledDefaultNativeCallerCandidateTests.test_each_admitted_caller_role_and_host_executes_installed_typed_stop_before_any_work) ... ok
+test_definition_reuses_original_selection_errors_and_rejects_missing_forwarding (t008_spec_root_actual.InstalledClaudeBatchTests.test_definition_reuses_original_selection_errors_and_rejects_missing_forwarding) ... ok
+test_generic_unsupported_branch_validates_exact_role_host_grammar_without_effects (t008_spec_root_actual.InstalledClaudeBatchTests.test_generic_unsupported_branch_validates_exact_role_host_grammar_without_effects) ... ok
+test_installed_definition_forwards_bound_full_native_controls_without_per_call_aliases (t008_spec_root_actual.InstalledClaudeBatchTests.test_installed_definition_forwards_bound_full_native_controls_without_per_call_aliases) ... ok
+test_maintained_unknown_startup_fence_is_typed_and_cannot_enter_fallback_or_work (t008_spec_root_actual.InstalledClaudeBatchTests.test_maintained_unknown_startup_fence_is_typed_and_cannot_enter_fallback_or_work) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 18.796s
+
+OK

@@ -1,0 +1,255 @@
+{
+  "checked_at": "2026-10-19T19:02:15Z",
+  "jsonschema_version": "4.26.0",
+  "source": "independent task-local synthetic fixtures; no native access claim",
+  "cases": [
+    {
+      "name": "positive-fractional",
+      "schema_valid": true,
+      "product_valid": true,
+      "expected": true
+    },
+    {
+      "name": "positive-empty",
+      "schema_valid": true,
+      "product_valid": true,
+      "expected": true
+    },
+    {
+      "name": "positive-error",
+      "schema_valid": true,
+      "product_valid": true,
+      "expected": true
+    },
+    {
+      "name": "invalid-schema",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-host",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-cli_version",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-scope_id",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-scope_kind",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-purpose",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-observed_at",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-source",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-status",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-models",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-reason",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-observation_sha256",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "trailing-newline-scope_id",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "trailing-newline-cli_version",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "trailing-newline-observed_at",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "trailing-newline-observation_sha256",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "trailing-newline-native-id",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-calendar",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "positive-long-fraction",
+      "schema_valid": true,
+      "product_valid": true,
+      "expected": true
+    },
+    {
+      "name": "missing-schema",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-host",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-cli_version",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-scope_id",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-scope_kind",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-purpose",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-observed_at",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-source",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-status",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-models",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-reason",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "missing-observation_sha256",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-model-native_id---flag",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-model-efforts-['low', 'low']",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-model-efforts-['max']",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-model-available-1",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "extra-observation",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "invalid-error-reason",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    },
+    {
+      "name": "extra-error",
+      "schema_valid": false,
+      "product_valid": false,
+      "expected": false
+    }
+  ],
+  "calendar_checker": "stdlib datetime.fromisoformat registered explicitly; optional rfc3339_validator unavailable; schema regex enforces exact UTC-Z grammar",
+  "limits": "Freshness, digest equality, unique native IDs and source provenance are executable semantic checks."
+}

@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "model-observation/v1",
+  "description": "Scoped host model availability observation. JSON Schema cannot enforce unique native_id values, observation_sha256 equality, freshness or native provenance; plugins/sdd-implementation/scripts/model-policy.py validates those. Listing never proves inference access.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "host",
+    "cli_version",
+    "scope_id",
+    "scope_kind",
+    "purpose",
+    "observed_at",
+    "source",
+    "status",
+    "models",
+    "reason",
+    "observation_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "model-observation/v1"
+    },
+    "host": {
+      "type": "string",
+      "enum": [
+        "claude-code",
+        "codex-cli",
+        "copilot-cli",
+        "gemini-cli"
+      ]
+    },
+    "cli_version": {
+      "description": "Actual CLI version text, or 'unavailable' when it could not be read.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[!-~](?:[ -~]*[!-~])?(?![\\s\\S])"
+    },
+    "scope_id": {
+      "description": "Opaque non-secret account/client scope; never an email, account dump or token.",
+      "$ref": "#/$defs/identifier"
+    },
+    "scope_kind": {
+      "type": "string",
+      "enum": [
+        "account",
+        "client"
+      ]
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "diagnostic",
+        "launch"
+      ]
+    },
+    "observed_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?Z(?![\\s\\S])",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "live-discovery",
+        "verified-configuration",
+        "unsupported"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "incomplete",
+        "unavailable"
+      ]
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/model"
+      }
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "\\S"
+    },
+    "observation_sha256": {
+      "description": "SHA-256 of canonical sorted-key compact UTF-8 JSON of the record without this field.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "source": {
+            "const": "unsupported"
+          }
+        },
+        "required": [
+          "source"
+        ]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "const": "unavailable"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "unavailable"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "models": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}(?![\\s\\S])"
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "native_id",
+        "efforts",
+        "available"
+      ],
+      "properties": {
+        "native_id": {
+          "description": "Exact native model identifier from the host listing.",
+          "$ref": "#/$defs/identifier"
+        },
+        "efforts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "xhigh"
+            ]
+          }
+        },
+        "available": {
+          "description": "Listed by the documented host interface; not proof of inference access.",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "admitted_inputs_unchanged": true,
+  "archive_sha256": "27cdf4774959ce5aab9f5ef7e2882c807b874f874317c0b4e0d9bfffc436bad3",
+  "changed_admitted_inputs": [],
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/git",
+        "init",
+        "--template=",
+        "-q",
+        "."
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516211.5183249,
+      "label": "git-init",
+      "started_at_epoch": 1792516211.5145805,
+      "stderr": "01-git-init.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "01-git-init.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "gc.auto",
+        "0"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516211.5200145,
+      "label": "git-config-gc.auto",
+      "started_at_epoch": 1792516211.5185323,
+      "stderr": "02-git-config-gc.auto.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "02-git-config-gc.auto.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "maintenance.auto",
+        "false"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516211.5237188,
+      "label": "git-config-maintenance.auto",
+      "started_at_epoch": 1792516211.52022,
+      "stderr": "03-git-config-maintenance.auto.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "03-git-config-maintenance.auto.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "core.autocrlf",
+        "false"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516211.525345,
+      "label": "git-config-core.autocrlf",
+      "started_at_epoch": 1792516211.5239131,
+      "stderr": "04-git-config-core.autocrlf.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "04-git-config-core.autocrlf.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "core.fsmonitor",
+        "false"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516211.526939,
+      "label": "git-config-core.fsmonitor",
+      "started_at_epoch": 1792516211.5255358,
+      "stderr": "05-git-config-core.fsmonitor.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "05-git-config-core.fsmonitor.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "commit.gpgSign",
+        "false"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516211.528561,
+      "label": "git-config-commit.gpgSign",
+      "started_at_epoch": 1792516211.5271556,
+      "stderr": "06-git-config-commit.gpgSign.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "06-git-config-commit.gpgSign.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "add",
+        "--all",
+        "--force",
+        "--",
+        "."
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516212.1439486,
+      "label": "git-add",
+      "started_at_epoch": 1792516211.5287704,
+      "stderr": "07-git-add.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "07-git-add.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "user.name=T008 Fixture",
+        "-c",
+        "user.email=t008-fixture@example.invalid",
+        "commit",
+        "-qm",
+        "Exact admitted legacy runtime"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516212.2082763,
+      "label": "git-commit",
+      "started_at_epoch": 1792516212.144359,
+      "stderr": "08-git-commit.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "08-git-commit.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516212.2101815,
+      "label": "git-head",
+      "started_at_epoch": 1792516212.2086773,
+      "stderr": "09-git-head.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "09-git-head.stdout",
+      "stdout_sha256": "5912f13433fa82671733d774540ae87f671def8578ab9b7d662c88fc433555a2",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516212.211871,
+      "label": "git-tree",
+      "started_at_epoch": 1792516212.2104793,
+      "stderr": "10-git-tree.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "10-git-tree.stdout",
+      "stdout_sha256": "ed98984b5da7a4e7d3ddfc5fd0de5a40a3c362162c0f5296cb691c78b7f590bd",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "archive",
+        "--format=tar",
+        "HEAD"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516212.378564,
+      "label": "git-archive",
+      "started_at_epoch": 1792516212.212157,
+      "stderr": "11-git-archive.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "11-git-archive.stdout",
+      "stdout_sha256": "27cdf4774959ce5aab9f5ef7e2882c807b874f874317c0b4e0d9bfffc436bad3",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/install.tests.sh"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516241.8386247,
+      "label": "legacy-bash",
+      "started_at_epoch": 1792516212.4033673,
+      "stderr": "12-legacy-bash.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "12-legacy-bash.stdout",
+      "stdout_sha256": "00f4c7e7cb3f9974dc5be4e6869f3e9c80a2d4a5e1db61a839e3f5e3fb9382c5",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/install.tests.ps1"
+      ],
+      "cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+      "exit_code": 0,
+      "finished_at_epoch": 1792516298.096018,
+      "label": "legacy-powershell",
+      "started_at_epoch": 1792516241.8391347,
+      "stderr": "13-legacy-powershell.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "13-legacy-powershell.stdout",
+      "stdout_sha256": "f79ac1ee5f1010c338ac1c5b6e93358892b2d5af87a134bfdcb59e82da750237",
+      "timed_out": false,
+      "timeout_seconds": 900
+    }
+  ],
+  "controller_sha256": "7adf958e59f10d0102fcf0ae093ca4fd964f6386b75ce35ee2d41bbbcf0bf05d",
+  "finished_at_epoch": 1792516298.6216328,
+  "head": "4ff57ae0176a65a777fca7642c54fd263e4917d5",
+  "outer_subreaper_owned_by_root": true,
+  "parent_manifest_sha256": "900a1cd7789af40b6211b781bd17593fc2bc6f8d4a9d90653411dc0659f4ff02",
+  "parent_manifest_unchanged": true,
+  "passed": true,
+  "payload_count": 2244,
+  "regular_payload_count": 2243,
+  "schema": "t008-legacy-controller/v1",
+  "started_at_epoch": 1792516211.1031497,
+  "symlink_count": 1,
+  "test_commands_passed": true,
+  "tree": "d09b2dd075ffbb82381d3fb4662e1a9a90d33af8",
+  "workspace": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/workspace-kqj55wu_",
+  "workspace_sources_unchanged": true
+}

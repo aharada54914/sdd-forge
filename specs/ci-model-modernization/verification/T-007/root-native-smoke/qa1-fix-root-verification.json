@@ -1,0 +1,16 @@
+{
+  "recorded_at": "2026-10-20T02:00:14.293624+00:00",
+  "result": {
+    "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-qa1-fix-final/result.json",
+    "sha256": "da84a62f48a7429abe8b35b3a760c67074c868e8dcba8885460f72c33ee2d62a"
+  },
+  "actual_exit_code": 0,
+  "inputs_verified": 17,
+  "outputs_verified": 7,
+  "logs_verified": 2,
+  "all_current_product_pins_match": true,
+  "actual_id": null,
+  "model_turn_started": false,
+  "inference_access_proven": false,
+  "scope": "Native selected thread/start configuration only; fixtureadoption; no behavioraladoption/backendattestation"
+}

@@ -1,0 +1,96 @@
+{
+  "at": "2026-10-20T11:49:57.191621+00:00",
+  "status": "PRE_PRODUCT_RECORDED",
+  "tests_only_commit": "643f05f6",
+  "scope": "Four existing product paths only; extend ordinary work to diagnosis, preserve old investigator/config modes; no core/driver/SDK/schema/availability/adoption/protected changes",
+  "product_before": {
+    "plugins/sdd-implementation/scripts/managed-model-entry.py": {
+      "sha256": "e36c30fe675fc79ffc57af32e6e487413ffe2806c029c126fafdfedfba52c4df",
+      "mode": 384
+    },
+    "plugins/sdd-implementation/skills/diagnose/SKILL.md": {
+      "sha256": "39177f847eff6d547a8bec279bca6d6b623396c2c59ee412bad9e0470b22de44",
+      "mode": 384
+    },
+    "install.sh": {
+      "sha256": "90b142230ffe32e5af326dcb4db899f9e9d8446e619517625b5dc046fe6cfdbd",
+      "mode": 448
+    },
+    "install.ps1": {
+      "sha256": "15e5ce58ed8d2756f6bb78fda4799b35d87fa2b17d65722981b765c7df3aed3c",
+      "mode": 384
+    }
+  },
+  "fields": [
+    {
+      "field": "supported role/host",
+      "counterpart": "Existing role diagnosis on claude-code only; investigator remains exact",
+      "mismatch_test": "test_diagnosis_installers_and_entry_reject_missing_or_changed_workload_before_work wrong role/host reject before allocation"
+    },
+    {
+      "field": "selected native model and effort",
+      "counterpart": "Existing immutable selector/binding/control result and fixed CLI --model/--effort",
+      "mismatch_test": "test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure public fixture checks exact options against real core selection"
+    },
+    {
+      "field": "fresh session/public result scope",
+      "counterpart": "Canonical fresh UUID and existing bound session; returned public session must match",
+      "mismatch_test": "test_diagnosis_native_default_tools_and_failed_public_results_never_publish_success wrong-session rejection and replay-sensitive external fixture"
+    },
+    {
+      "field": "prompt raw pin",
+      "counterpart": "Existing canonical relative --prompt-file and raw SHA256 flag",
+      "mismatch_test": "test_diagnosis_installers_and_entry_reject_missing_or_changed_workload_before_work wrong raw pin / help-time prompt drift / invalid UUID"
+    },
+    {
+      "field": "fixed installed source closure",
+      "counterpart": "Complete diagnose Skill, loop policy, HITL template as data, report template and risk matrix from own installed root",
+      "mismatch_test": "test_diagnosis_installers_and_entry_reject_missing_or_changed_workload_before_work source help-time drift and both-shell omission rejection"
+    },
+    {
+      "field": "installer mandatory files",
+      "counterpart": "Same five fixed current runtime sources in both existing required-path lists",
+      "mismatch_test": "test_diagnosis_installers_and_entry_reject_missing_or_changed_workload_before_work ten actual missing-file source packages rejected without destination"
+    },
+    {
+      "field": "complete original procedure",
+      "counterpart": "Unabridged five phases, original supporting documents and handoff; only dispatcher/frontmatter changes",
+      "mismatch_test": "test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure recorder requires each exact installed source once in stdin"
+    },
+    {
+      "field": "native default tools/permissions",
+      "counterpart": "No invented role/agents or investigator denials; no permission/settings bypass or autoapproval",
+      "mismatch_test": "test_diagnosis_native_default_tools_and_failed_public_results_never_publish_success minimal supported help and exact argv set; fixture evidence writes are not OS permission proof"
+    },
+    {
+      "field": "authorized diagnostic artifacts",
+      "counterpart": "Real failing owned regression command and diagnosis report; product/source/settings/status ownership retained",
+      "mismatch_test": "test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure actual loop exit1 and report exist, sample and all original request inputs unchanged"
+    },
+    {
+      "field": "pre-work authority conflicts",
+      "counterpart": "Existing local cap/env precedence checks, supplied observation unchanged, require actual-ID true unsupported",
+      "mismatch_test": "test_diagnosis_installers_and_entry_reject_missing_or_changed_workload_before_work cap/env/required-proof cases stop with typed reason before output"
+    },
+    {
+      "field": "accepted output set",
+      "counterpart": "Existing selection/controls/validation contracts plus raw native-result.json; no new schema/actual-ID claim",
+      "mismatch_test": "test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure exact4files and existing T007 validation match; test_diagnosis_native_default_tools_and_failed_public_results_never_publish_success failure no accepted files"
+    },
+    {
+      "field": "native failure semantics",
+      "counterpart": "Public JSON result nonempty/errorfalse/exit0 and same session; no retry/fallback",
+      "mismatch_test": "test_diagnosis_native_default_tools_and_failed_public_results_never_publish_success malformed/zero-exit-error/nativefailure/session-mismatch all rejected once"
+    },
+    {
+      "field": "configuration/work distinction",
+      "counterpart": "Existing generic prepare remains configuration-only and cannot satisfy diagnosis work oracle",
+      "mismatch_test": "test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure genuine config-only positive creates no harness/report/work event"
+    },
+    {
+      "field": "dispatcher selection before diagnosis",
+      "counterpart": "Remove static model override; parent performs only managed handoff and returns; fresh child runs complete procedure once",
+      "mismatch_test": "test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure actual maintained bash fence, no static model and one work event"
+    }
+  ]
+}

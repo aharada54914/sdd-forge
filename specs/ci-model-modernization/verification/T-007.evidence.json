@@ -1,0 +1,254 @@
+{
+  "task_id": "T-007",
+  "feature": "ci-model-modernization",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "0250669eb9f4ad0ddad7017e47e98937cf6c5fa28e8ec136791d63c0c7609b05",
+  "quality_report": "reports/quality-gate/20261020-ci-model-modernization-T-007-cycle-2.md",
+  "verification_contract": "specs/ci-model-modernization/verification/T-007.contract.json",
+  "git_commit": "211be77e286fc18168fc1b0cb2796300fe3cf612",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/ci-model-resume-python/bin/ruff check plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py plugins/sdd-review-loop/scripts/launch-impl-review.py tests/model-policy-launch.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:54:20Z",
+      "finished_at": "2026-10-20T01:54:20Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/lint-receipt.json",
+      "evidence_sha256": "7ad3fe0c034bbe4fc46845738a65939039f2020ad8760b7611beb1944dd8488e"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/ci-model-resume-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py plugins/sdd-review-loop/scripts/launch-impl-review.py tests/model-policy-launch.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:54:20Z",
+      "finished_at": "2026-10-20T01:54:20Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/typecheck-receipt.json",
+      "evidence_sha256": "9168da26f4cc34327bc840fa9f1efe4d464c705c7df797fc33dae9b2e8633b59"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/run-final-core-with-case-inventory.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:54:20Z",
+      "finished_at": "2026-10-20T01:56:53Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/unit-tests-receipt.json",
+      "evidence_sha256": "d59139c385065867c7c551d766e90bf9264ef0d2d07d2bbf357ae6284bb2ce98"
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/run-final-core-with-case-inventory.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:54:20Z",
+      "finished_at": "2026-10-20T01:56:53Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/integration-tests-receipt.json",
+      "evidence_sha256": "d59139c385065867c7c551d766e90bf9264ef0d2d07d2bbf357ae6284bb2ce98"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/build-check.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:57:03Z",
+      "finished_at": "2026-10-20T01:57:04Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/build-receipt.json",
+      "evidence_sha256": "2c694341e1f2b8efc06b947167dcc4caac4afec717690bb3417d93a4cc94da52"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-review-loop/scripts/launch-impl-review.py plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py plugins/sdd-implementation/scripts/model-policy.py plugins/sdd-quality-loop/scripts/emit-run-record.sh plugins/sdd-quality-loop/scripts/emit-run-record.ps1 plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1 plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1 contracts/model-launch-controls.schema.json",
+      "exit_code": 0,
+      "started_at": "2026-10-20T02:07:37Z",
+      "finished_at": "2026-10-20T02:07:37Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/placeholder-scan-receipt.json",
+      "evidence_sha256": "4e5e91ce80670621939fd7f2b0e4e70dbe91f348347eb3b52a403e5aed4bd910"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-20T02:07:37Z",
+      "finished_at": "2026-10-20T02:07:38Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/task-state-check-receipt.json",
+      "evidence_sha256": "b3501f05293975586dfa5edaa7eab173372e4d7dffea010952ddc00806ae1638"
+    },
+    {
+      "id": "smoke-run",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/root-native-smoke/capture-v4-qa1-fix.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:59:44Z",
+      "finished_at": "2026-10-20T01:59:45Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/smoke-run-receipt.json",
+      "evidence_sha256": "d5bf93338102d77715d57bee6e4861cb17459d2774521f7cfe17cb20e7005c08"
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/final-generated-evidence-checks.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:56:59Z",
+      "finished_at": "2026-10-20T01:57:03Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/acceptance-tests-receipt.json",
+      "evidence_sha256": "c3664e4e1bf65c06a5b06c8dc059247515f4dcbcd0154d01aa90bfe64660242a"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/run-final-core-with-case-inventory.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:54:20Z",
+      "finished_at": "2026-10-20T01:56:53Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/regression-receipt.json",
+      "evidence_sha256": "d59139c385065867c7c551d766e90bf9264ef0d2d07d2bbf357ae6284bb2ce98"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-20T02:08:14Z",
+      "finished_at": "2026-10-20T02:08:14Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/requirement-traceability-receipt.json",
+      "evidence_sha256": "558396c97703ad1f1fd57467e75a8aa0056474fd03e8f5e6579a373c0bdcaa4c"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-20T02:08:14Z",
+      "finished_at": "2026-10-20T02:08:14Z",
+      "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-007.contract.json",
+      "sha256": "a970c0e92ff99ad5a1b1af48f078d1770ed66efda12b80da600b88c2ac3ee082"
+    },
+    {
+      "path": "reports/quality-gate/20261020-ci-model-modernization-T-007-cycle-2.md",
+      "sha256": "6285f342ae80285d53f6549014345cd0489d6fad58e19642df870b6bca0f3585"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/acceptance-tests-receipt.json",
+      "sha256": "c3664e4e1bf65c06a5b06c8dc059247515f4dcbcd0154d01aa90bfe64660242a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/build-receipt.json",
+      "sha256": "2c694341e1f2b8efc06b947167dcc4caac4afec717690bb3417d93a4cc94da52"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/integration-tests-receipt.json",
+      "sha256": "d59139c385065867c7c551d766e90bf9264ef0d2d07d2bbf357ae6284bb2ce98"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/lint-receipt.json",
+      "sha256": "7ad3fe0c034bbe4fc46845738a65939039f2020ad8760b7611beb1944dd8488e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/placeholder-scan-receipt.json",
+      "sha256": "4e5e91ce80670621939fd7f2b0e4e70dbe91f348347eb3b52a403e5aed4bd910"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/regression-receipt.json",
+      "sha256": "d59139c385065867c7c551d766e90bf9264ef0d2d07d2bbf357ae6284bb2ce98"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/requirement-traceability-receipt.json",
+      "sha256": "558396c97703ad1f1fd57467e75a8aa0056474fd03e8f5e6579a373c0bdcaa4c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/smoke-run-receipt.json",
+      "sha256": "d5bf93338102d77715d57bee6e4861cb17459d2774521f7cfe17cb20e7005c08"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/task-state-check-receipt.json",
+      "sha256": "b3501f05293975586dfa5edaa7eab173372e4d7dffea010952ddc00806ae1638"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/typecheck-receipt.json",
+      "sha256": "9168da26f4cc34327bc840fa9f1efe4d464c705c7df797fc33dae9b2e8633b59"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-contract-evidence-final/unit-tests-receipt.json",
+      "sha256": "d59139c385065867c7c551d766e90bf9264ef0d2d07d2bbf357ae6284bb2ce98"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ]
+}

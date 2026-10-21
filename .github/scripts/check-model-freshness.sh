@@ -5,7 +5,7 @@
 # Invoked by .github/workflows/model-freshness-check.yml on its weekly
 # schedule or a manual workflow_dispatch. Best-effort fetches the official
 # Anthropic and OpenAI model-listing sources, diffs the fetched text against
-# contracts/agent-model-capabilities.v2.json's models[].name entries, and
+# the read-only shared model policy and legacy capability catalog, and
 # either:
 #   - fetch fails for EITHER vendor -> posts/updates a "取得不能" (fetch
 #     unavailable) comment on a dedicated tracking issue and exits 0. This
@@ -21,13 +21,16 @@
 # Security boundaries (Security Boundaries B1/B2, AC-021): fetched content
 # is untrusted diff input only -- it is NEVER executed, NEVER written
 # verbatim into any repository file, and NEVER embedded verbatim into an
-# issue body. Only model-ID tokens that pass the charset allowlist
+# issue body. Output uses fixed enum labels, validated dates and model IDs.
+# Only model-ID tokens that pass the charset allowlist
 # `[A-Za-z0-9.-]` (with a claude-/gpt-/o-digit prefix and at least one digit, this
 # script's own conservative-heuristic noise filter -- Non-goals) ever reach
 # an issue body. This script never opens any path under `contracts/` for
 # writing (Security Boundaries B2) -- registry corrections remain a
 # human-reviewed change (T-002-shaped), never automated here.
 #
+# Python standard library parses repository JSON and publication metadata; no
+# provider SDK or extra JSON-query runtime is needed.
 # Structured as three separable, independently-testable functions
 # (design.md API/Contract Plan):
 #   fetch_source_or_unavailable  -- fixture-injectable fetch (or curl)
@@ -73,6 +76,7 @@ ANTHROPIC_SOURCE_URL="${ANTHROPIC_SOURCE_URL:-https://docs.anthropic.com/en/docs
 OPENAI_SOURCE_URL="${OPENAI_SOURCE_URL:-https://platform.openai.com/docs/models}"
 
 REGISTRY_FILE="${MODEL_FRESHNESS_REGISTRY_PATH:-${ROOT}/contracts/agent-model-capabilities.v2.json}"
+POLICY_FILE="${MODEL_FRESHNESS_POLICY_PATH:-${ROOT}/contracts/model-policy.v1.json}"
 REPO="${GITHUB_REPOSITORY:-}"
 
 # ---------------------------------------------------------------------------
@@ -109,76 +113,102 @@ fetch_source_or_unavailable() {
   curl -fsSL --max-time 15 "$url" 2>/dev/null || return 1
 }
 
-# ---------------------------------------------------------------------------
-# compute_divergence <anthropic_text> <openai_text> <registry_file>
-#   Pure function: no network, no gh. Extracts whitespace-delimited
-#   candidate tokens from the fetched text, keeping only tokens that (a)
-#   consist ENTIRELY of the allowlisted charset [A-Za-z0-9.-], (b)
-#   begin with claude-, gpt-, or o followed by a digit, and (c)
-#   contain at least one digit (this script's own conservative-heuristic
-#   noise filter, discarding ordinary prose words -- Non-goals: "false
-#   negatives acceptable... not a precise parser"). Any token failing the
-#   allowlist is discarded outright and never appears in the output
-#   (Security Boundaries B1, AC-021) -- markdown injection, instruction-like
-#   text, and script fragments virtually never consist entirely of the
-#   allowlisted charset, so they are filtered before this point.
-#   Prints the sorted, unique, newline-separated list of candidate tokens
-#   that are NOT already present in the registry's models[].name entries
-#   (full name or the post-"vendor/" basename) -- empty output means no
-#   divergence.
-# ---------------------------------------------------------------------------
+# Compare read-only policy/catalog metadata with conservative source observations.
+# Only explicit table rows prove a deprecation candidate; absence proves nothing.
+# Source dates are publication metadata, never the time this job fetched a page.
 compute_divergence() {
-  local anthropic_text="$1"
-  local openai_text="$2"
-  local registry_file="$3"
+  local anthropic_text="$1" openai_text="$2" registry_file="$3"
+  printf '%s\0%s' "$anthropic_text" "$openai_text" | python3 -c '
+import datetime
+from html.parser import HTMLParser
+import json
+import re
+import sys
 
-  local known
-  known="$(extract_registry_tokens "$registry_file")"
+TOKEN = re.compile(r"(?:claude-|gpt-|o[0-9])[A-Za-z0-9.-]*")
+SOURCES = {"anthropic": "https://docs.anthropic.com/en/docs/about-claude/models",
+           "openai": "https://platform.openai.com/docs/models"}
 
-  local candidates
-  candidates="$(
-    {
-      printf '%s\n' "$anthropic_text"
-      printf '%s\n' "$openai_text"
-    } | extract_candidate_tokens
-  )"
+def model_token(value):
+    return isinstance(value, str) and TOKEN.fullmatch(value) and re.search(r"[0-9]", value)
 
-  [ -z "$candidates" ] && return 0
+def valid_date(value):
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}(?:T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)?", value):
+        return "unknown"
+    try:
+        datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return "unknown"
+    return value
 
-  local tok
-  while IFS= read -r tok; do
-    [ -z "$tok" ] && continue
-    if [ -z "$known" ] || ! printf '%s\n' "$known" | grep -qxF "$tok"; then
-      printf '%s\n' "$tok"
-    fi
-  done <<TOKENS
-$candidates
-TOKENS
-}
+class Publication(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.dates = []
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "meta" and attrs.get("property") == "article:published_time":
+            self.dates.append(valid_date(attrs.get("content")))
 
-# extract_candidate_tokens -- reads text on stdin, prints sorted-unique
-# whitespace-delimited model-family tokens (claude-, gpt-, or o + digit).
-# Keep the full charset allowlist and digit requirement. This is a conservative
-# discovery heuristic, not a model catalog or HTML parser: numeric CSS/SVG and
-# version tokens must not generate registry-divergence issues (#298).
-extract_candidate_tokens() {
-  tr -s '[:space:]' '\n' | grep -E '^(claude-|gpt-|o[0-9])[A-Za-z0-9.-]*$' | grep -E '[0-9]' | sort -u || true
-}
+# These are trusted repository inputs, not fetched prose. Invalid policy/catalog
+# stops comparison: it must not masquerade as an empty known-model inventory.
+try:
+    with open(sys.argv[1], encoding="utf-8") as stream:
+        catalog = json.load(stream)
+    with open(sys.argv[2], encoding="utf-8") as stream:
+        policy = json.load(stream)
+    if policy.get("schema") != "model-policy/v1" or not isinstance(policy.get("models"), list):
+        raise ValueError("invalid policy")
+    known = set()
+    metadata = {}
+    for item in catalog["models"]:
+        name = item["name"]
+        known.add(name.rsplit("/", 1)[-1])
+    for item in policy["models"]:
+        name = item["id"]
+        token = name.rsplit("/", 1)[-1]
+        if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9./-]*", name):
+            raise ValueError("invalid model ID")
+        known.add(token)
+        vendor = "anthropic" if name.startswith("anthropic/") or token.startswith("claude-") else "openai"
+        lifecycle = item.get("lifecycle")
+        if lifecycle not in ("current", "candidate", "historical", "retired"):
+            raise ValueError("invalid lifecycle")
+        metadata[(vendor, token)] = (lifecycle, valid_date(item.get("source_date")))
+    policy_date = valid_date(policy.get("source_date"))
+except (OSError, ValueError, KeyError, TypeError, AttributeError):
+    print("Model freshness comparison unavailable: invalid policy/catalog metadata", file=sys.stderr)
+    sys.exit(1)
 
-# extract_registry_tokens <file> -- prints each models[].name value AND its
-# post-"vendor/" basename, one per line (never writes; read-only, Security
-# Boundaries B2). Prints nothing (not an error) if the file is absent, so a
-# missing fixture-scoped registry copy degrades to "everything looks
-# divergent" rather than crashing the script.
-extract_registry_tokens() {
-  local file="$1"
-  [ -f "$file" ] || return 0
-  grep -oE '"name"[[:space:]]*:[[:space:]]*"[^"]+"' "$file" \
-    | sed -E 's/.*"name"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/' \
-    | while IFS= read -r n; do
-        printf '%s\n' "$n"
-        printf '%s\n' "${n##*/}"
-      done
+texts = sys.stdin.read().split("\0")
+rows = set()
+for vendor, text in zip(SOURCES, texts):
+    publication = Publication()
+    publication.feed(text)
+    dates = set(publication.dates)
+    source_date = next(iter(dates)) if len(dates) == 1 else "unknown"
+    deprecations: dict[str, str] = {}
+    for line in text.splitlines():
+        # shortcut: exact three-column Markdown rows only; add source-specific
+        # parsers when official structured formats require broader coverage.
+        match = re.fullmatch(r"\s*\|\s*([^|]+?)\s*\|\s*(deprecated|retired)\s*\|\s*([^|]*?)\s*\|\s*", line)
+        if match and model_token(match[1]):
+            token = match[1]
+            expected = "anthropic" if token.startswith("claude-") else "openai"
+            if vendor == expected:
+                date = valid_date(match[3])
+                previous = deprecations.get(token, date)
+                deprecations[token] = date if previous == date else "unknown"
+    for token, date in deprecations.items():
+        lifecycle, model_date = metadata.get((vendor, token), ("unknown", "unknown"))
+        rows.add(f"deprecation | {token} | {vendor} | sourceDate={date} | policyLifecycle={lifecycle} | policyModelSourceDate={model_date}")
+    for token in text.split():
+        if model_token(token) and token not in known and token not in deprecations:
+            rows.add(f"candidate | {token} | {vendor} | sourceDate={source_date}")
+if rows:
+    print(f"policySourceDate={policy_date}")
+    print("\n".join("- " + row for row in sorted(rows)))
+' "$registry_file" "$POLICY_FILE"
 }
 
 # ---------------------------------------------------------------------------
@@ -247,11 +277,9 @@ build_unavailable_body() {
 }
 
 build_divergence_body() {
-  local tokens="$1"
-  local bullet_list
-  bullet_list="$(printf '%s\n' "$tokens" | sed 's/^/- /')"
-  printf '週次モデル鮮度チェックが v2 レジストリ (contracts/agent-model-capabilities.v2.json) との乖離候補を検出しました。\n\n差分候補トークン（charset allowlist [A-Za-z0-9.-] 検証済みのみ）:\n%s\n\n%s\n\nこの issue は保守的ヒューリスティックによる自動生成です。誤検知の可能性があるため、人間によるレビュー・トリアージを経てからレジストリを更新してください。このスクリプト自身はレジストリへの書き込みを一切行いません。\n' \
-    "$bullet_list" "$CANONICAL_SOURCE_LIST"
+  local rows="$1"
+  printf '週次モデル鮮度チェック: shared policy / v2 catalog との乖離候補。\n\n%s\n\n%s\n\n候補・廃止候補は未検証です。sourceDate=unknown は公開日不明で、取得日時ではありません。policySourceDate と policyModelSourceDate は既存 policy の出典日です。モデル不在から廃止を推定しません。人間によるレビューと採用検証が必要です。このスクリプトは policy / registry / configuration を更新せず、自動採用・merge を行いません。\n' \
+    "$rows" "$CANONICAL_SOURCE_LIST"
 }
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,29 @@
+{
+  "selected_actual_command_receipt": {
+    "name": "mypy",
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-implementation/scripts/model-policy.py",
+      "tests/model-observation.tests.py",
+      "tests/verification-catalog.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T19:02:13Z",
+    "finished_at": "2026-10-19T19:02:15Z",
+    "exit_code": 0,
+    "stdout_sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "full_scope_receipts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/results.json",
+      "sha256": "1a0310e7bba20c45041a27d1cbfc2866547eb01fea9637a7693bd11aa05a0c60",
+      "scope": "mypy"
+    }
+  ],
+  "interpretation": "Selected command actually executed as recorded; all scope receipts separately hash-verified. Shared model50 execution is not multiplied. Regression selected command is one of the recorded final candidate family, whose complete245 tests passed via unchanged194 plus current51, with failed initial f05 static results explicitly excluded."
+}

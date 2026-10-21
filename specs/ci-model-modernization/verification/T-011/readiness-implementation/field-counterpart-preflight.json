@@ -1,0 +1,40 @@
+{
+  "status": "T011_READINESS_BEFORE_IMPLEMENTATION",
+  "fields": [
+    {
+      "field": "impact.non_suite_steps setup kind/site/body",
+      "producer": "new catalog single cli-hook-enforcement / Install Claude Code CLI / setup declaration",
+      "counterpart": "new impactRules enum and exact new rules tuple/body whitelist, unchanged workflow source",
+      "mismatch": "wrong job/step/body rejected; unknown conditions remain mandatory. OLD parser rejects kind setup with typed input-invalid BEFORE full/shared fallback, including force-full=true; actual local CLI result is compatibility-cli-result.json, not a full plan."
+    },
+    {
+      "field": "known generated plan predicate",
+      "producer": "declared trusted ci-plan output keys and exact PLAN_TERM",
+      "counterpart": "existing planner_outputs plus selection-local native residual condition_value",
+      "mismatch": "invalid output declarations/unknown predicates/unresolved matrix retain mandatory work; global W.condition_value is unchanged"
+    },
+    {
+      "field": "category activation evidence",
+      "producer": "future exact-B full/native and README mutation results plus source-consumer inventory",
+      "counterpart": "unchanged validate_activation / validate_proof_freshness / actual collector aggregate",
+      "mismatch": "no fresh actual B/M proof exists here; category stays inactive; later execution-definition or unrelated consumer/task/report changes cannot inherit the old proof"
+    },
+    {
+      "field": "native omitted workload and force-full setting",
+      "producer": "future actual PR plan/job observations and actual repository variable input",
+      "counterpart": "real CI contexts/wrappers/jobs and observed plan, not dry enumeration",
+      "mismatch": "443/214 enumeration is hypothetical; current variable endpoint403 means setting unknown; all-full does not satisfy TEST017. Safe typed failure of old parser does not satisfy old-base full-PR acceptance."
+    }
+  ],
+  "root_source_apply": false,
+  "root_owner_scope": "Root-authorized bounded high-risk/TDD readiness continuation before T010 completion; final rollout/adoption/release still blocked on T010. No historical verdict changed.",
+  "before_pins": {
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+    "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+    "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+    "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+    "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+    ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+    "specs/ci-model-modernization/tasks.md": "001cb88b7f64c7fb070354e848fd583b976fa0bf09bc5f5ffa063bf6df8153d6"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "label": "safe-required-checks-corrected",
+  "command": [
+    "python3",
+    "-B",
+    "tests/required-checks-posix.tests.py",
+    ".github/workflows/test.yml",
+    "-v"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:36:24.516232+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 46.672610141002224,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

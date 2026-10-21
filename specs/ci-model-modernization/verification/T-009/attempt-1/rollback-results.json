@@ -1,0 +1,222 @@
+{
+  "phases": [
+    {
+      "phase": "before",
+      "before_sha256": {
+        ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+        ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+        "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+        "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+        "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+        "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d"
+      },
+      "after_sha256": {
+        ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+        ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+        "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+        "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+        "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+        "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d"
+      },
+      "results": [
+        {
+          "lane": "bash",
+          "command": [
+            "bash",
+            "tests/model-freshness-check.tests.sh"
+          ],
+          "cwd": "/workspace/.task-scratch/ci-model-modernization/t009-rollback-qf7y1lad/checkout",
+          "started_at": "2026-10-20T16:39:36.193117+00:00",
+          "finished_at": "2026-10-20T16:39:37.290044+00:00",
+          "exit_code": 0,
+          "log": "specs/ci-model-modernization/verification/T-009/attempt-1/before-bash-rollback.log"
+        },
+        {
+          "lane": "powershell",
+          "command": [
+            "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+            "-NoProfile",
+            "-File",
+            "tests/model-freshness-check.tests.ps1"
+          ],
+          "cwd": "/workspace/.task-scratch/ci-model-modernization/t009-rollback-qf7y1lad/checkout",
+          "started_at": "2026-10-20T16:39:37.290174+00:00",
+          "finished_at": "2026-10-20T16:39:38.527059+00:00",
+          "exit_code": 0,
+          "log": "specs/ci-model-modernization/verification/T-009/attempt-1/before-powershell-rollback.log"
+        }
+      ]
+    },
+    {
+      "phase": "rollback",
+      "before_sha256": {
+        ".github/scripts/check-model-freshness.sh": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+        ".github/workflows/model-freshness-check.yml": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+        "tests/model-freshness-check.tests.sh": "cdf99531d74dee1963c95b45d382a3d988798ea7549fdc4a76069f7e26f53faa",
+        "tests/model-freshness-check.tests.ps1": "adb089fb58bc0b990e2f038bfbe5184630c64a67c817b193bf45aaa59fcd6d96",
+        "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+        "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "tests/verification-catalog.json": "48f5f9a0907d1747137aa800a6c1f5db69207d81bda62a1ae95694d138f6708c"
+      },
+      "after_sha256": {
+        ".github/scripts/check-model-freshness.sh": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+        ".github/workflows/model-freshness-check.yml": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+        "tests/model-freshness-check.tests.sh": "cdf99531d74dee1963c95b45d382a3d988798ea7549fdc4a76069f7e26f53faa",
+        "tests/model-freshness-check.tests.ps1": "adb089fb58bc0b990e2f038bfbe5184630c64a67c817b193bf45aaa59fcd6d96",
+        "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+        "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "tests/verification-catalog.json": "48f5f9a0907d1747137aa800a6c1f5db69207d81bda62a1ae95694d138f6708c"
+      },
+      "results": [
+        {
+          "lane": "bash",
+          "command": [
+            "bash",
+            "tests/model-freshness-check.tests.sh"
+          ],
+          "cwd": "/workspace/.task-scratch/ci-model-modernization/t009-rollback-qf7y1lad/checkout",
+          "started_at": "2026-10-20T16:39:38.528296+00:00",
+          "finished_at": "2026-10-20T16:39:39.044794+00:00",
+          "exit_code": 0,
+          "log": "specs/ci-model-modernization/verification/T-009/attempt-1/rollback-bash-rollback.log"
+        },
+        {
+          "lane": "powershell",
+          "command": [
+            "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+            "-NoProfile",
+            "-File",
+            "tests/model-freshness-check.tests.ps1"
+          ],
+          "cwd": "/workspace/.task-scratch/ci-model-modernization/t009-rollback-qf7y1lad/checkout",
+          "started_at": "2026-10-20T16:39:39.044923+00:00",
+          "finished_at": "2026-10-20T16:39:39.734426+00:00",
+          "exit_code": 0,
+          "log": "specs/ci-model-modernization/verification/T-009/attempt-1/rollback-powershell-rollback.log"
+        }
+      ]
+    },
+    {
+      "phase": "red-replay",
+      "before_sha256": {
+        ".github/scripts/check-model-freshness.sh": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+        ".github/workflows/model-freshness-check.yml": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+        "tests/model-freshness-check.tests.sh": "6e224d164c6dda8706c436a2c2e42991be82b1bd7b460ff06e0d854bfb11b58f",
+        "tests/model-freshness-check.tests.ps1": "a6476270025b075d768c22ac45fd21607057dac887f3ca62382b30939d157e9d",
+        "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+        "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "tests/verification-catalog.json": "48f5f9a0907d1747137aa800a6c1f5db69207d81bda62a1ae95694d138f6708c"
+      },
+      "after_sha256": {
+        ".github/scripts/check-model-freshness.sh": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+        ".github/workflows/model-freshness-check.yml": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+        "tests/model-freshness-check.tests.sh": "6e224d164c6dda8706c436a2c2e42991be82b1bd7b460ff06e0d854bfb11b58f",
+        "tests/model-freshness-check.tests.ps1": "a6476270025b075d768c22ac45fd21607057dac887f3ca62382b30939d157e9d",
+        "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+        "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "tests/verification-catalog.json": "48f5f9a0907d1747137aa800a6c1f5db69207d81bda62a1ae95694d138f6708c"
+      },
+      "results": [
+        {
+          "lane": "bash",
+          "command": [
+            "bash",
+            "tests/model-freshness-check.tests.sh"
+          ],
+          "cwd": "/workspace/.task-scratch/ci-model-modernization/t009-rollback-qf7y1lad/checkout",
+          "started_at": "2026-10-20T16:39:39.739824+00:00",
+          "finished_at": "2026-10-20T16:39:40.406040+00:00",
+          "exit_code": 1,
+          "log": "specs/ci-model-modernization/verification/T-009/attempt-1/red-replay-bash-rollback.log"
+        },
+        {
+          "lane": "powershell",
+          "command": [
+            "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+            "-NoProfile",
+            "-File",
+            "tests/model-freshness-check.tests.ps1"
+          ],
+          "cwd": "/workspace/.task-scratch/ci-model-modernization/t009-rollback-qf7y1lad/checkout",
+          "started_at": "2026-10-20T16:39:40.406254+00:00",
+          "finished_at": "2026-10-20T16:39:41.301038+00:00",
+          "exit_code": 1,
+          "log": "specs/ci-model-modernization/verification/T-009/attempt-1/red-replay-powershell-rollback.log"
+        }
+      ]
+    },
+    {
+      "phase": "restored",
+      "before_sha256": {
+        ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+        ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+        "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+        "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+        "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+        "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d"
+      },
+      "after_sha256": {
+        ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+        ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+        "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+        "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+        "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+        "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d"
+      },
+      "results": [
+        {
+          "lane": "bash",
+          "command": [
+            "bash",
+            "tests/model-freshness-check.tests.sh"
+          ],
+          "cwd": "/workspace/.task-scratch/ci-model-modernization/t009-rollback-qf7y1lad/checkout",
+          "started_at": "2026-10-20T16:39:41.302653+00:00",
+          "finished_at": "2026-10-20T16:39:42.336475+00:00",
+          "exit_code": 0,
+          "log": "specs/ci-model-modernization/verification/T-009/attempt-1/restored-bash-rollback.log"
+        },
+        {
+          "lane": "powershell",
+          "command": [
+            "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+            "-NoProfile",
+            "-File",
+            "tests/model-freshness-check.tests.ps1"
+          ],
+          "cwd": "/workspace/.task-scratch/ci-model-modernization/t009-rollback-qf7y1lad/checkout",
+          "started_at": "2026-10-20T16:39:42.336587+00:00",
+          "finished_at": "2026-10-20T16:39:43.569018+00:00",
+          "exit_code": 0,
+          "log": "specs/ci-model-modernization/verification/T-009/attempt-1/restored-powershell-rollback.log"
+        }
+      ]
+    }
+  ],
+  "parent_before_sha256": {
+    ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+    ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+    "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+    "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+    "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d"
+  },
+  "parent_after_sha256": {
+    ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+    ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+    "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+    "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+    "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d"
+  },
+  "parent_unchanged": true,
+  "restored_candidate_hashes_match": true,
+  "catalog_baseline_provenance": "T008 source snapshot, after-the-fact matched to inverse T009 catalog edit; not T009 pre-edit pin",
+  "checkout": "/workspace/.task-scratch/ci-model-modernization/t009-rollback-qf7y1lad/checkout"
+}

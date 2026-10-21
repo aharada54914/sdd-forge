@@ -1,0 +1,17 @@
+ticket_id: RT-20261019-013
+status: resolved
+type: implementation-defect
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-002
+summary: "Aggregate CLI path normalization leaks symlink-loop RuntimeError"
+problem: "Actual Python3.12.14 aggregate --root self-symlink reproduction exits1 with pathlib RuntimeError and traceback before typed input normalization. Observations needs a readable plan to reach the equivalent argument; require an actual CLI regression rather than infer that case from the initial short-circuited probe."
+contract: "Existing T002 typed CLI input error envelope/exit2; design.md CLI error behavior and task input validation, no new path policy or API"
+expected_fix: "Record actual CLI Red for supported path-loop cases; normalize RuntimeError only at explicit input Path.resolve boundary to existing ValueError. Preserve ordinary directory and supported symlink paths, existing containment and create-only semantics; no broad main RuntimeError catch."
+evidence: specs/ci-model-modernization/verification/T-002/cycle2-fix/path-loop-probe.json
+auto_fix_allowed: true
+requires_human_decision: false
+classification: "Root confirmed actual saved CLI traceback; same approved T002 input-validation scope and existing contract; no architecture/auth/API decision."
+resolution: "Actual whole-task independent T002 cycle3 PASS0; all369 repository/scratch input hashes verified at delivery, current136 tests/static/schema/rollback PASS, generated evidence bundle validated. A9 both-counterpart acceptance complete; no hosted/integration/release claim."
+resolution_evidence: reports/quality-gate/20261019-ci-model-modernization-T-002-cycle-3.md

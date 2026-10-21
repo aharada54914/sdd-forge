@@ -1,0 +1,21 @@
+{
+  "label": "ruff",
+  "command": [
+    "python3",
+    "-m",
+    "ruff",
+    "check",
+    "--config",
+    "tests/shared-launch-python/pyproject.toml",
+    "tests/verification-impact.py",
+    "tests/verification-ci-plan.tests.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:35:03.726944+00:00",
+  "exit_code": 1,
+  "elapsed_seconds": 0.02040183100325521,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

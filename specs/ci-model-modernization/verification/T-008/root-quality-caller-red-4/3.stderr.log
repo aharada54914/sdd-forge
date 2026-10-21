@@ -1,0 +1,51 @@
+test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation (t008_spec_root_actual.InstalledSpecCallerTests.test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation) ... ok
+test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation (t008_spec_root_actual.InstalledSpecCallerTests.test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation) ... ok
+test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle (t008_spec_root_actual.InstalledSpecCallerTests.test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle) ... ok
+test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings (t008_spec_root_actual.InstalledSpecCallerTests.test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings) ... ok
+test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation (t008_spec_root_actual.InstalledQualityCallerTests.test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation) ... FAIL
+test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation (t008_spec_root_actual.InstalledQualityCallerTests.test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation) ... FAIL
+test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation (t008_spec_root_actual.InstalledQualityCallerTests.test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation) ... FAIL
+
+======================================================================
+FAIL: test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation (t008_spec_root_actual.InstalledQualityCallerTests.test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3306, in test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation
+    f, project, runtime = self.positive()
+                          ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3267, in positive
+    self.assert_managed(f, project, case, calls)
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3149, in assert_managed
+    self.assertTrue((directory / 'validation.json').is_file(), 'Maintained caller omitted installed prepare')
+AssertionError: False is not true : Maintained caller omitted installed prepare
+
+======================================================================
+FAIL: test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation (t008_spec_root_actual.InstalledQualityCallerTests.test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3285, in test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation
+    f, project, runtime = self.positive()
+                          ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3267, in positive
+    self.assert_managed(f, project, case, calls)
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3149, in assert_managed
+    self.assertTrue((directory / 'validation.json').is_file(), 'Maintained caller omitted installed prepare')
+AssertionError: False is not true : Maintained caller omitted installed prepare
+
+======================================================================
+FAIL: test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation (t008_spec_root_actual.InstalledQualityCallerTests.test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3271, in test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation
+    f, project, runtime = self.positive()
+                          ^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3267, in positive
+    self.assert_managed(f, project, case, calls)
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3149, in assert_managed
+    self.assertTrue((directory / 'validation.json').is_file(), 'Maintained caller omitted installed prepare')
+AssertionError: False is not true : Maintained caller omitted installed prepare
+
+----------------------------------------------------------------------
+Ran 7 tests in 42.109s
+
+FAILED (failures=3)

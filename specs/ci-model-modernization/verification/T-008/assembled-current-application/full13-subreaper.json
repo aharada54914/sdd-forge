@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "specs/ci-model-modernization/verification/T-008/assembled-current-application/run-current-installed-78-v2.py",
+    "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/assembled-full2-admission/task-input-manifest.json",
+    "17a0194f414f630b7526c7618e8ddf143dec6a239f2179a15e037636dc06cb85"
+  ],
+  "started_epoch": 1792516315.4384139,
+  "elapsed_seconds": 696.3808016777039,
+  "command_exit_code": 0,
+  "adopted_descendants_reaped": 159,
+  "own_command_group_cleanup_signals": [],
+  "remaining_own_children": false,
+  "scope": "Only command descendants; PID1/unrelated processes untouched"
+}

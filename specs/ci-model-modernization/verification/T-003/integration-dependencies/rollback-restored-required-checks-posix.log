@@ -1,0 +1,23 @@
+test_a9_workflow_privacy_mutations_are_rejected (__main__.RequiredChecksTests.test_a9_workflow_privacy_mutations_are_rejected) ... ok
+test_a9_workflow_trust_and_private_retention_boundary (__main__.RequiredChecksTests.test_a9_workflow_trust_and_private_retention_boundary) ... ok
+test_all_success (__main__.RequiredChecksTests.test_all_success) ... ok
+test_catalog_declared_ci_jobs_have_actual_execution (__main__.RequiredChecksTests.test_catalog_declared_ci_jobs_have_actual_execution) ... ok
+test_dependencies_and_always (__main__.RequiredChecksTests.test_dependencies_and_always) ... ok
+test_domain_finalization_has_its_own_unconditional_native_step (__main__.RequiredChecksTests.test_domain_finalization_has_its_own_unconditional_native_step) ... ok
+test_duplicate_yaml_keys_and_wrong_shell_are_not_execution (__main__.RequiredChecksTests.test_duplicate_yaml_keys_and_wrong_shell_are_not_execution) ... ok
+test_each_dependency_non_success (__main__.RequiredChecksTests.test_each_dependency_non_success) ... ok
+test_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) ... ok
+test_fallback_shards_are_complete_unconditional_and_required (__main__.RequiredChecksTests.test_fallback_shards_are_complete_unconditional_and_required) ... ok
+test_inactive_advisory_is_skipped_not_success (__main__.RequiredChecksTests.test_inactive_advisory_is_skipped_not_success) ... ok
+test_matrix_suite_profile_and_condition_coverage (__main__.RequiredChecksTests.test_matrix_suite_profile_and_condition_coverage) ... ok
+test_powershell_multiline_native_failure_is_not_coverage (__main__.RequiredChecksTests.test_powershell_multiline_native_failure_is_not_coverage) ... ok
+test_previously_missing_suites_have_unconditional_steps (__main__.RequiredChecksTests.test_previously_missing_suites_have_unconditional_steps) ... ok
+test_removed_disabled_or_prose_invocations_cannot_prove_coverage (__main__.RequiredChecksTests.test_removed_disabled_or_prose_invocations_cannot_prove_coverage) ... ok
+test_selected_plan_full_suite_runs_on_all_native_platforms (__main__.RequiredChecksTests.test_selected_plan_full_suite_runs_on_all_native_platforms) ... ok
+test_transport_dependency_is_pinned_and_installed_first (__main__.RequiredChecksTests.test_transport_dependency_is_pinned_and_installed_first) ... ok
+test_yaml_format_and_step_names_do_not_define_coverage (__main__.RequiredChecksTests.test_yaml_format_and_step_names_do_not_define_coverage) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 1.188s
+
+OK

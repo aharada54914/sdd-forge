@@ -1,0 +1,86 @@
+test_maintained_panelist_snippets_prepare_and_forward_installed_controls (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_prepare_and_forward_installed_controls) ... 
+  test_maintained_panelist_snippets_prepare_and_forward_installed_controls (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_prepare_and_forward_installed_controls) (shell='bash') ... FAIL
+  test_maintained_panelist_snippets_prepare_and_forward_installed_controls (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_prepare_and_forward_installed_controls) (shell='pwsh') ... FAIL
+test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host) ... 
+  test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host) (shell='bash') ... FAIL
+  test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host) (shell='pwsh') ... FAIL
+test_maintained_panelist_snippets_stop_on_preparation_failure (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_stop_on_preparation_failure) ... 
+  test_maintained_panelist_snippets_stop_on_preparation_failure (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_stop_on_preparation_failure) (shell='bash') ... FAIL
+  test_maintained_panelist_snippets_stop_on_preparation_failure (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_stop_on_preparation_failure) (shell='pwsh') ... FAIL
+
+======================================================================
+FAIL: test_maintained_panelist_snippets_prepare_and_forward_installed_controls (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_prepare_and_forward_installed_controls) (shell='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1777, in test_maintained_panelist_snippets_prepare_and_forward_installed_controls
+    self.accepted(f, result, output)
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1717, in accepted
+    self.assertTrue((directory / 'controls.json').is_file(), 'Maintained caller omitted installed prepare controls')
+AssertionError: False is not true : Maintained caller omitted installed prepare controls
+
+======================================================================
+FAIL: test_maintained_panelist_snippets_prepare_and_forward_installed_controls (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_prepare_and_forward_installed_controls) (shell='pwsh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1776, in test_maintained_panelist_snippets_prepare_and_forward_installed_controls
+    result, output = self.run_snippet(f, installed, shell, 'happy')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1668, in run_snippet
+    text = self.snippet(installed, vendor, shell)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1650, in snippet
+    self.assertEqual(len(choices), 1, 'Expected one maintained ' + shell + ' ' + vendor + ' command fence')
+AssertionError: 0 != 1 : Expected one maintained pwsh gpt command fence
+
+======================================================================
+FAIL: test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host) (shell='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1810, in test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host
+    self.accepted(f, result, output)
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1717, in accepted
+    self.assertTrue((directory / 'controls.json').is_file(), 'Maintained caller omitted installed prepare controls')
+AssertionError: False is not true : Maintained caller omitted installed prepare controls
+
+======================================================================
+FAIL: test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host) (shell='pwsh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1809, in test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host
+    result, output = self.run_snippet(f, installed, shell, 'positive')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1668, in run_snippet
+    text = self.snippet(installed, vendor, shell)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1650, in snippet
+    self.assertEqual(len(choices), 1, 'Expected one maintained ' + shell + ' ' + vendor + ' command fence')
+AssertionError: 0 != 1 : Expected one maintained pwsh gpt command fence
+
+======================================================================
+FAIL: test_maintained_panelist_snippets_stop_on_preparation_failure (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_stop_on_preparation_failure) (shell='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1792, in test_maintained_panelist_snippets_stop_on_preparation_failure
+    self.accepted(f, result, output)
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1717, in accepted
+    self.assertTrue((directory / 'controls.json').is_file(), 'Maintained caller omitted installed prepare controls')
+AssertionError: False is not true : Maintained caller omitted installed prepare controls
+
+======================================================================
+FAIL: test_maintained_panelist_snippets_stop_on_preparation_failure (t008_root_caller_checks.InstalledPanelistCallerTests.test_maintained_panelist_snippets_stop_on_preparation_failure) (shell='pwsh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1791, in test_maintained_panelist_snippets_stop_on_preparation_failure
+    result, output = self.run_snippet(f, installed, shell, 'positive')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1668, in run_snippet
+    text = self.snippet(installed, vendor, shell)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1650, in snippet
+    self.assertEqual(len(choices), 1, 'Expected one maintained ' + shell + ' ' + vendor + ' command fence')
+AssertionError: 0 != 1 : Expected one maintained pwsh gpt command fence
+
+----------------------------------------------------------------------
+Ran 3 tests in 6.235s
+
+FAILED (failures=6)

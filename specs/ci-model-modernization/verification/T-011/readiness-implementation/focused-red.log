@@ -1,0 +1,27 @@
+test_exact_declared_cli_setup_can_leave_unrelated_cli_job_unselected (__main__.OmissionReadinessTests.test_exact_declared_cli_setup_can_leave_unrelated_cli_job_unselected) ... ERROR
+test_setup_declaration_does_not_admit_another_raw_command_or_site (__main__.OmissionReadinessTests.test_setup_declaration_does_not_admit_another_raw_command_or_site) ... ok
+test_unknown_predicates_and_missing_matrix_keys_stay_mandatory (__main__.OmissionReadinessTests.test_unknown_predicates_and_missing_matrix_keys_stay_mandatory) ... ok
+test_validated_generated_gate_does_not_itself_force_unrelated_suite (__main__.OmissionReadinessTests.test_validated_generated_gate_does_not_itself_force_unrelated_suite) ... FAIL
+
+======================================================================
+ERROR: test_exact_declared_cli_setup_can_leave_unrelated_cli_job_unselected (__main__.OmissionReadinessTests.test_exact_declared_cli_setup_can_leave_unrelated_cli_job_unselected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1557, in test_exact_declared_cli_setup_can_leave_unrelated_cli_job_unselected
+    IMPACT.rules(catalog, workflow)
+  File "/workspace/sdd-forge/tests/verification-impact.py", line 344, in rules
+    raise ValueError('invalid non-suite declaration')
+ValueError: invalid non-suite declaration
+
+======================================================================
+FAIL: test_validated_generated_gate_does_not_itself_force_unrelated_suite (__main__.OmissionReadinessTests.test_validated_generated_gate_does_not_itself_force_unrelated_suite)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-ci-plan.tests.py", line 1551, in test_validated_generated_gate_does_not_itself_force_unrelated_suite
+    self.assertFalse(any(o['job'] == job for o in chosen))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.022s
+
+FAILED (failures=1, errors=1)

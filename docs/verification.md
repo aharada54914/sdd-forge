@@ -31,14 +31,35 @@ Timing estimates affect placement only: stale estimates can make a run slower,
 but cannot remove a test. The independent Windows compatibility, gate, and A9
 lanes remain dependencies of `required-checks`.
 
-## Selection experiment
+## CI planning and the legacy observation API
 
-`tests/verification-impact.py` proposes a selection and reports its basis. It is
-an observation-only experiment: the proposal does not control required CI jobs.
+Two interfaces share `tests/verification-impact.py`. The legacy observation
+interface proposes a selection and reports its basis; it does not control
+required CI jobs. The `ci-plan` job in `.github/workflows/test.yml` instead runs
+`--plan` to produce a revision-bound `verification-ci-plan/v1` plan for the
+tested revision and uploads it as an artifact. On pull requests the planner is
+taken from the trusted base revision when that revision provides it.
+
 Unknown changes, missing comparison revisions, test infrastructure changes, and
-shared or sensitive changes retain the full profile. The initial narrower case
-is deliberately limited to README changes, which still have documentation and
-workflow contracts to verify.
+shared or sensitive changes retain the full profile. No narrower rollout
+category is active: the only catalog category (`readme-contract`) has
+`active: false`, so planned runs currently take the full profile. This
+document makes no measured-savings claim and schedules no activation.
+
+`SDD_CI_FORCE_FULL` (a repository variable passed as `--force-full`) is a
+recovery switch. `true` forces the full profile. An absent or invalid value
+also takes the full profile. A literal `false` does not by itself activate a
+category that is not marked active.
+
+Conservative full planning requires valid planner inputs. A failed `ci-plan`
+job or malformed plan fails the required aggregate check. In particular, older
+trusted-base planners reject the new catalog's `setup` descriptors with
+`verification-ci-error/v1` / `input-invalid`, even with `--force-full true`.
+Upgrade the trusted base to matching planner and catalog tooling before using
+the new CI configuration. For recovery, repair the incompatible inputs and run
+full manually on a revision with matching tooling; forcing full alone does not
+repair this parser incompatibility. The live repository variable's value has
+not been verified.
 
 Receipts can be compared with the proposal to find failures it would have missed.
 Missing, skipped, or mismatched observations are not successful comparisons.
@@ -90,6 +111,7 @@ Windows roots return UNSAFE_ROOT and unsupported safe-file primitives return
 UNSUPPORTED_FILESYSTEM. Linux fixtures do not prove native Windows junction coverage;
 record that branch only after real CI execution. See [operator guide](cloud-orchestration.md).
 
-CI-efficiency research is not adopted selection or achieved savings. The current
-selection experiment remains observational; skipped/planned checks are never PASS.
+CI-efficiency research is not achieved savings. The legacy observation interface
+remains observational and no rollout category is active; skipped/planned checks
+are never PASS.
 Keep required-checks and native Windows compatibility/gate/A9 obligations intact.

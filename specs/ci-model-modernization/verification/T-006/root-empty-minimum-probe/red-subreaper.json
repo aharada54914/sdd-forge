@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "-c",
+    "import importlib.util,unittest,os; os.environ[\"SDD_TEST_PWSH\"]=\"/workspace/.tools/sdd-forge-dev/bin/pwsh\"; s=importlib.util.spec_from_file_location(\"t006_empty_red\",\"tests/model-policy.tests.py\"); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); names=[\"test_empty_optional_minimum_matches_omission_in_both_wrappers\",\"test_empty_optional_minimum_direct_completion_preserves_role_floor\"]; result=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(m.PolicySelection(n) for n in names)); raise SystemExit(not result.wasSuccessful())"
+  ],
+  "started_epoch": 1792446173.177211,
+  "elapsed_seconds": 1.557422399520874,
+  "command_exit_code": 1,
+  "adopted_descendants_reaped": 0,
+  "own_command_group_cleanup_signals": [],
+  "remaining_own_children": false,
+  "scope": "Only command descendants; PID1/unrelated processes untouched"
+}

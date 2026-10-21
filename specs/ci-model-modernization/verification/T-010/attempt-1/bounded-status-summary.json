@@ -1,0 +1,28 @@
+{
+  "task_id": "T-010",
+  "status": "native inference access blocked",
+  "native_turn_requests": 20,
+  "candidate_outputs": 0,
+  "native_tools_used": 0,
+  "error_class_counts": {
+    "unauthorized": 20
+  },
+  "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+  "availability": "All 10 pre-pair model/list observations complete/fresh; listing did not establish inference access.",
+  "original_source_pins": 221,
+  "before_after_source_checks": 20,
+  "source_drift": false,
+  "harbor_scoring": "not performed; no model-generated repair exists",
+  "text_scoring": "not performed; no model-generated answer exists",
+  "fixed_judges": "not called",
+  "adoption": "none; no quality conclusion about either model or skill",
+  "actual_backend_identity": "unverified; no generation attested",
+  "usage": null,
+  "manual_authentication_changes": false,
+  "retries_or_substitutions": false,
+  "warnings": {
+    "Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.": 20
+  },
+  "evidence": "attempt-1/native-access-failure-evidence.json",
+  "followup": "Root must resolve host authorization through its allowed mechanism, then explicitly version any new attempt; all current failures remain preserved."
+}

@@ -1,0 +1,92 @@
+=== QGCL-001: 0 reports (empty dir) -> continue ===
+ok: QGCL-001 (sh): continue / exit 0
+ok: QGCL-001 (ps1): continue / exit 0
+=== QGCL-002: 1 feature-scoped report -> continue ===
+ok: QGCL-002 (sh): continue / exit 0
+ok: QGCL-002 (ps1): continue / exit 0
+=== QGCL-003: 2 feature-scoped reports -> continue ===
+ok: QGCL-003 (sh): continue / exit 0
+ok: QGCL-003 (ps1): continue / exit 0
+=== QGCL-004: 3 feature-scoped reports -> Escalate-Human ===
+ok: QGCL-004 (sh): Escalate-Human / exit 1
+ok: QGCL-004 (ps1): Escalate-Human / exit 1
+=== QGCL-005: 4 feature-scoped reports -> Escalate-Human ===
+ok: QGCL-005 (sh): Escalate-Human / exit 1
+ok: QGCL-005 (ps1): Escalate-Human / exit 1
+=== QGCL-006: prefix collision T-0010 does not count for T-001 ===
+ok: QGCL-006 (sh): continue / exit 0
+ok: QGCL-006 (ps1): continue / exit 0
+=== QGCL-007: absent reports dir -> continue ===
+ok: QGCL-007 (sh): continue / exit 0
+ok: QGCL-007 (ps1): continue / exit 0
+=== QGCL-008: invalid task-id -> exit 2 ===
+ok: QGCL-008a (too few digits) (sh): usage error exit 2
+ok: QGCL-008a (too few digits) (ps1): usage error exit 2
+ok: QGCL-008b (four digits) (sh): usage error exit 2
+ok: QGCL-008b (four digits) (ps1): usage error exit 2
+ok: QGCL-008c (lowercase) (sh): usage error exit 2
+ok: QGCL-008c (lowercase) (ps1): usage error exit 2
+ok: QGCL-008d (non-task) (sh): usage error exit 2
+ok: QGCL-008d (non-task) (ps1): usage error exit 2
+ok: QGCL-008e (empty) (sh): usage error exit 2
+ok: QGCL-008e (empty) (ps1): usage error exit 2
+=== QGCL-009: identity matches beside prose, embedded does not ===
+ok: QGCL-009a (identity header, punctuation-adjacent prose) (sh): Escalate-Human / exit 1
+ok: QGCL-009a (identity header, punctuation-adjacent prose) (ps1): Escalate-Human / exit 1
+ok: QGCL-009b (embedded in word) (sh): continue / exit 0
+ok: QGCL-009b (embedded in word) (ps1): continue / exit 0
+ok: QGCL-009c (prose mention only, no identity header) (sh): continue / exit 0
+ok: QGCL-009c (prose mention only, no identity header) (ps1): continue / exit 0
+ok: QGCL-009d (bare 'Task:' identity form) (sh): Escalate-Human / exit 1
+ok: QGCL-009d (bare 'Task:' identity form) (ps1): Escalate-Human / exit 1
+ok: QGCL-009e (H1 heading identity form) (sh): Escalate-Human / exit 1
+ok: QGCL-009e (H1 heading identity form) (ps1): Escalate-Human / exit 1
+=== QGCL-009f/g: WFI-035 controls ===
+ok: QGCL-009f (negative control: three real reports still escalate) (sh): Escalate-Human / exit 1
+ok: QGCL-009f (negative control: three real reports still escalate) (ps1): Escalate-Human / exit 1
+ok: QGCL-009g (positive control: sibling prose does not count for T-001) (sh): continue / exit 0
+ok: QGCL-009g (positive control: sibling prose does not count for T-001) (ps1): continue / exit 0
+ok: QGCL-009g (positive control: the sibling's own count is intact) (sh): Escalate-Human / exit 1
+ok: QGCL-009g (positive control: the sibling's own count is intact) (ps1): Escalate-Human / exit 1
+=== QGCL-010: default reports-dir = reports/quality-gate ===
+ok: QGCL-010 (sh): default dir counts 3 -> Escalate-Human
+ok: QGCL-010 (ps1): default dir counts 3 -> Escalate-Human
+=== QGCL-011: sh/ps1 output+exit parity (new 2-required-arg contract) ===
+ok: QGCL-011: parity for T-001/this-feature in r0 (exit=0, out=[continue])
+ok: QGCL-011: parity for T-001/this-feature in r2 (exit=0, out=[continue])
+ok: QGCL-011: parity for T-001/this-feature in r3 (exit=1, out=[Escalate-Human])
+ok: QGCL-011: parity for T-001/this-feature in rc (exit=0, out=[continue])
+ok: QGCL-011 (malformed-feature usage-error branch): parity for task=T-001 feature=[UPPER] (both exit 2)
+ok: QGCL-011 (malformed-feature usage-error branch): parity for task=T-001 feature=[-leading] (both exit 2)
+ok: QGCL-011 (malformed-feature usage-error branch): parity for task=T-001 feature=[] (both exit 2)
+=== QGCL-012: .ps1 ASCII-only and no BOM ===
+ok: QGCL-012a: .ps1 is ASCII-only (grep -P)
+ok: QGCL-012b: .ps1 has no UTF-8 BOM
+=== QGCL-013: cross-feature exclusion (AC-002) ===
+ok: QGCL-013a: 3 other-feature reports, 0 this-feature -> continue (sh): continue / exit 0
+ok: QGCL-013a: 3 other-feature reports, 0 this-feature -> continue (ps1): continue / exit 0
+ok: QGCL-013b: same dir queried for other-feature -> Escalate-Human (sh): Escalate-Human / exit 1
+ok: QGCL-013b: same dir queried for other-feature -> Escalate-Human (ps1): Escalate-Human / exit 1
+ok: QGCL-013c: 3 other-feature + 1 this-feature -> continue (count=1, not 4) (sh): continue / exit 0
+ok: QGCL-013c: 3 other-feature + 1 this-feature -> continue (count=1, not 4) (ps1): continue / exit 0
+=== QGCL-014: RT-20260712-001 cross-feature-collision regression (GREEN; RED recorded separately) ===
+ok: QGCL-014a (0 this-feature reports) (sh): continue / exit 0
+ok: QGCL-014a (0 this-feature reports) (ps1): continue / exit 0
+ok: QGCL-014b (1 this-feature report) (sh): continue / exit 0
+ok: QGCL-014b (1 this-feature report) (ps1): continue / exit 0
+ok: QGCL-014c (2 this-feature reports) (sh): continue / exit 0
+ok: QGCL-014c (2 this-feature reports) (ps1): continue / exit 0
+ok: QGCL-014d: RED evidence log present at specs/quality-loop-fixes/verification/qg/T-001/red.log
+=== QGCL-015: staged ship/SKILL.md human-copy candidate matches MANIFEST.sha256 (AC-006) ===
+ok: QGCL-015: staged ship/SKILL.md candidate SHA-256 matches its MANIFEST.sha256 entry
+ok: QGCL-015: live ship/SKILL.md exists (unmodified by this feature -- protected, human-applied only)
+=== QGCL-016: self-registration + human-copy test.yml conformance (AC-007) ===
+ok: QGCL-016 (AC-007): quality-gate-cycle-limit.tests.sh registered in tests/run-all.sh
+ok: QGCL-016 (AC-007): quality-gate-cycle-limit.tests.sh deliberately ABSENT from tests/run-all.ps1 (combined-suite convention)
+ok: QGCL-016 (AC-007, cross-check): second-approval-mask likewise absent from tests/run-all.ps1
+ok: QGCL-016 (AC-007, cross-check): review-agent-isolation likewise absent from tests/run-all.ps1
+ok: QGCL-016 (AC-007, cross-check): review-contract-foundation-parity likewise absent from tests/run-all.ps1
+ok: QGCL-016 (AC-007): staged .github/workflows/test.yml candidate SHA-256 matches its MANIFEST.sha256 entry
+ok: QGCL-016 (AC-007): registered in the LIVE .github/workflows/test.yml (human-copy already applied)
+
+Results: 73 passed, 0 failed

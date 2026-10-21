@@ -1,0 +1,59 @@
+.............................E....E......E..
+======================================================================
+ERROR: test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os (__main__.WorkflowIntegrationTests.test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/tests/verification-catalog.tests.py", line 466, in test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os
+    before = self.t003_before()
+             ^^^^^^^^^^^^^^^^^^
+  File "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/tests/verification-catalog.tests.py", line 438, in t003_before
+    return json.loads((ROOT / 'specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json').read_text())
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json'
+
+======================================================================
+ERROR: test_T003_suite_projection_rejects_original_obligation_mutations (__main__.WorkflowIntegrationTests.test_T003_suite_projection_rejects_original_obligation_mutations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/tests/verification-catalog.tests.py", line 474, in test_T003_suite_projection_rejects_original_obligation_mutations
+    historical = {s for o in self.t003_before()['obligations'] for s in o['suites']}
+                             ^^^^^^^^^^^^^^^^^^
+  File "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/tests/verification-catalog.tests.py", line 438, in t003_before
+    return json.loads((ROOT / 'specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json').read_text())
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json'
+
+======================================================================
+ERROR: test_T005_identity_registration_projects_away_from_historical_inventory (__main__.WorkflowIntegrationTests.test_T005_identity_registration_projects_away_from_historical_inventory)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/tests/verification-catalog.tests.py", line 861, in test_T005_identity_registration_projects_away_from_historical_inventory
+    historical = {s for o in self.t003_before()['obligations'] for s in o['suites']}
+                             ^^^^^^^^^^^^^^^^^^
+  File "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/tests/verification-catalog.tests.py", line 438, in t003_before
+    return json.loads((ROOT / 'specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json').read_text())
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json'
+
+----------------------------------------------------------------------
+Ran 44 tests in 2.566s
+
+FAILED (errors=3)

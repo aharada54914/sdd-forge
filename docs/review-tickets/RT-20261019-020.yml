@@ -1,0 +1,14 @@
+ticket_id: RT-20261019-020
+status: resolved
+type: model-policy-option-consistency
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-006
+summary: "Completion rejects accepted empty optional minimum tier"
+expected_fix: "Treat the validated empty caller minimum as absent while retaining independent role floor; commit failing both-wrapper and direct-completion regressions before repair; fresh full-scope independent QA2."
+evidence: reports/quality-gate/20261019-ci-model-modernization-T-006-cycle-1.md
+auto_fix_allowed: true
+requires_human_decision: false
+classification: "Narrow approved T006 selection option consistency repair; no competing ranking, new authority, inference, adoption or release decision."
+resolution: "Actual fresh full-scope QA2 PASS0; evidence bundle generated and checked before Done. Empty caller minimum normalized without weakening independent role floor;377 current methods and both shells pass,326 historical baseline honestly reused after exact source identity proof."

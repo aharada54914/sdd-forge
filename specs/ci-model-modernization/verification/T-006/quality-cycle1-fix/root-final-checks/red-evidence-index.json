@@ -1,0 +1,33 @@
+{
+  "actual_red": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-006/root-red/results.json",
+      "sha256": "38774206d34fbe31f5f79daddac94fe187307c69cd48635ad71619c9828f3a15"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-006/root-completion-probe/corrected-old-product-red.json",
+      "sha256": "a03189c75034d3f8a7b359e5c921471b382622efc170412807dc3a6b842107b3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-006/root-purpose-probe/stable-red.json",
+      "sha256": "033714e2353ec342ed365730602f8944955133ce65cdfed6b1cd8279b4fb7d66"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-006/root-price-probe/red.json",
+      "sha256": "ca52576d8723b77583635e4f8bc5fbfe5f4291e8aa6d80b1b184defd2522dda9"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-006/root-replay-source-probe/red.json",
+      "sha256": "62e8ad21093b6fedfd80ce6312039503609beedc75476cc0ddf068208f9a4406"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-006/root-option-probe/red.json",
+      "sha256": "4936dc58f747b4bb0167c59a35ad1861a76cffb500d6a8ca5ab59b48b29f73fc"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-006/root-empty-minimum-probe/red.json",
+      "sha256": "4c20196aedc574b227d4db4ed9b108fecbceadd15190c9f543a487a9822ebf22"
+    }
+  ],
+  "typing_repair": "Root reviewed all original49tests/assertions and14additive lines; test-onlycommit2baa43ab; no new functionalRed claimed"
+}

@@ -3,6 +3,7 @@
 import copy
 import importlib.util
 import json
+import os
 import pathlib
 import re
 import shlex
@@ -11,9 +12,11 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('workflow_contract', ROOT / 'tests/verification-workflow.py')
+assert SPEC and SPEC.loader
 WF = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(WF)
 WORKFLOW = pathlib.Path(sys.argv.pop(1)) if len(sys.argv) > 1 else ROOT / '.github/workflows/test.yml'
@@ -30,6 +33,11 @@ def unconditional(step):
 
 
 class RequiredChecksTests(unittest.TestCase):
+    workflow: dict[str, Any]
+    catalog: dict[str, Any]
+    job: dict[str, Any]
+    needs: list[str]
+    body: str
     @classmethod
     def setUpClass(cls):
         cls.workflow = WF.load_workflow(WORKFLOW)
@@ -39,9 +47,9 @@ class RequiredChecksTests(unittest.TestCase):
         if isinstance(cls.needs, str):
             cls.needs = [cls.needs]
         bodies = [step['run'] for step in cls.job.get('steps', []) if isinstance(step.get('run'), str)]
-        if len(bodies) != 1:
-            raise ValueError('expected one required-checks shell body')
-        cls.body = bodies[0]
+        if WF.verifier_job(cls.workflow) is not True or len(bodies) != 4:
+            raise ValueError('expected exact prepared verifier caller')
+        cls.body = bodies[-1]
 
     def consumers(self, job_name, suite):
         job = self.workflow['jobs'][job_name]
@@ -54,7 +62,7 @@ class RequiredChecksTests(unittest.TestCase):
         self.assertTrue(set(self.needs).issubset(self.workflow['jobs']))
         self.assertIn(self.job.get('if'), ('always()', '${{ always() }}'))
         self.assertIs(self.job.get('continue-on-error', False), False)
-        step = next(step for step in self.job['steps'] if 'run' in step)
+        step = self.job['steps'][-1]
         self.assertTrue(unconditional(step))
         self.assertEqual(step.get('shell', 'bash'), 'bash')
 
@@ -217,7 +225,7 @@ class RequiredChecksTests(unittest.TestCase):
             parsed = WF.load_workflow(path)
         self.assertEqual(WF.workflow_coverage(parsed, self.catalog), WF.workflow_coverage(self.workflow, self.catalog))
         self.assertEqual(parsed['jobs']['required-checks']['needs'], self.needs)
-        self.assertEqual(parsed['jobs']['required-checks']['steps'][0]['run'], self.body)
+        self.assertEqual(parsed['jobs']['required-checks']['steps'][-1]['run'], self.body)
 
     def test_removed_disabled_or_prose_invocations_cannot_prove_coverage(self):
         suite = 'tests/guard-dispatch-fallback.tests.sh'
@@ -253,7 +261,7 @@ class RequiredChecksTests(unittest.TestCase):
         paths = ['tests/a.tests.py', 'tests/b.tests.py']
         catalog = {'suites': [{'path': path, 'runtime': 'python', 'ci_jobs': ['matrix']} for path in paths],
                    'profiles': {'both': paths}}
-        workflow = {'jobs': {'matrix': {'runs-on': 'windows-latest',
+        workflow: dict[str, Any] = {'jobs': {'matrix': {'runs-on': 'windows-latest',
                     'strategy': {'matrix': {'include': [{'suite': path} for path in paths]}},
                     'steps': [{'run': 'python tests/verification.py --suite "${{ matrix.suite }}" --run',
                                'shell': 'pwsh'}]}}}
@@ -272,7 +280,7 @@ class RequiredChecksTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 WF.load_workflow(path)
         catalog = {'suites': [{'path': 'tests/a.ps1', 'runtime': 'powershell', 'ci_jobs': ['job']}], 'profiles': {}}
-        workflow = {'jobs': {'job': {'runs-on': 'ubuntu-latest', 'steps': [{'run': './tests/a.ps1', 'shell': 'bash'}]}}}
+        workflow: dict[str, Any] = {'jobs': {'job': {'runs-on': 'ubuntu-latest', 'steps': [{'run': './tests/a.ps1', 'shell': 'bash'}]}}}
         self.assertTrue(WF.coverage_errors(workflow, catalog))
         workflow['jobs']['job']['steps'][0]['shell'] = 'pwsh'
         self.assertEqual(WF.coverage_errors(workflow, catalog), [])
@@ -281,7 +289,7 @@ class RequiredChecksTests(unittest.TestCase):
         paths = ['tests/a.tests.py', 'tests/b.tests.py']
         catalog = {'suites': [{'path': path, 'runtime': 'python', 'ci_jobs': ['job']} for path in paths],
                    'profiles': {'both': paths}}
-        workflow = {'jobs': {'job': {'runs-on': 'windows-latest',
+        workflow: dict[str, Any] = {'jobs': {'job': {'runs-on': 'windows-latest',
                     'steps': [{'run': '\n'.join('python ' + path for path in paths), 'shell': 'pwsh'}]}}}
         self.assertEqual(len(WF.coverage_errors(workflow, catalog)), 2)
         executable = "'" + sys.executable.replace("'", "''") + "'"
@@ -334,15 +342,50 @@ class RequiredChecksTests(unittest.TestCase):
             self.assertEqual(run.returncode, 23)
 
     def execute_body(self, failed_job=None, result='success', active='true'):
-        def expand(match):
-            name = match[1]
-            self.assertIn(name, self.needs)
-            return result if name == failed_job else 'success'
-        body = re.sub(r'\$\{\{ needs\.([a-z0-9-]+)\.result \}\}', expand, self.body)
-        body = body.replace('${{ needs.a9-advisory-inputs.outputs.active }}', active)
-        self.assertNotIn('${{', body)
-        return subprocess.run(['bash', '-e', '-c', body], capture_output=True,
-                              text=True, timeout=10)
+        # Use the existing real C CLI fixture, with exact A9 Git/event reconstruction.
+        # Every live dependency gets a required run obligation and an API observation.
+        spec = importlib.util.spec_from_file_location('required_ci_fixture', ROOT / 'tests/verification-ci.tests.py')
+        assert spec and spec.loader
+        fixtures = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixtures)
+        fixture = fixtures.A9AggregateTests()
+        try:
+            fixture.setUp()
+            for name in self.needs:
+                if name in fixture.workflow['jobs']:
+                    continue
+                fixture.workflow['jobs'][name] = {'name': name, 'runs-on': 'ubuntu-latest',
+                    'steps': [{'name': 'required workload', 'run': 'echo fixture'}]}
+                row = copy.deepcopy(fixture.normal_jobs[0])
+                row.update(id=500 + len(fixture.normal_jobs), name=name, labels=['ubuntu-latest'])
+                row['steps'] = [dict(row['steps'][0], name='required workload', number=1)]
+                fixture.normal_jobs.append(row)
+            fixture.write('.github/workflows/test.yml', json.dumps(fixture.workflow))
+            fixture.a9_base = fixture.commit('all actual dependency identities')
+            fixture.configure(event='pull_request', head_context=active != 'false')
+            fixture.receipts = [receipt for receipt in fixture.receipts if receipt[0] < 300]
+            target = fixture.workflow['jobs'].get(failed_job, {}).get('name', failed_job)
+            if failed_job:
+                for row in fixture.jobs:
+                    if row['name'] == target or failed_job == 'test' and row['name'].startswith('test ('):
+                        row['conclusion'] = result or None
+                        if not result:
+                            row['status'] = 'in_progress'
+            if active == '':
+                # Missing detector evidence cannot authorize advisory skipping.
+                next(row for row in fixture.jobs if row['name'] == fixture.workflow['jobs']['a9-advisory-inputs']['name'])['steps'] = []
+            plan, observations = fixture.prepare()
+            runtime = fixture.scratch / 'runtime'
+            (runtime / 'verification-plan').mkdir(parents=True)
+            shutil.copyfile(plan, runtime / 'verification-plan/plan.json')
+            shutil.copytree(observations, runtime / 'verification-observations')
+            body = self.body.replace('python3 -B tests/verification-ci.py',
+                                     shlex.quote(sys.executable) + ' -B ' + shlex.quote(str(ROOT / 'tests/verification-ci.py')))
+            env = dict(os.environ, RUNNER_TEMP=str(runtime), GITHUB_RUN_ID='123', API_HEAD_SHA=fixture.api_run['head_sha'])
+            return subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', body], cwd=fixture.root,
+                                  env=env, capture_output=True, text=True, timeout=30)
+        finally:
+            fixture.doCleanups()
 
     def test_all_success(self):
         run = self.execute_body()

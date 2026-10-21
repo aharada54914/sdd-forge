@@ -11,6 +11,41 @@ Run the structural soundness and implementability review gate on a feature's
 design.md. This skill coordinates two independent reviewers, merges their
 findings, and manages the round/attempt state machine.
 
+## Managed allocation boundary
+
+Affected policy roles: `impl-reviewer-a`, `impl-reviewer-b`.
+
+Apply in the allocating parent before an unbound forked Skill/Agent, native role,
+or fresh context receives work, and before any identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+Apply separately to reviewer A or B before allocation or reservation. Keep the admitted protected managed Claude launch, exact role staging, readonly inputs, approval checkpoints and report/status ownership.
+
 ## Invocation
 
 Codex:
@@ -396,8 +431,23 @@ with a fresh canonical UUIDv4 as both run and host-session ID, then invoke once
 before any manual reservation:
 
 ```text
-rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py <absolute-repository-root> <absolute-invocation-path> <absolute-round-directory>/launch-<UUID>
+cd "<absolute-repository-root>" || exit $?
+output="<output-dir>"
+python3 -B plugins/sdd-implementation/scripts/managed-model-entry.py prepare \
+  --role <role> --host claude-code --request "<policy-request>" --registry "<registry>" \
+  --run-id <run-id> --session-id <session-id> --attempt <attempt> \
+  --output-dir "$output" --require-actual-id false || exit $?
+controls_sha=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["controls"]["sha256"])' "$output/validation.json") || exit $?
+python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py \
+  "<absolute-repository-root>" "<absolute-invocation-path>" "<absolute-round-directory>/launch-<UUID>" \
+  --model-controls "$output/controls.json" --model-controls-sha256 "$controls_sha"
 ```
+
+Use the invocation's exact role (`impl-reviewer-a` or `impl-reviewer-b`),
+run/session IDs and attempt in preparation; both IDs must equal the proposed
+UUID. Use repository-relative request and registry paths and a fresh output
+directory per reviewer. Stop on preparation failure. Forward the controls hash
+from successful `validation.json`; preparation stdout is not a launch receipt.
 
 The launcher verifies current inputs and native permissions, pins dependencies,
 performs the ordinary single reservation, then launches and checks delivery.

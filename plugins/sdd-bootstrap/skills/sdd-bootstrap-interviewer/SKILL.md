@@ -10,6 +10,41 @@ user-invocable: false
 Prepare work for implementation. This skill creates specifications and approved
 task contracts; it does not implement application code.
 
+## Managed allocation boundary
+
+Affected policy roles: `investigator`.
+
+Apply in the allocating parent before an unbound forked Skill/Agent, native role,
+or fresh context receives work, and before any identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+Apply to the investigation handoff before forking investigate-codebase. Keep later spec/implementation/task review handoffs at their downstream boundaries; do not allocate a second investigator.
+
 ## Invocation
 
 Codex:
@@ -56,13 +91,44 @@ this file from its entry command:
 5. If `specs/<feature>/investigation.md` exists, read it and carry all INV-xxx
    and BL-xxx IDs forward into requirements and traceability.
 6. For large or unfamiliar codebases in `feature`, `bugfix`, or `refactor`
-   modes, run `investigate-codebase` first and pass its outputs as context here.
+   modes, run the Managed investigation handoff below first and pass its
+   outputs as context here. On Claude Code, do not invoke the forked
+   `investigate-codebase` skill before that managed handoff.
 7. Record unknown product decisions under `Open Questions`; do not invent them.
 8. If a task adds or changes a user-facing entry point (view, dialog, menu item,
    context action), explicitly ask: "Where in the shell is this reachable? What
    safety preconditions must hold before the action is available?" Require at
    least one AC in the UI Integration Checklist of `acceptance-tests.md`
    asserting shell-level reachability before completing the interview.
+
+### Managed investigation handoff
+
+On Claude Code, the parent orchestrator runs this handoff before invoking
+`investigate-codebase` or allocating any forked Skill/Agent. Prepare the scoped
+policy request/registry and use the existing verified configuration observation
+unchanged. Write only the requested investigation mode, target/source and task
+instructions to `<prompt-file>` beneath `<repository-root>`; compute its raw
+SHA-256 as `<prompt-sha256>`. Use a fresh canonical UUID for `<session-id>`, a
+new output directory, and the explicit installed Claude executable. The entry
+selects and validates the investigator before one fresh workload; it loads the
+complete original role, skill and five supporting documents itself.
+
+```bash
+cd "<repository-root>" || exit 1
+python3 -B "<installed-root>/plugins/sdd-implementation/scripts/managed-model-entry.py" claude-entry \
+  --request "<policy-request>" --registry "<registry>" \
+  --role investigator --host claude-code --run-id "<run-id>" \
+  --session-id "<session-id>" --attempt "<attempt>" --output-dir "<output-dir>" \
+  --require-actual-id false --executable "<claude-executable>" \
+  --prompt-file "<prompt-file>" --prompt-sha256 "<prompt-sha256>"
+```
+
+Stop on a typed failure; do not fall back to an unmanaged Skill or Agent.
+Return the read-only findings to the existing artifact handoff, preserving
+`investigation.md`, `codemap.md`, applicable `baseline-behavior.md` and all
+INV/BL identifiers. The orchestrator retains its existing artifact-writing
+responsibility. On other hosts, use the existing `investigate-codebase` route
+in its documented fresh context; this handoff does not change those hosts.
 
 ### Capability Interview Phase
 
@@ -179,8 +245,8 @@ the required SDD structure. Project-level constitution files (`AGENTS.md`,
   affected area, and smallest safe correction.
 - `refactor`: specify a structural improvement that does not change observable
   behavior. Requires `specs/<feature>/investigation.md` and
-  `specs/<feature>/baseline-behavior.md`; run `investigate-codebase` first if
-  they are absent. Acceptance criteria are expressed as BL-xxx behavior
+  `specs/<feature>/baseline-behavior.md`; run the Managed investigation handoff
+  above first if they are absent. Acceptance criteria are expressed as BL-xxx behavior
   equivalence.
 
 ## Required Outputs

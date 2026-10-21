@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "/tmp/run-ci-t007-qa1-fix-root-governance.py"
+  ],
+  "started_epoch": 1792462057.4142473,
+  "elapsed_seconds": 36.891738176345825,
+  "command_exit_code": 0,
+  "adopted_descendants_reaped": 0,
+  "own_command_group_cleanup_signals": [],
+  "remaining_own_children": false,
+  "scope": "Only command descendants; PID1/unrelated processes untouched"
+}

@@ -20,6 +20,17 @@
 #   render-agent-frontmatter.sh [--check] [--registry PATH] [--root PATH] [--targets-file PATH]
 #   render-agent-frontmatter.sh --resolve-target-raw RELPATH 0|1
 #   render-agent-frontmatter.sh --resolve-target ROLE KIND RELPATH
+#   render-agent-frontmatter.sh [--root PATH] --model-controls FILE --model-controls-sha256 SHA
+#       --run-id ID --session-id ID --managed-target RELPATH [--check]
+#
+# Managed mode (T-008, ci-model-modernization): any of the five managed
+# flags hands the whole argv to
+# plugins/sdd-implementation/scripts/managed-model-entry.py beside this
+# script (never one chosen by --root or PATH). It writes native model/effort
+# fields from the T-007-validated selection, stages protected reviewers under
+# specs/ci-model-modernization/verification/T-008/current-human-copy, and
+# rejects incomplete or legacy-mixed input as one model-policy-error/v1
+# object on stderr (exit 2). Without managed flags nothing below changes.
 #
 # `--resolve-target-raw`/`--resolve-target` are the write-target resolution
 # self-check surface AC-019/TEST-019 exercises directly (not a
@@ -40,6 +51,19 @@
 set -euo pipefail
 
 SCRIPT_ROOT="$(cd "$(dirname "$0")" && pwd -P)"
+
+for arg in "$@"; do
+  case "$arg" in
+    --model-controls|--model-controls-sha256|--run-id|--session-id|--managed-target)
+      managed_entry="$SCRIPT_ROOT/plugins/sdd-implementation/scripts/managed-model-entry.py"
+      if ! command -v python3 >/dev/null 2>&1 || [[ ! -f "$managed_entry" ]]; then
+        printf '%s\n' '{"message":"The managed renderer runtime is unavailable.","reason":"input-invalid","schema":"model-policy-error/v1"}' >&2
+        exit 2
+      fi
+      exec python3 -I -B "$managed_entry" "$@"
+      ;;
+  esac
+done
 
 python3 - "$SCRIPT_ROOT" "$@" <<'PY'
 import hashlib

@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-20T12:43:25.275528+00:00",
+  "tests_first_commit": "11cd2e1a",
+  "product_before": {
+    "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md": {
+      "sha256": "ec5a392cea7190660b8517317977584d36179e718856061acf968b36ef6bd23f",
+      "mode": 384
+    }
+  },
+  "fields": [
+    {
+      "field": "actual secondary allocation",
+      "counterpart": "Managed investigator from implement-task parent; task Scope/Done When/required paths only, no history or implementation reallocation",
+      "mismatch_test": "test_implementation_delegation_executes_selected_readonly_investigation executes actual installed policy fence in both shells"
+    },
+    {
+      "field": "selected role/model/effort",
+      "counterpart": "Existing investigator claude-entry uses current unchanged request/registry/observation and resolved native configuration",
+      "mismatch_test": "positive actual CLI work event and existing core validation match selection"
+    },
+    {
+      "field": "read-only restrictions and state ownership",
+      "counterpart": "Existing investigator role/tools preserved; parent alone retains tasks/status/Blocked/self-review/report acceptance",
+      "mismatch_test": "shared fixture asserts original input/home/world bytes and exact read-only native tool args"
+    },
+    {
+      "field": "known local conflict",
+      "counterpart": "Existing effort cap and typed rejection before output or native work; no unmanaged fallback",
+      "mismatch_test": "same maintained fence with maxEffortLevel low rejects before work"
+    },
+    {
+      "field": "procedure preservation",
+      "counterpart": "One unit/purpose; receive conclusions; Working Notes; original other-host and incapable reload paths retained",
+      "mismatch_test": "actual fixed procedure source in implementer3 fixture and explicit ownership assertions"
+    }
+  ],
+  "scope": "Single existing delegation-policy document only; this later caller slice intentionally updates that support document while retaining original implement-task Skill and six other support sources. No runtime/core/driver/installer change."
+}

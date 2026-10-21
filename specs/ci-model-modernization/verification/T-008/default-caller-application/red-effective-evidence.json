@@ -1,0 +1,16 @@
+{
+  "status": "EXPECTED_RED",
+  "methods": {
+    "tests_run": 2,
+    "subtests_run": 0,
+    "subtests_passed": 0,
+    "failures": 2,
+    "errors": 0,
+    "skips": 0,
+    "successful": false
+  },
+  "source_pins_unchanged": 162,
+  "old76_ASTs_unchanged": true,
+  "static": "Ruff/mypy15files+Bash/PShparsersPASS",
+  "scope": "Actual new installed2tests fail missing default boundary; product not applied. Not formalQA."
+}

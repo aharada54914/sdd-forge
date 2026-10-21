@@ -1,0 +1,349 @@
+{
+  "T009_runtime_preserved": true,
+  "admitted_inputs_unchanged": true,
+  "baseline_command_scope": {
+    "aggregate_interpretation": "19 actual baseline checks PASS in v2 plus affected catalog44 in v3; not a claim of20 executed in one latest replay",
+    "all_product_source_operations_and_modes_unchanged_from_v2": true,
+    "nineteen_unchanged_baseline_checks_passed_in_v2": [
+      "render-agent-frontmatter.tests.sh",
+      "render-agent-frontmatter.tests.ps1",
+      "install.tests.sh",
+      "install.tests.ps1",
+      "model-policy-launch.tests.py",
+      "model-policy-launch-platform.tests.py",
+      "model-policy.tests.py",
+      "agent-model-routing.tests.sh",
+      "agent-model-routing.tests.ps1",
+      "emit-run-record-feature-scope.tests.sh",
+      "emit-run-record-feature-scope.tests.ps1",
+      "cross-model.tests.sh",
+      "cross-model.tests.ps1",
+      "spec-review-loop.tests.sh",
+      "quality-nontty-transport.tests.py",
+      "quality-gate-cycle-limit.tests.sh",
+      "self-improvement-guard.tests.sh",
+      "model-freshness-check.tests.sh",
+      "model-freshness-check.tests.ps1"
+    ],
+    "preceding_actual_v2_results_input": "inputs/whole-rollback/v3/preceding-v2-replay-results.json",
+    "preceding_actual_v2_results_sha256": "887f35ed329ec6c4ff21388758331929347783a2d68a3518f34204ea4c2ab38a",
+    "preserve_preceding_catalog_failure": true,
+    "scope": "Full source rollback/restoration; execute only catalog44 affected by the one historical JSON fixture addition"
+  },
+  "baseline_commands_passed": true,
+  "baseline_sources_unchanged": true,
+  "baseline_tree": "e242537ab091cb2c2b702708fbe0155cffc0ea0b",
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/git",
+        "init",
+        "--template=",
+        "-q",
+        "."
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "init",
+      "stderr": "00-init.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "00-init.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "gc.auto",
+        "0"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "config-gc.auto",
+      "stderr": "01-config-gc.auto.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "01-config-gc.auto.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "maintenance.auto",
+        "false"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "config-maintenance.auto",
+      "stderr": "02-config-maintenance.auto.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "02-config-maintenance.auto.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "core.autocrlf",
+        "false"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "config-core.autocrlf",
+      "stderr": "03-config-core.autocrlf.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "03-config-core.autocrlf.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "core.fsmonitor",
+        "false"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "config-core.fsmonitor",
+      "stderr": "04-config-core.fsmonitor.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "04-config-core.fsmonitor.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "commit.gpgSign",
+        "false"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "config-commit.gpgSign",
+      "stderr": "05-config-commit.gpgSign.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "05-config-commit.gpgSign.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "add",
+        "-A",
+        "--force",
+        "--",
+        "."
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "frozen-current-add",
+      "stderr": "06-frozen-current-add.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "06-frozen-current-add.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "user.name=T008 Replay",
+        "-c",
+        "user.email=t008-replay@example.invalid",
+        "commit",
+        "-qm",
+        "frozen-current",
+        "--allow-empty"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "frozen-current-commit",
+      "stderr": "07-frozen-current-commit.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "07-frozen-current-commit.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "frozen-current-tree",
+      "stderr": "08-frozen-current-tree.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "08-frozen-current-tree.stdout",
+      "stdout_sha256": "e8c395c8201024ab2630d0d2070456ddc0d5396d4fcc9a15d9e7705f447d504e",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "add",
+        "-A",
+        "--force",
+        "--",
+        "."
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "exact-T008-rollback-preserving-T009-add",
+      "stderr": "09-exact-T008-rollback-preserving-T009-add.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "09-exact-T008-rollback-preserving-T009-add.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "user.name=T008 Replay",
+        "-c",
+        "user.email=t008-replay@example.invalid",
+        "commit",
+        "-qm",
+        "exact-T008-rollback-preserving-T009",
+        "--allow-empty"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "exact-T008-rollback-preserving-T009-commit",
+      "stderr": "10-exact-T008-rollback-preserving-T009-commit.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "10-exact-T008-rollback-preserving-T009-commit.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "exact-T008-rollback-preserving-T009-tree",
+      "stderr": "11-exact-T008-rollback-preserving-T009-tree.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "11-exact-T008-rollback-preserving-T009-tree.stdout",
+      "stdout_sha256": "e3e1b0fdb429b80befb60e475dbcebbc6f9409c48caf61fe5a8a0d9dc54d271e",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "verification-catalog.tests.py",
+      "stderr": "12-verification-catalog.tests.py.stderr",
+      "stderr_sha256": "fdd041fb7060732edb0435fe6943a96a2cc0ec156267e7c485b6a1b88e08f9b2",
+      "stdout": "12-verification-catalog.tests.py.stdout",
+      "stdout_sha256": "007cae7f7ad90ae93f527a1c1f3bf108b271132a8ca1fcebb99fff17050f8552",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "add",
+        "-A",
+        "--force",
+        "--",
+        "."
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "restored-exact-frozen-current-add",
+      "stderr": "13-restored-exact-frozen-current-add.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "13-restored-exact-frozen-current-add.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "user.name=T008 Replay",
+        "-c",
+        "user.email=t008-replay@example.invalid",
+        "commit",
+        "-qm",
+        "restored-exact-frozen-current",
+        "--allow-empty"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "restored-exact-frozen-current-commit",
+      "stderr": "14-restored-exact-frozen-current-commit.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "14-restored-exact-frozen-current-commit.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace",
+      "exit_code": 0,
+      "label": "restored-exact-frozen-current-tree",
+      "stderr": "15-restored-exact-frozen-current-tree.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "15-restored-exact-frozen-current-tree.stdout",
+      "stdout_sha256": "e8c395c8201024ab2630d0d2070456ddc0d5396d4fcc9a15d9e7705f447d504e",
+      "timed_out": false,
+      "timeout_seconds": 120
+    }
+  ],
+  "current_git_tree_restored_exactly": true,
+  "current_sources_restored_exactly": true,
+  "current_tree_after": "48759f0662de1f80dedc216f5ba45157607ea6de",
+  "current_tree_before": "48759f0662de1f80dedc216f5ba45157607ea6de",
+  "executed_baseline_command_count": 1,
+  "finished_epoch": 1792518088.5866823,
+  "map_sha256": "10fdacc90d6c7228a5270016561bc6d5084f8a0b5be84cccce6be1ae2c5d7466",
+  "original_baseline_command_count": 20,
+  "outer_subreaper_owned_by_root": true,
+  "parent_manifest_sha256": "01ebc43b44d19b58f43917aac657ee3f622f209cf2a31a3617bdc3210304bd7c",
+  "parent_manifest_unchanged": true,
+  "passed": true,
+  "preserved_namespace_unchanged": true,
+  "schema": "t008-whole-rollback-replay/v1",
+  "started_epoch": 1792518083.8410413,
+  "workspace": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-ic44jufa/replay/workspace"
+}

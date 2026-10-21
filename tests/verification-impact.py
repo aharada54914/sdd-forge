@@ -172,10 +172,13 @@ def strict_json(value):
 
     if isinstance(value, bytes):
         value = value.decode('utf-8', errors='strict')
-    result = json.loads(value, object_pairs_hook=unique, parse_constant=invalid)
-    if not isinstance(result, dict):
-        raise ValueError('JSON object required')
-    canonical(result)  # Also reject overflow such as 1e999.
+    try:
+        result = json.loads(value, object_pairs_hook=unique, parse_constant=invalid)
+        if not isinstance(result, dict):
+            raise ValueError('JSON object required')
+        canonical(result)  # Also reject overflow such as 1e999.
+    except RecursionError as exc:
+        raise ValueError('JSON nesting exceeds codec limit') from exc
     return result
 
 
@@ -336,11 +339,17 @@ def rules(catalog, workflow):
     declared = set()
     for item in declarations:
         exact_fields(item, 'job step kind')
-        if (item['job'] not in groups or item['kind'] not in ('build', 'audit')
+        if (item['job'] not in groups or item['kind'] not in ('build', 'audit', 'setup')
                 or not isinstance(item['step'], str) or (item['job'], item['step']) in declared):
             raise ValueError('invalid non-suite declaration')
         candidates = [s for s in workflow['jobs'][item['job']].get('steps', []) if s.get('name') == item['step']]
-        if len(candidates) != 1 or candidates[0].get('run', '').strip() not in (
+        if item['kind'] == 'setup':
+            if ((item['job'], item['step']) != ('cli-hook-enforcement', 'Install Claude Code CLI')
+                    or len(candidates) != 1
+                    or candidates[0].get('run', '').rstrip('\n') != (
+                        'npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code\nclaude --version')):
+                raise ValueError('unrecognized setup command cannot authorize omission')
+        elif len(candidates) != 1 or candidates[0].get('run', '').strip() not in (
                 'npm run build', 'npm test', 'npx tsc --noEmit', 'npm audit --omit=dev --audit-level=high'):
             raise ValueError('unrecognized non-suite command cannot authorize omission')
         declared.add((item['job'], item['step']))
@@ -411,7 +420,7 @@ def read_reference(root, revision, reference):
     return strict_json(payload)
 
 
-def validate_result_binding(result, plan, success):
+def validate_result_binding(result, plan, success, *, root=None, workflow=None):
     exact_fields(result, 'schema status reason run_id api_head_sha tested_revision plan_sha256 results')
     if (result['schema'] != 'verification-ci-result/v1'
             or result['status'] != ('PASS' if success else 'FAIL')
@@ -420,12 +429,32 @@ def validate_result_binding(result, plan, success):
             or not isinstance(result['results'], list)):
         raise ValueError('comparison result binding mismatch')
     expected = {o['id'] for o in plan['obligations']}
+    inactive = set()
+    if root is not None or workflow is not None:
+        if root is None or workflow is None:
+            raise ValueError('incomplete comparison activation context')
+        engine = workflow_module()
+        active = engine.a9_activation(root, plan, workflow)
+        if active is None and any(o['job'] == 'a9-advisory' for o in plan['obligations']):
+            raise ValueError('missing comparison A9 workflow context')
+        if active is not None:
+            a9_workflow = {**workflow, 'jobs': {'a9-advisory': workflow['jobs']['a9-advisory']}}
+            a9 = engine.plan_obligations(a9_workflow, {'suites': [], 'profiles': {}})
+            if [o for o in plan['obligations'] if o['job'] == 'a9-advisory'] != a9:
+                raise ValueError('comparison A9 obligation context mismatch')
+            if not active:
+                inactive = {o['id'] for o in a9}
     seen, failed = set(), set()
     for row in result['results']:
         exact_fields(row, 'obligation_id status reason job_id source_attempt')
         oid = row['obligation_id']
-        if (not isinstance(oid, str) or oid in seen or oid not in expected
-                or row['status'] not in ('PASS', 'FAIL')
+        if not isinstance(oid, str) or oid in seen or oid not in expected:
+            raise ValueError('invalid comparison obligation identity')
+        if oid in inactive:
+            if (row['status'] != 'EXPECTED_SKIP' or row['reason'] != 'advisory-inactive'
+                    or row['job_id'] is not None or row['source_attempt'] is not None):
+                raise ValueError('inactive A9 requires a non-executed expected skip')
+        elif (row['status'] not in ('PASS', 'FAIL')
                 or row['reason'] != ('verified' if row['status'] == 'PASS' else 'execution-failed')
                 or type(row['job_id']) is not int or row['job_id'] < 1
                 or type(row['source_attempt']) is not int or row['source_attempt'] < 1):
@@ -447,19 +476,34 @@ def selected_obligations(categories, catalog, workflow, obligations):
     groups = {g for c in categories for g in c['groups']}
     engine = workflow_module()
     declared = set()
+    setup = set()
     for declaration in catalog.get('impact', {}).get('non_suite_steps', []):
         job = workflow['jobs'][declaration['job']]
         step = next(s for s in job['steps'] if s.get('name') == declaration['step'])
-        if job.get('if') is None and step.get('if') is None:
+        if declaration['kind'] == 'setup':
+            setup.add((declaration['job'], declaration['step']))
+        elif job.get('if') is None and step.get('if') is None:
             declared.add((declaration['job'], declaration['step']))
+    try:
+        engine.planner_outputs(workflow)
+        planner_ok = True
+    except ValueError:
+        planner_ok = False
+
+    def resolved(expression, matrix, runner):
+        # Selection-local: declared generated planner terms count as true; engine.condition_value is unchanged.
+        if planner_ok and isinstance(expression, str):
+            expression = engine.PLAN_TERM.sub('true', expression)
+        return engine.condition_value(expression, matrix, runner)
     mandatory = set()
     runners = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'windows-latest': 'Windows'}
     for obligation in obligations:
         job = workflow['jobs'][obligation['job']]
         steps = [s for s in job['steps'] if engine.expand_matrix(s.get('name', ''), obligation['matrix']) == obligation['step']]
-        unknown = (len(steps) != 1 or engine.condition_value(job.get('if'), obligation['matrix'], runners[obligation['runner']]) is None
-                   or engine.condition_value(steps[0].get('if'), obligation['matrix'], runners[obligation['runner']]) is None)
-        if unknown or (not obligation['suites'] and (obligation['job'], obligation['step']) not in declared):
+        unknown = (len(steps) != 1 or resolved(job.get('if'), obligation['matrix'], runners[obligation['runner']]) is None
+                   or resolved(steps[0].get('if'), obligation['matrix'], runners[obligation['runner']]) is None)
+        key = (obligation['job'], obligation['step'])
+        if unknown or (not obligation['suites'] and key not in declared and key not in setup):
             mandatory.add(obligation['id'])
             selected.update(obligation['suites'])
     selected = dependency_closure(selected, groups, catalog, obligations)
@@ -549,7 +593,8 @@ def validate_activation(category, rule, root, revision, catalog, workflow, oblig
             or rule_digest(baseline_catalog, workflow) != rule
             or sha(baseline_workflow_bytes) != sha((root / '.github/workflows/test.yml').read_bytes())):
         raise ValueError('baseline definition or inventory mismatch')
-    validate_result_binding(read_reference(root, revision, proof['full_result']), full, True)
+    validate_result_binding(read_reference(root, revision, proof['full_result']), full, True,
+                            root=root, workflow=workflow)
     consumers = read_reference(root, revision, proof['consumer_inventory'])
     exact_fields(consumers, 'schema baseline_revision rule_sha256 consumers')
     if (consumers['schema'] != 'verification-ci-consumers/v1'
@@ -603,7 +648,8 @@ def validate_activation(category, rule, root, revision, catalog, workflow, oblig
                 or sha(proof_blob(root, tested, 'tests/verification-catalog.json')) != full['catalog_sha256']
                 or sha(proof_blob(root, tested, '.github/workflows/test.yml')) != full['workflow_sha256']):
             raise ValueError('mutation plan mismatch')
-        failed = validate_result_binding(read_reference(root, revision, case['result']), mutation_plan, False)
+        failed = validate_result_binding(read_reference(root, revision, case['result']), mutation_plan, False,
+                                         root=root, workflow=workflow)
         artifacts.update((case['plan']['path'], case['result']['path']))
         if not failed.issubset(selected):
             raise ValueError('selection misses a mutation failure')

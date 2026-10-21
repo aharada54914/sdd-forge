@@ -1,0 +1,16 @@
+{
+  "command": [
+    "python3",
+    "specs/ci-model-modernization/verification/T-008/batch-entry-application/run-batch-checks.py",
+    "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/batch-green-admission/task-input-manifest.json",
+    "014ecfb1ffd5e13c6a6330a048da0a0d22a3606d17c571521dc8f0c90b52ea5d",
+    "root-investigator-batch-green-1"
+  ],
+  "started_epoch": 1792515545.0750306,
+  "elapsed_seconds": 5.547582387924194,
+  "command_exit_code": 0,
+  "adopted_descendants_reaped": 10,
+  "own_command_group_cleanup_signals": [],
+  "remaining_own_children": false,
+  "scope": "Only command descendants; PID1/unrelated processes untouched"
+}

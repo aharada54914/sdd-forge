@@ -1,0 +1,27 @@
+{
+  "actual_command": {
+    "name": "shared-launch-build",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/shared-launch-build.tests.py"
+    ],
+    "started_at": "2026-10-19T21:49:02.560434+00:00",
+    "elapsed_seconds": 7.386,
+    "exit_code": 0,
+    "stdout": {
+      "path": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/verification/shared-launch-build.stdout",
+      "sha256": "4fb60b18a6789c08d35d38fcdf9a4c9a9f171ea2fcab8705e3c3d3cd4712fd9c"
+    },
+    "stderr": {
+      "path": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/verification/shared-launch-build.stderr",
+      "sha256": "b818b94a5c164728637a68cee8a8c19f88956c4f14d7f3c48d98543796dfb825"
+    }
+  },
+  "supporting_evidence": [
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/final-proof-summary.json",
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json"
+  ],
+  "finish_time_basis": "Derived from recorded wall start + measured elapsed, normalized to seconds; not independent sampled finish."
+}

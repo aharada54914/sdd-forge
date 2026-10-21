@@ -1,0 +1,281 @@
+{
+  "task_id": "T-003",
+  "feature": "ci-model-modernization",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd",
+  "created": "2026-10-19T16:39:14Z",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/lint.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/lint.log",
+      "command": "/tmp/ci-model-resume-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml tests/ci-dependency-cache.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py tests/verification-ci.tests.py tests/required-checks-posix.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:17:25Z",
+      "finished_at": "2026-10-19T17:17:25Z"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/typecheck.log",
+      "command": "/tmp/ci-model-resume-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml tests/ci-dependency-cache.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py tests/verification-ci.tests.py tests/required-checks-posix.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:17:25Z",
+      "finished_at": "2026-10-19T17:17:26Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/unit-tests.log",
+      "command": "python3 -B tests/verification-ci.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:17:25Z",
+      "finished_at": "2026-10-19T17:18:19Z"
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/unit-tests.log",
+      "command": "python3 -B tests/verification-ci.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:17:25Z",
+      "finished_at": "2026-10-19T17:18:19Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/build.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/build.log",
+      "command": "python3 -m py_compile tests/ci-dependency-cache.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py tests/verification-ci.tests.py tests/required-checks-posix.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:17:25Z",
+      "finished_at": "2026-10-19T17:17:25Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/placeholder-scan.log",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/ci-dependency-cache.py tests/verification-workflow.py .github/workflows/test.yml",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:17:26Z",
+      "finished_at": "2026-10-19T17:17:26Z"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/task-state-check.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/task-state-check.log",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:20:44Z",
+      "finished_at": "2026-10-19T17:20:45Z"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI/design system or differential refactor baseline. Real workflow shell, aggregate CLI and package extraction integration are included in required integration/acceptance checks. Hosted/native deployment is downstream T011.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI/design system or differential refactor baseline. Real workflow shell, aggregate CLI and package extraction integration are included in required integration/acceptance checks. Hosted/native deployment is downstream T011.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI/design system or differential refactor baseline. Real workflow shell, aggregate CLI and package extraction integration are included in required integration/acceptance checks. Hosted/native deployment is downstream T011.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI/design system or differential refactor baseline. Real workflow shell, aggregate CLI and package extraction integration are included in required integration/acceptance checks. Hosted/native deployment is downstream T011.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/unit-tests.log",
+      "command": "python3 -B tests/verification-ci.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:17:25Z",
+      "finished_at": "2026-10-19T17:18:19Z"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/regression.log",
+      "command": "python3 -B -c 'import subprocess; [subprocess.run(['\"'\"'python3'\"'\"','\"'\"'-B'\"'\"',p],check=True) for p in ['\"'\"'tests/verification-impact.tests.py'\"'\"','\"'\"'tests/verification-catalog.tests.py'\"'\"','\"'\"'tests/required-checks-posix.tests.py'\"'\"','\"'\"'tests/verification-ci-plan.tests.py'\"'\"']]'",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:17:25Z",
+      "finished_at": "2026-10-19T17:18:46Z"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/requirement-traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/requirement-traceability.log",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:20:44Z",
+      "finished_at": "2026-10-19T17:20:44Z"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/check-component-coverage.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/check-component-coverage.log",
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-19T17:18:12Z",
+      "finished_at": "2026-10-19T17:18:12Z"
+    }
+  ]
+}

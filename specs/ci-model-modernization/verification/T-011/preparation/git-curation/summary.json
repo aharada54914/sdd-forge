@@ -1,0 +1,19 @@
+{
+  "head": "2c78757a8f97d052efa59f50d24b8cbc541b3a89",
+  "tracked_modified": 56,
+  "existing_staged": 0,
+  "untracked": 10427,
+  "source_stage_count": 71,
+  "evidence_stage_count": 792,
+  "already_tracked_closure_count": 2004,
+  "excluded_count": 9728,
+  "privacy_hold_count": 0,
+  "sensitive_line_type_findings": 4,
+  "missing_closure_count": 0,
+  "current_bundle_hash_mismatches": 0,
+  "proposed_source_bytes": 1760270,
+  "proposed_evidence_bytes": 16354445,
+  "git_mutations": false,
+  "network_calls": false,
+  "qualification": "Candidate closure only; T008 Done evidence is preserved, not re-reviewed. Not staging, universal secret clearance, or completion of T010–T011."
+}

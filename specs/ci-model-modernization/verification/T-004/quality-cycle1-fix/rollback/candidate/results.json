@@ -1,0 +1,128 @@
+[
+  {
+    "name": "model-observation",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/attempt-1/trace-model-suite.py",
+      "--root",
+      "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+      "--output",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/rollback/candidate/model-line-coverage.json"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T18:59:40Z",
+    "finished_at": "2026-10-19T18:59:59Z",
+    "exit_code": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e7c08ff23ceb9838b3afd36f96c66cbd0ed0c17d7ae15182f97c1d26ff9a885d"
+  },
+  {
+    "name": "catalog-and-wiring",
+    "argv": [
+      "bash",
+      "tests/ci-suite-wiring.tests.sh"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T18:59:59Z",
+    "finished_at": "2026-10-19T19:00:01Z",
+    "exit_code": 0,
+    "stdout_sha256": "007cae7f7ad90ae93f527a1c1f3bf108b271132a8ca1fcebb99fff17050f8552",
+    "stderr_sha256": "404ceb43daa883b18ca46b74f40e9b32cd8586f40d6e0b892068b27142d21bd3"
+  },
+  {
+    "name": "verification-ci-plan",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/verification-ci-plan.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:00:01Z",
+    "finished_at": "2026-10-19T19:00:20Z",
+    "exit_code": 0,
+    "stdout_sha256": "6b6423b7d44d853f224c1bfb183a15174b1b29b3e86b808fd3332e2ca8a104c9",
+    "stderr_sha256": "20f79a3901fb22610ea3c96b341dc546b806b65b58c90974ca282745c2e26409"
+  },
+  {
+    "name": "verification-impact",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/verification-impact.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:00:20Z",
+    "finished_at": "2026-10-19T19:00:20Z",
+    "exit_code": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "7b86291b37cb634af5195202c0758a163d4a9c13965b0604b083e8d0d77f781a"
+  },
+  {
+    "name": "verification-ci",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/verification-ci.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:00:20Z",
+    "finished_at": "2026-10-19T19:00:57Z",
+    "exit_code": 0,
+    "stdout_sha256": "7c89bcc0dd4324f3c8baed14c36f813e41bb5c56a839b0b270426c34910dfaec",
+    "stderr_sha256": "e776f01e3f25bcc95858e31a528bc9eb4a1b1a85ae498a18a9b941b2d3d768e3"
+  },
+  {
+    "name": "required-checks-posix",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/required-checks-posix.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:00:57Z",
+    "finished_at": "2026-10-19T19:01:38Z",
+    "exit_code": 0,
+    "stdout_sha256": "96445f41c1605c50a8ac43fea5acf518fe0d19eeffd4598160e34c3588a0a34d",
+    "stderr_sha256": "be4c925b1bbaaa0bb3aef698dc1a70dccd3a9154106bbe8c2ad59f9494c29421"
+  },
+  {
+    "name": "ruff",
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-catalog.tests.py",
+      "tests/model-observation.tests.py",
+      "plugins/sdd-implementation/scripts/model-policy.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:01:38Z",
+    "finished_at": "2026-10-19T19:01:38Z",
+    "exit_code": 0,
+    "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "mypy",
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-catalog.tests.py",
+      "tests/model-observation.tests.py",
+      "plugins/sdd-implementation/scripts/model-policy.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:01:38Z",
+    "finished_at": "2026-10-19T19:01:40Z",
+    "exit_code": 1,
+    "stdout_sha256": "dfec43cefd5d9fe1d1d2478754735e9d198a0b9aff0520164a1da458851cb84e",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

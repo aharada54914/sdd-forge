@@ -1,0 +1,261 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index fcc4f50c..9083d58b 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,15 @@
+ # Changelog
+ 
++## Unreleased
++
++### Added
++- Shared model policy with managed entry integration (`latest-compatible` / `pinned`, typed `model-policy-error/v1` stops) and managed renderer inputs; legacy rendering stays compatible.
++- Revision-bound CI planning with conservative full fallback and `SDD_CI_FORCE_FULL` recovery; weekly read-only model freshness check separates candidate, explicit deprecation and fetch-unavailable.
++
++### Verification and release limits
++- No rollout category is active; no savings figure is claimed. Real model comparison trials (T-010) are blocked by native CLI authentication failures, with no answers available for evaluation; no candidate promotion or quality conclusion follows. Fixture results are not hosted CI or native backend proof.
++- Live cloud acceptance (#911) remains pending; no cloud-readiness claim.
++
+ ## v1.19.0 (2026-10-18)
+ 
+ ### Added
+diff --git a/README.md b/README.md
+index d0d38234..6e18baeb 100644
+--- a/README.md
++++ b/README.md
+@@ -290,6 +290,14 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常
+ - **3環境に対応**: Claude Code、Codex CLI、Copilot CLI の環境でスキル・エージェント・フック・スクリプトがリポジトリ内ファイルを通じて相互ハンドオフし、環境を超えて作業を継続できます。
+ - **バグ修正トラック (`diagnose`)**: ハードなバグ・リグレッション・フレーキーテスト・性能退行に対し、フル SDD を通す前に再現→計装→根本原因→最小修正の5フェーズ診断規律を回し、軽量トラックへの入口を兼ねます。詳細は [docs/workflow-guide.md の「バグ修正トラック（diagnose）」](docs/workflow-guide.md#バグ修正トラックdiagnose)をご覧ください。
+ 
++## モデルポリシーと CI 運用（概要）
++
++- **管理されたモデル選択**: 実装・調査・レビュー・ドメイン・監査・診断・自動化の各エントリは、共有モデルポリシーから互換な候補を解決します。`latest-compatible` は日付付きの観測と登録済みポリシーの優先順に基づく互換候補、`pinned` は明示指定です。導入済みホストに反映できない場合は `model-policy-error/v1` の typed stop で止まり、成功扱いにしません。設定・解決したモデルと実ターンで報告されたモデル ID は別物です。
++- **CI**: PR は信頼済みベースの planner で計画され、分類できない変更は保守的な full 計画になります。計画ジョブの失敗や破損した計画は必須チェックを失敗させます。新しい CI 設定を使う前に、信頼済みベースの planner を対応版へ更新する必要があります。現時点でロールアウトが有効なカテゴリはなく、削減率や実環境での採用は主張しません。復旧と必須コンテキストは [contributor/workflow-detail.md](docs/contributor/workflow-detail.md)、リリース手順は [contributor/release-runbook.md](docs/contributor/release-runbook.md) を参照してください。
++- **範囲**: ChatGPT UI の親セッションや非管理の呼び出しは制御外です。外部送信の同意と独立レビューは変わりません。実クラウド受け入れ（#911）は未了のままで、ネイティブ実行の証明はホストごとに別です。
++
++詳細: [docs/workflow-guide.md](docs/workflow-guide.md#managed-model-operation)、[docs/agent-capability-matrix.md](docs/agent-capability-matrix.md)、[docs/verification.md](docs/verification.md)。公開済みタグから導入する場合は上記の `--ref <ref>` に注釈付きタグを指定します（`--source-directory` は Git 追跡済みファイルのみを読みます）。
++
+ ## ドキュメントマップ
+ 
+ | ドキュメント | 対象読者・目的 |
+diff --git a/docs/agent-capability-matrix.md b/docs/agent-capability-matrix.md
+index 28072cb2..3111f67f 100644
+--- a/docs/agent-capability-matrix.md
++++ b/docs/agent-capability-matrix.md
+@@ -106,7 +106,9 @@ A read-only summary of agent roles, tool scopes, and which actions are enforced
+ Turn-first routing optimizes expected implementation/review iteration count
+ before token price. Expected iterations are optimized first, then the weakest sufficient tier, then token price.
+ Concrete model IDs are examples only; check availability at invocation and
+-record the selected provider/model.
++record the selected provider/model. The tables below describe legacy
++registry-based routing (explicit candidate input and pinned IDs). Managed
++selection is described in [Managed model policy](#managed-model-policy).
+ 
+ ### Predicted Attempts Matrix
+ 
+@@ -135,13 +137,13 @@ the lexicographically smaller provider/model identifier.
+ | strong | Anthropic | Opus | high | 未確認 | Anthropic official docs (models overview) |
+ | lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low | 未確認 | OpenAI developers docs (Codex) |
+ | standard | OpenAI/Codex | `gpt-5.1-codex` | medium | 未確認 | OpenAI developers docs (Codex) |
+-| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies | 2026-10-18 local host | contracts/agent-model-capabilities.v2.json; T-011 native trial |
++| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies | 2026-10-18 local host | contracts/agent-model-capabilities.v2.json; cloud-orchestration T-011 native trial |
+ 
+-Codex agent model selection is a runtime control (`--model` / `--effort` flags
+-passed to the Codex CLI at invocation), not a field in the role TOML. The
+-`.codex/agents/*.toml` files intentionally do not pin a `model` key because the
+-role schema has historically rejected malformed role definitions. Routing
+-therefore happens at the call site after model availability is checked.
++For legacy routing, Codex agent model selection is a runtime control (`--model`
++/ `--effort` flags passed to the Codex CLI at invocation). Legacy reference
++rendering writes only `# x-sdd-model:` / `# x-sdd-effort:` comments into
++`.codex/agents/*.toml`, not a `model` key; routing happens at the call site
++after model availability is checked. Managed rendering differs; see below.
+ The caller filters candidates through the host capability registry. A
+ substitute is eligible only when the registry assigns it to the same canonical
+ tier; the canonical tier does not change and the concrete provider/model is
+@@ -150,6 +152,40 @@ routing fails closed as `model-tier-unavailable`. For strong Codex routing,
+ high effort is the default. Xhigh is used only when the capability registry or
+ a task-specific evaluator contract requires it, with the reason recorded.
+ 
++### Managed model policy
++
++Shared managed policy selects a model per role, risk and host from the shared
++policy, observed availability and project configuration. A request's model
++policy is `latest-compatible` (an eligible observed candidate in registered policy preference order) or
++`pinned` (an explicit model ID); role and effort restrictions still apply.
++Observations are dated and scoped to a host and CLI version; a policy
++`source_date` or an old trial is not perpetual availability.
++
++The ci-model-modernization T-010 comparison is blocked by native CLI
++authentication failures and has produced no answers for evaluation. It supports
++no candidate promotion or comparative quality claim.
++
++For Codex, `render-agent-frontmatter.sh` managed mode (`--model-controls`,
++`--model-controls-sha256`, `--run-id`, `--session-id`, `--managed-target`)
++writes native top-level `model` and `model_reasoning_effort` keys before any
++table, from validated controls. Without those flags, legacy reference
++rendering is unchanged.
++
++Selection records configured and resolved values only; it does not verify the
++model that served a turn. When actual identity is not required, a delivery may
++be accepted with `actual_id: null` and `proof: unverified`; this is configuration
++evidence only. A request with `require_actual_id: true` stops before launch as
++`actual-id-unavailable`, and an observed reroute of a pinned model is blocked
++as `actual-id-mismatch`. Neither accepted configuration nor a reroute event
++proves an actual backend model ID. Failures are one `model-policy-error/v1` object whose `reason`
++comes from the schema enum: `config-invalid`, `config-conflict`,
++`native-precedence-conflict`, `discovery-unavailable`, `discovery-incomplete`,
++`discovery-stale`, `scope-mismatch`, `model-unavailable`, `model-unverified`,
++`model-tier-unavailable`, `effort-unavailable`, `budget-unverifiable`,
++`resume-conflict`, `actual-id-unavailable`, `actual-id-mismatch`,
++`input-invalid`. Unsupported carriers stop before any work starts. Reviewer
++independence and external-send consent boundaries are unchanged.
++
+ ### Effort Policy: `welded` vs. `matrix`
+ 
+ `select-agent-model`'s `--effort-policy` flag chooses HOW the winning
+diff --git a/docs/contributor/release-runbook.md b/docs/contributor/release-runbook.md
+index 36dca9cb..7fa4d9ee 100644
+--- a/docs/contributor/release-runbook.md
++++ b/docs/contributor/release-runbook.md
+@@ -171,6 +171,21 @@ failure()` を追加することで、このゲートを無効化できる可能
+ 4. 公開済みの対象ブランチで `test.yml` を実行し、そのコミット SHA の成功を確認します。main 以外のブランチは push だけではこのワークフローが起動しないため、`workflow_dispatch` を使います。
+ 5. その SHA に注釈付きタグ `v<version>` を作成して公開し、リモートの peeled commit が一致することを確認します。既存タグの付け替えや強制 push は行いません。
+ 
++順序の補足（最終コミットを F とする）:
++
++現在、ci-model-modernization の T-010 比較試行は認証エラーで停止しており、
++T-011 は進行中です。候補モデルの採用、CI カテゴリの有効化、新しいバージョンや
++タグの公開は未実施です。以下は、残る検証を終えて公開するときの手順です。
++新しい CI 設定を使う PR では、先に信頼済みベースの planner を対応版へ更新します。
++旧版による設定の拒否は full 強制でも解消しないため、対応するツールを揃えた
++revision で手動 full を確認してください。
++
++1. docs と version（CHANGELOG の Unreleased を含む）を先に確定し、curated な最終コミット F を作ります。
++2. F で、隔離した checkout のローカル full と、実際の hosted full を実行します。fixture の結果は hosted の観測の代わりになりません。
++3. リリース対象コードの必須チェックを通してから、F に新しい注釈付き不変タグ `v<version>` を作ります。既存タグは変更せず、リモートの既存タグが変わっていないことも確認します。
++4. PR のテスト済みマージ revision と release F は別物です。branch 名での `workflow_dispatch` は raw SHA の指定ではないため、対象 ref が F を指し、実際の CI head SHA も F と一致することを確認します。merge_group の限界（OQ-001）は残ります。
++5. タグは Release アセットの公開を意味しません。実クラウド受け入れ（#911）は未了のままです。
++
+ 公開記録にはタグ、コミット、CI の URL、配布アセットの作成有無を残します。
+ クラウド対応の fixture 検証は実環境での IAM・デプロイ・ヘルス検証の代わりに
+ ならないため、実クラウドの未実行項目も別に記録します。
+diff --git a/docs/contributor/workflow-detail.md b/docs/contributor/workflow-detail.md
+index 70c1e56a..046e2153 100644
+--- a/docs/contributor/workflow-detail.md
++++ b/docs/contributor/workflow-detail.md
+@@ -510,6 +510,17 @@ review_cycles: <実施済みサイクル数>
+      `[model-freshness-divergence]` をそのまま含める（D2 の自動起票と重複判
+      定用マーカーが同一文字列であることが必須 — 無いと次回の D2 定期実行が
+      同じ乖離を重複起票する）
++   - 週次チェックの読み方: 実行は月曜 03:00 UTC または手動（`workflow_dispatch`）。
++     read-only の shared policy（`contracts/model-policy.v1.json`）と v2
++     catalog を参照し、いずれも更新しない。結果は 3 種類を分けて扱う:
++     `candidate`（未知の候補。未検証）、`deprecation`（出典表に `deprecated` /
++     `retired` の明示行があるものだけ。`sourceDate` と policy 側の日付を併記）、
++     取得不能（`[model-freshness-fetch-unavailable]` の追跡 issue へコメント。
++     exit 0）。日付が不明・不正・矛盾する場合は `sourceDate=unknown`（公開日不明で
++     あり取得日時ではない）。モデルの不在から廃止を推定しない。マーカー
++     `[model-freshness-divergence]` / `[model-freshness-fetch-unavailable]` は
++     安定した文字列で、open issue があれば重複起票せず再利用する。採用は人間の
++     レビューを経て行い、自動採用・merge はしない。
+ 
+ 3. **人間が Approved に変更**
+    - 改善内容に同意 → 適用
+@@ -707,6 +718,19 @@ GitHub 上の `main` ブランチは以下の保護ルールでガード され
+ | **Force push blocked** | `git push --force-with-lease` を含む強制プッシュは禁止 |
+ | **Deletion blocked** | ブランチ削除は禁止 |
+ 
++有効な入力で変更を分類できない場合、planner は保守的な full 計画を返します。
++計画ジョブ（`ci-plan`）自体の失敗や計画ファイルの破損は、必須の集約チェックを失敗させます。
++対応する planner と設定が揃っている場合は、復旧時に
++`SDD_CI_FORCE_FULL=true` を設定して full を強制できます。未設定や不正な値でも full
++であり、リテラルの `false` だけでは未証明のカテゴリは有効になりません。現時点で
++ロールアウトが有効なカテゴリはなく、リポジトリ変数の実際の設定値も未確認です。
++上の必須コンテキスト名は変更しません。
++
++新しい CI 設定を導入する前に、PR の信頼済みベースを対応する planner へ更新してください。
++旧版は新しい catalog の `setup` 設定を `input-invalid` として拒否し、full 強制でも
++復旧しません。この場合は入力とツールの版を揃え、その revision で手動の full を
++実行して確認します。
++
+ ### Merge queue (CI + merge 順序制御)
+ 
+ 本リポジトリでは GitHub の merge queue 機能を使用しています。
+diff --git a/docs/verification.md b/docs/verification.md
+index fe0ee0e1..94e8cb1d 100644
+--- a/docs/verification.md
++++ b/docs/verification.md
+@@ -31,14 +31,35 @@ Timing estimates affect placement only: stale estimates can make a run slower,
+ but cannot remove a test. The independent Windows compatibility, gate, and A9
+ lanes remain dependencies of `required-checks`.
+ 
+-## Selection experiment
++## CI planning and the legacy observation API
++
++Two interfaces share `tests/verification-impact.py`. The legacy observation
++interface proposes a selection and reports its basis; it does not control
++required CI jobs. The `ci-plan` job in `.github/workflows/test.yml` instead runs
++`--plan` to produce a revision-bound `verification-ci-plan/v1` plan for the
++tested revision and uploads it as an artifact. On pull requests the planner is
++taken from the trusted base revision when that revision provides it.
+ 
+-`tests/verification-impact.py` proposes a selection and reports its basis. It is
+-an observation-only experiment: the proposal does not control required CI jobs.
+ Unknown changes, missing comparison revisions, test infrastructure changes, and
+-shared or sensitive changes retain the full profile. The initial narrower case
+-is deliberately limited to README changes, which still have documentation and
+-workflow contracts to verify.
++shared or sensitive changes retain the full profile. No narrower rollout
++category is active: the only catalog category (`readme-contract`) has
++`active: false`, so planned runs currently take the full profile. This
++document makes no measured-savings claim and schedules no activation.
++
++`SDD_CI_FORCE_FULL` (a repository variable passed as `--force-full`) is a
++recovery switch. `true` forces the full profile. An absent or invalid value
++also takes the full profile. A literal `false` does not by itself activate a
++category that is not marked active.
++
++Conservative full planning requires valid planner inputs. A failed `ci-plan`
++job or malformed plan fails the required aggregate check. In particular, older
++trusted-base planners reject the new catalog's `setup` descriptors with
++`verification-ci-error/v1` / `input-invalid`, even with `--force-full true`.
++Upgrade the trusted base to matching planner and catalog tooling before using
++the new CI configuration. For recovery, repair the incompatible inputs and run
++full manually on a revision with matching tooling; forcing full alone does not
++repair this parser incompatibility. The live repository variable's value has
++not been verified.
+ 
+ Receipts can be compared with the proposal to find failures it would have missed.
+ Missing, skipped, or mismatched observations are not successful comparisons.
+@@ -90,6 +111,7 @@ Windows roots return UNSAFE_ROOT and unsupported safe-file primitives return
+ UNSUPPORTED_FILESYSTEM. Linux fixtures do not prove native Windows junction coverage;
+ record that branch only after real CI execution. See [operator guide](cloud-orchestration.md).
+ 
+-CI-efficiency research is not adopted selection or achieved savings. The current
+-selection experiment remains observational; skipped/planned checks are never PASS.
++CI-efficiency research is not achieved savings. The legacy observation interface
++remains observational and no rollout category is active; skipped/planned checks
++are never PASS.
+ Keep required-checks and native Windows compatibility/gate/A9 obligations intact.
+diff --git a/docs/workflow-guide.md b/docs/workflow-guide.md
+index 0bdf0554..a637f934 100644
+--- a/docs/workflow-guide.md
++++ b/docs/workflow-guide.md
+@@ -511,6 +511,17 @@ lite 成果物はフル SDD の部分集合であり、書き直しゼロの加
+ 
+ ---
+ 
++## Managed model operation
++
++3 段のゲート連鎖（spec / implementation-policy / task review）は変更しません。以下は、各エントリがモデルを決める経路の補足です。
++
++- **対象エントリ**: 実装、調査、レビュー、ドメイン、監査、診断、自動化。いずれも共有モデルポリシーから、role・risk・effort の制限を満たす互換候補を解決します。レビュアーの独立性と外部送信の同意は変わりません。
++- **`latest-compatible` と `pinned`**: `latest-compatible` は、その時点で観測・設定された互換候補から登録済みポリシーの優先順で選びます。`pinned` は明示指定した ID を使い、候補が使えなければ代替せず止まります。可用性の観測は日付とホストに限定され、ポリシーの `source_date` や過去のネイティブ試行を恒久的な可用性・実ターンのモデル ID・価格・品質比較の根拠にはしません。ci-model-modernization の T-010 比較試行は認証エラーで停止しており、候補の採用や品質比較の結論はありません。
++- **導入済みキャリアか typed stop**: 解決結果は、検証済みの model controls を `render-agent-frontmatter.sh` の `--model-controls` / `--model-controls-sha256` / `--run-id` / `--session-id` / `--managed-target` に渡して導入済みのネイティブホスト定義に反映します。反映先（キャリア）が無い、または controls が検証できない場合は作業前に `model-policy-error/v1`（`reason` は同スキーマの列挙値）で止まります。ネイティブ証明が無いことは成功ではありません。
++- **再開と子**: 現在束縛されたワーカーは、その束縛のまま継続できます。新しい子ワーカーは、自身の束縛（run/session と controls）を必要とし、親の束縛を暗黙に継承しません。
++- **制御外**: ChatGPT UI の親や非管理の呼び出しは本ポリシーの制御外です。設定・解決したモデルを、実際に報告されたモデル ID と同一視しません。
++- 詳細は [agent-capability-matrix.md](agent-capability-matrix.md)、CI の復旧と鮮度チェックは [contributor/workflow-detail.md](contributor/workflow-detail.md) を参照してください。
++
+ ## 関連ドキュメント
+ 
+ - [README.md](../README.md) — プロジェクト概要・フロー図

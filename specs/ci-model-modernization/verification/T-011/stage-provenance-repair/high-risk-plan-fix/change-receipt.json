@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-20T19:17:25.820626+00:00",
+  "actual_finding": "attempt3 round2 B HIGH-CRITICAL-EVIDENCE Critical",
+  "before_raw_sha256": "1f827f2a953f2d0cbd670ea91dc8c7c06c55d28fcb0a27b2d0ff6d53d4994eaa",
+  "after_raw_sha256": "bfcc58800b99a4c68d052217c8fb562e69a2297b298333efdd2a4f128fad82f1",
+  "changes": [
+    "explicit actual pre-implementation failing-test commit and retained Red/Green chronology",
+    "required named independent implementation/finalscope verdict with pinned source/traceability/provenance; TaskPlan review cannot substitute"
+  ],
+  "T001_T010_blocks_unchanged": true,
+  "no_backdating": true,
+  "no_acceptance_waiver": true
+}

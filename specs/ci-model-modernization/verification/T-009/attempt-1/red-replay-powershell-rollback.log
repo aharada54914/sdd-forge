@@ -1,0 +1,63 @@
+ok: ISSUE-298: markup and noncanonical tokens excluded
+ok: ISSUE-298: all supported families survive and duplicates collapse
+=== TEST-005 (AC-005): model-freshness-check.yml text markers ===
+ok: TEST-005 (AC-005): schedule: trigger with a cron: entry present
+ok: TEST-005 (AC-005): workflow_dispatch: trigger present
+ok: TEST-005 (AC-005): runs-on: ubuntu-latest present
+ok: TEST-005 (AC-005): permissions: block contains ONLY contents: read and issues: write
+=== TEST-006 (AC-006): fetch-failure fail-soft, 3 scenarios ===
+ok: TEST-006 (AC-006, both-fail): a comment/create call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, both-fail): zero issue-create calls
+ok: TEST-006 (AC-006, both-fail): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, anthropic-only-fails): a comment/create call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, anthropic-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, anthropic-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+ok: TEST-006 (AC-006, openai-only-fails): a comment/create call containing 取得不能 was recorded
+ok: TEST-006 (AC-006, openai-only-fails): zero issue-create calls
+ok: TEST-006 (AC-006, openai-only-fails): no divergence-marker search recorded -- no partial-data diff computed
+=== TEST-007 (AC-007): divergence detected + dedup ===
+ok: TEST-007 (AC-007): exactly one issue-create call recorded
+ok: TEST-007 (AC-007): create call carries the [model-freshness-divergence] marker and workflow-improvement label
+ok: TEST-007 (AC-007): the genuinely-new token claude-fixture-93 appears in the create call
+ok: TEST-007 (AC-007, dedup): zero additional issue-create calls when a matching open issue already exists
+=== TEST-009 (AC-009): self-registration ===
+ok: TEST-009: missing registration is rejected
+ok: TEST-009: near-match registration is rejected
+ok: TEST-009: case registration is rejected
+ok: TEST-009: failed-list registration is rejected
+ok: TEST-009 (AC-009): registered in tests/run-all.ps1
+ok: TEST-009 (AC-009): registered in tests/run-all.sh
+ok: TEST-009 (AC-011): registered in the LIVE .github/workflows/test.yml (human-copy already applied)
+=== TEST-010 (AC-010): self-improvement-pr-guard.sh denial proof ===
+ok: TEST-010 (AC-010): self-improvement-pr-guard.sh still contains the .github/workflows/* case pattern
+ok: TEST-010 (AC-010): .github/workflows/model-freshness-check.yml matches the .github/workflows/* pattern (real -like glob semantics)
+=== TEST-016 (AC-016): non-twin + twin-pair conformance ===
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.ps1 does not exist (recorded non-twin)
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.sh exists
+ok: TEST-016 (AC-016): tests/model-freshness-check.tests.sh exists (suite twin pair)
+ok: TEST-016 (AC-016): both twins register in tests/run-all.sh AND tests/run-all.ps1
+=== TEST-020 (AC-020): no-diff branch, zero gh invocations ===
+ok: TEST-020 (AC-020): zero gh invocations of any kind recorded
+=== TEST-021 (AC-021): adversarial fixture, issue-body allowlist ===
+ok: TEST-021 (AC-021): the allowlist-validated missing token claude-fixture-94 is present in the issue body
+ok: TEST-021 (AC-021): no adversarial fixture substring reached the issue body verbatim
+FAIL: T009: policy-known metadata is not a discovery
+FAIL: T009: source-dated candidate uses source publication
+FAIL: T009: policy provenance remains separate
+ok: T009: repeated candidate deduplicated
+FAIL: T009: explicit deprecation is separate from discovery
+FAIL: T009: deprecation retains known policy counterpart
+FAIL: T009: absence and free prose never imply retirement
+FAIL: T009: source vendor mismatch cannot deprecate known model
+FAIL: T009: invalid publication date stays unknown
+ok: T009: instructions never copied
+FAIL: T009: missing publication date is unknown
+FAIL: T009: poisoned deprecation date never copied
+ok: T009: poisoned date omitted
+ok: T009: unavailable is fail-soft without fresh comparison
+ok: T009: inputs read-only and adoption boundary retained
+---- summary: pass=5 fail=10 ----
+not ok: model-freshness-check suite FAILED (10 failures)
+FAIL: T009: canonical Bash protocol fixtures
+
+model-freshness-check.tests.ps1: 35 passed, 1 failed

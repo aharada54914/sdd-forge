@@ -1,0 +1,97 @@
+{
+  "scope": "Disposable local source subset; only T011 three products and four new test methods toggled; preexisting work preserved. No source repository checkout/reset. Catalog suite files are read-only validation closure and not executed as a full profile.",
+  "timestamp": "2026-10-20T18:38:22.903988+00:00",
+  "checkout": "/workspace/.task-scratch/ci-model-modernization/t011-readiness-implementation/rollback-checkout",
+  "fixture_baseline_revision": "d79b15233bae8822c4fe92f5edd5d3a7b5febb50",
+  "copied_source_files": 379,
+  "baseline_pins": {
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+    "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+    "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+    "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b"
+  },
+  "restored_candidate_pins": {
+    "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+    "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+    "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531",
+    "tests/verification-ci-plan.tests.py": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e"
+  },
+  "source_repository_candidate_pins": {
+    "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+    "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+    "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531",
+    "tests/verification-ci-plan.tests.py": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e"
+  },
+  "exact_restoration": true,
+  "checks": [
+    {
+      "phase": "rollback-baseline50",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 20.300618562992895,
+      "pins": {
+        "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+        "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+        "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+        "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b"
+      }
+    },
+    {
+      "phase": "rollback-candidate54",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.510930579999695,
+      "pins": {
+        "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+        "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+        "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531",
+        "tests/verification-ci-plan.tests.py": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e"
+      }
+    },
+    {
+      "phase": "rollback-reverted50",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.463857316004578,
+      "pins": {
+        "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+        "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+        "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+        "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b"
+      }
+    },
+    {
+      "phase": "rollback-restored-focused4",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "OmissionReadinessTests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.14142235199688002,
+      "pins": {
+        "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+        "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+        "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531",
+        "tests/verification-ci-plan.tests.py": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e"
+      }
+    }
+  ]
+}

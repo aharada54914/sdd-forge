@@ -56,7 +56,10 @@ def expand_matrix(value, row):
                   lambda m: str(row.get(m[1], '${{ unknown }}')), value)
 
 
-def enabled(condition, row, runner):
+PLAN_TERM = re.compile(r"needs\.ci-plan\.outputs\.(run_[a-z0-9_]+) == 'true'")
+
+
+def enabled(condition, row, runner, outputs=None):
     if condition is None or condition is True:
         return True
     if condition is False or not isinstance(condition, str):
@@ -64,6 +67,8 @@ def enabled(condition, row, runner):
     expression = condition.strip()
     if expression.startswith('${{') and expression.endswith('}}'):
         expression = expression[3:-2].strip()
+    if 'needs.' in expression and not condition_supported(expression):
+        return False
     terms = []
     for alternative in expression.split('||'):
         values = []
@@ -71,6 +76,10 @@ def enabled(condition, row, runner):
             term = term.strip()
             if term in ('true', 'false'):
                 values.append(term == 'true')
+                continue
+            plan = PLAN_TERM.fullmatch(term)
+            if plan:
+                values.append(outputs is None or outputs.get(plan[1]) == 'true')
                 continue
             match = re.fullmatch(r"(runner\.os|matrix\.([a-zA-Z_]+))\s*(==|!=)\s*(['\"])([^'\"]+)\4", term)
             if not match:
@@ -173,19 +182,61 @@ def step_suites(step, catalog, row, shell):
     return found
 
 
+def planner_outputs(workflow):
+    """Validate the one generated producer before interpreting full coverage."""
+    jobs = workflow['jobs']
+
+    def step_condition(step):
+        value = step.get('if', '')
+        # Only the pinned uses-only receipt upload may survive a prior failure;
+        # its residual must still be exactly one generic planner term.
+        if ('run' in step or not isinstance(value, str)
+                or step.get('uses') != 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'):
+            return value
+        expression = value.strip()
+        if expression.startswith('${{') and expression.endswith('}}'):
+            expression = expression[3:-2].strip()
+        residual = expression.removeprefix('always() && ')
+        return residual if residual != expression and PLAN_TERM.fullmatch(residual) else value
+
+    conditions = [value for job in jobs.values()
+                  for value in [job.get('if', ''), *map(step_condition, job.get('steps', []))]]
+    if not any(isinstance(value, str) and 'needs.ci-plan.outputs.' in value for value in conditions):
+        return None
+    groups = set(jobs) - {'required-checks'}
+    keys = {'run_' + group.replace('-', '_') for group in groups}
+    if len(keys) != len(groups):
+        raise ValueError('colliding planner output groups')
+    outputs = jobs.get('ci-plan', {}).get('outputs', {})
+    if not isinstance(outputs, dict) or set(outputs) - keys - {'plan_artifact_name'}:
+        raise ValueError('undeclared planner output')
+    for key in keys:
+        if outputs.get(key) != '${{ steps.plan.outputs.' + key + ' }}':
+            raise ValueError('undeclared or mismatched planner output')
+    for value in conditions:
+        if not isinstance(value, str) or 'needs.ci-plan.outputs.' not in value:
+            continue
+        if not condition_supported(value):
+            raise ValueError('unsupported planner condition')
+        if any(key not in keys for key in re.findall(r'needs\.ci-plan\.outputs\.([a-zA-Z0-9_]+)', value)):
+            raise ValueError('unknown planner group')
+    return dict.fromkeys(keys, 'true')
+
+
 def workflow_coverage(workflow, catalog):
+    outputs = planner_outputs(workflow)
     coverage = {}
     for name, job in workflow['jobs'].items():
         found = set()
         for row in matrix_rows(job):
             target = expand_matrix(job.get('runs-on', ''), row)
             runner = {'ubuntu-latest': 'Linux', 'windows-latest': 'Windows', 'macos-latest': 'macOS'}.get(target)
-            if not runner or not enabled(job.get('if'), row, runner) or job.get('continue-on-error', False) is not False:
+            if not runner or not (job.get('if') == 'always()' and name == 'test' or enabled(job.get('if'), row, runner, outputs)) or job.get('continue-on-error', False) is not False:
                 continue
             defaults = dict(workflow.get('defaults', {}).get('run', {}))
             defaults.update(job.get('defaults', {}).get('run', {}))
             for step in job.get('steps', []):
-                if not enabled(step.get('if'), row, runner) or step.get('continue-on-error', False) is not False:
+                if not enabled(step.get('if'), row, runner, outputs) or step.get('continue-on-error', False) is not False:
                     continue
                 if step.get('working-directory', defaults.get('working-directory', '.')) != '.':
                     continue
@@ -196,7 +247,10 @@ def workflow_coverage(workflow, catalog):
 
 
 def coverage_errors(workflow, catalog):
-    actual = workflow_coverage(workflow, catalog)
+    try:
+        actual = workflow_coverage(workflow, catalog)
+    except ValueError as error:
+        return [str(error)]
     errors = [f'{row["path"]}: no admitted execution in {job}'
             for row in catalog['suites'] for job in row.get('ci_jobs', [])
             if row['path'] not in actual.get(job, set())]
@@ -264,13 +318,23 @@ def condition_supported(condition):
     expression = condition.strip()
     if expression.startswith('${{') and expression.endswith('}}'):
         expression = expression[3:-2].strip()
-    return all(term.strip() in ('true', 'false') or re.fullmatch(
+    plan_terms = [term.strip() for alternative in expression.split('||') for term in alternative.split('&&') if 'needs.' in term]
+    if plan_terms and ('||' in expression or len(plan_terms) != 1 or not PLAN_TERM.fullmatch(plan_terms[0])):
+        return False
+    return all(term.strip() in ('true', 'false') or PLAN_TERM.fullmatch(term.strip()) or re.fullmatch(
         r"(runner\.os|matrix\.[a-zA-Z_]+)\s*(==|!=)\s*(['\"])([^'\"]+)\3", term.strip())
         for alternative in expression.split('||') for term in alternative.split('&&'))
 
 
 
 def condition_value(condition, row, runner):
+    # Without execution outputs, a generated condition remains conservative.
+    if isinstance(condition, str) and 'needs.ci-plan.outputs.' in condition:
+        if not condition_supported(condition):
+            return None
+        # A false native predicate still excludes its row even before outputs exist.
+        residual = PLAN_TERM.sub('true', condition)
+        return False if condition_value(residual, row, runner) is False else None
     if not condition_supported(condition):
         return None
     if isinstance(condition, str) and any(key not in row for key in re.findall(r'matrix\.([a-zA-Z_]+)', condition)):
@@ -318,6 +382,113 @@ def shard_members(body, catalog, weights):
 # in T-001. No other shell body obtains this control-only disposition by name.
 LEGACY_VERIFIER_COMMAND = '6d256d00b814a57e078c113e5edea91380207aa7728e8b5bc07baefc9066f0e7'
 
+# Exact detector/checkouts/advisory jobs plus inherited env/defaults. Unknown
+# workflow semantics require review, never an inferred permission to skip.
+A9_ACTIVATION_PROJECTION = '2bcefecb6521fadd345e1cee21d474f38b6fec53f26f5cbe54aadd351b5ac05b'
+
+
+def a9_activation(root, plan, workflow):
+    """Derive A9 activation from bound historical trees; None means no A9 jobs.
+
+    Callers must independently bind the plan's event/revisions to their evidence.
+    This checks workflow/Git semantics, not actual Actions execution observations.
+    """
+    names = ('a9-advisory-inputs', 'a9-advisory')
+    if not any(name in workflow['jobs'] for name in names):
+        return None
+    projection = {key: workflow.get(key, {}) for key in ('env', 'defaults')}
+    projection['jobs'] = {name: workflow['jobs'].get(name) for name in names}
+    encoded = json.dumps(projection, sort_keys=True, separators=(',', ':'),
+                         ensure_ascii=False, allow_nan=False).encode()
+    if hashlib.sha256(encoded).hexdigest() != A9_ACTIVATION_PROJECTION:
+        raise ValueError('unknown A9 activation workflow semantics')
+
+    def git(*args):
+        try:
+            return subprocess.run(['git', '-C', str(root), *args], check=True,
+                                  capture_output=True, timeout=20).stdout
+        except subprocess.SubprocessError as exc:
+            raise ValueError('A9 activation Git context unavailable') from exc
+
+    def commit(value):
+        if (not isinstance(value, str) or not re.fullmatch('[0-9a-f]{40}', value)
+                or git('rev-parse', '--verify', value + '^{commit}').decode().strip() != value):
+            raise ValueError('invalid A9 activation revision')
+        return value
+
+    tested = commit(plan.get('tested_revision'))
+    workflow_path = Path(root) / '.github/workflows/test.yml'
+    payload = git('show', tested + ':.github/workflows/test.yml')
+    bound_workflow = json.loads(payload) if payload.lstrip().startswith(b'{') else load_workflow(workflow_path)
+    if (hashlib.sha256(payload).hexdigest() != plan.get('workflow_sha256')
+            or workflow_path.is_symlink() or not workflow_path.resolve().is_relative_to(Path(root).resolve())
+            or workflow_path.read_bytes() != payload or bound_workflow != workflow):
+        raise ValueError('A9 workflow context does not match bound revision')
+    event = plan.get('event')
+    if event not in ('pull_request', 'push', 'merge_group', 'workflow_dispatch', 'release'):
+        raise ValueError('unknown A9 activation event')
+    if event != 'pull_request':
+        if (plan.get('api_head_sha') != tested or any(plan.get(key) is not None for key in
+                ('base_revision', 'pr_head_revision', 'merge_base_revision'))):
+            raise ValueError('inconsistent non-PR A9 activation context')
+        return False
+    base, head = (commit(plan.get(key)) for key in ('base_revision', 'pr_head_revision'))
+    if (plan.get('api_head_sha') != head
+            or git('merge-base', base, head).decode().strip() != plan.get('merge_base_revision')
+            or (tested != head and git('show', '-s', '--format=%P', tested).decode().strip().split() != [base, head])):
+        raise ValueError('inconsistent PR A9 activation context')
+
+    def context_exists(revision):
+        parent = git('ls-tree', '-z', revision, '--', 'sdd')
+        if parent.startswith((b'120000 ', b'160000 ')):
+            # An ancestor link/submodule is not a bounded checkout tree lookup.
+            raise ValueError('unsupported A9 context ancestor')
+        entry = git('ls-tree', '-z', revision, '--', 'sdd/project-context.yaml')
+        if entry.startswith(b'160000 '):
+            raise ValueError('unsupported A9 context submodule')
+        # lexists counts a leaf symlink even if dangling, and directories too.
+        return bool(entry)
+
+    return any([context_exists(base), context_exists(head)])
+
+
+def prepared_verifier_job(workflow, job):
+    """One bounded caller for collection before the sole final aggregate.
+
+    Compare the complete execution surface, including inherited settings. New
+    setup commands are controls only after this whole ordered shape is proven;
+    names or non-suite commands alone never confer control status.
+    """
+    expected = {
+        'name': 'required-checks', 'runs-on': 'ubuntu-latest', 'if': 'always()',
+        'needs': job['needs'], 'timeout-minutes': 5,
+        'permissions': {'contents': 'read', 'actions': 'read'},
+        'steps': [
+            {'name': 'Checkout exact tested revision',
+             'uses': 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
+             'with': {'ref': '${{ github.sha }}', 'fetch-depth': 0, 'persist-credentials': False}},
+            {'name': 'Install structural YAML parser', 'shell': 'bash',
+             'run': 'npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts'},
+            {'name': 'Download original same-run CI plan', 'shell': 'bash',
+             'env': {'GH_TOKEN': '${{ github.token }}',
+                     'PLAN_ARTIFACT_NAME': '${{ needs.ci-plan.outputs.plan_artifact_name }}'},
+             'run': 'gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$PLAN_ARTIFACT_NAME" --dir "$RUNNER_TEMP/verification-plan"'},
+            {'name': 'Collect actual same-run execution observations', 'shell': 'bash',
+             'env': {'GH_TOKEN': '${{ github.token }}'},
+             'run': 'python3 -B tests/verification-ci.py collect --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --output-dir "$RUNNER_TEMP/verification-observations"'},
+            {'name': 'Check all required tests passed', 'shell': 'bash',
+             'env': {'API_HEAD_SHA': '${{ github.event.pull_request.head.sha || github.sha }}'},
+             'run': 'python3 -B tests/verification-ci.py aggregate --root . --plan "$RUNNER_TEMP/verification-plan/plan.json" --observations "$RUNNER_TEMP/verification-observations" --run-id "$GITHUB_RUN_ID" --api-head-sha "$API_HEAD_SHA" --output "$RUNNER_TEMP/verification-result.json"'}]}
+    inherited_env = {'GIT_CONFIG_COUNT': '1', 'GIT_CONFIG_KEY_0': 'core.longpaths',
+                     'GIT_CONFIG_VALUE_0': 'true'}
+    # JSON comparison preserves scalar types (False must not equal integer 0).
+    if ('ci-plan' not in job['needs'] or 'defaults' in workflow
+            or workflow.get('env', {}) not in ({}, inherited_env)
+            or json.dumps(job, sort_keys=True, allow_nan=False)
+            != json.dumps(expected, sort_keys=True, allow_nan=False)):
+        raise ValueError('unrecognized preparation in orchestration verifier')
+    return True
+
 
 def verifier_job(workflow):
     job = workflow['jobs'].get('required-checks')
@@ -332,7 +503,7 @@ def verifier_job(workflow):
         raise ValueError('required-checks must remain the exact always-running orchestration verifier')
     run_steps = [step for step in job.get('steps', []) if 'run' in step]
     if len(run_steps) != 1:
-        raise ValueError('workload or extra run step in orchestration verifier')
+        return prepared_verifier_job(workflow, job)
     step = run_steps[0]
     if (step.get('name') != 'Check all required tests passed' or step.get('if') is not None
             or step.get('continue-on-error', False) is not False):
@@ -380,7 +551,7 @@ def plan_inventory(workflow, catalog, weights=None):
     Unknown commands remain indivisible non-suite obligations, never permission
     to omit work. A9 activation is separately interpreted by the aggregate.
     """
-    verifier_job(workflow)
+    prepared = verifier_job(workflow)
     obligations, controls = [], []
     seen = set()
     targets = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'windows-latest': 'Windows'}
@@ -445,7 +616,8 @@ def plan_inventory(workflow, catalog, weights=None):
                                         receipt_required=shard is not None or (bool(suites) and 'tests/verification.py' in body))
                 if job_id == 'required-checks':
                     if (shell != 'bash' or step.get('working-directory', defaults.get('working-directory', '.')) != '.'
-                            or suites or not (obligation['command_sha256'] == LEGACY_VERIFIER_COMMAND or aggregate_command(body))):
+                            or suites or not (prepared or obligation['command_sha256'] == LEGACY_VERIFIER_COMMAND
+                                              or aggregate_command(body))):
                         raise ValueError('unrecognized work in orchestration verifier')
                     controls.append({**obligation, 'disposition': 'orchestration-verifier'})
                 else:

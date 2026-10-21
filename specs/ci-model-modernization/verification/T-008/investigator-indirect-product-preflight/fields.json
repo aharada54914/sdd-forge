@@ -1,0 +1,52 @@
+{
+  "status": "PRE_PRODUCT_RECORDED",
+  "fields": [
+    {
+      "field": "maintained indirect Claude entry",
+      "counterpart": "same claude-entry 12-flag contract and selected investigator role",
+      "mismatch_test": "test_indirect_investigator_callers_execute_one_managed_work_handoff: missing maintained fence fails; settings cap blocks before one work allocation"
+    },
+    {
+      "field": "original task and workload bytes",
+      "counterpart": "same full Skill, five references, role and raw-pinned prompt as tested bootstrap route",
+      "mismatch_test": "same test invokes assert_work for actual command, full payload and owned target read; fixture rejects omitted or altered bytes"
+    },
+    {
+      "field": "two installer source paths",
+      "counterpart": "actual installed interviewer and domain-reverse snippets, current Root bytes",
+      "mismatch_test": "same test executes both fences from Bash and PowerShell installed roots, with unchanged configuration checks"
+    },
+    {
+      "field": "domain router single allocation",
+      "counterpart": "one domain-reverse delegation, existing candidate-seed and error handoff",
+      "mismatch_test": "test_domain_reverse_router_preserves_single_delegation_and_seed_failure_boundary rejects old unmanaged direct invocation or extra native allocation"
+    },
+    {
+      "field": "per-attempt identity and completion",
+      "counterpart": "fresh canonical UUID, one successful public result matching session, selected model/effort",
+      "mismatch_test": "new indirect method exercises existing assert_work and replay-sensitive fixture, and verifies one work event per caller"
+    }
+  ],
+  "product_scope": [
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+    "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+    "plugins/sdd-domain/skills/domain-model/SKILL.md"
+  ],
+  "no_adapter_or_schema_change": true,
+  "tests_only_commit": "28d63925",
+  "at": "2026-10-20T11:39:24.987463+00:00",
+  "product_before": {
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": {
+      "sha256": "91489f9fffc419f706e44cacfc6f93d7b6254e54c91e146a6b52e0a2d946fe5a",
+      "mode": 384
+    },
+    "plugins/sdd-domain/skills/domain-reverse/SKILL.md": {
+      "sha256": "a1a0136267b674d04a025e9eae701164c92049d783ddcc41a28ba48d5e2be2f2",
+      "mode": 384
+    },
+    "plugins/sdd-domain/skills/domain-model/SKILL.md": {
+      "sha256": "1f73139a596101269a5a123e51e51d6ec71a9b208b3696f6060b19c6df041dad",
+      "mode": 384
+    }
+  }
+}

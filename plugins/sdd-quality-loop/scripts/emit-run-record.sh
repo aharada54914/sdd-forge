@@ -36,6 +36,9 @@ track="unknown"
 model_main="unknown"
 model_reviewers="unknown"
 plugin_version="unknown"
+model_main_set=0; model_reviewers_set=0
+model_launch=""; model_launch_sha256=""; model_delivery_binding=""; model_delivery_binding_sha256=""; model_slot=""
+model_flags=0
 emit_v2=0
 emit_capability=0
 effort_main=""; effort_main_set=0
@@ -71,9 +74,18 @@ require_capability_enforcement_value() {
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --model-launch|--model-launch-sha256|--model-delivery-binding|--model-delivery-binding-sha256|--model-slot)
+      if [ $# -lt 2 ]; then echo "emit-run-record: selected model argument needs a value" >&2; exit 1; fi ;;
+  esac
+  case "$1" in
+    --model-launch) model_launch="${2:-}"; model_flags=$((model_flags + 1)); shift 2 ;;
+    --model-launch-sha256) model_launch_sha256="${2:-}"; model_flags=$((model_flags + 1)); shift 2 ;;
+    --model-delivery-binding) model_delivery_binding="${2:-}"; model_flags=$((model_flags + 1)); shift 2 ;;
+    --model-delivery-binding-sha256) model_delivery_binding_sha256="${2:-}"; model_flags=$((model_flags + 1)); shift 2 ;;
+    --model-slot) model_slot="${2:-}"; model_flags=$((model_flags + 1)); shift 2 ;;
     --track)          track="${2:-unknown}"; shift 2 ;;
-    --model-main)     model_main="${2:-unknown}"; shift 2 ;;
-    --model-reviewers) model_reviewers="${2:-unknown}"; shift 2 ;;
+    --model-main)     model_main="${2:-unknown}"; model_main_set=1; shift 2 ;;
+    --model-reviewers) model_reviewers="${2:-unknown}"; model_reviewers_set=1; shift 2 ;;
     --plugin-version) plugin_version="${2:-unknown}"; shift 2 ;;
     --effort-main)
       effort_main="${2:-}"; effort_main_set=1; emit_v2=1; shift 2 ;;
@@ -101,6 +113,15 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+if [ "$model_flags" -ne 0 ]; then
+  if [ "$model_flags" -ne 5 ] || [ -z "$model_launch" ] || [ -z "$model_launch_sha256" ] ||
+     [ -z "$model_delivery_binding" ] || [ -z "$model_delivery_binding_sha256" ]; then
+    echo "emit-run-record: selected model arguments must be supplied together" >&2; exit 1
+  fi
+  case "$model_slot" in main|reviewers) ;; *) echo "emit-run-record: invalid model slot" >&2; exit 1 ;; esac
+  emit_v2=1
+fi
+
 if [ -z "$feature" ]; then
   echo "Usage: emit-run-record.sh <feature-slug> [--track full|lite] [--model-main <id>] [--model-reviewers <id>] [--plugin-version <version>]" >&2
   exit 1
@@ -125,6 +146,12 @@ timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 file_stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 out_dir="reports/runs"
 out="${out_dir}/RUN-${file_stamp}-${feature}.json"
+if [ "$model_flags" -ne 0 ]; then
+  final_out="$out"
+  model_temp=$(mktemp -d) || exit 1
+  trap 'rm -rf "$model_temp"' EXIT HUP INT TERM
+  out="$model_temp/draft.json"
+fi
 mkdir -p "$out_dir"
 
 # --- Task counts from tasks.md (CRLF tolerated) --------------------------
@@ -413,6 +440,27 @@ else
   }
 }
 EOF
+fi
+
+if [ "$model_flags" -ne 0 ]; then
+  script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || exit 1
+  set -- model-installed-run-record "$PWD" --launch "$model_launch" --launch-sha256 "$model_launch_sha256" \
+    --delivery-binding "$model_delivery_binding" --delivery-binding-sha256 "$model_delivery_binding_sha256" \
+    --slot "$model_slot" --feature "$feature"
+  if [ "$model_slot" = main ]; then
+    [ "$model_main_set" = 0 ] || set -- "$@" --assert-model "$model_main"
+    [ "$effort_main_set" = 0 ] || set -- "$@" --assert-effort "$effort_main"
+    [ "$effort_control_main_set" = 0 ] || set -- "$@" --assert-control "$effort_control_main"
+    [ "$effort_applied_main_set" = 0 ] || set -- "$@" --assert-applied "$effort_applied_main"
+  else
+    [ "$model_reviewers_set" = 0 ] || set -- "$@" --assert-model "$model_reviewers"
+    [ "$effort_reviewers_set" = 0 ] || set -- "$@" --assert-effort "$effort_reviewers"
+    [ "$effort_control_reviewers_set" = 0 ] || set -- "$@" --assert-control "$effort_control_reviewers"
+    [ "$effort_applied_reviewers_set" = 0 ] || set -- "$@" --assert-applied "$effort_applied_reviewers"
+  fi
+  python3 "$script_dir/../../sdd-review-loop/scripts/validate-nontty-spec-launch.py" "$@" < "$out" > "$model_temp/verified.json" || exit 1
+  mv "$model_temp/verified.json" "$final_out" || exit 1
+  out="$final_out"
 fi
 
 echo "emit-run-record: wrote ${out}"

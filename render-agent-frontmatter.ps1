@@ -32,10 +32,60 @@ param(
     [string]$ResolveTargetRawProtected = '',
     [string]$ResolveTargetRole = '',
     [string]$ResolveTargetKind = '',
-    [string]$ResolveTargetRelPath = ''
+    [string]$ResolveTargetRelPath = '',
+    # Managed mode (T-008): -ModelControls FILE -ModelControlsSha256 SHA
+    # -RunId ID -SessionId ID -ManagedTarget RELPATH [-RepoRoot DIR] [-Check];
+    # see render-agent-frontmatter.sh. Presence is tracked through
+    # $PSBoundParameters, so empty values and partial groups still reach the
+    # adapter's typed rejection instead of falling through to legacy rendering.
+    [string]$ModelControls = '',
+    [string]$ModelControlsSha256 = '',
+    [string]$RunId = '',
+    [string]$SessionId = '',
+    [string]$ManagedTarget = ''
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+
+$managedFlags = [ordered]@{
+    ModelControls = '--model-controls'; ModelControlsSha256 = '--model-controls-sha256'
+    RunId = '--run-id'; SessionId = '--session-id'; ManagedTarget = '--managed-target'
+}
+$managedArgs = New-Object System.Collections.Generic.List[string]
+foreach ($name in $managedFlags.Keys) {
+    if ($PSBoundParameters.ContainsKey($name)) {
+        $managedArgs.Add($managedFlags[$name])
+        $managedArgs.Add([string]$PSBoundParameters[$name])
+    }
+}
+if ($managedArgs.Count -gt 0) {
+    # Bound legacy parameters are forwarded as unknown tokens so the adapter
+    # rejects the mixture with its one typed error.
+    foreach ($name in @('Registry', 'TargetsFile', 'ResolveTargetRawPath', 'ResolveTargetRawProtected',
+                        'ResolveTargetRole', 'ResolveTargetKind', 'ResolveTargetRelPath')) {
+        if ($PSBoundParameters.ContainsKey($name)) {
+            $managedArgs.Add('-' + $name)
+            $managedArgs.Add([string]$PSBoundParameters[$name])
+        }
+    }
+    # Unknown/unbound tokens must reach the same strict parser, never disappear.
+    foreach ($unbound in $args) { $managedArgs.Add([string]$unbound) }
+    if ($RepoRoot) {
+        $managedArgs.Add('--root')
+        $managedArgs.Add($RepoRoot)
+    }
+    if ($Check) { $managedArgs.Add('--check') }
+    $managedEntry = Join-Path $PSScriptRoot 'plugins/sdd-implementation/scripts/managed-model-entry.py'
+    $python = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($null -eq $python -or -not (Test-Path -LiteralPath $managedEntry -PathType Leaf)) {
+        [Console]::Error.WriteLine('{"message":"The managed renderer runtime is unavailable.","reason":"input-invalid","schema":"model-policy-error/v1"}')
+        exit 2
+    }
+    # Empty argument values must reach the adapter rather than be dropped.
+    $PSNativeCommandArgumentPassing = 'Standard'
+    & $python.Source -I -B $managedEntry $managedArgs.ToArray()
+    exit $LASTEXITCODE
+}
 
 if (-not $RepoRoot) {
     $RepoRoot = $PSScriptRoot

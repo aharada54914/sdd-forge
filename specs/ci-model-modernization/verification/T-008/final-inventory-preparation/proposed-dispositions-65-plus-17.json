@@ -1,0 +1,3197 @@
+{
+  "schema": "t008-final-inventory-proposal/v1",
+  "status": "READ_ONLY_PROPOSAL_NOT_FINAL_DISPOSITION_OR_QA",
+  "recorded_at": "2026-10-20T17:12:11.491575+00:00",
+  "context": "work-agent:root:t009_freshness",
+  "counts": {
+    "original": 65,
+    "indirect": 17,
+    "retention_rows": 18,
+    "candidate_skills": 16,
+    "candidate_role_slots": 22,
+    "current_discovered_test_methods": 78
+  },
+  "source_reads_unchanged": true,
+  "changed_during_read": [],
+  "observed_execution_scope": {
+    "last_full": {
+      "methods": 67,
+      "subtests": 716,
+      "evidence": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+      "state": "HISTORICAL_BEFORE_SELF5_BATCH4_DEFAULT_CANDIDATE"
+    },
+    "self_focused": {
+      "methods": 5,
+      "evidence": "specs/ci-model-modernization/verification/T-008/self-improvement-preflight/new-methods-final.log",
+      "state": "FOCUSED_PASS_NOT_HOSTED_ACTION"
+    },
+    "batch_focused": {
+      "methods": 4,
+      "evidence": "specs/ci-model-modernization/verification/T-008/batch-entry-application/green-effective-evidence.json",
+      "state": "FOCUSED_PASS_NOT_REAL_FOUR_PLUS_ONE_ALLOCATION"
+    },
+    "default_mapping": {
+      "skills": 16,
+      "role_slots": 22,
+      "candidate_matrix_cases": 176,
+      "state": "ROOT_APPLIED_16_SOURCE_SECTIONS; CURRENT_CANONICAL_GREEN_AND_FULL_NOT_CLAIMED",
+      "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-candidate/semantic-coverage.json"
+    },
+    "new_full": "NOT_CLAIMED; no tests executed by this read-only preparation"
+  },
+  "rows": [
+    {
+      "index": 1,
+      "inventory_origin": "lexical",
+      "path": ".codex/agents/sdd-evaluator.toml",
+      "category": "native-template",
+      "inventory_sha256": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a",
+      "current_sha256": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Use fixed installed template for generated native config; native five-method test draft pending. No global ~/.codex role edits; one configuration thread is not a substantive review.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "CONFIGURATION_ONLY; substantive native work not proven; default/unsupported carrier mapping provisional",
+      "fixture_class": "InstalledNativeEntryTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/installed-native-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/runtime-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+        "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/0/source_evidence",
+        "canonical_value_sha256": "34a872e9b271b3b5f882c4e7a453289fc2b0d1adcaf693807bc7def9c2efb699"
+      }
+    },
+    {
+      "index": 2,
+      "inventory_origin": "lexical",
+      "path": ".codex/agents/sdd-investigator.toml",
+      "category": "native-template",
+      "inventory_sha256": "5a10183be5d4ba742d7c80d929ac1cdd59b4d32109c48c7615ea05e4b6d6886d",
+      "current_sha256": "5a10183be5d4ba742d7c80d929ac1cdd59b4d32109c48c7615ea05e4b6d6886d",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Use fixed installed template for generated native config; native five-method test draft pending. No global ~/.codex role edits; one configuration thread is not a substantive review.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "CONFIGURATION_ONLY; substantive native work not proven; default/unsupported carrier mapping provisional",
+      "fixture_class": "InstalledNativeEntryTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/installed-native-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/runtime-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "5a10183be5d4ba742d7c80d929ac1cdd59b4d32109c48c7615ea05e4b6d6886d",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "5a10183be5d4ba742d7c80d929ac1cdd59b4d32109c48c7615ea05e4b6d6886d",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+        "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+        "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "plugins/sdd-domain/skills/domain-model/SKILL.md",
+        "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+        "plugins/sdd-implementation/skills/implement-task/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/1/source_evidence",
+        "canonical_value_sha256": "714030947aaf69a2cf9fa43439b9d213bdc5716438b4fdf93e540d6a33c37a3a"
+      }
+    },
+    {
+      "index": 3,
+      "inventory_origin": "lexical",
+      "path": ".github/scripts/check-model-freshness.sh",
+      "category": "separate-maintenance",
+      "inventory_sha256": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+      "current_sha256": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "T009 fetch/notification maintenance, not managed model launch. Retain exact ownership and no T008 runtime-completion claim.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-009 Done",
+      "proposed_disposition": "SEPARATE_TASK_DONE; exclude from T008 managed-launch closure",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-009.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+        "recorded_bytes_match_now": false
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/2/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 4,
+      "inventory_origin": "lexical",
+      "path": ".github/workflows/model-freshness-check.yml",
+      "category": "separate-maintenance",
+      "inventory_sha256": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+      "current_sha256": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "T009 fetch/notification maintenance, not managed model launch. Retain exact ownership and no T008 runtime-completion claim.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-009 Done",
+      "proposed_disposition": "SEPARATE_TASK_DONE; exclude from T008 managed-launch closure",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-009.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+        "recorded_bytes_match_now": false
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/3/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 5,
+      "inventory_origin": "lexical",
+      "path": ".github/workflows/self-improvement.yml",
+      "category": "workflow-runtime",
+      "inventory_sha256": "2b0910511c0736565a939fbfd67d04bb5acea134bd8a6218cca0ba96e231ae97",
+      "current_sha256": "c502c617ddb66edb89210c7f15494e61aebf042291c66bbe9e83f3b4040f533a",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "replace fixed claude-sonnet-5 with policy-prepared validated model/effort/session/executable from observed actual CLI. Reuse exact pinned action installation semantics; reject action env/settings caps/remaps conflicts. Preserve schedule/manual/permissions/secrets/tools75/send/PR guards; fixture adoption only, no workflow dispatch.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SELF5_FOCUSED_PASS; hosted Action/SDK/provider not executed; current full pending",
+      "fixture_class": "InstalledSelfImprovementTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/self-improvement-preflight/static-result.json",
+        "specs/ci-model-modernization/verification/T-008/self-improvement-preflight/new-methods-final.log",
+        "specs/ci-model-modernization/verification/T-008/self-improvement-preflight/after-source-hashes.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "2b0910511c0736565a939fbfd67d04bb5acea134bd8a6218cca0ba96e231ae97",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "c502c617ddb66edb89210c7f15494e61aebf042291c66bbe9e83f3b4040f533a",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": "c502c617ddb66edb89210c7f15494e61aebf042291c66bbe9e83f3b4040f533a",
+        "self5_row_bytes_match_now": true
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/4/source_evidence",
+        "canonical_value_sha256": "d2328b24b9b68f53cf026f0a5116292f47e7b58de8acea0267dd96c396dd21ef"
+      }
+    },
+    {
+      "index": 6,
+      "inventory_origin": "lexical",
+      "path": ".github/workflows/test.yml",
+      "category": "separate-ci",
+      "inventory_sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+      "current_sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "T003/T011 deterministic CI routing; preserve current workflow; no inference selection here.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-003 / T-011",
+      "proposed_disposition": "SEPARATE_CI_OWNER; no model allocation claimed",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/5/source_evidence",
+        "canonical_value_sha256": "67974353d83170bbbf552f7cf81f52718f4c87deee7974c20b4098021bc20745"
+      }
+    },
+    {
+      "index": 7,
+      "inventory_origin": "lexical",
+      "path": "contracts/agent-model-capabilities.json",
+      "category": "existing-policy-engine",
+      "inventory_sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+      "current_sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Preserve current public algorithms/catalog/selector compatibility; T008 consumers use existing selected policy engine. Adoption remains T010.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-006 core / T-010 adoption",
+      "proposed_disposition": "READ_ONLY_PREDECESSOR_CORE; no T008 algorithm/adoption change",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-006.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/6/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 8,
+      "inventory_origin": "lexical",
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "category": "existing-policy-engine",
+      "inventory_sha256": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "current_sha256": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Preserve current public algorithms/catalog/selector compatibility; T008 consumers use existing selected policy engine. Adoption remains T010.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-006 core / T-010 adoption",
+      "proposed_disposition": "READ_ONLY_PREDECESSOR_CORE; no T008 algorithm/adoption change",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-006.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/7/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 9,
+      "inventory_origin": "lexical",
+      "path": "contracts/agent-model-capabilities.v2.md",
+      "category": "documentation-or-history",
+      "inventory_sha256": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+      "current_sha256": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008 byte retention / T-011 current guidance",
+      "proposed_disposition": "RETAINED_DOCUMENT_OR_HISTORY; not runtime completion",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/8/source_evidence",
+        "canonical_value_sha256": "244427ab3b3e925211bd6a79a9211280f0765a59be6ad6ae75dfac9941bb303e"
+      }
+    },
+    {
+      "index": 10,
+      "inventory_origin": "lexical",
+      "path": "contracts/rollback-1.5.0.json",
+      "category": "documentation-or-history",
+      "inventory_sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197",
+      "current_sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008 byte retention / T-011 current guidance",
+      "proposed_disposition": "RETAINED_DOCUMENT_OR_HISTORY; not runtime completion",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/9/source_evidence",
+        "canonical_value_sha256": "081cca573944140db2ea4f31d84ba6c97d5e4ac6ccb8ddea1ec87bbeff0609d2"
+      }
+    },
+    {
+      "index": 11,
+      "inventory_origin": "lexical",
+      "path": "docs/agent-capability-matrix.md",
+      "category": "documentation-or-history",
+      "inventory_sha256": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+      "current_sha256": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008 byte retention / T-011 current guidance",
+      "proposed_disposition": "RETAINED_DOCUMENT_OR_HISTORY; not runtime completion",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/10/source_evidence",
+        "canonical_value_sha256": "ec1dbfa875e12921b9e81094322f43ebe147a5c30e9636aae73a59eac7108f55"
+      }
+    },
+    {
+      "index": 12,
+      "inventory_origin": "lexical",
+      "path": "docs/ci-staging/test-yml-combined-candidate.yml",
+      "category": "documentation-or-history",
+      "inventory_sha256": "88617ccf22f095126555cbe94c07e05b8a15f2db15e8805c21c8c85e9bc5685c",
+      "current_sha256": "88617ccf22f095126555cbe94c07e05b8a15f2db15e8805c21c8c85e9bc5685c",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008 byte retention / T-011 current guidance",
+      "proposed_disposition": "RETAINED_DOCUMENT_OR_HISTORY; not runtime completion",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "88617ccf22f095126555cbe94c07e05b8a15f2db15e8805c21c8c85e9bc5685c",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "88617ccf22f095126555cbe94c07e05b8a15f2db15e8805c21c8c85e9bc5685c",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/11/source_evidence",
+        "canonical_value_sha256": "ff16f0111f69f78855e94a0fee12f997aea08f67590098df1d34fccf89716908"
+      }
+    },
+    {
+      "index": 13,
+      "inventory_origin": "lexical",
+      "path": "docs/skill-reference.md",
+      "category": "documentation-or-history",
+      "inventory_sha256": "121e122e63079d02262412d08b73a78231bfa28827438d33bf87058b5bce43ed",
+      "current_sha256": "121e122e63079d02262412d08b73a78231bfa28827438d33bf87058b5bce43ed",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008 byte retention / T-011 current guidance",
+      "proposed_disposition": "RETAINED_DOCUMENT_OR_HISTORY; not runtime completion",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "121e122e63079d02262412d08b73a78231bfa28827438d33bf87058b5bce43ed",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "121e122e63079d02262412d08b73a78231bfa28827438d33bf87058b5bce43ed",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/12/source_evidence",
+        "canonical_value_sha256": "b017f3435fe3b53ea6b45217e7b9e29888b94c7fbcbce11d1590b9e9010f703e"
+      }
+    },
+    {
+      "index": 14,
+      "inventory_origin": "lexical",
+      "path": "docs/workflow-improvements/WFI-005.md",
+      "category": "documentation-or-history",
+      "inventory_sha256": "f4c78efc4c4b4697c8eea2e543d090e7c1ef1ddf941ebebf5b375bb4a9f4bb1f",
+      "current_sha256": "f4c78efc4c4b4697c8eea2e543d090e7c1ef1ddf941ebebf5b375bb4a9f4bb1f",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008 byte retention / T-011 current guidance",
+      "proposed_disposition": "RETAINED_DOCUMENT_OR_HISTORY; not runtime completion",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "f4c78efc4c4b4697c8eea2e543d090e7c1ef1ddf941ebebf5b375bb4a9f4bb1f",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "f4c78efc4c4b4697c8eea2e543d090e7c1ef1ddf941ebebf5b375bb4a9f4bb1f",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/13/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 15,
+      "inventory_origin": "lexical",
+      "path": "docs/workflow-improvements/WFI-006.md",
+      "category": "documentation-or-history",
+      "inventory_sha256": "80bd9ed76c8c19dd24fd39b8e7f84987f8391583e034c1cf3ca11ef870602951",
+      "current_sha256": "80bd9ed76c8c19dd24fd39b8e7f84987f8391583e034c1cf3ca11ef870602951",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008 byte retention / T-011 current guidance",
+      "proposed_disposition": "RETAINED_DOCUMENT_OR_HISTORY; not runtime completion",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "80bd9ed76c8c19dd24fd39b8e7f84987f8391583e034c1cf3ca11ef870602951",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "80bd9ed76c8c19dd24fd39b8e7f84987f8391583e034c1cf3ca11ef870602951",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/14/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 16,
+      "inventory_origin": "lexical",
+      "path": "docs/workflow-improvements/WFI-040.md",
+      "category": "documentation-or-history",
+      "inventory_sha256": "8e1565f4226fb41d033de0b80be4522c93b3b6e0e87a0e0f98308edbd29f6ddc",
+      "current_sha256": "8e1565f4226fb41d033de0b80be4522c93b3b6e0e87a0e0f98308edbd29f6ddc",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008 byte retention / T-011 current guidance",
+      "proposed_disposition": "RETAINED_DOCUMENT_OR_HISTORY; not runtime completion",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "8e1565f4226fb41d033de0b80be4522c93b3b6e0e87a0e0f98308edbd29f6ddc",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "8e1565f4226fb41d033de0b80be4522c93b3b6e0e87a0e0f98308edbd29f6ddc",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/15/source_evidence",
+        "canonical_value_sha256": "964609f9d0b5bd7a44ddeb4dbc617a41bd57faa3e1a3cc97e418ee1ab36fef0d"
+      }
+    },
+    {
+      "index": 17,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-bootstrap/agents/investigator.md",
+      "category": "ordinary-role",
+      "inventory_sha256": "cf1e6b4bd3cbbb6a3dc767413443677c12a70b9faf2e9608cc402d3cff9e8e0a",
+      "current_sha256": "cf1e6b4bd3cbbb6a3dc767413443677c12a70b9faf2e9608cc402d3cff9e8e0a",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledClaudeInvestigatorTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/investigator-full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-indirect-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "cf1e6b4bd3cbbb6a3dc767413443677c12a70b9faf2e9608cc402d3cff9e8e0a",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "cf1e6b4bd3cbbb6a3dc767413443677c12a70b9faf2e9608cc402d3cff9e8e0a",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+        "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+        "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "plugins/sdd-domain/skills/domain-model/SKILL.md",
+        "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+        "plugins/sdd-implementation/skills/implement-task/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/16/source_evidence",
+        "canonical_value_sha256": "875b35ec267ebbb1e1effb995bf661e6dea3ad53ae4db18a68166aac197e5e1c"
+      }
+    },
+    {
+      "index": 18,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-domain/agents/domain-reviewer-a.md",
+      "category": "ordinary-role",
+      "inventory_sha256": "782addb1bb2f60253ac48dfc0a5966b968b5b53f9ee1246dd45ae3c27717fefd",
+      "current_sha256": "782addb1bb2f60253ac48dfc0a5966b968b5b53f9ee1246dd45ae3c27717fefd",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledDomainCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/domain-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/domain-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/domain-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "782addb1bb2f60253ac48dfc0a5966b968b5b53f9ee1246dd45ae3c27717fefd",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-domain/skills/domain-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/17/source_evidence",
+        "canonical_value_sha256": "459012b201ce204235e599badaf117b458cd58554f039d700aa5705acb159c50"
+      }
+    },
+    {
+      "index": 19,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-domain/agents/domain-reviewer-b.md",
+      "category": "ordinary-role",
+      "inventory_sha256": "031cae9862ad7cf0d4776c26d5e06f49c40db197360c9a72fc5305d03045172e",
+      "current_sha256": "031cae9862ad7cf0d4776c26d5e06f49c40db197360c9a72fc5305d03045172e",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledDomainCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/domain-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/domain-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/domain-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "031cae9862ad7cf0d4776c26d5e06f49c40db197360c9a72fc5305d03045172e",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-domain/skills/domain-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/18/source_evidence",
+        "canonical_value_sha256": "459012b201ce204235e599badaf117b458cd58554f039d700aa5705acb159c50"
+      }
+    },
+    {
+      "index": 20,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+      "category": "ordinary-skill",
+      "inventory_sha256": "36484fe991db49da3bc5aaeb6421b661b1412270d8059daec6128c15389eec1f",
+      "current_sha256": "7638ce5cbeadc5a2d0872bf487e0c2e55e24fffd3bd435537db22b076ea01d5b",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "domain-reviewer-a/b: prepare independent controls before either named-role launch. Copilot --model auto at164–196 must not allocate under missing trusted mapping; retain identity reservation/tools/denials/sanitized bridge.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledDomainCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/domain-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/domain-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/domain-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "a7ccb0b1609ab2367759e0a6480b21a28bbe65fc284704bd5039036d30aecbf6",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-domain/skills/domain-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/19/source_evidence",
+        "canonical_value_sha256": "d4364b84d485f6216d723d858d35d9449d67f21d90f087515d5469c6da424606"
+      }
+    },
+    {
+      "index": 21,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-implementation/scripts/select-agent-model.ps1",
+      "category": "existing-policy-engine",
+      "inventory_sha256": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+      "current_sha256": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Preserve current public algorithms/catalog/selector compatibility; T008 consumers use existing selected policy engine. Adoption remains T010.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-006 core / T-010 adoption",
+      "proposed_disposition": "READ_ONLY_PREDECESSOR_CORE; no T008 algorithm/adoption change",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-006.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/20/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 22,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-implementation/scripts/select-agent-model.sh",
+      "category": "existing-policy-engine",
+      "inventory_sha256": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+      "current_sha256": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Preserve current public algorithms/catalog/selector compatibility; T008 consumers use existing selected policy engine. Adoption remains T010.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-006 core / T-010 adoption",
+      "proposed_disposition": "READ_ONLY_PREDECESSOR_CORE; no T008 algorithm/adoption change",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-006.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/21/source_evidence",
+        "canonical_value_sha256": "a802f8e3cbceadb146933fff14620e427e7b16fb55de1f48140d2860986f10d0"
+      }
+    },
+    {
+      "index": 23,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-implementation/skills/diagnose/SKILL.md",
+      "category": "ordinary-skill",
+      "inventory_sha256": "39177f847eff6d547a8bec279bca6d6b623396c2c59ee412bad9e0470b22de44",
+      "current_sha256": "59df6dd5abd4b7fa7b13c6299c242404149379a2f766074d9f3379c93c661610",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "diagnosis role: frontmatter model:sonnet is a current choice. Add managed preparation/native carrier before skill execution; preserve reproduction-first, fix handoff and human boundaries. Host effort mechanism must be observed, not inferred.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledClaudeDiagnosisTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/diagnosis-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/diagnosis-full-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "e7d337fbcc08ac1d068ec799d06bb725f9bc9bce89202f5482ce8eb8645dd385",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "e7d337fbcc08ac1d068ec799d06bb725f9bc9bce89202f5482ce8eb8645dd385",
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-implementation/skills/diagnose/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/22/source_evidence",
+        "canonical_value_sha256": "f282c093b36b0dad277f38f941882a26dd8112001a1fd3647be09b64f050df2f"
+      }
+    },
+    {
+      "index": 24,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "category": "ordinary-reference",
+      "inventory_sha256": "ec5a392cea7190660b8517317977584d36179e718856061acf968b36ef6bd23f",
+      "current_sha256": "a8f29a302317b1d9e10531b23d00ffcbd65edad72982e5e43113e1d0a97e5f15",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "investigator/evaluator delegations: route existing shipped-role calls through supported model control boundary; preserve fresh single-purpose context and same-session-file-reload exception. Do not present per-invocation generated config as a new global role.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledClaudeDelegationTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/delegation-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "a8f29a302317b1d9e10531b23d00ffcbd65edad72982e5e43113e1d0a97e5f15",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "a8f29a302317b1d9e10531b23d00ffcbd65edad72982e5e43113e1d0a97e5f15",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-implementation/skills/implement-task/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/23/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 25,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+      "category": "ordinary-role",
+      "inventory_sha256": "18d151073e388fe9e864d7192230c8686c6d8a24414d04f02796c00db4194a6a",
+      "current_sha256": "18d151073e388fe9e864d7192230c8686c6d8a24414d04f02796c00db4194a6a",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledQualityCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/quality-caller-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "18d151073e388fe9e864d7192230c8686c6d8a24414d04f02796c00db4194a6a",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+        "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/24/source_evidence",
+        "canonical_value_sha256": "13ace0f82014eaf1c6038fa83356fb19ec7790c22745e5b829f921d7beef402d"
+      }
+    },
+    {
+      "index": 26,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/panelist-gemini.md",
+      "category": "inherited-panelist-template",
+      "inventory_sha256": "b45eeab1c070a96115d6d2813fff4a92cfc73796ed171ba1c8cf6112c4cd6093",
+      "current_sha256": "b45eeab1c070a96115d6d2813fff4a92cfc73796ed171ba1c8cf6112c4cd6093",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "No independent model choice; retain inherited template and verify actual cross-model caller supplies controls to supported vendor runner. Not a separate native selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "INHERITED_TEMPLATE; supported GPT/Gemini runner fixtures, no independent selection/availability",
+      "fixture_class": "InstalledPanelistCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/runtime-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "b45eeab1c070a96115d6d2813fff4a92cfc73796ed171ba1c8cf6112c4cd6093",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/25/source_evidence",
+        "canonical_value_sha256": "c4e7e4277fb69ffd68e5ce23050f556d70a1a44ce61b234d5393cfe24e0b3a4c"
+      }
+    },
+    {
+      "index": 27,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/panelist-gpt.md",
+      "category": "inherited-panelist-template",
+      "inventory_sha256": "e0134fc5be428b1a0ab4b700f989d4fb7a114c119b12405dab14da9bda4629de",
+      "current_sha256": "e0134fc5be428b1a0ab4b700f989d4fb7a114c119b12405dab14da9bda4629de",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "No independent model choice; retain inherited template and verify actual cross-model caller supplies controls to supported vendor runner. Not a separate native selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "INHERITED_TEMPLATE; supported GPT/Gemini runner fixtures, no independent selection/availability",
+      "fixture_class": "InstalledPanelistCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/runtime-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "e0134fc5be428b1a0ab4b700f989d4fb7a114c119b12405dab14da9bda4629de",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/26/source_evidence",
+        "canonical_value_sha256": "c4e7e4277fb69ffd68e5ce23050f556d70a1a44ce61b234d5393cfe24e0b3a4c"
+      }
+    },
+    {
+      "index": 28,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/wfi-auditor-a.md",
+      "category": "ordinary-role",
+      "inventory_sha256": "864f6b857131ece8da42948fe17311b2e42c971cd6b4b64ccb39ed5241ec3230",
+      "current_sha256": "864f6b857131ece8da42948fe17311b2e42c971cd6b4b64ccb39ed5241ec3230",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledClaudeWfiTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/wfi-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/wfi-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/wfi-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "864f6b857131ece8da42948fe17311b2e42c971cd6b4b64ccb39ed5241ec3230",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "864f6b857131ece8da42948fe17311b2e42c971cd6b4b64ccb39ed5241ec3230",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/27/source_evidence",
+        "canonical_value_sha256": "d40ea63f1c0fff3215ec48e82605ee8115b4aebe0ec1c4e8a927f5ce2d2008c3"
+      }
+    },
+    {
+      "index": 29,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/wfi-auditor-b.md",
+      "category": "ordinary-role",
+      "inventory_sha256": "ad7a7defc893d9a60ca4b9506a144340759bf3090ab90157814c0113b781a298",
+      "current_sha256": "ad7a7defc893d9a60ca4b9506a144340759bf3090ab90157814c0113b781a298",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledClaudeWfiTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/wfi-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/wfi-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/wfi-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "ad7a7defc893d9a60ca4b9506a144340759bf3090ab90157814c0113b781a298",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "ad7a7defc893d9a60ca4b9506a144340759bf3090ab90157814c0113b781a298",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/28/source_evidence",
+        "canonical_value_sha256": "081f383a9120427ea49388356c09aa6d98fe1171903adfc12441703e305416bf"
+      }
+    },
+    {
+      "index": 30,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/references/cross-model-verification-policy.md",
+      "category": "retained-policy-or-indirect",
+      "inventory_sha256": "0a27c8cea42ae1b5c9bb8e58a5d7d3ea1bc43032453eea8233a563c839bc6e69",
+      "current_sha256": "0a27c8cea42ae1b5c9bb8e58a5d7d3ea1bc43032453eea8233a563c839bc6e69",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "RETAINED_GUARD_CONSENT_OR_INDIRECT_POLICY; downstream callsite obligation remains",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "0a27c8cea42ae1b5c9bb8e58a5d7d3ea1bc43032453eea8233a563c839bc6e69",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "0a27c8cea42ae1b5c9bb8e58a5d7d3ea1bc43032453eea8233a563c839bc6e69",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/29/source_evidence",
+        "canonical_value_sha256": "7b9c38d6ca6d600b020ab3648bfbe4d5a90eeb93dd09b88d5a469c04e09eacd0"
+      }
+    },
+    {
+      "index": 31,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "category": "retained-policy-or-indirect",
+      "inventory_sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+      "current_sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "RETAINED_GUARD_CONSENT_OR_INDIRECT_POLICY; downstream callsite obligation remains",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/30/source_evidence",
+        "canonical_value_sha256": "b65db508c114f978610ebb83ec11a3b696da435c8d81ba9db688aef1d47384ab"
+      }
+    },
+    {
+      "index": 32,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
+      "category": "existing-runtime-consumer",
+      "inventory_sha256": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+      "current_sha256": "036ee9b36635bfb13429c08ad8ccdf233d7a6ed96c482812e7254804e80484e8",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-007 transport / T-008 caller forwarding",
+      "proposed_disposition": "REUSED_TRANSPORT_COMPONENT; current caller flags and assembled integration pending",
+      "fixture_class": "InstalledSpecCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/spec-b-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "036ee9b36635bfb13429c08ad8ccdf233d7a6ed96c482812e7254804e80484e8",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/31/source_evidence",
+        "canonical_value_sha256": "fdd4ba4a5484417a68c602ff9c9367b325c6460346d8b53fe73a7f4ef8370635"
+      }
+    },
+    {
+      "index": 33,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "category": "existing-runtime-consumer",
+      "inventory_sha256": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+      "current_sha256": "7bebc05a64ead3a31084c38a5f6a9cfc1921a8475f975ce1c741ef0af13963ae",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-007 transport / T-008 caller forwarding",
+      "proposed_disposition": "REUSED_TRANSPORT_COMPONENT; current caller flags and assembled integration pending",
+      "fixture_class": "InstalledSpecCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/spec-b-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "7bebc05a64ead3a31084c38a5f6a9cfc1921a8475f975ce1c741ef0af13963ae",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/32/source_evidence",
+        "canonical_value_sha256": "b86b0657d1788c8d8b120de5cfa49b6b301e6b5aab60f3abf7d6945b37aad24a"
+      }
+    },
+    {
+      "index": 34,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "category": "retained-policy-or-indirect",
+      "inventory_sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+      "current_sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "RETAINED_GUARD_CONSENT_OR_INDIRECT_POLICY; downstream callsite obligation remains",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/33/source_evidence",
+        "canonical_value_sha256": "0f06a352c18c16dc338f69e265d9cfb5316ef435cda1a1061ba979f037d19cec"
+      }
+    },
+    {
+      "index": 35,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "category": "retained-policy-or-indirect",
+      "inventory_sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+      "current_sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "RETAINED_GUARD_CONSENT_OR_INDIRECT_POLICY; downstream callsite obligation remains",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/34/source_evidence",
+        "canonical_value_sha256": "b6c18f8060080489b28d81491c0b4f69d9f1ba290856b7b0e59d2abda91dd2ea"
+      }
+    },
+    {
+      "index": 36,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "category": "retained-policy-or-indirect",
+      "inventory_sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+      "current_sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "RETAINED_GUARD_CONSENT_OR_INDIRECT_POLICY; downstream callsite obligation remains",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/35/source_evidence",
+        "canonical_value_sha256": "acbb2ab2558c0a4c7dc2a77f3f8462bd9818be3b178b8ea588d106b11c73fc1a"
+      }
+    },
+    {
+      "index": 37,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "category": "retained-policy-or-indirect",
+      "inventory_sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+      "current_sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "RETAINED_GUARD_CONSENT_OR_INDIRECT_POLICY; downstream callsite obligation remains",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/36/source_evidence",
+        "canonical_value_sha256": "1882171aa9bc75f850e636712b44ee94fcc83df05f53763352cbfa376892f684"
+      }
+    },
+    {
+      "index": 38,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "category": "existing-runtime-consumer",
+      "inventory_sha256": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+      "current_sha256": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-007 transport / T-008 caller forwarding",
+      "proposed_disposition": "REUSED_TRANSPORT_COMPONENT; current caller flags and assembled integration pending",
+      "fixture_class": "InstalledPanelistCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/37/source_evidence",
+        "canonical_value_sha256": "6eee1401ee332b56033829e72c3f111a622b639f4b661a784f3fe88e1a8b008e"
+      }
+    },
+    {
+      "index": 39,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
+      "category": "existing-runtime-consumer",
+      "inventory_sha256": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+      "current_sha256": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-007 transport / T-008 caller forwarding",
+      "proposed_disposition": "REUSED_TRANSPORT_COMPONENT; current caller flags and assembled integration pending",
+      "fixture_class": "InstalledPanelistCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/38/source_evidence",
+        "canonical_value_sha256": "1d715162eeafaa088828ced8df1d51a31ac01a28d5fa5f9d958a4f1bccc2e666"
+      }
+    },
+    {
+      "index": 40,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "category": "existing-runtime-consumer",
+      "inventory_sha256": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+      "current_sha256": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-007 transport / T-008 caller forwarding",
+      "proposed_disposition": "REUSED_TRANSPORT_COMPONENT; current caller flags and assembled integration pending",
+      "fixture_class": "InstalledPanelistCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/39/source_evidence",
+        "canonical_value_sha256": "0ba974cf6772f9a7a9605dafe717e869ae53184c50bfe71f18a88873bf36ef87"
+      }
+    },
+    {
+      "index": 41,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+      "category": "existing-runtime-consumer",
+      "inventory_sha256": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+      "current_sha256": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-007 transport / T-008 caller forwarding",
+      "proposed_disposition": "REUSED_TRANSPORT_COMPONENT; current caller flags and assembled integration pending",
+      "fixture_class": "InstalledPanelistCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/40/source_evidence",
+        "canonical_value_sha256": "a9a2d481f522176fac676225ac25da50f758da00089546b5d281db48a83dadbe"
+      }
+    },
+    {
+      "index": 42,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "category": "ordinary-skill",
+      "inventory_sha256": "ce29654fc042e2e1fad4ce0f12c159dcbdc390137f5acc867a7e99d0dd4a21a2",
+      "current_sha256": "6fd4eac7efd7d127d2f0c6ebd467c766417d927ee07bfbc2036660498db9b7ba",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "evaluator: append actual prepared controls to existing authorized shared Claude launcher without changing permission/delivery/reservation order. Replace obsolete comment-only effort and legacy candidates-file Codex guidance with observed native fields; configuration-only codex-entry cannot substitute review turn/delivery.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledQualityCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/quality-caller-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/quality-caller-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "4a4886a30757ffe98294e94a341199b4f81a6b3a0a48f62404642162b0fc87f4",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/41/source_evidence",
+        "canonical_value_sha256": "738ca2dc0cb4e72031ef13f3fb4a5006ecc11906758b46acc4ce67544ec385bf"
+      }
+    },
+    {
+      "index": 43,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+      "category": "retained-policy-or-indirect",
+      "inventory_sha256": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0",
+      "current_sha256": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "RETAINED_GUARD_CONSENT_OR_INDIRECT_POLICY; downstream callsite obligation remains",
+      "fixture_class": null,
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "retention_revalidation": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+        "recorded_sha256": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0",
+        "recorded_bytes_match_now": true
+      },
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/42/source_evidence",
+        "canonical_value_sha256": "9e848c87d4b83cb03fa90f09f97bd47f5458c67a882e39a2d11f707682282df7"
+      }
+    },
+    {
+      "index": 44,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "category": "protected-role",
+      "inventory_sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+      "current_sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Current native model/effort human-copy proposal under current-human-copy only; preserve original and frozen epic159. Staged proposal does not prove applied/deployed role.",
+      "original_edit_boundary": "current human-copy proposal only; no direct source edit",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledProtectedCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/43/source_evidence",
+        "canonical_value_sha256": "dfcabf86e1b61c29d8d6219b77cce5be3e06c72c6159b4a3e6b4d168ef943cc2"
+      }
+    },
+    {
+      "index": 45,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+      "category": "protected-role",
+      "inventory_sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+      "current_sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Current native model/effort human-copy proposal under current-human-copy only; preserve original and frozen epic159. Staged proposal does not prove applied/deployed role.",
+      "original_edit_boundary": "current human-copy proposal only; no direct source edit",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledProtectedCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/44/source_evidence",
+        "canonical_value_sha256": "dfcabf86e1b61c29d8d6219b77cce5be3e06c72c6159b4a3e6b4d168ef943cc2"
+      }
+    },
+    {
+      "index": 46,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+      "category": "ordinary-role",
+      "inventory_sha256": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731",
+      "current_sha256": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledSpecCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/spec-b-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/spec-caller-full-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/45/source_evidence",
+        "canonical_value_sha256": "dfcabf86e1b61c29d8d6219b77cce5be3e06c72c6159b4a3e6b4d168ef943cc2"
+      }
+    },
+    {
+      "index": 47,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/spec-reviewer-b.md",
+      "category": "ordinary-role",
+      "inventory_sha256": "d9d7e8e3abb0d822daaeb19b30183f7e283602c741d440d35d78accac166cbb1",
+      "current_sha256": "d9d7e8e3abb0d822daaeb19b30183f7e283602c741d440d35d78accac166cbb1",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledSpecCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/spec-b-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/spec-caller-full-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "d9d7e8e3abb0d822daaeb19b30183f7e283602c741d440d35d78accac166cbb1",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/46/source_evidence",
+        "canonical_value_sha256": "dfcabf86e1b61c29d8d6219b77cce5be3e06c72c6159b4a3e6b4d168ef943cc2"
+      }
+    },
+    {
+      "index": 48,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+      "category": "protected-role",
+      "inventory_sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+      "current_sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Current native model/effort human-copy proposal under current-human-copy only; preserve original and frozen epic159. Staged proposal does not prove applied/deployed role.",
+      "original_edit_boundary": "current human-copy proposal only; no direct source edit",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledProtectedCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/47/source_evidence",
+        "canonical_value_sha256": "dfcabf86e1b61c29d8d6219b77cce5be3e06c72c6159b4a3e6b4d168ef943cc2"
+      }
+    },
+    {
+      "index": 49,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+      "category": "protected-role",
+      "inventory_sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+      "current_sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Current native model/effort human-copy proposal under current-human-copy only; preserve original and frozen epic159. Staged proposal does not prove applied/deployed role.",
+      "original_edit_boundary": "current human-copy proposal only; no direct source edit",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledProtectedCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/48/source_evidence",
+        "canonical_value_sha256": "dfcabf86e1b61c29d8d6219b77cce5be3e06c72c6159b4a3e6b4d168ef943cc2"
+      }
+    },
+    {
+      "index": 50,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "category": "existing-runtime-consumer",
+      "inventory_sha256": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+      "current_sha256": "b5f9929bacb4a49b5a7e40e9abe0a9855e9d50d15ca0052b680d3866db05ea50",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-007 transport / T-008 caller forwarding",
+      "proposed_disposition": "REUSED_TRANSPORT_COMPONENT; current caller flags and assembled integration pending",
+      "fixture_class": "InstalledSpecCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/spec-caller-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "b5f9929bacb4a49b5a7e40e9abe0a9855e9d50d15ca0052b680d3866db05ea50",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "b5f9929bacb4a49b5a7e40e9abe0a9855e9d50d15ca0052b680d3866db05ea50",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/49/source_evidence",
+        "canonical_value_sha256": "f03125720bc94ca9db816a59cafbc307952342307d50f237e7e845c1065c9366"
+      }
+    },
+    {
+      "index": 51,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "category": "existing-runtime-consumer",
+      "inventory_sha256": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+      "current_sha256": "fe48d79811f6c72908a8dd08ff25b196b6ef4c9c3af4b165ea175839a3f2c236",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-007 transport / T-008 caller forwarding",
+      "proposed_disposition": "REUSED_TRANSPORT_COMPONENT; current caller flags and assembled integration pending",
+      "fixture_class": "InstalledSpecCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/spec-caller-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007.evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "fe48d79811f6c72908a8dd08ff25b196b6ef4c9c3af4b165ea175839a3f2c236",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "fe48d79811f6c72908a8dd08ff25b196b6ef4c9c3af4b165ea175839a3f2c236",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/50/source_evidence",
+        "canonical_value_sha256": "66ed227a9137e4d1ee850617a8f7652a68fff5c7bb4d6cfccc2b1c7070359edf"
+      }
+    },
+    {
+      "index": 52,
+      "inventory_origin": "lexical",
+      "path": "render-agent-frontmatter.ps1",
+      "category": "verified-component",
+      "inventory_sha256": "e8dd1f5f4222420e21c13a51ab6f221e0393d23a83e6ab86b5d5346a7bcff6ae",
+      "current_sha256": "e8dd1f5f4222420e21c13a51ab6f221e0393d23a83e6ab86b5d5346a7bcff6ae",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Renderer native fields/protected staging or exact seven-file installed runtime closure is Green; this component evidence does not close all maintained callers.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "COMPONENT_FIXTURE_EVIDENCE; no downstream/whole-task completion inferred",
+      "fixture_class": "InstalledEntryTests",
+      "additional_renderer_fixture_classes": [
+        "ManagedClaudeRoles",
+        "ManagedCodexRoles"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/runtime-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "e8dd1f5f4222420e21c13a51ab6f221e0393d23a83e6ab86b5d5346a7bcff6ae",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/51/source_evidence",
+        "canonical_value_sha256": "ed208d4ee83a1d50414a0b9400da85b9e39784b8897ed0b121b3a50b485e367e"
+      }
+    },
+    {
+      "index": 53,
+      "inventory_origin": "lexical",
+      "path": "render-agent-frontmatter.sh",
+      "category": "verified-component",
+      "inventory_sha256": "a400dc8f2825d982a759b81b86bcfaaec78e47f78347c6fc00903744c6b3fbe6",
+      "current_sha256": "a400dc8f2825d982a759b81b86bcfaaec78e47f78347c6fc00903744c6b3fbe6",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "Renderer native fields/protected staging or exact seven-file installed runtime closure is Green; this component evidence does not close all maintained callers.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "COMPONENT_FIXTURE_EVIDENCE; no downstream/whole-task completion inferred",
+      "fixture_class": "InstalledEntryTests",
+      "additional_renderer_fixture_classes": [
+        "ManagedClaudeRoles",
+        "ManagedCodexRoles"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/runtime-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "a400dc8f2825d982a759b81b86bcfaaec78e47f78347c6fc00903744c6b3fbe6",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/52/source_evidence",
+        "canonical_value_sha256": "a26fefbebff471ddf34c2fe01c8f89137dc2898c90c06b4c3c233b753fe332af"
+      }
+    },
+    {
+      "index": 54,
+      "inventory_origin": "semantic-addition",
+      "path": "install.sh",
+      "category": "verified-component",
+      "inventory_sha256": "688bf4db5f1c8a55d413548543e019346bcda0f4374824bf5bc29644c8927851",
+      "current_sha256": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "Renderer native fields/protected staging or exact seven-file installed runtime closure is Green; this component evidence does not close all maintained callers.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "COMPONENT_FIXTURE_EVIDENCE; no downstream/whole-task completion inferred",
+      "fixture_class": "InstalledEntryTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/53/source_evidence",
+        "canonical_value_sha256": "e6471577b927d73aa953af47dda4c2ab4805b0736e63bd1aef797bd7b9dc8be0"
+      }
+    },
+    {
+      "index": 55,
+      "inventory_origin": "semantic-addition",
+      "path": "install.ps1",
+      "category": "verified-component",
+      "inventory_sha256": "5106b3e955d4817066ad6b72dffd81a7c9dad99f4fc2664a06bbb5680dcdbaa8",
+      "current_sha256": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "Renderer native fields/protected staging or exact seven-file installed runtime closure is Green; this component evidence does not close all maintained callers.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "COMPONENT_FIXTURE_EVIDENCE; no downstream/whole-task completion inferred",
+      "fixture_class": "InstalledEntryTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde",
+        "batch4_row_bytes_match_now": true,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/54/source_evidence",
+        "canonical_value_sha256": "ac846a9b8072c26689f19f01efc757a7a6f09907b5f2566882b2181ca7781446"
+      }
+    },
+    {
+      "index": 56,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+      "category": "ordinary-skill",
+      "inventory_sha256": "4e33234e370bbdf873cd370c90743172f86cb333f526667a7ee3a7a4714f6174",
+      "current_sha256": "f7374159f2b426bbea66409657bcfdb8ac8cd7c3ce34d24ecaa7fcc96cb963be",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "investigator: context:fork/agent:sdd-investigator can allocate before body. Preparation must occur at upstream supported host trigger before fork, not merely inside already-running skill; retain no-write/report behavior.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledClaudeInvestigatorTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/investigator-full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-indirect-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "4e33234e370bbdf873cd370c90743172f86cb333f526667a7ee3a7a4714f6174",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "4e33234e370bbdf873cd370c90743172f86cb333f526667a7ee3a7a4714f6174",
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/55/source_evidence",
+        "canonical_value_sha256": "e1bf1c6a026dffe1adda8740d44a2a1537fc7b65ad45e3198d3825d265b60b96"
+      }
+    },
+    {
+      "index": 57,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "category": "ordinary-skill",
+      "inventory_sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+      "current_sha256": "dd815ef80c61cad17e65c8fe6942029a36cb5c05379be33973c47ba57fdc0553",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "implementer: restore already approved task/context; attach managed selection to actual implementation allocation via implement-tasks/ship, not claim a model change by reading this skill in an existing session. No task-status/approval relaxations.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledClaudeImplementerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/implementer-product-application/full-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-implementation/skills/implement-task/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/56/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 58,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "category": "ordinary-skill",
+      "inventory_sha256": "63ec0313cd660be60940bdcb0d8e88337b6e380ac4bb43a13100461ba388f291",
+      "current_sha256": "f8ace1dd326892dcf146611de1bc20492544f88bf5c53cb049dd6e413482b1f9",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "implementer: bind selected controls to each validated immutable task manifest and fresh run/session/agent. Preserve incapable-host evidence/reload exception without fabricating a new session or model application.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "BATCH4_FOCUSED_PASS; no real four-plus-one native allocation/backend proof; current full pending",
+      "fixture_class": "InstalledClaudeBatchTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/batch-entry-application/green-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "63ec0313cd660be60940bdcb0d8e88337b6e380ac4bb43a13100461ba388f291",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "7eceef691b1a25679cb322640698357accd99abb7436df256e3b69a922670c49",
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-implementation/skills/implement-tasks/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/57/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 59,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md",
+      "category": "ordinary-skill",
+      "inventory_sha256": "452b2138848e71268a5b02c51f6642c274c21d4fb8a5d353352cd907c04d03be",
+      "current_sha256": "288065d68c1f79c47a06d19563120f22c5efc1005012f98a153878a1883096f6",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "workflow-auditor-a/b: prepare separately before each fresh named-agent allocation. Preserve allowed inputs, category output schema, check-ID-only bridge and audit status ownership.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledClaudeWfiTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/wfi-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/wfi-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/wfi-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "345ea2450a53cd6d769a81a565ef95424e9d1c4858a558abe3825657d98a9d58",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/58/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 60,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+      "category": "ordinary-skill",
+      "inventory_sha256": "73ae95edb3c6dd7b1b8e85fd1e618cb78797a7c2269f72abb11ec23933e2a1f2",
+      "current_sha256": "8dde4d0d8bfd18e08ac274e7130a51022537f0593e7dc50c9b88c668555e7741",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "panelist-gpt/gemini: prepend prepare then pass controls/rawpin/run/session to actual existing Bash/PS runners. Keep original consent/sanitized input/vendor isolation/parallelism. Unsupported Gemini mapping stays typed; Anthropic generic Agent route still needs actual carrier proof.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledPanelistCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/runtime-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/runtime-rollback-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "94b8b701eacd5c6611fdf1c7670a7006977307fcd8b07b1beba286724dfd9edb",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/59/source_evidence",
+        "canonical_value_sha256": "2901a3b60172efa6b0a0f959e93f04459af5e203baf60d31c09109cbc213fb36"
+      }
+    },
+    {
+      "index": 61,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "category": "ordinary-skill",
+      "inventory_sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656",
+      "current_sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "spec-reviewer-a/b: prepare matching role controls and append flags to existing launch-impl-review.py. Proposed identities are not pre-reserved: shared launcher retains its sole canonical reservation after preflight. Preserve sequential A/B and sanitized summary.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledSpecCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/spec-b-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/spec-caller-full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/spec-caller-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "726740e6139b21499999b4e0dc1493bedae15fcf17f2429fc993402e233c2343",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "726740e6139b21499999b4e0dc1493bedae15fcf17f2429fc993402e233c2343",
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/60/source_evidence",
+        "canonical_value_sha256": "db7e890ef9f72faab925f4ea51d4878c68e3822a1d0b4b51a4c25befc20ee205"
+      }
+    },
+    {
+      "index": 62,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "category": "protected-skill",
+      "inventory_sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+      "current_sha256": "9e2cc13d047c3294631937050ac4e4efe373a2c21ee1bef0653d03c5230fec09",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "same shared-launcher controls integration for impl-reviewer-a/b, stage a current human-copy proposal only. Preserve ledger single reservation, sequential roles and protected source until sanctioned application.",
+      "original_edit_boundary": "current human-copy proposal only; no direct source edit",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledProtectedCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "7adbc72658519e03802e569289f7234df7dfe4090f5688bcbc48dc963cb4145d",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "7adbc72658519e03802e569289f7234df7dfe4090f5688bcbc48dc963cb4145d",
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/61/source_evidence",
+        "canonical_value_sha256": "88864f62c472693eba856fc21ebb66aff6f793021e43512168487091ee933d6b"
+      }
+    },
+    {
+      "index": 63,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "category": "protected-skill",
+      "inventory_sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+      "current_sha256": "ad0e38d3d758e6534a78adb517a28de604bca738412f057b50b00ebbc29a2220",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "same shared-launcher controls integration for task-reviewer-a/b, stage a current human-copy proposal only. Preserve ledger single reservation, sequential roles and protected source until sanctioned application.",
+      "original_edit_boundary": "current human-copy proposal only; no direct source edit",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "SUPPORTED_FIXTURE_SLICE; final assembled regression/default-carrier proof pending",
+      "fixture_class": "InstalledProtectedCallerTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "92b55347b9f717650c52b092ddb38de3f8b7f15469f90ddc745e005119e81d98",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "92b55347b9f717650c52b092ddb38de3f8b7f15469f90ddc745e005119e81d98",
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/62/source_evidence",
+        "canonical_value_sha256": "82c19b6d48d4dae5699caf6322efae6ddefaa34196eb3a8a32d3ba4832c2e1a9"
+      }
+    },
+    {
+      "index": 64,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md",
+      "category": "unsupported-host-template",
+      "inventory_sha256": "6d3a714ebc686860b9407410033b7ef1bfb21d8df70cc93b11b1b00ec0b02e3e",
+      "current_sha256": "6d3a714ebc686860b9407410033b7ef1bfb21d8df70cc93b11b1b00ec0b02e3e",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "No trusted Copilot native mapping exists: require typed model-unavailable before allocation. No fabricated mapping/frontmatter precedence; template presence is not managed runtime support.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "UNSUPPORTED_NATIVE_MAPPING; typed pre-allocation refusal dependency provisional",
+      "fixture_class": "InstalledDefaultNativeCallerCandidateTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "6d3a714ebc686860b9407410033b7ef1bfb21d8df70cc93b11b1b00ec0b02e3e",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+        "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+        "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+        "plugins/sdd-domain/skills/domain-model/SKILL.md",
+        "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+        "plugins/sdd-implementation/skills/implement-task/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/63/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 65,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md",
+      "category": "unsupported-host-template",
+      "inventory_sha256": "32be124ba06f958c73780c57176b19b68cf897bd1a16931408f010546f7874ec",
+      "current_sha256": "32be124ba06f958c73780c57176b19b68cf897bd1a16931408f010546f7874ec",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "No trusted Copilot native mapping exists: require typed model-unavailable before allocation. No fabricated mapping/frontmatter precedence; template presence is not managed runtime support.",
+      "original_edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "original_runtime_closure": "open unless explicitly verified component; no bulk closure inferred",
+      "proposed_owner": "T-008",
+      "proposed_disposition": "UNSUPPORTED_NATIVE_MAPPING; typed pre-allocation refusal dependency provisional",
+      "fixture_class": "InstalledDefaultNativeCallerCandidateTests",
+      "additional_renderer_fixture_classes": [],
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "32be124ba06f958c73780c57176b19b68cf897bd1a16931408f010546f7874ec",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+        "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/rows/64/source_evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    }
+  ],
+  "indirect_entries": [
+    {
+      "index": 1,
+      "path": "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md",
+      "inventory_sha256": "bd25b434d06b1573c934e5cc2869233bc85dd919d95b97496742ebbb2433ec67",
+      "current_sha256": "bd25b434d06b1573c934e5cc2869233bc85dd919d95b97496742ebbb2433ec67",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "bd25b434d06b1573c934e5cc2869233bc85dd919d95b97496742ebbb2433ec67",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/0/evidence",
+        "canonical_value_sha256": "e580e288172cdd90ee06d39773364059321b7c59b91e2b42897611ff7fcbde60"
+      }
+    },
+    {
+      "index": 2,
+      "path": "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md",
+      "inventory_sha256": "5468d3d7c4e28335221f612be656180333608b27b2bed0542d38fe71843ac8a5",
+      "current_sha256": "5468d3d7c4e28335221f612be656180333608b27b2bed0542d38fe71843ac8a5",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "5468d3d7c4e28335221f612be656180333608b27b2bed0542d38fe71843ac8a5",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/1/evidence",
+        "canonical_value_sha256": "e580e288172cdd90ee06d39773364059321b7c59b91e2b42897611ff7fcbde60"
+      }
+    },
+    {
+      "index": 3,
+      "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "inventory_sha256": "9d78e75b7c98aaca5a4ef2ef0727b7924be84cf79346f327ff03c931a2a62000",
+      "current_sha256": "b7a52142b547e148990bef0db4e8c43ed6f82e9e2584a0b3379b4d73c3fd0bec",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": "InstalledClaudeInvestigatorTests",
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/investigator-full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-indirect-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "03dff6c88392524e71a2be9740ef045d31839ac967d364e39e8333d718dec18a",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "03dff6c88392524e71a2be9740ef045d31839ac967d364e39e8333d718dec18a",
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/2/evidence",
+        "canonical_value_sha256": "25a54d379998d5f4a0d2e74513732c8dca1ac086fd9da5f5c9907351b0172da3"
+      }
+    },
+    {
+      "index": 4,
+      "path": "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+      "inventory_sha256": "c8e82741a7bee882ea837813aa14becd52c83361d49f833212add5a968d3bfa2",
+      "current_sha256": "c8e82741a7bee882ea837813aa14becd52c83361d49f833212add5a968d3bfa2",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "c8e82741a7bee882ea837813aa14becd52c83361d49f833212add5a968d3bfa2",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/3/evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 5,
+      "path": "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
+      "inventory_sha256": "4f2373243ff346a8594c5e2810b243be6e182354b46b1257b99a8356fd4497ba",
+      "current_sha256": "4f2373243ff346a8594c5e2810b243be6e182354b46b1257b99a8356fd4497ba",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "4f2373243ff346a8594c5e2810b243be6e182354b46b1257b99a8356fd4497ba",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/4/evidence",
+        "canonical_value_sha256": "2f243a339cd5541661be4bdf25c9e1b8bf071c531bfeb277fcdc404c56d4b7cc"
+      }
+    },
+    {
+      "index": 6,
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "inventory_sha256": "91489f9fffc419f706e44cacfc6f93d7b6254e54c91e146a6b52e0a2d946fe5a",
+      "current_sha256": "bff47384791412b36f54c8009f3244b10b21232b70a7a61835616fc4df54174b",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": "InstalledClaudeInvestigatorTests",
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/investigator-full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-indirect-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "b56ae84af326d11fd69815ae50983536fce78e3f57d69ff977a6ae6c2c1539a8",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/5/evidence",
+        "canonical_value_sha256": "9b585562442631a47d41a4878474addc4c5de7583ad5b827695f173dfc5ddb99"
+      }
+    },
+    {
+      "index": 7,
+      "path": "plugins/sdd-domain/skills/concept-test/SKILL.md",
+      "inventory_sha256": "81f7a75615404e0cd31bbc24e40b2f79e018102ff106a3eb80c42b00635f8faf",
+      "current_sha256": "81f7a75615404e0cd31bbc24e40b2f79e018102ff106a3eb80c42b00635f8faf",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "81f7a75615404e0cd31bbc24e40b2f79e018102ff106a3eb80c42b00635f8faf",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/6/evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 8,
+      "path": "plugins/sdd-domain/skills/domain-interviewer/SKILL.md",
+      "inventory_sha256": "24171685e75415493bb1addfd2812853b300091b15fba40325c090a796f9f8c1",
+      "current_sha256": "24171685e75415493bb1addfd2812853b300091b15fba40325c090a796f9f8c1",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "24171685e75415493bb1addfd2812853b300091b15fba40325c090a796f9f8c1",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/7/evidence",
+        "canonical_value_sha256": "43a42a444983b3ab1491b4e33e277769a894acc1215a6d6fbf279afe392ec15d"
+      }
+    },
+    {
+      "index": 9,
+      "path": "plugins/sdd-domain/skills/domain-model/SKILL.md",
+      "inventory_sha256": "1f73139a596101269a5a123e51e51d6ec71a9b208b3696f6060b19c6df041dad",
+      "current_sha256": "5fe52d0057944b6899f2600493d3045771ebd036203b0aadf0fa4c06ab8ed9cc",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": "InstalledClaudeInvestigatorTests",
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/investigator-full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-indirect-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "0998f641c883677ecbfdae265cdf3372f963fd78ffa88c843c3d3c901ac3952f",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-domain/skills/domain-model/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/8/evidence",
+        "canonical_value_sha256": "77f5ff7b89a646ea5b95f427abc33e520c59be1564c51f3e4fcf72dc72f40630"
+      }
+    },
+    {
+      "index": 10,
+      "path": "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+      "inventory_sha256": "a1a0136267b674d04a025e9eae701164c92049d783ddcc41a28ba48d5e2be2f2",
+      "current_sha256": "b4a61606b281402539bde6a4c3b77c3bfb545dd405e31aa8db56288ba09532d5",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": "InstalledClaudeInvestigatorTests",
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/investigator-full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/investigator-indirect-product-application/focused-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "239ccc3f5f793ea28f4583742c68f2f246b86cc7155aa223e019cbfaeaf6ca3a",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-domain/skills/domain-reverse/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/9/evidence",
+        "canonical_value_sha256": "7dce3c0167f443fea6c4db58af2b978bfd9c4749da115d970c795751a83aeb1f"
+      }
+    },
+    {
+      "index": 11,
+      "path": "plugins/sdd-domain/skills/domain-sync/SKILL.md",
+      "inventory_sha256": "ae41f8da490ef18ceb0328151a322590a63526be99e6386fbf9a45ec72fc3f7e",
+      "current_sha256": "ae41f8da490ef18ceb0328151a322590a63526be99e6386fbf9a45ec72fc3f7e",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "ae41f8da490ef18ceb0328151a322590a63526be99e6386fbf9a45ec72fc3f7e",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/10/evidence",
+        "canonical_value_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "index": 12,
+      "path": "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md",
+      "inventory_sha256": "7eadc63911214f798dc2c1a97b18609af7db8f474bc34c6246b791a0597edea0",
+      "current_sha256": "7eadc63911214f798dc2c1a97b18609af7db8f474bc34c6246b791a0597edea0",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "7eadc63911214f798dc2c1a97b18609af7db8f474bc34c6246b791a0597edea0",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/11/evidence",
+        "canonical_value_sha256": "054828c531337c4744f4dd1acfa84c02973526509f29e76704d6ce9155d7c7b2"
+      }
+    },
+    {
+      "index": 13,
+      "path": "plugins/sdd-lite/skills/lite-gate/SKILL.md",
+      "inventory_sha256": "c07a099bf1fbe28ae2d75124181aa11d6c3e83362bcb4ce0c5817956b6a5cf59",
+      "current_sha256": "c07a099bf1fbe28ae2d75124181aa11d6c3e83362bcb4ce0c5817956b6a5cf59",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "c07a099bf1fbe28ae2d75124181aa11d6c3e83362bcb4ce0c5817956b6a5cf59",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/12/evidence",
+        "canonical_value_sha256": "e2824b647894562ac9666eeb6bf420423655e3186ccb8b82e6db7441916ff623"
+      }
+    },
+    {
+      "index": 14,
+      "path": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "inventory_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
+      "current_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/13/evidence",
+        "canonical_value_sha256": "9f0ee4cdd6319eb7511d15c3ae82eaa1ba517e70c842ce0b4b36a06faf022e07"
+      }
+    },
+    {
+      "index": 15,
+      "path": "plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md",
+      "inventory_sha256": "0215d3a6c097c893727276afc6078415cc83c3aa4273dc8bc62865bc3af6efa1",
+      "current_sha256": "0215d3a6c097c893727276afc6078415cc83c3aa4273dc8bc62865bc3af6efa1",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "0215d3a6c097c893727276afc6078415cc83c3aa4273dc8bc62865bc3af6efa1",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/14/evidence",
+        "canonical_value_sha256": "611f2c37d8d0ec4b1d863e8599364470ca537fa1f6f6603b50bd449393254a18"
+      }
+    },
+    {
+      "index": 16,
+      "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+      "inventory_sha256": "392e32a6478337274b0a927f58ed31d0fe0204c12bf5817e121d457de6a3ac98",
+      "current_sha256": "392e32a6478337274b0a927f58ed31d0fe0204c12bf5817e121d457de6a3ac98",
+      "original_source_bytes_unchanged": true,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": null,
+      "evidence": [],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "392e32a6478337274b0a927f58ed31d0fe0204c12bf5817e121d457de6a3ac98",
+        "full67_row_bytes_match_now": true,
+        "batch4_recorded_sha256": null,
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/15/evidence",
+        "canonical_value_sha256": "44775909137c8286b91149a6e2045bc8a24ec22077d429c0236ed7f4ed4443a4"
+      }
+    },
+    {
+      "index": 17,
+      "path": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "inventory_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
+      "current_sha256": "938ec040fbc37ca1864fe4083177a640957979a700aae303059518fdf1b668c6",
+      "original_source_bytes_unchanged": false,
+      "original_semantic_obligation": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "proposed_disposition": "INDIRECT_DOWNSTREAM_ONLY; preserve no independent named model allocation; parent-carrier candidate provisional where listed",
+      "fixture_class": "InstalledClaudeImplementerTests",
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-008/implementer-product-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/batch-entry-application/green-effective-evidence.json"
+      ],
+      "historical_source_binding": {
+        "full67_recorded_sha256": "c13ec13a3548aea2f1e6b18089ecffb03bc383f2f6f22075a0012d79b75fe79d",
+        "full67_row_bytes_match_now": false,
+        "batch4_recorded_sha256": "c13ec13a3548aea2f1e6b18089ecffb03bc383f2f6f22075a0012d79b75fe79d",
+        "batch4_row_bytes_match_now": false,
+        "self5_recorded_sha256": null,
+        "self5_row_bytes_match_now": false
+      },
+      "provisional_dispatch_dependencies": [
+        "plugins/sdd-ship/skills/ship/SKILL.md"
+      ],
+      "original_source_evidence_ref": {
+        "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+        "json_pointer": "/indirect_entries/16/evidence",
+        "canonical_value_sha256": "523b99a130657e4af8a9afd52087d78392a38584b36d3da65249cfba827d582d"
+      }
+    }
+  ],
+  "merge_conditions": [
+    "Rehash every row and provisional dispatch dependency after root finishes default-carrier application.",
+    "Attach latest exact-source full fixture result; discovery count alone is not a PASS.",
+    "Retain source/component/configuration/native backend/adoption distinctions.",
+    "Retain original obligations and ownership boundaries, whole-task rollback and independent quality gate."
+  ],
+  "evidence_index": "evidence-index.json",
+  "fixture_registry": {
+    "ManagedClaudeRoles": [
+      "test_frontmatter_runtime_fields_follow_bound_selection_for_each_role",
+      "test_effort_reference_comment_alone_is_runtime_drift",
+      "test_paired_roles_bind_independently",
+      "test_copilot_agents_reject_cross_host_selection",
+      "test_protected_reviewers_stage_exact_current_copy_and_raw_pin",
+      "test_managed_controls_reject_each_field_mismatch",
+      "test_partial_mixed_and_mis_cased_managed_inputs_are_typed_rejections",
+      "test_managed_target_rejects_escape_alias_and_symlink",
+      "test_crlf_claude_native_fields_preserve_body_bytes",
+      "test_unknown_managed_arguments_are_typed_rejections"
+    ],
+    "ManagedCodexRoles": [
+      "test_toml_runtime_keys_follow_bound_selection",
+      "test_reference_comments_neither_satisfy_nor_mask_runtime_selection",
+      "test_effort_only_runtime_drift_is_not_hidden_by_current_comments",
+      "test_legacy_default_render_remains_comment_only",
+      "test_crlf_codex_native_fields_preserve_instructions"
+    ],
+    "InstalledEntryTests": [
+      "test_prepare_from_both_installed_packages",
+      "test_prepare_rejects_role_host_and_actual_id_mismatches",
+      "test_prepare_rejects_unsupported_and_reused_outputs",
+      "test_installers_reject_missing_managed_runtime_closure"
+    ],
+    "InstalledClaudePreparationTests": [
+      "test_claude_prepare_preserves_supplied_observation_and_core_evidence",
+      "test_claude_prepare_does_not_repair_unusable_observation",
+      "test_claude_prepare_checks_executable_and_environment_before_publication",
+      "test_installers_require_original_driver_for_claude_prepare"
+    ],
+    "InstalledClaudeLocalAuthorityTests": [
+      "test_local_authority_source_composition_preserves_documented_exceptions",
+      "test_local_authority_caps_allowlists_and_remaps_match_selected_controls",
+      "test_local_authority_rechecks_sources_and_rejects_unresolved_resolution",
+      "test_installed_claude_prepare_rejects_owned_local_conflicts_without_rewriting_state",
+      "test_installed_claude_prepare_checks_effective_settings_environment"
+    ],
+    "InstalledClaudeInvestigatorTests": [
+      "test_maintained_investigator_entry_selects_before_one_fresh_work_allocation",
+      "test_investigator_entry_blocks_invalid_bound_inputs_before_work",
+      "test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity",
+      "test_indirect_investigator_callers_execute_one_managed_work_handoff",
+      "test_domain_reverse_router_preserves_single_delegation_and_seed_failure_boundary"
+    ],
+    "InstalledClaudeDelegationTests": [
+      "test_implementation_delegation_executes_selected_readonly_investigation"
+    ],
+    "InstalledClaudeDiagnosisTests": [
+      "test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure",
+      "test_diagnosis_installers_and_entry_reject_missing_or_changed_workload_before_work",
+      "test_diagnosis_native_default_tools_and_failed_public_results_never_publish_success"
+    ],
+    "InstalledClaudeImplementerTests": [
+      "test_ship_lite_dispatches_one_selected_single_task_implementation",
+      "test_implementer_installers_and_entry_reject_missing_or_changed_workload_before_work",
+      "test_implementer_native_default_tools_and_failed_public_results_never_publish_success"
+    ],
+    "InstalledNativeEntryTests": [
+      "test_codex_entry_uses_one_installed_client_and_generated_native_config",
+      "test_codex_entry_rejects_unsafe_or_unsupported_preflight",
+      "test_codex_entry_rejects_generated_config_drift_before_thread_start",
+      "test_codex_entry_rejects_context_or_pinned_input_drift",
+      "test_codex_entry_rejects_native_response_mismatches_without_turns"
+    ],
+    "InstalledPanelistCallerTests": [
+      "test_maintained_panelist_snippets_prepare_and_forward_installed_controls",
+      "test_maintained_panelist_snippets_stop_on_preparation_failure",
+      "test_maintained_panelist_snippets_preserve_consent_and_typed_unsupported_host",
+      "test_installed_panelist_rejects_runtime_alias_and_postsend_drift_with_project_decoys",
+      "test_installed_record_reconstructs_fixed_runtime_and_keeps_generic_and_protected_roots",
+      "test_installed_controls_allow_distinct_namespace_names_but_reject_snapshot_collisions",
+      "test_evidence_capture_reads_both_namespaces_and_keeps_budget_and_alias_guards"
+    ],
+    "InstalledSpecCallerTests": [
+      "test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation",
+      "test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle",
+      "test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation",
+      "test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings"
+    ],
+    "InstalledQualityCallerTests": [
+      "test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation",
+      "test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation",
+      "test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation"
+    ],
+    "InstalledClaudeWfiTests": [
+      "test_maintained_wfi_fences_deliver_original_a_then_revised_b_through_both_installers",
+      "test_actual_node_guard_admits_frozen_reads_and_denies_raw_audit_and_tool_events",
+      "test_installers_and_entry_reject_missing_closure_unsafe_inputs_and_unusable_native_results"
+    ],
+    "InstalledDomainCallerTests": [
+      "test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending",
+      "test_maintained_domain_fence_blocks_drift_identity_and_guard_violations_and_keeps_legacy_without_forwarding",
+      "test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation"
+    ],
+    "InstalledProtectedCallerTests": [
+      "test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval",
+      "test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding"
+    ],
+    "InstalledSelfImprovementTests": [
+      "test_maintained_self_improvement_action_uses_installed_sdk_stream_boundary",
+      "test_self_improvement_blocks_final_settings_argv_and_raw_pin_drift_before_work",
+      "test_self_improvement_uses_original_default_latest_and_explicit_pin_selection",
+      "test_self_improvement_rejects_absent_stale_scope_and_executable_drift",
+      "test_self_improvement_preserves_native_failure_and_action_safeguards"
+    ],
+    "InstalledClaudeBatchTests": [
+      "test_installed_definition_forwards_bound_full_native_controls_without_per_call_aliases",
+      "test_maintained_unknown_startup_fence_is_typed_and_cannot_enter_fallback_or_work",
+      "test_definition_reuses_original_selection_errors_and_rejects_missing_forwarding",
+      "test_generic_unsupported_branch_validates_exact_role_host_grammar_without_effects"
+    ],
+    "InstalledDefaultNativeCallerCandidateTests": [
+      "test_each_admitted_caller_role_and_host_executes_installed_typed_stop_before_any_work",
+      "test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch"
+    ]
+  },
+  "dispatch_dependency_registry": {
+    "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md": {
+      "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+      "current_sha256": "8dde4d0d8bfd18e08ac274e7130a51022537f0593e7dc50c9b88c668555e7741",
+      "candidate_roles": [
+        "evaluator"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "8dde4d0d8bfd18e08ac274e7130a51022537f0593e7dc50c9b88c668555e7741",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md": {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "current_sha256": "6fd4eac7efd7d127d2f0c6ebd467c766417d927ee07bfbc2036660498db9b7ba",
+      "candidate_roles": [
+        "evaluator"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "6fd4eac7efd7d127d2f0c6ebd467c766417d927ee07bfbc2036660498db9b7ba",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md": {
+      "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "current_sha256": "b7a52142b547e148990bef0db4e8c43ed6f82e9e2584a0b3379b4d73c3fd0bec",
+      "candidate_roles": [
+        "investigator"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "b7a52142b547e148990bef0db4e8c43ed6f82e9e2584a0b3379b4d73c3fd0bec",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md": {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+      "current_sha256": "f7374159f2b426bbea66409657bcfdb8ac8cd7c3ce34d24ecaa7fcc96cb963be",
+      "candidate_roles": [
+        "investigator"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "f7374159f2b426bbea66409657bcfdb8ac8cd7c3ce34d24ecaa7fcc96cb963be",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "current_sha256": "bff47384791412b36f54c8009f3244b10b21232b70a7a61835616fc4df54174b",
+      "candidate_roles": [
+        "investigator"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "bff47384791412b36f54c8009f3244b10b21232b70a7a61835616fc4df54174b",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-domain/skills/domain-model/SKILL.md": {
+      "path": "plugins/sdd-domain/skills/domain-model/SKILL.md",
+      "current_sha256": "5fe52d0057944b6899f2600493d3045771ebd036203b0aadf0fa4c06ab8ed9cc",
+      "candidate_roles": [
+        "investigator"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "5fe52d0057944b6899f2600493d3045771ebd036203b0aadf0fa4c06ab8ed9cc",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-domain/skills/domain-reverse/SKILL.md": {
+      "path": "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+      "current_sha256": "b4a61606b281402539bde6a4c3b77c3bfb545dd405e31aa8db56288ba09532d5",
+      "candidate_roles": [
+        "investigator"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "b4a61606b281402539bde6a4c3b77c3bfb545dd405e31aa8db56288ba09532d5",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-implementation/skills/implement-task/SKILL.md": {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "current_sha256": "dd815ef80c61cad17e65c8fe6942029a36cb5c05379be33973c47ba57fdc0553",
+      "candidate_roles": [
+        "implementer",
+        "investigator"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "dd815ef80c61cad17e65c8fe6942029a36cb5c05379be33973c47ba57fdc0553",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-domain/skills/domain-review-loop/SKILL.md": {
+      "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+      "current_sha256": "7638ce5cbeadc5a2d0872bf487e0c2e55e24fffd3bd435537db22b076ea01d5b",
+      "candidate_roles": [
+        "domain-reviewer-a",
+        "domain-reviewer-b"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "7638ce5cbeadc5a2d0872bf487e0c2e55e24fffd3bd435537db22b076ea01d5b",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-implementation/skills/diagnose/SKILL.md": {
+      "path": "plugins/sdd-implementation/skills/diagnose/SKILL.md",
+      "current_sha256": "59df6dd5abd4b7fa7b13c6299c242404149379a2f766074d9f3379c93c661610",
+      "candidate_roles": [
+        "diagnosis"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "59df6dd5abd4b7fa7b13c6299c242404149379a2f766074d9f3379c93c661610",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md": {
+      "path": "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md",
+      "current_sha256": "288065d68c1f79c47a06d19563120f22c5efc1005012f98a153878a1883096f6",
+      "candidate_roles": [
+        "workflow-auditor-a",
+        "workflow-auditor-b"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "288065d68c1f79c47a06d19563120f22c5efc1005012f98a153878a1883096f6",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md": {
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "current_sha256": "9e2cc13d047c3294631937050ac4e4efe373a2c21ee1bef0653d03c5230fec09",
+      "candidate_roles": [
+        "impl-reviewer-a",
+        "impl-reviewer-b"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "9e2cc13d047c3294631937050ac4e4efe373a2c21ee1bef0653d03c5230fec09",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md": {
+      "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "current_sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+      "candidate_roles": [
+        "spec-reviewer-a",
+        "spec-reviewer-b"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md": {
+      "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "current_sha256": "ad0e38d3d758e6534a78adb517a28de604bca738412f057b50b00ebbc29a2220",
+      "candidate_roles": [
+        "task-reviewer-a",
+        "task-reviewer-b"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "ad0e38d3d758e6534a78adb517a28de604bca738412f057b50b00ebbc29a2220",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-implementation/skills/implement-tasks/SKILL.md": {
+      "path": "plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "current_sha256": "f8ace1dd326892dcf146611de1bc20492544f88bf5c53cb049dd6e413482b1f9",
+      "candidate_roles": [
+        "implementer"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "f8ace1dd326892dcf146611de1bc20492544f88bf5c53cb049dd6e413482b1f9",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    },
+    "plugins/sdd-ship/skills/ship/SKILL.md": {
+      "path": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "current_sha256": "938ec040fbc37ca1864fe4083177a640957979a700aae303059518fdf1b668c6",
+      "candidate_roles": [
+        "implementer"
+      ],
+      "state": "ROOT_APPLIED; completion provisional until canonical Green/current assembled full",
+      "root_application": {
+        "evidence": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+        "after_sha256": "938ec040fbc37ca1864fe4083177a640957979a700aae303059518fdf1b668c6",
+        "current_bytes_match_recorded_application": true,
+        "original_body_preserved_recorded": true
+      }
+    }
+  },
+  "common_limits": [
+    "Each row-byte match is distinct from current common-adapter/assembled execution proof.",
+    "Original source evidence is referenced by exact JSON pointer and canonical-value digest in the immutable original inventory; source bodies/citations are not rewritten.",
+    "T009-owned maintenance bytes legitimately supersede old retain-exact snapshots; no T008 closure inferred.",
+    "No supported fixture, configuration, historical full, candidate refusal matrix or retained policy implies backend execution/adoption/independent QA."
+  ]
+}

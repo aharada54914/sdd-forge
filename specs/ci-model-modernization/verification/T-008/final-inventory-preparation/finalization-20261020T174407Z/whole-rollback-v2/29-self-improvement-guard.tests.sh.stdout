@@ -1,0 +1,72 @@
+TARGET_YML=/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/.github/workflows/self-improvement.yml
+TARGET_PROMPT=/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/.github/self-improvement-prompt.md
+GUARD_SH=/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/.github/scripts/self-improvement-pr-guard.sh
+
+ok: TEST-010: id-token: write absent from permissions (OIDC not used by the pinned action) -- AC-010
+ok: TEST-010: retains used permission 'contents: write'
+ok: TEST-010: retains used permission 'pull-requests: write'
+ok: TEST-010: retains used permission 'issues: write'
+ok: TEST-011: workflow runs self-improvement-pr-guard.sh after the session -- AC-011
+ok: TEST-011: violating diff fails the guard (exit 1) -- AC-011
+ok: TEST-011: guard lists both violating paths
+ok: TEST-011: compliant diff passes the guard (exit 0) -- AC-011
+ok: TEST-014: empty changed-paths file passes vacuously (exit 0) -- AC-014
+ok: TEST-014: absent changed-paths file passes vacuously (exit 0) -- AC-014
+ok: ISSUE-478-RECOVERY: prompt defers issue closing until full workflow success
+ok: ISSUE-478-RECOVERY: finalizer depends on successful improve job and uses bash
+ok: ISSUE-478-RECOVERY: extracted close-step command for isolated execution
+ok: ISSUE-478-RECOVERY: success comments current run URL and closes exact reporter issue
+ok: ISSUE-478-RECOVERY: unrelated or non-reporter issue is left open
+ok: ISSUE-478-RECOVERY: issue-list failure is nonzero and cannot close issue
+ok: ISSUE-478-RECOVERY: comment failure is nonzero and cannot close issue
+ok: ISSUE-559-RECOVERY: missing completion cannot close an issue
+ok: ISSUE-559-RECOVERY: partial completion cannot close an issue
+ok: ISSUE-559-RECOVERY: false completion cannot close an issue
+ok: ISSUE-559-RECOVERY: missing record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: missing reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: malformed record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: malformed reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: duplicate record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: duplicate reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: hostile_duplicate record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: hostile_duplicate reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: invalid_utf8 record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: invalid_utf8 reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: partial record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: partial reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: missing_status record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: missing_status reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: unknown_status record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: unknown_status reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: stale_run record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: stale_run reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: stale_attempt record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: stale_attempt reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: stale_head record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: stale_head reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: missing_check record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: missing_check reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: failed_check record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: failed_check reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: unrun_check record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: unrun_check reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: boolean_check record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: boolean_check reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: hostile_value record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: hostile_value reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: non_object record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: non_object reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: non_object_checks record cannot emit completion output
+ok: ISSUE-559-DIAGNOSTIC: non_object_checks reports only exact allowlisted results
+ok: ISSUE-559-RECOVERY: complete current record emits completion output
+ok: ISSUE-559-RECOVERY: recovery consumes validated completion job output
+ok: ISSUE-559: discovery budget, mandatory checks, incomplete status and resume contract
+ok: ISSUE-559: contract check rejects a missing requirement: 開始から8分、または40ターン
+ok: ISSUE-559: contract check rejects a missing requirement: 候補に関係する文書のみ本文を読む
+ok: ISSUE-559: contract check rejects a missing requirement: bash tests/guards.tests.sh
+ok: ISSUE-559: contract check rejects a missing requirement: python3 -m py_compile
+ok: ISSUE-559: contract check rejects a missing requirement: 必須検証に未実施・失敗があれば PR は作成せず
+ok: ISSUE-559: contract check rejects a missing requirement: 監査完了やワークフロー復旧と主張しない
+ok: ISSUE-559: contract check rejects a missing requirement: 発見ゼロや PR なしの場合も報告を残す
+
+TEST-010/011/014 + ISSUE-478-RECOVERY + ISSUE-559 results: 66 passed, 0 failed

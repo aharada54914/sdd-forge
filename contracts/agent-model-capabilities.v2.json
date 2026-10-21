@@ -172,6 +172,30 @@
     "task-reviewer": {
       "minimum_tier": "standard",
       "default_effort": "medium"
+    },
+    "domain-reviewer": {
+      "minimum_tier": "standard",
+      "default_effort": "medium"
+    },
+    "workflow-auditor": {
+      "minimum_tier": "standard",
+      "default_effort": "medium"
+    },
+    "diagnosis": {
+      "minimum_tier": "standard",
+      "default_effort": "medium"
+    },
+    "self-improvement": {
+      "minimum_tier": "standard",
+      "default_effort": "medium"
+    },
+    "panelist-gpt": {
+      "minimum_tier": "standard",
+      "default_effort": "medium"
+    },
+    "panelist-gemini": {
+      "minimum_tier": "standard",
+      "default_effort": "medium"
     }
   }
 }

@@ -1,0 +1,245 @@
+{
+  "source_url": "https://learn.chatgpt.com/docs/app-server",
+  "started_at": "2026-10-19T19:02:15Z",
+  "finished_at": "2026-10-19T19:02:16Z",
+  "cli_version": "codex-cli 0.159.2",
+  "product_sha256": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894",
+  "schema_argv": [
+    "codex",
+    "app-server",
+    "generate-json-schema",
+    "--out",
+    "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/native-readonly/generated-schema",
+    "--experimental"
+  ],
+  "schema_sha256": {
+    "v1/InitializeParams.json": "b55124e7c0f36a1789396daa5578217a92be67f053903696236686e59f6f212e",
+    "v1/InitializeResponse.json": "62ad689c2cb6379913c1d72749cfd8de5089d35760214123518eb92eef11acc9",
+    "v2/ModelListParams.json": "de29a536c00a5b8f46f34dba417dabd93365305571a8ed200e33bea85db68b5a",
+    "v2/ModelListResponse.json": "bfbb3ee9f6e203e0b767587c17de94b9cb42f712d0d8168afbbbc3fcb4492f30",
+    "v2/GetAccountParams.json": "30b545275f60975b55bd6fbaafd70f15505801d14168ee82d3931b6e93c78aab",
+    "v2/GetAccountResponse.json": "67ac3095b058a7d3c1627ff4dd9e52c8ee3c55f961cb1b980959ac15336d6827"
+  },
+  "sent_messages": [
+    {
+      "method": "initialize",
+      "request_id_present": true,
+      "refresh_token": null
+    },
+    {
+      "method": "initialized",
+      "request_id_present": false,
+      "refresh_token": null
+    },
+    {
+      "method": "account/read",
+      "request_id_present": true,
+      "refresh_token": false
+    },
+    {
+      "method": "model/list",
+      "request_id_present": true,
+      "refresh_token": null
+    },
+    {
+      "method": "account/read",
+      "request_id_present": true,
+      "refresh_token": false
+    },
+    {
+      "method": "account/read",
+      "request_id_present": true,
+      "refresh_token": false
+    }
+  ],
+  "pages": [
+    {
+      "models": [
+        {
+          "source_id": "gpt-6.1-sol",
+          "native_model": "gpt-6.1-sol",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "hidden": false
+        },
+        {
+          "source_id": "gpt-6-astra",
+          "native_model": "gpt-6-astra",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "hidden": false
+        },
+        {
+          "source_id": "gpt-6-sol",
+          "native_model": "gpt-6-sol",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "hidden": false
+        },
+        {
+          "source_id": "gpt-6-luna",
+          "native_model": "gpt-6-luna",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "hidden": false
+        },
+        {
+          "source_id": "gpt-5.6-sol",
+          "native_model": "gpt-5.6-sol",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "hidden": false
+        },
+        {
+          "source_id": "gpt-5.6-terra",
+          "native_model": "gpt-5.6-terra",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "hidden": false
+        },
+        {
+          "source_id": "gpt-5.6-luna",
+          "native_model": "gpt-5.6-luna",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "hidden": false
+        },
+        {
+          "source_id": "gpt-daybreak-blue-latest",
+          "native_model": "gpt-daybreak-blue-latest",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "hidden": true
+        },
+        {
+          "source_id": "gpt-daybreak-red-latest",
+          "native_model": "gpt-daybreak-red-latest",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+            "ultra"
+          ],
+          "hidden": true
+        },
+        {
+          "source_id": "gpt-5.5",
+          "native_model": "gpt-5.5",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "hidden": false
+        },
+        {
+          "source_id": "codex-auto-review",
+          "native_model": "codex-auto-review",
+          "native_efforts": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "hidden": true
+        }
+      ],
+      "has_next_cursor": false,
+      "include_hidden": true
+    }
+  ],
+  "context_checks": [
+    {
+      "account_type": "chatgpt",
+      "workspace_metadata_present": false,
+      "raw_identity_persisted": false
+    },
+    {
+      "account_type": "chatgpt",
+      "workspace_metadata_present": false,
+      "raw_identity_persisted": false
+    },
+    {
+      "account_type": "chatgpt",
+      "workspace_metadata_present": false,
+      "raw_identity_persisted": false
+    }
+  ],
+  "checks": [
+    "genuine-current-diagnostic-accepted",
+    "rehashed-purpose-rejected",
+    "rehashed-source-rejected",
+    "rehashed-scope_id-rejected",
+    "closed-client-reuse-rejected"
+  ],
+  "model_turn_started": false,
+  "native_claim": "Actual documented model listing only; no inference-access proof.",
+  "scope_claim": "Fresh diagnostic native-client observation; not reusable launch availability.",
+  "public_cli": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "/workspace/sdd-forge/plugins/sdd-implementation/scripts/model-policy.py",
+      "discover",
+      "--host",
+      "codex-cli",
+      "--scope-id",
+      "t004-actual-diagnostic",
+      "--output",
+      "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/native-readonly/cli-observation.json"
+    ],
+    "exit_code": 0,
+    "different_client_scope": true,
+    "trace_scope": "Raw method trace above covers in-process API capture, not this separate CLI process."
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/tmp/ci-model-resume-python/bin/ruff",
+        "check",
+        "/tmp/ci-t007-implementation-qtl6u6pa/protected-output-candidate.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:35:28.572742+00:00",
+      "finished_at": "2026-10-20T01:35:28.588878+00:00",
+      "elapsed_seconds": 0.016130578995216638,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-red/1.stdout.log",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-red/1.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/tmp/ci-model-resume-python/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "/tmp/ci-t007-implementation-qtl6u6pa/protected-output-candidate.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:35:28.589166+00:00",
+      "finished_at": "2026-10-20T01:35:29.104411+00:00",
+      "elapsed_seconds": 0.5152591329970164,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-red/2.stdout.log",
+          "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-red/2.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-red/run-new-tests.py"
+      ],
+      "exit_code": 1,
+      "started_at": "2026-10-20T01:35:29.104735+00:00",
+      "finished_at": "2026-10-20T01:35:39.840508+00:00",
+      "elapsed_seconds": 10.735786438002833,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-red/3.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-red/3.stderr.log",
+          "sha256": "224ffab099447d7c457b09d1ee542d882b10dc42f23839209dff019848177b8d"
+        }
+      ]
+    }
+  ],
+  "before": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "7ad2e283eed59eecfab14a2f637a7e0b8989ac52873911a21426acfea079ab6b",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "051c147b364569223e43cf273681f3ab71490af132c6757e3e0d45739b2aec52",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "tests/quality-nontty-transport.tests.py": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+    "tests/verification-catalog.json": "1cd0f5185cb41987aa2c04e7964e29285f9172cc86243461015ee0b8f2552eef",
+    "tests/model-identity.tests.py": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+    "tests/model-policy-launch.tests.py": "e5f0958b6d4356ba6f2f91f2917bfa515178c6db989bcf552ba812b2138264a0",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736",
+    "tests/model-policy-launch-platform.tests.py": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810"
+  },
+  "after": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "7ad2e283eed59eecfab14a2f637a7e0b8989ac52873911a21426acfea079ab6b",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "051c147b364569223e43cf273681f3ab71490af132c6757e3e0d45739b2aec52",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "tests/quality-nontty-transport.tests.py": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+    "tests/verification-catalog.json": "1cd0f5185cb41987aa2c04e7964e29285f9172cc86243461015ee0b8f2552eef",
+    "tests/model-identity.tests.py": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+    "tests/model-policy-launch.tests.py": "e5f0958b6d4356ba6f2f91f2917bfa515178c6db989bcf552ba812b2138264a0",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736",
+    "tests/model-policy-launch-platform.tests.py": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810"
+  },
+  "new_tests": [
+    "PairedClaudeLaunch.test_selected_quality_initial_output_ancestor_alias_has_no_side_effects",
+    "ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_binding_publication",
+    "ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_first_artifact",
+    "ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias"
+  ],
+  "scratch_only": true
+}

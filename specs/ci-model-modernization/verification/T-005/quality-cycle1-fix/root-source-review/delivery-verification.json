@@ -1,0 +1,12 @@
+{
+  "actual_work_context": "/root/t005_implementation",
+  "report": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/implementation-report.md",
+  "report_sha256": "0ff70ed85a76cce81927ad00de8653098492e9fc269c46a5af6ea5b26b80fe1a",
+  "output_pins": 123,
+  "receipt_log_pairs_verified": 20,
+  "actual_candidate": 326,
+  "actual_restored": 245,
+  "skips": 0,
+  "all_current_sources_and_exact_restored_states_verified": true,
+  "at": "2026-10-19T20:21:49.183577+00:00"
+}

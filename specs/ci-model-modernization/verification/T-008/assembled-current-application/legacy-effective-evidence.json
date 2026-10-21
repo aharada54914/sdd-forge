@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "regular_payload_count": 2243,
+  "symlinks": 1,
+  "current_overlay_count": 272,
+  "commands": "Bash51checks +PowerShell installer integration passed",
+  "results": "specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/results.json",
+  "subreaper_clean": true,
+  "admitted_inputs_unchanged": true,
+  "scope": "Actual both legacy installers on current product source. Only Root installed-test oracle/mainblock fix postdated this frozen payload; that module is not executed by these legacy installer commands. Product hashes unchanged; full78 current suite separately checks latest test module. Not hosted/nativebackend/adoption/fullTaskacceptance.",
+  "post_admission_test_only_drift": [
+    "tests/model-policy-installed.tests.py"
+  ]
+}

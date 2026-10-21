@@ -1,0 +1,66 @@
+{
+  "status": "CHECKS_PASSED",
+  "added_relative_links": [
+    {
+      "source": "README.md",
+      "target": "docs/contributor/workflow-detail.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "docs/contributor/release-runbook.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "docs/workflow-guide.md#managed-model-operation",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "docs/agent-capability-matrix.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "docs/verification.md",
+      "exists": true
+    },
+    {
+      "source": "docs/agent-capability-matrix.md",
+      "target": "#managed-model-policy",
+      "exists": true
+    },
+    {
+      "source": "docs/workflow-guide.md",
+      "target": "agent-capability-matrix.md",
+      "exists": true
+    },
+    {
+      "source": "docs/workflow-guide.md",
+      "target": "contributor/workflow-detail.md",
+      "exists": true
+    }
+  ],
+  "link_method": "Existing tests/install-cloud.tests.py inline-link extraction pattern; relative paths checked, added heading anchors checked. No network link claims.",
+  "managed_renderer_flags": [
+    "--model-controls",
+    "--model-controls-sha256",
+    "--run-id",
+    "--session-id",
+    "--managed-target"
+  ],
+  "ci_parser_malformed_incomplete_example": {
+    "exit_code": 2,
+    "error": {
+      "schema": "verification-ci-error/v1",
+      "reason": "input-invalid",
+      "message": "Invalid planning input, revision binding, or output destination."
+    }
+  },
+  "model_policy_error_enum_count": 16,
+  "historical_changelog_unchanged": true,
+  "current_readme_version": "1.19.0",
+  "complete_new_shell_examples": 0,
+  "parser_check_limit": "New documentation lists flags and policy fields; no provider/native execution or new full-profile run."
+}

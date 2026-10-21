@@ -1,0 +1,250 @@
+{
+  "task_id": "T-004",
+  "feature": "ci-model-modernization",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "0250669eb9f4ad0ddad7017e47e98937cf6c5fa28e8ec136791d63c0c7609b05",
+  "quality_report": "reports/quality-gate/20261019-ci-model-modernization-T-004-cycle-2.md",
+  "verification_contract": "specs/ci-model-modernization/verification/T-004.contract.json",
+  "git_commit": "599841749f5c2ba34c1e2e01d2df3e7b0dda9817",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/ci-model-resume-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-implementation/scripts/model-policy.py tests/model-observation.tests.py tests/verification-catalog.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:02:13Z",
+      "finished_at": "2026-10-19T19:02:13Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/lint-receipt.json",
+      "evidence_sha256": "af405eadccc73cbe2a5f3ef710dc3ed19ecaca415a03b824ae71989b24d414cb"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/ci-model-resume-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-implementation/scripts/model-policy.py tests/model-observation.tests.py tests/verification-catalog.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:02:13Z",
+      "finished_at": "2026-10-19T19:02:15Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/typecheck-receipt.json",
+      "evidence_sha256": "9e848cbeab04bbaa2149f28e33afff9c2dccb0f2d662414d20d3c699283150c5"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/attempt-1/trace-model-suite.py --root /workspace/sdd-forge --output /workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/model-line-coverage.json",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:01:55Z",
+      "finished_at": "2026-10-19T19:02:13Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/unit-tests-receipt.json",
+      "evidence_sha256": "c0ac7e49f793f321e957199b3a3dee461d7448d06c3c579e7bde932f26b70524"
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/attempt-1/capture-native-readonly.py --root /workspace/sdd-forge --output /workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/native-readonly",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:02:15Z",
+      "finished_at": "2026-10-19T19:02:16Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/integration-tests-receipt.json",
+      "evidence_sha256": "76cb5d49a4d100ba1cb7627d22ea094165e5f8b66559ad7e27b9b907217ac156"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B -c 'import ast, hashlib; from pathlib import Path\nfor name in ['\"'\"'plugins/sdd-implementation/scripts/model-policy.py'\"'\"', '\"'\"'tests/model-observation.tests.py'\"'\"', '\"'\"'tests/verification-catalog.tests.py'\"'\"']:\n raw=Path(name).read_bytes(); ast.parse(raw, filename=name); compile(raw, name, '\"'\"'exec'\"'\"'); print(name, hashlib.sha256(raw).hexdigest(), '\"'\"'parse/compile PASS'\"'\"')\n'",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:02:15Z",
+      "finished_at": "2026-10-19T19:02:15Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/build-receipt.json",
+      "evidence_sha256": "30821526761faf9e3009ae1be2bde0f87e30456a984c53416d7bf5bd7406c1f6"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-implementation/scripts/model-policy.py contracts/model-observation.schema.json contracts/model-policy-error.schema.json",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:02:31Z",
+      "finished_at": "2026-10-19T19:02:31Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/placeholder-scan-receipt.json",
+      "evidence_sha256": "eb365cb1c95130207d987ff353ce79902bc70f10944065c10ac43d384ed02916"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:02:31Z",
+      "finished_at": "2026-10-19T19:02:31Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/task-state-check-receipt.json",
+      "evidence_sha256": "d9ae31dc5b81e2a836268ab2fe4a11aff9cbdbe24bc7aade83c502cea5c94aee"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/attempt-1/trace-model-suite.py --root /workspace/sdd-forge --output /workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/model-line-coverage.json",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:01:55Z",
+      "finished_at": "2026-10-19T19:02:13Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/acceptance-tests-receipt.json",
+      "evidence_sha256": "eeda92e4aadf3cc9f80e62733865b37de8b43dc4d1ca1a7d7f67b5018036310d"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B tests/verification-ci.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:00:20Z",
+      "finished_at": "2026-10-19T19:00:57Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/regression-receipt.json",
+      "evidence_sha256": "a167825f1fe1d1ba5b51716e12ab15c13e5a24dd1b25e213782a0959d50bf9d9"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:02:31Z",
+      "finished_at": "2026-10-19T19:02:31Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/requirement-traceability-receipt.json",
+      "evidence_sha256": "7cd9f8b976dba98f89d49e782754356b9988d2d05ce9f86c51a745f3d4356b43"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-19T19:02:31Z",
+      "finished_at": "2026-10-19T19:02:31Z",
+      "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-004.contract.json",
+      "sha256": "bd1fe0df14f5679e312454855e910446bca90a65b539ec0aa3847033d36eedea"
+    },
+    {
+      "path": "reports/quality-gate/20261019-ci-model-modernization-T-004-cycle-2.md",
+      "sha256": "a76714a9b387b139b59ba5ac7797057414ccedc87ba188d7aa00e7cd7355a28a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/acceptance-tests-receipt.json",
+      "sha256": "eeda92e4aadf3cc9f80e62733865b37de8b43dc4d1ca1a7d7f67b5018036310d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/build-receipt.json",
+      "sha256": "30821526761faf9e3009ae1be2bde0f87e30456a984c53416d7bf5bd7406c1f6"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/integration-tests-receipt.json",
+      "sha256": "76cb5d49a4d100ba1cb7627d22ea094165e5f8b66559ad7e27b9b907217ac156"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/lint-receipt.json",
+      "sha256": "af405eadccc73cbe2a5f3ef710dc3ed19ecaca415a03b824ae71989b24d414cb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/placeholder-scan-receipt.json",
+      "sha256": "eb365cb1c95130207d987ff353ce79902bc70f10944065c10ac43d384ed02916"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/regression-receipt.json",
+      "sha256": "a167825f1fe1d1ba5b51716e12ab15c13e5a24dd1b25e213782a0959d50bf9d9"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/requirement-traceability-receipt.json",
+      "sha256": "7cd9f8b976dba98f89d49e782754356b9988d2d05ce9f86c51a745f3d4356b43"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/task-state-check-receipt.json",
+      "sha256": "d9ae31dc5b81e2a836268ab2fe4a11aff9cbdbe24bc7aade83c502cea5c94aee"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/typecheck-receipt.json",
+      "sha256": "9e848cbeab04bbaa2149f28e33afff9c2dccb0f2d662414d20d3c699283150c5"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/unit-tests-receipt.json",
+      "sha256": "c0ac7e49f793f321e957199b3a3dee461d7448d06c3c579e7bde932f26b70524"
+    }
+  ]
+}

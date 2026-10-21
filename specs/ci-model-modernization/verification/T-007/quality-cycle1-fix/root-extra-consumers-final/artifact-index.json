@@ -1,0 +1,65 @@
+{
+  "scope": "Actualfinal98fd/9269extra3commands37methodsPASS; source/logpinsverified.",
+  "artifacts": [
+    {
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "sha256": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "sha256": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf"
+    },
+    {
+      "path": "tests/unified-launch-order.tests.py",
+      "sha256": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff"
+    },
+    {
+      "path": "tests/concept-review-continuity.tests.py",
+      "sha256": "ce42518a4cea3cb5d71adb3bf57de606708b3d3d839ee185760cbd9044570819"
+    },
+    {
+      "path": "tests/host-review-preflight.tests.py",
+      "sha256": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/concept-review-continuity.stderr.log",
+      "sha256": "41dac95cca0f81c2dd9c0b4e6ddfd2dc25f60eafcee02a2be216b8604929f3fd"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/concept-review-continuity.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/controller.py",
+      "sha256": "101348d38e01af09d7ad435a040c69fca51e9f0991b98f6fd154d69f6d9fbc4e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/host-review-preflight.stderr.log",
+      "sha256": "595775aa9f75afde59f86b4bbf1fb85b6c024a2721943b5aa8182c2ce13ae7d5"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/host-review-preflight.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/results.json",
+      "sha256": "20060716b654ff58de162138500753d4838c569bc17c18136359f184b730208b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/unified-launch-order.stderr.log",
+      "sha256": "a220273ca63f09c47885d1a1e2e786e802773e4c48b79fae5ac2361b8dc0da86"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/unified-launch-order.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final-subreaper.json",
+      "sha256": "63327bb540eb5054f9bf3d80ad79a39c2d9567fb8cc151ad969d73a1db872378"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-correction-verification.json",
+      "sha256": "2ab855cbd133d5150aeee36e8730461ab79f499d0ed50290694299ec41c9ee7b"
+    }
+  ]
+}

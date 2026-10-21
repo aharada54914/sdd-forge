@@ -12,6 +12,41 @@ user-invocable: false
 
 Implement one approved task and prepare it for independent quality review.
 
+## Managed allocation boundary
+
+Affected policy roles: `implementer`, `investigator`.
+
+Apply in the allocating parent before an unbound forked Skill/Agent, native role,
+or fresh context receives work, and before any identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+Use implementer when a parent starts this task context; use investigator only for a new secondary investigation unit from agent-delegation-policy.md. An already bound implementation worker continues implementation without another selection. The reference file cannot authorize an unbound Codex/Copilot/native helper.
+
 ## Invocation
 
 Codex:

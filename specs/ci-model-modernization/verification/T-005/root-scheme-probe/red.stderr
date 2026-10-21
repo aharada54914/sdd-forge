@@ -1,0 +1,253 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='Https')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='hTtps')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HTtps')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='htTps')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HtTps')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='hTTps')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HTTps')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='httPs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HttPs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='hTtPs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HTtPs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='htTPs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HtTPs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='hTTPs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HTTPs')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='httpS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HttpS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='hTtpS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HTtpS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='htTpS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HtTpS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='hTTpS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HTTpS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='httPS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HttPS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='hTtPS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HTtPS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='htTPS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HtTPS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='hTTPS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+======================================================================
+FAIL: test_https_ascii_scheme_case_variants_match_producer_and_schema (__main__.SupplementalHttpsSchemeTests.test_https_ascii_scheme_case_variants_match_producer_and_schema) (scheme='HTTPS')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1835, in test_https_ascii_scheme_case_variants_match_producer_and_schema
+    self.assertIsNotNone(re.search(pattern, url), 'HTTPS scheme is ASCII case insensitive')
+AssertionError: unexpectedly None : HTTPS scheme is ASCII case insensitive
+
+----------------------------------------------------------------------
+Ran 1 test in 0.011s
+
+FAILED (failures=31)

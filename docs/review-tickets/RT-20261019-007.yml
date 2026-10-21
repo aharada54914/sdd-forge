@@ -1,0 +1,41 @@
+ticket_id: RT-20261019-007
+status: resolved
+type: specification-contract-gap
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-002
+summary: Correct inactive A9 skips have no unambiguous typed execution result
+problem: >-
+  The approved workflow accepts only active-success or inactive-skipped A9.
+  A full T-001 plan still includes the advisory obligation and has no omissions.
+  The result contract requires a plan omission for NOT_SELECTED, while PASS and
+  source_attempt describe actual execution. A skipped observation must not be
+  relabelled as executed PASS or as a performance-category omission. The T-001
+  activation consumer additionally accepts only PASS/FAIL rows with positive
+  execution identities and verified/execution-failed reasons.
+expected_fix:
+  - Obtain the requested human contract decision between a dedicated expected-skip outcome and an explicitly scoped A9 NOT_SELECTED exception.
+  - Record the authorized amendment without rewriting frozen historical evidence and perform the required upstream and independent counterpart reviews.
+  - Implement strict A9 event/base/head-derived activation, successful detector and actual advisory observation checks; reject every mismatched branch.
+  - Update both producer/schema and T-001 activation consumer with test-first field/counterpart mismatch coverage before accepting proof.
+  - Preserve normal executed verified rows, inactive categories and all existing execution-evidence requirements.
+evidence: specs/ci-model-modernization/verification/T-002/attempt-1/a9-contract-question.md
+current_boundary: >-
+  The user explicitly approved EXPECTED_SKIP. The requirement decision is
+  resolved; T-001 shared consumer/schema repair passed fresh independent
+  cycle 8 with zero findings and its generated evidence bundle passed.
+  T-002 now resumes its producer/schema and actual observation validation. No historical verdict is overwritten and no
+  execution is fabricated. The ticket remains open until both counterparts
+  and their required independent acceptance succeed.
+auto_fix_allowed: true
+requires_human_decision: false
+approval: User explicitly approved EXPECTED_SKIP in reply "よい"; authorization and exact scope recorded under T-001/a9-amendment/authorization.json.
+
+resolution_authority: specs/ci-model-modernization/verification/T-001/a9-amendment/authorization.json
+resolution_contract: specs/ci-model-modernization/verification/T-001/a9-amendment/contract-amendment.md
+human_decision_resolved: true
+
+upstream_acceptance: reports/quality-gate/20261019-ci-model-modernization-T-001-cycle-8.md
+resolution: "Actual whole-task independent T002 cycle3 PASS0; all369 repository/scratch input hashes verified at delivery, current136 tests/static/schema/rollback PASS, generated evidence bundle validated. A9 both-counterpart acceptance complete; no hosted/integration/release claim."
+resolution_evidence: reports/quality-gate/20261019-ci-model-modernization-T-002-cycle-3.md

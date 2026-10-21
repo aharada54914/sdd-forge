@@ -1,0 +1,24 @@
+ticket_id: RT-20261019-005
+status: resolved
+type: acceptance-coverage
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-001
+summary: Content-changing rename consumers and valid dependency deletion lack acceptance assertions
+expected_fix:
+  - Exercise a real content-changing Git rename with distinct old/new consumers and matched single-input controls.
+  - Remove a valid required dependency from an activated definition and reject stale proof or retain full verification.
+  - Demonstrate failure sensitivity using isolated production-source mutations.
+  - Obtain fresh independent quality acceptance before Done.
+approval: Existing approved T-001 scope permits bounded acceptance-test corrections.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 5
+evidence: specs/ci-model-modernization/verification/T-001/quality-cycle-5/work-review/evaluator.txt
+resolution:
+  independent_cycle: 6
+  evaluator: work-agent:root:t001_cycle6_evaluator
+  evidence: specs/ci-model-modernization/verification/T-001/quality-cycle-6/work-review/evaluator.txt
+  finding_scope: Both cycle-5 coverage corrections are explicitly confirmed addressed; the new canonical-order defect remains open in RT-20261019-006.
+  task_completion: Not established; T-001 retains Implementation Complete.

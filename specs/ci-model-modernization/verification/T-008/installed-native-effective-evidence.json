@@ -1,0 +1,59 @@
+{
+  "recorded_at": "2026-10-20T06:06:55.081177+00:00",
+  "scope": "Installed native configuration boundary plus existing renderer/prepare/nativefixtures; maintained callers/workflow/rollback/formalindependentQA notcomplete",
+  "product_sha256": "f28d414f9261886c9b00fcf2494356d1548bbe54d89ef42d9f84bd7febacf13c",
+  "fixture_evidence": {
+    "path": "specs/ci-model-modernization/verification/T-008/native-effective-evidence.json",
+    "sha256": "70b4eacd872d2ae1f753ccce7639671e2f46613121d64044260255e9240a3ba6",
+    "methods": 24,
+    "subtests": 316,
+    "all_passed": true
+  },
+  "actual_installed_entry": {
+    "result": "PASS",
+    "configured_model": "gpt-6-astra",
+    "configured_effort": "high",
+    "native_methods": {
+      "initialize": 1,
+      "account/read": 11,
+      "model/list": 1,
+      "thread/start": 1
+    },
+    "turn_methods": 0,
+    "same_client_and_capture": true,
+    "generated_config_native_response_match": true,
+    "live_inputs_unchanged": 594,
+    "runtime_sources_unchanged": 4,
+    "actual_id": null,
+    "proof": "unverified",
+    "backend_execution_proven": false,
+    "adoption": "fixture-only"
+  },
+  "proofs": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-installed-native-1/results.json",
+      "sha256": "81d4330b91ee186069c149773f53767f3d3ebe0adbc893e2d0bb7d686b4c040e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-installed-native-1/configuration-proof.json",
+      "sha256": "48301e0a3bfcdae48192b5e4f43265cc17f6789a3e492cb40585179fa342e995"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-installed-native-1/trace.json",
+      "sha256": "342507c205098f2d1d8b5394085b6e96e79c8356fcd253fb77cde99f6b0548b8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-installed-native-1/inputs-before.json",
+      "sha256": "d3e1b22326e63771f639f718d1aada46d778a348399010b520aa158551f01db5"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-installed-native-1/driver-contract.json",
+      "sha256": "217f7da8db2ef8d44734f25f04f303e31f6506be495fa806ceedad4d451fba43"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-installed-native-1-subreaper.json",
+      "sha256": "f643bac3018e09d8adc350eaefa215cd7d57f1c5b62ee06e6976080a6429a0bf"
+    }
+  ],
+  "formal_T008_quality_gate_cycles": 0
+}

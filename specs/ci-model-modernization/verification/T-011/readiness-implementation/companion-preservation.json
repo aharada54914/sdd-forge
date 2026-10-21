@@ -1,0 +1,14 @@
+{
+  "all_companions_unchanged_from_admission": true,
+  "pins": {
+    "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+    "tests/verification-ci.py": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50",
+    "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+    ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+    "tests/verification-impact.tests.py": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+    "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+    "tests/verification-ci.tests.py": "f10abbbd3f94b3e926cf5568a9d3a4c4672b698a88df464fae56b8034c99b85a",
+    "tests/required-checks-posix.tests.py": "4a412e19b3a1b50c7ba13d801468c08682eed24f8e76d587d0434b79f9982b19",
+    "tests/ci-suite-wiring.tests.sh": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b"
+  }
+}

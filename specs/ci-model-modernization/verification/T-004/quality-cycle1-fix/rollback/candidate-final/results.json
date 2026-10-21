@@ -1,0 +1,70 @@
+[
+  {
+    "name": "model-observation",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/model-observation.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:02:30Z",
+    "finished_at": "2026-10-19T19:02:48Z",
+    "exit_code": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "4d8f53431398e8a87a705ee00417137cf5bc81f3820dab32ac2d974ed6ed4666",
+    "source_hashes": {
+      "tests/model-observation.tests.py": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+      "tests/verification-catalog.tests.py": "c44127ba6505c9ad780e7e3007e589ae1287a70af4ad2fe92b057d32a4c76448",
+      "plugins/sdd-implementation/scripts/model-policy.py": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894"
+    }
+  },
+  {
+    "name": "ruff",
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/model-observation.tests.py",
+      "tests/verification-catalog.tests.py",
+      "plugins/sdd-implementation/scripts/model-policy.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:02:48Z",
+    "finished_at": "2026-10-19T19:02:49Z",
+    "exit_code": 0,
+    "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_hashes": {
+      "tests/model-observation.tests.py": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+      "tests/verification-catalog.tests.py": "c44127ba6505c9ad780e7e3007e589ae1287a70af4ad2fe92b057d32a4c76448",
+      "plugins/sdd-implementation/scripts/model-policy.py": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894"
+    }
+  },
+  {
+    "name": "mypy",
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/model-observation.tests.py",
+      "tests/verification-catalog.tests.py",
+      "plugins/sdd-implementation/scripts/model-policy.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:02:49Z",
+    "finished_at": "2026-10-19T19:02:50Z",
+    "exit_code": 0,
+    "stdout_sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_hashes": {
+      "tests/model-observation.tests.py": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+      "tests/verification-catalog.tests.py": "c44127ba6505c9ad780e7e3007e589ae1287a70af4ad2fe92b057d32a4c76448",
+      "plugins/sdd-implementation/scripts/model-policy.py": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894"
+    }
+  }
+]

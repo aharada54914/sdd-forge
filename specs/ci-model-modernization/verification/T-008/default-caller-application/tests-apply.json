@@ -1,0 +1,6 @@
+{
+  "before_sha256": "a17d32672094fe8a06fbcc6fb94b046d970eb3d601ff2b4511b2e40eedd115be",
+  "after_sha256": "070c17c247b456de2241fd8159dcb1844c5699800d14f3a338abadc1f02395ca",
+  "old76_method_ASTs_unchanged": true,
+  "new_methods": 2
+}

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/model-policy.tests.py",
+    "PolicySelection.test_completion_rechecks_sources_after_real_native_replay"
+  ],
+  "exit_code": 1,
+  "helper_sha256_before_and_after": "14d3e161c3645312e86ec7b1744d9aeabc74e0e4e1365c51d72341d06d6cca31",
+  "test_sha256": "acf271f974157fcc8f9e7d8ffec4bf1523d452a431e1f617421ef2374d1eda54",
+  "at": "2026-10-19T20:53:10.292654+00:00",
+  "fault_injection": "Wrap real native selector replay, rewrite valid policy source_date after proposalcomputed butbeforesealing; no fakeengine result"
+}

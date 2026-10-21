@@ -1,0 +1,3 @@
+plugins/sdd-implementation/scripts/model-policy.py 0a49d7648482b80d69833ea0166d714f360106aaefe5216f65b00182fd1c95fb parse/compile PASS
+tests/model-identity.tests.py da24c1cbb5fd8c9892b65c756b3246da82f3a076054da8471da827d519fd277e parse/compile PASS
+tests/verification-catalog.tests.py 0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6 parse/compile PASS

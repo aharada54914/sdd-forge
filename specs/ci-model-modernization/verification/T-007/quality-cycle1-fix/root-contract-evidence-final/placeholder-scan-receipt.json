@@ -1,0 +1,68 @@
+{
+  "actual_command": {
+    "id": "placeholder-scan",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "plugins/sdd-implementation/scripts/model-policy.py",
+      "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
+      "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+      "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
+      "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "contracts/model-launch-controls.schema.json"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-20T02:07:37.443224+00:00",
+    "finished_at": "2026-10-20T02:07:37.451658+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/placeholder-scan.log",
+    "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+  },
+  "source_receipt": {
+    "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/commands.json",
+    "sha256": "3711ef67a8e27c8d6e50d7e6b304b6d5f2877d0099b7bf14a5d14ed7622abf97"
+  },
+  "supporting_evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/effective-evidence.json",
+      "sha256": "c38978ac0fbc3ddc9508094ccbb05bb484025ff8cff25e53ad40792985df3bf7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/source-integrity-final.json",
+      "sha256": "eb3b111c64bcabee85054a3ba88d5713e3e888599116ae66127c763ddab325a7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/fixed-test-source-reuse.json",
+      "sha256": "4329682ae190fb43c69f46ecf79129d8079c06358ef52d00f87e82e492fccd67"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-correction-verification.json",
+      "sha256": "2ab855cbd133d5150aeee36e8730461ab79f499d0ed50290694299ec41c9ee7b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/artifact-index.json",
+      "sha256": "838539877c290dbca4269879399b8b6f867ba47fecfbd4d6d45dda56c6b681ef"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/results.json",
+      "sha256": "086956012a823104b794d513c273c4926951d80a421af17c74fea33b39b937e3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-clone-integrity/after.json",
+      "sha256": "6ba8da1569120524c3001837ad9ea02194684c681a9352126325bf657ca4e3c7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/artifact-index.json",
+      "sha256": "68f231022e6636a0a4887199b95efdefeb4fe1cfc9049131da2ffb46d143368c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/qa1-fix-final-artifact-index.json",
+      "sha256": "3d064a0bc7d35d9e36b0544879e1d10d768ecc9629cce69c6409e3fd126bcc0f"
+    }
+  ],
+  "scope": "Current54methods875successfulsubtests; noerrors/failures/skips. Explicit31groupeffectiveindex distinguishes6freshcorrection,10source-equivalentactualPASSrows fromfailed14,15unchangedpreQA1receipts; currentRoot3consumers37methodsseparate. Currentnative thread/start config only, actualnull/unverified, no inference/adoption. Freshrollback16+9PASS,20725nonownedunchanged. Componentcoverage disabled-legacyN/A. OriginalPython3.13CIdiagnosticFAILretained; canonical3.12CI80historicalsource-equivalentPASS.",
+  "timestamp_basis": "ContractUTCsecondsformattedfromactualpreciseUTCrows; originaltimestampsretainedinreceipts."
+}

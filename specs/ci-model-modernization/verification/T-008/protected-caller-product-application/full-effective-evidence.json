@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "methods": {
+    "tests_run": 67,
+    "subtests_run": 716,
+    "subtests_passed": 716,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "successful": true,
+    "discovery_count": 67
+  },
+  "source_pins_unchanged": 1694,
+  "manifest_sha256": "470d21b0bcd1c4e0ddfe196f73aa14758ec50a0243aa14cba58b7aa6e86fa193",
+  "adapter_sha256": "caeadd46b3d06964d8906bd5c3700bf690472faf6d477269e6f98783fccd6ee8",
+  "model_core_sha256": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+  "source_scope": "All current67/716, original65 methodASTs unchanged; only maintained protectedSkill2 product changes for this increment.",
+  "limit": "Synthetic external nativeCLI delivery, not intelligence/backendID/adoption/OSisolation/cloud/wholeT008/independentQA.",
+  "receipts": {
+    "specs/ci-model-modernization/verification/T-008/root-current-installed-11/results.json": "f41238dae339c15b2c867696fada2a05e34a5236e76b7d4b22cd32a8e9d5ced8",
+    "specs/ci-model-modernization/verification/T-008/root-current-installed-11/installed-result.json": "5d2dd8e914a6a27edd230c7e1c0203fdcdc0f3e0050efa098f0e0a19c66e7b12",
+    "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-subreaper.json": "3b9f348b901144bcbd2783afce91d7b23ca63899a4605db167daa7fbe91b42c3",
+    "specs/ci-model-modernization/verification/T-008/root-current-installed-11/1.stderr.log": "6a4320e4c4622b46d6a0a9b88cb2a00b704df366dc50c8b39b6fa901d583ba75"
+  }
+}

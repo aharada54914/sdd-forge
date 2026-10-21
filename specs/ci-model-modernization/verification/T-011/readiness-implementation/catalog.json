@@ -1,0 +1,17 @@
+{
+  "label": "catalog",
+  "command": [
+    "python3",
+    "-B",
+    "tests/verification-catalog.tests.py",
+    "-v"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:35:06.959364+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 3.309504642005777,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

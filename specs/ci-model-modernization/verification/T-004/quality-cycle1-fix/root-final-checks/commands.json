@@ -1,0 +1,73 @@
+[
+  {
+    "id": "risk",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "specs/ci-model-modernization/tasks.md",
+      "T-004"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T19:02:31Z",
+    "finished_at": "2026-10-19T19:02:31Z",
+    "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/risk.log",
+    "sha256": "9d3ce6c45b11a0a39fc306c06e411c33004bd14c4bea078e1701d426d0459d46"
+  },
+  {
+    "id": "placeholder-scan",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "plugins/sdd-implementation/scripts/model-policy.py",
+      "contracts/model-observation.schema.json",
+      "contracts/model-policy-error.schema.json"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T19:02:31Z",
+    "finished_at": "2026-10-19T19:02:31Z",
+    "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/placeholder-scan.log",
+    "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+  },
+  {
+    "id": "task-state-check",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+    "exit_code": 0,
+    "started_at": "2026-10-19T19:02:31Z",
+    "finished_at": "2026-10-19T19:02:31Z",
+    "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/task-state-check.log",
+    "sha256": "03b959f1e229ebc90fb354ec6750d39653b9b93f24ba9095c117e15bb626ece4"
+  },
+  {
+    "id": "workflow-state",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-19T19:02:31Z",
+    "finished_at": "2026-10-19T19:03:07Z",
+    "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/workflow-state.log",
+    "sha256": "387f17c2d67967ce989e3102169dc68b72a3b79b798ab85e35adafa73bae68a2"
+  },
+  {
+    "id": "requirement-traceability",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "specs/ci-model-modernization/traceability.json",
+      "/workspace/sdd-forge",
+      "require-evidence"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T19:02:31Z",
+    "finished_at": "2026-10-19T19:02:31Z",
+    "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/requirement-traceability.log",
+    "sha256": "953789303b71bfc19dd41bc0c502e27d2a6201362066ae3ef9cf4eed6fe1ac26"
+  },
+  {
+    "id": "check-component-coverage",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+    "exit_code": 0,
+    "started_at": "2026-10-19T19:02:31Z",
+    "finished_at": "2026-10-19T19:02:31Z",
+    "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+    "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+  }
+]

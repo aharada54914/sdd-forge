@@ -1,0 +1,17 @@
+{
+  "phase": "before-qa1-fix",
+  "clone": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+  "actual_clone_head": "7d966942d457fdb8cb0a63629dc7a6a5539b9542",
+  "read_only_git_commands": true,
+  "changed_tracked_files": [],
+  "nonowned_tracked_files": 20725,
+  "nonowned_pins_match_before": true,
+  "restored_owned_count": 12,
+  "absent_new_count": 3,
+  "before_manifest_sha256": "7b0ad71c7fa33d6e16c2539ec0ac7bf626f2941e655c345a8047e6f1cdba28ef",
+  "original_before_nonowned_count": 20726,
+  "new_owned_row_separately_restored": "tests/model-identity.tests.py",
+  "extended_allocation_sha256": "a61e8a5e237cf56fd939821fcabbe9591f760dc8e40672a41f2c66a286da39b9",
+  "controller_sha256": "ba889b00a661bbc23a6084c734aa9d3791ae2d1ad7f07de48234de7eff285869",
+  "recorded_at": "2026-10-20T01:37:09.606661+00:00"
+}

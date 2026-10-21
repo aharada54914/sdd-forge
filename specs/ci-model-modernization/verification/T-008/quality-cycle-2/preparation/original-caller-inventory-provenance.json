@@ -1,0 +1,10 @@
+{
+  "kind": "byte-identical factual caller inventory source copy; not review/gate/provider data",
+  "original_path": "reports/verification/model-selection-callers-20261018.json",
+  "original_sha256": "52e4ee3138697d5993f6d4252b0cd8c925158193eb2b11ea395024d000e28b1d",
+  "declared_before_qa_in": "specs/ci-model-modernization/verification/T-008/default-caller-candidate/semantic-coverage.json",
+  "delivery_copy": "specs/ci-model-modernization/verification/T-008/quality-cycle-2/preparation/original-caller-inventory.json",
+  "delivery_copy_sha256": "52e4ee3138697d5993f6d4252b0cd8c925158193eb2b11ea395024d000e28b1d",
+  "bytes_identical": true,
+  "admission_limit": "Only the task-local copy and this provenance are supplemental artifacts. Original reports/ path is NOT admitted, and evaluator must not read original path. No policy or frozen report/manifest was changed."
+}

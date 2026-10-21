@@ -1,0 +1,21 @@
+{
+  "label": "manifest-validation",
+  "command": [
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+    "--manifest",
+    "specs/ci-model-modernization/verification/T-011/readiness-implementation/task-input-manifest.json",
+    "--snapshot-root",
+    "/workspace/.task-scratch/ci-model-modernization/t011-readiness-implementation/input-snapshot",
+    "--expected-task",
+    "T-011"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:37:43.558071+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 0.02937456099607516,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

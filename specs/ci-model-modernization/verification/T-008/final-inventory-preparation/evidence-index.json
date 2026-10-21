@@ -1,0 +1,337 @@
+{
+  "status": "PINNED_REFERENCES_ONLY_NOT_NEW_VERIFICATION",
+  "artifacts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/caller-design-proposals/caller-dispositions-65.json",
+      "sha256": "8eaea7113340c65e6b7aa7fc21ea4128f2e720b126e1bf920481bd5112489762"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/caller-progress.json",
+      "sha256": "05aed5abd4d407979ae9693ae4940341611ba94dc38e7770802e83c25c6ba105"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/caller-retention-revalidation.json",
+      "sha256": "90f568107e1b6f06651898307b021ce049ccb92e7f0eddeb31af3aca1b3fb049"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/default-caller-candidate/semantic-coverage.json",
+      "sha256": "95d0c173e9f322027b923a78ce81ad5383f2fb152bdb186e74cf42e38cb5147c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/default-caller-candidate/mapping.py",
+      "sha256": "c4c3f7d1013a67e97ffe01c120a2dc78b9dacc8a2598890b150ccaa28cf7201a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json",
+      "sha256": "a2742836390a28e9ecbc1330930b5ec975441d0907ad862c473d2ca0b692e500"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-current-installed-11/results.json",
+      "sha256": "f41238dae339c15b2c867696fada2a05e34a5236e76b7d4b22cd32a8e9d5ced8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-investigator-batch-green-1/results.json",
+      "sha256": "cf5ea12e643ffddf4957bc1ed5c881169a37a2d7e700b9f1dc186635fefaaf14"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+      "sha256": "6ac77c49f0efe83ec765329ff608caaa14bc074ec5c17eb9de8855e839b46066"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-006.evidence.json",
+      "sha256": "1131d620137d9d909288e696e3f062334cdaed929eb0e5b5dfdb0d8d88940a60"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007.evidence.json",
+      "sha256": "366764b0e219ae1101cca785afc1ad632eb9a2714a1225a8cc443edb09f81624"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009.evidence.json",
+      "sha256": "e6e1584c19dfef30b21e9aaeaa41147c895cd4da432703c79d7c4ab0843f20ee"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/installed-native-effective-evidence.json",
+      "sha256": "8482df04507b22c43f5da97c192da80430277f4674ce504fbc55995ddd7c39de"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/runtime-effective-evidence.json",
+      "sha256": "eee5318327d11dfbcefcec6d886e40ac31a4c3925b621a54e69846da753f5e22"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/self-improvement-preflight/static-result.json",
+      "sha256": "3a14db0c090e5f7470bb29e510d7f62ff72361d588b57a24c8b8eedd9fcc2e88"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/self-improvement-preflight/new-methods-final.log",
+      "sha256": "4049ee76b39835514d935c2200ad78567c8a581f3846acc818783ecf1dc8bc11"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/self-improvement-preflight/after-source-hashes.json",
+      "sha256": "a41ae4a7074d495afc0ec7e63c67cbefc9d74cace08c736485d91e13112c49d2"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/investigator-full-effective-evidence.json",
+      "sha256": "6c2943abf9abfb50a1d0258c7677aa55b8307cb1b23cb929955624af4c55018a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/investigator-indirect-product-application/focused-effective-evidence.json",
+      "sha256": "95d1d59b448e82085bc89d126e7654e8493aa951f944df31722459f47ff3e0dc"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/domain-product-application/focused-effective-evidence.json",
+      "sha256": "2cb06f82b365dd37b1c6691d5ff3da6cf5f008707318254020952e0e27fb58fd"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/domain-product-application/full-effective-evidence.json",
+      "sha256": "1c816d7c82538c637b74b48bb6cda213055c8e5ebfa0e650c74830153d822542"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/domain-product-application/legacy-effective-evidence.json",
+      "sha256": "2537f5a4b51212e289087524a1ea4d5348577c556d98f70eaba4afaa12694651"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/diagnosis-product-application/focused-effective-evidence.json",
+      "sha256": "b43befdfcabf307fabc3def4af0f705a12df3e64fffafbd62517ef51908eae4a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/diagnosis-full-effective-evidence.json",
+      "sha256": "2fc0038683b75016d43b8ee680c8138d11a628a6b62ab33d896249b90a940d32"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/delegation-product-application/focused-effective-evidence.json",
+      "sha256": "e4cb569e22dc6a94f7273f346bedbc28b91127d0637353da45bfd447190ae6a2"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/quality-caller-product-application/focused-effective-evidence.json",
+      "sha256": "51da5ca5450e7459dab94b6c15d5ab5052f9107c0bce8f1eabbaf1a8ebf75352"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/wfi-product-application/focused-effective-evidence.json",
+      "sha256": "5c88c2ded32732ea41c24298e5ff7b5092c639c63d3ce6ba6579c3d0b0e5fc78"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/wfi-product-application/full-effective-evidence.json",
+      "sha256": "5948026e7d77f6497b59908feb49fcbdcc269dd980c70d80ff4406fe4b0e8d01"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/wfi-product-application/legacy-effective-evidence.json",
+      "sha256": "5c00a8b4822ee9c7ebbf37c7209fdab05313a22c400ae2f743d7f257c028bb5f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/spec-b-effective-evidence.json",
+      "sha256": "26ba99929582fbd0c1647003f4b0ae0652313181240842da8385b175820d8347"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+      "sha256": "453f5481c75bfcde370f1c241217cde8a16d86aa9a3468cc3b295e6f1e355ccb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
+      "sha256": "d176d76fee096ff05425a0bf0f6ef0d64ab21a38cd0ad2fc5ccf69186c9f3f1f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json",
+      "sha256": "a0ff94ea7b30122ac087881c981a9ef3417e9a9bf4b774847299aab3213b0495"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/spec-caller-full-effective-evidence.json",
+      "sha256": "e063600ae9fec67b06124bdedf9e3ee66b1d876b55bd8948bd730c134061fe83"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/spec-caller-product-application/focused-effective-evidence.json",
+      "sha256": "15a25b06a47730012af237236f33b427c5d80094f967d0a4d5bee1fe8019bcec"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/investigator-legacy-effective-evidence.json",
+      "sha256": "dbebb18e21fe5c08fb735855a95689250ed04c07a637dabc47f6845b8174a646"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/implementer-product-application/full-effective-evidence.json",
+      "sha256": "50ecbeab1f4c48a35e941992b4bd0a45aea5fc81e0cdbb07a2597045cfe11650"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/batch-entry-application/green-effective-evidence.json",
+      "sha256": "6e7d5e4442d1a745f7e084159db71a0c1467814e39579cbbe15881136ce93be6"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/runtime-rollback-effective-evidence.json",
+      "sha256": "eb4d3186a032793e2ebcab29437fb644455e0860ab5e9fb64644abe03660ddb7"
+    }
+  ],
+  "fixture_source": {
+    "path": "tests/model-policy-installed.tests.py",
+    "sha256": "420cd793d8837c7a3305155ff9992e9e56a262b3abcf5693408c45b2348b3154"
+  },
+  "adapter_source": {
+    "path": "plugins/sdd-implementation/scripts/managed-model-entry.py",
+    "sha256": "de2a1e38e3919f41b8dd8a0f52f4ca66683c68d9d7698dc27bef3753a294dfa2"
+  },
+  "source_before": {
+    ".codex/agents/sdd-evaluator.toml": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a",
+    ".codex/agents/sdd-investigator.toml": "5a10183be5d4ba742d7c80d929ac1cdd59b4d32109c48c7615ea05e4b6d6886d",
+    ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+    ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+    ".github/workflows/self-improvement.yml": "c502c617ddb66edb89210c7f15494e61aebf042291c66bbe9e83f3b4040f533a",
+    ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+    "contracts/agent-model-capabilities.json": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "contracts/agent-model-capabilities.v2.md": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+    "contracts/rollback-1.5.0.json": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197",
+    "docs/agent-capability-matrix.md": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+    "docs/ci-staging/test-yml-combined-candidate.yml": "88617ccf22f095126555cbe94c07e05b8a15f2db15e8805c21c8c85e9bc5685c",
+    "docs/skill-reference.md": "121e122e63079d02262412d08b73a78231bfa28827438d33bf87058b5bce43ed",
+    "docs/workflow-improvements/WFI-005.md": "f4c78efc4c4b4697c8eea2e543d090e7c1ef1ddf941ebebf5b375bb4a9f4bb1f",
+    "docs/workflow-improvements/WFI-006.md": "80bd9ed76c8c19dd24fd39b8e7f84987f8391583e034c1cf3ca11ef870602951",
+    "docs/workflow-improvements/WFI-040.md": "8e1565f4226fb41d033de0b80be4522c93b3b6e0e87a0e0f98308edbd29f6ddc",
+    "install.ps1": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde",
+    "install.sh": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+    "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md": "bd25b434d06b1573c934e5cc2869233bc85dd919d95b97496742ebbb2433ec67",
+    "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md": "5468d3d7c4e28335221f612be656180333608b27b2bed0542d38fe71843ac8a5",
+    "plugins/sdd-bootstrap/agents/investigator.md": "cf1e6b4bd3cbbb6a3dc767413443677c12a70b9faf2e9608cc402d3cff9e8e0a",
+    "plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md": "6d3a714ebc686860b9407410033b7ef1bfb21d8df70cc93b11b1b00ec0b02e3e",
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md": "b7a52142b547e148990bef0db4e8c43ed6f82e9e2584a0b3379b4d73c3fd0bec",
+    "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md": "c8e82741a7bee882ea837813aa14becd52c83361d49f833212add5a968d3bfa2",
+    "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md": "f7374159f2b426bbea66409657bcfdb8ac8cd7c3ce34d24ecaa7fcc96cb963be",
+    "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md": "4f2373243ff346a8594c5e2810b243be6e182354b46b1257b99a8356fd4497ba",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": "bff47384791412b36f54c8009f3244b10b21232b70a7a61835616fc4df54174b",
+    "plugins/sdd-domain/agents/domain-reviewer-a.md": "782addb1bb2f60253ac48dfc0a5966b968b5b53f9ee1246dd45ae3c27717fefd",
+    "plugins/sdd-domain/agents/domain-reviewer-b.md": "031cae9862ad7cf0d4776c26d5e06f49c40db197360c9a72fc5305d03045172e",
+    "plugins/sdd-domain/skills/concept-test/SKILL.md": "81f7a75615404e0cd31bbc24e40b2f79e018102ff106a3eb80c42b00635f8faf",
+    "plugins/sdd-domain/skills/domain-interviewer/SKILL.md": "24171685e75415493bb1addfd2812853b300091b15fba40325c090a796f9f8c1",
+    "plugins/sdd-domain/skills/domain-model/SKILL.md": "5fe52d0057944b6899f2600493d3045771ebd036203b0aadf0fa4c06ab8ed9cc",
+    "plugins/sdd-domain/skills/domain-reverse/SKILL.md": "b4a61606b281402539bde6a4c3b77c3bfb545dd405e31aa8db56288ba09532d5",
+    "plugins/sdd-domain/skills/domain-review-loop/SKILL.md": "7638ce5cbeadc5a2d0872bf487e0c2e55e24fffd3bd435537db22b076ea01d5b",
+    "plugins/sdd-domain/skills/domain-sync/SKILL.md": "ae41f8da490ef18ceb0328151a322590a63526be99e6386fbf9a45ec72fc3f7e",
+    "plugins/sdd-implementation/scripts/select-agent-model.ps1": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+    "plugins/sdd-implementation/scripts/select-agent-model.sh": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+    "plugins/sdd-implementation/skills/diagnose/SKILL.md": "59df6dd5abd4b7fa7b13c6299c242404149379a2f766074d9f3379c93c661610",
+    "plugins/sdd-implementation/skills/implement-task/SKILL.md": "dd815ef80c61cad17e65c8fe6942029a36cb5c05379be33973c47ba57fdc0553",
+    "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md": "a8f29a302317b1d9e10531b23d00ffcbd65edad72982e5e43113e1d0a97e5f15",
+    "plugins/sdd-implementation/skills/implement-tasks/SKILL.md": "f8ace1dd326892dcf146611de1bc20492544f88bf5c53cb049dd6e413482b1f9",
+    "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md": "7eadc63911214f798dc2c1a97b18609af7db8f474bc34c6246b791a0597edea0",
+    "plugins/sdd-lite/skills/lite-gate/SKILL.md": "c07a099bf1fbe28ae2d75124181aa11d6c3e83362bcb4ce0c5817956b6a5cf59",
+    "plugins/sdd-lite/skills/lite-spec/SKILL.md": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
+    "plugins/sdd-quality-loop/agents/evaluator.md": "18d151073e388fe9e864d7192230c8686c6d8a24414d04f02796c00db4194a6a",
+    "plugins/sdd-quality-loop/agents/panelist-gemini.md": "b45eeab1c070a96115d6d2813fff4a92cfc73796ed171ba1c8cf6112c4cd6093",
+    "plugins/sdd-quality-loop/agents/panelist-gpt.md": "e0134fc5be428b1a0ab4b700f989d4fb7a114c119b12405dab14da9bda4629de",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-a.md": "864f6b857131ece8da42948fe17311b2e42c971cd6b4b64ccb39ed5241ec3230",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-b.md": "ad7a7defc893d9a60ca4b9506a144340759bf3090ab90157814c0113b781a298",
+    "plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md": "32be124ba06f958c73780c57176b19b68cf897bd1a16931408f010546f7874ec",
+    "plugins/sdd-quality-loop/references/cross-model-verification-policy.md": "0a27c8cea42ae1b5c9bb8e58a5d7d3ea1bc43032453eea8233a563c839bc6e69",
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "036ee9b36635bfb13429c08ad8ccdf233d7a6ed96c482812e7254804e80484e8",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "7bebc05a64ead3a31084c38a5f6a9cfc1921a8475f975ce1c741ef0af13963ae",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md": "8dde4d0d8bfd18e08ac274e7130a51022537f0593e7dc50c9b88c668555e7741",
+    "plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md": "0215d3a6c097c893727276afc6078415cc83c3aa4273dc8bc62865bc3af6efa1",
+    "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md": "6fd4eac7efd7d127d2f0c6ebd467c766417d927ee07bfbc2036660498db9b7ba",
+    "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md": "392e32a6478337274b0a927f58ed31d0fe0204c12bf5817e121d457de6a3ac98",
+    "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md": "288065d68c1f79c47a06d19563120f22c5efc1005012f98a153878a1883096f6",
+    "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0",
+    "plugins/sdd-review-loop/agents/impl-reviewer-a.md": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+    "plugins/sdd-review-loop/agents/impl-reviewer-b.md": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+    "plugins/sdd-review-loop/agents/spec-reviewer-a.md": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731",
+    "plugins/sdd-review-loop/agents/spec-reviewer-b.md": "d9d7e8e3abb0d822daaeb19b30183f7e283602c741d440d35d78accac166cbb1",
+    "plugins/sdd-review-loop/agents/task-reviewer-a.md": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+    "plugins/sdd-review-loop/agents/task-reviewer-b.md": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "b5f9929bacb4a49b5a7e40e9abe0a9855e9d50d15ca0052b680d3866db05ea50",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "fe48d79811f6c72908a8dd08ff25b196b6ef4c9c3af4b165ea175839a3f2c236",
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md": "9e2cc13d047c3294631937050ac4e4efe373a2c21ee1bef0653d03c5230fec09",
+    "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md": "ad0e38d3d758e6534a78adb517a28de604bca738412f057b50b00ebbc29a2220",
+    "plugins/sdd-ship/skills/ship/SKILL.md": "938ec040fbc37ca1864fe4083177a640957979a700aae303059518fdf1b668c6",
+    "render-agent-frontmatter.ps1": "e8dd1f5f4222420e21c13a51ab6f221e0393d23a83e6ab86b5d5346a7bcff6ae",
+    "render-agent-frontmatter.sh": "a400dc8f2825d982a759b81b86bcfaaec78e47f78347c6fc00903744c6b3fbe6"
+  },
+  "source_after": {
+    ".codex/agents/sdd-evaluator.toml": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a",
+    ".codex/agents/sdd-investigator.toml": "5a10183be5d4ba742d7c80d929ac1cdd59b4d32109c48c7615ea05e4b6d6886d",
+    ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+    ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+    ".github/workflows/self-improvement.yml": "c502c617ddb66edb89210c7f15494e61aebf042291c66bbe9e83f3b4040f533a",
+    ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+    "contracts/agent-model-capabilities.json": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "contracts/agent-model-capabilities.v2.md": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+    "contracts/rollback-1.5.0.json": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197",
+    "docs/agent-capability-matrix.md": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+    "docs/ci-staging/test-yml-combined-candidate.yml": "88617ccf22f095126555cbe94c07e05b8a15f2db15e8805c21c8c85e9bc5685c",
+    "docs/skill-reference.md": "121e122e63079d02262412d08b73a78231bfa28827438d33bf87058b5bce43ed",
+    "docs/workflow-improvements/WFI-005.md": "f4c78efc4c4b4697c8eea2e543d090e7c1ef1ddf941ebebf5b375bb4a9f4bb1f",
+    "docs/workflow-improvements/WFI-006.md": "80bd9ed76c8c19dd24fd39b8e7f84987f8391583e034c1cf3ca11ef870602951",
+    "docs/workflow-improvements/WFI-040.md": "8e1565f4226fb41d033de0b80be4522c93b3b6e0e87a0e0f98308edbd29f6ddc",
+    "install.ps1": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde",
+    "install.sh": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+    "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md": "bd25b434d06b1573c934e5cc2869233bc85dd919d95b97496742ebbb2433ec67",
+    "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md": "5468d3d7c4e28335221f612be656180333608b27b2bed0542d38fe71843ac8a5",
+    "plugins/sdd-bootstrap/agents/investigator.md": "cf1e6b4bd3cbbb6a3dc767413443677c12a70b9faf2e9608cc402d3cff9e8e0a",
+    "plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md": "6d3a714ebc686860b9407410033b7ef1bfb21d8df70cc93b11b1b00ec0b02e3e",
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md": "b7a52142b547e148990bef0db4e8c43ed6f82e9e2584a0b3379b4d73c3fd0bec",
+    "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md": "c8e82741a7bee882ea837813aa14becd52c83361d49f833212add5a968d3bfa2",
+    "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md": "f7374159f2b426bbea66409657bcfdb8ac8cd7c3ce34d24ecaa7fcc96cb963be",
+    "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md": "4f2373243ff346a8594c5e2810b243be6e182354b46b1257b99a8356fd4497ba",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": "bff47384791412b36f54c8009f3244b10b21232b70a7a61835616fc4df54174b",
+    "plugins/sdd-domain/agents/domain-reviewer-a.md": "782addb1bb2f60253ac48dfc0a5966b968b5b53f9ee1246dd45ae3c27717fefd",
+    "plugins/sdd-domain/agents/domain-reviewer-b.md": "031cae9862ad7cf0d4776c26d5e06f49c40db197360c9a72fc5305d03045172e",
+    "plugins/sdd-domain/skills/concept-test/SKILL.md": "81f7a75615404e0cd31bbc24e40b2f79e018102ff106a3eb80c42b00635f8faf",
+    "plugins/sdd-domain/skills/domain-interviewer/SKILL.md": "24171685e75415493bb1addfd2812853b300091b15fba40325c090a796f9f8c1",
+    "plugins/sdd-domain/skills/domain-model/SKILL.md": "5fe52d0057944b6899f2600493d3045771ebd036203b0aadf0fa4c06ab8ed9cc",
+    "plugins/sdd-domain/skills/domain-reverse/SKILL.md": "b4a61606b281402539bde6a4c3b77c3bfb545dd405e31aa8db56288ba09532d5",
+    "plugins/sdd-domain/skills/domain-review-loop/SKILL.md": "7638ce5cbeadc5a2d0872bf487e0c2e55e24fffd3bd435537db22b076ea01d5b",
+    "plugins/sdd-domain/skills/domain-sync/SKILL.md": "ae41f8da490ef18ceb0328151a322590a63526be99e6386fbf9a45ec72fc3f7e",
+    "plugins/sdd-implementation/scripts/select-agent-model.ps1": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+    "plugins/sdd-implementation/scripts/select-agent-model.sh": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+    "plugins/sdd-implementation/skills/diagnose/SKILL.md": "59df6dd5abd4b7fa7b13c6299c242404149379a2f766074d9f3379c93c661610",
+    "plugins/sdd-implementation/skills/implement-task/SKILL.md": "dd815ef80c61cad17e65c8fe6942029a36cb5c05379be33973c47ba57fdc0553",
+    "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md": "a8f29a302317b1d9e10531b23d00ffcbd65edad72982e5e43113e1d0a97e5f15",
+    "plugins/sdd-implementation/skills/implement-tasks/SKILL.md": "f8ace1dd326892dcf146611de1bc20492544f88bf5c53cb049dd6e413482b1f9",
+    "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md": "7eadc63911214f798dc2c1a97b18609af7db8f474bc34c6246b791a0597edea0",
+    "plugins/sdd-lite/skills/lite-gate/SKILL.md": "c07a099bf1fbe28ae2d75124181aa11d6c3e83362bcb4ce0c5817956b6a5cf59",
+    "plugins/sdd-lite/skills/lite-spec/SKILL.md": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
+    "plugins/sdd-quality-loop/agents/evaluator.md": "18d151073e388fe9e864d7192230c8686c6d8a24414d04f02796c00db4194a6a",
+    "plugins/sdd-quality-loop/agents/panelist-gemini.md": "b45eeab1c070a96115d6d2813fff4a92cfc73796ed171ba1c8cf6112c4cd6093",
+    "plugins/sdd-quality-loop/agents/panelist-gpt.md": "e0134fc5be428b1a0ab4b700f989d4fb7a114c119b12405dab14da9bda4629de",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-a.md": "864f6b857131ece8da42948fe17311b2e42c971cd6b4b64ccb39ed5241ec3230",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-b.md": "ad7a7defc893d9a60ca4b9506a144340759bf3090ab90157814c0113b781a298",
+    "plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md": "32be124ba06f958c73780c57176b19b68cf897bd1a16931408f010546f7874ec",
+    "plugins/sdd-quality-loop/references/cross-model-verification-policy.md": "0a27c8cea42ae1b5c9bb8e58a5d7d3ea1bc43032453eea8233a563c839bc6e69",
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "036ee9b36635bfb13429c08ad8ccdf233d7a6ed96c482812e7254804e80484e8",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "7bebc05a64ead3a31084c38a5f6a9cfc1921a8475f975ce1c741ef0af13963ae",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md": "8dde4d0d8bfd18e08ac274e7130a51022537f0593e7dc50c9b88c668555e7741",
+    "plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md": "0215d3a6c097c893727276afc6078415cc83c3aa4273dc8bc62865bc3af6efa1",
+    "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md": "6fd4eac7efd7d127d2f0c6ebd467c766417d927ee07bfbc2036660498db9b7ba",
+    "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md": "392e32a6478337274b0a927f58ed31d0fe0204c12bf5817e121d457de6a3ac98",
+    "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md": "288065d68c1f79c47a06d19563120f22c5efc1005012f98a153878a1883096f6",
+    "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0",
+    "plugins/sdd-review-loop/agents/impl-reviewer-a.md": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+    "plugins/sdd-review-loop/agents/impl-reviewer-b.md": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+    "plugins/sdd-review-loop/agents/spec-reviewer-a.md": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731",
+    "plugins/sdd-review-loop/agents/spec-reviewer-b.md": "d9d7e8e3abb0d822daaeb19b30183f7e283602c741d440d35d78accac166cbb1",
+    "plugins/sdd-review-loop/agents/task-reviewer-a.md": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+    "plugins/sdd-review-loop/agents/task-reviewer-b.md": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "b5f9929bacb4a49b5a7e40e9abe0a9855e9d50d15ca0052b680d3866db05ea50",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "fe48d79811f6c72908a8dd08ff25b196b6ef4c9c3af4b165ea175839a3f2c236",
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md": "9e2cc13d047c3294631937050ac4e4efe373a2c21ee1bef0653d03c5230fec09",
+    "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md": "ad0e38d3d758e6534a78adb517a28de604bca738412f057b50b00ebbc29a2220",
+    "plugins/sdd-ship/skills/ship/SKILL.md": "938ec040fbc37ca1864fe4083177a640957979a700aae303059518fdf1b668c6",
+    "render-agent-frontmatter.ps1": "e8dd1f5f4222420e21c13a51ab6f221e0393d23a83e6ab86b5d5346a7bcff6ae",
+    "render-agent-frontmatter.sh": "a400dc8f2825d982a759b81b86bcfaaec78e47f78347c6fc00903744c6b3fbe6"
+  }
+}

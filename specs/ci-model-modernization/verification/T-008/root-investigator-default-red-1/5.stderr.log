@@ -1,0 +1,29 @@
+test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch (t008_spec_root_actual.InstalledDefaultNativeCallerCandidateTests.test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch) ... FAIL
+test_each_admitted_caller_role_and_host_executes_installed_typed_stop_before_any_work (t008_spec_root_actual.InstalledDefaultNativeCallerCandidateTests.test_each_admitted_caller_role_and_host_executes_installed_typed_stop_before_any_work) ... FAIL
+
+======================================================================
+FAIL: test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch (t008_spec_root_actual.InstalledDefaultNativeCallerCandidateTests.test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 7338, in test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch
+    fence = self.boundary(source, rel)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 7286, in boundary
+    self.assertEqual(source.count(title), 1, 'missing unique executable allocation boundary: ' + rel)
+AssertionError: 0 != 1 : missing unique executable allocation boundary: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md
+
+======================================================================
+FAIL: test_each_admitted_caller_role_and_host_executes_installed_typed_stop_before_any_work (t008_spec_root_actual.InstalledDefaultNativeCallerCandidateTests.test_each_admitted_caller_role_and_host_executes_installed_typed_stop_before_any_work)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 7307, in test_each_admitted_caller_role_and_host_executes_installed_typed_stop_before_any_work
+    fence = self.boundary(source_bytes[rel].decode(), rel)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 7286, in boundary
+    self.assertEqual(source.count(title), 1, 'missing unique executable allocation boundary: ' + rel)
+AssertionError: 0 != 1 : missing unique executable allocation boundary: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.466s
+
+FAILED (failures=2)

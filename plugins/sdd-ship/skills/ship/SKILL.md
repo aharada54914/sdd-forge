@@ -9,6 +9,41 @@ disable-model-invocation: true
 Orchestrate approved tasks from implementation through quality verification to Done.
 This skill does not write specifications; use `/sdd-bootstrap:bootstrap` for that.
 
+## Managed allocation boundary
+
+Affected policy roles: `implementer`.
+
+Apply in the allocating parent before an unbound forked Skill/Agent, native role,
+or fresh context receives work, and before any identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+Apply in the Lite/Full implementation parent before the relevant single-task or batch allocation. Keep the bound Lite Claude dispatch and the downstream known-matching batch route. Later quality/cross-model handoffs retain their own boundaries and existing consent.
+
 ## Invocation
 
 Claude Code:
@@ -276,9 +311,36 @@ to implement-tasks.
 
 ### Lite track
 
-Invoke `/sdd-implementation:implement-task specs/<feature>/tasks.md#T-NNN` for
-each Approved + Planned/In-Progress task in tasks.md order. Lite track has no
-dependency graph; implement tasks in document order.
+For Claude Code, run the managed entry below from the parent orchestrator
+before invoking the implement-task Skill, which could otherwise start
+implementation in this context. For each Approved + Planned/In-Progress task in
+tasks.md order, write `<prompt-file>` under `<repository-root>` naming the exact
+`specs/<feature>/tasks.md#T-NNN` and that task's Scope, compute its raw SHA-256
+as `<prompt-sha256>`, use a fresh canonical UUID for `<session-id>` and a new
+output directory, and supply the current scoped policy request and registry, the
+explicit installed Claude executable and the existing verified configuration
+observation unchanged. The entry loads the complete original implement-task
+Skill and its seven fixed supporting sources into one fresh single-task context,
+which executes the Skill once as its orchestrator and status writer under
+normal native permissions. This parent only dispatches and receives: it does not
+implement the task or repeat the child's status, report or approval handling. A
+typed failure stops this handoff; do not retry through an unmanaged Skill or
+Agent call. On success continue the existing flow.
+
+```bash
+cd "<repository-root>" || exit 1
+python3 -B "<installed-root>/plugins/sdd-implementation/scripts/managed-model-entry.py" claude-entry \
+  --request "<policy-request>" --registry "<registry>" \
+  --role implementer --host claude-code --run-id "<run-id>" \
+  --session-id "<session-id>" --attempt "<attempt>" --output-dir "<output-dir>" \
+  --require-actual-id false --executable "<claude-executable>" \
+  --prompt-file "<prompt-file>" --prompt-sha256 "<prompt-sha256>"
+```
+
+For other hosts, invoke
+`/sdd-implementation:implement-task specs/<feature>/tasks.md#T-NNN` for each
+such task through their existing host entry. Lite track has no dependency
+graph; implement tasks in document order.
 
 ### Resume behaviour
 

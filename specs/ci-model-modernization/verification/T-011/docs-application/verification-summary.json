@@ -1,0 +1,40 @@
+{
+  "workflow_documentation": {
+    "exit_code": 0
+  },
+  "design_system_contract": {
+    "exit_code": 0,
+    "pass": 121,
+    "fail": 0
+  },
+  "repository_release_validation": {
+    "exit_code": 1,
+    "status": "BLOCKED_BEFORE_DOC_PARITY_CASES",
+    "diagnostic": "ci-model-modernization: stage-provenance: task plan hash is stale",
+    "preexisting_scope_fact": "Task plan is byte-identical to the admitted before-state; none of the seven document paths is consumed by the failing task-plan provenance comparison."
+  },
+  "existing_release_doc_assertion_slice": {
+    "exit_code": 0,
+    "source": "tests/validate-repository.ps1",
+    "extraction": "Exact block from $readmeLines through before $codexMarketplace. No full-validator PASS claim."
+  },
+  "doc_link_example_check": {
+    "exit_code": 0,
+    "relative_links": 8,
+    "managed_flags": 5,
+    "error_enum": 16
+  },
+  "diff_check": {
+    "exit_code": 0
+  },
+  "bump_version_gate": {
+    "status": "NOT_RUN",
+    "reason": "No version metadata changed; existing release-document assertions were applied."
+  },
+  "full_profiles": {
+    "status": "NOT_RUN",
+    "reason": "Bounded documentation application; no runtime source change."
+  },
+  "formal_quality_gate": "NOT_RUN",
+  "hosted_or_provider_calls": "NONE"
+}

@@ -1,0 +1,13 @@
+{
+  "report": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/implementation-report.md",
+  "report_sha256": "9a45b781190b01573bdf57ae4b39e1e5c53afad19f09b27cbbd536b26cf2f76f",
+  "output_pins": 110,
+  "actual_fresh_command_log_pairs": 18,
+  "reused_baseline_command_log_pairs": 9,
+  "current_policy_methods": 51,
+  "candidate_methods": 377,
+  "reused_baseline_methods": 326,
+  "nonowned_clone_paths_identical": 20102,
+  "all_checks": "PASS",
+  "recorded_at": "2026-10-19T21:50:47.564679+00:00"
+}

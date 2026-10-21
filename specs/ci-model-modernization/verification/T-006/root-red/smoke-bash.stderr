@@ -1,0 +1,17 @@
+test_wrapper_policy_smoke (__main__.PolicySelection.test_wrapper_policy_smoke) ... FAIL
+
+======================================================================
+FAIL: test_wrapper_policy_smoke (__main__.PolicySelection.test_wrapper_policy_smoke)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 686, in test_wrapper_policy_smoke
+    self.selected(self.invoke(backend), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=1)

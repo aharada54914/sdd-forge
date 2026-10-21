@@ -1,0 +1,107 @@
+.F......EE.....E.....................E..EFFF
+======================================================================
+ERROR: test_planner_is_registered_and_live_categories_are_inactive (__main__.CatalogTests.test_planner_is_registered_and_live_categories_are_inactive)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 185, in test_planner_is_registered_and_live_categories_are_inactive
+    catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification.py", line 82, in load_catalog
+    raise ValueError('unregistered test suites: ' + ', '.join(sorted(candidates - suites.keys())))
+ValueError: unregistered test suites: tests/model-identity.tests.py
+
+======================================================================
+ERROR: test_real_catalog_and_wrappers_list_exact_same_suites (__main__.CatalogTests.test_real_catalog_and_wrappers_list_exact_same_suites)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 201, in test_real_catalog_and_wrappers_list_exact_same_suites
+    catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification.py", line 82, in load_catalog
+    raise ValueError('unregistered test suites: ' + ', '.join(sorted(candidates - suites.keys())))
+ValueError: unregistered test suites: tests/model-identity.tests.py
+
+======================================================================
+ERROR: test_wrapper_actions_are_position_independent_and_shards_cover_profile (__main__.CatalogTests.test_wrapper_actions_are_position_independent_and_shards_cover_profile)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 166, in test_wrapper_actions_are_position_independent_and_shards_cover_profile
+    catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification.py", line 82, in load_catalog
+    raise ValueError('unregistered test suites: ' + ', '.join(sorted(candidates - suites.keys())))
+ValueError: unregistered test suites: tests/model-identity.tests.py
+
+======================================================================
+ERROR: test_T004_model_suite_registration_and_dependency (__main__.WorkflowIntegrationTests.test_T004_model_suite_registration_and_dependency)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 525, in test_T004_model_suite_registration_and_dependency
+    catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification.py", line 82, in load_catalog
+    raise ValueError('unregistered test suites: ' + ', '.join(sorted(candidates - suites.keys())))
+ValueError: unregistered test suites: tests/model-identity.tests.py
+
+======================================================================
+ERROR: test_T005_catalog_counterparts (__main__.WorkflowIntegrationTests.test_T005_catalog_counterparts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 784, in test_T005_catalog_counterparts
+    catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/verification.py", line 82, in load_catalog
+    raise ValueError('unregistered test suites: ' + ', '.join(sorted(candidates - suites.keys())))
+ValueError: unregistered test suites: tests/model-identity.tests.py
+
+======================================================================
+FAIL: test_cli_direct_suite_and_receipt_are_bound_to_selection (__main__.CatalogTests.test_cli_direct_suite_and_receipt_are_bound_to_selection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 158, in test_cli_direct_suite_and_receipt_are_bound_to_selection
+    self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+AssertionError: 2 != 0 : verification: invalid catalog, selection, timing input, or receipt destination
+
+
+======================================================================
+FAIL: test_T005_identity_registration_projects_away_from_historical_inventory (__main__.WorkflowIntegrationTests.test_T005_identity_registration_projects_away_from_historical_inventory)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 866, in test_T005_identity_registration_projects_away_from_historical_inventory
+    self.assertEqual(len(carriers), len(self.NATIVE_RUNNERS))
+AssertionError: 0 != 3
+
+======================================================================
+FAIL: test_T005_identity_suite_runs_once_on_each_native_os (__main__.WorkflowIntegrationTests.test_T005_identity_suite_runs_once_on_each_native_os)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 824, in test_T005_identity_suite_runs_once_on_each_native_os
+    self.assertEqual(self.suite_native_errors(obligations, self.IDENTITY_SUITE), [])
+AssertionError: Lists differ: ['expected exactly one obligation per native OS: []'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'expected exactly one obligation per native OS: []'
+
+- ['expected exactly one obligation per native OS: []']
++ []
+
+======================================================================
+FAIL: test_T005_native_coverage_mutations (__main__.WorkflowIntegrationTests.test_T005_native_coverage_mutations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/verification-catalog.tests.py", line 850, in test_T005_native_coverage_mutations
+    self.assertEqual(self.suite_native_errors(actual, self.IDENTITY_SUITE), [])
+AssertionError: Lists differ: ['expected exactly one obligation per native OS: []'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'expected exactly one obligation per native OS: []'
+
+- ['expected exactly one obligation per native OS: []']
++ []
+
+----------------------------------------------------------------------
+Ran 44 tests in 1.730s
+
+FAILED (failures=4, errors=5)

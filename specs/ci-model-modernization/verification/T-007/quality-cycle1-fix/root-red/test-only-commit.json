@@ -1,0 +1,18 @@
+{
+  "commit": "1c13219c1b0a263eccd9bea949d8a63ffc264ed7",
+  "changed_paths": [
+    "tests/model-policy-launch.tests.py"
+  ],
+  "test_methods": 53,
+  "prior49_and_entire_module_AST_preserved": true,
+  "actual_red": {
+    "methods": 4,
+    "assertion_failures": 9,
+    "errors": 0,
+    "skips": 0
+  },
+  "statics": [
+    "Ruff PASS",
+    "mypy PASS"
+  ]
+}

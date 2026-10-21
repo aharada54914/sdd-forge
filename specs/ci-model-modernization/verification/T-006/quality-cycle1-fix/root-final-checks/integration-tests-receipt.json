@@ -1,0 +1,27 @@
+{
+  "actual_command": {
+    "name": "contract-proof",
+    "argv": [
+      "python3",
+      "-B",
+      "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/contract-proof.py"
+    ],
+    "started_at": "2026-10-19T21:48:56.654602+00:00",
+    "elapsed_seconds": 5.555,
+    "exit_code": 0,
+    "stdout": {
+      "path": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/verification/contract-proof.stdout",
+      "sha256": "cab891c89bb34ba40b0395a4c3fdea2e9702ed2d1e361fd099d3d2a2fb6c5cb2"
+    },
+    "stderr": {
+      "path": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/verification/contract-proof.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "supporting_evidence": [
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/final-proof-summary.json",
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json"
+  ],
+  "finish_time_basis": "Derived from recorded wall start + measured elapsed, normalized to seconds; not independent sampled finish."
+}

@@ -1,0 +1,11 @@
+test_absent_skipped_wrong_revision_or_digest_never_completes (__main__.ImpactTests.test_absent_skipped_wrong_revision_or_digest_never_completes) ... ok
+test_complete_receipts_expose_missed_failure (__main__.ImpactTests.test_complete_receipts_expose_missed_failure) ... ok
+test_dirty_production_source_cannot_reuse_clean_receipt (__main__.ImpactTests.test_dirty_production_source_cannot_reuse_clean_receipt) ... ok
+test_git_renames_deletes_and_invalid_base (__main__.ImpactTests.test_git_renames_deletes_and_invalid_base) ... ok
+test_readme_hypothesis_requires_all_contract_suites (__main__.ImpactTests.test_readme_hypothesis_requires_all_contract_suites) ... ok
+test_unknown_sensitive_and_empty_changes_keep_full (__main__.ImpactTests.test_unknown_sensitive_and_empty_changes_keep_full) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.168s
+
+OK

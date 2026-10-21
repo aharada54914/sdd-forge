@@ -1,0 +1,29 @@
+{
+  "historical_admission": {
+    "path": "specs/ci-model-modernization/verification/T-007/root-fixture-final-inputs/task-input-manifest.json",
+    "sha256": "c18fcb223931f00b4d0ab4067b91d0892a08c4ad9546e5df91296cb2b9cc9c22"
+  },
+  "current_matching_tests": [
+    {
+      "path": "tests/fixed-review-inputs.tests.py",
+      "sha256": "83e3d383b3652531f7cf3be8e4b0ed09864e338fd2eb0cf82fab803b8a3bcb54"
+    },
+    {
+      "path": "tests/fixed-review-launch.tests.py",
+      "sha256": "314a068ab50c25754ffbd5b70c4b51e1c52070351f9015321b275fce80826e73"
+    },
+    {
+      "path": "tests/fixed-review-precheck-bash.tests.py",
+      "sha256": "7a1fd297aa78dc592f79f419f34fd727b1028aae3483275a4928b10b7d658c83"
+    },
+    {
+      "path": "tests/fixed-review-precheck-ps.tests.py",
+      "sha256": "90abc02403e2d90b42c6d85786e00aa2ff32d52fbf8e0493a82a907cd7f7895a"
+    },
+    {
+      "path": "tests/fixed-review-state.tests.py",
+      "sha256": "7d0877197faf2356c43a7d4f755253b881916f9635909fd58b7e5bf2d4497702"
+    }
+  ],
+  "scope": "These five unchanged test files match the previously admitted pre-stage3 source pins and the current252 admission. Original controller source maps omitted them; this is explicit unchanged-source proof, not a claim that old per-command receipts pinned them."
+}

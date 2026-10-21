@@ -1,0 +1,25 @@
+{
+  "selected_actual_command_receipt": {
+    "name": "build",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "-c",
+      "import ast, hashlib; from pathlib import Path\nfor name in ['plugins/sdd-implementation/scripts/model-policy.py', 'tests/model-observation.tests.py', 'tests/verification-catalog.tests.py']:\n raw=Path(name).read_bytes(); ast.parse(raw, filename=name); compile(raw, name, 'exec'); print(name, hashlib.sha256(raw).hexdigest(), 'parse/compile PASS')\n"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T19:02:15Z",
+    "finished_at": "2026-10-19T19:02:15Z",
+    "exit_code": 0,
+    "stdout_sha256": "4aa84fe9d185456f5465e8b4653551a93cfd4ffd63c30945f678ef315b7a5b08",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "full_scope_receipts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/results.json",
+      "sha256": "1a0310e7bba20c45041a27d1cbfc2866547eb01fea9637a7693bd11aa05a0c60",
+      "scope": "explicit final3-source AST/compile argv/UTCZ/hash/exit"
+    }
+  ],
+  "interpretation": "Selected command actually executed as recorded; all scope receipts separately hash-verified. Shared model50 execution is not multiplied. Regression selected command is one of the recorded final candidate family, whose complete245 tests passed via unchanged194 plus current51, with failed initial f05 static results explicitly excluded."
+}

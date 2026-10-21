@@ -1,0 +1,249 @@
+=== PP-001: Fail closed — no consent ===
+ok: PP-001a: no consent → non-zero exit (1)
+ok: PP-001b: no consent → output file NOT created
+ok: PP-001c: error message mentions consent
+=== PP-002: Consent via tasks.md flag + secret sanitization ===
+ok: PP-002a: consent present → exit 0
+ok: PP-002b: output file created
+ok: PP-002c: AWS_SECRET_ACCESS_KEY value stripped
+ok: PP-002d: OPENAI_API_KEY value stripped
+ok: PP-002e: AWS_ACCESS_KEY_ID value stripped
+ok: PP-002f: PRIVATE_TOKEN (GitHub PAT) value stripped
+ok: PP-002g: DB_PASSWORD value stripped
+ok: PP-002h: absolute Unix path /Users/... stripped
+ok: PP-002i: absolute Unix path /home/... stripped
+ok: PP-002j: private URL stripped
+ok: PP-002k: private IP URL stripped
+ok: PP-002l: normal content preserved
+=== PP-003: input_digest deterministic and 64-hex ===
+ok: PP-003a: input_digest is 64-hex: 7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b
+=== PP-004: Digest is deterministic (same input → same digest) ===
+ok: PP-004: same input → same digest (7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b)
+=== PP-005: Default output path ===
+ok: PP-005: default output path created at verification/T-004.panelist-input.txt
+=== PP-006: Required args validation ===
+ok: PP-006a: missing --task → non-zero exit
+ok: PP-006b: missing --feature → non-zero exit
+=== PP-007: SDD_SUDO consent path ===
+ok: PP-007: SDD_SUDO (skip-sig test mode) grants consent → exit 0
+=== PP-008/009/010: SDD_SUDO real-HMAC verification (issue #108) ===
+ok: PP-008a: TEST-001 HMAC operands use quoted-heredoc environment data
+ok: PP-008: correctly signed SDD_SUDO grants consent → exit 0
+ok: PP-009: tampered SDD_SUDO signature is rejected → consent denied
+ok: PP-010: adversarial issuer field did not execute code (no RCE)
+ok: PP-010: adversarial token is denied (invalid signature)
+ok: PP-010: backslash/newline HMAC key remains inert data
+ok: PP-010: triple-quote HMAC key cannot execute or create a bundle
+ok: PP-011: correctly signed invalid nonce is denied
+ok: PP-012: correctly signed expired TTL is denied
+ok: PP-012: correctly signed overlong TTL is denied
+ok: PP-013: correctly signed wrong repository is denied
+ok: PP-014a: home-key fallback verifies when no key file is named (control)
+ok: PP-014b: named-but-missing SDD_SUDO_KEY_FILE fails closed (no home-key fallback)
+=== TEST-013: task's own verification/<task_id>/ recursed; --input directory NOT walked (AC-013) ===
+ok: TEST-013a: recursive collection succeeds (exit 0)
+ok: TEST-013b: task's own verification/<task_id>/sub/ content included in bundle (recursion)
+ok: TEST-013c: content planted only under --input is NOT in the bundle (no whole-directory walk of --input)
+=== TEST-014: completeness positive baseline (AC-014) ===
+ok: TEST-014a: complete declared-outputs bundle → exit 0
+ok: TEST-014b: digest printed on completeness success
+=== TEST-015: missing declared output → fail closed (AC-015) ===
+ok: TEST-015a: missing declared output → nonzero exit
+ok: TEST-015b: gap (missing path) printed to stderr
+ok: TEST-015c: no digest line printed on completeness gap
+ok: TEST-015d: bundle file not written on completeness gap
+=== TEST-016: hash-mismatch declared output → fail closed (AC-016) ===
+ok: TEST-016a: hash-mismatch declared output → nonzero exit
+ok: TEST-016b: gap (hash mismatch) printed to stderr
+ok: TEST-016c: no digest line printed on hash-mismatch gap
+=== TEST-017: subdirectory declared output located + verified (AC-017) ===
+ok: TEST-017a: subdirectory declared output found + hash-verified → exit 0
+ok: TEST-017b: digest printed (completeness passed for subdirectory path)
+ok: TEST-017c: nested artifact content collected into bundle (recursion)
+=== TEST-032: path-traversal declared output → fail closed (AC-032, B1) ===
+ok: TEST-032a: path-traversal declared output → nonzero exit
+ok: TEST-032b: out-of-root violation reported on stderr
+ok: TEST-032c: no digest line printed on path-traversal gap
+ok: TEST-032d: sentinel content does not appear anywhere in stdout/stderr
+ok: TEST-032e: bundle file not written on path-traversal gap
+=== TEST-033: project-root-relative declared output resolves via fallback ===
+ok: TEST-033a: project-root-relative row not present under --input resolves via fallback → exit 0
+ok: TEST-033b: digest printed on project-root fallback success
+=== TEST-035: declared output missing under both roots → fail closed ===
+ok: TEST-035a: missing under both roots → nonzero exit
+ok: TEST-035b: unchanged 'missing from bundle' message text
+ok: TEST-035c: no digest line printed
+ok: TEST-035d: bundle file not written
+=== TEST-036: hash-mismatch on project-root-fallback row → fail closed ===
+ok: TEST-036a: hash-mismatch on project-root fallback row → nonzero exit
+ok: TEST-036b: unchanged 'hash mismatch' message text
+ok: TEST-036c: bundle file not written on project-root-fallback hash mismatch
+=== TEST-037: symlink-escape under --input root → fail closed (containment) ===
+ok: TEST-037a: symlink escape under --input → nonzero exit
+ok: TEST-037b: no digest line printed
+ok: TEST-037c: sentinel content does not appear in output
+ok: TEST-037d: bundle file not written
+=== TEST-038: symlink-escape under --project-root fallback → fail closed ===
+ok: TEST-038a: symlink escape under --project-root fallback → nonzero exit
+ok: TEST-038b: no digest line printed
+ok: TEST-038c: sentinel content does not appear in output
+ok: TEST-038d: bundle file not written
+=== TEST-039: worktree-drifted row verified at declaration commit ===
+ok: TEST-039a: drifted-but-verified-at-declaration-commit row → exit 0
+ok: TEST-039b: digest printed
+ok: TEST-039c: distinct drift notice printed, naming shared.txt
+=== TEST-040: undrifted project-root row → exit 0, NO drift notice ===
+ok: TEST-040a: undrifted row → exit 0
+ok: TEST-040b: no drift notice printed for a row that matched the worktree
+=== TEST-041: row mismatched at both worktree and declaration commit → fail closed ===
+ok: TEST-041a: mismatched at both worktree and declaration commit → nonzero exit
+ok: TEST-041b: unchanged 'hash mismatch' message text
+ok: TEST-041c: no drift notice printed (declaration commit did not verify either)
+ok: TEST-041d: bundle file not written
+=== TEST-042: row absent under both roots and at declaration commit → fail closed ===
+ok: TEST-042a: absent under both roots and at declaration commit → nonzero exit
+ok: TEST-042b: unchanged 'missing from bundle' message text
+ok: TEST-042c: bundle file not written
+=== TEST-043: uncommitted implementation report → declaration-commit fallback inert ===
+ok: TEST-043a: uncommitted report → nonzero exit (no invented pass)
+ok: TEST-043b: unchanged 'hash mismatch' message text
+ok: TEST-043c: no drift notice printed (report has no declaration commit)
+=== TEST-044: symlink-escape under --project-root not bypassed by declaration-commit fallback ===
+ok: TEST-044a: symlink escape → nonzero exit even though declaration-commit content would match
+ok: TEST-044b: declaration-commit fallback never attempted (no notice) — containment gates first
+ok: TEST-044c: sentinel content does not appear in output
+ok: TEST-044d: bundle file not written
+=== TEST-045: cross-task isolation — T-001 bundle excludes T-002's evidence ===
+ok: TEST-045a: exit 0
+ok: TEST-045b: T-001's own evidence present in T-001's bundle
+ok: TEST-045c: T-002's evidence is NOT in T-001's bundle (cross-task isolation)
+=== TEST-046: Outputs-declared source file content appears in bundle ===
+ok: TEST-046a: exit 0
+ok: TEST-046b: declared output's current content is in the bundle
+=== TEST-047: panel's own artifacts excluded from the task-scoped bundle ===
+ok: TEST-047a: exit 0
+ok: TEST-047b: legitimate evidence still included
+ok: TEST-047c: sibling panel artifacts (verification/T-004.*) excluded
+ok: TEST-047d: stray panel artifact inside verification/T-004/ excluded
+=== TEST-048: spec documents all present in the bundle ===
+ok: TEST-048a: exit 0
+ok: TEST-048b: every spec document is present in the bundle
+ok: TEST-048c: tasks.md itself is present in the bundle
+=== TEST-049: --max-bytes exceeded → fail closed, no truncated bundle written ===
+ok: TEST-049a: over --max-bytes → nonzero exit
+ok: TEST-049b: overage announced on stderr (mentions --max-bytes)
+ok: TEST-049c: bundle file NOT written (fail closed, never truncated)
+ok: TEST-049d: no digest line printed on a size-guard failure
+=== TEST-050: --max-bytes generous → guard does not block a normal bundle ===
+ok: TEST-050a: exit 0 under a generous --max-bytes
+ok: TEST-050b: bundle written normally with content intact
+ok: TEST-050c: digest printed normally
+=== TEST-051: bundle under --max-bytes stays whole, regardless of one file's absolute size ===
+ok: TEST-051a: exit 0
+ok: TEST-051b: the file is present whole (first, middle, and last lines all intact)
+ok: TEST-051c: no elision marker anywhere in a bundle that never needed one
+=== TEST-052/053: over-cap bundle elides the largest file only, leaves a smaller one whole ===
+ok: TEST-052a: exit 0 (eliding the largest file alone let the bundle fit)
+ok: TEST-052b: elision marker present on the largest file with the exact independently-computed byte count
+ok: TEST-052c: exactly one elision marker — the smaller file was never a candidate that needed cutting
+ok: TEST-053a: elided bundle still contains the largest file's first line
+ok: TEST-053b: elided bundle still contains the largest file's last line
+ok: TEST-053c: a middle-only line of the largest file is genuinely dropped
+ok: TEST-053d: the smaller file is left completely whole (it was never the file that needed cutting)
+=== TEST-054: spec documents and Outputs-declared source files are never elided ===
+ok: TEST-054a: exit 0
+ok: TEST-054b: spec document (requirements.md, 63000B > 50000B threshold) present whole, including a middle line
+ok: TEST-054c: Outputs-declared source file (63000B > 50000B threshold) present whole, including a middle line
+ok: TEST-054d: no elision marker anywhere in a bundle whose only oversized files are scoped out
+=== TEST-055: still over --max-bytes after exhausting every elidable candidate → fail closed ===
+ok: TEST-055a: over --max-bytes even after exhausting the elidable set → nonzero exit
+ok: TEST-055b: overage announced on stderr (mentions --max-bytes)
+ok: TEST-055c: bundle file NOT written (fail closed, elision is not a truncation loophole)
+ok: TEST-055d: no digest line printed on a size-guard failure
+=== TEST-056: same bundle, larger --max-bytes → comes back whole ===
+ok: TEST-056a: exit 0 under a generous --max-bytes
+ok: TEST-056b: no elision marker anywhere once the bundle fits without cutting anything
+ok: TEST-056c: the larger file's middle line is present — the same file TEST-052/053 elides at a tighter cap comes back whole here
+=== TEST-057: contract-declared evidence outside verification/<task_id>/ appears in bundle ===
+ok: TEST-057a: exit 0
+ok: TEST-057b: contract-declared evidence content is in the bundle
+ok: TEST-057c: the path header names the file, so a reviewer can tell which evidence it is
+=== TEST-058: red_evidence and green_evidence are also picked up ===
+ok: TEST-058a: exit 0
+ok: TEST-058b: red_evidence content is in the bundle
+ok: TEST-058c: green_evidence content is in the bundle
+=== TEST-059: contract-declared evidence already included elsewhere is not duplicated ===
+ok: TEST-059a: exit 0
+ok: TEST-059b: directory-walk file re-declared by the contract appears exactly once
+ok: TEST-059c: Outputs-declared file re-declared by the contract appears exactly once
+=== TEST-060: empty contract evidence fields produce no output and no error ===
+ok: TEST-060a: exit 0
+ok: TEST-060b: no contract-declared-evidence section appears when every field is empty
+ok: TEST-060c: normal digest line still printed — empty fields are not an error
+=== TEST-061: declared-but-missing contract evidence path → noted, not silently dropped ===
+ok: TEST-061a: exit 0 (a dangling contract reference does not fail the whole run)
+ok: TEST-061b: the bundle names the missing path
+ok: TEST-061c: the note states plainly that no file exists
+=== TEST-062: large contract-declared evidence file is elided under a tight --max-bytes ===
+ok: TEST-062a: exit 0 (eliding the contract-declared file alone let the bundle fit)
+ok: TEST-062b: elision marker present on the contract-declared file with the exact independently-computed byte count
+ok: TEST-062c: elided bundle keeps first/last lines and genuinely drops a middle line
+=== TEST-063/064: drifted row serves CURRENT bytes + in-bundle stale notice ===
+ok: TEST-063a: drifted row still exits 0
+ok: TEST-063b: bundle carries the CURRENT worktree bytes (v2 marker present)
+ok: TEST-063c: bundle does NOT carry the declaration-commit (historical) bytes
+ok: TEST-064a: in-bundle notice names shared.txt and states the report's declared hash is stale (found in the bundle FILE, not only stderr)
+=== TEST-065: undrifted row → bundle carries content, NO stale notice ===
+ok: TEST-065a: matching-hash row still carries its content
+ok: TEST-065b: no stale-declaration notice for a row whose hash already matched
+=== TEST-066: declared row deleted from worktree → notice only, no historical content ===
+ok: TEST-066a: row deleted from the worktree but true at declaration commit → gate unchanged, exit 0
+ok: TEST-066b: bundle does NOT carry the deleted file's historical bytes
+ok: TEST-066c: bundle names deleted.txt and states its declaration is stale/missing
+=== TEST-067: annotated row (no embedded backticks) is parsed and its content included ===
+ok: TEST-067a: exit 0
+ok: TEST-067b: annotated row's content made it into the bundle
+=== TEST-068: annotated row whose annotation embeds its own backtick-quoted commit hash is parsed and its content included ===
+ok: TEST-068a: exit 0 (real epic-193 T-004 row shape: an embedded backtick pair inside the annotation)
+ok: TEST-068b: the row's content made it into the bundle despite the embedded backtick pair
+=== TEST-069: a candidate row that fails to parse fails the build, naming the exact line ===
+ok: TEST-069a: unparseable candidate row → nonzero exit
+ok: TEST-069b: bundle file NOT written — the row is never silently skipped into an incomplete bundle
+ok: TEST-069c: the failure names the exact offending line, not a generic message
+=== TEST-070: a table of ordinary plain rows (no annotation) behaves exactly as before ===
+ok: TEST-070a: a table of plain (unannotated) rows still resolves both rows into the bundle, unchanged
+=== TEST-071: a bundle that fits without tier two carries every declared output whole, no marker anywhere ===
+ok: TEST-071a: both the tier-one evidence file and the declared output are present whole
+ok: TEST-071b: no elision marker anywhere — this bundle is byte-for-byte what it would be with no elision logic at all
+=== TEST-072: over-cap bundle where tier-one elision alone suffices → tier two is never touched ===
+ok: TEST-072a: exit 0 (eliding the tier-one file alone let the bundle fit)
+ok: TEST-072b: exactly one elision marker, on the tier-one file
+ok: TEST-072c: the declared output is left completely whole — tier two was never touched
+=== TEST-073: over-cap bundle where tier one is exhausted → tier two elides the largest declared output only ===
+ok: TEST-073a: exit 0 (eliding the largest declared output alone let the bundle fit)
+ok: TEST-073b: exactly one elision marker, on the largest declared output
+ok: TEST-073c: the smaller declared output is left completely whole
+=== TEST-074 (order-sensitive): tier one is attempted to exhaustion BEFORE tier two, even when tier two's own single candidate is far larger ===
+ok: TEST-074a: exit 0
+ok: TEST-074b: exactly two elision markers — tier one's own candidate was cut even though tier two alone would have sufficed
+ok: TEST-074c: both markers name the expected files
+ok: TEST-074d: tier one's own (small) candidate genuinely lost a middle line — it was not skipped just because tier two alone would fit
+=== TEST-075: both tiers exhausted and still over --max-bytes → fail closed, unchanged ===
+ok: TEST-075a: over --max-bytes even after exhausting BOTH tiers → nonzero exit
+ok: TEST-075b: bundle file NOT written — exhausting both tiers is never a truncation loophole
+ok: TEST-075c: the failure names how many candidates each tier contributed, not just an aggregate count
+=== TEST-076: a declared output that is BOTH stale and elided carries both notices, without either clobbering the other ===
+ok: TEST-076a: exit 0
+ok: TEST-076b: the stale-hash header notice is present
+ok: TEST-076c: the elision marker is ALSO present — the stale notice did not suppress eliding an oversized row
+ok: TEST-076d: the head/tail shown is the CURRENT (v2) content — never the historical declaration-commit bytes
+=== TEST-077: annotation sitting between the path cell and the column separator is parsed and its content included ===
+ok: TEST-077a: exit 0 (real epic-195 T-005 row shape: annotation between the path cell and the column separator)
+ok: TEST-077b: the row's content made it into the bundle despite the path-cell annotation
+ok: PP-078: domain canonical concepts, v2 contract and aggregates are bundled
+ok: PP-079: noncanonical files excluded and embedded shell text remains data
+ok: PP-080: domain canonical evidence is never elided to fit the budget
+ok: PP-081: missing domain concept record cannot produce a success bundle
+ok: PP-082: symlinked domain concept record is rejected
+
+Results: 191 passed, 0 failed

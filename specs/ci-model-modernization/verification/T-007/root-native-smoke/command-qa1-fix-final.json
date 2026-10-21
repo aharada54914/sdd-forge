@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/root-native-smoke/capture-v4-qa1-fix.py"
+  ],
+  "started_at": "2026-10-20T01:59:44.550145+00:00",
+  "finished_at": "2026-10-20T01:59:45.717294+00:00",
+  "elapsed_seconds": 1.1671538410009816,
+  "exit_code": 0,
+  "timed_out": false,
+  "controller_sha256": "13b5f8faeaa6b03f8ea87e61751e81129723e3ed906e376c52269002bee0ee3e",
+  "driver_sha256": "6d8b357159ebbbdc16bdca9c75717dc6d05b8d9d40318e6a449547c0e3eba4a3",
+  "logs": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/native-qa1-fix-final.stdout.log",
+      "sha256": "6fb846e443b52d1ee139b38c462b01447a20e761ca3b8292b6e2302a79d88796"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/native-qa1-fix-final.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

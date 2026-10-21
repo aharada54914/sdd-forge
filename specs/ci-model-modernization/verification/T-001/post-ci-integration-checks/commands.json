@@ -1,0 +1,140 @@
+[
+  {
+    "id": "risk",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/ci-model-modernization/tasks.md T-001",
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:55:55Z",
+    "finished_at": "2026-10-19T15:55:55Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/risk.log"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-impact.py",
+      "tests/verification-workflow.py",
+      "tests/verification-ci-plan.tests.py",
+      "tests/verification-catalog.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:55:55Z",
+    "finished_at": "2026-10-19T15:55:55Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/lint.log"
+  },
+  {
+    "id": "typecheck",
+    "command": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-impact.py",
+      "tests/verification-workflow.py",
+      "tests/verification-ci-plan.tests.py",
+      "tests/verification-catalog.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:55:55Z",
+    "finished_at": "2026-10-19T15:55:55Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/typecheck.log"
+  },
+  {
+    "id": "build",
+    "command": [
+      "python3",
+      "-m",
+      "py_compile",
+      "tests/verification-impact.py",
+      "tests/verification-workflow.py",
+      "tests/verification-ci-plan.tests.py",
+      "tests/verification-catalog.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:55:55Z",
+    "finished_at": "2026-10-19T15:55:55Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/build.log"
+  },
+  {
+    "id": "unit-tests",
+    "command": [
+      "python3",
+      "-B",
+      "tests/verification-ci-plan.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:55:55Z",
+    "finished_at": "2026-10-19T15:56:18Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/unit-tests.log"
+  },
+  {
+    "id": "regression",
+    "command": [
+      "python3",
+      "-B",
+      "-c",
+      "import subprocess; [subprocess.run(['python3','-B',p],check=True) for p in ['tests/verification-impact.tests.py','tests/verification-catalog.tests.py','tests/required-checks-posix.tests.py','tests/verification-ci.tests.py']]"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:55:55Z",
+    "finished_at": "2026-10-19T15:56:48Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/regression.log"
+  },
+  {
+    "id": "placeholder-scan",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "tests/verification-impact.py",
+      "tests/verification-workflow.py",
+      "contracts/verification-ci-plan.schema.json"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:55:55Z",
+    "finished_at": "2026-10-19T15:55:55Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/placeholder-scan.log"
+  },
+  {
+    "id": "task-state-check",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:55:55Z",
+    "finished_at": "2026-10-19T15:55:55Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/task-state-check.log"
+  },
+  {
+    "id": "workflow-state",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:55:55Z",
+    "finished_at": "2026-10-19T15:56:36Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/workflow-state.log"
+  },
+  {
+    "id": "requirement-traceability",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "specs/ci-model-modernization/traceability.json",
+      "/workspace/sdd-forge",
+      "require-evidence"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:56:18Z",
+    "finished_at": "2026-10-19T15:56:18Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/requirement-traceability.log"
+  },
+  {
+    "id": "check-component-coverage",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:56:18Z",
+    "finished_at": "2026-10-19T15:56:18Z",
+    "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/check-component-coverage.log"
+  }
+]

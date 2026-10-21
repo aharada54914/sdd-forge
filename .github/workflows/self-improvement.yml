@@ -107,6 +107,58 @@ jobs:
             > "$RUNNER_TEMP/pre_session_pr_refs.txt" \
             || : > "$RUNNER_TEMP/pre_session_pr_refs.txt"
 
+      # Same native version/install operation as the pinned action. A custom SDK executable
+      # skips its installer, so retain it here before preparing the managed boundary.
+      - name: Install native Claude for managed action
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            if curl -fsSL https://claude.ai/install.sh | bash -s -- 2.1.296; then break; fi
+            [ "$attempt" -lt 3 ] || exit 1
+            sleep 5
+          done
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          echo "CLAUDE_NATIVE_EXECUTABLE=$(readlink -f "$HOME/.local/bin/claude")" >> "$GITHUB_ENV"
+
+      # Supply a fresh existing request/observation via nonsecret repository variables.
+      # Missing or stale evidence fails closed; this workflow does not produce availability.
+      - name: Prepare managed self-improvement session
+        id: managed_self_improvement
+        shell: bash
+        env:
+          SDD_MANAGED_ENTRY: ${{ github.workspace }}/plugins/sdd-implementation/scripts/managed-model-entry.py
+          SDD_SELF_IMPROVEMENT_REQUEST: ${{ vars.SDD_SELF_IMPROVEMENT_REQUEST }}
+          SDD_SELF_IMPROVEMENT_REGISTRY: ${{ vars.SDD_SELF_IMPROVEMENT_REGISTRY || 'contracts/agent-model-capabilities.v2.json' }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import uuid
+
+          session = str(uuid.uuid4())
+          output = '.sdd-self-improvement/' + session
+          Path('.sdd-self-improvement').mkdir(exist_ok=True)
+          command = [sys.executable, '-I', '-B', os.environ['SDD_MANAGED_ENTRY'], 'claude-action-prepare',
+                     '--request', os.environ.get('SDD_SELF_IMPROVEMENT_REQUEST', ''),
+                     '--registry', os.environ['SDD_SELF_IMPROVEMENT_REGISTRY'],
+                     '--role', 'self-improvement', '--host', 'claude-code',
+                     '--run-id', os.environ['GITHUB_RUN_ID'], '--session-id', session,
+                     '--attempt', os.environ['GITHUB_RUN_ATTEMPT'], '--output-dir', output,
+                     '--require-actual-id', 'false', '--executable', os.environ['CLAUDE_NATIVE_EXECUTABLE']]
+          result = subprocess.run(command, stdout=subprocess.PIPE, check=False)
+          if result.returncode:
+              raise SystemExit(result.returncode)
+          selected = json.loads(result.stdout)['selection']['resolved']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
+              for name, value in dict(executable=str(Path(output, 'claude-sdk-entry').resolve()),
+                                      model=selected['native_id'], effort=selected['effort'],
+                                      session_id=session, output_dir=output).items():
+                  print(name + '=' + value, file=stream)
+          PY
+
       - name: Run Claude self-improvement session
         id: claude_session
         # Pinned to a commit SHA (H-04). Bump periodically (or via Dependabot)
@@ -118,6 +170,7 @@ jobs:
           # セッション内の gh CLI も PAT を使う(issue #173 remedy (b))。
           GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}
         with:
+          path_to_claude_code_executable: ${{ steps.managed_self_improvement.outputs.executable }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # GitHub App トークン交換(第二の OIDC 経路)をスキップするためトークンを
           # 明示。id-token: write 不要の設計を成立させる要(permissions ブロックの
@@ -130,7 +183,9 @@ jobs:
             このリポジトリの .github/self-improvement-prompt.md を読み、
             そこに書かれた手順と制約に厳密に従って週次セルフ改善を実行してください。
           claude_args: |
-            --model claude-sonnet-5
+            --model ${{ steps.managed_self_improvement.outputs.model }}
+            --effort ${{ steps.managed_self_improvement.outputs.effort }}
+            --session-id ${{ steps.managed_self_improvement.outputs.session_id }}
             --allowedTools "Bash,Read,Write,Edit,MultiEdit,Glob,Grep,WebFetch,TodoWrite"
             --max-turns 75
 

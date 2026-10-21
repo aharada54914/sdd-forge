@@ -1,0 +1,260 @@
+{
+  "status": "PASS",
+  "source_v2_result": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/results.json",
+  "source_v3_result": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/whole-rollback-current-3/results.json",
+  "copied_v2_result": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/whole-rollback-v2/results.json",
+  "copied_v3_result": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/whole-rollback-v3/results.json",
+  "v2_result_sha256": "887f35ed329ec6c4ff21388758331929347783a2d68a3518f34204ea4c2ab38a",
+  "v3_result_sha256": "3c5077f4e0449ca127529949492d00330392f81d9f83cdfbe23778f644251c67",
+  "root_aggregate": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/root-rollback-aggregate.json",
+  "root_aggregate_sha256": "53183d75ef80c48ff0fb66e5eb52f90cbeca9a7cf1ed5085f763e680b05ea6f2",
+  "baseline_suite_count": 20,
+  "execution_split": {
+    "v2_actual_passed": 19,
+    "v2_catalog_failure_retained": true,
+    "v3_affected_catalog_passed": 1,
+    "single_latest_invocation_of_all20": false
+  },
+  "existing_restore_source_admission_T009_invariants_true_in_both_runs": true,
+  "owned_code_test_endpoints_equal_across_runs": true,
+  "scope": "Actual full T008 product rollback and exact restore in both runs. Nineteen unaffected suites actually pass in v2; only catalog44 is rerun and passes in scoped v3 after the real missing T003 history fixture/aliases are supplied. Original v1/v2 failures remain retained, never relabelled. All twenty baseline suites pass across these scoped executions, not one latest invocation. Fixture repair does not change product/test endpoints. No hosted/backend/adoption/QA proof.",
+  "commands": [
+    {
+      "label": "render-agent-frontmatter.tests.sh",
+      "argv": [
+        "/usr/bin/bash",
+        "tests/render-agent-frontmatter.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "0007afffe6aaa6121b07683e5c8650513976ab605de0108729899fc25b82cdc4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "render-agent-frontmatter.tests.ps1",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/render-agent-frontmatter.tests.ps1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "31d39fbde4402758feed1ebfa43d7562aae678fd4abcee571b08e28e2b8b9df4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "install.tests.sh",
+      "argv": [
+        "/usr/bin/bash",
+        "tests/install.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "baf5105d5b33d717896410824bc7e521c66035b8a67425da8130e147bc1e64a1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "install.tests.ps1",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/install.tests.ps1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "d619cfcd6fcba763b959a21a82e8d6f04a556190e10535e2db462c9290c79c0c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "model-policy-launch.tests.py",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy-launch.tests.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6e3413b77e25c0e5ba43acb1553a810b9eaf7938d56607613555e16e8489dc80",
+      "executed_in": "v2"
+    },
+    {
+      "label": "model-policy-launch-platform.tests.py",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy-launch-platform.tests.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "8915574b0cb4d25c5a9275567f48ea25724fbb1a0548af7b14ffb0e27ceb1ad3",
+      "executed_in": "v2"
+    },
+    {
+      "label": "model-policy.tests.py",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy.tests.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b8c4324fd0f8c11ec2867781238e447ab427fa478d2314fe32646186cf90799f",
+      "executed_in": "v2"
+    },
+    {
+      "label": "agent-model-routing.tests.sh",
+      "argv": [
+        "/usr/bin/bash",
+        "tests/agent-model-routing.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "19d1f866a143b342d3467e95e0ac60b1bee77853362c40b3569ee151078a521d",
+      "stderr_sha256": "c985fbf403d48c87765c3774a99c74d3675b5efb2a3189bfe23d205a350a8f24",
+      "executed_in": "v2"
+    },
+    {
+      "label": "agent-model-routing.tests.ps1",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/agent-model-routing.tests.ps1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "3bcfa38413e7a45810b7e1f338650cd53d13ca2b405fd8379cbd1dd7a3032037",
+      "stderr_sha256": "350ad7d29c3e338f134beb0c9e8443c31da90db3072cb26b6663d59d8b9e8ea9",
+      "executed_in": "v2"
+    },
+    {
+      "label": "emit-run-record-feature-scope.tests.sh",
+      "argv": [
+        "/usr/bin/bash",
+        "tests/emit-run-record-feature-scope.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "801481e1d4c63aad5302f4e1b86f62afbede8f77e8ca3c1445e208452e0b6ad6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "emit-run-record-feature-scope.tests.ps1",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/emit-run-record-feature-scope.tests.ps1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "3423d8c942802bd6d84e41d6b0ad077be604e10d29ab48300fa03ae15c5832e6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "cross-model.tests.sh",
+      "argv": [
+        "/usr/bin/bash",
+        "tests/cross-model.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "6212cd41e361618597d83d681d3594328727470b63976ef9b36b674b94893822",
+      "stderr_sha256": "8585071d89196900e6af310f849b4d4ae5b90757646d03ff0b9c078109563259",
+      "executed_in": "v2"
+    },
+    {
+      "label": "cross-model.tests.ps1",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/cross-model.tests.ps1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "01df2d156090f38d76fcaceec735c836ed407db49afb093f8c34bb6736b98a2d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "spec-review-loop.tests.sh",
+      "argv": [
+        "/usr/bin/bash",
+        "tests/spec-review-loop.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "19744fb30b2818b507058d743c9aa3c265fee7f42661bbf0eead7013667ccf9f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "quality-nontty-transport.tests.py",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "171b1098e3156007a68d07db9f483d19fa7535a93d4c322751f2fa0ad563fc0a",
+      "executed_in": "v2"
+    },
+    {
+      "label": "quality-gate-cycle-limit.tests.sh",
+      "argv": [
+        "/usr/bin/bash",
+        "tests/quality-gate-cycle-limit.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "3cf2fe2996e24244274e4e7918224d275bec62e0ecec72268c0f4dc70469744d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "self-improvement-guard.tests.sh",
+      "argv": [
+        "/usr/bin/bash",
+        "tests/self-improvement-guard.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "44153f319d296ee2dc4fc9362d8366bf5560cd0c1b5943dfd99209325d5bf063",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "model-freshness-check.tests.sh",
+      "argv": [
+        "/usr/bin/bash",
+        "tests/model-freshness-check.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "c062b6d02dfb1cdb0ea5b9a3ad5fdccf0b3966237301f5a11f68669a5135bd4e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "model-freshness-check.tests.ps1",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/model-freshness-check.tests.ps1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "1525b54747616cfac3f0d54f70ed4282f7c4ff9bf21130d3338bbed9a87031b7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "executed_in": "v2"
+    },
+    {
+      "label": "verification-catalog.tests.py",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "007cae7f7ad90ae93f527a1c1f3bf108b271132a8ca1fcebb99fff17050f8552",
+      "stderr_sha256": "fdd041fb7060732edb0435fe6943a96a2cc0ec156267e7c485b6a1b88e08f9b2",
+      "executed_in": "v3"
+    }
+  ]
+}

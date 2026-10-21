@@ -1,0 +1,172 @@
+{
+  "at": "2026-10-20T14:29:45.874190+00:00",
+  "original_inventory_sha256": "8eaea7113340c65e6b7aa7fc21ea4128f2e720b126e1bf920481bd5112489762",
+  "source_rows_revalidated": 18,
+  "complete_inventory_rows_preserved": 65,
+  "indirect_entries_preserved": 17,
+  "scope": "Raw-byte revalidation of previously admitted semantic dispositions; no automatic closure of runtime consumers. Source classification came from the original saved inventory; no new lexical-only inference.",
+  "rows": [
+    {
+      "index": 3,
+      "path": ".github/scripts/check-model-freshness.sh",
+      "sha256": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+      "category": "separate-maintenance",
+      "unchanged_original_disposition": "T009 fetch/notification maintenance, not managed model launch. Retain exact ownership and no T008 runtime-completion claim.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T009"
+    },
+    {
+      "index": 4,
+      "path": ".github/workflows/model-freshness-check.yml",
+      "sha256": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+      "category": "separate-maintenance",
+      "unchanged_original_disposition": "T009 fetch/notification maintenance, not managed model launch. Retain exact ownership and no T008 runtime-completion claim.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T009"
+    },
+    {
+      "index": 6,
+      "path": ".github/workflows/test.yml",
+      "sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+      "category": "separate-ci",
+      "unchanged_original_disposition": "T003/T011 deterministic CI routing; preserve current workflow; no inference selection here.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T003/T011"
+    },
+    {
+      "index": 9,
+      "path": "contracts/agent-model-capabilities.v2.md",
+      "sha256": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+      "category": "documentation-or-history",
+      "unchanged_original_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 retention / T011 current guidance"
+    },
+    {
+      "index": 10,
+      "path": "contracts/rollback-1.5.0.json",
+      "sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197",
+      "category": "documentation-or-history",
+      "unchanged_original_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 retention / T011 current guidance"
+    },
+    {
+      "index": 11,
+      "path": "docs/agent-capability-matrix.md",
+      "sha256": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+      "category": "documentation-or-history",
+      "unchanged_original_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 retention / T011 current guidance"
+    },
+    {
+      "index": 12,
+      "path": "docs/ci-staging/test-yml-combined-candidate.yml",
+      "sha256": "88617ccf22f095126555cbe94c07e05b8a15f2db15e8805c21c8c85e9bc5685c",
+      "category": "documentation-or-history",
+      "unchanged_original_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 retention / T011 current guidance"
+    },
+    {
+      "index": 13,
+      "path": "docs/skill-reference.md",
+      "sha256": "121e122e63079d02262412d08b73a78231bfa28827438d33bf87058b5bce43ed",
+      "category": "documentation-or-history",
+      "unchanged_original_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 retention / T011 current guidance"
+    },
+    {
+      "index": 14,
+      "path": "docs/workflow-improvements/WFI-005.md",
+      "sha256": "f4c78efc4c4b4697c8eea2e543d090e7c1ef1ddf941ebebf5b375bb4a9f4bb1f",
+      "category": "documentation-or-history",
+      "unchanged_original_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 retention / T011 current guidance"
+    },
+    {
+      "index": 15,
+      "path": "docs/workflow-improvements/WFI-006.md",
+      "sha256": "80bd9ed76c8c19dd24fd39b8e7f84987f8391583e034c1cf3ca11ef870602951",
+      "category": "documentation-or-history",
+      "unchanged_original_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 retention / T011 current guidance"
+    },
+    {
+      "index": 16,
+      "path": "docs/workflow-improvements/WFI-040.md",
+      "sha256": "8e1565f4226fb41d033de0b80be4522c93b3b6e0e87a0e0f98308edbd29f6ddc",
+      "category": "documentation-or-history",
+      "unchanged_original_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 retention / T011 current guidance"
+    },
+    {
+      "index": 30,
+      "path": "plugins/sdd-quality-loop/references/cross-model-verification-policy.md",
+      "sha256": "0a27c8cea42ae1b5c9bb8e58a5d7d3ea1bc43032453eea8233a563c839bc6e69",
+      "category": "retained-policy-or-indirect",
+      "unchanged_original_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 guard/consent/downstream caller preservation"
+    },
+    {
+      "index": 31,
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+      "category": "retained-policy-or-indirect",
+      "unchanged_original_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 guard/consent/downstream caller preservation"
+    },
+    {
+      "index": 34,
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+      "category": "retained-policy-or-indirect",
+      "unchanged_original_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 guard/consent/downstream caller preservation"
+    },
+    {
+      "index": 35,
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+      "category": "retained-policy-or-indirect",
+      "unchanged_original_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 guard/consent/downstream caller preservation"
+    },
+    {
+      "index": 36,
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+      "category": "retained-policy-or-indirect",
+      "unchanged_original_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 guard/consent/downstream caller preservation"
+    },
+    {
+      "index": 37,
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+      "category": "retained-policy-or-indirect",
+      "unchanged_original_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 guard/consent/downstream caller preservation"
+    },
+    {
+      "index": 43,
+      "path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+      "sha256": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0",
+      "category": "retained-policy-or-indirect",
+      "unchanged_original_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "disposition": "Retain exact original bytes and scope ownership. This revalidates inventory classification, not executable caller coverage, adoption, hosted rollout or whole T008 acceptance.",
+      "owner": "T008 guard/consent/downstream caller preservation"
+    }
+  ]
+}

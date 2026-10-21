@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/model-identity.tests.py",
+    "SupplementalMonetaryMetadataTests"
+  ],
+  "started_at": "2026-10-19T19:53:54.400584+00:00",
+  "finished_at": "2026-10-19T19:53:54.518144+00:00",
+  "exit_code": 1,
+  "test_sha256": "8341a12fd7af5f09d74c65e1ffb7dc6217f2903e01b4592153b9227253374973",
+  "helper_sha256": "d3692363a7ee147d7cfd540aa0a8e3012d7572ce8ede33aa6b7006a15454b1b2",
+  "logs": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/root-boundary-probe/red.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/root-boundary-probe/red.stderr",
+      "sha256": "5e4a185fe882ca891b10ca43b6879924625f99e8ae5247fe2bfabe86c16dc7db"
+    }
+  ]
+}

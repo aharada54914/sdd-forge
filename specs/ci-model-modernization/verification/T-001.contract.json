@@ -4,14 +4,14 @@
   "risk": "high",
   "required_workflow": "tdd",
   "spec_revision": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd",
-  "created": "2026-10-19T07:12:21Z",
+  "created": "2026-10-19T15:57:21Z",
   "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
   "checks": [
     {
       "id": "lint",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/lint.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/lint.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -21,16 +21,16 @@
       ],
       "red_evidence": "",
       "green_evidence": "",
-      "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml tests/verification-impact.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py",
+      "command": "/tmp/ci-model-resume-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml tests/verification-impact.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:12:21Z",
-      "finished_at": "2026-10-19T07:12:21Z"
+      "started_at": "2026-10-19T15:55:55Z",
+      "finished_at": "2026-10-19T15:55:55Z"
     },
     {
       "id": "typecheck",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/typecheck.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/typecheck.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -40,16 +40,16 @@
       ],
       "red_evidence": "",
       "green_evidence": "",
-      "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml tests/verification-impact.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py",
+      "command": "/tmp/ci-model-resume-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml tests/verification-impact.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:12:21Z",
-      "finished_at": "2026-10-19T07:12:22Z"
+      "started_at": "2026-10-19T15:55:55Z",
+      "finished_at": "2026-10-19T15:55:55Z"
     },
     {
       "id": "unit-tests",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/unit-tests.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -57,12 +57,12 @@
         "REQ-003",
         "REQ-006"
       ],
-      "red_evidence": "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/coverage-reproduction.json",
-      "green_evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/commands.json",
+      "red_evidence": "specs/ci-model-modernization/verification/T-001/ci-integration-fix/red.log",
+      "green_evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/commands.json",
       "command": "python3 -B tests/verification-ci-plan.tests.py",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:12:22Z",
-      "finished_at": "2026-10-19T07:12:33Z"
+      "started_at": "2026-10-19T15:55:55Z",
+      "finished_at": "2026-10-19T15:56:18Z"
     },
     {
       "id": "integration-tests",
@@ -87,7 +87,7 @@
       "id": "build",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/build.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/build.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -99,14 +99,14 @@
       "green_evidence": "",
       "command": "python3 -m py_compile tests/verification-impact.py tests/verification-workflow.py tests/verification-ci-plan.tests.py tests/verification-catalog.tests.py",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:12:22Z",
-      "finished_at": "2026-10-19T07:12:22Z"
+      "started_at": "2026-10-19T15:55:55Z",
+      "finished_at": "2026-10-19T15:55:55Z"
     },
     {
       "id": "placeholder-scan",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/placeholder-scan.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/placeholder-scan.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -118,14 +118,14 @@
       "green_evidence": "",
       "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/verification-impact.py tests/verification-workflow.py contracts/verification-ci-plan.schema.json",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:12:36Z",
-      "finished_at": "2026-10-19T07:12:36Z"
+      "started_at": "2026-10-19T15:55:55Z",
+      "finished_at": "2026-10-19T15:55:55Z"
     },
     {
       "id": "task-state-check",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/task-state-check.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/task-state-check.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -137,8 +137,8 @@
       "green_evidence": "",
       "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:12:36Z",
-      "finished_at": "2026-10-19T07:12:36Z"
+      "started_at": "2026-10-19T15:55:55Z",
+      "finished_at": "2026-10-19T15:55:55Z"
     },
     {
       "id": "smoke-run",
@@ -220,7 +220,7 @@
       "id": "acceptance-tests",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/unit-tests.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -228,18 +228,18 @@
         "REQ-003",
         "REQ-006"
       ],
-      "red_evidence": "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/coverage-reproduction.json",
-      "green_evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/commands.json",
+      "red_evidence": "specs/ci-model-modernization/verification/T-001/ci-integration-fix/red.log",
+      "green_evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/commands.json",
       "command": "python3 -B tests/verification-ci-plan.tests.py",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:12:22Z",
-      "finished_at": "2026-10-19T07:12:33Z"
+      "started_at": "2026-10-19T15:55:55Z",
+      "finished_at": "2026-10-19T15:56:18Z"
     },
     {
       "id": "regression",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/regression.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/regression.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -247,18 +247,18 @@
         "REQ-003",
         "REQ-006"
       ],
-      "red_evidence": "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/coverage-reproduction.json",
-      "green_evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/commands.json",
-      "command": "python3 -B -c 'import subprocess; [subprocess.run(['\"'\"'python3'\"'\"','\"'\"'-B'\"'\"',p],check=True) for p in ['\"'\"'tests/verification-impact.tests.py'\"'\"','\"'\"'tests/verification-catalog.tests.py'\"'\"','\"'\"'tests/required-checks-posix.tests.py'\"'\"']]'",
+      "red_evidence": "specs/ci-model-modernization/verification/T-001/ci-integration-fix/red.log",
+      "green_evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/commands.json",
+      "command": "python3 -B -c 'import subprocess; [subprocess.run(['\"'\"'python3'\"'\"','\"'\"'-B'\"'\"',p],check=True) for p in ['\"'\"'tests/verification-impact.tests.py'\"'\"','\"'\"'tests/verification-catalog.tests.py'\"'\"','\"'\"'tests/required-checks-posix.tests.py'\"'\"','\"'\"'tests/verification-ci.tests.py'\"'\"']]'",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:12:33Z",
-      "finished_at": "2026-10-19T07:12:36Z"
+      "started_at": "2026-10-19T15:55:55Z",
+      "finished_at": "2026-10-19T15:56:48Z"
     },
     {
       "id": "requirement-traceability",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/requirement-traceability.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/requirement-traceability.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -270,14 +270,14 @@
       "green_evidence": "",
       "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:13:12Z",
-      "finished_at": "2026-10-19T07:13:12Z"
+      "started_at": "2026-10-19T15:56:18Z",
+      "finished_at": "2026-10-19T15:56:18Z"
     },
     {
       "id": "check-component-coverage",
       "required": true,
       "passes": true,
-      "evidence": "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/check-component-coverage.log",
+      "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/check-component-coverage.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-001",
@@ -289,8 +289,8 @@
       "green_evidence": "",
       "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
       "exit_code": 0,
-      "started_at": "2026-10-19T07:13:12Z",
-      "finished_at": "2026-10-19T07:13:12Z"
+      "started_at": "2026-10-19T15:56:18Z",
+      "finished_at": "2026-10-19T15:56:18Z"
     }
   ]
 }

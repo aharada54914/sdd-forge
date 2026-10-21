@@ -2,7 +2,6 @@
 name: diagnose
 description: Execution discipline for hard bugs, regressions, flaky tests, and performance issues. Build a tight red feedback loop first, then reproduce/minimize, rank falsifiable hypotheses, instrument one variable at a time, and fix behind a regression test. Use before spec-ing a bugfix, or when the user says something is broken/throwing/failing/flaky/slow. Supplies the evidence that task-reviewer-b's BUGFIX-DIAGNOSTIC-PATH check requires.
 disable-model-invocation: true
-model: sonnet
 ---
 
 # Diagnose
@@ -15,6 +14,41 @@ confirmed root cause instead of a guess.
 
 > **Adapted from** the field-tested `diagnosing-bugs` discipline. The rule is
 > the same: **no red-capable loop, no hypothesis.**
+
+## Managed allocation boundary
+
+Affected policy roles: `diagnosis`.
+
+Apply in the allocating parent before an unbound forked Skill/Agent, native role,
+or fresh context receives work, and before any identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+Apply to the parent diagnosis dispatch, not a diagnosis worker already entered through the bound Claude entry. That worker executes all five phases with its existing ordinary tools and permissions.
 
 ## Invocation
 
@@ -29,6 +63,41 @@ Codex:
 ```txt
 Use the diagnose skill. Symptom: <...>
 ```
+
+## Managed Claude diagnosis dispatch
+
+On Claude Code, this skill is the parent dispatcher. Before starting any
+reproduction, investigation or diagnostic phase, prepare the scoped policy
+request/registry with the existing verified configuration observation unchanged.
+Write the user's symptom, issue/source and reproduction instructions to
+`<prompt-file>` beneath `<repository-root>` and compute its raw SHA-256 as
+`<prompt-sha256>`. Use a fresh canonical UUID, new output directory and explicit
+installed Claude executable. The following entry selects and validates the
+diagnosis role before one fresh workload.
+
+```bash
+cd "<repository-root>" || exit 1
+python3 -B "<installed-root>/plugins/sdd-implementation/scripts/managed-model-entry.py" claude-entry \
+  --request "<policy-request>" --registry "<registry>" \
+  --role diagnosis --host claude-code --run-id "<run-id>" \
+  --session-id "<session-id>" --attempt "<attempt>" --output-dir "<output-dir>" \
+  --require-actual-id false --executable "<claude-executable>" \
+  --prompt-file "<prompt-file>" --prompt-sha256 "<prompt-sha256>"
+```
+
+The fresh child receives this complete skill and its original supporting
+policy/templates. If already running as the fresh diagnosis context supplied by
+that entry, skip this outer dispatcher and execute the complete procedure below.
+It uses ordinary native tools/settings and permissions; permission failure is a
+stop, never permission to enable bypass or autoapproval. Do not invoke Skill or
+Agent again, allocate a second diagnostic context, or execute the HITL template
+automatically. The child may create the failing reproduction harness, temporary
+probes and diagnostic report allowed below; actual product repair still belongs
+to approved implement-task. On completion return its result to the caller and
+stop the parent dispatcher; do not repeat the diagnostic phases in the parent.
+On typed failure stop without retrying an unmanaged path. Codex and other hosts
+retain the existing invocation/procedure below; no native work proof for those
+hosts is claimed by this Claude path.
 
 ## Preconditions
 

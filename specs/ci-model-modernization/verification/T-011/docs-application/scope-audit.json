@@ -1,0 +1,16 @@
+{
+  "changed_tracked_files": [
+    "CHANGELOG.md",
+    "README.md",
+    "docs/agent-capability-matrix.md",
+    "docs/contributor/release-runbook.md",
+    "docs/contributor/workflow-detail.md",
+    "docs/verification.md",
+    "docs/workflow-guide.md"
+  ],
+  "exactly_seven_authorized_docs": true,
+  "tracked_files_compared": 16319,
+  "untracked_product_paths_written": [],
+  "new_evidence_root": "specs/ci-model-modernization/verification/T-011/docs-application",
+  "admitted_source_pins_unchanged_except_owned_docs": []
+}

@@ -1,0 +1,21 @@
+{
+  "recorded_at": "2026-10-20T17:12:28.761370+00:00",
+  "status": "PREPARATION_STRUCTURE_AND_HASH_CHECKS_PASS_NOT_TASK_QA",
+  "preserved_original_rows": 65,
+  "preserved_indirect_entries": 17,
+  "semantic_obligations_and_source_evidence_refs": "exact equality / canonical digest verified against original unchanged inventory",
+  "current_row_hashes": "all82 match",
+  "source_read_before_after": "unchanged",
+  "artifact_hashes": "all39 match",
+  "default_insertions": "all16 current source hashes match recorded application; original body preserved recorded",
+  "current_method_discovery": 78,
+  "test_execution_by_this_agent": false,
+  "live_calls": false,
+  "root_sources_edited": false,
+  "outputs": {
+    "proposed-dispositions-65-plus-17.json": "1075c5dbc2ba22330e83f989139546232b1391c20384fd3b60393c0c73eec6b3",
+    "evidence-index.json": "201958c52f819d8318ab93eb62aa8e909f51f41b551729a6fd254d7b04b610a6",
+    "README.md": "8de149239799978ec67228beb3187056ce36d8112ab42acce41b8dbb45cc7942",
+    "build-proposal.py": "15d471bfdbaa917a615faabc369d0e437ece10d38478fe9b03ca45bb80b23a64"
+  }
+}

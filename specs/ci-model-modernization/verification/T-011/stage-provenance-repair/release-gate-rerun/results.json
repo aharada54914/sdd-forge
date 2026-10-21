@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "commands": [
+    {
+      "label": "workflow-state",
+      "argv": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--feature",
+        "ci-model-modernization"
+      ],
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+      },
+      "started_at": "2026-10-20T19:27:39Z",
+      "finished_at": "2026-10-20T19:27:40Z",
+      "elapsed_seconds": 1.1536221930000465,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "stdout": "specs/ci-model-modernization/verification/T-011/stage-provenance-repair/release-gate-rerun/workflow-state.stdout.log",
+      "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+      "stderr": "specs/ci-model-modernization/verification/T-011/stage-provenance-repair/release-gate-rerun/workflow-state.stderr.log",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "repository-release-validation",
+      "argv": [
+        "bash",
+        "tests/repository-release-validation.tests.sh"
+      ],
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+      },
+      "started_at": "2026-10-20T19:27:41Z",
+      "finished_at": "2026-10-20T19:29:41Z",
+      "elapsed_seconds": 120.14797430002363,
+      "timeout_seconds": 900,
+      "timed_out": false,
+      "exit_code": 0,
+      "stdout": "specs/ci-model-modernization/verification/T-011/stage-provenance-repair/release-gate-rerun/repository-release-validation.stdout.log",
+      "stdout_sha256": "ea26647a6beca9a7ad09fd2102c5009e8f225d1db183a95cc098c0a42b360c1e",
+      "stderr": "specs/ci-model-modernization/verification/T-011/stage-provenance-repair/release-gate-rerun/repository-release-validation.stderr.log",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "source_count": 16322,
+  "source_mismatches": [],
+  "source_before_sha256": "a056aeba74fbb8ac51febbd56bc068e729ce3f73bafc4c0acfec80c2daa1a262",
+  "source_after_sha256": "a056aeba74fbb8ac51febbd56bc068e729ce3f73bafc4c0acfec80c2daa1a262",
+  "scope": "Actual task-plan provenance/workflow repair and existing local release parity only; no implementation/adoption/release quality or hosted success inferred."
+}

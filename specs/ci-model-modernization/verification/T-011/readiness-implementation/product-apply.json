@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-10-20T18:34:39.718593+00:00",
+  "candidate_patch_sha256": "b57d19dd6c7ce678d600234207fe9feaeb8f169066ccf3dd683796e243ed404e",
+  "before": {
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+    "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+    "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac"
+  },
+  "after": {
+    "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+    "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+    "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531"
+  },
+  "exact_reviewed_candidate_applied": true,
+  "test_first_commit": "a72eab2ec5e5362f635b4814fecd9e791a300e68",
+  "workflow_engine_unchanged": true
+}

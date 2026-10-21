@@ -14,6 +14,41 @@ Implement all approved tasks for a feature in dependency order.
 After every approved task reaches `Implementation Complete`, automatically
 invoke `quality-gate` for the feature.
 
+## Managed allocation boundary
+
+Affected policy roles: `implementer`.
+
+Apply in the allocating parent before an unbound forked Skill/Agent, native role,
+or fresh context receives work, and before any identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+Keep the concretely known matching startup definition route below and every original batch manifest/snapshot/identity/output admission, cap, barrier and fail-fast rule. This boundary cannot turn a capable host into an incapable one or change the exact incapable-host-only same-session reload exception.
+
 ## Invocation
 
 Claude Code — internal skill, not directly invocable. Reached by following
@@ -91,6 +126,68 @@ Execute this algorithm before each implementation pass:
    **Completion Check**.
 
 ## Implementation Loop
+
+### Managed Claude batch model routing
+
+For a managed Claude batch, keep the original task selection, risk check,
+manifest/snapshot preparation, host-capability decision and complete persisted
+manifest-set validation below. Before Agent dispatch, prepare each selected
+implementer's native definition through the installed entry. This is configuration
+preparation and launches no task. Its selection/controls/validation retain the
+original T-007 validation; its stdout is one native `--agents` definition object.
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py claude-batch-definition \
+  --request "<policy-request>" --registry "<registry>" --role implementer --host claude-code \
+  --run-id "<run-id>" --session-id "<session-id>" --attempt "<attempt>" \
+  --output-dir "<output-dir>" --require-actual-id false
+```
+
+Bind each generated definition to that exact validated selection. Use a native
+parent only when its actual startup loaded the identical definitions; retain the
+pinned startup bytes as configuration evidence. A successful call to a custom
+name, or writing an agent file after startup, does not prove the loaded model and
+effort. Unknown or stale startup configuration must take this executable branch
+and stop the batch before any implementation:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry --role implementer --host claude-code
+```
+
+This is a typed unsupported routing result. It does not assert that the host
+cannot create implementation subagents, and cannot authorize same-session reload.
+Schema, selection, model, configuration and native allocation failures also stop;
+they never authorize that fallback. A known matching startup remains eligible for
+the original fresh-Agent path, subject to every original handoff admission below.
+Do not inspect an unknown parent's argv, credentials, profiles or session stores.
+If an owned fresh CLI parent is used to load these definitions, it runs this same
+orchestrator with ordinary settings, hooks, tools and permissions preserved; no
+single-task `claude-entry` worker replaces batch children.
+
+For each task admitted by the original manifest/snapshot checks, make the original
+native Agent call with its generated name and file-backed input only:
+
+```json
+{"subagent_type":"<managed-definition-name>","prompt":"Manifest: <validated-manifest-path>; immutable snapshot: <validated-snapshot-root>; writable outputs: <declared-output-roots>. Follow the original one-task worker procedure; return file-backed artifacts only."}
+```
+
+The exact full native model and effort live in the startup definition. Omit
+per-call `model` and `effort`; their alias/default interpretation cannot replace
+that selection. Do not infer backend identity from successful allocation. Preserve
+the existing manifest `session_id` and `agent_instance_id` admission, whose grammar
+is nonempty identifiers rather than UUID-only. Neither a tool-use ID nor a returned
+Agent ID automatically proves both fields; if the original pre-work identity and
+output-root admission cannot be established, stop before work as already required.
+
+Keep the up-to-4 concurrent Claude cap, earliest-four then deferred remainder,
+complete persisted manifest set across passes, immutable snapshot per child,
+non-reuse across all tasks, parent-only shared status/report acceptance,
+barrier and Blocked fail-fast rules below unchanged. Generated definitions and
+call-shape fixtures prove configuration, not actual model/effort or full native
+batch execution. Native batch acceptance remains unproven until those original
+admission requirements and the actual batch behavior are demonstrated.
+
+
 
 `implement-tasks` is an orchestrator. It selects work, creates and validates
 the file-backed handoff, launches the implementation context, and consumes the

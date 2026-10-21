@@ -1,0 +1,19 @@
+{
+  "label": "ruff-installed",
+  "command": [
+    "/workspace/.tools/sdd-forge-python/bin/ruff",
+    "check",
+    "--config",
+    "tests/shared-launch-python/pyproject.toml",
+    "tests/verification-impact.py",
+    "tests/verification-ci-plan.tests.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:35:37.881887+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 0.044444102997658774,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

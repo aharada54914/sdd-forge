@@ -1,0 +1,218 @@
+{
+  "actor": "work-agent:root:t003_implementation",
+  "scratch_checkout": "/tmp/ci-model-t003-dependencies-exvsxg4c/rollback-checkout",
+  "scaffold_note": "git archive HEAD with every admitted repository source overlaid; accepted dirty owner bytes are baseline, not HEAD",
+  "checks": [
+    {
+      "path": ".github/workflows/test.yml",
+      "before_sha256": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b",
+      "candidate_sha256": "4b6d6868e9613c2583c137645c7cdcea521941edae15a85c0af2e3991900f303",
+      "restored_sha256": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "before_sha256": "71f3fc75df8bfc11b2091a35a9a8146b1734d4a03638214e091b959eec6e0938",
+      "candidate_sha256": "0651f7b29116197e23a5374d5d39f8f232869899e6e0c98223050cad21bffeb8",
+      "restored_sha256": "71f3fc75df8bfc11b2091a35a9a8146b1734d4a03638214e091b959eec6e0938"
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "before_sha256": "ed1d819170ef861563f2d9a403bde4f702e54cf151f26ad3e08d31ec4686da32",
+      "candidate_sha256": "86446696664e6b3fda19f1dc73820807e7daf0bdc63668ec8545f690242f120a",
+      "restored_sha256": "ed1d819170ef861563f2d9a403bde4f702e54cf151f26ad3e08d31ec4686da32"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "before_sha256": "48193a5232240120465c962551de082c03fa538a9e535529b65b5a455b4954a4",
+      "candidate_sha256": "4e6ddabff1b59086db26bb88099fe1c8d7a806584f84fcafe09e6b7dc065aa82",
+      "restored_sha256": "48193a5232240120465c962551de082c03fa538a9e535529b65b5a455b4954a4"
+    },
+    {
+      "path": "tests/verification-ci.tests.py",
+      "before_sha256": "5f09d0d1ab3b09e0c751968debd556616b5f7069a2bd1ef3b787172ac91549d0",
+      "candidate_sha256": "00e36af3aefdb449d4e07feb94731c8a29c64b344b5144652b64af42cbafebb7",
+      "restored_sha256": "5f09d0d1ab3b09e0c751968debd556616b5f7069a2bd1ef3b787172ac91549d0"
+    },
+    {
+      "path": "tests/verification-ci-plan.tests.py",
+      "before_sha256": "d795a6db0d815c580d5013ec22518d858c4a60019035b823844bea4e5cf12f04",
+      "candidate_sha256": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      "restored_sha256": "d795a6db0d815c580d5013ec22518d858c4a60019035b823844bea4e5cf12f04"
+    },
+    {
+      "path": "tests/required-checks-posix.tests.py",
+      "before_sha256": "88d530c5868060c539fce48f0eb9929c946b7d573b94c736bbbda5c7f102b1f5",
+      "candidate_sha256": "4a412e19b3a1b50c7ba13d801468c08682eed24f8e76d587d0434b79f9982b19",
+      "restored_sha256": "88d530c5868060c539fce48f0eb9929c946b7d573b94c736bbbda5c7f102b1f5"
+    }
+  ],
+  "new_helper_removed": true,
+  "executions": [
+    {
+      "stage": "before",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-before-verification-catalog.log",
+      "sha256": "939013146647ed246bfe845f6c4ba0d7a15d9bf29e638c73b43ae71b62a958d7"
+    },
+    {
+      "stage": "before",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-before-verification-ci-plan.log",
+      "sha256": "00918c8ae81d06292003c673a1918794cb82399719a5f3050db289d5b154a55f"
+    },
+    {
+      "stage": "before",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-ci.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-before-verification-ci.log",
+      "sha256": "1b0cc112fc10bb18f9ff4a7a6ea526c603019b2f7e208d131081ecb50b771270"
+    },
+    {
+      "stage": "before",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-impact.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-before-verification-impact.log",
+      "sha256": "ae0cd2c0eb7cf51425051d66c1b173330dbd0067839eb7b86de042a8f8b9dcb8"
+    },
+    {
+      "stage": "before",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/required-checks-posix.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-before-required-checks-posix.log",
+      "sha256": "2a73dce11abd81e4b62132f38701c627013d13495589f25f5feb91748db0d812"
+    },
+    {
+      "stage": "candidate",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-candidate-verification-catalog.log",
+      "sha256": "2af04cf4c6436a077318ff43a5cc9355b12ec736825f3a4f891ca49028e2b66f"
+    },
+    {
+      "stage": "candidate",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-candidate-verification-ci-plan.log",
+      "sha256": "c2424f6f1477a9c8f13d2ab5f67585a6cc152bc20ebfd8a36d77e2a6e1402433"
+    },
+    {
+      "stage": "candidate",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-ci.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-candidate-verification-ci.log",
+      "sha256": "078d381f3b9db1ac16113dde40f6f44d03c0cca107f7a59a7c57d960f7c90b64"
+    },
+    {
+      "stage": "candidate",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-impact.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-candidate-verification-impact.log",
+      "sha256": "3884f83255b63480b178b50a1cdd1576f7134f9a64ac130ceed6487a1c8b4e36"
+    },
+    {
+      "stage": "candidate",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/required-checks-posix.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-candidate-required-checks-posix.log",
+      "sha256": "76cfd4f38c435ef266b420999ad053d1460092ac5c84747eb73f700115b8c8dd"
+    },
+    {
+      "stage": "restored",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-restored-verification-catalog.log",
+      "sha256": "ffe026abafb5e71046d371c05b0efa5b60fd8d058a02fd616f1b7dfe6fc8206f"
+    },
+    {
+      "stage": "restored",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-restored-verification-ci-plan.log",
+      "sha256": "79c38f1bda5dce7cb29ca0a2df34a6de170376b07ebd9d0e2d243bd93fcb5693"
+    },
+    {
+      "stage": "restored",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-ci.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-restored-verification-ci.log",
+      "sha256": "5c501b33b94ea4c3dab21ab659874b932a0bf88c50c0a3bbc429a8571487590c"
+    },
+    {
+      "stage": "restored",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-impact.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-restored-verification-impact.log",
+      "sha256": "0c4c5c2184d00bb1a2cc8247d010064830edfd9055be88923c8c8f632a6b3dcd"
+    },
+    {
+      "stage": "restored",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/required-checks-posix.tests.py"
+      ],
+      "exit_code": 0,
+      "log": "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-restored-required-checks-posix.log",
+      "sha256": "1111cb8654bfdefa089abc82b87619bc95248b74e4272bbaa9cf3f45bbae24e2"
+    }
+  ],
+  "recorded_at": "2026-10-19T16:34:10.243832+00:00"
+}

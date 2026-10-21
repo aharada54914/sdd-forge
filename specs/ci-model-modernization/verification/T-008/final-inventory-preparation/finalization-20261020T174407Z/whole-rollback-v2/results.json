@@ -1,0 +1,619 @@
+{
+  "T009_runtime_preserved": true,
+  "admitted_inputs_unchanged": true,
+  "baseline_commands_passed": false,
+  "baseline_sources_unchanged": true,
+  "baseline_tree": "1e4c3c88661ec8c5e8069a99591387963ff2e7ca",
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/git",
+        "init",
+        "--template=",
+        "-q",
+        "."
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "init",
+      "stderr": "00-init.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "00-init.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "gc.auto",
+        "0"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "config-gc.auto",
+      "stderr": "01-config-gc.auto.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "01-config-gc.auto.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "maintenance.auto",
+        "false"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "config-maintenance.auto",
+      "stderr": "02-config-maintenance.auto.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "02-config-maintenance.auto.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "core.autocrlf",
+        "false"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "config-core.autocrlf",
+      "stderr": "03-config-core.autocrlf.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "03-config-core.autocrlf.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "core.fsmonitor",
+        "false"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "config-core.fsmonitor",
+      "stderr": "04-config-core.fsmonitor.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "04-config-core.fsmonitor.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "config",
+        "--local",
+        "commit.gpgSign",
+        "false"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "config-commit.gpgSign",
+      "stderr": "05-config-commit.gpgSign.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "05-config-commit.gpgSign.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "add",
+        "-A",
+        "--force",
+        "--",
+        "."
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "frozen-current-add",
+      "stderr": "06-frozen-current-add.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "06-frozen-current-add.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "user.name=T008 Replay",
+        "-c",
+        "user.email=t008-replay@example.invalid",
+        "commit",
+        "-qm",
+        "frozen-current",
+        "--allow-empty"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "frozen-current-commit",
+      "stderr": "07-frozen-current-commit.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "07-frozen-current-commit.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "frozen-current-tree",
+      "stderr": "08-frozen-current-tree.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "08-frozen-current-tree.stdout",
+      "stdout_sha256": "3b5577d7f5b0078e3de5fd35bda033eca7ea98bb44e900f71f95ce5430cb46c2",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "add",
+        "-A",
+        "--force",
+        "--",
+        "."
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "exact-T008-rollback-preserving-T009-add",
+      "stderr": "09-exact-T008-rollback-preserving-T009-add.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "09-exact-T008-rollback-preserving-T009-add.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "user.name=T008 Replay",
+        "-c",
+        "user.email=t008-replay@example.invalid",
+        "commit",
+        "-qm",
+        "exact-T008-rollback-preserving-T009",
+        "--allow-empty"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "exact-T008-rollback-preserving-T009-commit",
+      "stderr": "10-exact-T008-rollback-preserving-T009-commit.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "10-exact-T008-rollback-preserving-T009-commit.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "exact-T008-rollback-preserving-T009-tree",
+      "stderr": "11-exact-T008-rollback-preserving-T009-tree.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "11-exact-T008-rollback-preserving-T009-tree.stdout",
+      "stdout_sha256": "97595201362e5b423ab5aa237f3d32ba89c707eeb63428cd1c6b040c5846d027",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/render-agent-frontmatter.tests.sh"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "render-agent-frontmatter.tests.sh",
+      "stderr": "12-render-agent-frontmatter.tests.sh.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "12-render-agent-frontmatter.tests.sh.stdout",
+      "stdout_sha256": "0007afffe6aaa6121b07683e5c8650513976ab605de0108729899fc25b82cdc4",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/render-agent-frontmatter.tests.ps1"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "render-agent-frontmatter.tests.ps1",
+      "stderr": "13-render-agent-frontmatter.tests.ps1.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "13-render-agent-frontmatter.tests.ps1.stdout",
+      "stdout_sha256": "31d39fbde4402758feed1ebfa43d7562aae678fd4abcee571b08e28e2b8b9df4",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/install.tests.sh"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "install.tests.sh",
+      "stderr": "14-install.tests.sh.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "14-install.tests.sh.stdout",
+      "stdout_sha256": "baf5105d5b33d717896410824bc7e521c66035b8a67425da8130e147bc1e64a1",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/install.tests.ps1"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "install.tests.ps1",
+      "stderr": "15-install.tests.ps1.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "15-install.tests.ps1.stdout",
+      "stdout_sha256": "d619cfcd6fcba763b959a21a82e8d6f04a556190e10535e2db462c9290c79c0c",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 1,
+      "label": "verification-catalog.tests.py",
+      "stderr": "16-verification-catalog.tests.py.stderr",
+      "stderr_sha256": "3a4655234acaef224b0ffdaea4905092323e689f4ee9af8c4f054af32f8e038a",
+      "stdout": "16-verification-catalog.tests.py.stdout",
+      "stdout_sha256": "007cae7f7ad90ae93f527a1c1f3bf108b271132a8ca1fcebb99fff17050f8552",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy-launch.tests.py"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "model-policy-launch.tests.py",
+      "stderr": "17-model-policy-launch.tests.py.stderr",
+      "stderr_sha256": "6e3413b77e25c0e5ba43acb1553a810b9eaf7938d56607613555e16e8489dc80",
+      "stdout": "17-model-policy-launch.tests.py.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy-launch-platform.tests.py"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "model-policy-launch-platform.tests.py",
+      "stderr": "18-model-policy-launch-platform.tests.py.stderr",
+      "stderr_sha256": "8915574b0cb4d25c5a9275567f48ea25724fbb1a0548af7b14ffb0e27ceb1ad3",
+      "stdout": "18-model-policy-launch-platform.tests.py.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy.tests.py"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "model-policy.tests.py",
+      "stderr": "19-model-policy.tests.py.stderr",
+      "stderr_sha256": "b8c4324fd0f8c11ec2867781238e447ab427fa478d2314fe32646186cf90799f",
+      "stdout": "19-model-policy.tests.py.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/agent-model-routing.tests.sh"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "agent-model-routing.tests.sh",
+      "stderr": "20-agent-model-routing.tests.sh.stderr",
+      "stderr_sha256": "c985fbf403d48c87765c3774a99c74d3675b5efb2a3189bfe23d205a350a8f24",
+      "stdout": "20-agent-model-routing.tests.sh.stdout",
+      "stdout_sha256": "19d1f866a143b342d3467e95e0ac60b1bee77853362c40b3569ee151078a521d",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/agent-model-routing.tests.ps1"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "agent-model-routing.tests.ps1",
+      "stderr": "21-agent-model-routing.tests.ps1.stderr",
+      "stderr_sha256": "350ad7d29c3e338f134beb0c9e8443c31da90db3072cb26b6663d59d8b9e8ea9",
+      "stdout": "21-agent-model-routing.tests.ps1.stdout",
+      "stdout_sha256": "3bcfa38413e7a45810b7e1f338650cd53d13ca2b405fd8379cbd1dd7a3032037",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/emit-run-record-feature-scope.tests.sh"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "emit-run-record-feature-scope.tests.sh",
+      "stderr": "22-emit-run-record-feature-scope.tests.sh.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "22-emit-run-record-feature-scope.tests.sh.stdout",
+      "stdout_sha256": "801481e1d4c63aad5302f4e1b86f62afbede8f77e8ca3c1445e208452e0b6ad6",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/emit-run-record-feature-scope.tests.ps1"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "emit-run-record-feature-scope.tests.ps1",
+      "stderr": "23-emit-run-record-feature-scope.tests.ps1.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "23-emit-run-record-feature-scope.tests.ps1.stdout",
+      "stdout_sha256": "3423d8c942802bd6d84e41d6b0ad077be604e10d29ab48300fa03ae15c5832e6",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/cross-model.tests.sh"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "cross-model.tests.sh",
+      "stderr": "24-cross-model.tests.sh.stderr",
+      "stderr_sha256": "8585071d89196900e6af310f849b4d4ae5b90757646d03ff0b9c078109563259",
+      "stdout": "24-cross-model.tests.sh.stdout",
+      "stdout_sha256": "6212cd41e361618597d83d681d3594328727470b63976ef9b36b674b94893822",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/cross-model.tests.ps1"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "cross-model.tests.ps1",
+      "stderr": "25-cross-model.tests.ps1.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "25-cross-model.tests.ps1.stdout",
+      "stdout_sha256": "01df2d156090f38d76fcaceec735c836ed407db49afb093f8c34bb6736b98a2d",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/spec-review-loop.tests.sh"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "spec-review-loop.tests.sh",
+      "stderr": "26-spec-review-loop.tests.sh.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "26-spec-review-loop.tests.sh.stdout",
+      "stdout_sha256": "19744fb30b2818b507058d743c9aa3c265fee7f42661bbf0eead7013667ccf9f",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "quality-nontty-transport.tests.py",
+      "stderr": "27-quality-nontty-transport.tests.py.stderr",
+      "stderr_sha256": "171b1098e3156007a68d07db9f483d19fa7535a93d4c322751f2fa0ad563fc0a",
+      "stdout": "27-quality-nontty-transport.tests.py.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/quality-gate-cycle-limit.tests.sh"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "quality-gate-cycle-limit.tests.sh",
+      "stderr": "28-quality-gate-cycle-limit.tests.sh.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "28-quality-gate-cycle-limit.tests.sh.stdout",
+      "stdout_sha256": "3cf2fe2996e24244274e4e7918224d275bec62e0ecec72268c0f4dc70469744d",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/self-improvement-guard.tests.sh"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "self-improvement-guard.tests.sh",
+      "stderr": "29-self-improvement-guard.tests.sh.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "29-self-improvement-guard.tests.sh.stdout",
+      "stdout_sha256": "44153f319d296ee2dc4fc9362d8366bf5560cd0c1b5943dfd99209325d5bf063",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/bash",
+        "tests/model-freshness-check.tests.sh"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "model-freshness-check.tests.sh",
+      "stderr": "30-model-freshness-check.tests.sh.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "30-model-freshness-check.tests.sh.stdout",
+      "stdout_sha256": "c062b6d02dfb1cdb0ea5b9a3ad5fdccf0b3966237301f5a11f68669a5135bd4e",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/model-freshness-check.tests.ps1"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "model-freshness-check.tests.ps1",
+      "stderr": "31-model-freshness-check.tests.ps1.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "31-model-freshness-check.tests.ps1.stdout",
+      "stdout_sha256": "1525b54747616cfac3f0d54f70ed4282f7c4ff9bf21130d3338bbed9a87031b7",
+      "timed_out": false,
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "add",
+        "-A",
+        "--force",
+        "--",
+        "."
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "restored-exact-frozen-current-add",
+      "stderr": "32-restored-exact-frozen-current-add.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "32-restored-exact-frozen-current-add.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "user.name=T008 Replay",
+        "-c",
+        "user.email=t008-replay@example.invalid",
+        "commit",
+        "-qm",
+        "restored-exact-frozen-current",
+        "--allow-empty"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "restored-exact-frozen-current-commit",
+      "stderr": "33-restored-exact-frozen-current-commit.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "33-restored-exact-frozen-current-commit.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timed_out": false,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace",
+      "exit_code": 0,
+      "label": "restored-exact-frozen-current-tree",
+      "stderr": "34-restored-exact-frozen-current-tree.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "34-restored-exact-frozen-current-tree.stdout",
+      "stdout_sha256": "3b5577d7f5b0078e3de5fd35bda033eca7ea98bb44e900f71f95ce5430cb46c2",
+      "timed_out": false,
+      "timeout_seconds": 120
+    }
+  ],
+  "current_git_tree_restored_exactly": true,
+  "current_sources_restored_exactly": true,
+  "current_tree_after": "513df906ea74e63137a04fb9b75942ae5a131add",
+  "current_tree_before": "513df906ea74e63137a04fb9b75942ae5a131add",
+  "finished_epoch": 1792517941.7943273,
+  "map_sha256": "d598a85c19b9e2b6ec61d49a849bcd4e2ad61deca8ed48fba866c48ad5c70c63",
+  "outer_subreaper_owned_by_root": true,
+  "parent_manifest_sha256": "f4fedbedd56bca2c58c8fd34be8faa59606fef3f7455bbb1d8c91023ccfadebb",
+  "parent_manifest_unchanged": true,
+  "passed": false,
+  "preserved_namespace_unchanged": true,
+  "schema": "t008-whole-rollback-replay/v1",
+  "started_epoch": 1792517340.2614872,
+  "workspace": "/workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace"
+}

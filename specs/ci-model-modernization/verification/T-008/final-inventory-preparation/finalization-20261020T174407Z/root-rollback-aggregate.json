@@ -1,0 +1,140 @@
+{
+  "status": "PASS",
+  "passed": true,
+  "baseline_commands_total": 20,
+  "baseline_commands_passed": 20,
+  "baseline_passes": [
+    {
+      "label": "render-agent-frontmatter.tests.sh",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "render-agent-frontmatter.tests.ps1",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "install.tests.sh",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "install.tests.ps1",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "verification-catalog.tests.py",
+      "passed": true,
+      "passing_run": "v3-scoped",
+      "original_v2_exit_code": 1
+    },
+    {
+      "label": "model-policy-launch.tests.py",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "model-policy-launch-platform.tests.py",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "model-policy.tests.py",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "agent-model-routing.tests.sh",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "agent-model-routing.tests.ps1",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "emit-run-record-feature-scope.tests.sh",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "emit-run-record-feature-scope.tests.ps1",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "cross-model.tests.sh",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "cross-model.tests.ps1",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "spec-review-loop.tests.sh",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "quality-nontty-transport.tests.py",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "quality-gate-cycle-limit.tests.sh",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "self-improvement-guard.tests.sh",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "model-freshness-check.tests.sh",
+      "passed": true,
+      "passing_run": "v2-full"
+    },
+    {
+      "label": "model-freshness-check.tests.ps1",
+      "passed": true,
+      "passing_run": "v2-full"
+    }
+  ],
+  "execution_scope": "19 actual unaffected baseline commands PASS in v2 plus actual catalog44 PASS scopedv3; NOT20 in one latest invocation. Both runs perform full T008 source rollback and exactcurrent restore.",
+  "unchanged_v2_payload_rows": 2335,
+  "unchanged_restore_operations": 42,
+  "all_2385_v2_admitted_pins_retained": true,
+  "only_runtime_fixture_addition": [
+    "specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json"
+  ],
+  "all_rollback_restore_T009_admission_invariants": true,
+  "Root_products_mutated": false,
+  "evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/results.json",
+      "sha256": "887f35ed329ec6c4ff21388758331929347783a2d68a3518f34204ea4c2ab38a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-3/results.json",
+      "sha256": "3c5077f4e0449ca127529949492d00330392f81d9f83cdfbe23778f644251c67"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current3-admission/subreaper.json",
+      "sha256": "7bf0832cb2cfd872a4a3b637c6b4840362705a6f5713cb7d37250c9dd4b08e39"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-preparation/v3/scoped-static-checks.json",
+      "sha256": "ebe9b11ce2d267a914bde217ed7b3927420dfadfa74f1d0106f11757fd147615"
+    }
+  ],
+  "v2_manifest_sha256": "f4fedbedd56bca2c58c8fd34be8faa59606fef3f7455bbb1d8c91023ccfadebb",
+  "v3_manifest_sha256": "01ebc43b44d19b58f43917aac657ee3f622f209cf2a31a3617bdc3210304bd7c",
+  "current_source_boundary": "Final T008 product/test bytes unchanged; delta is actual T003historicaldata read only by catalog test and task-local replay aliases/proofs.",
+  "formal_quality_gate_cycles": 0
+}

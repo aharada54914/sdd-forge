@@ -6,8 +6,12 @@ Receipt artifacts use `verification-receipts-<run_id>-<source_attempt>-<job_key>
 
 All jobs pages for every attempt through the run's current attempt are collected. Pagination requires same origin and same resource, finite pages, consistent total_count, no duplicates and no cursor loop. Failed historical executions remain evidence. New API IDs/reported attempts with unchanged logical runner/step/time identity inherit the original execution only when the historical match is unique. Original receipt absence or ambiguous history fails.
 
-`verified`, `executed`, `unrelated-category`, and `advisory-inactive` are additional closed result reasons, paired with schema/consumer tests. Acquisition emits only observations, never a verification PASS. Result schema also carries the strict error envelope for exit 2. Exit 1 reports evidence or execution failure; exit 2 reports malformed mandatory contract/input.
+`verified` is the existing ordinary executed-result reason required by the T-001 activation consumer. `unrelated-category` preserves the planner omission reason. A9 result semantics remain unresolved; `advisory-inactive` is reserved pending the separate contract decision. Acquisition emits only observations, never a verification PASS. Result schema also carries the strict error envelope for exit 2. Exit 1 reports evidence or execution failure; exit 2 reports malformed mandatory contract/input.
 
 Bounds are implementation safeguards, not truncation: any overflow fails collection. ZIP members are validated completely before publication. No raw logs, authentication tokens or signed redirect URLs are persisted. GitHub `gh api` GET uses the admitted API headers; storage redirects must not forward GitHub authentication.
 
 T-003 consumes this grammar when uploading existing runner receipts. No receipt payload fields are added, and runner behavior is unchanged.
+
+Planning attempt is an identity input validated against the actual run attempt range and complete raw attempt history. Reconstructed selection, omissions, groups, activation proofs, revisions, command inventory and digests come independently from Git/API/catalog/workflow, never by copying candidate selection fields into the expected plan. Every selected execution origin must be at or after planning_attempt: plan 1 may reuse original same-run/head execution through later reruns, while fresh plan 2 cannot relabel origin 1 as fresh. No specific T-003 planner job name is required. Missing original logical-job observation fails closed.
+
+Ordinary execution uses reason `verified`, preserving direct consumption by T-001 `validate_result_binding`. A9 remains unresolved and is not activated by this addendum; see `a9-contract-question.md` and root-owned RT-20261019-007.

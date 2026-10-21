@@ -106,7 +106,9 @@ A read-only summary of agent roles, tool scopes, and which actions are enforced 
 Turn-first routing optimizes expected implementation/review iteration count
 before token price. Expected iterations are optimized first, then the weakest sufficient tier, then token price.
 Concrete model IDs are examples only; check availability at invocation and
-record the selected provider/model.
+record the selected provider/model. The tables below describe legacy
+registry-based routing (explicit candidate input and pinned IDs). Managed
+selection is described in [Managed model policy](#managed-model-policy).
 
 ### Predicted Attempts Matrix
 
@@ -135,13 +137,13 @@ the lexicographically smaller provider/model identifier.
 | strong | Anthropic | Opus | high | 未確認 | Anthropic official docs (models overview) |
 | lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low | 未確認 | OpenAI developers docs (Codex) |
 | standard | OpenAI/Codex | `gpt-5.1-codex` | medium | 未確認 | OpenAI developers docs (Codex) |
-| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies | 2026-10-18 local host | contracts/agent-model-capabilities.v2.json; T-011 native trial |
+| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies | 2026-10-18 local host | contracts/agent-model-capabilities.v2.json; cloud-orchestration T-011 native trial |
 
-Codex agent model selection is a runtime control (`--model` / `--effort` flags
-passed to the Codex CLI at invocation), not a field in the role TOML. The
-`.codex/agents/*.toml` files intentionally do not pin a `model` key because the
-role schema has historically rejected malformed role definitions. Routing
-therefore happens at the call site after model availability is checked.
+For legacy routing, Codex agent model selection is a runtime control (`--model`
+/ `--effort` flags passed to the Codex CLI at invocation). Legacy reference
+rendering writes only `# x-sdd-model:` / `# x-sdd-effort:` comments into
+`.codex/agents/*.toml`, not a `model` key; routing happens at the call site
+after model availability is checked. Managed rendering differs; see below.
 The caller filters candidates through the host capability registry. A
 substitute is eligible only when the registry assigns it to the same canonical
 tier; the canonical tier does not change and the concrete provider/model is
@@ -149,6 +151,40 @@ recorded. If no available candidate satisfies an exact tier or role floor,
 routing fails closed as `model-tier-unavailable`. For strong Codex routing,
 high effort is the default. Xhigh is used only when the capability registry or
 a task-specific evaluator contract requires it, with the reason recorded.
+
+### Managed model policy
+
+Shared managed policy selects a model per role, risk and host from the shared
+policy, observed availability and project configuration. A request's model
+policy is `latest-compatible` (an eligible observed candidate in registered policy preference order) or
+`pinned` (an explicit model ID); role and effort restrictions still apply.
+Observations are dated and scoped to a host and CLI version; a policy
+`source_date` or an old trial is not perpetual availability.
+
+The ci-model-modernization T-010 comparison is blocked by native CLI
+authentication failures and has produced no answers for evaluation. It supports
+no candidate promotion or comparative quality claim.
+
+For Codex, `render-agent-frontmatter.sh` managed mode (`--model-controls`,
+`--model-controls-sha256`, `--run-id`, `--session-id`, `--managed-target`)
+writes native top-level `model` and `model_reasoning_effort` keys before any
+table, from validated controls. Without those flags, legacy reference
+rendering is unchanged.
+
+Selection records configured and resolved values only; it does not verify the
+model that served a turn. When actual identity is not required, a delivery may
+be accepted with `actual_id: null` and `proof: unverified`; this is configuration
+evidence only. A request with `require_actual_id: true` stops before launch as
+`actual-id-unavailable`, and an observed reroute of a pinned model is blocked
+as `actual-id-mismatch`. Neither accepted configuration nor a reroute event
+proves an actual backend model ID. Failures are one `model-policy-error/v1` object whose `reason`
+comes from the schema enum: `config-invalid`, `config-conflict`,
+`native-precedence-conflict`, `discovery-unavailable`, `discovery-incomplete`,
+`discovery-stale`, `scope-mismatch`, `model-unavailable`, `model-unverified`,
+`model-tier-unavailable`, `effort-unavailable`, `budget-unverifiable`,
+`resume-conflict`, `actual-id-unavailable`, `actual-id-mismatch`,
+`input-invalid`. Unsupported carriers stop before any work starts. Reviewer
+independence and external-send consent boundaries are unchanged.
 
 ### Effort Policy: `welded` vs. `matrix`
 

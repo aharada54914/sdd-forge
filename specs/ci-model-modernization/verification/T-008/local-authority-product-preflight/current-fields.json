@@ -1,0 +1,87 @@
+{
+  "at": "2026-10-20T10:24:39.756091+00:00",
+  "status": "PRE_PRODUCT_RECORDED",
+  "tests_only_commit": "de00b71b60f6920156536c2f00b3d79dbc66d7e6",
+  "product_before_sha256": "e51f11be84fb4ad622b59aac2c3a1be3167a750181e8549e48671da34ed167d1",
+  "scope": "Private local authority collection/check/recheck and existing configuration-only claude-prepare; no new persisted schema/observation producer/native work. Private diagnostic DTOs are not caller authority.",
+  "fields": [
+    {
+      "field": "existing selection/controls/validation fields",
+      "counterpart": "unchanged inherited 20-field preparation + T006/T007 leaf contracts",
+      "mismatch_test": "InstalledClaudePreparationTests.test_claude_prepare_preserves_supplied_observation_and_core_evidence"
+    },
+    {
+      "field": "source tier/kind/fixed path",
+      "counterpart": "private owned fixture descriptors; production derives documented paths without public root override",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_installed_claude_prepare_rejects_owned_local_conflicts_without_rewriting_state"
+    },
+    {
+      "field": "raw source hashes and absent/present states",
+      "counterpart": "same exact files before output publication",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_rechecks_sources_and_rejects_unresolved_resolution"
+    },
+    {
+      "field": "drop-in names and merge order",
+      "counterpart": "main then alphabetical nonhidden .json names, membership rechecked",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_source_composition_preserves_documented_exceptions"
+    },
+    {
+      "field": "unreadable/malformed/duplicate/nonobject/symlink source status",
+      "counterpart": "genuine invalid files never treated as absence",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_rechecks_sources_and_rejects_unresolved_resolution"
+    },
+    {
+      "field": "private tier projection",
+      "counterpart": "only model authority keys retained privately; whole settings never persisted",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_source_composition_preserves_documented_exceptions"
+    },
+    {
+      "field": "admin selected tiers and merge behavior",
+      "counterpart": "documented presence/first-wins/merge + per-variable env exceptions",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_source_composition_preserves_documented_exceptions"
+    },
+    {
+      "field": "managed availableModels and modelOverrides",
+      "counterpart": "highest managed allowlist whole; suppress lower remap when defined without overrides",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_caps_allowlists_and_remaps_match_selected_controls"
+    },
+    {
+      "field": "selected ID and denied/available model lists",
+      "counterpart": "Managed-only deniedModels; availableModels Any file; exact selected ID match; empty or nonexact ambiguous forms explicitly unresolved",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_caps_allowlists_and_remaps_match_selected_controls"
+    },
+    {
+      "field": "effective effort cap and own-source per-model exemption",
+      "counterpart": "minimum applicable cap across sources; max cannot exempt another source",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_caps_allowlists_and_remaps_match_selected_controls"
+    },
+    {
+      "field": "explicit model/effort versus file defaults",
+      "counterpart": "explicit intended flags override defaults but not constraints",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_installed_claude_prepare_rejects_owned_local_conflicts_without_rewriting_state"
+    },
+    {
+      "field": "unresolved authority/effective_complete",
+      "counterpart": "always incomplete; unknown remote/MDM/parent/helper never proves readiness or access",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_rechecks_sources_and_rejects_unresolved_resolution"
+    },
+    {
+      "field": "recheck drift reason and diagnostic paths",
+      "counterpart": "raw changes/new absent source/drop-in additions/deletions/link changes rejected",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_local_authority_rechecks_sources_and_rejects_unresolved_resolution"
+    },
+    {
+      "field": "prepublication typed error/output absence",
+      "counterpart": "Known owned user/project/local cap or excluding availableModels stops before fresh output directory",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_installed_claude_prepare_rejects_owned_local_conflicts_without_rewriting_state"
+    },
+    {
+      "field": "settings/permissions/hooks/observation unchanged",
+      "counterpart": "original raw canaries, no native work/helper invocation or observation repair",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_installed_claude_prepare_rejects_owned_local_conflicts_without_rewriting_state"
+    }
+  ],
+  "inherited_preflight": "ordinary-claude-product-preflight/fields.json",
+  "actual_red": "local-authority-test-application/current-red-effective-evidence.json",
+  "limits": "Full effective native authority, environment-in-settings effects, actual remote/MDM/worktree adapters and availability provenance remain open. EACCES unexercised; EISDIR/ENOTDIR real. Empty allowlist semantics unverified, not treated as no constraint. Directory scan is bounded before collecting all entries."
+}

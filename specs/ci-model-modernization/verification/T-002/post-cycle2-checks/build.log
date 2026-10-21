@@ -1,0 +1,14 @@
+{
+  "id": "build",
+  "command": [
+    "python3",
+    "-m",
+    "py_compile",
+    "tests/verification-ci.py",
+    "tests/verification-ci.tests.py"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-19T15:13:16Z",
+  "finished_at": "2026-10-19T15:13:16Z",
+  "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/build.log"
+}

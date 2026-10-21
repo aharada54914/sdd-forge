@@ -1,0 +1,11 @@
+{
+  "baseline_command_count": 20,
+  "candidate_only": true,
+  "historical_test_body_count": 2,
+  "input_list_sha256": "fb0ebae411de63706c49d35394c24ec9e32d88eac51490885a2765255f049dc8",
+  "new_path_omission_count": 12,
+  "pending": "Refresh final live endpoints and Root assembled-frozen admission; run-candidate requires explicit --execute.",
+  "product_restore_count": 27,
+  "restore_map_sha256": "08bf280273527a80fa83673ece278a5fb975706b8a368fded58ea50dd7827fa5",
+  "stage_root": "/workspace/.task-scratch/ci-model-modernization/whole-t008-rollback-candidate-current-4"
+}

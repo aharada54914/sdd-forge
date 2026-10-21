@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "ci-model-modernization",
+  "attempt": 3,
+  "round": 2,
+  "run_id": "work-agent:root:t011_taskplan2_reviewer_b",
+  "host_session_id": "work-agent:root:t011_taskplan2_reviewer_b",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/ci-model-modernization/requirements.md",
+        "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+      },
+      {
+        "path": "specs/ci-model-modernization/acceptance-tests.md",
+        "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+      },
+      {
+        "path": "specs/ci-model-modernization/design.md",
+        "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+      },
+      {
+        "path": "specs/ci-model-modernization/tasks.md",
+        "sha256": "f6efd341394dc891a84741a98a9bb5e514c771f94e23709ce73fa4e36e93f886"
+      },
+      {
+        "path": "specs/ci-model-modernization/traceability.md",
+        "sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+      },
+      {
+        "path": "specs/ci-model-modernization/ux-spec.md",
+        "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+      },
+      {
+        "path": "specs/ci-model-modernization/frontend-spec.md",
+        "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+      },
+      {
+        "path": "specs/ci-model-modernization/infra-spec.md",
+        "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+      },
+      {
+        "path": "specs/ci-model-modernization/security-spec.md",
+        "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-3/round-2/precheck-result.json",
+        "sha256": "e10f52ec86361ed2c2314b0316dfd83736700b2ba52a9ae72214c2c13cd75187"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-3/round-2/integrated-summary.json",
+        "sha256": "e8aeee9200529c440979b4391f973ad3faf48faba09735c2955ba5c01a38a4f7"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      }
+    ]
+  },
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001–T-009 identify externally visible contracts, execution evidence, protected launch or untrusted notification surfaces and use high/tdd. T-010 confines medium/acceptance-first work to controlled evaluation and reviewed adoption references, excluding capability and authorization algorithms. Amended T-011 Risk/Risk Rationale explicitly classify runtime omission selection and setup/schema parsing as high/tdd. Data Migration: None and Breaking API: No are accompanied by compatibility and rollback requirements; no safety, regulated or irreversible destructive surface requires critical classification."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "tasks.md T-011, Readiness bugfix diagnostic path and Done When (lines 585–598), requires tests-first Red/Green and retained diagnostic records but does not require evidence that the failing tests were committed before implementation or a named independent reviewer verdict for the newly high-risk correction. The generic independent quality verification at line 9 and quality-gate acceptance at line 597 do not specify those evidence requirements; design.md Test Strategy requires pre-implementation Red but likewise does not require the test commit or named verdict. T-001–T-009 explicitly require both in their Done When sections. Consequently the amended T-011 completion criteria can be satisfied without the inspectable chronology and attributable independent review required by this Critical check. Require preservation/linkage of those records without backdating history; this finding does not assert that the actual implementation lacks them."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md Shared file ordering and individual Goals separate planning, aggregation, wiring, discovery, identity, selection, transport, installed entries, maintenance and adoption into coherent contract boundaries. T-011 adds a bounded four-file readiness correction directly supporting its existing TEST-017 rollout obligation; its scope excludes unrelated algorithm changes and keeps final release dependent on adoption. The changed text does not introduce an independent oversized implementation area or artificial task fragmentation."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md functional Done When sections and acceptance-tests.md enumerate invalid revision/input, missing/duplicate/wrong-native evidence, cancelled/skipped execution, cache corruption, stale/partial discovery, identity mismatch, precedence, unsupported hosts and notification failures. T-011 diagnostic path explicitly retains mandatory behavior for unknown predicates, missing matrix values and unrecognized raw commands, and requires old-parser/new-setup typed rejection rather than a falsely claimed fallback. Frontend graphical testing is justifiably inapplicable per frontend-spec.md."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md Test Ownership maps each TEST to its AC and final owner. Core planner/selector/schema work uses unit and integration fixtures; protected transport and installed entries require integration/native entry evidence; T-010 requires actual controlled behavior comparisons. T-011 links four focused planner regressions and the prior 50-test suite to readiness, while Done When separately retains actual hosted TEST-016/017, full parity, category comparisons and exact-commit release validation. acceptance-tests.md Verification Scope expressly prevents local fixtures or dry enumeration from satisfying hosted execution."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md Shared file ordering and rollback requires task-owned restoration in a disposable checkout, before/after hashes and baseline reruns, preserving identity ledgers and frozen history. Every task has an explicit tested rollback completion criterion. T-011 additionally requires exact subset rollback in its readiness diagnostic path. infra-spec.md Rollback specifies force-full recovery for CI and a validated explicit pin/new attempt for models without weakening identity or consent checks."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md Shared file ordering assigns ownership of shared catalog/helper changes and mandates serial execution. T-004–T-007 limit shared model-policy.py changes to distinct discovery, binding, selection and launch functions; T-008 consumes transport contracts. T-011 Planned Files and Scope explicitly bound its later planner/catalog/schema repair to omission readiness, following completed predecessor ownership, while final adoption/release remains separate. No concurrent uncoordinated ownership is authorized."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md dependency explanation and Blockers describe the producer-to-consumer sequence T-001→T-008, T-009 consuming policy T-006, T-010 consuming installed entries T-008, and T-011 joining maintenance/adoption. The amended T-011 Scope explicitly permits its bounded CI readiness continuation independently of T-010 execution but preserves T-010 as a final rollout/release blocker. That distinction is supported by the readiness repair consuming CI planner artifacts rather than model trial outputs; no missing dependency or unsupported overlap is introduced."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-011 Readiness bugfix diagnostic path (lines 585–589) specifies the original symptom: readme-contract selects all 443 of 443 obligations and omits nothing. It requires reproduction against retained before-source bytes with command, hashes and observed-versus-expected output; investigation of condition_value handling of generated ci-plan predicates and the undeclared exact CLI setup command before selecting a correction; and four focused regression cases plus prior50/new4 Green, source-consumer proof and rollback. Unknown-condition, missing-matrix, raw-command and old-parser/new-setup controls distinguish the causal boundary. This is sufficient planned diagnostic and regression evidence; it does not establish completed hosted TEST-017."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "HIGH-CRITICAL-EVIDENCE",
+      "severity": "Critical",
+      "task_id": "T-011",
+      "finding": "tasks.md T-011 Readiness bugfix diagnostic path and Done When (lines 585–598) do not require evidence that failing tests were committed before implementation or a named independent reviewer verdict for the amended high/tdd runtime-selection correction. Generic independent quality verification (line 9), tests-first Red/Green wording (line 589), and quality-gate acceptance (line 597) leave those required records unspecified; design.md Test Strategy supplies no missing commit or named-review requirement. This permits completion without the inspectable chronology and attributable review required by HIGH-CRITICAL-EVIDENCE, whose severity is Critical. Add explicit completion requirements to preserve/link the real tests-first commit chronology and named independent verdict, without backdating or replacing retained evidence. This is a task-plan evidence gap, not a claim that implementation evidence is absent."
+    }
+  ]
+}

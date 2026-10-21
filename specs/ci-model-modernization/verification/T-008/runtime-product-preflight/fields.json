@@ -1,0 +1,1739 @@
+{
+  "state": "Pre-product current test references; actual baseline Red evidence is separate. CLI/cache addendum overrides original broad collision rule.",
+  "admission_sha256": "ca125451d898b65442f29af65bb640d03320560c11044281f69777093bf27d3c",
+  "root_actual_evidence": {
+    "caller_red_results_sha256": "e7cb9aa49c9d407d6d9cc0e48b02278fd8d38990a6ab71554859bab169018bb3",
+    "installed_boundary_probe_sha256": "5ce18903bfd21abd32d291184465d75f318538dda519d0cc78aa6d2053400634",
+    "claim": "Current source missing prepare and missing project-root consent source; no split-root Green claimed"
+  },
+  "source": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+  "namespace_authority": {
+    "P": "Actual execution-input root supplied through existing root/cwd contract",
+    "R": "Fixed own-source root for installed panelist producer and new fixed installed record CLI only; generic existing CLI/direct APIs preserve explicit P.",
+    "Native": "Existing independently pinned absolute executable path"
+  },
+  "schema_change": false,
+  "new_persisted_fields": [],
+  "cache_invariants": [
+    "Project/runtime independent caches and actual source reads; no lexical cache substitution.",
+    "One aggregate byte budget; same physical root aliases old caches and budgets.",
+    "Conflicting raw pins reject within the same namespace. Cross-root lexical aliases may contain distinct bytes.",
+    "Only request/registry/inputs merge into the trusted launch snapshot; preserve exact existing T007 collision behavior, excluding controls/selection."
+  ],
+  "unchanged_fields": "All non-path schema/status/role/host/run/session/attempt/selection/delivery/digest fields retain exact T007 producer, consumer and mismatch algorithms; this map records only fields whose source-root routing or direct counterpart is relevant.",
+  "rows": [
+    {
+      "field": "controls.selection.path",
+      "namespace": "P",
+      "producer": "installed prepare existing control closure",
+      "exact_counterpart": "model_launch_controls cwd=P; immutable_launch_validation capture.read in project cache",
+      "required_mismatch": "Escape/alias or substitution rejects existing canonical/raw-pin/closed-closure validation",
+      "same_root_reference": {
+        "source_key": "controls",
+        "subTest": {
+          "case": "selection-path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "controls.selection.sha256",
+      "namespace": "P",
+      "producer": "prepare raw hash of each project source",
+      "exact_counterpart": "unchanged helper raw read and EvidenceCapture project pin",
+      "required_mismatch": "Change owned input bytes without the matching validated pin; no vendor",
+      "same_root_reference": {
+        "source_key": "controls",
+        "subTest": {
+          "case": "selection-hash"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "controls.request.path",
+      "namespace": "P",
+      "producer": "installed prepare existing control closure",
+      "exact_counterpart": "model_launch_controls cwd=P; immutable_launch_validation capture.read in project cache",
+      "required_mismatch": "Escape/alias or substitution rejects existing canonical/raw-pin/closed-closure validation",
+      "same_root_reference": {
+        "source_key": "controls",
+        "subTest": {
+          "case": "request-path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "controls.request.sha256",
+      "namespace": "P",
+      "producer": "prepare raw hash of each project source",
+      "exact_counterpart": "unchanged helper raw read and EvidenceCapture project pin",
+      "required_mismatch": "Change owned input bytes without the matching validated pin; no vendor",
+      "same_root_reference": {
+        "source_key": "controls",
+        "subTest": {
+          "case": "request-hash"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "controls.registry.path",
+      "namespace": "P",
+      "producer": "installed prepare existing control closure",
+      "exact_counterpart": "model_launch_controls cwd=P; immutable_launch_validation capture.read in project cache",
+      "required_mismatch": "Escape/alias or substitution rejects existing canonical/raw-pin/closed-closure validation",
+      "same_root_reference": {
+        "source_key": "controls",
+        "subTest": {
+          "case": "registry-path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "controls.registry.sha256",
+      "namespace": "P",
+      "producer": "prepare raw hash of each project source",
+      "exact_counterpart": "unchanged helper raw read and EvidenceCapture project pin",
+      "required_mismatch": "Change owned input bytes without the matching validated pin; no vendor",
+      "same_root_reference": {
+        "source_key": "controls",
+        "subTest": {
+          "case": "registry-hash"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "controls.inputs[].path",
+      "namespace": "P",
+      "producer": "installed prepare existing control closure",
+      "exact_counterpart": "model_launch_controls cwd=P; immutable_launch_validation capture.read in project cache",
+      "required_mismatch": "Escape/alias or substitution rejects existing canonical/raw-pin/closed-closure validation",
+      "same_root_reference": {
+        "source_key": "controls",
+        "subTest": {
+          "case": "input-path-<each original input path>"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "controls.inputs[].sha256",
+      "namespace": "P",
+      "producer": "prepare raw hash of each project source",
+      "exact_counterpart": "unchanged helper raw read and EvidenceCapture project pin",
+      "required_mismatch": "Change owned input bytes without the matching validated pin; no vendor",
+      "same_root_reference": {
+        "source_key": "controls",
+        "subTest": {
+          "case": "input-hash-<each original input path>"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "validation.controls.path",
+      "namespace": "P",
+      "producer": "helper validated project-relative reference",
+      "exact_counterpart": "checked_controls_validation, pre-send P recheck, retrospective project capture",
+      "required_mismatch": "Replace controls/pin path or reseal a non-closure member; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "controls/path"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "validation.controls.sha256",
+      "namespace": "P",
+      "producer": "unchanged helper validation raw pins",
+      "exact_counterpart": "project-root actual bytes at pre-send and retrospective consumption",
+      "required_mismatch": "Raw control/input drift cannot be reclassified as trusted runtime",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "controls/sha256"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.controls.path",
+      "namespace": "P",
+      "producer": "helper validated project-relative reference",
+      "exact_counterpart": "checked_controls_validation, pre-send P recheck, retrospective project capture",
+      "required_mismatch": "Replace controls/pin path or reseal a non-closure member; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "controls/path"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.controls.sha256",
+      "namespace": "P",
+      "producer": "unchanged helper validation raw pins",
+      "exact_counterpart": "project-root actual bytes at pre-send and retrospective consumption",
+      "required_mismatch": "Raw control/input drift cannot be reclassified as trusted runtime",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "controls/sha256"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "validation.pins[].path",
+      "namespace": "P",
+      "producer": "helper validated project-relative reference",
+      "exact_counterpart": "checked_controls_validation, pre-send P recheck, retrospective project capture",
+      "required_mismatch": "Replace controls/pin path or reseal a non-closure member; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "pins/<index>/path"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "validation.pins[].sha256",
+      "namespace": "P",
+      "producer": "unchanged helper validation raw pins",
+      "exact_counterpart": "project-root actual bytes at pre-send and retrospective consumption",
+      "required_mismatch": "Raw control/input drift cannot be reclassified as trusted runtime",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "pins/<index>/sha256"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.pins[].path",
+      "namespace": "P",
+      "producer": "helper validated project-relative reference",
+      "exact_counterpart": "checked_controls_validation, pre-send P recheck, retrospective project capture",
+      "required_mismatch": "Replace controls/pin path or reseal a non-closure member; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "pins/<index>/path"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.pins[].sha256",
+      "namespace": "P",
+      "producer": "unchanged helper validation raw pins",
+      "exact_counterpart": "project-root actual bytes at pre-send and retrospective consumption",
+      "required_mismatch": "Raw control/input drift cannot be reclassified as trusted runtime",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "pins/<index>/sha256"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "validation.trusted[].path",
+      "namespace": "R",
+      "producer": "installed helper _trusted_inventory fixed six-file ordering",
+      "exact_counterpart": "checked_controls_validation fixed inventory; runtime cache in captured_model_helper",
+      "required_mismatch": "Resealed inventory/path substitution or project decoy must not choose verifier",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "trusted/<index>/path"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "validation.trusted[].sha256",
+      "namespace": "R",
+      "producer": "installed helper trusted raw source hashes",
+      "exact_counterpart": "R source pre-send read and captured runtime helper/authority inputs",
+      "required_mismatch": "Actual installed trusted byte drift rejects; project copy cannot satisfy it",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "trusted/<index>/sha256"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.trusted[].path",
+      "namespace": "R",
+      "producer": "installed helper _trusted_inventory fixed six-file ordering",
+      "exact_counterpart": "checked_controls_validation fixed inventory; runtime cache in captured_model_helper",
+      "required_mismatch": "Resealed inventory/path substitution or project decoy must not choose verifier",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "trusted/<index>/path"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.trusted[].sha256",
+      "namespace": "R",
+      "producer": "installed helper trusted raw source hashes",
+      "exact_counterpart": "R source pre-send read and captured runtime helper/authority inputs",
+      "required_mismatch": "Actual installed trusted byte drift rejects; project copy cannot satisfy it",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "trusted/<index>/sha256"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "consent.gate.path",
+      "namespace": "R",
+      "producer": "panelist_consent / local_reference(R, installed wrapper)",
+      "exact_counterpart": "panelist_runtime_paths fixed names + verify_panelist_run.read_runtime",
+      "required_mismatch": "Reseal gate or wrapper path to another vendor, extension or project source; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_artifact": "consent_result",
+          "resealed_leaf": [
+            "gate",
+            "path"
+          ]
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "consent.gate.sha256",
+      "namespace": "R",
+      "producer": "raw installed original consent/wrapper source",
+      "exact_counterpart": "same installed source after consent, pre-send recheck and retrospective runtime capture",
+      "required_mismatch": "Changed source bytes reject even with unchanged input-root decoy",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_artifact": "consent_result",
+          "resealed_leaf": [
+            "gate",
+            "sha256"
+          ]
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "consent.wrapper.path",
+      "namespace": "R",
+      "producer": "panelist_consent / local_reference(R, installed wrapper)",
+      "exact_counterpart": "panelist_runtime_paths fixed names + verify_panelist_run.read_runtime",
+      "required_mismatch": "Reseal gate or wrapper path to another vendor, extension or project source; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_artifact": "consent_result",
+          "resealed_leaf": [
+            "wrapper",
+            "path"
+          ]
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "consent.wrapper.sha256",
+      "namespace": "R",
+      "producer": "raw installed original consent/wrapper source",
+      "exact_counterpart": "same installed source after consent, pre-send recheck and retrospective runtime capture",
+      "required_mismatch": "Changed source bytes reject even with unchanged input-root decoy",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_artifact": "consent_result",
+          "resealed_leaf": [
+            "wrapper",
+            "sha256"
+          ]
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "dependencies.json runtime absolute object keys",
+      "namespace": "R",
+      "producer": "str(R / name) for unchanged panelist_runtime_paths set",
+      "exact_counterpart": "verify_panelist_run expected_keys independently rebuilt from fixed runtime_root",
+      "required_mismatch": "Replace R prefix by P or another directory, reseal parent hashes; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_artifact": "dependencies",
+          "resealed_leaf": [
+            "<each original absolute runtime/executable key>"
+          ]
+        },
+        "note": "Existing sweep mutates values. Changing an absolute key from runtime-root to project-root is a new pending split-root case."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "dependencies.json runtime object values",
+      "namespace": "R",
+      "producer": "raw hash of each R fixed runtime file",
+      "exact_counterpart": "runtime cache per exact expected absolute key; shared byte budget",
+      "required_mismatch": "Alter value or source bytes; both raw equality and inventory remain required",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_artifact": "dependencies",
+          "resealed_leaf": [
+            "<each original absolute runtime/executable key>"
+          ]
+        },
+        "note": "Existing sweep mutates values. Changing an absolute key from runtime-root to project-root is a new pending split-root case."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "dependencies.json executable absolute key/value",
+      "namespace": "Native absolute path",
+      "producer": "unchanged resolved executable pin",
+      "exact_counterpart": "context.executable.resolved_path/sha256 and existing exact dependency set",
+      "required_mismatch": "Substitute executable key/hash or codex-sync identity; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_artifact": "dependencies",
+          "resealed_leaf": [
+            "<each original absolute runtime/executable key>"
+          ]
+        },
+        "note": "Existing sweep mutates values. Changing an absolute key from runtime-root to project-root is a new pending split-root case."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.bundle.path",
+      "namespace": "P",
+      "producer": "existing create-only attempt artifact reference",
+      "exact_counterpart": "panelist_attempt_directory exact filename + project EvidenceCapture",
+      "required_mismatch": "Reseal foreign attempt/artifact path; reject independently of runtime root",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "bundle/path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.bundle.sha256",
+      "namespace": "P",
+      "producer": "raw persisted attempt artifact hash",
+      "exact_counterpart": "project EvidenceCapture actual bytes and existing reconstructed binding",
+      "required_mismatch": "Alter content/digest independently or reseal inconsistent semantic leaf; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "bundle/sha256"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.consent_result.path",
+      "namespace": "P",
+      "producer": "existing create-only attempt artifact reference",
+      "exact_counterpart": "panelist_attempt_directory exact filename + project EvidenceCapture",
+      "required_mismatch": "Reseal foreign attempt/artifact path; reject independently of runtime root",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "consent_result/path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.consent_result.sha256",
+      "namespace": "P",
+      "producer": "raw persisted attempt artifact hash",
+      "exact_counterpart": "project EvidenceCapture actual bytes and existing reconstructed binding",
+      "required_mismatch": "Alter content/digest independently or reseal inconsistent semantic leaf; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "consent_result/sha256"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.dependencies.path",
+      "namespace": "P",
+      "producer": "existing create-only attempt artifact reference",
+      "exact_counterpart": "panelist_attempt_directory exact filename + project EvidenceCapture",
+      "required_mismatch": "Reseal foreign attempt/artifact path; reject independently of runtime root",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "dependencies/path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.dependencies.sha256",
+      "namespace": "P",
+      "producer": "raw persisted attempt artifact hash",
+      "exact_counterpart": "project EvidenceCapture actual bytes and existing reconstructed binding",
+      "required_mismatch": "Alter content/digest independently or reseal inconsistent semantic leaf; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "dependencies/sha256"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "linkage.selection.path",
+      "namespace": "P",
+      "producer": "existing create-only attempt artifact reference",
+      "exact_counterpart": "panelist_attempt_directory exact filename + project EvidenceCapture",
+      "required_mismatch": "Reseal foreign attempt/artifact path; reject independently of runtime root",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_binding_leaf": "selection/path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "linkage.selection.sha256",
+      "namespace": "P",
+      "producer": "raw persisted attempt artifact hash",
+      "exact_counterpart": "project EvidenceCapture actual bytes and existing reconstructed binding",
+      "required_mismatch": "Alter content/digest independently or reseal inconsistent semantic leaf; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_binding_leaf": "selection/sha256"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "linkage.events.path",
+      "namespace": "P",
+      "producer": "existing create-only attempt artifact reference",
+      "exact_counterpart": "panelist_attempt_directory exact filename + project EvidenceCapture",
+      "required_mismatch": "Reseal foreign attempt/artifact path; reject independently of runtime root",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_binding_leaf": "events/path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "linkage.events.sha256",
+      "namespace": "P",
+      "producer": "raw persisted attempt artifact hash",
+      "exact_counterpart": "project EvidenceCapture actual bytes and existing reconstructed binding",
+      "required_mismatch": "Alter content/digest independently or reseal inconsistent semantic leaf; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_binding_leaf": "events/sha256"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "linkage.delivery.path",
+      "namespace": "P",
+      "producer": "existing create-only attempt artifact reference",
+      "exact_counterpart": "panelist_attempt_directory exact filename + project EvidenceCapture",
+      "required_mismatch": "Reseal foreign attempt/artifact path; reject independently of runtime root",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_binding_leaf": "delivery/path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "linkage.delivery.sha256",
+      "namespace": "P",
+      "producer": "raw persisted attempt artifact hash",
+      "exact_counterpart": "project EvidenceCapture actual bytes and existing reconstructed binding",
+      "required_mismatch": "Alter content/digest independently or reseal inconsistent semantic leaf; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_binding_leaf": "delivery/sha256"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "linkage.execution_context.path",
+      "namespace": "P",
+      "producer": "existing create-only attempt artifact reference",
+      "exact_counterpart": "panelist_attempt_directory exact filename + project EvidenceCapture",
+      "required_mismatch": "Reseal foreign attempt/artifact path; reject independently of runtime root",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_binding_leaf": "execution_context/path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "linkage.execution_context.sha256",
+      "namespace": "P",
+      "producer": "raw persisted attempt artifact hash",
+      "exact_counterpart": "project EvidenceCapture actual bytes and existing reconstructed binding",
+      "required_mismatch": "Alter content/digest independently or reseal inconsistent semantic leaf; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_binding_leaf": "execution_context/sha256"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.policy_environment",
+      "namespace": "R allowlist; unchanged captured environment values",
+      "producer": "policy_environment(environment, R) reads trusted roles allowlist",
+      "exact_counterpart": "immutable_launch_validation unchanged effective-config comparison against project request/policy",
+      "required_mismatch": "Unknown/nonstring or contradictory override rejects; never persist full environment",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "policy_environment"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.scratch",
+      "namespace": "Absolute native scratch, distinct from P",
+      "producer": "existing temporary isolated native workspace",
+      "exact_counterpart": "verify_panelist_run canonical absolute/not-P checks and native argv reconstruction",
+      "required_mismatch": "Reseal scratch to P/alias/relative path; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "scratch"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.executable.path",
+      "namespace": "Native absolute identity",
+      "producer": "unchanged executable resolver and raw pin",
+      "exact_counterpart": "existing shape/exact dependency/native command reconstruction",
+      "required_mismatch": "Reseal path/hash inconsistently or use codex-sync; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "executable/path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.executable.resolved_path",
+      "namespace": "Native absolute identity",
+      "producer": "unchanged executable resolver and raw pin",
+      "exact_counterpart": "existing shape/exact dependency/native command reconstruction",
+      "required_mismatch": "Reseal path/hash inconsistently or use codex-sync; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "executable/resolved_path"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "context.executable.sha256",
+      "namespace": "Native absolute identity",
+      "producer": "unchanged executable resolver and raw pin",
+      "exact_counterpart": "existing shape/exact dependency/native command reconstruction",
+      "required_mismatch": "Reseal path/hash inconsistently or use codex-sync; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_context_leaf": "executable/sha256"
+        }
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.argv",
+      "namespace": "No new root; native scratch/executable command",
+      "producer": "unchanged panelist_argv/panelist_launch_document",
+      "exact_counterpart": "exact canonical reconstructed launch from same validated selection/context",
+      "required_mismatch": "Mutate command/configuration or raw/canonical command digest; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "argv"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.model_argv",
+      "namespace": "No new root; native scratch/executable command",
+      "producer": "unchanged panelist_argv/panelist_launch_document",
+      "exact_counterpart": "exact canonical reconstructed launch from same validated selection/context",
+      "required_mismatch": "Mutate command/configuration or raw/canonical command digest; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "model_argv"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.effort_argv",
+      "namespace": "No new root; native scratch/executable command",
+      "producer": "unchanged panelist_argv/panelist_launch_document",
+      "exact_counterpart": "exact canonical reconstructed launch from same validated selection/context",
+      "required_mismatch": "Mutate command/configuration or raw/canonical command digest; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "effort_argv"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "launch.argv_sha256",
+      "namespace": "No new root; native scratch/executable command",
+      "producer": "unchanged panelist_argv/panelist_launch_document",
+      "exact_counterpart": "exact canonical reconstructed launch from same validated selection/context",
+      "required_mismatch": "Mutate command/configuration or raw/canonical command digest; reject",
+      "same_root_reference": {
+        "source_key": "panelist",
+        "subTest": {
+          "panelist_launch_leaf": "argv_sha256"
+        },
+        "note": "Existing launch-record counterpart; validation producer is not a separately mutated record in this sweep."
+      },
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1903,
+          1951
+        ]
+      },
+      "additional_namespace_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "EvidenceCapture.project_cache",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2098,
+          2172
+        ]
+      }
+    },
+    {
+      "field": "EvidenceCapture.runtime_cache",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2098,
+          2172
+        ]
+      }
+    },
+    {
+      "field": "EvidenceCapture.aggregate_remaining",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2098,
+          2172
+        ]
+      }
+    },
+    {
+      "field": "EvidenceCapture.same_root_alias",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2098,
+          2172
+        ]
+      }
+    },
+    {
+      "field": "EvidenceCapture.raw_pin_conflict",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2098,
+          2172
+        ]
+      }
+    },
+    {
+      "field": "EvidenceCapture.regular_canonical_read",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2098,
+          2172
+        ]
+      }
+    },
+    {
+      "field": "trusted_snapshot.request_registry_inputs_collision",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          2058,
+          2096
+        ]
+      }
+    },
+    {
+      "field": "model-installed-run-record.fixed_runtime",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      }
+    },
+    {
+      "field": "emit-run-record.sh.selected_dispatch",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      }
+    },
+    {
+      "field": "emit-run-record.ps1.selected_dispatch",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      }
+    },
+    {
+      "field": "model-run-record.legacy_explicit_root",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      }
+    },
+    {
+      "field": "protected_claude.project_root",
+      "namespace": "Explicit per-field P/R split; protected/generic default P",
+      "producer": "Internal source routing only; no new persisted data",
+      "exact_counterpart": "Fixed own-source mode; unchanged generic API and protected transport. Independent caches share byte budget and same-root alias.",
+      "required_mismatch": "Actual installed drift/decoys/resealed dependencies/namespace collisions and real-file cache budget/alias checks; no native invocation from retrospective verification.",
+      "installed_reference": {
+        "path": "tests/model-policy-installed.tests.py",
+        "sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+        "lines": [
+          1953,
+          2056
+        ]
+      }
+    }
+  ],
+  "positive_owner": "InstalledPanelistCallerTests.test_maintained_panelist_snippets_prepare_and_forward_installed_controls",
+  "new_split_root_status": "All required split-root mismatch cases below are pending actual tests; historical same-root references are not newly executed proof.",
+  "same_root_sources": {
+    "controls": {
+      "source": "tests/model-policy-launch.tests.py",
+      "method": "LaunchControls.test_controls_closed_fields_and_all_persisted_leaf_mismatches",
+      "lines": [
+        532,
+        580
+      ],
+      "source_sha256": "ad2be3c969aac5133de944b6f53c2a62825a3fe8837d0840f9e92487d4a4b3b5"
+    },
+    "panelist": {
+      "source": "tests/model-policy-launch.tests.py",
+      "method": "SelectedPanelistLaunch.test_panelist_postbindings_and_every_context_leaf_are_checked_retrospectively",
+      "lines": [
+        2714,
+        2803
+      ],
+      "source_sha256": "ad2be3c969aac5133de944b6f53c2a62825a3fe8837d0840f9e92487d4a4b3b5"
+    }
+  },
+  "recorded_at": "2026-10-20T06:50:26.903350+00:00",
+  "test_sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+  "source_scope": {
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78"
+  },
+  "scope_rationale": "Actual both-shell current installed caller Red confirms preparation passes but consent source is wrongly looked up under P. Narrow source-root integration only, T007 selector/consent/native/delivery algorithms unchanged; existing T00754-method regressions required.",
+  "compatibility_addendum": {
+    "path": "specs/ci-model-modernization/verification/T-008/caller-runtime-design/cli-and-cache-addendum.md",
+    "sha256": "be6bcc6988d990a7d11e2e5ccde763319c0f29008556b5697105ddbb39786b2d"
+  },
+  "red_evidence": {
+    "path": "specs/ci-model-modernization/verification/T-008/caller-runtime-tests/red-effective-evidence.json",
+    "sha256": "c6f42ea5da85eacad220aec2002bdcbfa516227b35a1c3f777ac1dfb5c3f2258"
+  },
+  "test_commit": "bf9bf5aa"
+}

@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-20T19:01:45.088383+00:00",
+  "before_raw_sha256": "8602f7440a586d79a4c21551aef8f4c3998efda1baca3f5197ac779ee74467d9",
+  "after_raw_sha256": "1f827f2a953f2d0cbd670ea91dc8c7c06c55d28fcb0a27b2d0ff6d53d4994eaa",
+  "actual_finding": "attempt3 round1 reviewer B Major BUGFIX-DIAGNOSTIC-PATH",
+  "changes": [
+    "T011 explicit retained failure reproduction, causal verification and corresponding regression/rollback plan",
+    "T010 external authentication prerequisite and immutable attempt1 history moved outside dependency list; no stale pending prose on future lifecycle transitions"
+  ],
+  "T001_T009_task_blocks_unchanged": true,
+  "approval_lines_unchanged": true,
+  "acceptance_waivers": false,
+  "runtime_products_changed": false
+}

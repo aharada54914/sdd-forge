@@ -1,0 +1,16 @@
+{
+  "id": "build",
+  "command": [
+    "python3",
+    "-m",
+    "py_compile",
+    "tests/verification-impact.py",
+    "tests/verification-workflow.py",
+    "tests/verification-ci-plan.tests.py",
+    "tests/verification-catalog.tests.py"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-19T15:55:55Z",
+  "finished_at": "2026-10-19T15:55:55Z",
+  "evidence": "specs/ci-model-modernization/verification/T-001/post-ci-integration-checks/build.log"
+}

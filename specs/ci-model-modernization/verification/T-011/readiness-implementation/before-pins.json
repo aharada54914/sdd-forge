@@ -1,0 +1,13 @@
+{
+  "captured_at": "2026-10-20T18:32:58.905214+00:00",
+  "head": "2c78757a8f97d052efa59f50d24b8cbc541b3a89",
+  "pins": {
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+    "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+    "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+    "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+    "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+    ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+    "specs/ci-model-modernization/tasks.md": "001cb88b7f64c7fb070354e848fd583b976fa0bf09bc5f5ffa063bf6df8153d6"
+  }
+}

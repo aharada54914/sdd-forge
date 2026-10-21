@@ -1,0 +1,52 @@
+test_empty_optional_minimum_matches_omission_in_both_wrappers (t006_empty_red.PolicySelection.test_empty_optional_minimum_matches_omission_in_both_wrappers) ... 
+  test_empty_optional_minimum_matches_omission_in_both_wrappers (t006_empty_red.PolicySelection.test_empty_optional_minimum_matches_omission_in_both_wrappers) (backend='bash') ... FAIL
+  test_empty_optional_minimum_matches_omission_in_both_wrappers (t006_empty_red.PolicySelection.test_empty_optional_minimum_matches_omission_in_both_wrappers) (backend='powershell') ... FAIL
+test_empty_optional_minimum_direct_completion_preserves_role_floor (t006_empty_red.PolicySelection.test_empty_optional_minimum_direct_completion_preserves_role_floor) ... FAIL
+
+======================================================================
+FAIL: test_empty_optional_minimum_matches_omission_in_both_wrappers (t006_empty_red.PolicySelection.test_empty_optional_minimum_matches_omission_in_both_wrappers) (backend='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 829, in test_empty_optional_minimum_matches_omission_in_both_wrappers
+    actual = self.selected(self.invoke(backend, extra=(option, '')), CURRENT)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 178, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 2 != 0 : {"message":"Winner cannot lower the role or caller minimum tier.","reason":"model-tier-unavailable","schema":"model-policy-error/v1"}
+
+
+======================================================================
+FAIL: test_empty_optional_minimum_matches_omission_in_both_wrappers (t006_empty_red.PolicySelection.test_empty_optional_minimum_matches_omission_in_both_wrappers) (backend='powershell')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 829, in test_empty_optional_minimum_matches_omission_in_both_wrappers
+    actual = self.selected(self.invoke(backend, extra=(option, '')), CURRENT)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 178, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 2 != 0 : {"message":"Winner cannot lower the role or caller minimum tier.","reason":"model-tier-unavailable","schema":"model-policy-error/v1"}
+
+
+======================================================================
+FAIL: test_empty_optional_minimum_direct_completion_preserves_role_floor (t006_empty_red.PolicySelection.test_empty_optional_minimum_direct_completion_preserves_role_floor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 849, in test_empty_optional_minimum_direct_completion_preserves_role_floor
+    actual = helper.complete_policy(context, winner)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-implementation/scripts/model-policy.py", line 1449, in complete_policy
+    raise PolicyError('model-tier-unavailable', 'Winner cannot lower the role or caller minimum tier.')
+t006_policy.PolicyError: Winner cannot lower the role or caller minimum tier.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 851, in test_empty_optional_minimum_direct_completion_preserves_role_floor
+    self.fail('Accepted empty optional minimum rejected: ' + error.reason)
+AssertionError: Accepted empty optional minimum rejected: model-tier-unavailable
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.484s
+
+FAILED (failures=3)
+

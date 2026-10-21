@@ -1,0 +1,6 @@
+{
+  "observed_at": "2026-10-20T19:27:40Z",
+  "workspace_disk_free_bytes": 2557636608,
+  "repository_allocated_kib_excluding_git": 1932360,
+  "tmpdir": "/workspace/.task-scratch/ci-model-modernization"
+}

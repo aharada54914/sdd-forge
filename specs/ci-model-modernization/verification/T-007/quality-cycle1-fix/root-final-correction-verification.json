@@ -1,0 +1,26 @@
+{
+  "recorded_at": "2026-10-20T01:58:13.245524+00:00",
+  "actual_receipt": {
+    "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/final-correction/results.json",
+    "sha256": "2172425d772e2066ad03adaad52faab3a4a96668e7197f2dea818301f6ea1dc4"
+  },
+  "all6commands_exit0": true,
+  "all12log_pins_verified": true,
+  "all126current_source_pins_verified": true,
+  "before_matches_after": true,
+  "core": {
+    "methods": 54,
+    "successful_subtests": 875,
+    "errors": 0,
+    "failures": 0,
+    "skips": 0
+  },
+  "fixed_launch_methods": 50,
+  "schema": "38regeneratedrecords; actualjsonschema12positive24negative and2carrier mutations inspected in actualreceipts",
+  "source_pins": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "tests/model-policy-launch.tests.py": "ad2be3c969aac5133de944b6f53c2a62825a3fe8837d0840f9e92487d4a4b3b5"
+  },
+  "limits": "Sourceboundlocalproof; actualnativefinal/rollback andQA2pending. Initialfull14FAILimmutable."
+}

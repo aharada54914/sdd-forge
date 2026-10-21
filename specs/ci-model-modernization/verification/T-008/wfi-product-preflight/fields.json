@@ -1,0 +1,101 @@
+{
+  "at": "2026-10-20T13:20:55.798311+00:00",
+  "status": "PRE_PRODUCT_RECORDED",
+  "tests_first_commit": "c3ded029",
+  "product_before": {
+    "plugins/sdd-implementation/scripts/managed-model-entry.py": {
+      "sha256": "b72419302a4718ebc317de144a1a965015a7d8e60a025a3782bd3bb99640390e",
+      "mode": 384
+    },
+    "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md": {
+      "sha256": "452b2138848e71268a5b02c51f6642c274c21d4fb8a5d353352cd907c04d03be",
+      "mode": 384
+    },
+    "install.sh": {
+      "sha256": "0e1fd9176189e9f57fe69f34da8d40e9981f27ac1caa48e2914ee97f8679f3c6",
+      "mode": 448
+    },
+    "install.ps1": {
+      "sha256": "32ae3a5d3b5f12db1529f55230301518d9601bee3c5229de64237c9be2753492",
+      "mode": 384
+    }
+  },
+  "fields": [
+    {
+      "field": "policy/native role mapping",
+      "counterpart": "workflow-auditor-a/b \u2192 original wfi-auditor-a/b body; same existing core selection/controls",
+      "mismatch_test": "test_maintained_wfi_fences_deliver_original_a_then_revised_b_through_both_installers exact native role/model/effort and core oracle"
+    },
+    {
+      "field": "fresh immutable handoff identity",
+      "counterpart": "Existing run/session/attempt with separate A/B request/observation/control paths and fresh UUID",
+      "mismatch_test": "test_maintained_wfi_fences_deliver_original_a_then_revised_b_through_both_installers actual A/B work events and retained A pins"
+    },
+    {
+      "field": "fixed installed sources",
+      "counterpart": "Complete original role body and guide; unchanged guard/driver; four mandatory assets both installers",
+      "mismatch_test": "test_installers_and_entry_reject_missing_closure_unsafe_inputs_and_unusable_native_results eight actual missing-source installer rejections and installed source drift"
+    },
+    {
+      "field": "WFI data path/raw pin",
+      "counterpart": "Existing prompt pair binds same canonical WFI markdown as audit data",
+      "mismatch_test": "test_installers_and_entry_reject_missing_closure_unsafe_inputs_and_unusable_native_results free instructions, hash mismatch, dot/parent/absolute/symlink aliases"
+    },
+    {
+      "field": "optional retrospective pair",
+      "counterpart": "Canonical chosen report path/hash; omitted only no-report case, same parent selection for B",
+      "mismatch_test": "test_actual_node_guard_admits_frozen_reads_and_denies_raw_audit_and_tool_events actual omitted-report SKIP; test_installers_and_entry_reject_missing_closure_unsafe_inputs_and_unusable_native_results partial/missing/outside/alias report"
+    },
+    {
+      "field": "B summary path/raw pin",
+      "counterpart": "Same WFI integrated-summary path and raw pin; A forbids summary flags",
+      "mismatch_test": "test_installers_and_entry_reject_missing_closure_unsafe_inputs_and_unusable_native_results wrong WFI/A raw/report paths/partial or drifted summary"
+    },
+    {
+      "field": "original closed summary content",
+      "counterpart": "Existing9 check IDs, fail IDs and consistent integer counts, enum verdict, timestamp, no raw findings",
+      "mismatch_test": "test_installers_and_entry_reject_missing_closure_unsafe_inputs_and_unusable_native_results twelve content mutations, duplicate/malformed JSON; PASS may include Minor FAILs"
+    },
+    {
+      "field": "retained input copies and hashes",
+      "counterpart": "Actual original logical paths/bytes in readonly-inputs plus standard SHA256SUMS; A retained through revision",
+      "mismatch_test": "test_maintained_wfi_fences_deliver_original_a_then_revised_b_through_both_installers independently verifies every copied byte/raw pin and unchanged A closure"
+    },
+    {
+      "field": "existing guard reuse",
+      "counterpart": "Original guard_policy_documents with genuine captured fixed inputs; no canonical review reservation claim",
+      "mismatch_test": "test_actual_node_guard_admits_frozen_reads_and_denies_raw_audit_and_tool_events actual emitted policy admits captured reads and denies every other tool/input"
+    },
+    {
+      "field": "hook command/Node identity",
+      "counterpart": "Exact one-prefix direct pinned Node adaptation; original guard/path/policy SHA/deny suffix retained",
+      "mismatch_test": "test_installers_and_entry_reject_missing_closure_unsafe_inputs_and_unusable_native_results missing Node and Node/guard help-time drift; test_actual_node_guard_admits_frozen_reads_and_denies_raw_audit_and_tool_events stale policy pin rejects widened copy"
+    },
+    {
+      "field": "native read-only declaration/settings",
+      "counterpart": "Original supported agent JSON, Read/Bash, disallowed mutation/search tools, additive guard, no bypass/resume/global-settings disable",
+      "mismatch_test": "test_maintained_wfi_fences_deliver_original_a_then_revised_b_through_both_installers exact argv/settings/full role; test_actual_node_guard_admits_frozen_reads_and_denies_raw_audit_and_tool_events actual Read/Bash/Write/Grep/Glob decisions"
+    },
+    {
+      "field": "source/capture/settings/control/executable drift",
+      "counterpart": "Existing pre-output/pre-send/post-work rechecks plus WFI raw capture, guard and Node",
+      "mismatch_test": "test_installers_and_entry_reject_missing_closure_unsafe_inputs_and_unusable_native_results known cap/env/source/control/prompt/summary drifts and no accepted publication"
+    },
+    {
+      "field": "native result and audit identity",
+      "counterpart": "Original public result/session plus parsed original audit schema/WFI/cycle; parent owns audit-file/status/report publication",
+      "mismatch_test": "test_installers_and_entry_reject_missing_closure_unsafe_inputs_and_unusable_native_results malformed/error0/native failure/wrong session/wrong WFI/cycle; exactly one work and no accepted receipt"
+    },
+    {
+      "field": "parent state/approval/consent boundaries",
+      "counterpart": "Original attempt/resume/no-change/revision/Issue/Human-Pending and no-Sudo-skip procedure retained",
+      "mismatch_test": "test_maintained_wfi_fences_deliver_original_a_then_revised_b_through_both_installers original maintained prose and owned parent mutations; no actual Issue or human approval"
+    },
+    {
+      "field": "legacy and proof limits",
+      "counterpart": "Old investigator/diagnosis/implementer/delegation APIs retained; no core/driver/guard/schema/availability/adoption algorithm edits",
+      "mismatch_test": "test_maintained_wfi_fences_deliver_original_a_then_revised_b_through_both_installers fixture only; original59 methods preserved and old implementer3 pass"
+    }
+  ],
+  "scope": "Four existing product paths only; WFI ordinary selected-role carrier and real maintained dispatch/required installer assets. No core, protected driver/guard/role-body, canonical review schema, availability producer, adoption or other task changes."
+}

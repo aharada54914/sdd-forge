@@ -1,0 +1,16 @@
+{
+  "label": "readiness-counterpart-check",
+  "command": [
+    "python3",
+    "-B",
+    "specs/ci-model-modernization/verification/T-011/readiness-implementation/check-readiness.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:36:21.651699+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 0.3862361020001117,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

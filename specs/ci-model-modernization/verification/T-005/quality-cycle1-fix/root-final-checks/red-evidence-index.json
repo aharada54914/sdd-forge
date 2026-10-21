@@ -1,0 +1,26 @@
+{
+  "test_only_commits": [
+    "1cf522366b23126f858c92c01662f10f963e4f0f",
+    "7f85ed1f975048c94a823b335d3c1cae210e1b01",
+    "a90ae513b00d22ae0d704f8a3abad28aebb893da",
+    "ab98aa5670c5b6764778e6ce2066f483b9b1c9ed"
+  ],
+  "actual_red_receipts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/attempt-1/red/results.json",
+      "sha256": "f3280247e733783091bb9aceba6a673c82c339d23682c6829d06186f3f00d033"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/root-boundary-probe/red.json",
+      "sha256": "4741e1d28ccb59bccd6b1fe8b9ccf42d741d2765613c4bbc6117a3fc4f7018bf"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/root-scheme-probe/red.json",
+      "sha256": "dcf40574f1cefb55c0c174978c98e11870dd9743e8acfd1c10c06dfa9830744d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/red/result.json",
+      "sha256": "5e222fae75ad97a4e1500174b16411f69cc5e36a00fd17425a4cad9c7e53a975"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "label": "impact",
+  "command": [
+    "python3",
+    "-B",
+    "tests/verification-impact.tests.py",
+    "-v"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:35:03.962484+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 0.3083705040044151,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

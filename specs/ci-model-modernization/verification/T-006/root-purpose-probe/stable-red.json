@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/model-policy.tests.py",
+    "PolicySelection.test_genuine_diagnostic_capture_cannot_authorize_selection"
+  ],
+  "exit_code": 1,
+  "helper_sha256_before_and_after": "85d0654132cba2f94b6edabc7463e0b3efb0bef519155cee093bcf21e83f6be2",
+  "test_sha256": "095c42822e4d78eb42871082d42473fb083594ee8bb474464cb926a50f793ed9",
+  "actual_assertion_failures": 1,
+  "actual_errors": 0,
+  "at": "2026-10-19T20:49:04.297768+00:00"
+}

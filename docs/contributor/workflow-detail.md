@@ -510,6 +510,17 @@ review_cycles: <実施済みサイクル数>
      `[model-freshness-divergence]` をそのまま含める（D2 の自動起票と重複判
      定用マーカーが同一文字列であることが必須 — 無いと次回の D2 定期実行が
      同じ乖離を重複起票する）
+   - 週次チェックの読み方: 実行は月曜 03:00 UTC または手動（`workflow_dispatch`）。
+     read-only の shared policy（`contracts/model-policy.v1.json`）と v2
+     catalog を参照し、いずれも更新しない。結果は 3 種類を分けて扱う:
+     `candidate`（未知の候補。未検証）、`deprecation`（出典表に `deprecated` /
+     `retired` の明示行があるものだけ。`sourceDate` と policy 側の日付を併記）、
+     取得不能（`[model-freshness-fetch-unavailable]` の追跡 issue へコメント。
+     exit 0）。日付が不明・不正・矛盾する場合は `sourceDate=unknown`（公開日不明で
+     あり取得日時ではない）。モデルの不在から廃止を推定しない。マーカー
+     `[model-freshness-divergence]` / `[model-freshness-fetch-unavailable]` は
+     安定した文字列で、open issue があれば重複起票せず再利用する。採用は人間の
+     レビューを経て行い、自動採用・merge はしない。
 
 3. **人間が Approved に変更**
    - 改善内容に同意 → 適用
@@ -706,6 +717,19 @@ GitHub 上の `main` ブランチは以下の保護ルールでガード され�
 | **Branches up to date** | マージ前にベースブランチとの衝突がないこと |
 | **Force push blocked** | `git push --force-with-lease` を含む強制プッシュは禁止 |
 | **Deletion blocked** | ブランチ削除は禁止 |
+
+有効な入力で変更を分類できない場合、planner は保守的な full 計画を返します。
+計画ジョブ（`ci-plan`）自体の失敗や計画ファイルの破損は、必須の集約チェックを失敗させます。
+対応する planner と設定が揃っている場合は、復旧時に
+`SDD_CI_FORCE_FULL=true` を設定して full を強制できます。未設定や不正な値でも full
+であり、リテラルの `false` だけでは未証明のカテゴリは有効になりません。現時点で
+ロールアウトが有効なカテゴリはなく、リポジトリ変数の実際の設定値も未確認です。
+上の必須コンテキスト名は変更しません。
+
+新しい CI 設定を導入する前に、PR の信頼済みベースを対応する planner へ更新してください。
+旧版は新しい catalog の `setup` 設定を `input-invalid` として拒否し、full 強制でも
+復旧しません。この場合は入力とツールの版を揃え、その revision で手動の full を
+実行して確認します。
 
 ### Merge queue (CI + merge 順序制御)
 

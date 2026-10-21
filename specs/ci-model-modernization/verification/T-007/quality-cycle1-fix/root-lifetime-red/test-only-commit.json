@@ -1,0 +1,15 @@
+{
+  "commit": "211be77e286fc18168fc1b0cb2796300fe3cf612",
+  "changed_paths": [
+    "tests/model-policy-launch.tests.py"
+  ],
+  "actual_red": {
+    "methods": 1,
+    "failures": 1,
+    "errors": 0,
+    "skips": 0
+  },
+  "behavior": "Realstalecontextwriter recreatedfileafterownfdreused; beforeguardfix",
+  "all_prior53_module_AST_preserved": true,
+  "total_methods": 54
+}

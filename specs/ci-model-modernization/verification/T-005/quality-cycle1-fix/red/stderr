@@ -1,0 +1,83 @@
+FFFF.FFFFF
+======================================================================
+FAIL: test_empty_default_ports_bind_without_changing_valid_https_metadata (__main__.UriAuthorityContractTests.test_empty_default_ports_bind_without_changing_valid_https_metadata) (url='https://pricing.example.invalid:/pricing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1855, in test_empty_default_ports_bind_without_changing_valid_https_metadata
+    self.assertIsNotNone(re.fullmatch(pattern, url), 'bound producer value must match the published schema')
+AssertionError: unexpectedly None : bound producer value must match the published schema
+
+======================================================================
+FAIL: test_empty_default_ports_bind_without_changing_valid_https_metadata (__main__.UriAuthorityContractTests.test_empty_default_ports_bind_without_changing_valid_https_metadata) (url='HTTPS://pricing.example.invalid:')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1855, in test_empty_default_ports_bind_without_changing_valid_https_metadata
+    self.assertIsNotNone(re.fullmatch(pattern, url), 'bound producer value must match the published schema')
+AssertionError: unexpectedly None : bound producer value must match the published schema
+
+======================================================================
+FAIL: test_empty_default_ports_bind_without_changing_valid_https_metadata (__main__.UriAuthorityContractTests.test_empty_default_ports_bind_without_changing_valid_https_metadata) (url='https://[::1]:/pricing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1855, in test_empty_default_ports_bind_without_changing_valid_https_metadata
+    self.assertIsNotNone(re.fullmatch(pattern, url), 'bound producer value must match the published schema')
+AssertionError: unexpectedly None : bound producer value must match the published schema
+
+======================================================================
+FAIL: test_empty_default_ports_bind_without_changing_valid_https_metadata (__main__.UriAuthorityContractTests.test_empty_default_ports_bind_without_changing_valid_https_metadata) (url='https://[2001:db8::1]:')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1855, in test_empty_default_ports_bind_without_changing_valid_https_metadata
+    self.assertIsNotNone(re.fullmatch(pattern, url), 'bound producer value must match the published schema')
+AssertionError: unexpectedly None : bound producer value must match the published schema
+
+======================================================================
+FAIL: test_cli_bound_record_conforms_to_original_uri_authority_and_preserves_rejections (__main__.UriAuthorityCliTests.test_cli_bound_record_conforms_to_original_uri_authority_and_preserves_rejections) (valid='https://pricing.example.invalid:/pricing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1880, in test_cli_bound_record_conforms_to_original_uri_authority_and_preserves_rejections
+    self.assertIsNotNone(re.fullmatch(pattern, bound_record['estimate']['source_url']))
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_cli_bound_record_conforms_to_original_uri_authority_and_preserves_rejections (__main__.UriAuthorityCliTests.test_cli_bound_record_conforms_to_original_uri_authority_and_preserves_rejections) (valid='https://[::1]:/pricing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1880, in test_cli_bound_record_conforms_to_original_uri_authority_and_preserves_rejections
+    self.assertIsNotNone(re.fullmatch(pattern, bound_record['estimate']['source_url']))
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata (__main__.UriOriginalStringTests.test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata) (control=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1901, in test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata
+    self.assertRejects(INVALID, self.validate, seal(record))
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 334, in assertRejects
+    self.fail('accepted input that must be rejected with %s' % sorted(allowed))
+AssertionError: accepted input that must be rejected with ['input-invalid']
+
+======================================================================
+FAIL: test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata (__main__.UriOriginalStringTests.test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata) (control=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1901, in test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata
+    self.assertRejects(INVALID, self.validate, seal(record))
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 334, in assertRejects
+    self.fail('accepted input that must be rejected with %s' % sorted(allowed))
+AssertionError: accepted input that must be rejected with ['input-invalid']
+
+======================================================================
+FAIL: test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata (__main__.UriOriginalStringTests.test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata) (control=27)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1901, in test_leading_nonwhitespace_controls_cannot_be_normalized_into_https_metadata
+    self.assertRejects(INVALID, self.validate, seal(record))
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 334, in assertRejects
+    self.fail('accepted input that must be rejected with %s' % sorted(allowed))
+AssertionError: accepted input that must be rejected with ['input-invalid']
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.160s
+
+FAILED (failures=9)

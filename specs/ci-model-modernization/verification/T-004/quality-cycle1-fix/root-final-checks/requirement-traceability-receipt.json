@@ -1,0 +1,25 @@
+{
+  "selected_actual_command_receipt": {
+    "id": "requirement-traceability",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "specs/ci-model-modernization/traceability.json",
+      "/workspace/sdd-forge",
+      "require-evidence"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T19:02:31Z",
+    "finished_at": "2026-10-19T19:02:31Z",
+    "evidence": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/requirement-traceability.log",
+    "sha256": "953789303b71bfc19dd41bc0c502e27d2a6201362066ae3ef9cf4eed6fe1ac26"
+  },
+  "full_scope_receipts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/root-final-checks/commands.json",
+      "sha256": "0a3809da1341cbc1e5b16376251de9baab9b67c3eecb9be01dbae65e9f9b2bbc",
+      "scope": "requirement-traceability"
+    }
+  ],
+  "interpretation": "Selected command actually executed as recorded; all scope receipts separately hash-verified. Shared model50 execution is not multiplied. Regression selected command is one of the recorded final candidate family, whose complete245 tests passed via unchanged194 plus current51, with failed initial f05 static results explicitly excluded."
+}

@@ -1,0 +1,17 @@
+{
+  "source": "Additional files from same actual generated installed CLI schema; original acquisition remains immutable",
+  "original_acquisition_sha256": "43a5c6cd13e74665d8afd7f2a7a7b84a215b48a0e868be758a292815c2b84326",
+  "cli_version": "codex-cli 0.159.2",
+  "inference_executed": false,
+  "account_read_executed": false,
+  "files": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/native-schema/v2/GetAccountParams.json",
+      "sha256": "30b545275f60975b55bd6fbaafd70f15505801d14168ee82d3931b6e93c78aab"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/native-schema/v2/GetAccountResponse.json",
+      "sha256": "67ac3095b058a7d3c1627ff4dd9e52c8ee3c55f961cb1b980959ac15336d6827"
+    }
+  ]
+}

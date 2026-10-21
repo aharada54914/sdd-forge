@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "ci-model-modernization",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "work-agent:root:t011_taskplan_reviewer_b",
+  "host_session_id": "work-agent:root:t011_taskplan_reviewer_b",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/ci-model-modernization/requirements.md",
+        "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+      },
+      {
+        "path": "specs/ci-model-modernization/acceptance-tests.md",
+        "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+      },
+      {
+        "path": "specs/ci-model-modernization/design.md",
+        "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+      },
+      {
+        "path": "specs/ci-model-modernization/tasks.md",
+        "sha256": "77d170f77f1d89b793e24f96ef24428b517363d7ed3e2784f49366788ee8ca8e"
+      },
+      {
+        "path": "specs/ci-model-modernization/traceability.md",
+        "sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+      },
+      {
+        "path": "specs/ci-model-modernization/ux-spec.md",
+        "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+      },
+      {
+        "path": "specs/ci-model-modernization/frontend-spec.md",
+        "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+      },
+      {
+        "path": "specs/ci-model-modernization/infra-spec.md",
+        "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+      },
+      {
+        "path": "specs/ci-model-modernization/security-spec.md",
+        "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-3/round-1/precheck-result.json",
+        "sha256": "f8bcd0d23571a3f5246df626a1e44d6183d9727239943ed6ce2c48dd5c3933b8"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-3/round-1/integrated-summary.json",
+        "sha256": "2846a541bd6b4c668fb9917726fbe916c492d1f402a53b727bdcf09002265a31"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/tasks.md:27–29,78–80,127–129,178–180,227–229,276–278,332–334,386–388,445–447 classify contract, transport and untrusted-input changes high with tdd. T-011 explicitly raises the readiness selection/schema repair to high/tdd at lines 544–546. T-010 is medium/acceptance-first with evaluation and metadata scope, excluding capability/authorization algorithm changes at lines 494–503. These classifications match risk-classification-policy.md:14–19."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "specs/ci-model-modernization/tasks.md:63,112,163,212,261,317,371,430,479 require persisted Red/Green, field/counterpart/mismatch preflight and independent verification for T-001–T-009. T-011 requires tests-first Red/Green at lines 545–546 and focused regressions/schema counterpart at lines 570–573; the shared mandatory preflight in design.md:295–303 and security-spec.md:67,170 also applies to this high-risk repair. This establishes planned evidence obligations only; neither existing Done statuses nor the current review establish that implementation evidence actually passed."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/tasks.md:13–21 decomposes planner, aggregation, workflow, discovery, binding, selection, transport, installed entries, maintenance, adoption and release into separately verified scopes. T-011's added implementation work is bounded to one setup classification, the readiness selection/parser, focused regressions and the schema counterpart at lines 570–579; its remaining work forms the final rollout/documentation/release stage at lines 583–590. No unbounded redesign is assigned to that continuation."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/acceptance-tests.md:41–118 covers revision/path anomalies, unknown inputs, dependency omissions, evidence mutation, reruns, cache corruption and concurrency; lines 124–178 and 207–232 cover discovery failure, stale scope, configuration precedence, injection, consent and configured-versus-actual identity. T-011 retains conservative unknown handling at tasks.md:545 and unproven-category full execution at lines 585–586. T-010's zero-output authentication blocker remains explicit at lines 538–539 rather than becoming a substituted-model comparison."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/tasks.md:59–64,108–113,157–164 assign deterministic unit/integration and regression evidence to CI core and wiring; lines 313–318,367–372,426–431 require shell parity, transport and installed-entry integration. T-010 requires controlled actual model and fixed-model skill experiments at lines 523–527. T-011 combines focused readiness regressions at line 572 with actual hosted/native and exact-commit full validation at lines 585–589. acceptance-tests.md:194–200 explicitly prevents fixtures or listings from substituting for those actual evaluations."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/tasks.md:17 requires task-owned restoration in disposable checkouts, before-byte/source hashes and baseline reruns while preserving ledgers/history. T-011 explicitly requires subset rollback at line 545 and tested rollback evidence at line 590. infra-spec.md:145–153 specifies force-full recovery and eligible explicit pinned-model recovery; tasks.md:588–589 preserves existing tags and binds any new release to its tested revision."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/tasks.md:13–21 identifies functional ownership and scoped acceptance boundaries. Although T-011 touches predecessor-owned planner/catalog/schema files, lines 570–579 explicitly authorize the narrow readiness correction and distinguish it from final rollout, model adoption and release. T-010 remains limited to experiments and adoption metadata at lines 503,512–519. Shared helper/catalog modifications are serialized at line 15, avoiding concurrent ownership of those files."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/tasks.md:15 defines the core dependency chain, maintenance from T-006, adoption from T-008 and the final join. Blocker fields at lines 488,536,598 match that ordering. T-010 separately records its external authentication blocker at line 538. The explicit exception at line 579 permits only the bounded readiness continuation before T-010 execution; final rollout/adoption/release still depend on T-010. It does not waive downstream acceptance or require an invented maintenance-to-adoption dependency."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-011 now includes a runtime readiness bugfix: specs/ci-model-modernization/tasks.md:545 names a TEST-017 repair and lines 570–573 name setup classification and selection/parser corrections, but its scope and Done When at lines 577–590 do not identify a reproducible failing input/observed result or require verification of the causal defect before the correction. acceptance-tests.md:57 supplies the desired omission behavior, and design.md:295 supplies generic Red/Green, but neither connects this specific symptom to the proposed setup/parser change. A downstream implementer can therefore satisfy a chosen regression without establishing why the original readiness failure occurred. Add a concrete reproduction and root-cause verification step, linked to the bounded correction and regression evidence. This is Major ambiguous bugfix execution under reviewer-calibration.md:31–34,108–110, distinct from precheck or acceptance-ownership checks."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "BUGFIX-DIAGNOSTIC-PATH",
+      "severity": "Major",
+      "task_id": "T-011",
+      "finding": "specs/ci-model-modernization/tasks.md:545,570–573 introduces the TEST-017 readiness repair, while scope/Done When at lines 577–590 lacks a concrete failing reproduction and root-cause verification step connecting the symptom to the setup classification/parser correction. acceptance-tests.md:57 states only the desired omission outcome; design.md:295 requires generic Red/Green but does not supply the missing causal diagnostic path. This leaves the bugfix execution ambiguous and permits regression evidence disconnected from the original defect. Plan the failing input and observed/expected behavior, verify the causal boundary before the minimal correction, and retain the corresponding regression evidence. Major follows reviewer-calibration.md:31–34,108–110."
+    }
+  ]
+}

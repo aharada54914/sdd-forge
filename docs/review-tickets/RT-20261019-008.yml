@@ -1,0 +1,17 @@
+ticket_id: RT-20261019-008
+status: resolved
+type: implementation-defect
+severity: critical
+target:
+  feature: ci-model-modernization
+  task: T-002
+summary: "Retained historical receipt artifacts reject genuine reruns"
+problem: "collect:309-328 retains all attempt artifacts; aggregate only matches latest origins. Test_TEST023 genuine rerun replaces old receipts at test:626, hiding mismatch."
+contract: "design.md:191; tasks.md:110; TEST-023"
+expected_fix: "Admit authentic historical execution-origin receipts without using them as current selected proof; preserve failed history, copied-ID rejection and original source-attempt binding. Add collector-to-aggregate retained old failed/current successful receipts plus partial/genuine rerun coverage."
+evidence: specs/ci-model-modernization/verification/T-002/quality-cycle-1/review-completion.json
+auto_fix_allowed: true
+requires_human_decision: false
+
+resolution: Explicitly accepted repaired by actual full T002 independent cycle2; unrelated new Major findings remain separately ticketed.
+resolution_evidence: reports/quality-gate/20261019-ci-model-modernization-T-002-cycle-2.md

@@ -1,0 +1,664 @@
+{
+  "started_at": "2026-10-20T02:00:33.836947+00:00",
+  "clone": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+  "driver_sha256": "eb6a387a262531042fcc3b46e8adddbf9daacc342b3e97d9337e8d48928d3f34",
+  "allocation_sha256": "a61e8a5e237cf56fd939821fcabbe9591f760dc8e40672a41f2c66a286da39b9",
+  "fresh_root_before": {
+    "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-clone-integrity/before.json",
+    "sha256": "8465415e70fc5181f45dfddea6582416899b934af0dc174ea0b7ac62124ab600"
+  },
+  "source": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "tests/quality-nontty-transport.tests.py": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+    "tests/verification-catalog.json": "1cd0f5185cb41987aa2c04e7964e29285f9172cc86243461015ee0b8f2552eef",
+    "tests/model-identity.tests.py": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+    "tests/model-policy-launch.tests.py": "ad2be3c969aac5133de944b6f53c2a62825a3fe8837d0840f9e92487d4a4b3b5",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736",
+    "tests/model-policy-launch-platform.tests.py": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810"
+  },
+  "candidate": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:00:33.847273+00:00",
+      "finished_at": "2026-10-20T02:01:06.798596+00:00",
+      "elapsed_seconds": 32.95132989999547,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/1.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/1.stderr.log",
+          "sha256": "33f2d8e8d8296c2c196f8e78cc3ee6d01ac6538245ac650f2696d367946f56ad"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-identity.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:01:06.799135+00:00",
+      "finished_at": "2026-10-20T02:01:16.589814+00:00",
+      "elapsed_seconds": 9.790693653005292,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/2.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/2.stderr.log",
+          "sha256": "6a6403444f339f86acdb62ea1df23b3047f86cd18ea0c73d0c051f610efb73d7"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy-launch.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:01:16.590424+00:00",
+      "finished_at": "2026-10-20T02:03:50.532551+00:00",
+      "elapsed_seconds": 153.94214175800153,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/3.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/3.stderr.log",
+          "sha256": "4daa8c66fcbc1a8c5c37f98d7470f1211766b4191b7c85bc718deb2c73a538e0"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy-launch-platform.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:03:50.533185+00:00",
+      "finished_at": "2026-10-20T02:03:50.697461+00:00",
+      "elapsed_seconds": 0.16429159000108484,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/4.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/4.stderr.log",
+          "sha256": "407025646498b9111129de875a742255b81377325a39fbb39de4b826a11363b8"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:03:50.698078+00:00",
+      "finished_at": "2026-10-20T02:03:52.720812+00:00",
+      "elapsed_seconds": 2.0227468340017367,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/5.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/5.stderr.log",
+          "sha256": "446266c471e057b84dbef2effa3882e1373fcf3257a88dc45f33e675120eb665"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-state.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:03:52.721429+00:00",
+      "finished_at": "2026-10-20T02:03:57.656502+00:00",
+      "elapsed_seconds": 4.935080850002123,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/6.stdout.log",
+          "sha256": "b69c46fe2070f37881e037a8f7e07accb8141696c3da1c0d928db7a42e6e24a4"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/6.stderr.log",
+          "sha256": "38dd7be603178e0161143436df0ba60162a56169195a7f58e7c14a48f10513d9"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-precheck-ps.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:03:57.657108+00:00",
+      "finished_at": "2026-10-20T02:04:15.652047+00:00",
+      "elapsed_seconds": 17.994950209002127,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/7.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/7.stderr.log",
+          "sha256": "14573d5735a1d28eb57f7e631a02bc683ef222e50e0b33e18bdc964c6b6eba2f"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-precheck-bash.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:04:15.652626+00:00",
+      "finished_at": "2026-10-20T02:04:20.038398+00:00",
+      "elapsed_seconds": 4.385775384987937,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/8.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/8.stderr.log",
+          "sha256": "1149600dd85ee64b5039eaea6ca1886d12afaa1b974c7aa68ec175da1b0aefe9"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-launch.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:04:20.039011+00:00",
+      "finished_at": "2026-10-20T02:04:25.927314+00:00",
+      "elapsed_seconds": 5.888314056996023,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/9.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/9.stderr.log",
+          "sha256": "1e08a42fc76a94d3f2a35537a77ddb44218f1b60895862f431faeab2843e33ff"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-inputs.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:04:25.928195+00:00",
+      "finished_at": "2026-10-20T02:04:27.295460+00:00",
+      "elapsed_seconds": 1.3672744939976837,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/10.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/10.stderr.log",
+          "sha256": "f3166a3b38c86b655d2ea64ee60e6103d74c8cb4ee0c50a041a3af72f6ea9fa4"
+        }
+      ]
+    },
+    {
+      "command": [
+        "bash",
+        "tests/run-panelist-effort.tests.sh"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:04:27.296100+00:00",
+      "finished_at": "2026-10-20T02:04:33.980867+00:00",
+      "elapsed_seconds": 6.6847824409924215,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/11.stdout.log",
+          "sha256": "71395b29df5681606567c54cd205bba067637491fe17e424c27f759891334b57"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/11.stderr.log",
+          "sha256": "682c014aed562a1a92b44d3ac329e29ca1672c8e933d577eb7aa6ed0b994d958"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/run-panelist-effort.tests.ps1"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:04:33.981583+00:00",
+      "finished_at": "2026-10-20T02:04:45.244138+00:00",
+      "elapsed_seconds": 11.262566541001434,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/12.stdout.log",
+          "sha256": "6ac83ac0f56720c7c98a1d8c34d2db2e150d7584fcdf48f382c3447a998dcb45"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/12.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "bash",
+        "tests/prepare-panelist.tests.sh"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:04:45.244805+00:00",
+      "finished_at": "2026-10-20T02:04:49.835648+00:00",
+      "elapsed_seconds": 4.590855226997519,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/13.stdout.log",
+          "sha256": "7dd112babe42553d6ed1cd0ca6d796c099de68d22444312129ad7a2b03ecaab5"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/13.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/prepare-panelist.tests.ps1"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:04:49.836576+00:00",
+      "finished_at": "2026-10-20T02:05:13.316928+00:00",
+      "elapsed_seconds": 23.480368255986832,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/14.stdout.log",
+          "sha256": "18f695ec9ce5ca6ed039c434f22c9195a2b4d8d211946a483ebd1bc094afa021"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/14.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "bash",
+        "tests/emit-run-record-feature-scope.tests.sh"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:05:13.318043+00:00",
+      "finished_at": "2026-10-20T02:05:14.085696+00:00",
+      "elapsed_seconds": 0.7676637450058479,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/15.stdout.log",
+          "sha256": "801481e1d4c63aad5302f4e1b86f62afbede8f77e8ca3c1445e208452e0b6ad6"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/15.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/emit-run-record-feature-scope.tests.ps1"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:05:14.086520+00:00",
+      "finished_at": "2026-10-20T02:05:21.790032+00:00",
+      "elapsed_seconds": 7.703522294992581,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/16.stdout.log",
+          "sha256": "3423d8c942802bd6d84e41d6b0ad077be604e10d29ab48300fa03ae15c5832e6"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/16.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "restored": true,
+  "after_restore": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:05:21.793810+00:00",
+      "finished_at": "2026-10-20T02:05:23.467328+00:00",
+      "elapsed_seconds": 1.6735314599936828,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/17.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/17.stderr.log",
+          "sha256": "6b3097a836155e46595ee8f2d30380142a101a0ea7aa0f97006f8edf1252d8d6"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/shared-launch-build.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:05:23.468121+00:00",
+      "finished_at": "2026-10-20T02:05:29.756154+00:00",
+      "elapsed_seconds": 6.288047313995776,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/18.stdout.log",
+          "sha256": "9bdc8792adfb1c266ba52f907020715b5291e1f7d7d520c6119280fc2e1d4892"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/18.stderr.log",
+          "sha256": "265c6011c682f865c3e81a85afdda636cd3a169829dfb77562e47c6bedbb453f"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/review-context-anchors.tests.py"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:05:29.756938+00:00",
+      "finished_at": "2026-10-20T02:05:29.871223+00:00",
+      "elapsed_seconds": 0.11429401399800554,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/19.stdout.log",
+          "sha256": "9f7b0cdf5c50355e6194634bc3d8098bb95277db77db801920e73f8b34b204f4"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/19.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "bash",
+        "tests/run-panelist-effort.tests.sh"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:05:29.871951+00:00",
+      "finished_at": "2026-10-20T02:05:36.553319+00:00",
+      "elapsed_seconds": 6.681378296998446,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/20.stdout.log",
+          "sha256": "71395b29df5681606567c54cd205bba067637491fe17e424c27f759891334b57"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/20.stderr.log",
+          "sha256": "8cd608fa19163604198385e78e77368e8fd69c35a1eb837453fd3cabfc734039"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/run-panelist-effort.tests.ps1"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:05:36.554105+00:00",
+      "finished_at": "2026-10-20T02:05:47.618017+00:00",
+      "elapsed_seconds": 11.063924015994417,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/21.stdout.log",
+          "sha256": "6ac83ac0f56720c7c98a1d8c34d2db2e150d7584fcdf48f382c3447a998dcb45"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/21.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "bash",
+        "tests/prepare-panelist.tests.sh"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:05:47.618940+00:00",
+      "finished_at": "2026-10-20T02:05:52.362612+00:00",
+      "elapsed_seconds": 4.7436850820085965,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/22.stdout.log",
+          "sha256": "7dd112babe42553d6ed1cd0ca6d796c099de68d22444312129ad7a2b03ecaab5"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/22.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/prepare-panelist.tests.ps1"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:05:52.363631+00:00",
+      "finished_at": "2026-10-20T02:06:15.588528+00:00",
+      "elapsed_seconds": 23.22490986798948,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/23.stdout.log",
+          "sha256": "18f695ec9ce5ca6ed039c434f22c9195a2b4d8d211946a483ebd1bc094afa021"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/23.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "bash",
+        "tests/emit-run-record-feature-scope.tests.sh"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:06:15.589405+00:00",
+      "finished_at": "2026-10-20T02:06:16.305805+00:00",
+      "elapsed_seconds": 0.7164144510024926,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/24.stdout.log",
+          "sha256": "801481e1d4c63aad5302f4e1b86f62afbede8f77e8ca3c1445e208452e0b6ad6"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/24.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/emit-run-record-feature-scope.tests.ps1"
+      ],
+      "cwd": "/tmp/ci-t007-rollback-sn2ook0e/repo",
+      "started_at": "2026-10-20T02:06:16.306701+00:00",
+      "finished_at": "2026-10-20T02:06:24.170337+00:00",
+      "elapsed_seconds": 7.863652304993593,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/25.stdout.log",
+          "sha256": "3423d8c942802bd6d84e41d6b0ad077be604e10d29ab48300fa03ae15c5832e6"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/25.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "overlay": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "tests/quality-nontty-transport.tests.py": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+    "tests/verification-catalog.json": "1cd0f5185cb41987aa2c04e7964e29285f9172cc86243461015ee0b8f2552eef",
+    "tests/model-identity.tests.py": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+    "tests/model-policy-launch.tests.py": "ad2be3c969aac5133de944b6f53c2a62825a3fe8837d0840f9e92487d4a4b3b5",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736",
+    "tests/model-policy-launch-platform.tests.py": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810"
+  },
+  "candidate_after": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "tests/quality-nontty-transport.tests.py": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+    "tests/verification-catalog.json": "1cd0f5185cb41987aa2c04e7964e29285f9172cc86243461015ee0b8f2552eef",
+    "tests/model-identity.tests.py": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+    "tests/model-policy-launch.tests.py": "ad2be3c969aac5133de944b6f53c2a62825a3fe8837d0840f9e92487d4a4b3b5",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736",
+    "tests/model-policy-launch-platform.tests.py": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810"
+  },
+  "restored_pins": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "855985841eb0fb8735ba81b88df21de409dea288edca584bf4a59bac69e2aff4",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "c5ba7e73c929b2734a2b4053c22bff3d89a55ea1276cb56ab58507894f4bde45",
+    "plugins/sdd-implementation/scripts/model-policy.py": "4e45f9f06fd0ff9a766f9200f98dc1a36cbb6a5ad66366800c8f2feff934f025",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "4159a139e5997a79801bcbd9842285dd39b3259a168a990f03adafa0b8813129",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "e88ac07955691ef2350fe4e6bf92218824b08a47ea493f492af746901bb139cf",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "32aacffa4f8ba92e7a2d49cdc07d1073afef620c2e9d56f8213b008768173b81",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "da8adf0021ac10f1511e52c2def5404c7dd9b4772fdad0e9b45efc1c8771a5c1",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "160e43c240be47536b068c7f968ad3d7f04d49b4e0a1b36243bb33484f877225",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "13ffd439854bef7756cbd4d4c0cdca85be8c70d0cda36a6ee2ef134dea678932",
+    "tests/quality-nontty-transport.tests.py": "9a420e3f8021dd62c6dc93379857b414b89b54c3180075a7160226a1464e77d0",
+    "tests/verification-catalog.json": "cf99824a62ae0bd230cf13bb0daaab51091b2404e7b104d492ce6dc45c437191",
+    "tests/model-identity.tests.py": "da24c1cbb5fd8c9892b65c756b3246da82f3a076054da8471da827d519fd277e"
+  },
+  "removed_paths_absent": true,
+  "live_after": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "tests/quality-nontty-transport.tests.py": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+    "tests/verification-catalog.json": "1cd0f5185cb41987aa2c04e7964e29285f9172cc86243461015ee0b8f2552eef",
+    "tests/model-identity.tests.py": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+    "tests/model-policy-launch.tests.py": "ad2be3c969aac5133de944b6f53c2a62825a3fe8837d0840f9e92487d4a4b3b5",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736",
+    "tests/model-policy-launch-platform.tests.py": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810"
+  },
+  "restored_after_checks": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "855985841eb0fb8735ba81b88df21de409dea288edca584bf4a59bac69e2aff4",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "c5ba7e73c929b2734a2b4053c22bff3d89a55ea1276cb56ab58507894f4bde45",
+    "plugins/sdd-implementation/scripts/model-policy.py": "4e45f9f06fd0ff9a766f9200f98dc1a36cbb6a5ad66366800c8f2feff934f025",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "4159a139e5997a79801bcbd9842285dd39b3259a168a990f03adafa0b8813129",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "e88ac07955691ef2350fe4e6bf92218824b08a47ea493f492af746901bb139cf",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "32aacffa4f8ba92e7a2d49cdc07d1073afef620c2e9d56f8213b008768173b81",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "da8adf0021ac10f1511e52c2def5404c7dd9b4772fdad0e9b45efc1c8771a5c1",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "160e43c240be47536b068c7f968ad3d7f04d49b4e0a1b36243bb33484f877225",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "13ffd439854bef7756cbd4d4c0cdca85be8c70d0cda36a6ee2ef134dea678932",
+    "tests/quality-nontty-transport.tests.py": "9a420e3f8021dd62c6dc93379857b414b89b54c3180075a7160226a1464e77d0",
+    "tests/verification-catalog.json": "cf99824a62ae0bd230cf13bb0daaab51091b2404e7b104d492ce6dc45c437191",
+    "tests/model-identity.tests.py": "da24c1cbb5fd8c9892b65c756b3246da82f3a076054da8471da827d519fd277e"
+  },
+  "finished_at": "2026-10-20T02:06:24.171800+00:00",
+  "status": "PASS"
+}

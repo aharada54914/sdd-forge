@@ -1,0 +1,125 @@
+
+SDD plugins installed at: /tmp/shared-launch-build-itcnz4a1/installed
+Plugin registration was skipped because --target=FilesOnly.
+usage: validate-nontty-spec-launch.py [-h]
+                                      [--fixed-input-record FIXED_INPUT_RECORD]
+                                      [--fixed-input-snapshot FIXED_INPUT_SNAPSHOT]
+                                      [--prompt PROMPT] [--wrapper WRAPPER]
+                                      [--receipt RECEIPT]
+                                      {preflight,postflight,fixed-binding}
+                                      root invocation [transcript]
+
+positional arguments:
+  {preflight,postflight,fixed-binding}
+  root
+  invocation
+  transcript
+
+options:
+  -h, --help            show this help message and exit
+  --fixed-input-record FIXED_INPUT_RECORD
+  --fixed-input-snapshot FIXED_INPUT_SNAPSHOT
+  --prompt PROMPT
+  --wrapper WRAPPER
+  --receipt RECEIPT
+usage: preflight-host-review.py [-h] --manifest-sha256 MANIFEST_SHA256
+                                [--host-cli HOST_CLI]
+                                [--required-flag REQUIRED_FLAG]
+                                [--help-subcommand HELP_SUBCOMMAND]
+                                [--runtime {bash,powershell}]
+                                [--verify-scratch-projection]
+                                [--fixed-input-record FIXED_INPUT_RECORD]
+                                [--fixed-input-snapshot FIXED_INPUT_SNAPSHOT]
+                                repository_root invocation
+
+Host-neutral, non-reserving review input preflight. This is not a permission
+proof. The canonical validator remains the only reservation authority and must
+recheck current bytes immediately before launch.
+
+positional arguments:
+  repository_root
+  invocation
+
+options:
+  -h, --help            show this help message and exit
+  --manifest-sha256 MANIFEST_SHA256
+  --host-cli HOST_CLI
+  --required-flag REQUIRED_FLAG
+  --help-subcommand HELP_SUBCOMMAND
+  --runtime {bash,powershell}
+  --verify-scratch-projection
+  --fixed-input-record FIXED_INPUT_RECORD
+  --fixed-input-snapshot FIXED_INPUT_SNAPSHOT
+usage: launch-impl-review.py [-h] [--manifest-sha256 MANIFEST_SHA256]
+                             [--fixed-input-record FIXED_INPUT_RECORD]
+                             [--fixed-input-snapshot FIXED_INPUT_SNAPSHOT]
+                             root invocation output
+
+Shared Claude spec/impl transport; canonical validators own admission.
+
+positional arguments:
+  root
+  invocation
+  output
+
+options:
+  -h, --help            show this help message and exit
+  --manifest-sha256 MANIFEST_SHA256
+                        external caller pin; required for quality
+  --fixed-input-record FIXED_INPUT_RECORD
+  --fixed-input-snapshot FIXED_INPUT_SNAPSHOT
+usage: preflight-evaluator-delivery.py [-h] --manifest MANIFEST
+                                       --manifest-sha256 MANIFEST_SHA256
+                                       --repository-root REPOSITORY_ROOT
+                                       [--scratch-root SCRATCH_ROOT]
+                                       [--reserve]
+                                       [--fixed-input-record FIXED_INPUT_RECORD]
+                                       [--fixed-input-snapshot FIXED_INPUT_SNAPSHOT]
+
+Preflight caller delivery before delegating an optional identity reservation.
+
+options:
+  -h, --help            show this help message and exit
+  --manifest MANIFEST
+  --manifest-sha256 MANIFEST_SHA256
+  --repository-root REPOSITORY_ROOT
+  --scratch-root SCRATCH_ROOT
+  --reserve
+  --fixed-input-record FIXED_INPUT_RECORD
+  --fixed-input-snapshot FIXED_INPUT_SNAPSHOT
+usage: review-conditional-inputs.py [-h] --root ROOT --feature FEATURE --stage
+                                    {spec,impl,task,quality}
+                                    [--revision REVISION]
+
+Resolve role-defined conditional inputs without reserving review identities.
+
+options:
+  -h, --help            show this help message and exit
+  --root ROOT
+  --feature FEATURE
+  --stage {spec,impl,task,quality}
+  --revision REVISION
+usage: validate-feature-scratch-history.py [-h] [--snapshot]
+                                           manifest repository
+
+positional arguments:
+  manifest
+  repository
+
+options:
+  -h, --help  show this help message and exit
+  --snapshot
+ok: bash clean: exit=0, expected=0
+ok: bash clean: snapshot, unchanged verification, changed-root refusal
+ok: bash clean: omitted bound root refused
+ok: bash snapshot-tampered: exit=0, expected=0
+ok: bash snapshot-tampered: snapshot, unchanged verification, changed-root refusal
+ok: bash snapshot-tampered: omitted bound root refused
+ok: bash snapshot-tampered: later reuse exit=1, expected=1
+ok: pwsh clean: exit=0, expected=0
+ok: pwsh clean: snapshot, unchanged verification, changed-root refusal
+ok: pwsh clean: omitted bound root refused
+ok: pwsh snapshot-tampered: exit=0, expected=0
+ok: pwsh snapshot-tampered: snapshot, unchanged verification, changed-root refusal
+ok: pwsh snapshot-tampered: omitted bound root refused
+ok: pwsh snapshot-tampered: later reuse exit=1, expected=1

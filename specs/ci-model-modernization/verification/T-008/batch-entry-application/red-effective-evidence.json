@@ -1,0 +1,17 @@
+{
+  "status": "EXPECTED_RED",
+  "methods": {
+    "tests_run": 4,
+    "subtests_run": 4,
+    "subtests_passed": 0,
+    "failures": 6,
+    "errors": 0,
+    "skips": 0,
+    "successful": false
+  },
+  "source_pins_unchanged": 138,
+  "old72_ASTs_unchanged": true,
+  "static": "Ruff/mypy15files+Bash/PShparsersPASS",
+  "Root_typing_fixes": "Dynamic Any module facade and getattr cleanup keep existing semantic asserts, prior mypy failures saved",
+  "scope": "No batch product applied; missing maintained definition/unsupported fences and ordinaryrendererunknowncommand instead oftypedroute are expected. Not formalQA."
+}

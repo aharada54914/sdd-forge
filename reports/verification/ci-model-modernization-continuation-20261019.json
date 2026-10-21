@@ -1,0 +1,1912 @@
+{
+  "recorded_at": "2026-10-19T20:17:07.299383+00:00",
+  "branch": "work",
+  "scope": "User-directed completion of all remaining approved work; no inferred external cloud write authority.",
+  "tasks": {
+    "ci-model-modernization": [
+      {
+        "task": "T-001",
+        "title": "Revision-bound CI plans and obligations",
+        "status": "Done"
+      },
+      {
+        "task": "T-002",
+        "title": "CI execution evidence collection and aggregation",
+        "status": "Done"
+      },
+      {
+        "task": "T-003",
+        "title": "CI workflow integration and dependency reuse",
+        "status": "Done"
+      },
+      {
+        "task": "T-004",
+        "title": "Documented model discovery and observations",
+        "status": "Done"
+      },
+      {
+        "task": "T-005",
+        "title": "Immutable model binding and delivery identity",
+        "status": "Done"
+      },
+      {
+        "task": "T-006",
+        "title": "Role policy and current model resolution",
+        "status": "Done"
+      },
+      {
+        "task": "T-007",
+        "title": "Protected model launch and delivery",
+        "status": "Done"
+      },
+      {
+        "task": "T-008",
+        "title": "Managed role rendering and installed entries",
+        "status": "Done"
+      },
+      {
+        "task": "T-009",
+        "title": "Existing model freshness maintenance",
+        "status": "Done"
+      },
+      {
+        "task": "T-010",
+        "title": "Controlled model adoption evaluation",
+        "status": "Planned"
+      },
+      {
+        "task": "T-011",
+        "title": "Verified rollout documentation and immutable release",
+        "status": "Planned"
+      }
+    ],
+    "cloud-orchestration": [
+      {
+        "task": "T-001",
+        "title": "Current foundation repair integration",
+        "status": "Done"
+      },
+      {
+        "task": "T-002",
+        "title": "Strict cloud artifact contracts",
+        "status": "Done"
+      },
+      {
+        "task": "T-003",
+        "title": "Protected CI admission",
+        "status": "Implementation Complete"
+      },
+      {
+        "task": "T-004",
+        "title": "Azure routing and local Bicep preparation",
+        "status": "Done"
+      },
+      {
+        "task": "T-005",
+        "title": "AWS routing and local CDK preparation",
+        "status": "Done"
+      },
+      {
+        "task": "T-012",
+        "title": "Azure governed execution and recovery",
+        "status": "Implementation Complete"
+      },
+      {
+        "task": "T-013",
+        "title": "AWS governed Change Set execution",
+        "status": "Implementation Complete"
+      },
+      {
+        "task": "T-006",
+        "title": "Provider observations and verification reducer",
+        "status": "Implementation Complete"
+      },
+      {
+        "task": "T-009",
+        "title": "Protected cloud profile dispatch",
+        "status": "Done"
+      },
+      {
+        "task": "T-010",
+        "title": "Deployment dependency receipts",
+        "status": "Done"
+      },
+      {
+        "task": "T-007",
+        "title": "Cloud plugin packaging and install lifecycle",
+        "status": "Done"
+      },
+      {
+        "task": "T-011",
+        "title": "Bootstrap routing and host integration",
+        "status": "Done"
+      },
+      {
+        "task": "T-008",
+        "title": "Operator documentation and tagged release",
+        "status": "Done"
+      }
+    ]
+  },
+  "latest_completed": {
+    "task_id": "T-008",
+    "quality_report": "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
+    "bundle": "specs/ci-model-modernization/verification/T-008.evidence.json",
+    "actual_review": "QA2 PASS 0C/0M/0m"
+  },
+  "active": "T008 Done after independent QA2 PASS and checked evidence bundle; T010 controlled adoption is next, not completed.",
+  "cloud_release": {
+    "tag": "v1.19.0",
+    "tested_commit": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+    "t008": "Done; independent cycle 2 PASS already recorded",
+    "existing_tag_unchanged": true,
+    "latest_read_only_remote_recheck": {
+      "recorded_at": "2026-10-19T16:02:02Z",
+      "command": "git ls-remote --tags origin refs/tags/v1.19.0 'refs/tags/v1.19.0^{}'",
+      "exit_code": 0,
+      "tag_object": "b9bae073836b9b2ecd6c975f6f7e332de362c9dd",
+      "peeled_commit": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "note": "Remote tag matches historical published tag. This clone lacks local tag ref; no fetch/mutation needed."
+    }
+  },
+  "external_prerequisites": {
+    "cloud": "RT-20261018-911: owner sandbox absent; T-003/T-012/T-013/T-006 live acceptance cannot be inferred from local tests.",
+    "native_cli": "Earlier native Codex inference failed token refresh; listing succeeded. No credentials read/changed. Actual future native acceptance must report the real outcome, not substitute fixture success."
+  },
+  "execution_handoff": {
+    "active_agent": "/root/t005_implementation",
+    "phase": "ActualQA1review-ticketfix before freshQA2",
+    "manifest": "specs/ci-model-modernization/verification/T-005/attempt-1/product-inputs/task-input-manifest.json",
+    "manifest_sha256": "6cfef8a3c093ba55fe5f73d42a0a6f4d94802e92c57b9af9b3c1de6e0463e314",
+    "snapshot": "/tmp/ci-model-t005-product-oz32yfdq/snapshot",
+    "inputs": 103,
+    "red_commit": "1cf522366b23126f858c92c01662f10f963e4f0f",
+    "root_actual_red": "specs/ci-model-modernization/verification/T-005/attempt-1/red/results.json",
+    "test_methods": {
+      "identity": 70,
+      "catalog": 44
+    },
+    "primary_plan": "4productfiles only; actual focusedtests/schema/static,245->319->245 rollback, primaryreport; Root finalscope/gov/contract/QA",
+    "next": "PrimarycurrentURIrepair/fixsupplement/static/schema/actual326->245; Rootnewgov/contract/selfreview; freshQA2normalmax3. Originalcanonicalreport0106andQA1historyfrozen, notcurrentSourcepins.",
+    "claude_limit": "Actual official CLI rejectedfivehour, utilization1.01, reset21:10UTC; no retry untilreset. Result1is_errortrue, notwrapper timeout. Deliveredtestsarchived/admittedthenRootcleanup/Redcommit.",
+    "primary_report": "reports/implementation/ci-model-modernization/T-005.md",
+    "primary_report_sha256": "0106b552e6e4d297deb1ff32618bc043f094d71dc3dd84382a2d038e3b31455e",
+    "review_actor": "/root/t005_cycle1_evaluator",
+    "review_manifest": "specs/ci-model-modernization/verification/T-005/quality-cycle-1/work-review/invocation.json",
+    "review_manifest_sha256": "a1a18f6098f9471ffa810b6d42cfc56ded3b9f167e5cb26374bb08bf5dd177c2",
+    "review_inputs": 353,
+    "review_scratch": "/tmp/ci-model-t005-quality1-g1g8rod1",
+    "reservation_sequence": 1285,
+    "reservation_receipt": "8efcca3f5bc3563b3c82f026eba08753b327218a9f3eea3f44f14c8e28d18e0a",
+    "current_sources": "specs/ci-model-modernization/verification/T-005/root-source-review/source-integrity.json",
+    "actual_final_candidate": 322,
+    "actual_restored": 245,
+    "source_or_report_mutations": "Only2productfiles+tasklocalfixallowed; no originalreports/logs/plans/testedits. Currentcontractrequiredpassesfalsependingactualnewreceipts.",
+    "qa1_response": "specs/ci-model-modernization/verification/T-005/quality-cycle-1/work-review/evaluator.txt",
+    "qa1_report": "reports/quality-gate/20261019-ci-model-modernization-T-005-cycle-1.md",
+    "ticket": "docs/review-tickets/RT-20261019-019.yml",
+    "fix_manifest": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/fix-inputs.json",
+    "fix_manifest_sha256": "df7e32e5183067461c228affb1e0501409a294ac91893df8df15d0959cd20e62",
+    "fix_snapshot": "/tmp/ci-t005-qa1-fix-inputs-ml4ebdr1",
+    "fix_inputs": 22,
+    "fix_red_commit": "ab98aa5670c5b6764778e6ce2066f483b9b1c9ed",
+    "current_test_methods": 77,
+    "expected_current_candidate": 326,
+    "expected_restored_baseline": 245
+  },
+  "pending_contract_decision": {
+    "ticket": "docs/review-tickets/RT-20261019-007.yml",
+    "proposal": "specs/ci-model-modernization/verification/T-002/attempt-1/a9-contract-question.md",
+    "question": "Dedicated EXPECTED_SKIP (null execution IDs) plus independent A9 activation proof, versus explicit A9-only NOT_SELECTED exception. Both require approved contract/counterpart review.",
+    "state": "Approved and fully accepted; actual T0019/T0023 PASS0 with validatedbundles. RT007resolved.",
+    "downstream": "T003 Done; T004 In Progress; no pending A9 permission.",
+    "latest_user_message_interpretation": "Actual user said よい in response to the EXPECTED_SKIP proposal; approved amendment is recorded, not pending permission."
+  },
+  "read_only_native_acquisition": {
+    "evidence": "specs/ci-model-modernization/verification/T-002/read-only-api-smoke/execution.json",
+    "result": "Actual collector exit0; historical release run39161543135, attempts1/2 jobs acquired, API2026-03-10; no candidate hosted CI success asserted."
+  },
+  "current_root_diagnostics": "specs/ci-model-modernization/verification/T-002/root-diagnostics/execution.json plus task-state.log,traceability.log,workflow-state.log",
+  "t001_explicit_review_limit_authorization": "specs/ci-model-modernization/verification/T-001/cycle-limit-authorization-through-10.json",
+  "user_preferences": {
+    "coding_delegation": "Distribute coding to Claude when available; minimize Codex tokens. User explicitly requested delegation.",
+    "claude_limits": "Record actual rate-limit/reset time before assigning work; no invented revival time or repeated failed polling.",
+    "current_claude_route": "Official authenticatedCLI, allowed; exact latest quota/reset in claude_usage_observation; usagecreditsoff",
+    "claude_usage_observation": {
+      "observed_at": "2026-10-19T19:42:23.925150+00:00",
+      "source": "Actual official CLI rate_limit_event and terminal limit error",
+      "status": "rejected",
+      "active_limit": true,
+      "windows": {
+        "five_hour": {
+          "utilization": 1.01,
+          "reset_epoch": 1792444200,
+          "reset_utc": "2026-10-19T21:10:00+00:00"
+        },
+        "seven_day": {
+          "utilization": 0.19,
+          "reset_epoch": 1792440000,
+          "reset_utc": "2026-10-19T20:00:00+00:00"
+        }
+      },
+      "using_overage": false,
+      "overage_status": "rejected",
+      "overage_disabled_reason": "out_of_credits"
+    },
+    "last_claude_delegation": {
+      "actual_session": "f30c5991-bf97-4d13-ab90-2ef7b62821df",
+      "result": "exit0;helper-onlyRT018fixafter59984174Red; currentRoottypingintegrationverified",
+      "configured_effort": "medium"
+    }
+  },
+  "t003_cycle1_fix_progress": {
+    "state": "Done; actual independent QA2 PASS0; validated generated bundle; RT015/016/017 resolved",
+    "red_commit": "f78b16fa",
+    "root_reproduced_receipt_failures": 32,
+    "root_reproduced_planner_failures": 1,
+    "protected_pins_verified": 13,
+    "declared_outputs_verified": 13,
+    "admission": "specs/ci-model-modernization/verification/T-003/cycle1-fix/claude-workflow/admission.json",
+    "scratch": "/tmp/ci-t003-claude-workflow-yg_bx18s",
+    "claude_actual_session_id": "b703aadd-a884-4281-b21a-ce054290099e",
+    "workflow_sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+    "handoff": "specs/ci-model-modernization/verification/T-003/cycle1-fix/claude-workflow/handoff.json",
+    "qa2_actor": "/root/t003_cycle2_evaluator: actual delivered PASS0, sequence1282",
+    "current_candidate_status": "Done: actual QA2 PASS0 with generated validated bundle",
+    "w_scope": "Root verified all other AST nodes and text outside planner_outputs unchanged; other core pins protected",
+    "metadata_red_commit": "199f746b",
+    "metadata_claude_actual_session": "7f35102e-4f06-4532-9c38-bfbe322ac2a1",
+    "w_sha256": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+    "root_checks": "specs/ci-model-modernization/verification/T-003/post-cycle1-checks/commands.json",
+    "root_test_methods": {
+      "collector": 80,
+      "impact": 6,
+      "catalog": 36,
+      "required_checks": 18,
+      "planner": 50,
+      "total": 190
+    },
+    "measured_helper_line_coverage": "122/128=95.31%; branches and W line coverage unmeasured in this run",
+    "final_report_sha256": "135b99fd8005266dc944f59c074a64f08fbed80e33371889f3fa587fabe82c11",
+    "final_outputs_verified": 103,
+    "rollback": "182 ->190 ->182;15 actual exits0, exact4-file restoration",
+    "review_manifest": "specs/ci-model-modernization/verification/T-003/quality-cycle-2/work-review/invocation.json",
+    "review_manifest_sha256": "ac06d9f6f5c539b0b6eb5bdbee363a4b6c0a81ae892f4eea67f69ed771b5c55e",
+    "review_inputs": 346,
+    "review_scratch": "/tmp/ci-model-t003-quality2-z_whn51v",
+    "reservation_sequence": 1282,
+    "reservation_receipt": "52e73c4593768e76bcb740a4e4808217f8c77b9487f11b9f052277db5d872d1d"
+  },
+  "t004_final_acceptance": {
+    "state": "Done",
+    "actual_independent_review": "QA2 PASS0",
+    "report": "reports/quality-gate/20261019-ci-model-modernization-T-004-cycle-2.md",
+    "bundle": "specs/ci-model-modernization/verification/T-004.evidence.json",
+    "tests": 245,
+    "rollback": "190->245->190",
+    "remaining_approved_tasks": [
+      "T-005",
+      "T-006",
+      "T-007",
+      "T-008",
+      "T-009",
+      "T-010",
+      "T-011"
+    ],
+    "recorded_at": "2026-10-19T19:18:24.339259+00:00"
+  },
+  "t004_execution_history": {
+    "active_agent": "/root/t005_implementation",
+    "phase": "T005 API/preflight planning after T004 formal Done",
+    "manifest": "specs/ci-model-modernization/verification/T-005/attempt-1/task-input-manifest.json",
+    "manifest_sha256": "2930833360f8ccc4e10f066605bf56ee20776c116870b72e5da1cef79c6f958d",
+    "snapshot": "/tmp/ci-model-t005-implementation-xmh5lbhu/snapshot",
+    "inputs": 69,
+    "next": "Primary concrete minimalAPI note; Root isolated Claude Red tests then scoped test-only commit before product",
+    "limits": "T4QA1consumednormalmax3, noT4exceptionneeded. T1max10/T2max3exhausted. Alllaterauthorizedtasksstillpending; no prematurewholefeatureDone.",
+    "preflight_sha256": "8920feb8d7ff0ef1c26c5b9acfe6622bb15c8f658ed0f71a1a5ed19a3f9d1bdf",
+    "claude_test_brief_sha256": "d4dbc1aab85fc8ef3823e1751f67b404da95874f79b5a671f5ddb5cad89527b3",
+    "claude_scratch": "/tmp/ci-t004-claude-tests-ytvf9i1i",
+    "claude_exec_session": 78647,
+    "claude_launcher": "/tmp/resume-ci-t004-tests.py",
+    "claude_admission": "specs/ci-model-modernization/verification/T-004/claude-test-delegation/admission.json",
+    "claude_timeout_seconds": 1200,
+    "claude_actual_session_id": "cbb711ad-f2bb-4eb1-8a18-f6932cc55184",
+    "recovered_draft_sha256": "018414dad9120b6bb294f909bb0d17993e8c13867eff3782d8bc2b2fbcb7716f",
+    "internal_api_note_sha256": "6b5c671063e558be41abd147746283c0950fd978bfffc6c4c10c934198d37bd0",
+    "caller_alignment": {
+      "profile": "ci-portable-prechecks",
+      "local_profiles": [
+        "local-posix",
+        "local-powershell"
+      ],
+      "ci_jobs": [
+        "test",
+        "test-windows-heavy"
+      ],
+      "reason": "Actual shared-python only Ubuntu; existing portable profile reaches exactly one model suite per OS without workflow changes. Original preflight preserved; task-local addendum."
+    },
+    "product_scratch": "/tmp/ci-t004-claude-product-hma3gxay",
+    "product_admission_sha256": "649306895902e27913f174a35b46307528c63f7902b5ed4fc9a0f66563704182",
+    "product_exec_session": 90169,
+    "red_commit": "346eeb1d",
+    "product_actual_session_id": "8f0bf2fe-2d0b-4bee-8dd3-bd42c0ef4db1",
+    "rollback_baseline": "Actual190 pass in complete disposableclone; original missingignored Node dependencies failure preserved separately",
+    "red_commits": [
+      "346eeb1d",
+      "86c12ff8",
+      "329fc179"
+    ],
+    "root_rollback_candidate_exec": 84365,
+    "root_final_governance_exec": 87276,
+    "correction_actual_session": "eed36cab-1d9a-40f1-90b3-2d94437da846",
+    "correction_scratch": "/tmp/ci-t004-claude-correction-2u04q4fc",
+    "review_manifest": "specs/ci-model-modernization/verification/T-004/quality-cycle-2/work-review/invocation.json",
+    "review_manifest_sha256": "4c10b67acdb989dc7eabb9e0676003ef3a863e5f882496e1bdcf10e43623c334",
+    "review_scratch": "/tmp/ci-model-t004-quality2-pny843qj",
+    "review_inputs": 390,
+    "reservation_sequence": 1284,
+    "reservation_receipt": "53032f7c5ccec0533b19d25b5578e8924176a8201ebdd40150808984bdba768a",
+    "primary_report_sha256": "655d6f9d532a9dc76bbde98b674f29d1c5dbba346b7572fd72387b6f8fb86e03",
+    "version_fix_exec": 39936,
+    "version_fix_scratch": "/tmp/ci-t004-claude-version-fix-l8o0r55f",
+    "version_fix_ticket": "docs/review-tickets/RT-20261019-018.yml",
+    "qa1_report": "reports/quality-gate/20261019-ci-model-modernization-T-004-cycle-1.md",
+    "qa1_response": "specs/ci-model-modernization/verification/T-004/quality-cycle-1/work-review/evaluator.txt",
+    "current_fix_report_sha256": "0fcea36984f07a1f6fb1a62c4503e5e8cfc7444cf28f85843e74681f9f237710",
+    "current_helper_sha256": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894"
+  },
+  "updated_at": "2026-10-20T18:24:43Z",
+  "t005_current_gate": {
+    "state": "Done after actual QA2 PASS0 and generated/checked evidence bundle",
+    "actual_context": "/root/t005_cycle2_evaluator",
+    "manifest": "specs/ci-model-modernization/verification/T-005/quality-cycle-2/work-review/invocation.json",
+    "manifest_sha256": "6f928d2bea5bff8236610f10c98dceb24482b1f04e369c86a01a47ae63a80854",
+    "scratch": "/tmp/ci-model-t005-quality2-7s3k1sat",
+    "inputs": 506,
+    "repair_report_sha256": "0ff70ed85a76cce81927ad00de8653098492e9fc269c46a5af6ea5b26b80fe1a",
+    "root_verified_outputs": 123,
+    "actual_candidate_tests": 326,
+    "actual_restored_tests": 245,
+    "skips": 0,
+    "contract": "PASS",
+    "do_not_mutate_review_inputs_until_actual_verdict_and_root_full_reverification": true
+  },
+  "current_task": "T-008",
+  "t006": {
+    "state": "Done after actual independent QA2 PASS0 and generated/checked evidence bundle",
+    "current_policy_methods": 51,
+    "actual_fresh_candidate_methods": 377,
+    "baseline_methods": 326,
+    "baseline_proof": "Explicitly reused9receipts after exact restored/removed and20102nonownedpins verified",
+    "quality_cycles_used": 2,
+    "quality_report": "reports/quality-gate/20261019-ci-model-modernization-T-006-cycle-2.md",
+    "evidence_bundle": "specs/ci-model-modernization/verification/T-006.evidence.json",
+    "prior_implementation_checkpoint": "t006_implementation_history",
+    "current_fix_record": "t006_qa1_fix"
+  },
+  "t006_typing_checkpoint": {
+    "recorded_at": "2026-10-19T21:23:14.151111+00:00",
+    "actual_claude_session": "9bca516d-9911-4640-9a55-4f97c07d9fb2",
+    "actual_exit": 0,
+    "provider_limit_status": "allowed",
+    "provider_five_hour_reset_epoch": 1792462800,
+    "test_only_commit": "2baa43ab",
+    "test_sha256": "b73c6a2f76584b770885620ac5d418553155301648578d291f6aa1101d7ae14f",
+    "original_tests_and_assertions_preserved": 49,
+    "mypy": "PASS4files",
+    "ruff": "PASS4files",
+    "runtime": "Final sequential proof rebinding newtest hash inprogress; old375/326proof preservedhistorically",
+    "quality": "QA1 context parked; unreserved, no verdict"
+  },
+  "t006_final_implementation_delivery": {
+    "report": "reports/implementation/ci-model-modernization/T-006.md",
+    "sha256": "801fe18112a290260a41714159fbebf24c480f2b5f413b77530132554655bb45",
+    "outputs": 109,
+    "current_methods": 49,
+    "candidate": 375,
+    "restored": 326,
+    "schema_runtime": 101,
+    "root_report_counterpart_mutations": 9,
+    "governance": "six canonical checks PASS; requiredverificationcontractPASS",
+    "unreserved_assembly_failure": "Missing canonicalInputmanifestcitation correctedreportonly; no revieworreservation used; preservedunreserved-quality1-assembly-1",
+    "quality": {
+      "state": "Actual freshQA1 running",
+      "manifest": "specs/ci-model-modernization/verification/T-006/quality-cycle-1/work-review/invocation.json",
+      "sha256": "888224a89e1976b8a8341587301f1704ac6fdc89dc8d6aa3ce29ac0b18903865",
+      "inputs": 565,
+      "actual_context": "/root/t006_cycle1_evaluator",
+      "sequence": 1287,
+      "receipt": "8efde0c6f172751b6f5157c3633f483686f41ece751e9bf71a89e72101dca9fa",
+      "verdict": "Actual QA1 NEEDS_WORK0/1/0, emptycaller minimum, RT020"
+    },
+    "recorded_at": "2026-10-19T21:36:04.338328+00:00"
+  },
+  "t006_qa1_fix": {
+    "ticket": "RT-20261019-020",
+    "red_commit": "4235d6fdaaba2c9d902a04215c779b965a6e507f",
+    "actual_red": "2methods/3assertionfailures/0errors beforehelperrepair",
+    "fix": "Exactlyonecaller-minimum normalization line; independentrolefloor unchanged",
+    "report": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/implementation-report.md",
+    "report_sha256": "9a45b781190b01573bdf57ae4b39e1e5c53afad19f09b27cbbd536b26cf2f76f",
+    "actual_fresh_candidate_methods": 377,
+    "policy_methods": 51,
+    "contract_checks": 101,
+    "fresh_commands": 18,
+    "baseline_methods": 326,
+    "baseline_receipts": 9,
+    "baseline_execution": "Historical receipts reused, notrerun, after7exactrestore+5removed andall20102nonownedtrackedfile/linkpinsidentical/Gitdiffempty",
+    "outputs_verified": 110,
+    "original_report": "Frozen801fe181...; old337evidencefiles preserved",
+    "current_state": "Done after actual fresh QA2 PASS0, generated andcheckedbundle; RT020resolved; sharedrequirementsstillInProgress",
+    "recorded_at": "2026-10-19T21:52:55.676190+00:00",
+    "quality2": {
+      "manifest_sha256": "ac7b273b18dfb146bba3cd640454feaf426eaf5b0d5472c5e48f2a29a94871d6",
+      "actual_context": "/root/t006_cycle2_evaluator",
+      "inputs": 681,
+      "sequence": 1288,
+      "receipt": "bfb42fa622707fa1838a9c88fed3ac2ff09985e50a84468c9c03935cc4dd3f82",
+      "verdict": "PASS",
+      "Critical": 0,
+      "Major": 0,
+      "Minor": 0,
+      "root_all_repository_and_scratch_reverified_before_mutations": true,
+      "bundle": "specs/ci-model-modernization/verification/T-006.evidence.json",
+      "report": "reports/quality-gate/20261019-ci-model-modernization-T-006-cycle-2.md"
+    }
+  },
+  "t007_start": {
+    "actual_context": "/root/t007_implementation",
+    "manifest": "specs/ci-model-modernization/verification/T-007/attempt-1/task-input-manifest.json",
+    "sha256": "740b7b47300ae808cfc1142162f7fb11f11177ec207b8f0a111b69b12f6efcf6",
+    "inputs": 142,
+    "snapshot": "/tmp/ci-t007-implementation-n15bm37q/snapshot",
+    "state": "InProgress/preflight; boundedauthenticatedClaudeopushigh codingdelegation authorized; productmustwaitRootRedcommit",
+    "recorded_at": "2026-10-19T22:01:04.555310+00:00"
+  },
+  "t007_checkpoint": {
+    "state": "Stage1A helper/schema applied; first18 yielded16PASS+one defective test mutation+one1B dependency. Root corrected/committed tests and proved2 actual newbehavioralReds; narrowfixes/1B authorized, wholeT007 still InProgress.",
+    "actual_claude_session": "ef81c6a9-f76e-4b08-a99d-e3b7c3c0104c",
+    "helper_manifest_sha256": "0bb82eef2df32163790a368d9a924a2260ef868772fdb48260c98c820745b850",
+    "brief_sha256": "7932a6a51a987f1c0fac9ee1e0b7ec6a00700c3275cb2abacc86c8b7b7a4a632",
+    "last_reported_main_limit": "allowed at 2026-10-19T22:13:49Z; utilization 0.20",
+    "reported_reset_utc": "2026-10-20T02:20:00Z",
+    "context_manifests": [
+      {
+        "path": "specs/ci-model-modernization/verification/T-007/context-supplement/inputs.json",
+        "sha256": "0fec78f3c7aaf746dc6713df1ebfa8e7667972ae2e9abbb705c2fc229cbe834c"
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-007/context-supplement/controls-scope.json",
+        "sha256": "629e9896125747d2394bcbfad19e916c47045364bba333f7c229cd264dc19e71"
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-007/native-schema-inputs/inputs.json",
+        "sha256": "b2867878c41b2632230519f4588895b4b0d1266672250635c4a00c5bb571061b"
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-007/rollback/allocation.json",
+        "sha256": "85803e06b018521e0a9876c084d79699ee25491732209a3173798a38872c55b7"
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-007/rollback/model-ci-baseline-reuse.json",
+        "sha256": "a8b48b10cdf8ebc8bbfe6f4dae522c95429e46c9c460905d532d0df7b934c36f"
+      }
+    ],
+    "baseline": "All nine additional transport baseline commands actually pass, 20/20 quality methods no skips; initial PATH failure retained. Existing T006 377-method/routing model-CI baseline explicitly reused.",
+    "design": "Separate bounded raw-pinned controls, closed transitive closure, no symlink components, trusted installed registry and native mapping; controls never reviewer inputs; keep T005 core semantics",
+    "reviewed_draft_issues": [
+      "Effort must reach supported actual CLI carrier",
+      "No unnecessary extension of T005 delivery transport semantics"
+    ],
+    "recorded_at": "2026-10-19T22:20:46.249284+00:00",
+    "initial_helper_exit": {
+      "exit_code": -9,
+      "timed_out": true,
+      "elapsed_seconds": 1200.31,
+      "remaining_own_children": false,
+      "immutable_inputs_verified": 151,
+      "no_tests_produced": true,
+      "latest_main_limit": "allowed at 2026-10-19T22:25:40Z; utilization0.29",
+      "api_draft_sha256": "b788580397c94d2fdbf8e1c732bca2681243887232699ebdabd08651d71548c7"
+    },
+    "official_claude_help": {
+      "admission": "specs/ci-model-modernization/verification/T-007/root-native-help/admission.json",
+      "sha256": "ceddedce2babf42ab4dd263af067a1e01c4e6aaf59058dcabbf1e2368bbcf8c5",
+      "exit": 0,
+      "inference": false,
+      "effort_flag_confirmed": true
+    },
+    "baseline_environment": {
+      "initial_quality_command": "20 methods; failures1/errors2/skipped1; original raw logs retained, not PASS",
+      "cause": "rtk missing from PATH; Claude CLI absent from PATH caused native-help-only skip",
+      "installed_rtk": "/workspace/.tools/rtk/0.51.0/rtk",
+      "installed_claude": "/workspace/.tools/claude-code/node_modules/.bin/claude",
+      "installed_jq": "/usr/bin/jq",
+      "next": "Primary add installed paths and rerun affected commands under own-child wrapper; no installation"
+    },
+    "baseline_result_sha256": "f0a5fac23f56cc2b76166bef2ca793082960112eafe0b3cafbe90647ab058cc6",
+    "root_baseline_check": "specs/ci-model-modernization/verification/T-007/rollback/root-before-check.json",
+    "root_baseline_verified": "9 effective exit0; all20rawlogpins; 2preservationpins; all80source rows rehashed both live repo and clone; 2newpaths absent",
+    "focused_helper": {
+      "actual_session": "33f6db30-2812-4652-be7d-63f27b68f857",
+      "immutable_inputs": 16,
+      "manifest_sha256": "ddcebb22f16f3886efcb9e909cb97394b313c9684c67085240276aa264852f8b",
+      "brief_sha256": "596c8eaa8b8b4e4f14ccfd2bd06ca5bd5f2b45a1e23bde6b1f7d433c269741f7",
+      "first_test_draft_reported_utc": "2026-10-19T22:45:20Z",
+      "draft_bytes": 80451,
+      "status": "Completed focused tests draft; independently corrected; actual Red and tests-only commits recorded",
+      "actual_exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 880.14,
+      "remaining_own_children": false,
+      "original20method_source_sha256": "ed362965de9b3948534772fc0a0236ab1f0a7bf2bdf92fd0ede381b5975f9e8a",
+      "latest_actual_quota": "allowed at22:46:20Z, five-hourutilization0.55, reset02:20Z"
+    },
+    "field_inventory_planning_sha256": "45a79b88bfd4021bceecd60a42f3694a9a4e6f3b40d6375ad75f80c4abc48d46",
+    "official_native_docs_admission_sha256": "eaa62a872653912ef52d5f76f43bb5e50c5b31b21c71afc0d23f8824d4d15c0c",
+    "root_red": {
+      "new_methods": 29,
+      "all_methods": 49,
+      "assertion_failures_including_subtests": 54,
+      "errors": 0,
+      "skips": 0,
+      "old_quality_pass": 20,
+      "ruff": "PASS2files",
+      "mypy": "PASS2files",
+      "classification": "specs/ci-model-modernization/verification/T-007/root-core-red/final-red-classification.json",
+      "test_only_commit": "d24afd3fd4a33fd38e583e9b5d1855ac1fbf1136"
+    },
+    "stage1_product": {
+      "phase": "stage1 only, not whole T007 acceptance",
+      "identity": "work-agent:root:t007_implementation",
+      "manifest": "specs/ci-model-modernization/verification/T-007/attempt-1/stage1-product-inputs/task-input-manifest.json",
+      "manifest_sha256": "d42263899725f0664ff903679a9e21fcd35bf45d496fa85f28ee5c5817c804cd",
+      "snapshot_root": "/tmp/ci-t007-stage1-product-e5z2k6jz/snapshot",
+      "input_stage": "/tmp/ci-t007-stage1-input-stage-3nfn5pfu",
+      "scratch_root": "/tmp/ci-t007-stage1-product-e5z2k6jz",
+      "inputs": 249,
+      "test_only_red_commit": "d24afd3fd4a33fd38e583e9b5d1855ac1fbf1136",
+      "allowed_product_paths": [
+        "plugins/sdd-implementation/scripts/model-policy.py",
+        "contracts/model-launch-controls.schema.json",
+        "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+        "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+        "tests/verification-catalog.json",
+        "specs/ci-model-modernization/verification/T-007/stage1/"
+      ],
+      "allowed_existing_helper_definition_changes": [
+        "_output_path",
+        "_replay_policy_winner",
+        "prepare_policy",
+        "main"
+      ],
+      "limitations": "Tests immutable; T005 delivery/default behavior, panelists/emitters, canonical validators, shipped adoption, lifecycle and Git are not stage1 worker outputs. Same genuine active Capture; scoped copied private root/environment; reset tokens in finally."
+    },
+    "stage1a_claude": {
+      "actual_session": "d46f2efd-7203-4b9d-ae77-405b891db76b",
+      "inputs": "11 immutable +mutable seeded helper; outputhelper+schema+handoff only",
+      "manifest_sha256": "0473b134516a0bdf63f860477b8ccf06d7516371bd6adfae160da4dbe462e8c1",
+      "brief_sha256": "7c11a7acfb15a2b522d032c5fd01f92dded2c2133152b415262973ea58739e44",
+      "latest_checkpoint_utc": "2026-10-19T23:06:14Z",
+      "status": "Completed helper/schema draft; independently reviewed/corrected; original frozen output preserved",
+      "latest_actual_main_limit": "allowed .70 at2026-10-19T23:09:37Z; reset2026-10-20T02:20Z",
+      "actual_exit": 0,
+      "elapsed_seconds": 594.55,
+      "timed_out": false,
+      "remaining_own_children": false,
+      "frozen_helper_sha256": "7e28dbda1d7fa21606bde4ccf7b87fcc1dbf461b61b75787e3bff4af017c802f",
+      "schema_sha256": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736",
+      "primary_captured_runtime_helper_sha256": "428b592785f6a46afb6b3c77d8f5688c4e854ece57a30763bf6150e88d5af666",
+      "existing65defs_changed_only": [
+        "prepare_policy",
+        "_output_path",
+        "_replay_policy_winner",
+        "main"
+      ]
+    },
+    "held_test_followups": {
+      "core_sha256": "fc55999ddc9a5572bccb8954e050d99d0f59f193631b6cd4f5114de2f965aef5",
+      "quality_sha256": "60bc377dd320c60d1b3b02c88d9a161a2c060671e533025bf5e63e418d01b360",
+      "status": "Superseded by committed followup and boundary fixes; see latest input supplement"
+    },
+    "further_test_only_commits": [
+      "38a48d0bc1bae106ae485e9102a94eb6286e4842",
+      "e1c56a6c6fff5b6a4bfa97045e3a0a0243d1542f"
+    ],
+    "stage1_followup_admission": {
+      "manifest": "specs/ci-model-modernization/verification/T-007/root-stage1-followup/task-input-manifest.json",
+      "manifest_sha256": "7d735c14fd5ce3f6f60f825aedf1aba3dc4b57ec9f7cf6ef4f7ff1ea2c10c499",
+      "snapshot_root": "/tmp/ci-t007-stage1-followup-zowdo79v/snapshot",
+      "input_stage": "/tmp/ci-t007-stage1-followup-stage-_zxsglem",
+      "inputs": 30,
+      "test_only_commit": "38a48d0bc1bae106ae485e9102a94eb6286e4842",
+      "parent_manifest_raw_sha256": "d42263899725f0664ff903679a9e21fcd35bf45d496fa85f28ee5c5817c804cd",
+      "scope": "Supplement to249inputs; latest2testinputs supersede oldpins; allowed5productpaths unchanged; candidatependingcorrection/verification"
+    },
+    "boundary_fix_admission": {
+      "manifest": "specs/ci-model-modernization/verification/T-007/root-boundary-fix-inputs/task-input-manifest.json",
+      "manifest_sha256": "5f148bd4db12fa98bd0eddb03ec2ccced60d546b0ff17354e1182d4ce2189bd8",
+      "snapshot_root": "/tmp/ci-t007-boundary-fix-hk_9ingb/snapshot",
+      "inputs": 37,
+      "test_only_commit": "e1c56a6c6fff5b6a4bfa97045e3a0a0243d1542f",
+      "parent_manifest_raw_sha256": "d42263899725f0664ff903679a9e21fcd35bf45d496fa85f28ee5c5817c804cd",
+      "scope": "Two realbehavioralRed fixes +latest test/nativeplatform carrier context; remainingstage1 productpaths unchanged"
+    },
+    "root_actual_boundary_subset_red": {
+      "classification": "specs/ci-model-modernization/verification/T-007/root-platform-red/classification.json",
+      "actual_failures": 2,
+      "errors": 0,
+      "skips": 0,
+      "ruff": "PASS3files",
+      "mypy": "PASS3files",
+      "no_native_windows_execution_claim": true
+    },
+    "rollback_before": {
+      "nonowned_tracked_file_link_pins": 20726,
+      "sha256": "7b0ad71c7fa33d6e16c2539ec0ac7bf626f2941e655c345a8047e6f1cdba28ef",
+      "original_allocation_immutable": true,
+      "extended_remove3": "specs/ci-model-modernization/verification/T-007/rollback/platform-allocation.json"
+    },
+    "native_windows_scope": "Newcontrols explicitly unsupported on runtimes without required safe-open primitives; portableboundary must execute bothCI/local profiles; full25core onPOSIX/local+UbuntuCI; bothshell Linux positiveproof isnot Windows native success. ExistingWindowsrequired lanes/legacycontracts mandatory.",
+    "stage1a_boundary_fix": {
+      "helper_sha256": "80513e0f53fe76d4ff22ddcaa2a3ce143e8d8178d3579cc937ee0180153efb5f",
+      "affected_core_methods": 4,
+      "native_boundary_methods": 2,
+      "errors": 0,
+      "skips": 0,
+      "root_receipt": "specs/ci-model-modernization/verification/T-007/root-boundary-review/affected-green-check.json",
+      "whole_stage1_green": false
+    },
+    "stage1b_claude": {
+      "actual_session": "3f6c888f-a7a5-4d93-880f-ea1b64260b4f",
+      "status": "Helper completed; Root all14immutablepins/all3outputpins/exactallowlist verified; primary source review and actual full checks pending",
+      "immutable_inputs": 14,
+      "mutable_seeds": 3,
+      "manifest_sha256": "e4b192cfe3ca7885283fbef3df1439ace8578f47916f28ba046ab3355e7fba3f",
+      "brief_sha256": "e1b1d9b717fa28c1eccc50c53b141a9bc07f41e31b418a64ff37d344593cbbcc",
+      "latest_actual_main_limit": "allowed_warning at2026-10-19T23:42:38Z; five-hourutilization0.96",
+      "reported_reset_utc": "2026-10-20T02:20:00Z",
+      "actual_exit": 0,
+      "elapsed_seconds": 872.73,
+      "timed_out": false,
+      "remaining_own_children": false,
+      "root_integrity_receipt": "specs/ci-model-modernization/verification/T-007/root-boundary-review/claude-stage1b-integrity.json"
+    },
+    "stage2_preflight": {
+      "state": "Historical design checkpoint, superseded by stage2a and stage2b results",
+      "delivery_adapter": "Explicit keyword-only transport=None default exact; trusted codex-exec accepts null native DTOs/empty notifications only",
+      "execution_reconstruction": "Stored launch.argv is not independent authority. Trace existing invocation/dependencies/settings/policy/receipt/role artifacts; minimal closed raw-pinned execution context if needed, versioned addendum and committed meaningful Red first. Evidence consistency, not cryptographic execution attestation.",
+      "protected_identity": "Retain canonical run_id == host_session_id admission/preflight/postflight. Generic binding API/panelist distinct IDs does not widen protected adapter. Real selected-entry test uses admitted alias and must reject distinct ID before probe/reservation.",
+      "native_smoke_draft": {
+        "version": 2,
+        "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/capture-v2.py",
+        "sha256": "a1b13bac6c6d2c791228bf9037e804f64746da68b0346f0606158252f891d94e",
+        "admission_sha256": "cf4f2d0d0c84659673dfe81f0630bf95099854c4db541ecbfc5e3a181ae3554e",
+        "execution": "Pending sequential window; no CLI/native invoked by this draft",
+        "error_handling": "No raw exceptions/DTO/account/credential content in failure logs"
+      },
+      "identity_tests": "4method additive candidate reviewed only, not yet actualRed/committed",
+      "extended_rollback": {
+        "path": "specs/ci-model-modernization/verification/T-007/rollback/stage2-allocation.json",
+        "sha256": "a61e8a5e237cf56fd939821fcabbe9591f760dc8e40672a41f2c66a286da39b9",
+        "restore": 12,
+        "remove": 3,
+        "original_before_rows": 20726,
+        "remaining_nonowned_rows_after_new_identity_owned": 20725
+      }
+    },
+    "stage1_candidate_verification": {
+      "state": "Actual25core+24quality+2platformPASS,no skips; Root6logpins/totals verified. This was before added paired-boundary2Red and not final acceptance.",
+      "source_review_findings": [
+        "Paired sidecar safe-read boundary: actual2method5assertionfailures recorded, fix authorized aftertests-onlycommit",
+        "Catalog impact breadth inspected; no hang/portability defect demonstrated; retain requirednativeprofiles and validateactualplanner"
+      ],
+      "postexecution": "Raw original/trusted pins rechecked; no reselection against expired observation, no actualIDclaim",
+      "catalog_review_clarification": "Dependency closure is finite set/fixed-point, not recursive; cycle not a demonstrated defect. Portable platform remains both hosted/native profiles; POSIX core remains Ubuntu-only. Actual planner/carrier checks still required; no speculative platform weakening."
+    },
+    "stage1_native_smoke": {
+      "status": "PASS_stage1_only",
+      "driver_sha256": "a1b13bac6c6d2c791228bf9037e804f64746da68b0346f0606158252f891d94e",
+      "result": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual/result.json",
+      "result_sha256": "bc4e314a4c492d43208c20e653682703cfa25d36f8cee912f1fb03c6a4babe66",
+      "same_genuine_capture": true,
+      "native_thread_configuration": "gpt-6-astra/high",
+      "turn_started": false,
+      "actual_id": null,
+      "proof": "unverified",
+      "root_verified": "9inputs+7outputs+2logs; actualcommand0/ownsubreaper0/nochildren",
+      "final_helper_proof_pending": true
+    },
+    "paired_boundary_followup": {
+      "test_only_commit": "1d60bc85f37de07da14fc47fc7cd2ac1c66fb66a",
+      "actual_methods": 2,
+      "assertion_failures": 5,
+      "errors": 0,
+      "skips": 0,
+      "test_statics": "Ruff2/mypy2PASS",
+      "product_statics": "Ruff3PASS,mypy1error in pairedsafe read",
+      "supplement_manifest": "specs/ci-model-modernization/verification/T-007/root-paired-boundary-fix-inputs/task-input-manifest.json",
+      "manifest_sha256": "8756eda88626699fc3de7e96ad5349a7ca169c708e92d945b5a2e2c2c9598257",
+      "snapshot": "/tmp/ci-t007-paired-boundary-fix-y4pjedkm/snapshot",
+      "inputs": 54,
+      "scope": "Narrow pairedsafe-read fix; stage2productheld",
+      "actual_green": "2affectedcore+3platformPASS; Ruff3/mypy3PASS; Root8logpins and onlyread_regularASTchange verified"
+    },
+    "stage2a": {
+      "test_only_commit": "edf8c7093276a3fc0d56f2eda571349fafd6103c",
+      "identity_test_sha256": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+      "actual_red": "4methods12assertionfails,0errors/skips; Ruff/mypyPASS afternewtupleannotation",
+      "manifest_sha256": "bd0879082617af0cbb6620d9f1322fa0f14fbb7b88b40eeecbb7477b86d56a0f",
+      "snapshot": "/tmp/ci-t007-stage2a-00_a4pnv/snapshot",
+      "inputs": 44,
+      "helper_sha256": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+      "actual_green": "81identitymethods,0errors/skips; helperRuff/mypyPASS",
+      "root_review": "specs/ci-model-modernization/verification/T-007/root-boundary-review/delivery-adapter-green-check.json",
+      "record_panelist_emitter_product": "StillHELD beforeseparateRed/commit/admission"
+    },
+    "stage2b": {
+      "state": "Scoped Green: all14actualcommands PASS, Root28logpins+8sourcepins verified; not finalT007acceptance/QA",
+      "test_only_commits": [
+        "df1c333e3c1b84e9c9ccdab9e0f06d78732cc7e2",
+        "72faf7ec",
+        "e04e8c67ffed8f7f354a288f09e22508ceaeddde",
+        "bbf42707fe194e52f127a6c7f9dcc4f803348a7e",
+        "eb65bd47583c48feeecb72d9ad1de326bf54085e"
+      ],
+      "core_methods": 37,
+      "platform_methods": 3,
+      "core_sha256": "b4cae0eb29784ce3854754f6afbb4fc2f184e8d81db1448bd0ce6b4dbeec044b",
+      "platform_sha256": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810",
+      "actual_red": "Ordinary9methods11assertfails; fixed1method1fail; feature1method1fail; errors0/skips0. Dependent negativeleaf branches stillplanneduntilGreen",
+      "platform_cleanup": "Current+originallyabsentflagscenariosPASS; oldproductstill4realassertfails withsameassertions. No Windowsnativepositivesuccessclaimed.",
+      "test_statics": "Ruff/mypyPASS oncommittedcandidates",
+      "manifest": "specs/ci-model-modernization/verification/T-007/root-stage2b-inputs/task-input-manifest.json",
+      "manifest_sha256": "0ca9df4b484d1edac7ad3cc24c7c234bddf06b25bfa31cde962350a8fc5e98d3",
+      "snapshot": "/tmp/ci-t007-stage2b-bjs_edef/snapshot",
+      "inputs": 62,
+      "allowed_product_paths": [
+        "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+        "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+        "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+        "plugins/sdd-quality-loop/scripts/emit-run-record.ps1"
+      ],
+      "helper_dcb_immutable": true,
+      "stage3_product_held": true,
+      "remaining": "Actual full product/core/quality/platform/fixed validation; stage3 selected panelists; final native proof, full regressions/build/schema/rollback/report/independent QA",
+      "fixture_supplement": {
+        "manifest": "specs/ci-model-modernization/verification/T-007/root-fixture-final-inputs/task-input-manifest.json",
+        "sha256": "c18fcb223931f00b4d0ab4067b91d0892a08c4ad9546e5df91296cb2b9cc9c22",
+        "snapshot": "/tmp/ci-t007-fixture-final-th0gp_n4/snapshot",
+        "inputs": 15,
+        "test_statics": "Ruff2/mypy2PASS",
+        "original_fixed_regressions_admitted": 5
+      },
+      "first_actual_result": "Ruff2/mypy2PASS; core37 failed7assertions solely selected agents serialization field order, 11recordmethodsPASS; quality24/platform3PASS; 0errors/skips. Narrow deterministic existing field-order correction in progress.",
+      "green_result": {
+        "path": "specs/ci-model-modernization/verification/T-007/stage2/records-green/results.json",
+        "sha256": "a6c8ea975cb38ab79688b26e979aafa907b7253a2b5bd29f41d4ec0b00460aa7",
+        "root_receipt": "specs/ci-model-modernization/verification/T-007/root-boundary-review/protected-record-green-check.json",
+        "root_receipt_sha256": "ce47c493c122be4f56a21a5c98618b1d00b7bfdd213eed55ad52624db99cd57a",
+        "actual_counts": "core37 quality24 platform3 fixedstate12 ps6 bash7 launch50 inputs33 sharedbuild1 anchors both legacy emitters",
+        "statics": "Ruff2/mypy2PASS",
+        "errors": 0,
+        "skips": 0
+      }
+    },
+    "stage3_scratch": {
+      "state": "Implementation admitted after committed Red; primary sharedPython driver + boundedClaude four thin wrappers; not Green/QA",
+      "core_total_methods": 46,
+      "core_sha256": "2b8bca3f023b14e334dd2833132d35936734b03c9c2cb98d2f2f1c1da86eef85",
+      "test_only_commit": "fdf0d660",
+      "root_receipt": "specs/ci-model-modernization/verification/T-007/root-boundary-review/panelist-red-admission.json",
+      "root_receipt_sha256": "5c3713cf395c612f6c7b6f8e414f437976b2191a74344497574575b2147846f0",
+      "statics": "Ruff/mypyPASS",
+      "fixture_preflight": "Actual selector + genuine Bash/officialPowerShell signed prepare PASS, no native backend",
+      "product_admitted": true,
+      "remaining": "Versioned closed codex-exec context/mismatch matrix +canonicalinputmanifest before5path product implementation; finalfulltask proofs/rollback/report/QA",
+      "admission": {
+        "manifest": "specs/ci-model-modernization/verification/T-007/root-stage3-inputs-v2/task-input-manifest.json",
+        "sha256": "4b4670bfc5dba28044b568fa30a656feef238ecb78c3b381b0ec0701d9504fdf",
+        "snapshot": "/tmp/ci-t007-stage3-gi0vuwq_/snapshot",
+        "inputs": 347,
+        "test_commit": "fdf0d660cdf471c812f621f04045d849b3223e50",
+        "allowed_product_files": 5,
+        "canonical_preflight": "PASS",
+        "initial_preflight_failure": "Original external-input paths incorrectly mapped under repository; preserved; v2 uses explicit original absolute paths"
+      }
+    },
+    "final_native_smoke_prepared": {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/capture-v3.py",
+      "sha256": "ddac2c6319c9492348c4b443d150491ddbec8fb9a80ce8aa680793140869d665",
+      "state": "ActualPASS finalcandidate, onceexecuted",
+      "scope": "Same genuine Capture/selection/control and actual thread/start selectedconfig; no modelturn/inference/adoption/backendID claim; final product input fingerprints included",
+      "result": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-final/result.json",
+      "result_sha256": "77037c625b28297a93cd8d1856555ff75034f139595023fa08743e37ee4f4376",
+      "root_receipt_sha256": "de7c1ac6592505f4746a3ad251ec7f654f4c4c31ac31450a11d37879a397d1a9",
+      "inputs_verified": 17,
+      "outputs_verified": 7,
+      "model_turn_started": false,
+      "actual_id": null,
+      "proof": "unverified"
+    },
+    "stage3_claude": {
+      "session_id": "38682144-d112-4e15-ae57-33c10d263f13",
+      "scope": "Four wrapper dispatch branches only; shared driver primary",
+      "state": "Completed exit0/no timeout; primary copied4 wrapperoutputs afterreview; Root independently verified7immutablepins/exactallowlist/4scratchandliveoutputpins/insertion-onlydiffs; behavior pending",
+      "actual_quota_event": "2026-10-20T00:33:06Z allowed_warning utilization0.99",
+      "actual_main_rejection": false,
+      "reset_utc": "2026-10-20T02:20:00Z",
+      "inputs_manifest_sha256": "966281d2c06565ace510a492f926a9bf9cd4bba34f129fb80b02ec72caacd579",
+      "brief_sha256": "537300ad41bcb56ec54ba78a2bcc53c836f5bf0514b87e023b927100c81dc578",
+      "retry_policy": "No authentication retry. If actual main limit rejects, respect actual reset; continue independent local work.",
+      "actual_exit": 0,
+      "finished_at": "2026-10-20T00:33:07Z",
+      "root_receipt": "specs/ci-model-modernization/verification/T-007/root-boundary-review/claude-stage3-integrity.json",
+      "root_receipt_sha256": "2e8f41fa37a16659547538cc9c797fb20ba72a0dbfe0e82030b751898693868a",
+      "remaining_own_children": false,
+      "new_helper_planned_before_recovery": false
+    },
+    "stage3_first": {
+      "runtime": "new9methodsPASS0errors/skips",
+      "statics": "InitialRuffPASS,mypy8errors; explicit Optionalguards corrected Ruff/mypyPASS",
+      "boundary_review": "2 meaningfulpublication/symlink gaps reproduced2methods6fails0errors/skips, test-firstcommit1c4ad51e, narrowfixadmitted16inputs",
+      "current_core_methods": 48,
+      "current_core_sha256": "81d575c9b473af2e080dd10ccd326eb8013205b46f5519217c5c197976203d04",
+      "current_manifest": "specs/ci-model-modernization/verification/T-007/root-publication-fix-inputs/task-input-manifest.json",
+      "manifest_sha256": "abf2fef6da20a657c37fb730198182620ba3ce9b1d74a599d1a5f6d2e3f0e606",
+      "root_receipt": "specs/ci-model-modernization/verification/T-007/root-boundary-review/publication-red-admission.json",
+      "root_receipt_sha256": "0df01bc83e0b376213fd5a633974f4f2ac84feb87a223de7d09b8d0e3b1ec222",
+      "task_done": false
+    },
+    "latest_status": "Done after actual fullscope independent QA2 PASS0, Root all1359repository/snapshot pin revalidation, actual generated/checked evidence bundle and task-state/traceability checks;RT021resolved. Current54methods875subtests+37extramethods/currentnativeconfiguration/fresh16+9rollback. Reviewerlimits309directOutputs+1canonicalprovenance and121directsource+5capturedhashes explicit. No inference/adoption/hostedclaim.",
+    "qa1": {
+      "actual_work_context": "/root/t007_cycle1_evaluator",
+      "manifest": "specs/ci-model-modernization/verification/T-007/quality-cycle-1/work-review-v2/invocation.json",
+      "manifest_sha256": "ecfad27d0b2765d6517cb4f2c49a8bf89ace4b14ebe701cf1f43a9038baa4e67",
+      "inputs": 1020,
+      "sequence": 1289,
+      "status": "NEEDS_WORK0/1/0"
+    },
+    "ticket": "RT-20261020-021",
+    "qa1_fix": {
+      "test_only_commit": "211be77e286fc18168fc1b0cb2796300fe3cf612",
+      "actual_red_methods": 4,
+      "actual_red_assertion_failures": 9,
+      "actual_red_errors": 0,
+      "actual_red_skips": 0,
+      "candidate_sha256": "118e3077b7809ad4a5f90241c1a980b9be5d17aa6594531e377b5dafaacff94b",
+      "product_manifest": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/product-inputs/task-input-manifest.json",
+      "product_manifest_sha256": "720c51b0177674532bc14f362c6e80f724387094ffb3719c09133698247cab4e",
+      "status": "Done",
+      "methods": 54,
+      "additional_lifecycle_red": "1method1assertionfailure0errors/skips, realfdreusewrite",
+      "latest_product_manifest": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/post-full-fix-inputs-v2/task-input-manifest.json",
+      "latest_product_manifest_sha256": "a2bd76b4af57626331acb6a27554d408825ab9ba2ebcfe68c03c66dd22d8ea16",
+      "correction_report": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/implementation-report.md",
+      "correction_report_sha256": "e8c411bb66e23fe8855cd5e84e8e6f1c15417e1df92dd201146ee1c349fde83b",
+      "current_methods": 54,
+      "current_successful_subtests": 875
+    },
+    "qa2": {
+      "status": "PASS0",
+      "manifest": "specs/ci-model-modernization/verification/T-007/quality-cycle-2/work-review/invocation.json",
+      "manifest_sha256": "1842e34933d19f06a39c9c74467a2eea16c107e2ffe4e65328fe912bff1f32c8",
+      "inputs": 1359,
+      "sequence": 1290,
+      "receipt": "6d19c8cf4fed97f35fae841f56371cb52d96206e27cf441fa08da5d33d3af6f6",
+      "actual_work_context": "/root/t007_cycle2_evaluator"
+    }
+  },
+  "t006_implementation_history": {
+    "state": "In Progress; fresh primary reads82 pinnedinputs; design/highriskpreflight before tests/product",
+    "primary": "/root/t006_implementation",
+    "manifest_sha256": "b9859f3e3f741c9fdcc7bea3d92b3e0c357cda80e25081226a310ad647a19959",
+    "snapshot": "/tmp/ci-model-t006-implementation-wm2x216m/snapshot",
+    "baseline": "Actual326 Python methods + Bash/officialPowerShell routing suites PASS,0skips",
+    "clone": "/tmp/ci-model-t006-rollback-o_egd04e/repo",
+    "design": "Accepted narrow prepare-selection/complete-selection JSONstdin bridge; keep native selector algorithms; implicitpin source=winningIDsource; no inventedadoption",
+    "phase": "Environmentrecovered; resume sameprimary forfinal49/375/326 +shellproof/report; no finalPASS yet",
+    "preflight": "specs/ci-model-modernization/verification/T-006/attempt-1/preflight-design.md",
+    "required_coverage": "35ownedTESTs,17roles,4labelledhosts, bothindependentPScasesweeps",
+    "claude": "Authenticated; no retry before2026-10-19T21:10:00Z",
+    "red_commit": "815e420c502bfc365a5ab7463aa51b08a689521f",
+    "product_manifest": "specs/ci-model-modernization/verification/T-006/attempt-1/product-inputs/task-input-manifest.json",
+    "product_manifest_sha256": "96a5b912f0b6933cc5a0942299d03983751e7f6e10f66db9056be08c9cec3ddb",
+    "product_snapshot": "/tmp/ci-t006-product-pyz_nrty/snapshot",
+    "product_inputs": 109,
+    "red_commits": [
+      "815e420c502bfc365a5ab7463aa51b08a689521f",
+      "3b4754846b9e088b381fb26f4dec578c03fb43ca",
+      "1282469b",
+      "f25faf2d86786bef6ed17f87fcfa1dcc77bad896",
+      "5ad4ecdbdde6571cceaba4f9ea920068a555def1",
+      "fdc805625f4cdaf2380368212abdb843f1e98a05"
+    ],
+    "current_tests": 49,
+    "expected_candidate": 375,
+    "expected_restored": 326,
+    "supplements": [
+      {
+        "path": "specs/ci-model-modernization/verification/T-006/root-completion-probe/fix-inputs.json",
+        "sha256": "23c08b39853915bffbc58ee9616efcd96641c35795a18aa8269e8d74b36055bd",
+        "snapshot": "/tmp/ci-t006-completion-fix-fzfbwz06",
+        "inputs": 30
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-006/root-purpose-probe/fix-inputs.json",
+        "sha256": "d7bf3a3730847cfac3eb38fe98f1661dd661436b196760cbe03a26a92c8eb7bf",
+        "snapshot": "/tmp/ci-t006-purpose-fix-a9p1ovgh",
+        "inputs": 11
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-006/root-price-probe/fix-inputs.json",
+        "sha256": "ea27458f3cec10583ce064fc0b5cc48a7ada37b51a2271ea90724024c2e663b6",
+        "snapshot": "/tmp/ci-t006-price-fix-ner1ik93",
+        "inputs": 15
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-006/root-replay-source-probe/fix-inputs.json",
+        "sha256": "3fb0aa1f7269890c36f1777570395b223b054d412bd14c244268a9e36b4ea0d3",
+        "snapshot": "/tmp/ci-t006-replay-source-fix-5xsupwyx",
+        "inputs": 5
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-006/root-option-probe/fix-inputs.json",
+        "sha256": "a1473416b3da57a190b1bce507b7592d6dc82255ad5076e6a538317a3a20e400",
+        "snapshot": "/tmp/ci-t006-option-fix-nuhh4re7",
+        "inputs": 20
+      }
+    ],
+    "test_expectation_correction": "Root corrected original evaluator-lowrisk artificialfloor toexistingroledefault fallbackonlywhenriskmatrix.lowabsent; actual4failureRed repeatedinexactold30pinsnapshot",
+    "quality_gate_cycles_used": 0,
+    "execution_harness": {
+      "manifest": "specs/ci-model-modernization/verification/T-006/root-execution/harness-inputs.json",
+      "sha256": "b54d0fe93a05494a8868eb82cbc667cad533c0582b8cb6e797ec8856e01a5534",
+      "wrapper": "specs/ci-model-modernization/verification/T-006/root-execution/run-subreaper.py",
+      "wrapper_sha256": "018f05462537f0790ea2c320ca05487e228d9e92ca4a4219a2ede20d56a02bbe",
+      "scope": "Root/primary future test andgovernancecontrollers oneatatime; reapownorphansonly; preserveactualexitcode",
+      "proof": "actualorphanreap1/nochildren/exit0 andexit7preserved",
+      "environment": "actual32399zombiesallPID1; EAGAIN; bothprimaryheavycontrollersinterrupted130, notPASS"
+    },
+    "preflight_row_count_note": "92physicalrows withcombinedcatalog/reportcounterparts; do notclaim96independentfixtures",
+    "environment_recovery": {
+      "manifest": "specs/ci-model-modernization/verification/T-006/root-execution/recovery-inputs.json",
+      "sha256": "8b2d2521b1f92217dd4e81ac2958630367042c0157c9d906429314237d1e0fde",
+      "snapshot": "/tmp/ci-t006-resource-recovery-cz_5eyq7",
+      "terminated_children_reaped": 32399,
+      "zombies_after": 0,
+      "pid1_still_tail": true,
+      "pwsh_default_startup": "PASS exit0 stderr empty CPU4; no CPU/GC overrides",
+      "note": "Botholdheavycontrollers130 notPASS; final49/375/326 rerunsequentiallyunderownsubreaper required"
+    }
+  },
+  "python313_ci_compatibility": {
+    "state": "Open compatibility diagnostic finding, failclosed not falsePASS",
+    "evidence": "specs/ci-model-modernization/verification/T-007/root-python-runtime-scope.json",
+    "source": "tests/verification-ci.py:674 Path.resolve(strict=False) changed loop behavior under3.13",
+    "actual_failed_suite": "stage3/final-regression/8.stderr.log,79/80PASS on3.13.5",
+    "canonical_runtime": "ActualCI80 PASS explicit3.12.14,35.61s,0errors/skips; sourceunchanged. Retained3.13failure not claimedpassed.",
+    "task_ownership": "T001 algorithm/boundary, not silently edited withinT007; assess mandatoryT011native/hostedruntime coverage",
+    "T001_quality_cycles_already_used": 10,
+    "no_cycle11_approval_inferred": true
+  },
+  "t008_checkpoint": {
+    "status": "In Progress / renderer+prepare/install integrated checks and full legacy installers PASS; native/callers/workflow phase open",
+    "actual_work_context": "/root/t008_implementation",
+    "manifest": "specs/ci-model-modernization/verification/T-008/attempt-1/execution-inputs/task-input-manifest.json",
+    "manifest_sha256": "f62d2d952a358f879b6c493999e3f32c13b351e0c8f1d7b52faf53ff91aa293a",
+    "inputs": 194,
+    "snapshot_root": "/tmp/ci-t007-implementation-_470bl4o/snapshot",
+    "scope": "Managedroles/render/install/maintainedentries only; no T007algorithm edits. ActualRed must be committed beforeproduct. Freshprimary drafting survey and boundedClaude test-design/codinghelper; no live product/test edits or T008tests executed yet.",
+    "claude_status": {
+      "actual_session_id": "b370cadf-7639-4322-b9a7-156f83f3cb84",
+      "status": "actual bounded test-author batch running; main quota allowed",
+      "observed_at": "2026-10-20T02:28:38Z",
+      "main_utilization": 0.08,
+      "main_reset_at": "2026-10-20T07:20:00Z",
+      "overage": "disabled / out_of_credits; main not rejected",
+      "receipt_root": "/tmp/ci-t007-implementation-_470bl4o/t008-claude-tests-01-receipt",
+      "live_product_edits": false
+    },
+    "supplemental_read_admission": {
+      "recorded_at": "2026-10-20T02:31:18.708135+00:00",
+      "manifest": "specs/ci-model-modernization/verification/T-008/attempt-1/supplemental-execution-inputs/task-input-manifest.json",
+      "manifest_sha256": "2cc1851f803a8eb0aa74e9a76165bc41e6ba5b3d9919f8c2292e1752ec279017",
+      "snapshot_root": "/tmp/ci-t008-supplement-_zhmx36o/snapshot",
+      "scratch_root": "/tmp/ci-t008-supplement-_zhmx36o",
+      "inputs": 219,
+      "predecessor_manifest": "specs/ci-model-modernization/verification/T-008/attempt-1/execution-inputs/task-input-manifest.json",
+      "predecessor_sha256": "f62d2d952a358f879b6c493999e3f32c13b351e0c8f1d7b52faf53ff91aa293a",
+      "additional_read_only_inputs": [
+        ".github/scripts/check-model-freshness.sh",
+        ".github/workflows/model-freshness-check.yml",
+        "contracts/rollback-1.5.0.json",
+        "docs/agent-capability-matrix.md",
+        "docs/ci-staging/test-yml-combined-candidate.yml",
+        "docs/skill-reference.md",
+        "docs/workflow-improvements/WFI-005.md",
+        "docs/workflow-improvements/WFI-006.md",
+        "docs/workflow-improvements/WFI-040.md",
+        "plugins/sdd-quality-loop/references/cross-model-verification-policy.md",
+        "plugins/sdd-quality-loop/references/guard-invariants.json",
+        "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+        "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+        "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+        "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "tests/lib/fixture-matrix-builder.sh",
+        "tests/lib/fixture-matrix-builder.ps1",
+        "tests/lib/verification-registration.ps1",
+        "specs/ci-model-modernization/verification/T-007/root-native-smoke/capture-v4-qa1-fix.py",
+        "specs/epic-159-pillar-c/human-copy/MANIFEST.sha256",
+        "specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml",
+        "specs/epic-159-pillar-c/human-copy/plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+        "specs/epic-159-pillar-c/human-copy/plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+        "specs/epic-159-pillar-c/human-copy/plugins/sdd-review-loop/agents/task-reviewer-a.md",
+        "specs/epic-159-pillar-c/human-copy/plugins/sdd-review-loop/agents/task-reviewer-b.md"
+      ],
+      "note": "Same implementation identity; additive read admission only. Original 194 pins preserved; product edits remain unapproved until actual Red test-only commit."
+    },
+    "claude_test_author_recovery": {
+      "record": "specs/ci-model-modernization/verification/T-008/claude-test-author-reconnect/recovery-record.json",
+      "sha256": "1dc507ebd97e40c8296678f1168cd5ed67590dcfcc5f71defcb464d17b794d5e",
+      "observed_success_event": true,
+      "actual_exit_code": null,
+      "limitation": "Reconnect interrupted exit/subreaper receipt; outputs only unreviewed test candidates. No auth retry."
+    },
+    "resume_work_context": "/root/t008_resume",
+    "resume_admission": {
+      "identity": "work-agent:root:t008_resume",
+      "manifest": "specs/ci-model-modernization/verification/T-008/attempt-1/resume-execution-inputs/task-input-manifest.json",
+      "manifest_sha256": "e022c9ef45af8bb7635ac6b0de0656a38b9e2d634615d45b9ce23a373e0ebc9b",
+      "snapshot_root": "/tmp/ci-t008-resume-vcrn4svs/snapshot",
+      "scratch_root": "/tmp/ci-t008-resume-vcrn4svs",
+      "inputs": 232,
+      "predecessor_manifest": "specs/ci-model-modernization/verification/T-008/attempt-1/supplemental-execution-inputs/task-input-manifest.json",
+      "predecessor_sha256": "2cc1851f803a8eb0aa74e9a76165bc41e6ba5b3d9919f8c2292e1752ec279017",
+      "reason": "Environment reconnect ended prior implementation agent; fresh resume context. Prior immutable inputs preserved; helper outputs/design admitted as unreviewed draft data. No product writes or test runs authorized yet."
+    },
+    "first_renderer_red": {
+      "results": "specs/ci-model-modernization/verification/T-008/root-renderer-red/results.json",
+      "actual_methods": 12,
+      "actual_subtests": 216,
+      "failures": 211,
+      "errors": 2,
+      "skips": 0,
+      "ruff_exit": 0,
+      "mypy_exit": 1,
+      "source_unchanged": true,
+      "product_admitted": false,
+      "limitation": "Two unguarded future-output reads and dynamic base typing issue require additive test-only correction before final Red/commit. Every original artifact retained."
+    },
+    "renderer_product_admission": {
+      "identity": "work-agent:root:t008_resume",
+      "manifest": "specs/ci-model-modernization/verification/T-008/renderer-slice-admission/task-input-manifest.json",
+      "manifest_sha256": "1fd47841c34325ba5c3b77cbcc5793d2a197c22584792c46687d4388572d444b",
+      "snapshot_root": "/tmp/ci-t008-renderer-product-4lcat2_z/snapshot",
+      "scratch_root": "/tmp/ci-t008-renderer-product-4lcat2_z",
+      "inputs": 249,
+      "test_commit": "d555319548d1a26b8202dbd65e4ec4faaec4710d",
+      "first_slice_only": true,
+      "preflight": {
+        "path": "specs/ci-model-modernization/verification/T-008/renderer-slice-admission/preflight.json",
+        "sha256": "76e6f82b47405b92aa4a04bb74fe1ef07b634a2075711c8b2c50e3382a68553a"
+      },
+      "scope": "Only managed renderer wrappers and shared render-only adapter. Existing selector/transport algorithms, protected live roles/skills, installed/native commands, callers and automation not authorized for this slice."
+    },
+    "final_renderer_red": {
+      "results": "specs/ci-model-modernization/verification/T-008/root-renderer-red-v4/results.json",
+      "methods": 12,
+      "subtests": 222,
+      "failures": 219,
+      "errors": 0,
+      "skips": 0,
+      "ruff_exit": 0,
+      "mypy_exit": 0,
+      "source_unchanged": true,
+      "test_only_commit": "d555319548d1a26b8202dbd65e4ec4faaec4710d",
+      "test_sha256": "0ee537afec44ba42bbae6222b1ff251c5b3677af5900f2551d76eb353bf1f0b0"
+    },
+    "renderer_claude_batch": {
+      "actual_session_id": "11c11f8f-40b5-48de-9059-d816ce988d8f",
+      "status": "running; no product live copy yet",
+      "input_manifest_sha256": "e0c74bb0ffd3fa89eb21b8205101255d8f1cd9aab236707460f930653ead26eb",
+      "brief_sha256": "1dca46e334964f8d3927f4996355feeb5e5103f0c9ce052e76d6678432b43741",
+      "inputs": 65,
+      "main_status": "allowed",
+      "utilization": 0.29,
+      "reset_at": "2026-10-20T07:20:00Z",
+      "overage": "disabled/out_of_credits; not using overage and main not rejected",
+      "scratch": "/tmp/ci-t008-renderer-product-4lcat2_z/claude-renderer-01"
+    },
+    "renderer_slice_effective_evidence": {
+      "path": "specs/ci-model-modernization/verification/T-008/root-renderer-effective-evidence.json",
+      "sha256": "cdb3c6c689a45ccbb57422edff4d560c8744503ad49f0e782f5d584b83c10ed6",
+      "actual_functional_methods": 15,
+      "actual_successful_subtests": 228,
+      "catalog_methods": 44,
+      "impact_methods": 6,
+      "legacy_bash": 30,
+      "legacy_powershell": 34,
+      "all_effective_groups_pass": true,
+      "quality_gate_run": false
+    },
+    "catalog_repair_admission": {
+      "identity": "work-agent:root:t008_resume",
+      "manifest": "specs/ci-model-modernization/verification/T-008/catalog-repair-admission/task-input-manifest.json",
+      "manifest_sha256": "ea9553514b05530fcd34580b6135b8d5169db534834cb8416f7d7a234b4e0d86",
+      "snapshot_root": "/tmp/ci-t008-catalog-far2ds01/snapshot",
+      "scratch_root": "/tmp/ci-t008-catalog-far2ds01",
+      "inputs": 314,
+      "catalog_candidate_sha256": "48f5f9a0907d1747137aa800a6c1f5db69207d81bda62a1ae95694d138f6708c",
+      "preflight": {
+        "path": "specs/ci-model-modernization/verification/T-008/catalog-repair-admission/preflight.json",
+        "sha256": "9ab30ca2b6257cb755f4691d04fdf57e96ea70d981651877ecbc4a9894232e03"
+      },
+      "scope": "Only catalog entry/dependency/profiles registration product fix; renderer code and tests held immutable. Pinned upstream action data admitted only for later scratch planning."
+    },
+    "entry_design_admission": {
+      "manifest": "specs/ci-model-modernization/verification/T-008/entry-design-admission/task-input-manifest.json",
+      "manifest_sha256": "b3eb7e8b498acda2288327467d99de7efb6f3e9b2df6a6d78fae7156cc3543b8",
+      "snapshot_root": "/tmp/ci-t008-entry-design-h_mpdyom/snapshot",
+      "scratch_root": "/tmp/ci-t008-entry-design-h_mpdyom",
+      "inputs": 340,
+      "scope": "Read-only native entry and automation design plus scratch-only test candidate authorship; no live product/test edits or native/Claude invocation without Root coordination.",
+      "allocation_sha256": "5a8c7ccb0e82fa4abc1e6a04fb1030d6003cceede662b9f99319724eafe4a820"
+    },
+    "claude_prepare_tests_batch": {
+      "status": "Completed candidate authoring; all43inputs unchanged; actual Root Red run, correction review pending",
+      "scratch_root": "/tmp/ci-t008-entry-design-h_mpdyom/claude-entry-tests-01",
+      "manifest_sha256": "aa7c0e798ce5a29d4ed512b733c47576a42aae15875ea8234eb4280911ac9608",
+      "brief_sha256": "f3d37637ca36b03c7a0633e43c063915ea078f4a35a749342ba1d927daf99025",
+      "launch_brief_sha256": "7cc8f7735f43a95bfe1fa20c8f28f3c71e209e258fa1b8231cb9958ee53ff154",
+      "inputs": 43,
+      "actual_session_id": "e79ae341-6364-48b7-adb1-9fa64088ea6b",
+      "latest_quota": {
+        "observed_at": "2026-10-20T04:34:43.661506+00:00",
+        "main_status": "allowed",
+        "five_hour_utilization": 0.46,
+        "reset_utc": "2026-10-20T07:20:00Z",
+        "is_using_overage": false
+      },
+      "scope": "Four prepare/install test methods only; Root actual Red/test-only commit before product",
+      "actual_exit": {
+        "exit_code": 0,
+        "timed_out": false,
+        "actual_session_id": "e79ae341-6364-48b7-adb1-9fa64088ea6b",
+        "events": 707,
+        "finished_at": "2026-10-20T04:48:16.262399+00:00"
+      },
+      "latest_actual_quota": {
+        "at": "2026-10-20T04:48:16.060254+00:00",
+        "type": "rate_limit_event",
+        "subtype": null,
+        "tool_names": [],
+        "session_id": "e79ae341-6364-48b7-adb1-9fa64088ea6b",
+        "rate_limit_info": {
+          "status": "allowed",
+          "resetsAt": 1792480800,
+          "rateLimitType": "five_hour",
+          "overageStatus": "rejected",
+          "overageDisabledReason": "out_of_credits",
+          "isUsingOverage": false,
+          "unifiedWindows": {
+            "five_hour": {
+              "utilization": 0.68,
+              "resetsAt": 1792480800
+            },
+            "seven_day": {
+              "utilization": 0.14,
+              "resetsAt": 1793044800
+            }
+          }
+        }
+      },
+      "root_receipts": "specs/ci-model-modernization/verification/T-008/prepare-test-author/root-readback.json"
+    },
+    "prepare_entry_red_1": {
+      "path": "specs/ci-model-modernization/verification/T-008/root-entry-prepare-red-1/results.json",
+      "sha256": "e2b8df7639491b8dca6c7e7959a8ca7c3efd7ffd1c98104f7e83689d7edf7b68",
+      "methods": 4,
+      "subtests": 14,
+      "assertion_failures": 17,
+      "errors": 0,
+      "skips": 0,
+      "ruff_pass": true,
+      "mypy_pass": false,
+      "mypy_issue": "New test class root Path attribute has-type; declaration correction pending",
+      "product_changes": false
+    },
+    "latest_design_manifest": "specs/ci-model-modernization/verification/T-008/prepare-red-review-admission/task-input-manifest.json",
+    "prepare_product_admission": {
+      "identity": "work-agent:root:t008_resume",
+      "manifest": "specs/ci-model-modernization/verification/T-008/prepare-product-admission/task-input-manifest.json",
+      "manifest_sha256": "5581742613daf38d46c9ab0386b33ab575d05a42ccc18990243bddc2ab8da8b1",
+      "snapshot_root": "/tmp/ci-t008-prepare-product-a3b_gvpp/snapshot",
+      "scratch_root": "/tmp/ci-t008-prepare-product-a3b_gvpp",
+      "inputs": 429,
+      "scope": "Prepare/install implementation only, exact3 product files; tests/renderer/T007 algorithm/callers/workflow/protected artifacts immutable."
+    },
+    "prepare_product_helper": {
+      "scratch_root": "/tmp/ci-t008-prepare-product-a3b_gvpp/claude-prepare-product-01",
+      "helper_manifest_sha256": "314c43ca016c8103c717e8a8a8eb71034ff6264742c82c4d42f414d4eddb18fc",
+      "launch_brief": "/tmp/ci-t008-prepare-product-a3b_gvpp/claude-prepare-product-01/launch-brief.txt",
+      "launch_brief_sha256": "d030698e79ea6932cc300a82a8c1b515bc19ea1d35e7c05fcb00b6ada5da09db",
+      "inputs": 42,
+      "cli_output_root": "/tmp/ci-t008-prepare-product-a3b_gvpp/claude-prepare-product-01-cli",
+      "subreaper_receipt": "/tmp/ci-t008-prepare-product-a3b_gvpp/claude-prepare-product-01-subreaper.json",
+      "status": "Completed exit0;42pins stable;3outputs applied byte-identically after5PASSstaticchecks/self-review; integrated19/268 PASS",
+      "root_session_id": 51241
+    },
+    "prepare_entry_red_2": {
+      "methods": 4,
+      "subtests": 14,
+      "assertion_failures": 17,
+      "errors": 0,
+      "skips": 0,
+      "ruff_pass": true,
+      "mypy_pass": true,
+      "results_sha256": "2ff361bea5c55ed81a742f3792018b0eb2669ca9ce02a66de86a78bae4da79c4",
+      "test_only_commit": "286b017ab350ea0cfc1fae5f380b15e0e82f7a98",
+      "test_sha256": "430e20b13e861ff8c40382a49e37f284cdf53495125bfa5e14917ff6da0f68be",
+      "fixture_only_commit": "bd44d8ba295dac5777cdff435bdce2726b2268f8"
+    },
+    "full_legacy_runtime_closure_plan": "For full installer suites, use a disposable frozen Git baseline replica (archive exact HEAD then overlay only admitted current task/runtime/cloud files); bind every replica source file before execution. Avoid treating archive of unpinned whole working checkout as admitted runtime source. Existing test fixture git archives then read that frozen replica HEAD. No full legacy run claimed yet.",
+    "prepare_effective_evidence": {
+      "path": "specs/ci-model-modernization/verification/T-008/prepare-effective-evidence.json",
+      "sha256": "b7b8650bc7748c1b3f59fefbc4045448b9396483954f51073331d5172a5a6b0b",
+      "scope": "T008 renderer+prepare/install slice only; native installed/client/callers/workflow/rollback/formalQA still open",
+      "groups": [
+        {
+          "kind": "static",
+          "path": "specs/ci-model-modernization/verification/T-008/prepare-product-static-1/results.json",
+          "sha256": "5549658799c34873f22e9cd9a03b8231467a577bd16c386ed45c2f22aa48a2ec",
+          "groups": 5,
+          "reuse": "Applied3source files byte-identical to checked candidates; exact test430/mypyconfig unchanged"
+        },
+        {
+          "kind": "fresh integrated functional + legacy renderer",
+          "path": "specs/ci-model-modernization/verification/T-008/root-prepare-green-1/results.json",
+          "sha256": "6736ac8fbf295e0cb22179199505cc22a178b62a54808e06774cfe0da39c0344",
+          "groups": 3,
+          "functional": {
+            "tests_run": 19,
+            "subtests_run": 268,
+            "subtests_passed": 268,
+            "failures": 0,
+            "errors": 0,
+            "skips": 0,
+            "successful": true
+          },
+          "legacy_bash_checks": 30,
+          "legacy_PS_checks": 34
+        },
+        {
+          "kind": "fresh full legacy installers in frozen replica",
+          "path": "specs/ci-model-modernization/verification/T-008/root-legacy-installers-1/results.json",
+          "sha256": "e09fb94d3d9d46da729ade4649276d87dcddf602bcc4cdda6361bb66b6cbe8e3",
+          "groups": 2,
+          "payload_regular": 2243,
+          "payload_links": 1,
+          "admitted_inputs": 2721,
+          "Bash_checks_passed": 51,
+          "PowerShell_exit_code": 0,
+          "all_sources_hashes_modes_unchanged": true,
+          "fixture_only_git_head": "726f5df65a6090f2c0f919b952dc5ebf564bc12e",
+          "fixture_only_git_tree": "3cdbe70a41e56bcc1617e1dca2f7bde30477a349"
+        }
+      ],
+      "total_groups": 10,
+      "all_groups_pass": true,
+      "native_inference": false,
+      "formal_quality_gate_run": false
+    },
+    "next_claude_helper_preference": {
+      "configured_model": "sonnet",
+      "effort": "high",
+      "last_actual_main_status": "allowed_warning",
+      "last_actual_five_hour_utilization": 0.98,
+      "reset_utc": "2026-10-20T07:20:00+00:00",
+      "action": "Large Claude coding deferred near quota limit; strong primary continues necessary native implementation after finalized preflight and admission. Recheck actual quota only on next authorized helper call after reset, no login/private session inspection."
+    },
+    "claude_native_test_batch": {
+      "state": "completed raw candidate; actualexit0,44pins unchanged, exacttwooutputs; no product acceptance",
+      "allocation": {
+        "scratch_root": "/tmp/ci-t008-native-tests-thmxbuvf/claude-native-tests-01",
+        "helper_manifest_sha256": "d6f851fdc28c5efbff286599083ff26503cd493c589fe715802ed032b244cb3a",
+        "launch_brief": "/tmp/ci-t008-native-tests-thmxbuvf/claude-native-tests-01/launch-brief.txt",
+        "launch_brief_sha256": "e14316f4daf9c2eae170d3761967e0272897f319dfdaccb1af13d325c79c78ba",
+        "inputs": 44,
+        "configured_model": "sonnet",
+        "effort": "high",
+        "wrapper_sha256": "0e57dba70a773decea406f54c814707e0c7291df5c6a55822f8154965af18d55",
+        "cli_output_root": "/tmp/ci-t008-native-tests-thmxbuvf/claude-native-tests-01-cli",
+        "subreaper_receipt": "/tmp/ci-t008-native-tests-thmxbuvf/claude-native-tests-01-subreaper.json"
+      },
+      "actual_session_id": "d8f7b3b2-1da3-4926-ae75-948c25c4adbd",
+      "latest_observed_quota": {
+        "at": "2026-10-20T05:40:30.952946+00:00",
+        "type": "rate_limit_event",
+        "subtype": null,
+        "tool_names": [],
+        "session_id": "d8f7b3b2-1da3-4926-ae75-948c25c4adbd",
+        "rate_limit_info": {
+          "status": "allowed_warning",
+          "resetsAt": 1792480800,
+          "rateLimitType": "five_hour",
+          "utilization": 0.98,
+          "overageStatus": "rejected",
+          "overageDisabledReason": "out_of_credits",
+          "isUsingOverage": false,
+          "surpassedThreshold": 0.9,
+          "unifiedWindows": {
+            "five_hour": {
+              "utilization": 0.98,
+              "resetsAt": 1792480800
+            },
+            "seven_day": {
+              "utilization": 0.16,
+              "resetsAt": 1793044800
+            }
+          },
+          "overageEnabled": true
+        }
+      },
+      "reset_utc": "2026-10-20T07:20:00+00:00",
+      "scope": "Five additive methods only; old19 AST preserved; Root actual Red pending",
+      "actual_exit": {
+        "exit_code": 0,
+        "timed_out": false,
+        "actual_session_id": "d8f7b3b2-1da3-4926-ae75-948c25c4adbd",
+        "events": 504,
+        "finished_at": "2026-10-20T05:40:38.742019+00:00"
+      }
+    },
+    "caller_design_admission": {
+      "manifest": "specs/ci-model-modernization/verification/T-008/caller-design-admission/task-input-manifest.json",
+      "manifest_sha256": "c154dff3c976fdb7cdc23a6ae1f1272c8121506b891353fb99fff98a130488cf",
+      "snapshot_root": "/tmp/ci-t008-supplement-iub9m90e/snapshot",
+      "scratch_root": "/tmp/ci-t008-supplement-iub9m90e",
+      "inputs": 2760,
+      "scope": "Inherited read-only design/test-candidate scope; no product edit/native invocation."
+    },
+    "native_entry_red_1": {
+      "results": "specs/ci-model-modernization/verification/T-008/root-native-red-1/results.json",
+      "sha256": "88ae08e974364ab2a2a8f436b788acb2a381241af3d81bdb7516b00441bf5129",
+      "command_exit_codes": [
+        0,
+        1,
+        1
+      ],
+      "native_methods": 5,
+      "assertion_failures": 5,
+      "errors": 0,
+      "skips": 0,
+      "discovery_count": 24,
+      "type_annotation_corrections_pending": 4,
+      "scope": "Missing command correctly fails five positive entry assertions; no negative branches proven"
+    },
+    "native_entry_red_2": {
+      "manifest_sha256": "82246a6604020f8dcb98556893a88ecf304ef775c4dd5d408ae619784c5073c4",
+      "results": "specs/ci-model-modernization/verification/T-008/root-native-red-2/results.json",
+      "results_sha256": "df35b71aafa6216a94cb7f545a3a3094d395884bec91d6bfaa9b4b40a0fdcae9",
+      "candidate_sha256": "54d05308ef4f575bba6a15c6475c8f25aa09e16bdfda27902f208d5ff3dd620e",
+      "command_exit_codes": [
+        0,
+        0,
+        1
+      ],
+      "tests_run": 5,
+      "failures": 5,
+      "errors": 0,
+      "skips": 0,
+      "subtests_run": 0,
+      "discovery_count": 24,
+      "tests_only_commit": "6e3fd9324759116997da5210fe4f837cb3537fbb",
+      "source_unchanged": true,
+      "negative_branches": "Blocked by5missingpositiveentry gates; no acceptance claim"
+    },
+    "native_effective_evidence": {
+      "path": "specs/ci-model-modernization/verification/T-008/native-effective-evidence.json",
+      "sha256": "70b4eacd872d2ae1f753ccce7639671e2f46613121d64044260255e9240a3ba6",
+      "methods": 24,
+      "subtests": 316,
+      "all_passed": true,
+      "scope": "Native installed-entry adapter+complete24fixturemethods only; actualhost/callers/workflow/rollback/independentQA remainopen"
+    },
+    "scratch_capacity_recovery": {
+      "tmp_mount": "8.8GiB, ENOSPC detected before testexecution",
+      "new_TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+      "preserved": "All prior snapshots/evidence",
+      "removed_only": "/tmp/ci-t008-supplement-fdgr60fo/stage (incomplete)"
+    },
+    "installed_native_effective_evidence": {
+      "path": "specs/ci-model-modernization/verification/T-008/installed-native-effective-evidence.json",
+      "sha256": "8482df04507b22c43f5da97c192da80430277f4674ce504fbc55995ddd7c39de",
+      "result": "PASS",
+      "configured_model": "gpt-6-astra",
+      "configured_effort": "high",
+      "actual_id": null,
+      "proof": "unverified",
+      "turn_methods": 0,
+      "still_open": [
+        "Maintained65caller integration",
+        "Workflow",
+        "Rollback",
+        "FormalindependentT008QA"
+      ]
+    },
+    "active_caller_test_author": {
+      "manifest": "specs/ci-model-modernization/verification/T-008/caller-consent-input-admission/task-input-manifest.json",
+      "manifest_sha256": "851c50169a7c46887d09be577c7bc0d22017a452b44216d1f73d153e98c3991a",
+      "snapshot_root": "/workspace/.task-scratch/ci-model-modernization/ci-t008-supplement-pboqnazo/snapshot",
+      "author": "work-agent:root:t008_resume",
+      "scope": "Three additive real maintained-panelist snippet behavior methods; existing24AST preserved; additionsblock only to save generationtokens",
+      "state": "draft in progress; no tests/product/SKILL edits yet",
+      "source_review_gap": "Existing selected-panelist runtime conflates project inputRoot with installedRuntimeRoot. Keep installed-isolation acceptance, reproduce before any boundary repair; no selector/consent algorithm changes."
+    },
+    "maintained_caller": {
+      "test_commit": "bf9bf5aa",
+      "tests_sha256": "72c140ce038ed927e7f035cd1092493d0d44e545dc1f4b11be8f49f6a69995ac",
+      "test_discovery": 31,
+      "added_methods": 7,
+      "red": "specs/ci-model-modernization/verification/T-008/caller-test-corrections/red3-effective-evidence.json",
+      "after_skill_boundary_red": "specs/ci-model-modernization/verification/T-008/caller-skill-candidate/installed-boundary-effective-evidence.json",
+      "status": "Current31/363 and T00754/875PASS; driver/test statics, emitter parsers, legacyB54/PS58PASS. Four-source slice rollbackPASS; remaining spec/evaluator/ordinary/protected/workflow integration open; formal QA0.",
+      "formal_quality_gate_cycles": 0,
+      "focused_effective": "specs/ci-model-modernization/verification/T-008/runtime-product-application/focused-effective-evidence.json",
+      "full_admission_sha256": "444eed28f363171e062e6b6f40ab628d5464413a6f005017c5e1573b3e4272f0",
+      "effective": "specs/ci-model-modernization/verification/T-008/runtime-effective-evidence.json",
+      "rollback": "specs/ci-model-modernization/verification/T-008/runtime-rollback-effective-evidence.json"
+    },
+    "claude_latest": {
+      "at": "2026-10-20T09:12:50.599473+00:00",
+      "session": "7397a751-434b-4359-9186-cac81690716d",
+      "configured_model": "sonnet",
+      "configured_effort": "high",
+      "role": "bounded ordinary observation-preserving Claude preparation + installer dependency product candidates",
+      "status": "completed normally, Root candidate review/application and actual focused8/67 PASS",
+      "exec_session": null,
+      "input_pins": 59,
+      "helper_manifest_sha256": "59a3582363463a137989f8ab932416c917c83436b3bfc0cc0b0298fdb324e8a4",
+      "parent_admission_sha256": "d14248eb43441e77a5f634de802ad76a352da8d9d1aeb6d42ffcbfbd48b02bc2",
+      "limit_seconds": 900,
+      "quota": {
+        "status": "allowed",
+        "resetsAt": 1792498800,
+        "rateLimitType": "five_hour",
+        "overageStatus": "rejected",
+        "overageDisabledReason": "out_of_credits",
+        "isUsingOverage": false,
+        "unifiedWindows": {
+          "five_hour": {
+            "utilization": 0.67,
+            "resetsAt": 1792498800
+          },
+          "seven_day": {
+            "utilization": 0.22,
+            "resetsAt": 1793044800
+          }
+        }
+      },
+      "reset_utc": "2026-10-20T12:20:00Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/ordinary-claude-product-author/root-candidate-receipt.json"
+    },
+    "spec_caller_checkpoint": {
+      "at": "2026-10-20T08:02:15.040547+00:00",
+      "tests_only_commit": "f27c437850ed620433bbebbc30c6bd9512fa2a44",
+      "focused": "3PASS/0errors/skips, real canonical pipeline with deterministic external native fixture",
+      "full_current34": "PASS34/363 and currentT00754/875, zero failures/errors/skips;6actual commands/pins/ownsubreaper verified",
+      "product_scope": "spec-review-loop/SKILL.md prepare+validatedSHA forwarding only",
+      "remaining": "specB isolation, evaluator/ordinary roles/workflow, wholeT008rollback, formalQA, thenT009-11",
+      "evidence": "specs/ci-model-modernization/verification/T-008/spec-caller-full-effective-evidence.json",
+      "current35_scoped": "4 focused spec methodsPASS, zeroerrors/skips; allold34methodAST/original31classes preserved; full35 not run",
+      "spec_pair_evidence": "specs/ci-model-modernization/verification/T-008/spec-b-effective-evidence.json",
+      "tests_only_latest_commit": "24166447f8a54070a76013244de27f178020b82c"
+    },
+    "claude_spec_a_author_timeout": {
+      "at": "2026-10-20T07:45:10.575956+00:00",
+      "session": "68e56a68-641e-4972-bdbd-51dd124662ae",
+      "configured_model": "opus",
+      "configured_effort": "high",
+      "role": "bounded complete-canonical spec caller test/protocol fixture author",
+      "status": "author stopped at Root20minute execution bound after3outputs; candidates independently admitted/reviewed and actual3-test Green; not normal Claude completion",
+      "quota_status": "allowed",
+      "five_hour_utilization": 0.3,
+      "reset_utc": "2026-10-20T12:20:00Z",
+      "overage_status": "rejected/out_of_credits; mainallowed",
+      "evidence": "specs/ci-model-modernization/verification/T-008/spec-caller-test-author/root-candidate-receipt.json",
+      "progress_scratch": "/workspace/.task-scratch/ci-model-modernization/ci-t008-supplement-l1sm8__a/claude-spec-test-01/cli-logs/progress.jsonl",
+      "parent_admission_sha256": "0ecb256129e9804c44dfa7e294cb11bff996db62f1c3b9019df06e80719b463e",
+      "helper_manifest_sha256": "aab294abe1560f95a4ce2f1e13d2fb89502634d53f950caad3b35b5147a1d4ec",
+      "input_pins": 68
+    },
+    "claude_spec_b_author_completed": {
+      "at": "2026-10-20T08:04:38.433519+00:00",
+      "session": "346730b0-7a17-4ddf-96f5-351cebdabc34",
+      "configured_model": "sonnet",
+      "configured_effort": "high",
+      "role": "bounded specB same-feature paired test author",
+      "status": "completed normally;17pins stable; Root applied bounded tests and actual4focusedPASS",
+      "quota_status": "allowed",
+      "five_hour_utilization": 0.34,
+      "reset_utc": "2026-10-20T12:20:00Z",
+      "overage_status": "rejected/out_of_credits; mainallowed",
+      "evidence": "specs/ci-model-modernization/verification/T-008/spec-b-test-author/root-candidate-receipt.json",
+      "parent_admission_sha256": "b8bd0a8658c84c37c064d33c7df8dabc23d86132eadb216b7565f89065e29bcc",
+      "helper_manifest_sha256": "8f66513e5537baa1b91771fab6b6fe283a36859548d91eb333afe38a283712f5",
+      "input_pins": 17,
+      "limit_seconds": 900,
+      "exec_session": 94492
+    },
+    "quality_caller_checkpoint": {
+      "tests_only_commit": "75b3ab11",
+      "methods": 38,
+      "actual_red": "specs/ci-model-modernization/verification/T-008/quality-caller-test-application/red-effective-evidence.json",
+      "pre_product_field_rows": 18,
+      "scope": "ordinary quality SKILL only",
+      "status": "Focused7 PASS; spec4 +quality3 actual negatives; staticsPASS; not full38/task acceptance",
+      "manifest_sha256": "3c181b9a053eef8e051459a5c05f7220bc0ce41f8d9301f3e77e1797560957a9",
+      "exec_session": null,
+      "evidence": "specs/ci-model-modernization/verification/T-008/quality-caller-product-application/focused-effective-evidence.json",
+      "source_pins": 815
+    },
+    "claude_quality_test_author_completed": {
+      "at": "2026-10-20T08:46:06.479036+00:00",
+      "session": "34a6a074-885a-40ef-8596-1c2dffe866bd",
+      "configured_model": "sonnet",
+      "configured_effort": "high",
+      "role": "bounded genuine quality evaluator caller tests/plaintext native fixture author",
+      "status": "completed normally; actual CLI exit0/no timeout; candidates admitted and Root reviewed; tests-only commit75b3ab11; product Green running",
+      "evidence": "specs/ci-model-modernization/verification/T-008/quality-caller-test-author/root-candidate-receipt.json",
+      "parent_admission_sha256": "437bac30ba33dd404f2dd6a30df0ee2b6fcb5053bbf20981bbed33df7896426d",
+      "helper_manifest_sha256": "ff85e4377e177d6b6c86a4fe37a75149179b4ff05eabdccc72e760a83ed43222",
+      "input_pins": 25,
+      "limit_seconds": 900,
+      "exec_session": null,
+      "quota_status": "allowed",
+      "five_hour_utilization": 0.57,
+      "reset_utc": "2026-10-20T12:20:00Z",
+      "overage_status": "rejected/out_of_credits; mainallowed"
+    },
+    "claude_ordinary_test_author_completed": {
+      "at": "2026-10-20T08:53:00.321450+00:00",
+      "session": "9fac534a-a3e4-4758-bdcd-c3bf997cbe8e",
+      "configured_model": "sonnet",
+      "configured_effort": "high",
+      "role": "bounded ordinary Claude observation-preserving preparation tests author",
+      "status": "completed normally; actual exit0/no timeout; Root applied/reviewed tests and committed c3501aef after true Red8",
+      "exec_session": null,
+      "evidence": "specs/ci-model-modernization/verification/T-008/ordinary-claude-test-author/root-candidate-receipt.json",
+      "parent_admission_sha256": "32e7c4cb768133567590664b31d331e09942adc3c9691fe232db2fa7528d77b0",
+      "helper_manifest_sha256": "0131b9612584012619c03b1b2a79c5d67b1c37fe7ea3e6a1e340b8f50442fd28",
+      "input_pins": 52,
+      "limit_seconds": 900,
+      "quota": {
+        "status": "allowed",
+        "resetsAt": 1792498800,
+        "rateLimitType": "five_hour",
+        "overageStatus": "rejected",
+        "overageDisabledReason": "out_of_credits",
+        "isUsingOverage": false,
+        "unifiedWindows": {
+          "five_hour": {
+            "utilization": 0.6,
+            "resetsAt": 1792498800
+          },
+          "seven_day": {
+            "utilization": 0.21,
+            "resetsAt": 1793044800
+          }
+        }
+      },
+      "reset_utc": "2026-10-20T12:20:00Z"
+    },
+    "ordinary_claude_preparation_checkpoint": {
+      "tests_only_commit": "c3501aef",
+      "module_methods": 42,
+      "old38_method_asts_preserved": true,
+      "actual_red": "specs/ci-model-modernization/verification/T-008/ordinary-claude-test-application/red-effective-evidence.json",
+      "statics": "Ruff/mypy+Bash/officialPS fixture parsers PASS",
+      "focused8": "old prepare4 PASS; new prep3 absent-command failure +missing-driver bothinstaller subtests,5 assertionfailures;0errors/skips;42subtests40PASS",
+      "pre_product_fields": 20,
+      "pre_product_report": "reports/implementation/ci-model-modernization/T-008.md",
+      "status": "current full42/390 +current legacy Bash51/PSsuccess PASS; no task-wide acceptance",
+      "evidence": "specs/ci-model-modernization/verification/T-008/ordinary-claude-product-application/focused-effective-evidence.json",
+      "source_pins": 894,
+      "full_evidence": "specs/ci-model-modernization/verification/T-008/ordinary-claude-full-effective-evidence.json",
+      "full_source_pins": 910,
+      "exec_session": null
+    }
+  },
+  "claude_latest": {
+    "status": "authenticated; current WFI product drafting accepted, main quota allowed; observed 0.4 utilization",
+    "actual_last_session": "9d0b7084-d94d-4e58-a804-37bfae2b10a3",
+    "five_hour_utilization": 0.4,
+    "next_reset_utc": "2026-10-20T17:20:00Z",
+    "next_reset_jst": "2026-10-21T02:20:00+09:00",
+    "native_agent_probe": "full native model ID rejected by actual Agent enum [sonnet,opus,haiku,fable], no child allocated; effort separately unproven",
+    "probe_receipt": "native-agent-capability-probe-1/effective-evidence.json",
+    "coding_is_not_model_availability_or_formal_QA": true
+  },
+  "t008_local_authority_checkpoint": {
+    "tests_only_commits": [
+      "96471b30",
+      "de00b71b"
+    ],
+    "actual_final_red": "root-local-authority-red-6",
+    "focused_green": "root-local-authority-green-1",
+    "focused": "8methods/118subtests PASS, statics/parsers4PASS,1032pins unchanged",
+    "full46": "PASS 46methods/481subtests root-current-installed-4; at abee8193 before settings-env fix",
+    "source_entry_sha256": "abee8193b150dadfa0d13cebe17564e404abaaa5626991dd2f69f647dc256522",
+    "remaining": "settings env/ordinary callers/workflow/protected procedures/whole rollback/QA/T009-11"
+  },
+  "t008_investigator_checkpoint": {
+    "status": "Ordinary bootstrap investigator implemented and focused/full50 passed; legacy installer suites running; additive indirect caller tests applied, Red pending",
+    "run": "root-investigator-red-4",
+    "current_test_methods": 52,
+    "previous47_method_asts": "preserved, will verify before commit",
+    "planned_product": [
+      "plugins/sdd-implementation/scripts/managed-model-entry.py",
+      "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "install.sh",
+      "install.ps1"
+    ],
+    "scope": "supplied observation fixture ordinarywork only; full Skill+5docs, normal permissions, fresh session, public JSON response; no new availability producer/adoption",
+    "prior_errors": "red1 type-only; red2 one missing-role fixture error, meaningful12installer+2missingcommand; red3 clean17failures, no errors; finalRed4 adds shared minimal PACKAGE and legacy overlay closure plus public-result one-field negatives",
+    "at": "2026-10-20T11:37:16.045977+00:00",
+    "tests_only_commit": "87f3730ba369fd9025c8bc3f5ca40f472f248ade",
+    "actual_final_red": "root-investigator-red-4",
+    "current_manifest": "specs/ci-model-modernization/verification/T-008/investigator-green2-admission/task-input-manifest.json",
+    "current_manifest_sha256": "afbbdf513834adebf7c3d5e786aa09fb5ef57102fb354e3e185b596293967fb1",
+    "full50": "root-current-installed-5:50methods/561subtests PASS,1184pins unchanged",
+    "focused": "root-investigator-green-2:12methods/198subtests and4static/parser checks PASS,1183pins unchanged",
+    "full50_entry_sha256": "e36c30fe675fc79ffc57af32e6e487413ffe2806c029c126fafdfedfba52c4df",
+    "old50_method_asts": "preserved in additive indirect candidate"
+  },
+  "t008_indirect_checkpoint": {
+    "status": "5methods/32subtests and4statics/parsers PASS",
+    "run": "root-investigator-indirect-green-2",
+    "tests_only_commits": [
+      "28d63925",
+      "3841408b"
+    ],
+    "current_test_methods": 52,
+    "latest_full": "50methods/561subtests at preceding source; no full52 claim",
+    "latest_legacy": "root-current-legacy-installers-3 Bash51/PSintegration PASS",
+    "next": "diagnosis carrier, remaining ordinary/protected/workflow callers, whole rollback/QA, T009-11",
+    "at": "2026-10-20T11:44:29.531228+00:00"
+  },
+  "t008_diagnosis_checkpoint": {
+    "status": "Full55methods/588subtests PASS,1258sourcepins unchanged; latest diagnosis legacy installer regression running",
+    "tests_only_commits": [
+      "643f05f6",
+      "299a5d79"
+    ],
+    "actual_red": "root-investigator-diagnosis-red-1:8methods/42subtests13failures0errors/skips; investigator5pass",
+    "first_green": "root-investigator-diagnosis-green-1:17methods/225subtests one test-only intentional prompt attack assertion; no product fix needed",
+    "focused_green": "root-investigator-diagnosis-green-2:8methods/55subtests PASS,1258pins unchanged",
+    "current_admission": "specs/ci-model-modernization/verification/T-008/diagnosis-green2-admission/task-input-manifest.json",
+    "current_admission_sha256": "548ec4e6dd74e637ab124d42818bb0b162205588ad099eef3bd1624b6f1fb07b",
+    "snapshot": "/workspace/.task-scratch/ci-model-modernization/ci-t008-supplement-_snh_otb/snapshot",
+    "full55": "root-current-installed-6 completed PASS",
+    "next": "full55/legacy regression, then implementer source closure/test prep, delegate coding to Claude after12:20UTC actual reset; ordinary paired/protected/workflow callers and whole rollback/QA/T009-11 remain",
+    "formal_cycles": 0,
+    "at": "2026-10-20T12:05:00.525352+00:00",
+    "legacy": "root-current-legacy-installers-4 running session11392"
+  },
+  "t008_implementer_checkpoint": {
+    "status": "single-task Claude fixture integration PASS; whole T008 still In Progress",
+    "tests_first_commit": "fbfbbed8",
+    "full_tests": 58,
+    "full_subtests": 617,
+    "full_receipt": "implementer-product-application/full-effective-evidence.json",
+    "legacy": "Bash51 + PowerShell installer integration PASS,233 frozen current overlays",
+    "claude_session": "b7e12e05-ddaf-4e41-8608-c42198d7c939",
+    "latest_adapter_sha256": "b72419302a4718ebc317de144a1a965015a7d8e60a025a3782bd3bb99640390e"
+  },
+  "t008_delegation_checkpoint": {
+    "status": "Claude secondary read-only caller focused4/31 and4 static/parser checks PASS; not full59",
+    "tests_first_commit": "11cd2e1a",
+    "receipt": "delegation-product-application/focused-effective-evidence.json",
+    "claude_session": "0a2ebd52-f481-4aca-94d2-1bb84d121382",
+    "current_manifest_sha256": "46cb46715f76bf47c14693a890b9c96d8d71b037fbb946363dc991b131b56b09"
+  },
+  "t008_wfi_checkpoint": {
+    "at": "2026-10-20T14:13:27.918773+00:00",
+    "full": {
+      "status": "PASS",
+      "methods": 62,
+      "subtests": 694,
+      "source_pins": 1445,
+      "evidence": "wfi-product-application/full-effective-evidence.json"
+    },
+    "legacy": {
+      "status": "PASS",
+      "bash": 51,
+      "powershell": "integration PASS",
+      "current_overlays": 271,
+      "evidence": "wfi-product-application/legacy-effective-evidence.json"
+    },
+    "domain": "Tests-only Claude helper active; no product edit yet",
+    "formal_T008_cycles": 0,
+    "task_status": "In Progress"
+  },
+  "t008_domain_checkpoint": {
+    "at": "2026-10-20T15:37:02.046699+00:00",
+    "status": "FULL_INSTALLED_65_METHODS_710_SUBTESTS_PASS",
+    "source_pins": 1691,
+    "evidence": "domain-product-application/focused-effective-evidence.json",
+    "tests_first_commits": [
+      "819c5f3e",
+      "87f394f3"
+    ],
+    "test_only_corrections": [
+      "eca15c88",
+      "7b5ab24a"
+    ],
+    "full_current_65_and_T007_54": "pending",
+    "batch_definition_probe": "Actual custom Agent full-ID/high definition allocated one marker-only child; no per-call alias fallback or backend/adoption claim.",
+    "remaining": "T008 batch/protected/workflow/default and other-host routes/inventory/whole rollback/QA; T009-11 remain.",
+    "formal_T008_cycles": 0,
+    "full": "domain-product-application/full-effective-evidence.json",
+    "legacy": {
+      "bash": 51,
+      "powershell": "integration PASS",
+      "current_overlays": 272,
+      "evidence": "domain-product-application/legacy-effective-evidence.json"
+    },
+    "shared_T007": "54/875 PASS, unchanged component source; exact earlier context retained",
+    "next": "Protected impl/task maintained caller fixture preparation; Claude bounded test-data helper active. Batch/workflow/default-other-host/inventory/whole rollback/QA and T009-11 remain."
+  },
+  "t008_protected_checkpoint": {
+    "recorded_at": "2026-10-20T16:25:38.468179+00:00",
+    "state": "Focused6/6+Ruff/mypy13files+parsers PASS, full67/716 PASS1694sourcepinsunchanged, legacyBash51/PSintegration PASS. WholeT008 InProgress, formalQA0.",
+    "test_first_commits": [
+      "aa9fb6e7",
+      "fdf8ba52"
+    ],
+    "changes": "Only actual maintained impl/task Skill2 prepare+validatedSHA forwarding; original adapter/4rolebodies/guard/prechecks/runtimehuman-copy protection unchanged.",
+    "focused": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
+    "legacy": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json",
+    "full_running": "specs/ci-model-modernization/verification/T-008/root-current-installed-11",
+    "remaining": "Batch implementation, self-improvement actual action boundary, default/otherhost inventory closure, wholeT008rollback, finalreport/independentQA0, T009–T011.",
+    "boundary": "Plugin AGENTS are product data per user; approved development Skill2 edits authorized. Runtime protected renderer/installer/human-copy behavior retained.",
+    "full_evidence": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json"
+  },
+  "claude_actual_quota_checkpoint": {
+    "status": "recovered actualcoding17:20UTC; T011operator-docs delivered secondattempt, unusedfirst8turnfailurepreserved",
+    "next_five_hour_reset_utc": "2026-10-20T22:20:00Z",
+    "evidence": "specs/ci-model-modernization/verification/T-011/operator-docs-author/quota-recovery.json",
+    "actual_session_id": "c42a52c3-1e71-48a1-b29f-5b2e01f40cd7",
+    "scope": "developmentcandidate only; no credentials/billingchanges/formalQA"
+  },
+  "t009_final": {
+    "status": "Done",
+    "independent_context": "/root/t009_cycle1_evaluator",
+    "formal_cycles": 1,
+    "verdict": "PASS",
+    "counts": {
+      "Critical": 0,
+      "Major": 0,
+      "Minor": 1
+    },
+    "minor": "Accepted retrospective catalog pin limitation",
+    "tests": "Bash64/PowerShell36(canonical22 included)/catalog44/CIplan50, all0fail and scoped rollback PASS",
+    "bundle": "specs/ci-model-modernization/verification/T-009.evidence.json",
+    "quality_report": "reports/quality-gate/20261020-ci-model-modernization-T-009-cycle-1.md",
+    "limit": "Fixtures only, no live notifications/modeladoption/cloud/fullrelease proof"
+  },
+  "t008_assembled_checkpoint": {
+    "at": "2026-10-20T17:26:29.137581+00:00",
+    "status": "In Progress",
+    "installed_methods": 78,
+    "installed_subtests": 955,
+    "source_pins_unchanged": 1697,
+    "full_evidence": "specs/ci-model-modernization/verification/T-008/assembled-current-application/full-effective-evidence.json",
+    "legacy_evidence": "specs/ci-model-modernization/verification/T-008/assembled-current-application/legacy-effective-evidence.json",
+    "caller_rows": 65,
+    "indirect_rows": 17,
+    "caller_progress": "specs/ci-model-modernization/verification/T-008/caller-progress.json",
+    "whole_rollback_attempt1": "FAIL fixture environment 4/20, source/restoration/T009 invariants passed; preserved whole-rollback-current-1/effective-evidence.json. v2 preparation in progress.",
+    "independent_quality_cycles": 0,
+    "remaining": [
+      "whole-taskrollback20baselinecommands",
+      "finalcontract/report/traceability",
+      "independentQA"
+    ],
+    "latest_test_commit": "2c78757a"
+  },
+  "continuation_20261020_1808": {
+    "observed_at": "2026-10-20T18:07:11.102834+00:00",
+    "claude_logged_in": true,
+    "credential_values_recorded": false,
+    "claude_next_reset_recorded": "2026-10-20T22:20:00Z",
+    "t008_quality_cycle_1": {
+      "identity": "work-agent:root:t008_cycle1_evaluator",
+      "manifest_sha256": "017630d9d0048b4e5b1ffc81be56b404e214b91d4edefd058b1f99c3962d1dea",
+      "reserved_sequence": 1292,
+      "reservation_record_sha256": "36714b6bc1530cf1e8421a95b0108234cef68464607d184db2d7602683ec6fc7",
+      "original_input_count": 1853,
+      "input_hash_mismatches": 0,
+      "state": "FAIL: 0 Critical, 1 Major, 0 Minor; incomplete raw-evidence delivery only",
+      "repair": "prepare supplemental delivery for next independent cycle; existing frozen inputs unchanged",
+      "actual_answer": "specs/ci-model-modernization/verification/T-008/quality-cycle-1/work-review/evaluator.txt",
+      "quality_report": "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-1.md",
+      "post_review_root_scratch_input_mismatches": 0
+    },
+    "t010": {
+      "real_turns": 0,
+      "skill_v5_current_source_sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+      "state": "pre-output admission preparation; waits T008 Done"
+    },
+    "t011": {
+      "docs": "seven Claude-authored/root-reviewed candidates, not applied",
+      "remote_vars_read": {
+        "command": "gh variable list --repo aharada54914/sdd-forge --json name,value",
+        "status": "HTTP403 Resource not accessible by integration",
+        "setting_value": "unknown",
+        "changes_performed": false
+      },
+      "new_release_published": false
+    },
+    "t008_quality_cycle_2": "supplemental evidence closure and fresh identity preparation delegated; not yet evaluated"
+  },
+  "t008_final": {
+    "status": "Done",
+    "recorded_at": "2026-10-20T18:24:43Z",
+    "quality_report": "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
+    "bundle": "specs/ci-model-modernization/verification/T-008.evidence.json",
+    "actual_review": "QA2 PASS 0C/0M/0m",
+    "review_inputs": 2235,
+    "input_mismatches": 0,
+    "scope": "T008 Done after actual independent QA2 PASS (0 Critical, 0 Major, 0 Minor), canonical cycle2 2235-input delivery and generated/checked evidence bundle. Assigned installed-entry and exact65+17 caller scope only; configured-versus-actual native proof limits remain. T010 candidate adoption and T011 hosted activation/release remain uncompleted; shared requirement status remains In Progress.",
+    "done_transition_checks": "specs/ci-model-modernization/verification/T-008/quality-cycle-2/done-transition"
+  },
+  "t010_checkpoint": {
+    "status": "Blocked",
+    "admission_manifest_sha256": "6caac6f125f8b6a180605443f83b1cd625ac6792b904b7f3d2a60dcd6d23c9f7",
+    "input_count": 221,
+    "actual_execution": "20 accepted native turn requests; all failed unauthorized before generation; 0 answers/tools/scoring/judges/adoption",
+    "actual_adoption": "none",
+    "harbor_scoring": "requires Root source safety review",
+    "judges": "fixed blinded protocol pinned before outputs; no judges yet",
+    "limits": "configured model IDs only unless actual telemetry attests; no synthetic usage/pricing",
+    "actual_evidence": "specs/ci-model-modernization/verification/T-010/attempt-1/bounded-status-summary.json",
+    "source_pins_unchanged": 221,
+    "auth_flow": {
+      "method": "documented codex login --device-auth",
+      "outcome": "device auth timed out after 15 minutes; process exit1",
+      "observed_at": "2026-10-20T18:52:50.516101+00:00",
+      "credential_values_recorded": false,
+      "new_attempts": "none",
+      "current_flow": "new documented device flow waiting for browser action after previous 15-minute timeout; codes and account/token values not recorded"
+    }
+  },
+  "t011_checkpoint": {
+    "status": "In Progress",
+    "risk": "high",
+    "workflow": "tdd",
+    "readiness_test_first_commit": "a72eab2ec5e5362f635b4814fecd9e791a300e68",
+    "readiness_checks": "54,6,44,80,18 + wiring/schema/Ruff/mypy/rollback PASS",
+    "docs": "seven applied; workflow docs/design121/link/CLI/release doc assertions PASS",
+    "release_validation": {
+      "status": "PASS local repository release parity8/8 and current workflow-state exit0",
+      "evidence": "specs/ci-model-modernization/verification/T-011/stage-provenance-repair/release-gate-rerun/results.json",
+      "source_pins": 16322,
+      "source_mismatches": 0,
+      "limits": "Not final exact-product-commit full profiles, hosted CI, publication or implementation QA acceptance"
+    },
+    "provenance_repair": {
+      "state": "PASS: attempt3 round3 actual independent A14/B9 allPASS, zero findings",
+      "contract": "reports/task-review/ci-model-modernization/attempt-3/round-3/task-review-contract.json",
+      "contract_sha256": "d3969fb606ad8c9e0f9c9d8f99edbc4e63fb82176ae5077aab2a23b70d12d13c",
+      "failed_rounds_retained": true,
+      "current_task_raw_sha256": "bfcc58800b99a4c68d052217c8fb562e69a2297b298333efdd2a4f128fad82f1"
+    },
+    "activation": "inactive; no actual hosted savings claimed",
+    "model_adoption": "none",
+    "version_tag": "no new version/tag; v1.19.0 remote tag object preserved"
+  },
+  "latest_checkpoint_at": "2026-10-20T19:30:30.664905+00:00"
+}

@@ -1,0 +1,16 @@
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-1/round-1/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-1/round-2/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-1/round-3/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-2/round-1/
+workflow-state: ok
+impl-review-precheck: complete. Output written to reports/impl-review/spec-review-fixture-6232-407373/attempt-1/round-1/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-2/round-2/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-1/round-1/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/.task-scratch/ci-model-modernization/ci-t008-whole-rollback-25oeoigy/replay/workspace/reports/spec-review/spec-review-fixture-6232-407373/attempt-2/round-1/
+ok: spec review precheck enforces state, hashes, replay, reset, and safe paths

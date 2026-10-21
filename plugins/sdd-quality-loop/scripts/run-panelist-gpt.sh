@@ -56,6 +56,15 @@
 
 # Shared collection-layer helpers (timeout/arg validation, bounded runner).
 _script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+# Selected-control runs are owned by the shared Python driver (validation, typed errors).
+for _selected_arg in "$@"; do
+    case "$_selected_arg" in
+        --model-controls|--model-controls-sha256|--run-id|--session-id)
+            exec python3 "$_script_dir/../../sdd-review-loop/scripts/validate-nontty-spec-launch.py" \
+                model-panelist-run --vendor gpt --shell bash "$@"
+            ;;
+    esac
+done
 # Probe before sourcing: POSIX shells (dash among them) treat a failed `.`
 # special builtin as fatal, so an if-guard around the dot itself can never
 # run its else branch -- the readability test is what keeps this documented

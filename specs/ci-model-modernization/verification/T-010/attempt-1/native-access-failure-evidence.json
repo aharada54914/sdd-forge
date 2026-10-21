@@ -1,0 +1,421 @@
+{
+  "task_id": "T-010",
+  "recorded_at": "2026-10-20T18:29:20.299878+00:00",
+  "status": "BLOCKED_NATIVE_AUTHORIZATION; no behavioral comparison results",
+  "native_turn_requests_accepted": 20,
+  "completed_candidate_outputs": 0,
+  "model_behavior_completions": 0,
+  "fixed_judges_called": 0,
+  "harbor_scorer_executions": 0,
+  "nonharbor_scorer_executions": 0,
+  "errors_by_class": {
+    "unauthorized": 20
+  },
+  "source_pin_checks": 20,
+  "source_pin_changes": [],
+  "listing_scope": "Fresh complete model/list before each pair; no proof of inference access",
+  "identity_scope": "configured IDs only; actual backend IDs unverified; no generation attested",
+  "observed_usage": null,
+  "pricing": "not observed; controller planning allowance is not trial pricing",
+  "authentication_action": "No login/profile/credential-file inspection or manual refresh performed; CLI returned its own authorization failure",
+  "all_attempts_preserved": true,
+  "retries": 0,
+  "substitutions": 0,
+  "automatic_adoption": false,
+  "arms": [
+    {
+      "arm": "harbor-gpt-6.1-sol-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/harbor-gpt-6.1-sol-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "c6c5cf68c82b31c96ec0201ce26b90241edd12a01325c2faa2f21793867833bc",
+        "thread-config.json": "8c908c74a59bed5f4f12e71f704268c91a29c4bb405b638e94bc3069dfc72ee1",
+        "events.jsonl": "79c4dd7f81a56122e80971cda02e355b1257905968c768d2250fe5e4f8771003",
+        "project/test_selector.py": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+        "project/selector.py": "e4842eb48b8f3dcf2ee6a295227e735291c2cc13f73782a9960f25ac00de814f",
+        "project/README.md": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28"
+      }
+    },
+    {
+      "arm": "harbor-gpt-6-astra-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/harbor-gpt-6-astra-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "2ad81318243199a12a27206c7246ecc9298e811a485c0f2ca86ca96eb2f354d4",
+        "thread-config.json": "84375b15433f31e95c88b8b02934a7fa5f3f06fabf67970f7d45d387d589f277",
+        "events.jsonl": "718179d3aefab25e4953aff998cb6e30fc4b1215d2ea0dabbe2dc3adc4f4528a",
+        "project/test_selector.py": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+        "project/selector.py": "e4842eb48b8f3dcf2ee6a295227e735291c2cc13f73782a9960f25ac00de814f",
+        "project/README.md": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28"
+      }
+    },
+    {
+      "arm": "harbor-gpt-6.1-sol-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/harbor-gpt-6.1-sol-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "a2b3748d699690f6394d3aed688c850bba6fd5c42ca8b178cf719eea05754139",
+        "thread-config.json": "92bb799e8afd00b5760f99f182a49b8e6cbd0a284f7ba1f39307fd3077a1b9dd",
+        "events.jsonl": "e5695372ef7c84d975855d4fa0d682741014e25095badc1ef7cecb9bce1ea6e0",
+        "project/test_selector.py": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+        "project/selector.py": "e4842eb48b8f3dcf2ee6a295227e735291c2cc13f73782a9960f25ac00de814f",
+        "project/README.md": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28"
+      }
+    },
+    {
+      "arm": "harbor-gpt-6-astra-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/harbor-gpt-6-astra-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "0df09eab2daa929fc63c984a4e8d527780e9e27d87cc0cd04142ccc041b5fe6e",
+        "thread-config.json": "0c407fc441ccb181d51463a7a05ad0b8101ede28e15bc38eec94c85f3b886d15",
+        "events.jsonl": "45ba98b80b2eaa7f8a53a6cffc3678e2c8c8eb66346a76f144f1905d04b58535",
+        "project/test_selector.py": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+        "project/selector.py": "e4842eb48b8f3dcf2ee6a295227e735291c2cc13f73782a9960f25ac00de814f",
+        "project/README.md": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28"
+      }
+    },
+    {
+      "arm": "orchard-gpt-6.1-sol-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/orchard-gpt-6.1-sol-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "54e6832c8ddeb1f8678d0e20f1ee0f036e503cf83a77ac0df5a7448c52649970",
+        "thread-config.json": "7af85dc468294a96d8a066df3ecf96aebe46fbcbde3d3cfb126bb3e9330ffccb",
+        "events.jsonl": "62c8bc6b5bb735e6ae0eb9ddc4f8e58629a7a75ba696976d27e203f75e0d74b1",
+        "project/routing.py": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+        "project/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+      }
+    },
+    {
+      "arm": "orchard-gpt-6-astra-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/orchard-gpt-6-astra-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "aba0d23922e68cd1562758244be782080d8595c55dd00c444bc48d170a1cff33",
+        "thread-config.json": "51dc68099d39634f6dab121732ae0ad45da822cd6358d20cd602ddd35e55a86e",
+        "events.jsonl": "3b120f7f71f206d519b13b3e486ba3ec690497491f08ee41cba4ec5d0917cfb3",
+        "project/routing.py": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+        "project/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+      }
+    },
+    {
+      "arm": "orchard-gpt-6.1-sol-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/orchard-gpt-6.1-sol-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "38e561ed54268f2a4c7ca9266672f13a9bfa8e899ed61da755544acac7251604",
+        "thread-config.json": "055d3ccc12cf1898f8d3e43afd00faa0b7d680b2e0a72a0d3fdd00b2864f95ce",
+        "events.jsonl": "14af1ce712d80ad222e22b416d02e13cc7a3ac5d25bc64390d441a92a07dfced",
+        "project/routing.py": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+        "project/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+      }
+    },
+    {
+      "arm": "orchard-gpt-6-astra-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/orchard-gpt-6-astra-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "ff67bfbbdef1af6eabde1e95ed81600bcca70afd813eb546d26ac15e2107459e",
+        "thread-config.json": "20096753bd28faa3f03bd5654d88e026fe0d229b8650344608fb2e4b6fac1adb",
+        "events.jsonl": "58c06989497331626ad415ae6fd5f077591af3aed47f57ef2e82af0dc12370a2",
+        "project/routing.py": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+        "project/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+      }
+    },
+    {
+      "arm": "meadow-gpt-6.1-sol-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/meadow-gpt-6.1-sol-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "62ef75e4be9421ac20002ebce85e68195d774200b9ca2d545b44aa122f786db4",
+        "thread-config.json": "4fb7c68eab0ab84c153b19fd05c9339fd4a5cd499632552f6879868887f4561e",
+        "events.jsonl": "ac51b00c82cbbf09230611cf020c17cddbade556a0d42706b684c1870296f4b1",
+        "project/routing.py": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+        "project/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+      }
+    },
+    {
+      "arm": "meadow-gpt-6-astra-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/meadow-gpt-6-astra-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "099b961c280fca9952a76696c3b06b5b1e47571c99ff5f8ebd8423cc0735034a",
+        "thread-config.json": "a1eeb223c381b9d07b9aac60639f622ad13a81db561d156dfa8f61482054b98c",
+        "events.jsonl": "8075b41671f7dc32e93ac4e418936093efb0779f33636601b35a74df80f53d05",
+        "project/routing.py": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+        "project/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+      }
+    },
+    {
+      "arm": "meadow-gpt-6.1-sol-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/meadow-gpt-6.1-sol-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "1b3c876a36ae0f50d20894d569677df23c7d7add237f490d36fa46b3110c05cf",
+        "thread-config.json": "3b608eaaa7bfcf135ca13482a07af0bfd833915557b8eacbd6ccbc45d0135fb5",
+        "events.jsonl": "152c2ab43b490fb362c2275fe0dd014a11fe964ccb0fdcc259bc44e79708ddd9",
+        "project/routing.py": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+        "project/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+      }
+    },
+    {
+      "arm": "meadow-gpt-6-astra-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/meadow-gpt-6-astra-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "9980295d348204bb9a2f6eba4d42ed3c8b7b41c6f464d286c4fc02b3b5f64070",
+        "thread-config.json": "97dcadbbfb7447ebdf0ef4e400de1a830fdee897466000221861514d4cb6cc84",
+        "events.jsonl": "1326a4a3647d9d2a8521bd24c6553cc1b1d914987ea06dcb482753551a021198",
+        "project/routing.py": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+        "project/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+      }
+    },
+    {
+      "arm": "willow-gpt-6-luna-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/willow-gpt-6-luna-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "8455c249d7d905447c885aab1a441d94c89b5b690bd69567efea897f2ddc5452",
+        "thread-config.json": "98ea641175efad7d7ceb80e6872840a93ef23cce534eaf3204f6117ab99736eb",
+        "events.jsonl": "7869673f2385459bbda1623010a124636387d7c5cdf461443cadd2cb7ddf8353",
+        "project/selector.py": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+        "project/README.md": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+        "project/launcher.py": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+        "project/records.py": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765"
+      }
+    },
+    {
+      "arm": "willow-gpt-6-astra-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/willow-gpt-6-astra-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "6d7fcbdc21c65026d09de0dd5983a760087fa338eea2ba34a91c6381a422c35b",
+        "thread-config.json": "3edbdc17ebc80752d019e3fe03f71ee3b4d01820d0d64f1509c2b04c5bdbcb87",
+        "events.jsonl": "e93108b531d6701af285dfe9cc1fdd89c766e3f4ef1a69ee7e57cd3411812e01",
+        "project/selector.py": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+        "project/README.md": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+        "project/launcher.py": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+        "project/records.py": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765"
+      }
+    },
+    {
+      "arm": "willow-gpt-6-luna-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/willow-gpt-6-luna-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "f5878481c7579331913b2606d4903ec367b1deccdf26c3161a9f69fcaa4a9af2",
+        "thread-config.json": "701d3867989a4a70f5cdf593af49156fd16e3288ad16243eb37f3dbce4df1cdc",
+        "events.jsonl": "7e71d109d3a9b5b7888a3be57c2d9f96163c0ef0cbe24404076321056459d84e",
+        "project/selector.py": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+        "project/README.md": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+        "project/launcher.py": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+        "project/records.py": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765"
+      }
+    },
+    {
+      "arm": "willow-gpt-6-astra-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-trials-v4/willow-gpt-6-astra-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "5bb50cac14f0365e60c2773db01a60bb7fc0a52f15d749d150d26e4369bc6aaa",
+        "thread-config.json": "1b47469a1ec18a9d98cf1bdc5334a95d1b85b4c420865c81da5ad04c077691e4",
+        "events.jsonl": "fd657b99c295fc29cec7da156e4040b9688e292798515ace29dc9738b02464e9",
+        "project/selector.py": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+        "project/README.md": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+        "project/launcher.py": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+        "project/records.py": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765"
+      }
+    },
+    {
+      "arm": "cedar-gpt-6-astra-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-skill-trials-v5/cedar-gpt-6-astra-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "84eb54a811a9128b08837d379ca6c2d90b78f586a25a747526045549d8b36a21",
+        "thread-config.json": "d1c6e0ef41330e096d5a1bfd015614fff437293e598234db8c1fa530a08ccc73",
+        "events.jsonl": "08c6eb828e499b0184b929440ee418dc261a9c8da7b58d6c930c9ad2430fa5e7",
+        "project/README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+        "project/procedure.md": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656"
+      }
+    },
+    {
+      "arm": "maple-gpt-6-astra-1",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-skill-trials-v5/maple-gpt-6-astra-1",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "60e3a545e73ca2c3bf7b53e15beb635a5209a3e4c921e2f349eeb0ef7cffc7c6",
+        "thread-config.json": "cc75fb74057632d4f8687d7d03809f12a5136baa001dd24a318e5df473cdab9d",
+        "events.jsonl": "68607bfd9faea9e055770b6f1dd93e4424f32006c7dde31e5f6d779ab3ba4bda",
+        "project/README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+        "project/procedure.md": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0"
+      }
+    },
+    {
+      "arm": "cedar-gpt-6-astra-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-skill-trials-v5/cedar-gpt-6-astra-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "fee3468c107702626e6941d19f043b32eb7e58977649fd99b686f7903fd028de",
+        "thread-config.json": "3fc84b269d1bb95bd761745a7565a733bd50cb8121ef96d996068c191ca4f94c",
+        "events.jsonl": "25efc3388f7b37735546f5a48c03b5a4c83b9285e5e751d78b4e77e94be09f77",
+        "project/README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+        "project/procedure.md": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656"
+      }
+    },
+    {
+      "arm": "maple-gpt-6-astra-2",
+      "task_owned_output": "specs/ci-model-modernization/verification/T-010/native-skill-trials-v5/maple-gpt-6-astra-2",
+      "native_turn_accepted": true,
+      "turn_status": "failed",
+      "tool_calls": 0,
+      "error_class": "unauthorized",
+      "error_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+      "actual_answer_exists": false,
+      "exported_project_matches_initial_fixture": true,
+      "artifacts_sha256": {
+        "summary.json": "8e8bd8d72a66f67840815fabf77a223cbc4343aa6d09cb4c9b64a56c0cc0fa79",
+        "thread-config.json": "70b40ab23ab74dede4013d85792cfb884a7d2b1ec75330e55a697d5ab4a363d6",
+        "events.jsonl": "31e9ee899197f9986f11d0dbdb2a53f6c6b0103d430cc33d9523484868c9e41d",
+        "project/README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+        "project/procedure.md": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0"
+      }
+    }
+  ],
+  "warnings": [
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-0430-7f53-aa3c-8f9eea370f9d\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-0430-7fd2-abee-c27c93d29545\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-0a15-7f93-9091-695720f3c7a0\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-0a16-7f10-86fb-ed2b6f8028fc\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-1e85-7491-800c-9282417412c6\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-1e88-7740-8241-8c24e34ebe53\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-2592-7611-bc99-cb3499e7f260\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-2593-70f1-b896-c31e632200f9\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-2b82-7fe2-b623-0a6a4bd1989f\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-2b87-7b42-9250-f1d1914d0958\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-336d-7da3-a676-288841679e04\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-3372-7753-8b54-cda58ef38f87\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-4c32-7830-92c3-87308e8e970d\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-4c36-7941-96f3-ba867a7e81bc\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-5207-7e50-9994-a393bd8fa027\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-5208-7073-8826-f0f8073f3f1a\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-58c6-7093-b4d2-92976706abb8\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-58c9-7b52-8361-c23ea1e299ef\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-641e-7f62-ba7b-5f6cb0f2f970\"}",
+    "{\"message\": \"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.\", \"threadId\": \"01a15a92-6420-74a3-aa20-55fe15e42b2f\"}"
+  ]
+}

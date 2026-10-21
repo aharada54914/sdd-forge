@@ -1,0 +1,1689 @@
+test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) ... 
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='implementer') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='investigator') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='spec-reviewer-a') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='spec-reviewer-b') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='impl-reviewer-a') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='impl-reviewer-b') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='task-reviewer-a') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='task-reviewer-b') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='evaluator') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='domain-reviewer-a') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='domain-reviewer-b') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='workflow-auditor-a') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='workflow-auditor-b') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='diagnosis') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='self-improvement') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='panelist-gpt') ... FAIL
+  test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='panelist-gemini') ... FAIL
+test_TEST080_role_floor_cannot_be_lowered_by_explicit_pin_or_cli_minimum (__main__.PolicySelection.test_TEST080_role_floor_cannot_be_lowered_by_explicit_pin_or_cli_minimum) ... FAIL
+test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) ... 
+  test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) (risk='low') ... FAIL
+  test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) (risk='medium') ... FAIL
+  test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) (risk='high') ... FAIL
+  test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) (risk='critical') ... FAIL
+test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) ... FAIL
+test_TEST089_verified_successor_wins_after_eligibility (__main__.PolicySelection.test_TEST089_verified_successor_wins_after_eligibility) ... FAIL
+test_TEST090_TEST151_unknown_successor_is_notice_not_adoption (__main__.PolicySelection.test_TEST090_TEST151_unknown_successor_is_notice_not_adoption) ... FAIL
+test_TEST091_names_and_list_order_do_not_rank_families (__main__.PolicySelection.test_TEST091_names_and_list_order_do_not_rank_families) ... FAIL
+test_TEST092_retired_historical_candidate_cannot_fill_current_gap (__main__.PolicySelection.test_TEST092_retired_historical_candidate_cannot_fill_current_gap) ... 
+  test_TEST092_retired_historical_candidate_cannot_fill_current_gap (__main__.PolicySelection.test_TEST092_retired_historical_candidate_cannot_fill_current_gap) (lifecycle='historical') ... FAIL
+  test_TEST092_retired_historical_candidate_cannot_fill_current_gap (__main__.PolicySelection.test_TEST092_retired_historical_candidate_cannot_fill_current_gap) (lifecycle='retired') ... FAIL
+  test_TEST092_retired_historical_candidate_cannot_fill_current_gap (__main__.PolicySelection.test_TEST092_retired_historical_candidate_cannot_fill_current_gap) (lifecycle='candidate') ... FAIL
+test_TEST093_host_registry_and_effort_intersection (__main__.PolicySelection.test_TEST093_host_registry_and_effort_intersection) ... FAIL
+test_TEST094_TEST110_explicit_historical_pin_stays_labelled_pinned (__main__.PolicySelection.test_TEST094_TEST110_explicit_historical_pin_stays_labelled_pinned) ... FAIL
+test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) ... 
+  test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='auto') ... FAIL
+  test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='Latest-compatible') ... FAIL
+  test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='PINNED') ... FAIL
+  test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='') ... FAIL
+  test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='pinned\n') ... FAIL
+test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) ... 
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='two words') ... FAIL
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='--model') ... FAIL
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='-x') ... FAIL
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='x;touch executed') ... FAIL
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='x|touch executed') ... FAIL
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='$(touch executed)') ... FAIL
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='x`touch executed`') ... FAIL
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='x\ny') ... FAIL
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='café') ... FAIL
+  test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') ... FAIL
+test_TEST099_TEST106_pin_cannot_grant_access_or_fallback (__main__.PolicySelection.test_TEST099_TEST106_pin_cannot_grant_access_or_fallback) ... FAIL
+test_TEST105_empty_current_intersection_blocks (__main__.PolicySelection.test_TEST105_empty_current_intersection_blocks) ... FAIL
+test_TEST109_budget_unknown_is_not_zero (__main__.PolicySelection.test_TEST109_budget_unknown_is_not_zero) ... FAIL
+test_TEST109_unknown_cost_without_budget_remains_null_and_preference_wins (__main__.PolicySelection.test_TEST109_unknown_cost_without_budget_remains_null_and_preference_wins) ... FAIL
+test_TEST122_TEST123_legacy_v1_v2_cost_and_fallback_contract (__main__.PolicySelection.test_TEST122_TEST123_legacy_v1_v2_cost_and_fallback_contract) ... ok
+test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) ... 
+  test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) (host='claude-code') ... FAIL
+  test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) (host='codex-cli') ... FAIL
+  test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) (host='copilot-cli') ... FAIL
+  test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) (host='gemini-cli') ... FAIL
+test_TEST124_bash_powershell_fixture_parity (__main__.PolicySelection.test_TEST124_bash_powershell_fixture_parity) ... FAIL
+test_TEST125_effort_never_enables_extra_modes (__main__.PolicySelection.test_TEST125_effort_never_enables_extra_modes) ... 
+  test_TEST125_effort_never_enables_extra_modes (__main__.PolicySelection.test_TEST125_effort_never_enables_extra_modes) (effort='max') ... FAIL
+  test_TEST125_effort_never_enables_extra_modes (__main__.PolicySelection.test_TEST125_effort_never_enables_extra_modes) (effort='ultra') ... FAIL
+test_TEST125_effort_never_enables_extra_modes (__main__.PolicySelection.test_TEST125_effort_never_enables_extra_modes) ... FAIL
+test_TEST126_selector_preserves_historical_input_bytes (__main__.PolicySelection.test_TEST126_selector_preserves_historical_input_bytes) ... FAIL
+test_TEST147_TEST159_pin_requires_id_and_implicit_pin_records_source (__main__.PolicySelection.test_TEST147_TEST159_pin_requires_id_and_implicit_pin_records_source) ... FAIL
+test_TEST150_native_mapping_is_explicit_and_unambiguous (__main__.PolicySelection.test_TEST150_native_mapping_is_explicit_and_unambiguous) ... FAIL
+test_TEST152_cli_model_shadows_valid_environment_and_project (__main__.PolicySelection.test_TEST152_cli_model_shadows_valid_environment_and_project) ... FAIL
+test_TEST153_environment_model_shadows_project (__main__.PolicySelection.test_TEST153_environment_model_shadows_project) ... FAIL
+test_TEST154_project_model_and_shipped_default (__main__.PolicySelection.test_TEST154_project_model_and_shipped_default) ... FAIL
+test_TEST155_generic_model_environment_is_rejected (__main__.PolicySelection.test_TEST155_generic_model_environment_is_rejected) ... 
+  test_TEST155_generic_model_environment_is_rejected (__main__.PolicySelection.test_TEST155_generic_model_environment_is_rejected) (env={'SDD_MODEL': 'vendor/old'}) ... FAIL
+  test_TEST155_generic_model_environment_is_rejected (__main__.PolicySelection.test_TEST155_generic_model_environment_is_rejected) (env={'SDD_MODEL': 'vendor/old', 'SDD_MODEL_IMPLEMENTER': 'vendor/current'}) ... FAIL
+  test_TEST155_generic_model_environment_is_rejected (__main__.PolicySelection.test_TEST155_generic_model_environment_is_rejected) (env={'SDD_MODEL': ''}) ... FAIL
+test_TEST156_policy_precedence_is_independent_from_model_precedence (__main__.PolicySelection.test_TEST156_policy_precedence_is_independent_from_model_precedence) ... FAIL
+test_TEST157_project_role_policy_beats_project_default (__main__.PolicySelection.test_TEST157_project_role_policy_beats_project_default) ... FAIL
+test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) ... 
+  test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) (source='cli') ... FAIL
+  test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) (source='environment') ... FAIL
+  test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) (source='project-role') ... FAIL
+  test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) (source='project-default') ... FAIL
+test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) ... 
+  test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) (env={'SDD_MODEL_IMPLEMENTER': 'bad id'}) ... FAIL
+  test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) (env={'SDD_MODEL_EVALUATOR': '--bad'}) ... FAIL
+  test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) (env={'SDD_MODEL_POLICY': 'PINNED'}) ... FAIL
+  test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) (env={'SDD_MODEL_IMPLEMENTER_POLICY': 'pinned'}) ... FAIL
+test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) ... FAIL
+test_bridge_closed_grammar_and_direct_winner_counterparts (__main__.PolicySelection.test_bridge_closed_grammar_and_direct_winner_counterparts) ... FAIL
+test_explicit_selector_values_match_request_and_candidate_inputs_conflict (__main__.PolicySelection.test_explicit_selector_values_match_request_and_candidate_inputs_conflict) ... FAIL
+test_missing_adoption_is_not_a_current_verified_model (__main__.PolicySelection.test_missing_adoption_is_not_a_current_verified_model) ... FAIL
+test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) ... 
+  test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/unknown', 'vendor/cheap', 'vendor/dear')) ... FAIL
+  test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/unknown', 'vendor/dear', 'vendor/cheap')) ... FAIL
+  test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/cheap', 'vendor/unknown', 'vendor/dear')) ... FAIL
+  test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/cheap', 'vendor/dear', 'vendor/unknown')) ... FAIL
+  test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/dear', 'vendor/unknown', 'vendor/cheap')) ... FAIL
+  test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/dear', 'vendor/cheap', 'vendor/unknown')) ... FAIL
+test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) ... FAIL
+test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) ... 
+  test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) (field='host') ... FAIL
+  test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) (field='status') ... FAIL
+  test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) (field='source') ... FAIL
+  test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) (field='observed_at') ... FAIL
+test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) ... FAIL
+test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) ... 
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='id') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='lifecycle') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='source_url') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='source_date') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='successor') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='cycle') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='capability_role') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='model_env') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='preference') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='adoption_path') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='adoption_hash') ... FAIL
+  test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='adoption_role') ... FAIL
+test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures) ... 
+  test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures) (layer='operator-policy') ... FAIL
+  test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures) (layer='language-model-key') ... FAIL
+  test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures) (layer='language-property-key') ... FAIL
+test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures) ... FAIL
+test_python_api_rejects_fabricated_active_capture (__main__.PolicySelection.test_python_api_rejects_fabricated_active_capture) ... FAIL
+test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) ... 
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (contract='request') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (contract='project') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (contract='policy') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='schema') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='role') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='risk') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='host') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='policy_path') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='observation_path') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='project_config_path') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='cli') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='budget') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='requested_effort') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='resume_selection_path') ... FAIL
+  test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='unexpected') ... FAIL
+test_resume_selection_roundtrip_and_resealed_mismatch (__main__.PolicySelection.test_resume_selection_roundtrip_and_resealed_mismatch) ... FAIL
+test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption) ... 
+  test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption) (schema='model-policy.schema.json') ... FAIL
+  test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption) (schema='model-policy-request.schema.json') ... FAIL
+  test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption) (schema='model-role-config.schema.json') ... FAIL
+test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption) ... FAIL
+test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) ... 
+  test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (raw='{"schema":"model-policy-request/v1","schema":"model-policy-request/v1"}') ... FAIL
+  test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (raw='{"amount":NaN}') ... FAIL
+  test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (raw='{"amount":1e999}') ... FAIL
+  test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (raw='[]') ... FAIL
+  test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (path='../policy.json') ... FAIL
+  test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (path='/policy.json') ... FAIL
+  test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (path='C:/policy.json') ... FAIL
+  test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (path='x\\policy.json') ... FAIL
+test_wrapper_policy_smoke (__main__.PolicySelection.test_wrapper_policy_smoke) ... FAIL
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='implementer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='investigator')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='spec-reviewer-a')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='spec-reviewer-b')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='impl-reviewer-a')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='impl-reviewer-b')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='task-reviewer-a')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='task-reviewer-b')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='evaluator')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='domain-reviewer-a')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='domain-reviewer-b')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='workflow-auditor-a')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='workflow-auditor-b')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='diagnosis')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='self-improvement')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='panelist-gpt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) (role='panelist-gemini')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 216, in test_TEST079_all_seventeen_roles_use_shared_policy
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST080_role_floor_cannot_be_lowered_by_explicit_pin_or_cli_minimum (__main__.PolicySelection.test_TEST080_role_floor_cannot_be_lowered_by_explicit_pin_or_cli_minimum)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 222, in test_TEST080_role_floor_cannot_be_lowered_by_explicit_pin_or_cli_minimum
+    self.blocked(self.invoke(), 'model-tier-unavailable')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) (risk='low')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 233, in test_TEST081_risk_escalation_and_terminal_recurrence
+    self.selected(self.invoke(), model)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) (risk='medium')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 233, in test_TEST081_risk_escalation_and_terminal_recurrence
+    self.selected(self.invoke(), model)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) (risk='high')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 233, in test_TEST081_risk_escalation_and_terminal_recurrence
+    self.selected(self.invoke(), model)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) (risk='critical')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 233, in test_TEST081_risk_escalation_and_terminal_recurrence
+    self.selected(self.invoke(), model)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 236, in test_TEST081_risk_escalation_and_terminal_recurrence
+    self.selected(self.invoke(extra=args), STANDARD)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST089_verified_successor_wins_after_eligibility (__main__.PolicySelection.test_TEST089_verified_successor_wins_after_eligibility)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 248, in test_TEST089_verified_successor_wins_after_eligibility
+    self.selected(self.invoke(), NEW)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST090_TEST151_unknown_successor_is_notice_not_adoption (__main__.PolicySelection.test_TEST090_TEST151_unknown_successor_is_notice_not_adoption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 257, in test_TEST090_TEST151_unknown_successor_is_notice_not_adoption
+    result = self.selected(self.invoke(), CURRENT)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST091_names_and_list_order_do_not_rank_families (__main__.PolicySelection.test_TEST091_names_and_list_order_do_not_rank_families)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 271, in test_TEST091_names_and_list_order_do_not_rank_families
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST092_retired_historical_candidate_cannot_fill_current_gap (__main__.PolicySelection.test_TEST092_retired_historical_candidate_cannot_fill_current_gap) (lifecycle='historical')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 281, in test_TEST092_retired_historical_candidate_cannot_fill_current_gap
+    self.blocked(self.invoke(), {'model-unverified', 'model-unavailable', 'model-tier-unavailable'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST092_retired_historical_candidate_cannot_fill_current_gap (__main__.PolicySelection.test_TEST092_retired_historical_candidate_cannot_fill_current_gap) (lifecycle='retired')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 281, in test_TEST092_retired_historical_candidate_cannot_fill_current_gap
+    self.blocked(self.invoke(), {'model-unverified', 'model-unavailable', 'model-tier-unavailable'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST092_retired_historical_candidate_cannot_fill_current_gap (__main__.PolicySelection.test_TEST092_retired_historical_candidate_cannot_fill_current_gap) (lifecycle='candidate')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 281, in test_TEST092_retired_historical_candidate_cannot_fill_current_gap
+    self.blocked(self.invoke(), {'model-unverified', 'model-unavailable', 'model-tier-unavailable'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST093_host_registry_and_effort_intersection (__main__.PolicySelection.test_TEST093_host_registry_and_effort_intersection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 288, in test_TEST093_host_registry_and_effort_intersection
+    self.blocked(self.invoke(), 'effort-unavailable')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST094_TEST110_explicit_historical_pin_stays_labelled_pinned (__main__.PolicySelection.test_TEST094_TEST110_explicit_historical_pin_stays_labelled_pinned)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 295, in test_TEST094_TEST110_explicit_historical_pin_stays_labelled_pinned
+    result = self.selected(self.invoke(), OLD)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='auto')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 305, in test_TEST097_unknown_and_miscased_policy_operator_layer
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='Latest-compatible')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 305, in test_TEST097_unknown_and_miscased_policy_operator_layer
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='PINNED')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 305, in test_TEST097_unknown_and_miscased_policy_operator_layer
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 305, in test_TEST097_unknown_and_miscased_policy_operator_layer
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) (policy='pinned\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 305, in test_TEST097_unknown_and_miscased_policy_operator_layer
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='two words')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='--model')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='-x')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='x;touch executed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='x|touch executed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='$(touch executed)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='x`touch executed`')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='x\ny')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='café')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) (model='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 313, in test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST099_TEST106_pin_cannot_grant_access_or_fallback (__main__.PolicySelection.test_TEST099_TEST106_pin_cannot_grant_access_or_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 319, in test_TEST099_TEST106_pin_cannot_grant_access_or_fallback
+    self.blocked(self.invoke(), 'model-unavailable')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST105_empty_current_intersection_blocks (__main__.PolicySelection.test_TEST105_empty_current_intersection_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 326, in test_TEST105_empty_current_intersection_blocks
+    self.blocked(self.invoke(), {'model-unavailable', 'model-tier-unavailable'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST109_budget_unknown_is_not_zero (__main__.PolicySelection.test_TEST109_budget_unknown_is_not_zero)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 330, in test_TEST109_budget_unknown_is_not_zero
+    self.blocked(self.invoke(), 'budget-unverifiable')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST109_unknown_cost_without_budget_remains_null_and_preference_wins (__main__.PolicySelection.test_TEST109_unknown_cost_without_budget_remains_null_and_preference_wins)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 347, in test_TEST109_unknown_cost_without_budget_remains_null_and_preference_wins
+    self.assertIsNone(self.selected(self.invoke(), CURRENT)['estimate'])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) (host='claude-code')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 386, in test_TEST124_all_four_hosts_are_explicit_fixture_capabilities
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) (host='codex-cli')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 386, in test_TEST124_all_four_hosts_are_explicit_fixture_capabilities
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) (host='copilot-cli')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 386, in test_TEST124_all_four_hosts_are_explicit_fixture_capabilities
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) (host='gemini-cli')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 386, in test_TEST124_all_four_hosts_are_explicit_fixture_capabilities
+    self.selected(self.invoke(), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST124_bash_powershell_fixture_parity (__main__.PolicySelection.test_TEST124_bash_powershell_fixture_parity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 376, in test_TEST124_bash_powershell_fixture_parity
+    first = self.selected(self.invoke(), CURRENT)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST125_effort_never_enables_extra_modes (__main__.PolicySelection.test_TEST125_effort_never_enables_extra_modes) (effort='max')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 399, in test_TEST125_effort_never_enables_extra_modes
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST125_effort_never_enables_extra_modes (__main__.PolicySelection.test_TEST125_effort_never_enables_extra_modes) (effort='ultra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 399, in test_TEST125_effort_never_enables_extra_modes
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST125_effort_never_enables_extra_modes (__main__.PolicySelection.test_TEST125_effort_never_enables_extra_modes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 401, in test_TEST125_effort_never_enables_extra_modes
+    self.blocked(self.invoke(), {'effort-unavailable', 'model-tier-unavailable'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST126_selector_preserves_historical_input_bytes (__main__.PolicySelection.test_TEST126_selector_preserves_historical_input_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 410, in test_TEST126_selector_preserves_historical_input_bytes
+    self.selected(self.invoke(save=False), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST147_TEST159_pin_requires_id_and_implicit_pin_records_source (__main__.PolicySelection.test_TEST147_TEST159_pin_requires_id_and_implicit_pin_records_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 416, in test_TEST147_TEST159_pin_requires_id_and_implicit_pin_records_source
+    self.blocked(self.invoke(), 'config-conflict')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST150_native_mapping_is_explicit_and_unambiguous (__main__.PolicySelection.test_TEST150_native_mapping_is_explicit_and_unambiguous)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 429, in test_TEST150_native_mapping_is_explicit_and_unambiguous
+    self.assertEqual(self.selected(self.invoke(), CURRENT)['resolved']['native_id'],
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST152_cli_model_shadows_valid_environment_and_project (__main__.PolicySelection.test_TEST152_cli_model_shadows_valid_environment_and_project)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 441, in test_TEST152_cli_model_shadows_valid_environment_and_project
+    result = self.selected(self.invoke(env={'SDD_MODEL_IMPLEMENTER': CURRENT}), OLD)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST153_environment_model_shadows_project (__main__.PolicySelection.test_TEST153_environment_model_shadows_project)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 446, in test_TEST153_environment_model_shadows_project
+    result = self.selected(self.invoke(env={'SDD_MODEL_IMPLEMENTER': OLD}), OLD)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST154_project_model_and_shipped_default (__main__.PolicySelection.test_TEST154_project_model_and_shipped_default)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 451, in test_TEST154_project_model_and_shipped_default
+    result = self.selected(self.invoke(), OLD)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST155_generic_model_environment_is_rejected (__main__.PolicySelection.test_TEST155_generic_model_environment_is_rejected) (env={'SDD_MODEL': 'vendor/old'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 462, in test_TEST155_generic_model_environment_is_rejected
+    self.blocked(self.invoke(env=env), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST155_generic_model_environment_is_rejected (__main__.PolicySelection.test_TEST155_generic_model_environment_is_rejected) (env={'SDD_MODEL': 'vendor/old', 'SDD_MODEL_IMPLEMENTER': 'vendor/current'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 462, in test_TEST155_generic_model_environment_is_rejected
+    self.blocked(self.invoke(env=env), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST155_generic_model_environment_is_rejected (__main__.PolicySelection.test_TEST155_generic_model_environment_is_rejected) (env={'SDD_MODEL': ''})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 462, in test_TEST155_generic_model_environment_is_rejected
+    self.blocked(self.invoke(env=env), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST156_policy_precedence_is_independent_from_model_precedence (__main__.PolicySelection.test_TEST156_policy_precedence_is_independent_from_model_precedence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 468, in test_TEST156_policy_precedence_is_independent_from_model_precedence
+    result = self.selected(self.invoke(env={'SDD_MODEL_POLICY': 'latest-compatible'}), OLD)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST157_project_role_policy_beats_project_default (__main__.PolicySelection.test_TEST157_project_role_policy_beats_project_default)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 481, in test_TEST157_project_role_policy_beats_project_default
+    self.assertEqual(self.selected(self.invoke(), OLD)['requested']['policy_source'], 'project-role')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) (source='cli')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 494, in test_TEST158_explicit_latest_and_any_effective_id_conflict
+    self.blocked(self.invoke(env=env), 'config-conflict')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) (source='environment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 494, in test_TEST158_explicit_latest_and_any_effective_id_conflict
+    self.blocked(self.invoke(env=env), 'config-conflict')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) (source='project-role')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 494, in test_TEST158_explicit_latest_and_any_effective_id_conflict
+    self.blocked(self.invoke(env=env), 'config-conflict')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) (source='project-default')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 494, in test_TEST158_explicit_latest_and_any_effective_id_conflict
+    self.blocked(self.invoke(env=env), 'config-conflict')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) (env={'SDD_MODEL_IMPLEMENTER': 'bad id'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 502, in test_TEST160_all_shadowed_supported_values_are_validated
+    self.blocked(self.invoke(env=env), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) (env={'SDD_MODEL_EVALUATOR': '--bad'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 502, in test_TEST160_all_shadowed_supported_values_are_validated
+    self.blocked(self.invoke(env=env), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) (env={'SDD_MODEL_POLICY': 'PINNED'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 502, in test_TEST160_all_shadowed_supported_values_are_validated
+    self.blocked(self.invoke(env=env), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) (env={'SDD_MODEL_IMPLEMENTER_POLICY': 'pinned'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 502, in test_TEST160_all_shadowed_supported_values_are_validated
+    self.blocked(self.invoke(env=env), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 504, in test_TEST160_all_shadowed_supported_values_are_validated
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_bridge_closed_grammar_and_direct_winner_counterparts (__main__.PolicySelection.test_bridge_closed_grammar_and_direct_winner_counterparts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 651, in test_bridge_closed_grammar_and_direct_winner_counterparts
+    self.assertEqual(prepared.returncode, 0, prepared.stderr[:1000])
+AssertionError: 2 != 0 : {"message":"Usage: model-policy.py discover --host HOST --scope-id ID --output FILE.","reason":"input-invalid","schema":"model-policy-error/v1"}
+
+
+======================================================================
+FAIL: test_explicit_selector_values_match_request_and_candidate_inputs_conflict (__main__.PolicySelection.test_explicit_selector_values_match_request_and_candidate_inputs_conflict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 611, in test_explicit_selector_values_match_request_and_candidate_inputs_conflict
+    self.selected(self.invoke(extra=['--risk', 'high', '--host', 'codex-cli', '--role', 'implementer']), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_missing_adoption_is_not_a_current_verified_model (__main__.PolicySelection.test_missing_adoption_is_not_a_current_verified_model)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 550, in test_missing_adoption_is_not_a_current_verified_model
+    self.blocked(self.invoke(), 'model-unverified')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/unknown', 'vendor/cheap', 'vendor/dear'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 634, in test_mixed_known_unknown_costs_have_total_order_for_every_permutation
+    self.selected(self.invoke(), 'vendor/cheap')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/unknown', 'vendor/dear', 'vendor/cheap'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 634, in test_mixed_known_unknown_costs_have_total_order_for_every_permutation
+    self.selected(self.invoke(), 'vendor/cheap')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/cheap', 'vendor/unknown', 'vendor/dear'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 634, in test_mixed_known_unknown_costs_have_total_order_for_every_permutation
+    self.selected(self.invoke(), 'vendor/cheap')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/cheap', 'vendor/dear', 'vendor/unknown'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 634, in test_mixed_known_unknown_costs_have_total_order_for_every_permutation
+    self.selected(self.invoke(), 'vendor/cheap')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/dear', 'vendor/unknown', 'vendor/cheap'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 634, in test_mixed_known_unknown_costs_have_total_order_for_every_permutation
+    self.selected(self.invoke(), 'vendor/cheap')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) (order=('vendor/dear', 'vendor/cheap', 'vendor/unknown'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 634, in test_mixed_known_unknown_costs_have_total_order_for_every_permutation
+    self.selected(self.invoke(), 'vendor/cheap')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 636, in test_mixed_known_unknown_costs_have_total_order_for_every_permutation
+    self.selected(self.invoke(), 'vendor/cheap')  # Stable catalog ID, not order or fabricated price.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) (field='host')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 561, in test_observation_scope_freshness_completeness_and_active_capture_boundary
+    self.blocked(self.invoke(), reason)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) (field='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 561, in test_observation_scope_freshness_completeness_and_active_capture_boundary
+    self.blocked(self.invoke(), reason)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) (field='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 561, in test_observation_scope_freshness_completeness_and_active_capture_boundary
+    self.blocked(self.invoke(), reason)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) (field='observed_at')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 561, in test_observation_scope_freshness_completeness_and_active_capture_boundary
+    self.blocked(self.invoke(), reason)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 564, in test_observation_scope_freshness_completeness_and_active_capture_boundary
+    self.blocked(self.invoke(), 'discovery-stale')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='lifecycle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='source_url')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='source_date')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='successor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='cycle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='capability_role')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='model_env')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='preference')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='adoption_path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='adoption_hash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) (field='adoption_role')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 545, in test_policy_reference_source_and_adoption_mismatches
+    self.blocked(self.invoke(), {'config-invalid', 'model-unverified'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures) (layer='operator-policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 517, in test_powershell_separate_operator_and_language_negative_fixtures
+    left = self.blocked(self.invoke(), expected)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures) (layer='language-model-key')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 517, in test_powershell_separate_operator_and_language_negative_fixtures
+    left = self.blocked(self.invoke(), expected)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures) (layer='language-property-key')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 517, in test_powershell_separate_operator_and_language_negative_fixtures
+    left = self.blocked(self.invoke(), expected)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 521, in test_powershell_separate_operator_and_language_negative_fixtures
+    self.blocked(self.invoke(extra=['--risk', 'High']), {'config-invalid', 'config-conflict'})
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_python_api_rejects_fabricated_active_capture (__main__.PolicySelection.test_python_api_rejects_fabricated_active_capture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 673, in test_python_api_rejects_fabricated_active_capture
+    self.assertTrue(callable(prepare), 'Policy preparation API is missing')
+AssertionError: False is not true : Policy preparation API is missing
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (contract='request')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 575, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (contract='project')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 575, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (contract='policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 575, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='schema')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='role')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='risk')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='host')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='policy_path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='observation_path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='project_config_path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='cli')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='budget')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='requested_effort')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='resume_selection_path')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) (missing='unexpected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 582, in test_request_project_and_policy_closed_fields
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_resume_selection_roundtrip_and_resealed_mismatch (__main__.PolicySelection.test_resume_selection_roundtrip_and_resealed_mismatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 598, in test_resume_selection_roundtrip_and_resealed_mismatch
+    selection = self.selected(self.invoke(), CURRENT)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption) (schema='model-policy.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 698, in test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption
+    self.assertTrue(path.is_file(), 'Required policy contract is missing: ' + filename)
+AssertionError: False is not true : Required policy contract is missing: model-policy.schema.json
+
+======================================================================
+FAIL: test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption) (schema='model-policy-request.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 698, in test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption
+    self.assertTrue(path.is_file(), 'Required policy contract is missing: ' + filename)
+AssertionError: False is not true : Required policy contract is missing: model-policy-request.schema.json
+
+======================================================================
+FAIL: test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption) (schema='model-role-config.schema.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 698, in test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption
+    self.assertTrue(path.is_file(), 'Required policy contract is missing: ' + filename)
+AssertionError: False is not true : Required policy contract is missing: model-role-config.schema.json
+
+======================================================================
+FAIL: test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 704, in test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption
+    self.assertTrue(policy_path.is_file(), 'Required shared shipped policy is missing')
+AssertionError: False is not true : Required shared shipped policy is missing
+
+======================================================================
+FAIL: test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (raw='{"schema":"model-policy-request/v1","schema":"model-policy-request/v1"}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 591, in test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths
+    self.blocked(self.invoke(save=False), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (raw='{"amount":NaN}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 591, in test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths
+    self.blocked(self.invoke(save=False), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (raw='{"amount":1e999}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 591, in test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths
+    self.blocked(self.invoke(save=False), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (raw='[]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 591, in test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths
+    self.blocked(self.invoke(save=False), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (path='../policy.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 595, in test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (path='/policy.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 595, in test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (path='C:/policy.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 595, in test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) (path='x\\policy.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 595, in test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths
+    self.blocked(self.invoke(), 'config-invalid')
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 195, in blocked
+    self.assertEqual(result.returncode, 2, result.stderr[:1000])
+AssertionError: 1 != 2 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+======================================================================
+FAIL: test_wrapper_policy_smoke (__main__.PolicySelection.test_wrapper_policy_smoke)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 686, in test_wrapper_policy_smoke
+    self.selected(self.invoke(backend), CURRENT)
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 168, in selected
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 1 != 0 : MODEL_SELECTION_ERROR: unknown argument: --policy-input
+
+
+----------------------------------------------------------------------
+Ran 43 tests in 0.602s
+
+FAILED (failures=139)

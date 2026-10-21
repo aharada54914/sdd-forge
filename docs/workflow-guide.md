@@ -511,6 +511,17 @@ lite 成果物はフル SDD の部分集合であり、書き直しゼロの加�
 
 ---
 
+## Managed model operation
+
+3 段のゲート連鎖（spec / implementation-policy / task review）は変更しません。以下は、各エントリがモデルを決める経路の補足です。
+
+- **対象エントリ**: 実装、調査、レビュー、ドメイン、監査、診断、自動化。いずれも共有モデルポリシーから、role・risk・effort の制限を満たす互換候補を解決します。レビュアーの独立性と外部送信の同意は変わりません。
+- **`latest-compatible` と `pinned`**: `latest-compatible` は、その時点で観測・設定された互換候補から登録済みポリシーの優先順で選びます。`pinned` は明示指定した ID を使い、候補が使えなければ代替せず止まります。可用性の観測は日付とホストに限定され、ポリシーの `source_date` や過去のネイティブ試行を恒久的な可用性・実ターンのモデル ID・価格・品質比較の根拠にはしません。ci-model-modernization の T-010 比較試行は認証エラーで停止しており、候補の採用や品質比較の結論はありません。
+- **導入済みキャリアか typed stop**: 解決結果は、検証済みの model controls を `render-agent-frontmatter.sh` の `--model-controls` / `--model-controls-sha256` / `--run-id` / `--session-id` / `--managed-target` に渡して導入済みのネイティブホスト定義に反映します。反映先（キャリア）が無い、または controls が検証できない場合は作業前に `model-policy-error/v1`（`reason` は同スキーマの列挙値）で止まります。ネイティブ証明が無いことは成功ではありません。
+- **再開と子**: 現在束縛されたワーカーは、その束縛のまま継続できます。新しい子ワーカーは、自身の束縛（run/session と controls）を必要とし、親の束縛を暗黙に継承しません。
+- **制御外**: ChatGPT UI の親や非管理の呼び出しは本ポリシーの制御外です。設定・解決したモデルを、実際に報告されたモデル ID と同一視しません。
+- 詳細は [agent-capability-matrix.md](agent-capability-matrix.md)、CI の復旧と鮮度チェックは [contributor/workflow-detail.md](contributor/workflow-detail.md) を参照してください。
+
 ## 関連ドキュメント
 
 - [README.md](../README.md) — プロジェクト概要・フロー図

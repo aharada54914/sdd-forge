@@ -1,0 +1,16 @@
+ticket_id: RT-20261019-011
+status: resolved
+type: implementation-defect
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-001
+summary: "Deep JSON recursion escapes typed input failure"
+problem: "Root-object JSON with about2000 nested arrays fits byte bound, decoder or canonical recheck raises RecursionError before schema validation; shared strict_json and callers omit normalization."
+contract: "T002 typed collect/aggregate CLI contract; T001 shared strict JSON/proof parser ownership"
+expected_fix: "Normalize specific decoder/canonical recheck recursion failure at shared strict_json boundary once in T001 owner scope; real deep JSON Red, positive normal/flat-large/finite-integer controls. Fresh T001 independent cycle9 is within actual user authorization through10. Then T002 collector/aggregate CLI regression and fresh cycle3."
+evidence: specs/ci-model-modernization/verification/T-002/quality-cycle-2/review-completion.json
+auto_fix_allowed: true
+requires_human_decision: false
+resolution: "Shared T001 codec normalized; 44 planner and related131 tests, typed real local CLI checks and rollback PASS; actual independent T001 cycle9 PASS0, generated evidence bundle validated. T002 formal downstream regressions and final independent review still required; no whole T002 acceptance claim. Actual Python3.12 reproduction required10000 nested arrays; about2000 was original reviewer estimate only."
+resolution_evidence: reports/quality-gate/20261019-ci-model-modernization-T-001-cycle-9.md

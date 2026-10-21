@@ -1,0 +1,85 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-007",
+  "run_id": "work-agent:root:t007_implementation",
+  "session_id": "work-agent:root:t007_implementation",
+  "agent_instance_id": "work-agent:root:t007_implementation",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-20T00:19:29Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-007/root-controller-fixture-final/final-subreaper.json",
+      "sha256": "2be1d3e070a4fa05416e4644aa94e61fa21a620cb5cf139b3ea1be4516d80543"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-007/root-controller-fixture-final/final/1.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-007/root-controller-fixture-final/final/1.stdout.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-007/root-controller-fixture-final/final/2.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-007/root-controller-fixture-final/final/2.stdout.log",
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-007/root-controller-fixture-final/final/results.json",
+      "sha256": "f178a10b5d002c9d6d7f4685d274fe283686dc3517734acadca1bb1318095b7d"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-007/root-fixture-final-inputs/scope.json",
+      "sha256": "94f287710787bcc23adfe98bf5233bd11dca2491549ccdf61879d10dd13672c6"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-007/root-stage2b-inputs/task-input-manifest.json",
+      "sha256": "0ca9df4b484d1edac7ad3cc24c7c234bddf06b25bfa31cde962350a8fc5e98d3"
+    },
+    {
+      "path": "inputs/tests/fixed-review-inputs.tests.py",
+      "sha256": "83e3d383b3652531f7cf3be8e4b0ed09864e338fd2eb0cf82fab803b8a3bcb54"
+    },
+    {
+      "path": "inputs/tests/fixed-review-launch.tests.py",
+      "sha256": "314a068ab50c25754ffbd5b70c4b51e1c52070351f9015321b275fce80826e73"
+    },
+    {
+      "path": "inputs/tests/fixed-review-precheck-bash.tests.py",
+      "sha256": "7a1fd297aa78dc592f79f419f34fd727b1028aae3483275a4928b10b7d658c83"
+    },
+    {
+      "path": "inputs/tests/fixed-review-precheck-ps.tests.py",
+      "sha256": "90abc02403e2d90b42c6d85786e00aa2ff32d52fbf8e0493a82a907cd7f7895a"
+    },
+    {
+      "path": "inputs/tests/fixed-review-state.tests.py",
+      "sha256": "7d0877197faf2356c43a7d4f755253b881916f9635909fd58b7e5bf2d4497702"
+    },
+    {
+      "path": "inputs/tests/model-policy-launch.tests.py",
+      "sha256": "b4cae0eb29784ce3854754f6afbb4fc2f184e8d81db1448bd0ce6b4dbeec044b"
+    },
+    {
+      "path": "inputs/tests/quality-nontty-transport.tests.py",
+      "sha256": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
+    "specs/ci-model-modernization/verification/T-007/stage2/"
+  ]
+}

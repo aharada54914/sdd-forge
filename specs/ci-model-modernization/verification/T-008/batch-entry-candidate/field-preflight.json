@@ -1,0 +1,10 @@
+{
+  "status": "CANDIDATE_ONLY_NOT_FORMAL_QA",
+  "persisted_fields": [
+    {"field": "existing selection/controls/validation", "producer": "unchanged _prepare -> T007 helper", "counterpart": "existing validate_launch_controls", "mismatch": "wrong role/host, raw closure drift or invalid selector input remains original typed rejection"},
+    {"field": "native --agents model/effort", "producer": "validated implementer claude-code selection resolved.native_id/effort", "counterpart": "exact pinned definitions supplied at owned or concretely known matching startup", "mismatch": "unknown/stale startup emits model-unavailable before Agent; a successful custom name is insufficient"},
+    {"field": "task_id/run_id/session_id/agent_instance_id", "producer": "original native allocation/admission and manifest preparation", "counterpart": "unchanged complete-set and per-snapshot validators", "mismatch": "keep duplicate checks and prework admission; do not substitute tool_use_id or demand UUID syntax"}
+  ],
+  "no_new_batch_dto": true,
+  "limits": ["Public definition probe establishes configured full model and effort plus child allocation, not actual backend identity.", "No public observed child session binding before work was demonstrated. This candidate does not invent that evidence or claim complete native batch acceptance.", "Known matching loaded definitions are necessary for model routing but do not replace existing identity/snapshot/output admission."]
+}

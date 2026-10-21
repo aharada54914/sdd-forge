@@ -1,0 +1,18 @@
+{
+  "label": "mypy-installed",
+  "command": [
+    "/workspace/.tools/sdd-forge-python/bin/mypy",
+    "--config-file",
+    "tests/shared-launch-python/pyproject.toml",
+    "tests/verification-impact.py",
+    "tests/verification-ci-plan.tests.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:35:38.396861+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 0.5382031949993689,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

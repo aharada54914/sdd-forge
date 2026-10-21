@@ -27,6 +27,14 @@
 param()
 $ErrorActionPreference = "Stop"
 
+# Selected-control runs are owned by the shared Python driver (validation, typed errors).
+$selectedControlFlags = @("--model-controls", "--model-controls-sha256", "--run-id", "--session-id")
+if (@($args | Where-Object { $selectedControlFlags -ccontains $_ }).Count -gt 0) {
+    $selectedDriver = Join-Path $PSScriptRoot "../../sdd-review-loop/scripts/validate-nontty-spec-launch.py"
+    & python3 $selectedDriver model-panelist-run --vendor gemini --shell powershell @args
+    exit $LASTEXITCODE
+}
+
 $TaskId      = ""
 $Feature     = ""
 $InputPath   = ""

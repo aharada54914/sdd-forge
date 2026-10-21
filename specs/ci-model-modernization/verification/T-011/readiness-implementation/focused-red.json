@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/verification-ci-plan.tests.py",
+    "OmissionReadinessTests",
+    "-v"
+  ],
+  "exit_code": 1,
+  "timestamp": "2026-10-20T18:34:29.800160+00:00",
+  "product_applied": false
+}

@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/model-identity.tests.py",
+    "SupplementalHttpsSchemeTests"
+  ],
+  "started_at": "2026-10-19T19:57:19.680404+00:00",
+  "finished_at": "2026-10-19T19:57:19.826530+00:00",
+  "exit_code": 1,
+  "test_sha256": "20ea534c2e85f2345b05e738059e7bda5ef5aeb0c05ecef073644d305eb48b25",
+  "helper_sha256": "6150c272f759a0802673060aa6c02bcf6e02d56158229ad0330be559dc75e23d",
+  "selection_schema_sha256": "2aae858f3c20d5a713286164882e16ed8def73cb51a18a368654a5eb1508f9b3",
+  "logs": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/root-scheme-probe/red.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/root-scheme-probe/red.stderr",
+      "sha256": "336c37b73647e0c6165024d6536afbf4a95af84eb43df583b8739d12a766e931"
+    }
+  ]
+}

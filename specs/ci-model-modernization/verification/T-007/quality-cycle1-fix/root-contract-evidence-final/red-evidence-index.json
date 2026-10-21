@@ -1,0 +1,23 @@
+{
+  "scope": "Actualcommittedtest-first RT021:4methods9assertionfailures then1method1real-fdreuseassertionfailure; both0errors/skips/staticsPASS. Testonlycommits1c13219c and211be77e. Laterfull14 compatibilityFAILretainedseparately, not relabelled asassertionRed.",
+  "actual_receipts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-red/results.json",
+      "sha256": "2bd8eb318cf8fbed5aa8aebfb30ba7988394418b486ab188f300440be31f3f92"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-lifetime-red/results.json",
+      "sha256": "919a48aa1c32727a01ac35bd6b4491bdf770a53cd7673d2ded98564bd90aa95b"
+    }
+  ],
+  "test_only_commits": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-red/test-only-commit.json",
+      "sha256": "45a2f02ebcbbef4756c13150d879a54521613bbc75d6744b1f68d16ee8aac33a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-lifetime-red/test-only-commit.json",
+      "sha256": "97a6217976ac23fde9d4e3627da6bd22ea1fea9572948799805f7accd68bd130"
+    }
+  ]
+}

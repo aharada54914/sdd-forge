@@ -1,0 +1,34 @@
+{
+  "original_inventory_sha256": "8eaea7113340c65e6b7aa7fc21ea4128f2e720b126e1bf920481bd5112489762",
+  "original_roles": [
+    {
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "original_sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+      "current_sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa"
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+      "original_sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+      "current_sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+      "original_sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+      "current_sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf"
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+      "original_sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+      "current_sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82"
+    }
+  ],
+  "approved_skill_insertions_receipt": {
+    "path": "specs/ci-model-modernization/verification/T-008/default-caller-application/product-apply.json",
+    "sha256": "6ac77c49f0efe83ec765329ff608caaa14bc074ec5c17eb9de8855e839b46066"
+  },
+  "existing_runtime_closure": {
+    "path": "specs/ci-model-modernization/verification/T-008/protected-caller-test-preparation/runtime-closure.json",
+    "sha256": "c2c86a5ba33e8ed9b5d7809f49d6d7d79fb9350f5edb40403b26129c078bcfed"
+  },
+  "limit": "Four original protected role bodies exact; approved maintained Skill changes have their original per-slice preflight and exact insertion/body-preservation receipts. No public transport algorithm rewrite or historical evidence rewrite."
+}

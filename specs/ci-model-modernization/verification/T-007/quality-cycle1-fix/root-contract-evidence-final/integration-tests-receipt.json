@@ -1,0 +1,67 @@
+{
+  "actual_command": {
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/run-final-core-with-case-inventory.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-20T01:54:20.661527+00:00",
+    "finished_at": "2026-10-20T01:56:53.739902+00:00",
+    "elapsed_seconds": 153.07841965398984,
+    "logs": [
+      {
+        "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/final-correction/3.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/final-correction/3.stderr.log",
+        "sha256": "ff76b7d2b6aa71430496c9023cd81d41e3c7e7418533807c9033cefec5653978"
+      }
+    ]
+  },
+  "source_receipt": {
+    "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/final-correction/results.json",
+    "sha256": "2172425d772e2066ad03adaad52faab3a4a96668e7197f2dea818301f6ea1dc4"
+  },
+  "supporting_evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/effective-evidence.json",
+      "sha256": "c38978ac0fbc3ddc9508094ccbb05bb484025ff8cff25e53ad40792985df3bf7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/source-integrity-final.json",
+      "sha256": "eb3b111c64bcabee85054a3ba88d5713e3e888599116ae66127c763ddab325a7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/fixed-test-source-reuse.json",
+      "sha256": "4329682ae190fb43c69f46ecf79129d8079c06358ef52d00f87e82e492fccd67"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-correction-verification.json",
+      "sha256": "2ab855cbd133d5150aeee36e8730461ab79f499d0ed50290694299ec41c9ee7b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/artifact-index.json",
+      "sha256": "838539877c290dbca4269879399b8b6f867ba47fecfbd4d6d45dda56c6b681ef"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/rollback-roundtrip/results.json",
+      "sha256": "086956012a823104b794d513c273c4926951d80a421af17c74fea33b39b937e3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-clone-integrity/after.json",
+      "sha256": "6ba8da1569120524c3001837ad9ea02194684c681a9352126325bf657ca4e3c7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/artifact-index.json",
+      "sha256": "68f231022e6636a0a4887199b95efdefeb4fe1cfc9049131da2ffb46d143368c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/qa1-fix-final-artifact-index.json",
+      "sha256": "3d064a0bc7d35d9e36b0544879e1d10d768ecc9629cce69c6409e3fd126bcc0f"
+    }
+  ],
+  "scope": "Current54methods875successfulsubtests; noerrors/failures/skips. Explicit31groupeffectiveindex distinguishes6freshcorrection,10source-equivalentactualPASSrows fromfailed14,15unchangedpreQA1receipts; currentRoot3consumers37methodsseparate. Currentnative thread/start config only, actualnull/unverified, no inference/adoption. Freshrollback16+9PASS,20725nonownedunchanged. Componentcoverage disabled-legacyN/A. OriginalPython3.13CIdiagnosticFAILretained; canonical3.12CI80historicalsource-equivalentPASS.",
+  "timestamp_basis": "ContractUTCsecondsformattedfromactualpreciseUTCrows; originaltimestampsretainedinreceipts."
+}

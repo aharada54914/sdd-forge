@@ -1,0 +1,94 @@
+{
+  "schema": "verification-ci-plan/v1",
+  "mode": "full",
+  "reason": "unknown-path",
+  "event": "pull_request",
+  "run_id": "123",
+  "planning_attempt": 1,
+  "api_head_sha": "7a23c0ded60f806448856428aaff7fd329291c27",
+  "tested_revision": "7a23c0ded60f806448856428aaff7fd329291c27",
+  "base_revision": "ff3c2dd1960f1f19605b238b8415b58c02afe1c3",
+  "pr_head_revision": "7a23c0ded60f806448856428aaff7fd329291c27",
+  "merge_base_revision": "ff3c2dd1960f1f19605b238b8415b58c02afe1c3",
+  "catalog_sha256": "0cec95f9a95b8852efacfe47590654646012e2386b46e36448bde3b7e5f0a5bd",
+  "workflow_sha256": "ae3617979b2bf77d1b63821ab4a04c0860b6de8974516913f852356376fc3083",
+  "trusted_planner_sha256": "1984c7fb5a0964cf7e6554c9da062fd19833a94429bfd801633a34eaf27e22bf",
+  "changed_path_count": 1,
+  "groups": [
+    "cli-hook-enforcement",
+    "optional",
+    "test"
+  ],
+  "obligations": [
+    {
+      "id": "test:b9280aa71d14e573e8b2fe1dfa05eb7d6f69fb1e39daf06322c18ca5921a5ca7",
+      "job": "test",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "a",
+      "command_sha256": "c3f7576c3cd32da04d000069f6b0392bdd498af3c35638e17f87a4bc0eff9775",
+      "suites": [
+        "tests/a.tests.py"
+      ],
+      "receipt_required": false
+    },
+    {
+      "id": "test:cfb77d24e3e0d8b86cae7c8be6f7aae4f6d8985b573942e3dde48a3ca4b3e4f8",
+      "job": "test",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "bc",
+      "command_sha256": "7052260d7d87f92210df0e03a0847296ea0af950c7348fa554be8cb3a5a68406",
+      "suites": [
+        "tests/b.tests.py",
+        "tests/c.tests.py"
+      ],
+      "receipt_required": false
+    },
+    {
+      "id": "test:6bacc5619df5455bf4b3b82d661f09dd47501d0e7d1ee2bba0238b95d915f4df",
+      "job": "test",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "d",
+      "command_sha256": "64a1ff9cf481aa0e9e21d5b3fadff15191a315f61adb07b893c61f82ba96e81c",
+      "suites": [
+        "tests/d.tests.py"
+      ],
+      "receipt_required": false
+    },
+    {
+      "id": "test:fe0485a88e6a4e5d13f1ed43ca9449b804092bdfa7bda0184a9ac6807af18f8e",
+      "job": "test",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "integrity",
+      "command_sha256": "43398a074006937712fd87d148b8b977370ee49e6423f1329bba40cfa8035ea0",
+      "suites": [],
+      "receipt_required": false
+    },
+    {
+      "id": "optional:d01a41c933268b80ffc831310a6c0fb12dd7478fea2ef6e233a0aaa893558440",
+      "job": "optional",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "build",
+      "command_sha256": "df0451b2bb9f8c6caaabcf267c6e4d4d6af47a54845860e750590d00b2043ac0",
+      "suites": [],
+      "receipt_required": false
+    },
+    {
+      "id": "cli-hook-enforcement:869b8607e7f359a8ff5ebcc42fd99723c97c403fcb34a369adfd226d36773d04",
+      "job": "cli-hook-enforcement",
+      "matrix": {},
+      "runner": "ubuntu-latest",
+      "step": "Install Claude Code CLI",
+      "command_sha256": "f82e888edef55d633f7f7458190b93c1d6909848b0faa6355f349f06819fb1c7",
+      "suites": [],
+      "receipt_required": false
+    }
+  ],
+  "omissions": [],
+  "activation_evidence": [],
+  "plan_sha256": "743907df0ed998171b691f49f80e612d860852fc60fbe031d2259fdd8111014a"
+}

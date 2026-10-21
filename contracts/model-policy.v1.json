@@ -1,0 +1,287 @@
+{
+  "schema": "model-policy/v1",
+  "source_date": "2026-10-18T00:00:00Z",
+  "observation_max_age_seconds": 300,
+  "default_policy": "latest-compatible",
+  "roles": {
+    "implementer": {
+      "capability_role": null,
+      "model_env": "SDD_MODEL_IMPLEMENTER",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "investigator": {
+      "capability_role": "sdd-investigator",
+      "model_env": "SDD_MODEL_INVESTIGATOR",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "spec-reviewer-a": {
+      "capability_role": "spec-reviewer",
+      "model_env": "SDD_MODEL_SPEC_REVIEWER_A",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "spec-reviewer-b": {
+      "capability_role": "spec-reviewer",
+      "model_env": "SDD_MODEL_SPEC_REVIEWER_B",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "impl-reviewer-a": {
+      "capability_role": "impl-reviewer",
+      "model_env": "SDD_MODEL_IMPL_REVIEWER_A",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "impl-reviewer-b": {
+      "capability_role": "impl-reviewer",
+      "model_env": "SDD_MODEL_IMPL_REVIEWER_B",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "task-reviewer-a": {
+      "capability_role": "task-reviewer",
+      "model_env": "SDD_MODEL_TASK_REVIEWER_A",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "task-reviewer-b": {
+      "capability_role": "task-reviewer",
+      "model_env": "SDD_MODEL_TASK_REVIEWER_B",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "evaluator": {
+      "capability_role": "sdd-evaluator",
+      "model_env": "SDD_MODEL_EVALUATOR",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "domain-reviewer-a": {
+      "capability_role": "domain-reviewer",
+      "model_env": "SDD_MODEL_DOMAIN_REVIEWER_A",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "domain-reviewer-b": {
+      "capability_role": "domain-reviewer",
+      "model_env": "SDD_MODEL_DOMAIN_REVIEWER_B",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "workflow-auditor-a": {
+      "capability_role": "workflow-auditor",
+      "model_env": "SDD_MODEL_WORKFLOW_AUDITOR_A",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "workflow-auditor-b": {
+      "capability_role": "workflow-auditor",
+      "model_env": "SDD_MODEL_WORKFLOW_AUDITOR_B",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "diagnosis": {
+      "capability_role": "diagnosis",
+      "model_env": "SDD_MODEL_DIAGNOSIS",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "self-improvement": {
+      "capability_role": "self-improvement",
+      "model_env": "SDD_MODEL_SELF_IMPROVEMENT",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "panelist-gpt": {
+      "capability_role": "panelist-gpt",
+      "model_env": "SDD_MODEL_PANELIST_GPT",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    },
+    "panelist-gemini": {
+      "capability_role": "panelist-gemini",
+      "model_env": "SDD_MODEL_PANELIST_GEMINI",
+      "preferences": [
+        "gpt-6-astra",
+        "anthropic/opus",
+        "anthropic/sonnet",
+        "anthropic/haiku"
+      ]
+    }
+  },
+  "models": [
+    {
+      "id": "anthropic/haiku",
+      "lifecycle": "candidate",
+      "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "claude-code": "haiku"
+      },
+      "adoption": []
+    },
+    {
+      "id": "anthropic/sonnet",
+      "lifecycle": "candidate",
+      "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "claude-code": "sonnet"
+      },
+      "adoption": []
+    },
+    {
+      "id": "anthropic/opus",
+      "lifecycle": "candidate",
+      "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "claude-code": "opus"
+      },
+      "adoption": []
+    },
+    {
+      "id": "openai/gpt-5.1-codex-mini",
+      "lifecycle": "historical",
+      "source_url": "https://developers.openai.com/codex",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {},
+      "adoption": []
+    },
+    {
+      "id": "openai/gpt-5.1-codex",
+      "lifecycle": "historical",
+      "source_url": "https://developers.openai.com/codex",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {},
+      "adoption": []
+    },
+    {
+      "id": "openai/gpt-5.2-codex",
+      "lifecycle": "historical",
+      "source_url": "https://developers.openai.com/codex",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {},
+      "adoption": []
+    },
+    {
+      "id": "openai/gpt-5.1-codex-max",
+      "lifecycle": "historical",
+      "source_url": "https://developers.openai.com/codex",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {},
+      "adoption": []
+    },
+    {
+      "id": "openai/gpt-5.4-codex-mini",
+      "lifecycle": "historical",
+      "source_url": "https://developers.openai.com/codex",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {},
+      "adoption": []
+    },
+    {
+      "id": "openai/gpt-5.5-codex",
+      "lifecycle": "historical",
+      "source_url": "https://developers.openai.com/codex",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {},
+      "adoption": []
+    },
+    {
+      "id": "openai/gpt-5.6-codex",
+      "lifecycle": "historical",
+      "source_url": "https://developers.openai.com/codex",
+      "source_date": "2026-07-19T00:00:00Z",
+      "successor_of": [],
+      "hosts": {},
+      "adoption": []
+    },
+    {
+      "id": "gpt-6-astra",
+      "lifecycle": "candidate",
+      "source_url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+      "source_date": "2026-09-28T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "codex-cli": "gpt-6-astra"
+      },
+      "adoption": []
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+[
+  {
+    "id": "risk",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-risk.sh",
+      "specs/ci-model-modernization/tasks.md",
+      "T-007"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-20T02:07:37.436604+00:00",
+    "finished_at": "2026-10-20T02:07:37.443027+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/risk.log",
+    "sha256": "0bf96628b00ed0bc707422cd1d869decc53c5e9a1c05f79107f3dbbb447e71c7"
+  },
+  {
+    "id": "placeholder-scan",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "plugins/sdd-implementation/scripts/model-policy.py",
+      "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
+      "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+      "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
+      "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "contracts/model-launch-controls.schema.json"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-20T02:07:37.443224+00:00",
+    "finished_at": "2026-10-20T02:07:37.451658+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/placeholder-scan.log",
+    "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+  },
+  {
+    "id": "task-state-check",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "specs/ci-model-modernization/tasks.md"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-20T02:07:37.451818+00:00",
+    "finished_at": "2026-10-20T02:07:38.131815+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/task-state-check.log",
+    "sha256": "f7125e1a182912858aff698867777d711d9c2e56e89fcfc4ef30399700ab3c21"
+  },
+  {
+    "id": "workflow-state",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-20T02:07:38.132083+00:00",
+    "finished_at": "2026-10-20T02:08:14.227982+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/workflow-state.log",
+    "sha256": "387f17c2d67967ce989e3102169dc68b72a3b79b798ab85e35adafa73bae68a2"
+  },
+  {
+    "id": "requirement-traceability",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "specs/ci-model-modernization/traceability.json",
+      "/workspace/sdd-forge",
+      "require-evidence"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-20T02:08:14.228462+00:00",
+    "finished_at": "2026-10-20T02:08:14.260783+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/requirement-traceability.log",
+    "sha256": "dc7c06c06d4121e330553c533b1851d16c7e48fc335cf26b163eb4c3ba44bda8"
+  },
+  {
+    "id": "check-component-coverage",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+      "--repo-root",
+      "/workspace/sdd-forge"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-20T02:08:14.261055+00:00",
+    "finished_at": "2026-10-20T02:08:14.299385+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+    "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+  }
+]

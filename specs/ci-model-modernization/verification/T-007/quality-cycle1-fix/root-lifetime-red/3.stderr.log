@@ -1,0 +1,14 @@
+test_protected_output_scope_copied_context_cannot_outlive_owner (t007_qa1_output_red.ModelRunRecords.test_protected_output_scope_copied_context_cannot_outlive_owner) ... FAIL
+
+======================================================================
+FAIL: test_protected_output_scope_copied_context_cannot_outlive_owner (t007_qa1_output_red.ModelRunRecords.test_protected_output_scope_copied_context_cannot_outlive_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1869, in test_protected_output_scope_copied_context_cannot_outlive_owner
+    with f.model_env(f.active_env), f.in_root():
+AssertionError: True is not false : closed scope revived write authority via fd reuse
+
+----------------------------------------------------------------------
+Ran 1 test in 0.026s
+
+FAILED (failures=1)

@@ -1,0 +1,17 @@
+{
+  "label": "ci-receipt-aggregate",
+  "command": [
+    "python3",
+    "-B",
+    "tests/verification-ci.tests.py",
+    "-v"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:35:43.355503+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 39.682183853001334,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

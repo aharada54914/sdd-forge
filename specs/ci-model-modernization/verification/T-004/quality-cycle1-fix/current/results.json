@@ -1,0 +1,92 @@
+[
+  {
+    "name": "model-observation",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/attempt-1/trace-model-suite.py",
+      "--root",
+      "/workspace/sdd-forge",
+      "--output",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/current/model-line-coverage.json"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T18:59:27Z",
+    "finished_at": "2026-10-19T18:59:46Z",
+    "exit_code": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "a84835bf27088b3224d3affa21b209d7cd08dbf02b0061a705e3976614255b7e"
+  },
+  {
+    "name": "ruff",
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-implementation/scripts/model-policy.py",
+      "tests/model-observation.tests.py",
+      "tests/verification-catalog.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T18:59:46Z",
+    "finished_at": "2026-10-19T18:59:46Z",
+    "exit_code": 0,
+    "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "mypy",
+    "argv": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "plugins/sdd-implementation/scripts/model-policy.py",
+      "tests/model-observation.tests.py",
+      "tests/verification-catalog.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T18:59:46Z",
+    "finished_at": "2026-10-19T18:59:47Z",
+    "exit_code": 1,
+    "stdout_sha256": "dfec43cefd5d9fe1d1d2478754735e9d198a0b9aff0520164a1da458851cb84e",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "build",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "-c",
+      "import ast, hashlib; from pathlib import Path\nfor name in ['plugins/sdd-implementation/scripts/model-policy.py', 'tests/model-observation.tests.py', 'tests/verification-catalog.tests.py']:\n raw=Path(name).read_bytes(); ast.parse(raw, filename=name); compile(raw, name, 'exec'); print(name, hashlib.sha256(raw).hexdigest(), 'parse/compile PASS')\n"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T18:59:47Z",
+    "finished_at": "2026-10-19T18:59:47Z",
+    "exit_code": 0,
+    "stdout_sha256": "bf65f95a962a0fa11fa8f25ba6ad6b2f170b79d0eb041f1cc11b09b176d33a3d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "independent-schema",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/attempt-1/check-schema-parity.py",
+      "--root",
+      "/workspace/sdd-forge",
+      "--output",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/current/schema-cases.json"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T18:59:47Z",
+    "finished_at": "2026-10-19T18:59:48Z",
+    "exit_code": 0,
+    "stdout_sha256": "2f22ff325fce39b167ff249926aef8430920e4fdf7cdad854bac262f1ab3f3e3",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

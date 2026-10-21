@@ -1,0 +1,52 @@
+{
+  "at": "2026-10-20T16:01:59.789871+00:00",
+  "scope": "Managed invocation only for approved development source Skill2 edits. Original role bodies/guard/state/identity algorithms and runtime human-copy protections unchanged.",
+  "before": {
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3"
+  },
+  "fields": [
+    {
+      "field": "role/host",
+      "source": "Actual invocation and existing policy request",
+      "counterpart": "Original prepare + launch binding",
+      "mismatch": "Known mismatches reject before work"
+    },
+    {
+      "field": "run/session/attempt",
+      "source": "Fresh UUID and original round",
+      "counterpart": "Existing canonical identity/controls/reservation",
+      "mismatch": "No reallocation, duplicate identity or manual second reserve"
+    },
+    {
+      "field": "controls path/raw SHA",
+      "source": "Successful validation.json",
+      "counterpart": "Actual maintained launcher flags and capture",
+      "mismatch": "Changed bytes fail before launch/reservation"
+    },
+    {
+      "field": "native model/effort",
+      "source": "Original bound selection",
+      "counterpart": "Existing T007 argv and full source role JSON",
+      "mismatch": "Comments/defaults alone fail managed oracle"
+    },
+    {
+      "field": "A/B input sets",
+      "source": "Original precheck/resolver, actual summary",
+      "counterpart": "Existing guard/probe and raw captures",
+      "mismatch": "B raw-A Read/hash denied; A closure unchanged"
+    },
+    {
+      "field": "output/state ownership",
+      "source": "Existing role output schemas and maintained loop",
+      "counterpart": "Original parent merge/contract/approval rules",
+      "mismatch": "Delivery never approves task or source status"
+    },
+    {
+      "field": "runtime protection",
+      "source": "Current R10 protected lists and frozen epic159 artifacts",
+      "counterpart": "Original renderer/installer staging behaviour",
+      "mismatch": "Development source changes do not become runtime bypasses"
+    }
+  ]
+}

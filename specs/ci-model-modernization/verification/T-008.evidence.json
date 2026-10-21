@@ -1,0 +1,246 @@
+{
+  "task_id": "T-008",
+  "feature": "ci-model-modernization",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "0250669eb9f4ad0ddad7017e47e98937cf6c5fa28e8ec136791d63c0c7609b05",
+  "quality_report": "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
+  "verification_contract": "specs/ci-model-modernization/verification/T-008.contract.json",
+  "git_commit": "2c78757a8f97d052efa59f50d24b8cbc541b3a89",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "python3 specs/ci-model-modernization/verification/T-008/assembled-current-application/run-combined-checks.py /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/assembled-oracle-fix-admission/task-input-manifest.json 448d0cf16dcc6c02306e1ce1d8a39dba7feab1ff8f6a053dddb07dd6394ec86a root-investigator-combined-green-1",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:11:26Z",
+      "finished_at": "2026-10-20T17:11:46Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/root-investigator-combined-green-1/1.stdout.log",
+      "evidence_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "python3 specs/ci-model-modernization/verification/T-008/assembled-current-application/run-combined-checks.py /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/assembled-oracle-fix-admission/task-input-manifest.json 448d0cf16dcc6c02306e1ce1d8a39dba7feab1ff8f6a053dddb07dd6394ec86a root-investigator-combined-green-1",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:11:26Z",
+      "finished_at": "2026-10-20T17:11:46Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/root-investigator-combined-green-1/2.stdout.log",
+      "evidence_sha256": "fc409d91e6c781eb25a1ec1310b7fcb0086b74ed3aa2c415bcd73f884f23f07a"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 specs/ci-model-modernization/verification/T-008/assembled-current-application/run-current-installed-78-v2.py /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/assembled-full2-admission/task-input-manifest.json 17a0194f414f630b7526c7618e8ddf143dec6a239f2179a15e037636dc06cb85",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:11:55Z",
+      "finished_at": "2026-10-20T17:23:31Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/root-current-installed-13/1.stderr.log",
+      "evidence_sha256": "2ac60ccd36044edf082b3ffbba071585418907eaa000e8238741cb3397f9d30e"
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 specs/ci-model-modernization/verification/T-008/assembled-current-application/run-current-installed-78-v2.py /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/assembled-full2-admission/task-input-manifest.json 17a0194f414f630b7526c7618e8ddf143dec6a239f2179a15e037636dc06cb85",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:11:55Z",
+      "finished_at": "2026-10-20T17:23:31Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/root-current-installed-13/1.stderr.log",
+      "evidence_sha256": "2ac60ccd36044edf082b3ffbba071585418907eaa000e8238741cb3397f9d30e"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 specs/ci-model-modernization/verification/T-008/legacy-runtime-admission/run-admitted-legacy-installers.py --parent-manifest /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/assembled-current-legacy-admission/task-input-manifest.json --parent-manifest-sha256 900a1cd7789af40b6211b781bd17593fc2bc6f8d4a9d90653411dc0659f4ff02 --snapshot-root /workspace/.task-scratch/ci-model-modernization/ci-t008-current-legacy-uf9mp9mn/snapshot --output-dir /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10 --python /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 --bash /usr/bin/bash --git /usr/bin/git --pwsh /workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:10:10Z",
+      "finished_at": "2026-10-20T17:11:38Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/assembled-current-application/legacy-effective-evidence.json",
+      "evidence_sha256": "8d986dfe86e3f4e39d9545d85dcbc517bb8abfc61deca604a562c2cea9927e52"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh .github/workflows/self-improvement.yml install.ps1 install.sh plugins/sdd-bootstrap/skills/bootstrap/SKILL.md plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md plugins/sdd-domain/skills/domain-model/SKILL.md plugins/sdd-domain/skills/domain-reverse/SKILL.md plugins/sdd-domain/skills/domain-review-loop/SKILL.md plugins/sdd-implementation/skills/diagnose/SKILL.md plugins/sdd-implementation/skills/implement-task/SKILL.md plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md plugins/sdd-implementation/skills/implement-tasks/SKILL.md plugins/sdd-quality-loop/scripts/emit-run-record.ps1 plugins/sdd-quality-loop/scripts/emit-run-record.sh plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md plugins/sdd-quality-loop/skills/quality-gate/SKILL.md plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md plugins/sdd-review-loop/scripts/launch-impl-review.py plugins/sdd-review-loop/scripts/preflight-host-review.py plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md plugins/sdd-review-loop/skills/task-review-loop/SKILL.md plugins/sdd-ship/skills/ship/SKILL.md render-agent-frontmatter.ps1 render-agent-frontmatter.sh plugins/sdd-implementation/scripts/managed-model-entry.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:23:22Z",
+      "finished_at": "2026-10-20T17:23:22Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/assembled-prechecks/placeholder-all-products.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:44:07Z",
+      "finished_at": "2026-10-20T17:44:08Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/task-state-check-receipt.json",
+      "evidence_sha256": "5373db88687de02789304341598ac8b9ee555ed723ad873dc1ee8adb430d163a"
+    },
+    {
+      "id": "smoke-run",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 specs/ci-model-modernization/verification/T-008/legacy-runtime-admission/run-admitted-legacy-installers.py --parent-manifest /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/assembled-current-legacy-admission/task-input-manifest.json --parent-manifest-sha256 900a1cd7789af40b6211b781bd17593fc2bc6f8d4a9d90653411dc0659f4ff02 --snapshot-root /workspace/.task-scratch/ci-model-modernization/ci-t008-current-legacy-uf9mp9mn/snapshot --output-dir /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10 --python /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 --bash /usr/bin/bash --git /usr/bin/git --pwsh /workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:10:10Z",
+      "finished_at": "2026-10-20T17:11:38Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/assembled-current-application/legacy-effective-evidence.json",
+      "evidence_sha256": "8d986dfe86e3f4e39d9545d85dcbc517bb8abfc61deca604a562c2cea9927e52"
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": true,
+      "command": "/usr/bin/bash tests/render-agent-frontmatter.tests.sh\n/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/render-agent-frontmatter.tests.ps1\n/usr/bin/bash tests/install.tests.sh\n/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/install.tests.ps1\n/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B tests/model-policy-launch.tests.py\n/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B tests/model-policy-launch-platform.tests.py\n/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B tests/model-policy.tests.py\n/usr/bin/bash tests/agent-model-routing.tests.sh\n/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/agent-model-routing.tests.ps1\n/usr/bin/bash tests/emit-run-record-feature-scope.tests.sh\n/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/emit-run-record-feature-scope.tests.ps1\n/usr/bin/bash tests/cross-model.tests.sh\n/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/cross-model.tests.ps1\n/usr/bin/bash tests/spec-review-loop.tests.sh\n/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B tests/quality-nontty-transport.tests.py\n/usr/bin/bash tests/quality-gate-cycle-limit.tests.sh\n/usr/bin/bash tests/self-improvement-guard.tests.sh\n/usr/bin/bash tests/model-freshness-check.tests.sh\n/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/model-freshness-check.tests.ps1\n/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B tests/verification-catalog.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:29:00Z",
+      "finished_at": "2026-10-20T17:41:28Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/rollback-effective-evidence.json",
+      "evidence_sha256": "9d7d6e6c0edccc679bc1ff51d9ea237d3f53eb3aa5a24fc26ec8ead1c67748c0"
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 specs/ci-model-modernization/verification/T-008/assembled-current-application/run-current-installed-78-v2.py /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/assembled-full2-admission/task-input-manifest.json 17a0194f414f630b7526c7618e8ddf143dec6a239f2179a15e037636dc06cb85",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:11:55Z",
+      "finished_at": "2026-10-20T17:23:31Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/root-current-installed-13/1.stderr.log",
+      "evidence_sha256": "2ac60ccd36044edf082b3ffbba071585418907eaa000e8238741cb3397f9d30e"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-current-shared-54/shared.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:28:00Z",
+      "finished_at": "2026-10-20T17:30:51Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/assembled-current-application/shared54-effective-evidence.json",
+      "evidence_sha256": "48d4b93ff21e6b064975135d8d39efa4be14e6373d8e48ccd4c620ea253b4ec1"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:44:08Z",
+      "finished_at": "2026-10-20T17:44:08Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/requirement-traceability-receipt.json",
+      "evidence_sha256": "3ca25ae55b671c4774fe57db04a4fc357583221df559a9d1f38cd737eaf538e8"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:44:08Z",
+      "finished_at": "2026-10-20T17:44:08Z",
+      "evidence": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/check-component-coverage.log",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-008.contract.json",
+      "sha256": "1ef2a3c90773863497fd5f358d9522e6fcdf0a790ac0df9fc8faf918cef036a9"
+    },
+    {
+      "path": "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
+      "sha256": "6837afd5a6481a9defd3e33d46a0ac8fcd468937be671bdbbdc91284a043c17b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/assembled-current-application/legacy-effective-evidence.json",
+      "sha256": "8d986dfe86e3f4e39d9545d85dcbc517bb8abfc61deca604a562c2cea9927e52"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/assembled-current-application/shared54-effective-evidence.json",
+      "sha256": "48d4b93ff21e6b064975135d8d39efa4be14e6373d8e48ccd4c620ea253b4ec1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/assembled-prechecks/placeholder-all-products.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/check-component-coverage.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/requirement-traceability-receipt.json",
+      "sha256": "3ca25ae55b671c4774fe57db04a4fc357583221df559a9d1f38cd737eaf538e8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/rollback-effective-evidence.json",
+      "sha256": "9d7d6e6c0edccc679bc1ff51d9ea237d3f53eb3aa5a24fc26ec8ead1c67748c0"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/task-state-check-receipt.json",
+      "sha256": "5373db88687de02789304341598ac8b9ee555ed723ad873dc1ee8adb430d163a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-current-installed-13/1.stderr.log",
+      "sha256": "2ac60ccd36044edf082b3ffbba071585418907eaa000e8238741cb3397f9d30e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-investigator-combined-green-1/1.stdout.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-investigator-combined-green-1/2.stdout.log",
+      "sha256": "fc409d91e6c781eb25a1ec1310b7fcb0086b74ed3aa2c415bcd73f884f23f07a"
+    }
+  ]
+}

@@ -1,30 +1,103 @@
 param(
-  [Parameter(Mandatory=$true)][ValidateSet('low','medium','high','critical')][string]$Risk,
+  [string]$PolicyInput = '',
+  [switch]$PolicyEngineOnly,
+  [string]$Risk = '',
   [string[]]$Candidate = @(),
   [string]$FailureClass,
   [string]$FailureHistory = '',
-  [ValidateSet('','lightweight','standard','strong')][string]$PreviousTier = '',
-  [int]$ConsecutiveFailures = 0,
+  [string]$PreviousTier = '',
+  [object]$ConsecutiveFailures = 0,
   [string]$Registry = "",
   [string]$CandidatesFile = "",
-  [ValidateSet('','lightweight','standard','strong')][string]$RequiredTier = '',
-  [ValidateSet('','lightweight','standard','strong')][string]$MinimumTier = '',
+  [string]$RequiredTier = '',
+  [string]$MinimumTier = '',
   [switch]$Json,
   [string]$XhighReason = '',
-  [int]$AttemptNumber = 0,
+  [object]$AttemptNumber = 0,
   [string]$DeterministicRuntimeCommand = 'pwsh',
-  [ValidateSet('welded','matrix')][string]$EffortPolicy = 'matrix',
-  [ValidateSet('','low','medium','high','xhigh')][string]$RequestedEffort = '',
+  [string]$EffortPolicy = 'matrix',
+  [string]$RequestedEffort = '',
   [string]$Role = '',
   # Named HostName, not Host: `$Host` is a PowerShell read-only automatic
   # variable (the host program), so a `-Host` parameter would collide with
   # it (design.md API/Contract Plan T-002; the bash twin keeps `--host`
   # since bash has no such reserved name).
-  [ValidateSet('claude-code','codex-cli')][string]$HostName = 'claude-code'
+  [string]$HostName = 'claude-code'
 )
 $ErrorActionPreference = 'Stop'
+
+$policyMode = [bool]$PolicyInput
+$policyContext = $null
+$policyContextJson = ''
+$policyHelper = Join-Path $PSScriptRoot 'model-policy.py'
+function Invoke-PolicyBridge([string]$CommandName, [string]$InputJson) {
+  $response = $InputJson | & python3 -B $policyHelper $CommandName
+  if ($LASTEXITCODE -ne 0) { exit 2 }
+  return ($response -join "`n")
+}
+function Stop-PolicySelection([string]$Reason, [string]$Message) {
+  if ($policyMode) {
+    $record = @{schema='model-policy-error/v1'; reason=$Reason; message=$Message} | ConvertTo-Json -Compress
+    [Console]::Error.WriteLine($record)
+    exit 2
+  }
+}
+if ($PolicyEngineOnly -and -not $policyMode) {
+  [Console]::Error.WriteLine('{"schema":"model-policy-error/v1","reason":"config-conflict","message":"Engine-only mode requires policy input and emits no selection evidence."}')
+  exit 2
+}
+if ($policyMode) {
+  if (-not $Registry) {
+    $Registry = Join-Path (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path 'contracts/agent-model-capabilities.v2.json'
+  }
+  $optionNames = @{Risk='risk'; Role='role'; HostName='host'; RequestedEffort='requested_effort';
+    RequiredTier='required_tier'; MinimumTier='minimum_tier'; FailureClass='failure_class';
+    FailureHistory='failure_history'; PreviousTier='previous_tier'; ConsecutiveFailures='consecutive_failures';
+    AttemptNumber='attempt_number'; XhighReason='xhigh_reason'; EffortPolicy='effort_policy';
+    Candidate='candidate'; CandidatesFile='candidates_file'}
+  $policyOptions = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+  foreach ($key in $PSBoundParameters.Keys) {
+    if ($optionNames.ContainsKey($key)) { $policyOptions[$optionNames[$key]] = [string]$PSBoundParameters[$key] }
+  }
+  $envelope = @{request_path=$PolicyInput; registry_path=$Registry; selector_options=$policyOptions} |
+    ConvertTo-Json -Compress -Depth 8
+  if ($PolicyEngineOnly) {
+    $contextBuffer = [char[]]::new(16 * 1024 * 1024 + 1)
+    $readCount = [Console]::In.ReadBlock($contextBuffer, 0, $contextBuffer.Length)
+    if ($readCount -gt 16 * 1024 * 1024) {
+      Stop-PolicySelection 'input-invalid' 'Prepared engine input exceeds the supported size.'
+    }
+    $policyContextJson = [string]::new($contextBuffer, 0, $readCount)
+  } else {
+    $policyContextJson = Invoke-PolicyBridge 'prepare-selection' $envelope
+  }
+  $policyContext = $policyContextJson | ConvertFrom-Json -Depth 100 -DateKind String
+  if ($PolicyEngineOnly -and ($policyContext.schema -cne 'model-policy-preparation/v1' -or
+      $policyContext.request_path -cne $PolicyInput -or $policyContext.registry_path -cne $Registry)) {
+    Stop-PolicySelection 'input-invalid' 'Engine-only context must match its fixed invocation.'
+  }
+  $Risk = $policyContext.request.risk
+  $HostName = $policyContext.request.host
+  $Role = [string]$policyContext.capability_role
+  $RequestedEffort = [string]$policyContext.request.requested_effort
+} else {
+  # Keep legacy ValidateSet's case-insensitive vocabulary behavior for pre-policy callers.
+  foreach ($tier in @($PreviousTier, $RequiredTier, $MinimumTier)) {
+    if ($tier -notin @('', 'lightweight', 'standard', 'strong')) { throw 'MODEL_SELECTION_ERROR: invalid tier' }
+  }
+  if ($EffortPolicy -notin @('welded', 'matrix')) { throw 'MODEL_SELECTION_ERROR: invalid effort policy' }
+
+  if ($Risk -notin @('low','medium','high','critical') -or
+      $HostName -notin @('claude-code','codex-cli') -or
+      $RequestedEffort -notin @('','low','medium','high','xhigh')) {
+    throw 'MODEL_SELECTION_ERROR: invalid risk, host or effort'
+  }
+}
+$ConsecutiveFailures = [int]$ConsecutiveFailures
+$AttemptNumber = [int]$AttemptNumber
 if ([string]::IsNullOrWhiteSpace($DeterministicRuntimeCommand) -or
     -not (Get-Command $DeterministicRuntimeCommand -ErrorAction SilentlyContinue)) {
+  Stop-PolicySelection 'input-invalid' 'The deterministic selector runtime is unavailable.'
   Write-Output 'BLOCKED deterministic-runtime-unavailable'
   exit 0
 }
@@ -130,6 +203,7 @@ if ($ConsecutiveFailures -ge 2) {
     throw 'MODEL_SELECTION_ERROR: recurrence requires an attempt number'
   }
   if ($PreviousTier -ceq 'strong') {
+    Stop-PolicySelection 'model-tier-unavailable' 'Terminal-tier recurrence requires a new approved attempt.'
     if ($Json) {
       [ordered]@{
         status = 'BLOCKED'
@@ -169,11 +243,16 @@ $availableNames = [Collections.Generic.List[string]]::new()
 $v2Active = $false
 $hostControlMap = [System.Collections.Generic.Dictionary[string,object]]::new(
   [System.StringComparer]::Ordinal)
-if ($CandidatesFile) {
+if ($CandidatesFile -or $policyMode) {
   try {
-    $capabilities = Get-Content -Raw -LiteralPath $Registry | ConvertFrom-Json -NoEnumerate
-    $candidateData = Get-Content -Raw -LiteralPath $CandidatesFile |
-      ConvertFrom-Json -NoEnumerate -DateKind String
+    if ($policyMode) {
+      $capabilities = $policyContext.registry
+      $candidateData = @($policyContext.candidates)
+    } else {
+      $capabilities = Get-Content -Raw -LiteralPath $Registry | ConvertFrom-Json -NoEnumerate
+      $candidateData = Get-Content -Raw -LiteralPath $CandidatesFile |
+        ConvertFrom-Json -NoEnumerate -DateKind String
+    }
     if ($candidateData -isnot [Array]) { throw 'candidate-root' }
     $schema = [string]$capabilities.schema
     if ($schema -ceq 'agent-model-capabilities/v1') {
@@ -269,7 +348,7 @@ if ($CandidatesFile) {
       $roleMinTier = $null
       $roleDefaultEffort = $null
       if ($Role -and $roleDefaults -and (Test-HasProperty $roleDefaults $Role)) {
-        $roleEntry = $roleDefaults.$Role
+        $roleEntry = if ($policyMode) { $policyContext.role_profile } else { $roleDefaults.$Role }
         if ($roleEntry -is [System.Management.Automation.PSCustomObject]) {
           if ((Test-HasProperty $roleEntry 'minimum_tier') -and
               ($RecognizedTiers -ccontains [string]$roleEntry.minimum_tier)) {
@@ -291,7 +370,7 @@ if ($CandidatesFile) {
         $definition = $registered[$name]
         $supported = @($definition.supported_efforts)
         if ($item.available -isnot [bool]) { throw 'candidate' }
-        $cost = Convert-CandidateCost $item.cost
+        $cost = if ($policyMode) { $item.cost } else { Convert-CandidateCost $item.cost }
         $declaredEffort = $null
         if ((Test-HasProperty $item 'effort') -and $null -ne $item.effort) {
           $declaredEffort = [string]$item.effort
@@ -335,6 +414,7 @@ if ($CandidatesFile) {
       throw 'schema'
     }
   } catch {
+    Stop-PolicySelection 'config-invalid' 'Capability candidates are invalid.'
     throw 'MODEL_SELECTION_ERROR: invalid capability candidates'
   }
 } else {
@@ -353,15 +433,48 @@ if ($CandidatesFile) {
     }
   }
 }
+
+$policyCandidates = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+if ($policyMode) {
+  foreach ($item in $policyContext.candidates) { $policyCandidates[$item.name] = $item }
+}
+# Decimal strings from validated JSON may exceed System.Decimal. Compare exact
+# significands/scales so unknown or large finite estimates never become zero/infinity.
+function Compare-PolicyCost([string]$LeftCost, [string]$RightCost) {
+  $values = @()
+  foreach ($value in @($LeftCost, $RightCost)) {
+    $match = [regex]::Match($value, '^([0-9]+)(?:\.([0-9]+))?(?:[eE]([+-]?[0-9]+))?$')
+    if (-not $match.Success) { throw 'invalid policy cost' }
+    $fraction = $match.Groups[2].Value
+    $exponent = if ($match.Groups[3].Success) { [int]$match.Groups[3].Value } else { 0 }
+    $values += ,@([Numerics.BigInteger]::Parse($match.Groups[1].Value + $fraction), ($fraction.Length - $exponent))
+  }
+  $scale = [Math]::Max($values[0][1], $values[1][1])
+  $left = $values[0][0] * [Numerics.BigInteger]::Pow(10, $scale - $values[0][1])
+  $right = $values[1][0] * [Numerics.BigInteger]::Pow(10, $scale - $values[1][1])
+  return $left.CompareTo($right)
+}
+
 $eligible = @($parsed | Where-Object {
   (-not $escalationTier -or $_.Tier -ceq $escalationTier) -and
   (-not $RequiredTier -or $_.Tier -ceq $RequiredTier) -and
   (-not $MinimumTier -or $tierRank[$_.Tier] -ge $tierRank[$MinimumTier]) -and
-  ($_.FinalEffort -cne 'xhigh' -or [bool]$XhighReason)
+  ($_.FinalEffort -cne 'xhigh' -or [bool]$XhighReason) -and
+  (-not $policyMode -or -not $policyContext.role_profile.minimum_tier -or
+    $tierRank[$_.Tier] -ge $tierRank[[string]$policyContext.role_profile.minimum_tier]) -and
+  (-not $policyMode -or $_.FinalEffort -cin @($policyCandidates[$_.Name].allowed_efforts))
 })
 if ($eligible.Count -eq 0) {
+  Stop-PolicySelection 'model-tier-unavailable' 'No policy candidate satisfies the required capability and effort gates.'
   Write-Output 'BLOCKED model-tier-unavailable'
   exit 0
+}
+if ($policyMode) {
+  $superseded = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+  foreach ($item in $eligible) {
+    foreach ($prior in $policyCandidates[$item.Name].successor_of) { [void]$superseded.Add($prior) }
+  }
+  $eligible = @($eligible | Where-Object { -not $superseded.Contains($_.Name) })
 }
 $winner = $null
 foreach ($eligibleCandidate in $eligible) {
@@ -383,6 +496,12 @@ foreach ($eligibleCandidate in $eligible) {
     $winner.Cost,
     [int]$fallbackNames.ContainsKey([string]$winner.Name)
   )
+  if ($policyMode) {
+    $candidateRanks = @($candidateRanks[0], $candidateRanks[1], $candidateRanks[2],
+      [int]$policyCandidates[$eligibleCandidate.Name].preference, [int]($null -eq $eligibleCandidate.Cost))
+    $winnerRanks = @($winnerRanks[0], $winnerRanks[1], $winnerRanks[2],
+      [int]$policyCandidates[$winner.Name].preference, [int]($null -eq $winner.Cost))
+  }
   $replaceWinner = $false
   for ($index = 0; $index -lt $candidateRanks.Count; $index++) {
     if ($candidateRanks[$index] -lt $winnerRanks[$index]) {
@@ -390,12 +509,26 @@ foreach ($eligibleCandidate in $eligible) {
       break
     }
     if ($candidateRanks[$index] -gt $winnerRanks[$index]) { break }
-    if ($index -eq $candidateRanks.Count - 1 -and
-        [StringComparer]::Ordinal.Compare($eligibleCandidate.Name, $winner.Name) -lt 0) {
-      $replaceWinner = $true
+    if ($index -eq $candidateRanks.Count - 1) {
+      $costComparison = if ($policyMode -and $null -ne $eligibleCandidate.Cost) {
+        Compare-PolicyCost $eligibleCandidate.Cost $winner.Cost
+      } else { 0 }
+      if ($costComparison -lt 0 -or ($costComparison -eq 0 -and
+          [StringComparer]::Ordinal.Compare($eligibleCandidate.Name, $winner.Name) -lt 0)) {
+        $replaceWinner = $true
+      }
     }
   }
   if ($replaceWinner) { $winner = $eligibleCandidate }
+}
+if ($policyMode) {
+  $winnerJson = @{model=$winner.Name; canonical_tier=$winner.Tier; effort=$winner.FinalEffort;
+    effort_control=[string]$hostControlMap[$winner.Name].$HostName} | ConvertTo-Json -Compress
+  if ($PolicyEngineOnly) { Write-Output $winnerJson; exit 0 }
+  # Retain original JSON bytes so PowerShell cannot round monetary provenance on serialization.
+  $completion = '{"context":' + $policyContextJson + ',"winner":' + $winnerJson + '}'
+  Write-Output (Invoke-PolicyBridge 'complete-selection' $completion)
+  exit 0
 }
 if ($Json) {
   $output = [ordered]@{

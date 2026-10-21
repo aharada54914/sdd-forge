@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/model-policy.tests.py",
+    "PolicySelection.test_powershell_mixed_known_prices_and_signed_zero_are_total_ordered"
+  ],
+  "exit_code": 1,
+  "at": "2026-10-19T20:50:56.786303+00:00",
+  "test_sha256": "07f1f018eafb13cdd72be0f6a618fb72a3d1a1fe8c1603bab169c41f5896b7cd",
+  "ps_sha256": "65ac01de040e1d688ad9ce81e0fb9e80091dd2b91ba74d1016dc01b9950db111",
+  "expectation_correction": "Prior evaluator lowrisk effort condition corrected to omit riskmatrix.low and exerciseexisting roledefault fallback; no extra floor invented"
+}

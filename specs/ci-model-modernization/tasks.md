@@ -23,7 +23,7 @@ The Test Ownership table assigns each TEST exactly one final owner. Shared REQ/A
 ## T-001 Revision-bound CI plans and obligations
 
 Approval: Approved (user-recorded 2026-10-18T20:33:18Z)
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: Changes externally visible CI selection or execution-evidence contracts.
 Required Workflow: tdd
@@ -74,7 +74,7 @@ None
 ## T-002 CI execution evidence collection and aggregation
 
 Approval: Approved (user-recorded 2026-10-18T20:33:18Z)
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Changes externally visible CI selection or execution-evidence contracts.
 Required Workflow: tdd
@@ -123,7 +123,7 @@ T-001
 ## T-003 CI workflow integration and dependency reuse
 
 Approval: Approved (user-recorded 2026-10-18T20:33:18Z)
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Changes runtime selection, execution evidence or externally visible contracts.
 Required Workflow: tdd
@@ -174,7 +174,7 @@ T-002
 ## T-004 Documented model discovery and observations
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Changes model observation, immutable identity evidence or externally visible selection contracts.
 Required Workflow: tdd
@@ -223,7 +223,7 @@ T-003
 ## T-005 Immutable model binding and delivery identity
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Changes model observation, immutable identity evidence or externally visible selection contracts.
 Required Workflow: tdd
@@ -272,7 +272,7 @@ T-004
 ## T-006 Role policy and current model resolution
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Changes model observation, immutable identity evidence or externally visible selection contracts.
 Required Workflow: tdd
@@ -328,7 +328,7 @@ T-005
 ## T-007 Protected model launch and delivery
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Changes runtime model transport, protected launch integration or installed managed entry contracts.
 Required Workflow: tdd
@@ -382,7 +382,7 @@ T-006
 ## T-008 Managed role rendering and installed entries
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Changes runtime model transport, protected launch integration or installed managed entry contracts.
 Required Workflow: tdd
@@ -441,7 +441,7 @@ T-007
 ## T-009 Existing model freshness maintenance
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Changes untrusted-source parsing and existing external notification controls.
 Required Workflow: tdd
@@ -490,7 +490,7 @@ T-006
 ## T-010 Controlled model adoption evaluation
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: Planned
+Status: Blocked
 Risk: medium
 Risk Rationale: Runs controlled evaluation and updates reviewed adoption references without changing capability or authorization algorithms.
 Required Workflow: acceptance-first
@@ -527,6 +527,10 @@ Execute the pre-output candidate/baseline evaluation rubric and promote only the
 - Actual model/list data is availability only. Model comparison holds prompts and judge fixed; the actual skill comparison holds the model fixed and changes only the skill under a separately versioned pre-output rubric, keeping the original model-adoption rubric unchanged. No live provider notification, cloud action, credential change or parent UI-model control occurs.
 - Document and test rollback in a disposable checkout, with before/after hashes and actual baseline results; retain task-local evidence and implementation report.
 
+### External execution prerequisite and retained history
+
+Attempt-1 recorded 20 accepted native requests that failed authentication before generation, with zero candidate outputs; preserve `verification/T-010/attempt-1/bounded-status-summary.json` and its source-bound receipts. Any later comparison requires an authenticated host, fresh scoped availability and separately versioned admitted inputs. This is retained attempt history, not a mutable statement of current authentication status; the Status field and later evidence govern progress. This note authorizes no credential change.
+
 ### Out of Scope
 
 Other task-owned changes, external protection changes, new secrets/providers, automatic main merge, historical evidence edits and live cloud validation.
@@ -538,10 +542,10 @@ T-008
 ## T-011 Verified rollout documentation and immutable release
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: Planned
-Risk: medium
-Risk Rationale: Publishes measured rollout, documentation and version metadata after implementation verification.
-Required Workflow: acceptance-first
+Status: In Progress
+Risk: high
+Risk Rationale: Necessary TEST-017 readiness repair changes runtime obligation selection and exact setup declaration/schema parsing; requires tests-first Red/Green, conservative unknown handling, compatibility review and subset rollback before measured rollout.
+Required Workflow: tdd
 Data Migration: None
 Breaking API: No
 Requirements: REQ-004, REQ-006, REQ-009, REQ-010, REQ-020
@@ -565,16 +569,28 @@ Publish measured rollout evidence and complete current user/contributor document
 - docs/contributor/workflow-detail.md
 - docs/contributor/release-runbook.md
 - affected plugin README and CLI/installer/model-maintenance guidance
-- tests/verification-catalog.json (activation proof references only)
+- tests/verification-catalog.json (one exact cli-hook-enforcement setup classification and activation proof references)
+- tests/verification-impact.py (bounded omission-readiness selection/parser correction)
+- tests/verification-ci-plan.tests.py (tests-first focused readiness regressions)
+- contracts/verification-ci-plan.schema.json (setup declaration kind counterpart)
 - reports/verification/ci-model-modernization-*
 - plugin/marketplace version manifests through existing release tooling
 
 ### Scope
 
+Root-authorized necessary continuation: integrate the reviewed bounded omission-readiness correction independently of T-010 execution. Final rollout, model adoption and immutable release remain blocked on T-010; this scope amendment does not mark either task Done or waive any acceptance case. Existing approval timestamp is preserved.
+
 Publish measured rollout evidence and complete current user/contributor documentation for the already verified implementation; activate only proven categories and release one exact-tested immutable version. No main merge, tag move or live cloud operation is included.
+
+### Readiness bugfix diagnostic path (TEST-017)
+
+- Reproduce the original failure with the retained pre-correction workflow/catalog/source bytes: the real `readme-contract` category produces 443 full obligations and 443 selected obligations, omitting nothing, although unrelated CLI-hook work should be omittable only after its source-consumer and native proof passes. Preserve the actual command, source hashes and observed-versus-expected result; dry enumeration does not satisfy hosted TEST-017.
+- Verify the causal boundary before choosing the minimal correction: trace validated generated `ci-plan` predicates returning unknown from `condition_value`, plus the undeclared exact CLI setup command forcing mandatory work. Use the recorded before bytes and regression controls to distinguish those causes from truly unknown predicates, missing matrix values or an unrecognized raw command, which must remain mandatory. Record producer/counterpart/mismatch evidence, including the old-parser/new-setup typed rejection rather than claiming a full fallback.
+- Link diagnosis to the four tests-first regressions in `tests/verification-ci-plan.tests.py`; retain the meaningful baseline Red, the full prior50 plus new4 Green, source-consumer proof and exact subset rollback. Reuse the timestamped diagnostic and before-source records in `verification/T-011/preparation/rollout-comparison/` and `verification/T-011/readiness-implementation/`; this post-implementation provenance repair does not backdate or replace them.
 
 ### Done When
 
+- Preserve and link the real failing-test commit `a72eab2ec5e5362f635b4814fecd9e791a300e68` committed before the readiness implementation, its recorded baseline Red, subsequent Green and product-application chronology (`verification/T-011/readiness-implementation/test-first-commit.json`, `focused-red.json`, `full54.json` and `product-apply.json`). Require a named independent reviewer verdict for the high-risk readiness correction and final task scope, with pinned reviewed inputs, requirement traceability and spec/environment provenance; an implementation report or this task-plan review cannot substitute for that implementation quality verdict. Preserve original timestamps and evidence without backdating.
 - All assigned acceptance cases are linked to actual saved results. Compare docs/configuration, MCP, cloud and shared representative changes against full results and source-consumer/mutation evidence. Unproven classes remain full; record exact revision, selections, omissions, measured wall/job time and observed cache hits.
 - Observe actual hosted small-change PR required contexts/native wrappers and selected omissions plus manual full execution; separate local fixtures and disclose unavailable real merge_group per OQ-001. Do not label fixture-only evidence hosted. If a required external action cannot proceed under existing authorization, record the concrete prepared action and blocker.
 - Update README, capability/selector/launcher/installer/maintenance guidance, verification/contributor/release docs and CHANGELOG; validate examples and relative links and perform identifier/caller sweeps for stale current model defaults and CI claims. Preserve frozen historical records and the existing live-cloud acceptance limitation.

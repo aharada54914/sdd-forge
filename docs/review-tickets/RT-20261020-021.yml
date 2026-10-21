@@ -1,0 +1,14 @@
+ticket_id: RT-20261020-021
+status: resolved
+type: protected-model-output-symlink
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-007
+summary: "Selected protected evidence producers can write through symlinked output ancestors before rejection"
+expected_fix: "Commit meaningful ordinary/fixed protected producer and quality-controller Red tests, retain no-follow directory descriptors and descriptor-relative create-only model writes, preserve no-controls legacy, refresh source-bound affected verification and rollback, then fresh full-scope independent QA2."
+evidence: reports/quality-gate/20261020-ci-model-modernization-T-007-cycle-1.md
+auto_fix_allowed: true
+requires_human_decision: false
+classification: "Narrow enforcement of existing approved T007 safe-publication contract; no new authority, policy, provider, adoption or release decision."
+resolution: "Actual independent full-scope QA2 PASS0; Root reverified all1359repository/scratchpins; canonical evidence bundle generated/checked before Done. Descriptor-held create-only writes and inactive copied contexts verified by5committed regressions, core54/875, final3extra37, fresh16+9rollback and currentnativeconfiguration. Reviewer limits309directOutputs+1provenance and121directsource+5capturedhashes explicit; no inference/adoption/hostedclaim."

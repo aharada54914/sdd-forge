@@ -1,0 +1,33 @@
+{
+  "status": "EXACT_REVIEWED_CANDIDATE_BYTES_APPLIED",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "c81421c73cfc4ee4d8d31cd3a95c662a5681831540281addbd97d034af38e5c6"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "ec8c0d15aa2b31f0c3ddb56d174b1867f0b70460abe883064929120116c5c29a"
+    },
+    {
+      "path": "docs/verification.md",
+      "sha256": "164d0a012d1e60ec6e61bd5633f66272e2e58bb1e8e1c0191f94fa5df50e9e6a"
+    },
+    {
+      "path": "docs/agent-capability-matrix.md",
+      "sha256": "40c82cb63365bec7fdec8c57260b5ea4ccac88b57fba127d093fdc4e324f6ef4"
+    },
+    {
+      "path": "docs/workflow-guide.md",
+      "sha256": "d7c0703ca4e950fa34e4f250c164bf0d7493d0982b1475e6b92353ad3d052f6a"
+    },
+    {
+      "path": "docs/contributor/workflow-detail.md",
+      "sha256": "c63e586cf5e922d18928fc85cb4bada3fa1ee406a17cf25911db4e8670404b7d"
+    },
+    {
+      "path": "docs/contributor/release-runbook.md",
+      "sha256": "eb0193f777799e1ae476f6c67b988f5add05e1ad33c5e3a2f1cfea2b13cbe485"
+    }
+  ]
+}

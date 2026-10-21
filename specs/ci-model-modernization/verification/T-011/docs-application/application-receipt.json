@@ -1,0 +1,30 @@
+{
+  "schema": "t011-doc-application/v1",
+  "status": "APPLIED_WITH_RELEASE_VALIDATION_BLOCKED_BY_TASK_PROVENANCE",
+  "task_id": "T-011",
+  "agent_instance_id": "work-agent:root:t011_docs_apply",
+  "admission_sha256": "743eb6685bed28a24b51a3e96ee68e850d1d713df4bb63957050268f236b156b",
+  "source_pins": "after-pins.json",
+  "correction_diff": "candidate-corrections.patch",
+  "applied_diff": "applied-docs.patch",
+  "scope_audit": "scope-audit.json",
+  "checks": "verification-summary.json",
+  "author_provenance": [
+    "../operator-docs-author/candidate-receipt.json",
+    "../remaining-guidance-author-16/recovered-candidate/derivation-receipt.json"
+  ],
+  "review_provenance": "../root-reviewed-doc-candidates/review-receipt.json",
+  "authorization": "Root fresh delegated task authorizes bounded documentation application now; supersedes older candidate receipt request to defer application. No task state, frozen receipt, model adoption, rollout activation, version, tag or release change.",
+  "correction_basis": [
+    "T-010 attempt-1/bounded-status-summary.json:20 authentication failures,0 answers,no promotion",
+    "Current tests/verification-catalog.json:readme-contract inactive",
+    "Admitted compatibility-cli-result.json:old base parser rejects setup descriptors even force-full=true",
+    "Current plan_main and required aggregate:malformed planning stops, conservative full requires valid inputs",
+    "model-policy.py delivery:optional null/unverified actual identity; required identity/pinned reroute blocked"
+  ],
+  "task_remaining": [
+    "T-010 blocked pending authorized successful native trials; no evaluation/adoption conclusion",
+    "T-011 remains In Progress: task provenance rebind, actual hosted comparisons, activation decision, final independent quality gate and immutable release remain outstanding"
+  ],
+  "no_git_stage_commit_network_provider_auth_version_actions": true
+}

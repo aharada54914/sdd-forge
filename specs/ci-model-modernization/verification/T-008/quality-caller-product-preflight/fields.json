@@ -1,0 +1,117 @@
+{
+  "at": "2026-10-20T08:44:34.071668+00:00",
+  "status": "PRE_PRODUCT_RECORDED",
+  "scope": "Ordinary quality-gate SKILL only: installed prepare + two existing controls flags; preserve external invocation pin, scratch preflight, sole reservation and read-only policy. Correct stale selected-carrier prose. No schemas, selectors, guards or transport algorithms changed.",
+  "tests_only_commit": "75b3ab1165087c7fd0d2278816c58e7e8a89b478",
+  "before_skill_sha256": "ce29654fc042e2e1fad4ce0f12c159dcbdc390137f5acc867a7e99d0dd4a21a2",
+  "guard_invariants_sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+  "ordinary_file_membership": true,
+  "prior_leaf_preflights": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/prepare-product-admission/prepare-field-counterpart-preflight-v4.json",
+      "sha256": "8b4649a3edcd17a4b3ad62546ca48610bc5257f75dc244250cd8914beb2aacb8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/native-product-preflight/native-field-counterpart-preflight-final.json",
+      "sha256": "797a3d89a1e845bcf3286620436c9deb32536e4d9a7d03722222f64b14523aec"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/runtime-product-preflight/fields.json",
+      "sha256": "37ab2341075c44454dbb004de6eec74c29eb3213b6d99c2f1cc3563136465766"
+    }
+  ],
+  "fields": [
+    {
+      "field": "prepared role",
+      "counterpart": "actual invocation role + request.role",
+      "mismatch_test": "InstalledQualityCallerTests.test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation"
+    },
+    {
+      "field": "prepared host=claude-code",
+      "counterpart": "request.host and existing host validation",
+      "mismatch_test": "InstalledEntryTests.test_prepare_rejects_role_host_and_actual_id_mismatches"
+    },
+    {
+      "field": "run_id/session_id",
+      "counterpart": "fresh invocation UUID run=host_session_id + selection binding",
+      "mismatch_test": "tests/model-policy-launch.tests.py::test_controls_role_host_and_binding_mismatches"
+    },
+    {
+      "field": "attempt",
+      "counterpart": "controls.attempt + selection.binding.attempt",
+      "mismatch_test": "tests/model-policy-launch.tests.py::test_controls_closed_fields_and_all_persisted_leaf_mismatches"
+    },
+    {
+      "field": "request path/raw SHA",
+      "counterpart": "validation.request and captured request leaf closure",
+      "mismatch_test": "tests/model-policy-launch.tests.py::test_controls_raw_pin_precedes_json"
+    },
+    {
+      "field": "registry path/raw SHA",
+      "counterpart": "validation.registry and trusted policy floor",
+      "mismatch_test": "tests/model-policy-launch.tests.py::test_controls_trusted_registry_floor_cannot_be_resealed"
+    },
+    {
+      "field": "controls.inputs[] + selection",
+      "counterpart": "existing scoped snapshot closure and recomputed selection leaves",
+      "mismatch_test": "tests/model-policy-launch.tests.py::test_controls_recompute_every_selection_leaf"
+    },
+    {
+      "field": "fresh output directory",
+      "counterpart": "exact controls/selection/validation output names and no replay",
+      "mismatch_test": "InstalledEntryTests.test_prepare_rejects_unsupported_and_reused_outputs"
+    },
+    {
+      "field": "require_actual_id=false",
+      "counterpart": "existing configured/unverified contract; no actual-ID claim",
+      "mismatch_test": "InstalledEntryTests.test_prepare_rejects_role_host_and_actual_id_mismatches"
+    },
+    {
+      "field": "--model-controls",
+      "counterpart": "validation.controls.path passed to existing launcher",
+      "mismatch_test": "InstalledQualityCallerTests.test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation"
+    },
+    {
+      "field": "--model-controls-sha256",
+      "counterpart": "validation.controls.sha256, never unchecked rehash",
+      "mismatch_test": "InstalledQualityCallerTests.test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation"
+    },
+    {
+      "field": "native model + effort + generated role",
+      "counterpart": "real native argv/agent fields equal bound selection",
+      "mismatch_test": "InstalledQualityCallerTests.test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation"
+    },
+    {
+      "field": "launch/delivery/model_policy raw links",
+      "counterpart": "unchanged core closed field consumers and exact spec caller outputs",
+      "mismatch_test": "tests/model-policy-launch.tests.py::test_both_shells_validate_every_delivery_binding_leaf_and_raw_link_before_emission"
+    },
+    {
+      "field": "single reservation + delivery identity",
+      "counterpart": "same invocation UUID + canonical hash-chain append after probe",
+      "mismatch_test": "tests/model-policy-launch.tests.py::test_launcher_bad_controls_fail_before_reservation_or_native"
+    },
+    {
+      "field": "external --manifest-sha256",
+      "counterpart": "exact raw invocation bytes before preflight",
+      "mismatch_test": "InstalledQualityCallerTests.test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation"
+    },
+    {
+      "field": "scratch_root + copied input SHA",
+      "counterpart": "fresh disjoint evaluator projection and delivery readback",
+      "mismatch_test": "InstalledQualityCallerTests.test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation"
+    },
+    {
+      "field": "implementation run/session",
+      "counterpart": "implementation report equals admitted task manifest",
+      "mismatch_test": "InstalledQualityCallerTests.test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation"
+    },
+    {
+      "field": "single quality reservation snapshot",
+      "counterpart": "canonical ledger chain + scratch declaration binding; no separate reservation",
+      "mismatch_test": "InstalledQualityCallerTests.test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation"
+    }
+  ],
+  "actual_red": "quality-caller-test-application/red-effective-evidence.json",
+  "limitations": "Actual Red establishes legacy delivery and missing prepare only. New downstream mismatch cases require Green; inherited leaf tests remain core fixture evidence, not whole-task acceptance."
+}

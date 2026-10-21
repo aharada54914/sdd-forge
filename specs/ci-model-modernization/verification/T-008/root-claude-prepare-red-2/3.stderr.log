@@ -1,0 +1,83 @@
+test_installers_reject_missing_managed_runtime_closure (t008_spec_root_actual.InstalledEntryTests.test_installers_reject_missing_managed_runtime_closure) ... ok
+test_prepare_from_both_installed_packages (t008_spec_root_actual.InstalledEntryTests.test_prepare_from_both_installed_packages) ... ok
+test_prepare_rejects_role_host_and_actual_id_mismatches (t008_spec_root_actual.InstalledEntryTests.test_prepare_rejects_role_host_and_actual_id_mismatches) ... ok
+test_prepare_rejects_unsupported_and_reused_outputs (t008_spec_root_actual.InstalledEntryTests.test_prepare_rejects_unsupported_and_reused_outputs) ... ok
+test_claude_prepare_checks_executable_and_environment_before_publication (t008_spec_root_actual.InstalledClaudePreparationTests.test_claude_prepare_checks_executable_and_environment_before_publication) ... FAIL
+test_claude_prepare_does_not_repair_unusable_observation (t008_spec_root_actual.InstalledClaudePreparationTests.test_claude_prepare_does_not_repair_unusable_observation) ... FAIL
+test_claude_prepare_preserves_supplied_observation_and_core_evidence (t008_spec_root_actual.InstalledClaudePreparationTests.test_claude_prepare_preserves_supplied_observation_and_core_evidence) ... FAIL
+test_installers_require_original_driver_for_claude_prepare (t008_spec_root_actual.InstalledClaudePreparationTests.test_installers_require_original_driver_for_claude_prepare) ... 
+  test_installers_require_original_driver_for_claude_prepare (t008_spec_root_actual.InstalledClaudePreparationTests.test_installers_require_original_driver_for_claude_prepare) (shell='bash', missing='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py') ... FAIL
+  test_installers_require_original_driver_for_claude_prepare (t008_spec_root_actual.InstalledClaudePreparationTests.test_installers_require_original_driver_for_claude_prepare) (shell='pwsh', missing='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py') ... FAIL
+
+======================================================================
+FAIL: test_claude_prepare_checks_executable_and_environment_before_publication (t008_spec_root_actual.InstalledClaudePreparationTests.test_claude_prepare_checks_executable_and_environment_before_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1138, in test_claude_prepare_checks_executable_and_environment_before_publication
+    self.claude_positive(install_root, 'runs/positive')
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1056, in claude_positive
+    value = self.case.assert_prepared(install_root, output, **self.entry(env))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 796, in assert_prepared
+    value = self.accepted(self.prepare(install_root, output, role=role, host=host, attempt=str(attempt), **entry))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 373, in accepted
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 2 != 0 : {"message":"Managed rendering accepts only --root, --check and the five managed flags, each once; legacy registry, targets-file and resolve modes cannot be mixed in.","reason":"input-invalid","schema":"model-policy-error/v1"}
+
+
+======================================================================
+FAIL: test_claude_prepare_does_not_repair_unusable_observation (t008_spec_root_actual.InstalledClaudePreparationTests.test_claude_prepare_does_not_repair_unusable_observation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1112, in test_claude_prepare_does_not_repair_unusable_observation
+    self.claude_positive(install_root, 'runs/positive')
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1056, in claude_positive
+    value = self.case.assert_prepared(install_root, output, **self.entry(env))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 796, in assert_prepared
+    value = self.accepted(self.prepare(install_root, output, role=role, host=host, attempt=str(attempt), **entry))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 373, in accepted
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 2 != 0 : {"message":"Managed rendering accepts only --root, --check and the five managed flags, each once; legacy registry, targets-file and resolve modes cannot be mixed in.","reason":"input-invalid","schema":"model-policy-error/v1"}
+
+
+======================================================================
+FAIL: test_claude_prepare_preserves_supplied_observation_and_core_evidence (t008_spec_root_actual.InstalledClaudePreparationTests.test_claude_prepare_preserves_supplied_observation_and_core_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1100, in test_claude_prepare_preserves_supplied_observation_and_core_evidence
+    value = self.claude_positive(install_root, 'runs/claude-' + shell)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1056, in claude_positive
+    value = self.case.assert_prepared(install_root, output, **self.entry(env))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 796, in assert_prepared
+    value = self.accepted(self.prepare(install_root, output, role=role, host=host, attempt=str(attempt), **entry))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 373, in accepted
+    self.assertEqual(result.returncode, 0, result.stderr[:1000])
+AssertionError: 2 != 0 : {"message":"Managed rendering accepts only --root, --check and the five managed flags, each once; legacy registry, targets-file and resolve modes cannot be mixed in.","reason":"input-invalid","schema":"model-policy-error/v1"}
+
+
+======================================================================
+FAIL: test_installers_require_original_driver_for_claude_prepare (t008_spec_root_actual.InstalledClaudePreparationTests.test_installers_require_original_driver_for_claude_prepare) (shell='bash', missing='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1196, in test_installers_require_original_driver_for_claude_prepare
+    self.assertNotEqual(result.returncode, 0, 'installer accepted a package without ' + CLAUDE_DRIVER)
+AssertionError: 0 == 0 : installer accepted a package without plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+
+======================================================================
+FAIL: test_installers_require_original_driver_for_claude_prepare (t008_spec_root_actual.InstalledClaudePreparationTests.test_installers_require_original_driver_for_claude_prepare) (shell='pwsh', missing='plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 1196, in test_installers_require_original_driver_for_claude_prepare
+    self.assertNotEqual(result.returncode, 0, 'installer accepted a package without ' + CLAUDE_DRIVER)
+AssertionError: 0 == 0 : installer accepted a package without plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+
+----------------------------------------------------------------------
+Ran 8 tests in 14.465s
+
+FAILED (failures=5)

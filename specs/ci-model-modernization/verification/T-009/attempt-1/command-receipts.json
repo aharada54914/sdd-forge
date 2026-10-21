@@ -1,0 +1,415 @@
+[
+  {
+    "name": "lint",
+    "command": [
+      "/tmp/ci-model-resume-python/bin/ruff",
+      "check",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-009/attempt-1/embedded-product.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+    },
+    "started_at": "2026-10-20T16:38:46.452656+00:00",
+    "finished_at": "2026-10-20T16:38:46.460163+00:00",
+    "exit_code": 0,
+    "before_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "after_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "sources_unchanged": true,
+    "log": "specs/ci-model-modernization/verification/T-009/attempt-1/lint.log"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "mypy",
+      "--check-untyped-defs",
+      "--cache-dir",
+      "/workspace/.task-scratch/ci-model-modernization/t009-mypy",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-009/attempt-1/embedded-product.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+    },
+    "started_at": "2026-10-20T16:38:46.460900+00:00",
+    "finished_at": "2026-10-20T16:38:46.557846+00:00",
+    "exit_code": 0,
+    "before_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "after_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "sources_unchanged": true,
+    "log": "specs/ci-model-modernization/verification/T-009/attempt-1/typecheck.log"
+  },
+  {
+    "name": "placeholder-scan",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      ".github/scripts/check-model-freshness.sh",
+      ".github/workflows/model-freshness-check.yml"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+    },
+    "started_at": "2026-10-20T16:38:46.558744+00:00",
+    "finished_at": "2026-10-20T16:38:46.565448+00:00",
+    "exit_code": 0,
+    "before_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "after_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "sources_unchanged": true,
+    "log": "specs/ci-model-modernization/verification/T-009/attempt-1/placeholder-scan.log"
+  },
+  {
+    "name": "static-checks",
+    "command": [
+      "python3",
+      "-B",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-009/attempt-1/static-checks.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+    },
+    "started_at": "2026-10-20T16:38:46.566229+00:00",
+    "finished_at": "2026-10-20T16:38:46.603547+00:00",
+    "exit_code": 0,
+    "before_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "after_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "sources_unchanged": true,
+    "log": "specs/ci-model-modernization/verification/T-009/attempt-1/static-checks.log"
+  },
+  {
+    "name": "bash-locking",
+    "command": [
+      "bash",
+      "tests/model-freshness-check.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+    },
+    "started_at": "2026-10-20T16:38:46.604406+00:00",
+    "finished_at": "2026-10-20T16:38:47.661228+00:00",
+    "exit_code": 0,
+    "before_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "after_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "sources_unchanged": true,
+    "log": "specs/ci-model-modernization/verification/T-009/attempt-1/bash-locking.log"
+  },
+  {
+    "name": "powershell-locking",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/model-freshness-check.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+    },
+    "started_at": "2026-10-20T16:38:47.662122+00:00",
+    "finished_at": "2026-10-20T16:38:48.915347+00:00",
+    "exit_code": 0,
+    "before_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "after_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "sources_unchanged": true,
+    "log": "specs/ci-model-modernization/verification/T-009/attempt-1/powershell-locking.log"
+  },
+  {
+    "name": "catalog-integration",
+    "command": [
+      "python3",
+      "-B",
+      "tests/verification-catalog.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+    },
+    "started_at": "2026-10-20T16:38:48.916379+00:00",
+    "finished_at": "2026-10-20T16:38:51.654609+00:00",
+    "exit_code": 0,
+    "before_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "after_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "sources_unchanged": true,
+    "log": "specs/ci-model-modernization/verification/T-009/attempt-1/catalog-integration.log"
+  },
+  {
+    "name": "ci-plan-integration",
+    "command": [
+      "python3",
+      "-B",
+      "tests/verification-ci-plan.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin"
+    },
+    "started_at": "2026-10-20T16:38:51.655551+00:00",
+    "finished_at": "2026-10-20T16:39:10.712093+00:00",
+    "exit_code": 0,
+    "before_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "after_sha256": {
+      ".github/scripts/check-model-freshness.sh": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e",
+      ".github/workflows/model-freshness-check.yml": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f",
+      "tests/model-freshness-check.tests.sh": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "tests/model-freshness-check.tests.ps1": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+      "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+      ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    "sources_unchanged": true,
+    "log": "specs/ci-model-modernization/verification/T-009/attempt-1/ci-plan-integration.log"
+  }
+]

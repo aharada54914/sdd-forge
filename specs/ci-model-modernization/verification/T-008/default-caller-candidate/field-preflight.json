@@ -1,0 +1,10 @@
+{
+ "status": "CANDIDATE_ONLY_NO_PRODUCT_EDITS_NO_FORMAL_QA",
+ "producer_counterpart_mismatch": [
+  {"field":"unsupported-entry role and host arguments","producer":"explicit admitted semantic caller/role mapping and current actual native host","counterpart":"installed generic unsupported-entry exact existing POLICY_ROLES/HOSTS grammar","mismatch":"wrong/missing/duplicate input returns input-invalid; valid unbound context returns model-unavailable exit2 before allocation or reservation"},
+  {"field":"existing bound selection/controls/native configuration","producer":"unchanged admitted installed managed entry or known matching batch startup","counterpart":"existing T007 validation/delivery and exact workload/context boundary","mismatch":"unknown alias/default/native carrier does not inherit success from another context; stop that allocation, never incapable-host reload"},
+  {"field":"existing source body and supported fences","producer":"current maintained source bytes before candidate insertion","counterpart":"before/after source pins, append AST comparison and insertion-only diff","mismatch":"candidate may add one parent allocation boundary only; no raw role/TOML/policy/algorithm edits or bound worker reselection"}
+ ],
+ "no_new_persisted_product_fields":true,
+ "evidence_limits":["Executable caller fences are tested with real installed generic command; native provider scheduling and backend identity are not claimed.","Runtime refusal is specific to an unbound allocation operation; bound worker internals and already admitted supported routes continue under original contracts."]
+}

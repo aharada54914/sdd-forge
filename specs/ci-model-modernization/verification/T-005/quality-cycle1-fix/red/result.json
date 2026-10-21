@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/model-identity.tests.py",
+    "UriAuthorityContractTests",
+    "UriAuthorityCliTests",
+    "UriOriginalStringTests"
+  ],
+  "started_at": "2026-10-19T20:14:43.471466+00:00",
+  "finished_at": "2026-10-19T20:14:43.749408+00:00",
+  "exit_code": 1,
+  "test_sha256": "da24c1cbb5fd8c9892b65c756b3246da82f3a076054da8471da827d519fd277e",
+  "helper_sha256": "6150c272f759a0802673060aa6c02bcf6e02d56158229ad0330be559dc75e23d",
+  "selection_schema_sha256": "8da6c134d9ffa92bb6337fa38e7639987b22fa083032da1609632b71a13dac2c",
+  "logs": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/red/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/red/stderr",
+      "sha256": "92ec17cf6fab964dfb97308322c72228d6383692b5cd3e951c7626a956fb8fe0"
+    }
+  ]
+}

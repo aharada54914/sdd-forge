@@ -1,0 +1,27 @@
+{
+  "before": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736"
+  },
+  "after": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736"
+  },
+  "source_preserved": true
+}

@@ -1,0 +1,178 @@
+{
+  "status": "Recorded before any product edit; exact final test-only commit and actual Red verified by Root",
+  "scope": "renderer only; no new JSON evidence persisted by proposed renderer",
+  "rows": [
+    {
+      "persisted_field": "Codex model",
+      "counterpart": "validated selection.resolved.native_id",
+      "failing_mismatch_test": "ManagedCodexRoles.test_reference_comments_neither_satisfy_nor_mask_runtime_selection",
+      "mutation": "Absent/stale native model with correct comments must be DRIFT.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Codex model_reasoning_effort",
+      "counterpart": "validated selection.resolved.effort",
+      "failing_mismatch_test": "ManagedCodexRoles.test_effort_only_runtime_drift_is_not_hidden_by_current_comments",
+      "mutation": "Change effort only behind current comment; DRIFT.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Claude model",
+      "counterpart": "validated selection.resolved.native_id",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_frontmatter_runtime_fields_follow_bound_selection_for_each_role",
+      "mutation": "Stale original must be DRIFT; generated field must exactly match bound selection; former native mismatch rejected by T007.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Claude effort",
+      "counterpart": "validated selection.resolved.effort",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_effort_reference_comment_alone_is_runtime_drift",
+      "mutation": "Absent/comment-only and stale native effort both DRIFT after valid render.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Claude role name/description/tools/disallowedTools and body",
+      "counterpart": "original source fields/body",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_frontmatter_runtime_fields_follow_bound_selection_for_each_role",
+      "mutation": "Exact unchanged dict/body equality fails any renderer-introduced mismatch.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Codex role name/description/sandbox_mode/developer_instructions",
+      "counterpart": "original source TOML fields",
+      "failing_mismatch_test": "ManagedCodexRoles.test_toml_runtime_keys_follow_bound_selection",
+      "mutation": "Every non-model TOML value must remain identical; equality fails renderer-introduced mutation.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Protected current candidate model/effort, manifest path/hash",
+      "counterpart": "derived protected role target + staged raw bytes + selection",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_protected_reviewers_stage_exact_current_copy_and_raw_pin",
+      "mutation": "Exact staging paths/digest manifest; native effort, raw pin and path-case mutations cause DRIFT.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Protected sources including impl/task skills and historical epic159 bytes",
+      "counterpart": "before-write fixture tree hashes",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_protected_reviewers_stage_exact_current_copy_and_raw_pin",
+      "mutation": "Full before/after equality forbids any existing-file edit and exact added set forbids other staging writes.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Role target separation",
+      "counterpart": "derived A/B role and controls.role",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_paired_roles_bind_independently",
+      "mutation": "A controls rejected on B target; separate correct A/B renders do not alter sibling.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Unsupported Copilot target",
+      "counterpart": "no trusted copilot-cli model mapping",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_copilot_agents_reject_cross_host_selection",
+      "mutation": "Real Claude controls cannot be transplanted; typed blocked output and whole-tree unchanged, native shim marker absent.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Every existing selection field/container including binding/budget/estimate",
+      "counterpart": "unchanged T007 validator recomputed selection and controls pins",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_managed_controls_reject_each_field_mismatch",
+      "mutation": "leaf_paths mutation updates outer raw pin and selection selfdigest where applicable; real renderer rejects typed before any write. Positive render before each mutation.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Every controls field/container and raw controls pin",
+      "counterpart": "source refs/current role/host/run/session/attempt",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_managed_controls_reject_each_field_mismatch",
+      "mutation": "Controls leaf/container mutation and independent raw-pin flip reject typed with tree unchanged.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Managed invocation flags and case",
+      "counterpart": "complete explicit mode + canonical targets and role",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_partial_mixed_and_mis_cased_managed_inputs_are_typed_rejections",
+      "mutation": "Each missing flag, legacy-mode mixture, target case and role case reject typed with tree unchanged.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "Derived output path",
+      "counterpart": "canonical allowlisted contained non-symlink target",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_managed_target_rejects_escape_alias_and_symlink",
+      "mutation": "Traversal/absolute/dot/duplicate separator/backslash aliases and symlink reject typed; outside canary bytes unchanged.",
+      "execution_status": "Actual Red completed; missing managed mode can fail the positive guard before the named downstream mutation. Green must execute every assigned negative branch."
+    },
+    {
+      "persisted_field": "stderr error.schema",
+      "counterpart": "contracts/model-policy-error.schema.json and unchanged T007 error validation: exact model-policy-error/v1",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_managed_controls_reject_each_field_mismatch via inherited rejected()",
+      "mutation": "Each malformed pinned control/selection requires one complete canonical typed error and no output writes. Legacy unknown-flag output disagrees.",
+      "execution_status": "Actual Red; positive guard may prevent downstream per-field error checks until Green."
+    },
+    {
+      "persisted_field": "stderr error.reason",
+      "counterpart": "contracts/model-policy-error.schema.json and unchanged T007 error validation: closed admitted reason enum",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_managed_controls_reject_each_field_mismatch via inherited rejected()",
+      "mutation": "Each malformed pinned control/selection requires one complete canonical typed error and no output writes. Legacy unknown-flag output disagrees.",
+      "execution_status": "Actual Red; positive guard may prevent downstream per-field error checks until Green."
+    },
+    {
+      "persisted_field": "stderr error.message",
+      "counterpart": "contracts/model-policy-error.schema.json and unchanged T007 error validation: nonempty bounded text <=512 characters",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_managed_controls_reject_each_field_mismatch via inherited rejected()",
+      "mutation": "Each malformed pinned control/selection requires one complete canonical typed error and no output writes. Legacy unknown-flag output disagrees.",
+      "execution_status": "Actual Red; positive guard may prevent downstream per-field error checks until Green."
+    },
+    {
+      "persisted_field": "Claude native fields in CRLF agent; original body/newline bytes",
+      "counterpart": "validated selection and original raw agent body",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_crlf_claude_native_fields_preserve_body_bytes",
+      "mutation": "CRLF must remain CRLF; native model/effort exactly match selection; body raw bytes unchanged.",
+      "execution_status": "Actual Red both shells: assertion failures, zero errors/skips."
+    },
+    {
+      "persisted_field": "Codex native fields in CRLF TOML; original developer instructions",
+      "counterpart": "validated selection and original parsed/byte instruction values",
+      "failing_mismatch_test": "ManagedCodexRoles.test_crlf_codex_native_fields_preserve_instructions",
+      "mutation": "CRLF and instruction bytes/parsed values unchanged while native keys match.",
+      "execution_status": "Actual Red both shells: assertion failures, zero errors/skips."
+    },
+    {
+      "persisted_field": "Unknown managed invocation arguments",
+      "counterpart": "closed managed parser, error input-invalid and no writes",
+      "failing_mismatch_test": "ManagedClaudeRoles.test_unknown_managed_arguments_are_typed_rejections",
+      "mutation": "An unbound unknown flag must be forwarded and rejected, never silently dropped.",
+      "execution_status": "Actual Red both shells: assertion failures, zero errors/skips."
+    }
+  ],
+  "red_results": {
+    "path": "specs/ci-model-modernization/verification/T-008/root-renderer-red-v4/results.json",
+    "sha256": "67cbf47c2767c0892b9eeca3f7d0b35812260071bc28b246e6a420ff52748bb1"
+  },
+  "actual_red_counts": {
+    "tests_run": 12,
+    "subtests_run": 222,
+    "subtests_passed": 3,
+    "failures": 219,
+    "errors": 0,
+    "skips": 0,
+    "successful": false
+  },
+  "test_commit": "d555319548d1a26b8202dbd65e4ec4faaec4710d",
+  "additional_test_commit": "9765931284a19a8db167d79dfedee5ae474dcd18",
+  "additional_red": {
+    "path": "specs/ci-model-modernization/verification/T-008/root-renderer-edge-red-v2/results.json",
+    "sha256": "39e9c8534e7479f2793b2d83ea2966b96ef5b5ea954ccd36c985453ac4da0be7",
+    "actual": {
+      "tests_run": 3,
+      "subtests_run": 6,
+      "subtests_passed": 0,
+      "failures": 6,
+      "errors": 0,
+      "skips": 0,
+      "successful": false
+    }
+  },
+  "limits": [
+    "Engine-bound duplicate or missing-value syntax remains native PowerShell fail-closed error before script, not typed JSON. Managed parameters reaching body and unbound arguments are adapter-validated. Legacy parameter binding unchanged.",
+    "Read-only preflight before any directory creation; manifest replacement precedes proposal replacement, preserving previous proposal if manifest IO fails. Proposal IO failure after manifest update remains detectable drift and typed failure, not an atomic two-file transaction."
+  ]
+}

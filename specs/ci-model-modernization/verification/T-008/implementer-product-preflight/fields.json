@@ -1,0 +1,101 @@
+{
+  "at": "2026-10-20T12:17:00.282924+00:00",
+  "status": "PRE_PRODUCT_RECORDED",
+  "tests_only_commit": "fbfbbed8",
+  "scope": "Four existing product paths only: ordinary implementer role, actual ship Lite Claude outer dispatch and installer required lists. Original implement-task/support sources byte-identical. Full/batch/other hosts remain separate existing routes; no new schema/SDK/role files/manifest protocol/core/protected-driver/availability/adoption changes.",
+  "product_before": {
+    "plugins/sdd-implementation/scripts/managed-model-entry.py": {
+      "sha256": "8e24568717c5182c4fca492438021c9280cdc7ec2ab2d6f6fb6e043426d3f5cf",
+      "mode": 384
+    },
+    "plugins/sdd-ship/skills/ship/SKILL.md": {
+      "sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
+      "mode": 384
+    },
+    "install.sh": {
+      "sha256": "8b59f782b38b05115830561b7003092478b40f9c06e4781af5ee4d248aeaf74f",
+      "mode": 448
+    },
+    "install.ps1": {
+      "sha256": "dcced500edee1e61344c299415ba02b1bc752124b67677bfa937852e810b2f2b",
+      "mode": 384
+    }
+  },
+  "fields": [
+    {
+      "field": "supported role/host",
+      "counterpart": "Existing implementer policy role on Claude Code; investigator/diagnosis/configuration paths retained",
+      "mismatch_test": "test_implementer_installers_and_entry_reject_missing_or_changed_workload_before_work wrong role/host typed failure, old diagnosis3 baseline"
+    },
+    {
+      "field": "selected native model and effort",
+      "counterpart": "Immutable existing selection/control result passed to actual public CLI options",
+      "mismatch_test": "test_ship_lite_dispatches_one_selected_single_task_implementation fixture argv and report model match real T007 validation"
+    },
+    {
+      "field": "one fresh single-task context",
+      "counterpart": "Fresh UUID; current caller project cwd; no chat history or second implementation allocation",
+      "mismatch_test": "test_ship_lite_dispatches_one_selected_single_task_implementation external CLI one work event/session, task-ref and cwd assertion; replay-sensitive fixture"
+    },
+    {
+      "field": "scoped raw instructions",
+      "counterpart": "Same existing prompt file/rawSHA flags; exactly one Approved task reference and Scope",
+      "mismatch_test": "test_implementer_installers_and_entry_reject_missing_or_changed_workload_before_work prompt pin and malicious-help drift fail before work/output"
+    },
+    {
+      "field": "fixed complete installed sources",
+      "counterpart": "Original implement-task Skill,3refs,sudo/debug/risk/report template:8 exact files",
+      "mismatch_test": "test_implementer_installers_and_entry_reject_missing_or_changed_workload_before_work actual both-installer omissions/source drift; test_ship_lite_dispatches_one_selected_single_task_implementation each raw source once and installed bytes exact"
+    },
+    {
+      "field": "installer source closure",
+      "counterpart": "Both existing required-path lists; seven new unique dependencies, existing risk matrix retained once",
+      "mismatch_test": "test_implementer_installers_and_entry_reject_missing_or_changed_workload_before_work fourteen actual new missing-file failures and two existing mandatory-risk rejection positives"
+    },
+    {
+      "field": "single-task versus batch",
+      "counterpart": "ship Lite Claude dispatch only; Full/batch capability/snapshot/isolation unchanged",
+      "mismatch_test": "test_ship_lite_dispatches_one_selected_single_task_implementation execute actual installed Lite fence; preserved original single-task Skill8-source payload"
+    },
+    {
+      "field": "orchestrator/status ownership",
+      "counterpart": "Fresh child is original single-task orchestrator; ship dispatches and accepts result only",
+      "mismatch_test": "test_ship_lite_dispatches_one_selected_single_task_implementation own task moves InProgress\u2192ImplementationComplete, approval/otherTask remain exact; no Done/gate"
+    },
+    {
+      "field": "authorized implementation work",
+      "counterpart": "Actual owned source edit, successful real regression, independent owned held-out assertions and report",
+      "mismatch_test": "test_ship_lite_dispatches_one_selected_single_task_implementation public test exit0 and parent held-out command; only allowed sample/taskstatus/report differ"
+    },
+    {
+      "field": "native default permission/tool behavior",
+      "counterpart": "No invented role, investigator denials, forced grants/settings filtering or bypass",
+      "mismatch_test": "test_implementer_native_default_tools_and_failed_public_results_never_publish_success minimal public help5flags and fixture exact9native argv; no actual OS enforcement claim"
+    },
+    {
+      "field": "existing local authority/conflicts",
+      "counterpart": "Same observation input unchanged, existing local cap/env checks, required actual ID remains unavailable",
+      "mismatch_test": "test_implementer_installers_and_entry_reject_missing_or_changed_workload_before_work actual cap/env/required-proof cases reject before output/work"
+    },
+    {
+      "field": "accepted native result/artifacts",
+      "counterpart": "Existing controls/selection/validation and raw native-result.json only; no new DTO/actual identity",
+      "mismatch_test": "test_ship_lite_dispatches_one_selected_single_task_implementation exact4files/corevalidation; test_implementer_native_default_tools_and_failed_public_results_never_publish_success malformed/error/nativefailure/scope mismatch no accepted outputs"
+    },
+    {
+      "field": "failed-work semantics",
+      "counterpart": "No retry/fallback/success publication; authorized native partial outputs need not be rolled back",
+      "mismatch_test": "test_implementer_native_default_tools_and_failed_public_results_never_publish_success exactlyonework on response failure, no validation/native-result; scope/approval remain preserved"
+    },
+    {
+      "field": "configuration/work distinction",
+      "counterpart": "Existing generic prepare is successful configuration-only and does not implement a task",
+      "mismatch_test": "test_ship_lite_dispatches_one_selected_single_task_implementation genuine generic prepare succeeds with no work/report/source/status changes"
+    },
+    {
+      "field": "full procedure and delegation",
+      "counterpart": "Original Skill/support bytes unchanged; prohibit reallocation of this implementation context, preserve legitimate managed read-only helpers",
+      "mismatch_test": "test_ship_lite_dispatches_one_selected_single_task_implementation exact complete original source fixture; envelope assertion do not reallocate this implementation context"
+    }
+  ]
+}

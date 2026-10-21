@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "methods": {
+    "tests_run": 54,
+    "subtests_run": 875,
+    "subtests_passed": 875,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "successful": true,
+    "discovery_count": 54
+  },
+  "source_pins_unchanged": 1697,
+  "manifest_sha256": "97975e711fc0923a6a80e6a3efef346ee62d1e6eabed13a33cd02b7c376dcfef",
+  "sources": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-current-shared-54/results.json",
+      "sha256": "16611ca499940c6a08a258d5b31875cf0b4863c65cfcb72a8e7fc704fe16af74"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-current-shared-54/shared-result.json",
+      "sha256": "48908c75e03e7d7b9341869dcf457926e059e85e3f894da77d116237b67111da"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/assembled-current-application/shared54-subreaper.json",
+      "sha256": "de3671e584038b98e615a6fded3f7f3aa7b260af38d3c46c7b0799e6e8c2893f"
+    }
+  ],
+  "scope": "ActualcurrentT007sharedlaunch54afterallT008Self/Batch/defaultsource changes; bothshells, no backend/hosted/adoption/fulltaskQA claim. Newpost-run gatecontractmetadata unrelated to testedcode."
+}

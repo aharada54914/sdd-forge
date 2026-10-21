@@ -1,0 +1,36 @@
+{
+  "source": "Actual installed official CLI generated protocol schema; diagnostic capability source, not availability or inference proof",
+  "source_url": "https://learn.chatgpt.com/docs/app-server",
+  "observed_at": "2026-10-19T17:33:01Z",
+  "cli_version": "codex-cli 0.159.2",
+  "argv": [
+    "codex",
+    "app-server",
+    "generate-json-schema",
+    "--out",
+    "/tmp/ci-model-t004-native-schema-ydvkzhv6",
+    "--experimental"
+  ],
+  "exit_code": 0,
+  "inference_executed": false,
+  "model_list_executed": false,
+  "raw_schema_scratch": "/tmp/ci-model-t004-native-schema-ydvkzhv6",
+  "files": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/native-schema/v2/ModelListResponse.json",
+      "sha256": "bfbb3ee9f6e203e0b767587c17de94b9cb42f712d0d8168afbbbc3fcb4492f30"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/native-schema/v2/ModelListParams.json",
+      "sha256": "de29a536c00a5b8f46f34dba417dabd93365305571a8ed200e33bea85db68b5a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/native-schema/v1/InitializeResponse.json",
+      "sha256": "62ad689c2cb6379913c1d72749cfd8de5089d35760214123518eb92eef11acc9"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/native-schema/v1/InitializeParams.json",
+      "sha256": "b55124e7c0f36a1789396daa5578217a92be67f053903696236686e59f6f212e"
+    }
+  ]
+}

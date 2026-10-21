@@ -1,0 +1,151 @@
+{
+  "at": "2026-10-20T11:14:44.599639+00:00",
+  "status": "PRE_PRODUCT_RECORDED",
+  "tests_only_commit": "87f3730ba369fd9025c8bc3f5ca40f472f248ade",
+  "product_before": {
+    "plugins/sdd-implementation/scripts/managed-model-entry.py": {
+      "sha256": "9618fd2eb8983e55923971efd8c4ccc47caf77c07125d97550914c1fd24024d2",
+      "mode": 384
+    },
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md": {
+      "sha256": "9d78e75b7c98aaca5a4ef2ef0727b7924be84cf79346f327ff03c931a2a62000",
+      "mode": 384
+    },
+    "install.sh": {
+      "sha256": "209b6665087dc0416005230c1aa1a949156cfd84c3a62b1dccf40353d26f07b5",
+      "mode": 448
+    },
+    "install.ps1": {
+      "sha256": "8b6a0f9ac8f42e8363ed5ede2221d5955e39d70c1a4a6dcaca6eafb019e540c5",
+      "mode": 384
+    }
+  },
+  "scope": "Only ordinary investigator entry/carrier, bootstrap outer caller and installer required-path lists. Reuse prepare/selector/control/native precedence algorithms; no protected driver/core/schema/discovery modifications.",
+  "fields": [
+    {
+      "field": "unchanged selection/controls/validation fields",
+      "counterpart": "original T006/T007 bind+validate_launch_controls; inherited complete leaf preflights",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_blocks_invalid_bound_inputs_before_work"
+    },
+    {
+      "field": "12 fixed caller options",
+      "counterpart": "existing10 prep/executable + prompt-file and raw prompt-sha256; no extra native argv",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_blocks_invalid_bound_inputs_before_work"
+    },
+    {
+      "field": "prompt canonical relative path/raw SHA",
+      "counterpart": "caller pin versus captured own execution-root regular UTF8 input; no symlink/output overlap",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_blocks_invalid_bound_inputs_before_work"
+    },
+    {
+      "field": "native role/host",
+      "counterpart": "investigator/claude-code only, exact controls role/host",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_blocks_invalid_bound_inputs_before_work"
+    },
+    {
+      "field": "fresh canonical native UUID",
+      "counterpart": "caller binding session_id == native --session-id and public response; no continue/resume; replay refused",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    },
+    {
+      "field": "required actual identity",
+      "counterpart": "existing actual-id-unavailable before work when require_actual_id=true; no modelUsage promotion",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_blocks_invalid_bound_inputs_before_work"
+    },
+    {
+      "field": "entire installed investigator body",
+      "counterpart": "same own installed raw body in --agents JSON; no source/project fallback",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_maintained_investigator_entry_selects_before_one_fresh_work_allocation"
+    },
+    {
+      "field": "full skill and5supporting source bytes",
+      "counterpart": "fixed own installed source closure, source labels/relative meanings and raw task text once",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_maintained_investigator_entry_selects_before_one_fresh_work_allocation"
+    },
+    {
+      "field": "source/prompt/executable before-send and post-work pins",
+      "counterpart": "capture before harmless CLI and recheck immediately pre-send/after native completion; drift rejection",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_blocks_invalid_bound_inputs_before_work"
+    },
+    {
+      "field": "declared native work carrier flags",
+      "counterpart": "actual harmless help declares print/output-format/session-id/tools/disallowedTools plus existing4",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_blocks_invalid_bound_inputs_before_work"
+    },
+    {
+      "field": "native model and effort fields",
+      "counterpart": "same selected native/effort in top-level CLI and sole sdd-investigator JSON agent",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_maintained_investigator_entry_selects_before_one_fresh_work_allocation"
+    },
+    {
+      "field": "tools and disallowed tools",
+      "counterpart": "original Read/Grep/Glob/Bash and Write/Edit/NotebookEdit denials; no formerly ignored activations",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    },
+    {
+      "field": "normal permissions/settings/env",
+      "counterpart": "captured environment passed unchanged; no autoapproval,bypass,settings filtering,credential reads or profile copy",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    },
+    {
+      "field": "one fresh work allocation/full payload",
+      "counterpart": "outer bootstrap entry selects before Skill context:fork; loaded skill not re-invoked through Skill/Agent",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_maintained_investigator_entry_selects_before_one_fresh_work_allocation"
+    },
+    {
+      "field": "bounded native IO and cleanup",
+      "counterpart": "fixed argv/stdin payload, bounded output/deadline and owned-child cleanup; oversize never accepted",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    },
+    {
+      "field": "public JSON type/is_error/nonempty result",
+      "counterpart": "exit0 and strict public final result; individual malformed/error/empty negatives, no synthetic DTO",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    },
+    {
+      "field": "public session_id binding",
+      "counterpart": "exact requested fresh UUID versus returned public session_id, wrong-session scope-mismatch",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    },
+    {
+      "field": "native-result.json/raw stdout",
+      "counterpart": "same accepted public JSON bytes only; new raw artifact has no invented identity/schema/thread/turn",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    },
+    {
+      "field": "accepted validation publication order",
+      "counterpart": "existing controls recomputed before/after work; validation and native-result only after successful validated completion",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    },
+    {
+      "field": "native rejected/malformed outcome",
+      "counterpart": "model-unverified static envelope, no fabricated access-denied cause, no retry/fallback",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    },
+    {
+      "field": "installer mandatory7file workload closure",
+      "counterpart": "original investigator role + full skill +5docs; both actual installers reject incomplete source before publish",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_blocks_invalid_bound_inputs_before_work"
+    },
+    {
+      "field": "bootstrap maintained outer caller",
+      "counterpart": "actual installed fence forwards selection/session/prompt raw pin; configuration-only counterfactual cannot deliver work",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_maintained_investigator_entry_selects_before_one_fresh_work_allocation"
+    },
+    {
+      "field": "unresolved/fixture evidence limits",
+      "counterpart": "local collector stays incomplete, externally supplied observation never generated/repaired; no ready/applied-effort/access/adoption claim",
+      "mismatch_test": "InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity"
+    }
+  ],
+  "actual_red": "investigator-test-application/red-effective-evidence.json",
+  "inherited_preflights": [
+    "ordinary-claude-product-preflight/fields.json",
+    "local-authority-product-preflight/current-fields.json",
+    "settings-env-product-preflight/fields.json"
+  ],
+  "interpretation": "investigator-test-candidate/boundary-decision.md; primary contract reading, not formal QA. Supplied fixture observation + incomplete local authority may support ordinary require_actual_id=false configuration carrier without claiming real access/effort proof.",
+  "partial_execution": "Current new3 fail missing native command/caller/14 actual installer omissions; downstream work/response mutations unexecuted until positive. Existing9/170 PASS.",
+  "proposed_private_changes": "Default-preserving prepare work option; common bounded CLI runner; capture/recheck full workload closure; original native override gate unchanged. Existing public modes retain behavior.",
+  "limits": "Real provider access/availability producer/backend ID/adoption, other indirect callers, implementation/diagnosis/domains/WFI/automation and full task rollback/QA remain open."
+}

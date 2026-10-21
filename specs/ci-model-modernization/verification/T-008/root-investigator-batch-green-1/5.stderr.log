@@ -1,0 +1,9 @@
+test_definition_reuses_original_selection_errors_and_rejects_missing_forwarding (t008_spec_root_actual.InstalledClaudeBatchTests.test_definition_reuses_original_selection_errors_and_rejects_missing_forwarding) ... ok
+test_generic_unsupported_branch_validates_exact_role_host_grammar_without_effects (t008_spec_root_actual.InstalledClaudeBatchTests.test_generic_unsupported_branch_validates_exact_role_host_grammar_without_effects) ... ok
+test_installed_definition_forwards_bound_full_native_controls_without_per_call_aliases (t008_spec_root_actual.InstalledClaudeBatchTests.test_installed_definition_forwards_bound_full_native_controls_without_per_call_aliases) ... ok
+test_maintained_unknown_startup_fence_is_typed_and_cannot_enter_fallback_or_work (t008_spec_root_actual.InstalledClaudeBatchTests.test_maintained_unknown_startup_fence_is_typed_and_cannot_enter_fallback_or_work) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 4.529s
+
+OK

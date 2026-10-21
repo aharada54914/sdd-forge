@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/required-checks-posix.tests.py"
+  ],
+  "cwd": "/tmp/ci-model-t005-rollback-l36dha1n/repo",
+  "started_at": "2026-10-19T20:19:15.909200+00:00",
+  "elapsed_seconds": 45.05367567999929,
+  "exit_code": 0,
+  "sources": [
+    {
+      "path": "plugins/sdd-implementation/scripts/model-policy.py",
+      "sha256": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894"
+    },
+    {
+      "path": "contracts/model-selection.schema.json",
+      "sha256": null
+    },
+    {
+      "path": "contracts/model-delivery.schema.json",
+      "sha256": null
+    },
+    {
+      "path": "tests/model-identity.tests.py",
+      "sha256": null
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "3e3a747c84369d4f7713302d9895c0b143df0538384e62a966f1ed361bf9a4db"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "c44127ba6505c9ad780e7e3007e589ae1287a70af4ad2fe92b057d32a4c76448"
+    }
+  ],
+  "stdout_sha256": "96445f41c1605c50a8ac43fea5acf518fe0d19eeffd4598160e34c3588a0a34d",
+  "stderr_sha256": "7f1fbb8cab4d1474c2bf2e7016fc6fc55a0d15ee2f91177dc35cb4eb0f4b09e0",
+  "native_execution": false
+}

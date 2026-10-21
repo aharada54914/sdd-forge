@@ -16,6 +16,41 @@ cross-model verification pass. It never writes `Approved` — only a human may
 do that, and the hook guard (T-006) rejects an agent-authored write of that
 value.
 
+## Managed allocation boundary
+
+Affected policy roles: `domain-reviewer-a`, `domain-reviewer-b`.
+
+Apply in the allocating parent before an unbound forked Skill/Agent, native role,
+or fresh context receives work, and before any identity reservation. This
+boundary takes precedence over later native/default launch guidance for these
+roles. It does not add an availability or authority gate.
+
+Keep an already admitted managed entry with its validated selection/controls and
+matching role, host, run/session and workload. Keep a concretely known matching
+batch startup and fixed generated Codex configuration under their original
+contracts. An already bound worker continues its original procedure: do not
+select again, allocate again, or run this refusal inside that same worker.
+A bound parent does not bind a new child, role or session: each new allocation
+needs its own admitted selection/carrier binding or takes the refusal below.
+
+When this operation has no admitted binding of the selected model and effort to
+its actual native carrier, substitute the next affected policy role and actual
+host (`claude-code`, `codex-cli`, `copilot-cli`, or `gemini-cli`) and execute:
+
+```bash
+python3 -I -B "<installed-root>"/plugins/sdd-implementation/scripts/managed-model-entry.py unsupported-entry \
+  --role "<policy-role>" --host "<host>"
+```
+
+Exit 2 with `model-policy-error/v1` / `model-unavailable` stops that allocation
+before work or reservation. Do not fall through to an old model hint, alias,
+unbound native default or another parent session; do not count allocation alone
+as selection proof. This refusal does not assert host incapability and never
+authorizes same-session reload. Original host-incapable-only implementation
+fallback evidence and all review isolation requirements remain unchanged.
+
+Apply separately to reviewer A or B before native allocation and before identity reservation. Preserve the admitted sequential managed A/B launch, blind inputs and parent-owned status. Existing consented GPT/Gemini panelist routes remain governed by their separate cross-model contract.
+
 ## Invocation
 
 ```text
@@ -259,6 +294,63 @@ alteration instead of repairing a returned review to fit the reservation.
 6. Run its read-only verification mode against the published evidence. An internal
    PASS is eligible for the existing cross-model step; it is not human approval.
    Keep canonical input bytes and status Pending while that step is unresolved.
+
+### Local Claude CLI non-TTY route (opt-in)
+
+For this route only, use the Claude Code host from the same repository root that
+holds the installed plugins. The round is `reports/domain-review/attempt-<M>/round-<N>`
+with no feature segment; run the original initializer and domain precheck once for
+it, as above. Build each reviewer's allowed-input manifest only from the exact paths
+of the original `finalize-domain-review.py` `Review(...).precheck()` (the canonical
+artifacts, aggregate cards, contract, calibration and `precheck-result.json`; for
+reviewer B also that round's `integrated-summary.json`). Do not run spec
+conditional-input discovery or create any `specs/sdd-domain-model` file. Propose a
+fresh canonical UUIDv4 as both run and host-session ID, absent from the ledger and
+native session location, and persist the one-role invocation at
+`<round>/reviewer-a-invocation.json` or `<round>/reviewer-b-invocation.json`.
+Then call exactly once before any manual reserve:
+
+```text
+cd "<absolute-repository-root>" || exit $?
+output="<output-dir>"
+python3 -B plugins/sdd-implementation/scripts/managed-model-entry.py prepare \
+  --role <role> --host claude-code --request "<policy-request>" --registry "<registry>" \
+  --run-id <run-id> --session-id <session-id> --attempt <attempt> \
+  --output-dir "$output" --require-actual-id false || exit $?
+controls_sha=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["controls"]["sha256"])' "$output/validation.json") || exit $?
+python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py \
+  "<absolute-repository-root>" "<absolute-invocation-path>" "<absolute-round-directory>/launch-<UUID>" \
+  --model-controls "$output/controls.json" --model-controls-sha256 "$controls_sha"
+```
+
+Use the invocation's exact role (`domain-reviewer-a` or `domain-reviewer-b`),
+run/session IDs and attempt in the preparation arguments; both IDs must equal the
+proposed UUID. Supply the policy request and registry paths relative to the
+repository root and a fresh output directory. The preparation prints its validation
+on stdout; that is not a launch receipt. Stop on any preparation failure and forward
+the controls hash from its successful `validation.json`, never a fresh unchecked file
+hash. A policy request whose role or host contradicts `--role` or `--host` stops as
+`scope-mismatch` before any work.
+
+The launcher runs the original `Review.precheck()`/`unchanged()` checks, the
+read-only host preflight and the native permission probe before its single ledger
+reservation, then pins dependencies, launches and checks delivery. Require its exact
+`REVIEW_CONTEXT_OK` receipt and postflight proof; do not reserve separately, retry
+with altered IDs, or treat delivery as a review verdict.
+
+Run the fence for reviewer A, persist its returned raw JSON as `reviewer-a.json`
+(the `structured_output` of the launch `wrapper.json`, verbatim), run the
+deterministic summary command, then run the fence again for a fresh reviewer B whose
+manifest has the sanitized summary and never `reviewer-a.json` or any A launch
+artifact. Keep A's launch directory unchanged; finalize and verify with the commands
+below. Delivery is not approval: the domain status stays Pending, the internal PASS
+still requires the separate cross-model step and the human approval that follows it.
+
+This managed fence is Claude Code only. The Copilot `--model auto` commands above
+remain the original documented route and are not a managed route: Copilot has no
+admitted exact model mapping, so preparation with `--host copilot-cli` stops with
+`model-unavailable` before allocation or reservation, with no alias, default or
+fallback. Other host routes retain the sequential launch boundary above.
 
 ### Deterministic evidence commands
 

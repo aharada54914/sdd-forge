@@ -1,0 +1,93 @@
+{
+  "recorded_at": "2026-10-20T14:09:23.941081+00:00",
+  "scope": "Prospective same-root DOMAIN dispatch only; reuse canonical validators and T007 algorithms. Before any domain product edit. No new universal schema/provider availability producer.",
+  "fields": [
+    {
+      "field": "stage",
+      "source": "domain",
+      "counterpart": "Existing canonical domain invocation validator / launcher and driver stage dispatch",
+      "mismatch": "Reject other stage or wrong named role before formal reservation."
+    },
+    {
+      "field": "feature",
+      "source": "sdd-domain-model",
+      "counterpart": "Existing domain identity namespace / domain invocation and delivery reconstruction",
+      "mismatch": "Reject policy feature/role namespace mismatch; no synthetic specs inputs."
+    },
+    {
+      "field": "attempt/round",
+      "source": "Original initializer output",
+      "counterpart": "Review.precheck / canonical round layout reports/domain-review/attempt-N/round-N",
+      "mismatch": "Reject mismatched round, replay or duplicate identity."
+    },
+    {
+      "field": "precheck/input hash",
+      "source": "Original precheck.json",
+      "counterpart": "Original Review.precheck and unchanged / actual required input paths",
+      "mismatch": "Reject canonical/aggregate/precheck raw drift before work and acceptance."
+    },
+    {
+      "field": "calibration hash",
+      "source": "Original domain-review-calibration.md",
+      "counterpart": "Review.precheck / immutable invocation and result",
+      "mismatch": "Reject calibration drift; do not copy the hash algorithm."
+    },
+    {
+      "field": "model/effort",
+      "source": "T006 immutable selected controls",
+      "counterpart": "Existing model_launch_binding/selected_argv / native public argv and launch reconstruction",
+      "mismatch": "Reject wrong role, raw control drift and changed selection."
+    },
+    {
+      "field": "runtime role bytes",
+      "source": "Original domain-reviewer-a/b.md",
+      "counterpart": "Installed trusted role / generated native agent full prompt",
+      "mismatch": "Reject role/config drift; preserve source bodies."
+    },
+    {
+      "field": "read/hash policy",
+      "source": "Original readonly guard and genuine path set",
+      "counterpart": "Existing preflight/probe/guard / formal native settings",
+      "mismatch": "Deny writes, compound/substitution/outside reads and B raw-A reads/hashes."
+    },
+    {
+      "field": "A/B bridge",
+      "source": "Real canonical integrated summary after A",
+      "counterpart": "Original finalizer summary / fresh B invocation context",
+      "mismatch": "No raw-A bridge; A delivery must remain valid after B."
+    },
+    {
+      "field": "status ownership",
+      "source": "Pending through domain review; separate cross-model then human approval",
+      "counterpart": "Unchanged initializer/finalizer/ordinary Skill",
+      "mismatch": "No Approved transition, including Sudo."
+    },
+    {
+      "field": "unsupported Copilot route",
+      "source": "Typed model-unavailable",
+      "counterpart": "Existing closed unsupported prepare host boundary / maintained caller",
+      "mismatch": "Reject before native allocation/reservation, preserve state; no model auto fallback."
+    }
+  ],
+  "before_sources": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "8f403af99222c26c17d88f9ac2c0529461ced0928e935622eeead29ff3d8dddb",
+    "plugins/sdd-review-loop/scripts/preflight-host-review.py": "2bc182b85691ac0cc848f5ff5c34e1a5ba488cfe7025f6e6ea9b079f4847b752",
+    "plugins/sdd-review-loop/scripts/probe-nontty-review.py": "de497ca1a28b3e07ba1b7e717dd629dd66068c78b31698689628cbf494f2108b",
+    "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+    "plugins/sdd-domain/skills/domain-review-loop/SKILL.md": "36484fe991db49da3bc5aaeb6421b661b1412270d8059daec6128c15389eec1f",
+    "plugins/sdd-domain/scripts/finalize-domain-review.py": "47ccc5c746d2ee0231ddc878ca86273b3198d7b8427517d39fcd11ef9ba2c312",
+    "plugins/sdd-domain/scripts/domain-review-precheck.sh": "712521803b54ebfc60832137a710e93810ee04ef9905378eeaf39ef38f6a97b2",
+    "plugins/sdd-domain/scripts/domain-review-precheck.ps1": "ec72d99136d0747a4113fe6f32bde63c2651e7409fa8a8e22a0bb1ce896f7cc6",
+    "plugins/sdd-domain/agents/domain-reviewer-a.md": "782addb1bb2f60253ac48dfc0a5966b968b5b53f9ee1246dd45ae3c27717fefd",
+    "plugins/sdd-domain/agents/domain-reviewer-b.md": "031cae9862ad7cf0d4776c26d5e06f49c40db197360c9a72fc5305d03045172e"
+  },
+  "preserve_originals": [
+    "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
+    "plugins/sdd-domain/scripts/finalize-domain-review.py",
+    "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+    "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
+    "plugins/sdd-domain/agents/domain-reviewer-a.md",
+    "plugins/sdd-domain/agents/domain-reviewer-b.md"
+  ]
+}

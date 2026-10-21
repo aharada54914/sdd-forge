@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "specs/ci-model-modernization/verification/T-008/assembled-current-application/run-current-shared-54.py",
+    "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/assembled-shared54-admission/task-input-manifest.json",
+    "97975e711fc0923a6a80e6a3efef346ee62d1e6eabed13a33cd02b7c376dcfef"
+  ],
+  "started_epoch": 1792517280.5830975,
+  "elapsed_seconds": 170.55081152915955,
+  "command_exit_code": 0,
+  "adopted_descendants_reaped": 0,
+  "own_command_group_cleanup_signals": [],
+  "remaining_own_children": false,
+  "scope": "Only command descendants; PID1/unrelated processes untouched"
+}

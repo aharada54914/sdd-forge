@@ -1,0 +1,9 @@
+from pathlib import Path
+import datetime,hashlib,json,os,subprocess,time
+r=Path('/workspace/sdd-forge');b=r/'specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final';b.mkdir(exist_ok=False);sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();names=['unified-launch-order','concept-review-continuity','host-review-preflight'];sources=['plugins/sdd-review-loop/scripts/launch-impl-review.py','plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py']+['tests/'+n+'.tests.py' for n in names];before={n:sha(r/n) for n in sources};rows=[];python='/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3';env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',SDD_TEST_PWSH='/workspace/.tools/sdd-forge-dev/bin/pwsh');env['PATH']=str(Path(python).parent)+':/workspace/.tools/sdd-forge-dev/bin:/workspace/.tools/rtk/0.51.0:'+env.get('PATH','')
+for i,name in enumerate(names,1):
+ command=[python,'-B','tests/'+name+'.tests.py'];start=datetime.datetime.now(datetime.timezone.utc).isoformat();t=time.monotonic()
+ with (b/f'{name}.stdout.log').open('xb') as stdout,(b/f'{name}.stderr.log').open('xb') as stderr:
+  p=subprocess.run(command,cwd=r,env=env,stdout=stdout,stderr=stderr,timeout=600,check=False)
+ rows.append({'command':command,'started_at':start,'finished_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'elapsed_seconds':time.monotonic()-t,'exit_code':p.returncode,'logs':[{'path':(b/f'{name}.{k}.log').relative_to(r).as_posix(),'sha256':sha(b/f'{name}.{k}.log')} for k in ['stdout','stderr']]});print(json.dumps({'suite':name,'exit_code':p.returncode}),flush=True)
+after={n:sha(r/n) for n in sources};assert before==after;d={'commands':rows,'source_before':before,'source_after':after,'source_unchanged':True,'controller_sha256':sha(Path(__file__))};(b/'results.json').write_text(json.dumps(d,indent=2)+'\n');raise SystemExit(0 if all(x['exit_code']==0 for x in rows) else 1)

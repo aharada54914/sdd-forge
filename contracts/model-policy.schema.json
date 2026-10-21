@@ -1,0 +1,599 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "model-policy/v1",
+  "description": "Runtime additionally validates duplicate keys/IDs, reference consistency, safe file containment and valid UTC calendar values. Evidence hashes establish consistency, not authentic model behavior.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "source_date",
+    "observation_max_age_seconds",
+    "default_policy",
+    "roles",
+    "models"
+  ],
+  "properties": {
+    "schema": {
+      "const": "model-policy/v1"
+    },
+    "source_date": {
+      "$ref": "#/$defs/utc"
+    },
+    "observation_max_age_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "default_policy": {
+      "const": "latest-compatible"
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementer",
+        "investigator",
+        "spec-reviewer-a",
+        "spec-reviewer-b",
+        "impl-reviewer-a",
+        "impl-reviewer-b",
+        "task-reviewer-a",
+        "task-reviewer-b",
+        "evaluator",
+        "domain-reviewer-a",
+        "domain-reviewer-b",
+        "workflow-auditor-a",
+        "workflow-auditor-b",
+        "diagnosis",
+        "self-improvement",
+        "panelist-gpt",
+        "panelist-gemini"
+      ],
+      "properties": {
+        "implementer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": null
+            },
+            "model_env": {
+              "const": "SDD_MODEL_IMPLEMENTER"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "investigator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "sdd-investigator"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_INVESTIGATOR"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "spec-reviewer-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "spec-reviewer"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_SPEC_REVIEWER_A"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "spec-reviewer-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "spec-reviewer"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_SPEC_REVIEWER_B"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "impl-reviewer-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "impl-reviewer"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_IMPL_REVIEWER_A"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "impl-reviewer-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "impl-reviewer"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_IMPL_REVIEWER_B"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "task-reviewer-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "task-reviewer"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_TASK_REVIEWER_A"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "task-reviewer-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "task-reviewer"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_TASK_REVIEWER_B"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "evaluator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "sdd-evaluator"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_EVALUATOR"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "domain-reviewer-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "domain-reviewer"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_DOMAIN_REVIEWER_A"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "domain-reviewer-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "domain-reviewer"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_DOMAIN_REVIEWER_B"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "workflow-auditor-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "workflow-auditor"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_WORKFLOW_AUDITOR_A"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "workflow-auditor-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "workflow-auditor"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_WORKFLOW_AUDITOR_B"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "diagnosis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "diagnosis"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_DIAGNOSIS"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "self-improvement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "self-improvement"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_SELF_IMPROVEMENT"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "panelist-gpt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "panelist-gpt"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_PANELIST_GPT"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        },
+        "panelist-gemini": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capability_role",
+            "model_env",
+            "preferences"
+          ],
+          "properties": {
+            "capability_role": {
+              "const": "panelist-gemini"
+            },
+            "model_env": {
+              "const": "SDD_MODEL_PANELIST_GEMINI"
+            },
+            "preferences": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          }
+        }
+      }
+    },
+    "models": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "lifecycle",
+          "source_url",
+          "source_date",
+          "successor_of",
+          "hosts",
+          "adoption"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/identifier"
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": [
+              "current",
+              "candidate",
+              "historical",
+              "retired"
+            ]
+          },
+          "source_url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "pattern": "^[Hh][Tt][Tt][Pp][Ss]://(?:[^\\s/?#@:\\[\\]]+|\\[[^\\]\\s]+\\])(?::[0-9]*)?(?:[/?#][^\\s]*)?(?![\\s\\S])"
+          },
+          "source_date": {
+            "$ref": "#/$defs/utc"
+          },
+          "successor_of": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/identifier"
+            }
+          },
+          "hosts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [],
+            "properties": {
+              "claude-code": {
+                "$ref": "#/$defs/identifier"
+              },
+              "codex-cli": {
+                "$ref": "#/$defs/identifier"
+              },
+              "copilot-cli": {
+                "$ref": "#/$defs/identifier"
+              },
+              "gemini-cli": {
+                "$ref": "#/$defs/identifier"
+              }
+            }
+          },
+          "adoption": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "role",
+                "path",
+                "sha256"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "implementer",
+                    "investigator",
+                    "spec-reviewer-a",
+                    "spec-reviewer-b",
+                    "impl-reviewer-a",
+                    "impl-reviewer-b",
+                    "task-reviewer-a",
+                    "task-reviewer-b",
+                    "evaluator",
+                    "domain-reviewer-a",
+                    "domain-reviewer-b",
+                    "workflow-auditor-a",
+                    "workflow-auditor-b",
+                    "diagnosis",
+                    "self-improvement",
+                    "panelist-gpt",
+                    "panelist-gemini"
+                  ]
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(^/|^[A-Za-z]:|\\\\|(^|/)\\.{1,2}(/|$)|//|/$|[\\x00-\\x1f\\x7f])"
+                  }
+                },
+                "sha256": {
+                  "$ref": "#/$defs/sha256"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}(?![\\s\\S])"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "\\S"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    },
+    "utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?Z(?![\\s\\S])",
+      "format": "date-time"
+    }
+  }
+}

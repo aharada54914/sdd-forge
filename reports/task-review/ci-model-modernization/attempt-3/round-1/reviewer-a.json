@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "ci-model-modernization",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "work-agent:root:t011_taskplan_reviewer_a",
+  "host_session_id": "work-agent:root:t011_taskplan_reviewer_a",
+  "manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "sha256": "77d170f77f1d89b793e24f96ef24428b517363d7ed3e2784f49366788ee8ca8e"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.md",
+      "sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-3/round-1/precheck-result.json",
+      "sha256": "f8bcd0d23571a3f5246df626a1e44d6183d9727239943ed6ce2c48dd5c3933b8"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-3/round-1/dependency-graph.json",
+      "sha256": "bc5fcab196a27da139a412ffa951fcddcdc85897b7f3d6a612e2623fb699c852"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/requirements.md:53 and :68 define 20 unique requirements; acceptance-tests.md:9 and :24 map 20 unique AC IDs one-to-one to them. requirements.md:3 and design.md:3 record predecessor Passed states. Invocation SHA and all 12 input pins were independently reverified after review. The initial brief omitted Task-Review-Status normalization and produced aa9259b7c906f4c8b255ec1090c1a53f09dd927e90583b67c9ff05049710f097; Root supplied the complete canonical recipe, additionally normalizing that field to Pending, which independently reproduced manifest hash 77d170f77f1d89b793e24f96ef24428b517363d7ed3e2784f49366788ee8ca8e. Raw tasks SHA remained 8602f7440a586d79a4c21551aef8f4c3998efda1baca3f5197ac779ee74467d9. This corrected the brief, without changing or waiving input bytes."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each of the 11 task Blockers sections contains None or existing task IDs: specs/ci-model-modernization/tasks.md:70, :119, :170, :219, :268, :324, :378, :437, :486, :534 and :596. T-010's separate authentication explanation at :538 preserves its T-008 dependency line. The supplied precheck-result.json reports blockers_format_valid=true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "The Requirements fields of T-001 through T-011 in specs/ci-model-modernization/tasks.md:32 through :549 cover all REQ-001 through REQ-020 without unknown requirements. Shared requirements have distinct core, transport, installed-entry, adoption or final-rollout portions, explicitly separated at tasks.md:13 and :21."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 20 ACs and every one of the 162 acceptance TEST rows are represented in specs/ci-model-modernization/tasks.md:604 through :765. Independent comparison found no missing TEST, no mismatched AC and no TEST assigned to a task lacking its corresponding requirement. T-011 retains TEST-016/017, TEST-027, rollout comparisons, documentation and release acceptance; its readiness amendment does not waive those outcomes."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 11 tasks have declared requirements and owned acceptance tests in specs/ci-model-modernization/tasks.md. Owned TEST counts for T-001 through T-011 are respectively 37, 15, 15, 6, 8, 35, 12, 12, 5, 3 and 14. T-010's controlled model and skill evaluation serves TEST-103/104/127; T-011's bounded readiness integration serves its existing TEST-017 outcome."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Independent comparison of specs/ci-model-modernization/acceptance-tests.md:41 through :232 with tasks.md:604 through :765 found exactly 162 unique TEST IDs in each, with no extra ownership rows, absent owners or nonexistent task references."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "This is the declared post-implementation provenance re-review using the supplied --provenance-rereview precheck, rather than initial task creation. specs/ci-model-modernization/tasks.md:3 retains Task-Review-Status: Passed; T-001 through T-009 remain Done, T-010 is Blocked at :493, and T-011 is In Progress at :543. The scoped continuation at :579 preserves the approval timestamp and explicitly leaves final rollout, adoption and release blocked on T-010. Resetting these recorded lifecycle fields to Draft/Planned is not required for this re-review. This check does not independently authenticate historical approvals or quality-gate outcomes."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All tasks provide Risk, Risk Rationale, Required Workflow, Data Migration and Breaking API fields. T-001 through T-009 use high/tdd; T-010 uses medium/acceptance-first for controlled evaluation. The changed T-011 correctly uses high/tdd at specs/ci-model-modernization/tasks.md:544 through :546 and names runtime selection/parser risk, tests-first Red/Green, conservative unknown handling, compatibility review and subset rollback. design.md:295 and :303 and security-spec.md:67 require high-risk persisted-field counterpart/mismatch evidence. Supplied precheck workflow_match_precheck is PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/tasks.md:21 distinguishes shared requirement/AC references from final TEST ownership. The 162 ownership rows contain 162 unique TEST IDs with exact acceptance AC mappings. Core selection, transport, installed-entry and adoption portions are explicitly separated at tasks.md:260, :316, :370, :428 and :523; repeated AC references do not create competing final owners."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "The 11 nodes and 11 edges in reports/task-review/ci-model-modernization/attempt-3/round-1/dependency-graph.json exactly match parsed task Blockers. specs/ci-model-modernization/tasks.md:13 and :15 establish producer-before-consumer ordering through T-008, maintenance after T-006, adoption after T-008, and final T-011 joining T-009/T-010. T-010's actual token-refresh/authentication prerequisite is explicitly recorded at :538, with further model calls/authentication changes unauthorized. T-011's :579 exception permits only bounded readiness integration before T-010; final rollout/adoption/release retain that dependency."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Independent traversal of the admitted dependency-graph.json visited all 11 nodes without a cycle. Its edges match specs/ci-model-modernization/tasks.md Blockers: the T-001 through T-008 chain branches to T-009 from T-006 and T-010 from T-008, then joins at T-011. No self-reference, unknown node or reverse dependency was found."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "specs/ci-model-modernization/tasks.md:13 assigns planner, aggregate, workflow, observation, identity, selection, transport, installed-entry, maintenance, adoption and final-delivery responsibilities separately. T-011's specific amendment at :570 through :579 authorizes only the bounded omission-readiness integration needed for its TEST-017 acceptance, including exact setup classification and schema counterpart. It is read as a narrow exception to the general earlier ownership rule, not permission to reopen unrelated algorithms. Other task-owned changes remain excluded at :594, and final completion remains dependent on T-010."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Task Done When sections name inspectable tests, artifacts and rejection outcomes. T-010 at specs/ci-model-modernization/tasks.md:523 through :528 requires actual repeated controlled evaluations, fixed comparison conditions and retained failures; model-list availability alone cannot satisfy them. T-011 at :585 through :590 requires saved assigned-acceptance results, source-consumer/mutation comparisons, actual hosted contexts and omissions, manual full execution, measured timing/cache observations, exact-final-commit local/hosted checks and an immutable tag. Its high-risk readiness verification is further specified at :545 and :572 and design.md:295/:303. Missing hosted/native proof remains explicit rather than becoming PASS."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Independent comparison of specs/ci-model-modernization/traceability.md:7 through :26 against requirements, acceptance tests and task ownership found all 20 requirements and exact per-requirement TEST sets, with corresponding task owners. traceability.md:3 and :39 preserve partial/shared completion boundaries; tasks.md:9 requires outcomes in non-frozen addenda and reserves Done for the quality gate. T-011's current readiness work maps to REQ-004/TEST-017 already assigned at traceability.md:10 and tasks.md:620; the task amendment does not claim final hosted activation, model adoption or release completion."
+    }
+  ],
+  "findings": []
+}

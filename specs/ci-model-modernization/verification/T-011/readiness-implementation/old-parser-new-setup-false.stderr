@@ -1,0 +1,1 @@
+{"schema": "verification-ci-error/v1", "reason": "input-invalid", "message": "Invalid planning input, revision binding, or output destination."}

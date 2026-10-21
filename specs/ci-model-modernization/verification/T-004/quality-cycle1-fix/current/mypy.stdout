@@ -1,0 +1,3 @@
+plugins/sdd-implementation/scripts/model-policy.py:328: error: Item "None" of "IO[bytes] | None" has no attribute "fileno"  [union-attr]
+plugins/sdd-implementation/scripts/model-policy.py:352: error: Item "None" of "IO[bytes] | None" has no attribute "close"  [union-attr]
+Found 2 errors in 1 file (checked 3 source files)

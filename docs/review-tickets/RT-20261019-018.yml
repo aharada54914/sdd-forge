@@ -1,0 +1,15 @@
+ticket_id: RT-20261019-018
+status: resolved
+type: bounded-native-discovery
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-004
+summary: "CLI version stdout captured without byte bounds before text validation"
+expected_fix: "Bound incremental version output and owned-child cleanup; oversized/continuous output must yield sanitized unavailable, reap child, and never start app-server. Add committed actual Red before implementation, then fresh full-scope quality review."
+evidence: reports/quality-gate/20261019-ci-model-modernization-T-004-cycle-1.md
+auto_fix_allowed: true
+requires_human_decision: false
+classification: "Narrow approved T004 discovery resource-bound repair; no new API, authority, inference or release decision."
+resolution: "Actual fresh full-scope T004 QA2 PASS0; all390 pins verified before dependent mutation;245 tests and190->245->190 rollback passed; generated evidence bundle validated before Done."
+resolution_evidence: reports/quality-gate/20261019-ci-model-modernization-T-004-cycle-2.md

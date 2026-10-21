@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "ci-model-modernization",
+  "attempt": 3,
+  "round": 2,
+  "run_id": "work-agent:root:t011_taskplan2_reviewer_a",
+  "host_session_id": "work-agent:root:t011_taskplan2_reviewer_a",
+  "manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "sha256": "f6efd341394dc891a84741a98a9bb5e514c771f94e23709ce73fa4e36e93f886"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.md",
+      "sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-3/round-2/precheck-result.json",
+      "sha256": "e10f52ec86361ed2c2314b0316dfd83736700b2ba52a9ae72214c2c13cd75187"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-3/round-2/dependency-graph.json",
+      "sha256": "7b0fb70f03fbe79bfedaf5943ad9f087cb3bdd20ba1ef29433d40c314896c8d4"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md defines REQ-001 through REQ-020; acceptance-tests.md defines 20 unique corresponding AC IDs and TEST-001 through TEST-162. All task ownership references resolve. The invocation byte hash matches the delivered pin, its identity/stage/role/file-manifest/read_only/fallback fields match this review, and all 12 allowed input hashes match, including the specified lifecycle-normalized tasks.md hash. Reservation sequence 1296 and its predecessor quotation match the caller-delivered reservation fields; the reserved validator was not rerun."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Each of T-001 through T-011 has one Blockers section. T-001 declares None; every other section contains only existing task IDs in comma-separated form. No self-reference or unknown task appears. Extracted nodes and edges exactly match dependency-graph.json, consistent with precheck-result.json blockers_format_valid=true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "The union of task Requirements fields equals all 20 requirements with no unknown references. CI planning, aggregation and workflow integration belong to T-001 through T-003; model discovery, binding, resolution, transport, installed entries and maintenance belong to T-004 through T-009; T-010 owns controlled adoption; T-011 owns final rollout/documentation/release and its bounded TEST-017 readiness correction."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every AC-001 through AC-020 is represented in tasks.md Test Ownership. All 162 acceptance tests have an assigned final owner, and every test's AC maps to a requirement declared by that owner. T-011 retains actual hosted omission/native-context evidence, full parity, category comparison, measurement, documentation and immutable-release acceptance; its diagnostic amendment does not substitute local enumeration for those outcomes."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "All 11 tasks declare valid requirements and own acceptance tests. Each has a defined product or verification outcome and corresponding traceability.md task references. T-011's parser/setup repair is explicitly tied to TEST-017 under REQ-004, so the amendment has an acceptance purpose rather than introducing unrelated work."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "The acceptance-tests.md test-ID set exactly equals the tasks.md Test Ownership set: 162 tests, no missing IDs, no extra IDs and no AC mismatches. Each traceability.md requirement row contains exactly the acceptance tests mapped to that requirement."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "This is the declared post-implementation provenance re-review, so approved advanced lifecycle states are valid. tasks.md records T-001 through T-009 Done, T-010 Blocked and T-011 In Progress. T-011 Scope expressly permits the bounded readiness correction while retaining T-010 as the blocker for final rollout, adoption and immutable release; it does not claim those outcomes or mark either task Done."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every task supplies Risk, Risk Rationale, Required Workflow, Data Migration and Breaking API fields. T-001 through T-009 and amended T-011 use high/tdd; T-010 uses medium/acceptance-first. T-011's rationale identifies runtime obligation selection and setup-schema parsing, and its diagnostic path requires tests-first Red/Green, conservative unknown handling, compatibility evidence and subset rollback. This agrees with the current workflow precheck."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "All 162 TEST ownership rows have exactly one final task owner. Shared AC/requirement references are divided into explicit core, integration, installed-entry, adoption and rollout portions under Acceptance ownership. For example, AC-004 assigns TEST-018 to T-003 and hosted TEST-016/017 to T-011; AC-015 assigns binding tests to T-005 and comparisons TEST-103/104 to T-010."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "The declared chain T-001→T-002→T-003→T-004→T-005→T-006→T-007→T-008 supplies each downstream producer/consumer contract. T-009 depends on policy T-006, T-010 on installed entries T-008, and T-011 joins T-009/T-010. Shared file ordering serializes helper/catalog edits. The T-011 scope amendment distinguishes permitted readiness repair from final outcomes that remain blocked on T-010, preserving the completion dependency."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "BLOCKERS-FORMAT passes. Independent traversal of all 11 task nodes and 11 extracted dependency edges finds no cycle. The extracted graph exactly matches the delivered dependency-graph.json; T-011 is a terminal join of maintenance and adoption."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Task goals, owned files, scope and exclusions separate planner, aggregate, workflow, discovery, binding, selector, transport, installed entries, maintenance, adoption and delivery responsibilities. The changed T-011 content confines the additional implementation to omission readiness for its owned TEST-017, naming the planner, exact setup declaration, schema counterpart and focused regressions. It does not absorb model-adoption algorithms or unrelated task responsibilities."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Tasks name inspectable suites, records, commands or acceptance outcomes, with independent quality acceptance and rollback evidence. T-011 adds a concrete diagnostic chain: retained pre-correction bytes reproduce 443 full/443 selected obligations; diagnosis distinguishes generated-predicate and exact setup causes from unknown predicates, missing matrix values and unrecognized raw commands; four tests-first regressions preserve baseline Red, prior50 plus new4 Green, source-consumer proof and subset rollback. Its final Done When still requires actual hosted results and exact-commit release validation. precheck-result.json frozen_artifact_done_when is empty, so no flagged task requires separate frozen-item adjudication. TYPE-D constraints remain satisfied: historical diagnostic/source evidence is reused without backdating or replacement, frozen outcomes remain in addenda, and prior tag objects are preserved. This assesses planned evidence, not implementation or hosted success."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "For each of the 20 requirements, traceability.md task IDs exactly match tasks.md Requirements declarations, and its test IDs exactly match acceptance-tests.md. All task ownership AC mappings agree. The T-011 amendment remains within existing REQ-004/TEST-017 ownership and its task-local evidence destination; no new requirement or test ownership is introduced. Traceability keeps rollout/release pending and expressly distinguishes completed scoped work from uncompleted adoption and hosted activation."
+    }
+  ],
+  "findings": []
+}

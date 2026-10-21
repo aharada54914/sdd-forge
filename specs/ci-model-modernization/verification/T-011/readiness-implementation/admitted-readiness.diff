@@ -1,0 +1,173 @@
+--- a/tests/verification-impact.py
++++ b/tests/verification-impact.py
+@@ -339,11 +339,17 @@
+     declared = set()
+     for item in declarations:
+         exact_fields(item, 'job step kind')
+-        if (item['job'] not in groups or item['kind'] not in ('build', 'audit')
++        if (item['job'] not in groups or item['kind'] not in ('build', 'audit', 'setup')
+                 or not isinstance(item['step'], str) or (item['job'], item['step']) in declared):
+             raise ValueError('invalid non-suite declaration')
+         candidates = [s for s in workflow['jobs'][item['job']].get('steps', []) if s.get('name') == item['step']]
+-        if len(candidates) != 1 or candidates[0].get('run', '').strip() not in (
++        if item['kind'] == 'setup':
++            if ((item['job'], item['step']) != ('cli-hook-enforcement', 'Install Claude Code CLI')
++                    or len(candidates) != 1
++                    or candidates[0].get('run', '').rstrip('\n') != (
++                        'npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code\nclaude --version')):
++                raise ValueError('unrecognized setup command cannot authorize omission')
++        elif len(candidates) != 1 or candidates[0].get('run', '').strip() not in (
+                 'npm run build', 'npm test', 'npx tsc --noEmit', 'npm audit --omit=dev --audit-level=high'):
+             raise ValueError('unrecognized non-suite command cannot authorize omission')
+         declared.add((item['job'], item['step']))
+@@ -470,19 +476,34 @@
+     groups = {g for c in categories for g in c['groups']}
+     engine = workflow_module()
+     declared = set()
++    setup = set()
+     for declaration in catalog.get('impact', {}).get('non_suite_steps', []):
+         job = workflow['jobs'][declaration['job']]
+         step = next(s for s in job['steps'] if s.get('name') == declaration['step'])
+-        if job.get('if') is None and step.get('if') is None:
++        if declaration['kind'] == 'setup':
++            setup.add((declaration['job'], declaration['step']))
++        elif job.get('if') is None and step.get('if') is None:
+             declared.add((declaration['job'], declaration['step']))
++    try:
++        engine.planner_outputs(workflow)
++        planner_ok = True
++    except ValueError:
++        planner_ok = False
++
++    def resolved(expression, matrix, runner):
++        # Selection-local: declared generated planner terms count as true; engine.condition_value is unchanged.
++        if planner_ok and isinstance(expression, str):
++            expression = engine.PLAN_TERM.sub('true', expression)
++        return engine.condition_value(expression, matrix, runner)
+     mandatory = set()
+     runners = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'windows-latest': 'Windows'}
+     for obligation in obligations:
+         job = workflow['jobs'][obligation['job']]
+         steps = [s for s in job['steps'] if engine.expand_matrix(s.get('name', ''), obligation['matrix']) == obligation['step']]
+-        unknown = (len(steps) != 1 or engine.condition_value(job.get('if'), obligation['matrix'], runners[obligation['runner']]) is None
+-                   or engine.condition_value(steps[0].get('if'), obligation['matrix'], runners[obligation['runner']]) is None)
+-        if unknown or (not obligation['suites'] and (obligation['job'], obligation['step']) not in declared):
++        unknown = (len(steps) != 1 or resolved(job.get('if'), obligation['matrix'], runners[obligation['runner']]) is None
++                   or resolved(steps[0].get('if'), obligation['matrix'], runners[obligation['runner']]) is None)
++        key = (obligation['job'], obligation['step'])
++        if unknown or (not obligation['suites'] and key not in declared and key not in setup):
+             mandatory.add(obligation['id'])
+             selected.update(obligation['suites'])
+     selected = dependency_closure(selected, groups, catalog, obligations)
+--- a/tests/verification-catalog.json
++++ b/tests/verification-catalog.json
+@@ -76,7 +76,13 @@
+         "tests/verification-catalog.tests.py"
+       ]
+     },
+-    "non_suite_steps": []
++    "non_suite_steps": [
++      {
++        "job": "cli-hook-enforcement",
++        "step": "Install Claude Code CLI",
++        "kind": "setup"
++      }
++    ]
+   },
+   "suites": [
+     {
+--- a/contracts/verification-ci-plan.schema.json
++++ b/contracts/verification-ci-plan.schema.json
+@@ -823,7 +823,8 @@
+               "kind": {
+                 "enum": [
+                   "build",
+-                  "audit"
++                  "audit",
++                  "setup"
+                 ]
+               }
+             }
+--- a/tests/verification-ci-plan.tests.py
++++ b/tests/verification-ci-plan.tests.py
+@@ -1512,5 +1512,80 @@
+             self.assertEqual(failed[0]['reason'], 'evidence-missing')
+ 
+ 
++_T011_CLI_SETUP = 'npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code\nclaude --version'
++
++
++class OmissionReadinessTests(unittest.TestCase):
++    def fixture(self, raw=False):
++        unrelated = 'cli-hook-enforcement' if raw else 'optional'
++        suites = ['tests/a.tests.py', 'tests/cli-hook-enforcement.ps1' if raw else 'tests/b.tests.py']
++        catalog = {'schema': 'verification-catalog/v1', 'suites': [
++            {'path': suites[0], 'runtime': 'python'},
++            {'path': suites[1], 'runtime': 'pwsh' if raw else 'python'}],
++            'profiles': {'fixture': suites},
++            'impact': {'schema': 'verification-impact-rules/v1', 'categories': [{
++                'id': 'readme-contract', 'paths': ['README.md'], 'prefixes': [],
++                'suites': [suites[0]], 'groups': ['test'], 'active': False, 'evidence': None}],
++                'dependencies': {}}}
++        workflow: dict[str, Any] = {'jobs': {
++            'test': {'runs-on': 'ubuntu-latest', 'steps': [{'name': 'related', 'run': 'python3 ' + suites[0]}]},
++            unrelated: {'runs-on': 'ubuntu-latest', 'if': "needs.ci-plan.outputs.run_" + unrelated.replace('-', '_') + " == 'true'",
++                'steps': ([{'name': 'Install Claude Code CLI', 'shell': 'bash', 'run': _T011_CLI_SETUP}] if raw else []) +
++                    [{'name': 'unrelated', 'shell': 'pwsh' if raw else 'bash', 'run': './' + suites[1] if raw else 'python3 ' + suites[1]}]},
++            'ci-plan': {'runs-on': 'ubuntu-latest', 'steps': [], 'outputs': {}}}}
++        workflow['jobs']['ci-plan']['outputs'] = {
++            'run_' + name.replace('-', '_'): '${{ steps.plan.outputs.run_' + name.replace('-', '_') + ' }}'
++            for name in workflow['jobs']}
++        self.assertIsNotNone(W.planner_outputs(workflow))
++        return catalog, workflow, unrelated
++
++    def select(self, catalog, workflow):
++        full = W.plan_obligations(workflow, catalog)
++        chosen = IMPACT.selected_obligations(catalog['impact']['categories'], catalog, workflow, full)
++        return full, chosen
++
++    def test_validated_generated_gate_does_not_itself_force_unrelated_suite(self):
++        catalog, workflow, job = self.fixture()
++        full, chosen = self.select(catalog, workflow)
++        self.assertTrue(any(o['job'] == job for o in full))
++        self.assertFalse(any(o['job'] == job for o in chosen))
++        self.assertEqual(IMPACT.condition_outputs({'groups': sorted({o['job'] for o in chosen})}, sorted(workflow['jobs']))['run_optional'], 'false')
++
++    def test_exact_declared_cli_setup_can_leave_unrelated_cli_job_unselected(self):
++        catalog, workflow, job = self.fixture(raw=True)
++        catalog['impact']['non_suite_steps'] = [{'job': job, 'step': 'Install Claude Code CLI', 'kind': 'setup'}]
++        IMPACT.rules(catalog, workflow)
++        full, chosen = self.select(catalog, workflow)
++        self.assertEqual(len([o for o in full if o['job'] == job]), 2)
++        self.assertFalse(any(o['job'] == job for o in chosen))
++
++    def test_unknown_predicates_and_missing_matrix_keys_stay_mandatory(self):
++        catalog, workflow, job = self.fixture()
++        for condition in ("needs.external.outputs.ready == 'true'",
++                          "needs.ci-plan.outputs.run_optional == 'true' && matrix.missing == 'yes'",
++                          "needs.ci-plan.outputs.run_optional == 'true' || false"):
++            with self.subTest(condition=condition):
++                probe = copy.deepcopy(workflow)
++                probe['jobs'][job]['if'] = condition
++                full, chosen = self.select(catalog, probe)
++                self.assertEqual({o['id'] for o in full}, {o['id'] for o in chosen})
++
++    def test_setup_declaration_does_not_admit_another_raw_command_or_site(self):
++        for mutation in ('body', 'job', 'step'):
++            catalog, workflow, job = self.fixture(raw=True)
++            catalog['impact']['non_suite_steps'] = [{'job': job, 'step': 'Install Claude Code CLI', 'kind': 'setup'}]
++            if mutation == 'body':
++                workflow['jobs'][job]['steps'][0]['run'] += '\npython3 unproven.py'
++            elif mutation == 'job':
++                workflow['jobs']['elsewhere'] = workflow['jobs'].pop(job)
++                catalog['impact']['non_suite_steps'][0]['job'] = 'elsewhere'
++            else:
++                workflow['jobs'][job]['steps'][0]['name'] = 'other setup'
++                catalog['impact']['non_suite_steps'][0]['step'] = 'other setup'
++            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
++                IMPACT.rules(catalog, workflow)
++
++
++
+ if __name__ == '__main__':
+     unittest.main()

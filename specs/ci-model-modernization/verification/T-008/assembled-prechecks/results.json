@@ -1,0 +1,56 @@
+{
+  "commands": [
+    {
+      "id": "verification-catalog",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:14:29Z",
+      "finished_at": "2026-10-20T17:14:32Z",
+      "log": "specs/ci-model-modernization/verification/T-008/assembled-prechecks/verification-catalog.log",
+      "log_sha256": "23573e3638044f9091b5fc45cd647dd1d22deb6ad252ab649231426e8cbf8fa5"
+    },
+    {
+      "id": "placeholder-scan",
+      "command": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+        "plugins/sdd-implementation/scripts/managed-model-entry.py",
+        "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+        "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+        "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+        ".github/workflows/self-improvement.yml",
+        "install.sh",
+        "install.ps1",
+        "render-agent-frontmatter.sh",
+        "render-agent-frontmatter.ps1"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:14:32Z",
+      "finished_at": "2026-10-20T17:14:32Z",
+      "log": "specs/ci-model-modernization/verification/T-008/assembled-prechecks/placeholder-scan.log",
+      "log_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "component-coverage",
+      "command": [
+        "python3",
+        "-B",
+        "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+        "--repo-root",
+        "/workspace/sdd-forge"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T17:14:32Z",
+      "finished_at": "2026-10-20T17:14:32Z",
+      "log": "specs/ci-model-modernization/verification/T-008/assembled-prechecks/component-coverage.log",
+      "log_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "source_unchanged": true,
+  "source_count": 1697,
+  "source_drift": []
+}

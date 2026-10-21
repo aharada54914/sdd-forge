@@ -1,0 +1,11 @@
+{
+  "index_paths": [
+    "tests/verification-ci-plan.tests.py"
+  ],
+  "product_hashes_unchanged": {
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+    "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+    "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac"
+  },
+  "note": "Only this test path is committed; its prior uncommitted predecessor additions remain preserved, plus exact four-method T011 fragment."
+}

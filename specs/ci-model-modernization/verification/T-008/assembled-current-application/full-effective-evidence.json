@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "methods": {
+    "tests_run": 78,
+    "subtests_run": 955,
+    "subtests_passed": 955,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "successful": true,
+    "discovery_count": 78
+  },
+  "source_pins_unchanged": 1697,
+  "manifest_sha256": "17a0194f414f630b7526c7618e8ddf143dec6a239f2179a15e037636dc06cb85",
+  "sources": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-current-installed-13/results.json",
+      "sha256": "0bb73c0bae355691a0bdbc7a6cc5f790cba8cb28990ea10af8ad929a9b243ddd"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-current-installed-13/installed-result.json",
+      "sha256": "689c51c6b9e416f83db32e54e0514815300ebe964ad350c27a2565dcdeac31ca"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/assembled-current-application/full13-subreaper.json",
+      "sha256": "2f6456e717c77db0cff60ffb4a8f45e312b78f241b68e5d67aab23dc1d4d5f4f"
+    }
+  ],
+  "scope": "Current actual78installed fixture methods, bothshells,currentSelf5+Batch4+Default2 and original67. Source immutability includes currenttestscope/mainblockfix. Actualnativeconfigured/fixture delivery/typedstops only, not modelintelligence/backendeffort/adoption/livehosted/cloud/wholeTaskQA."
+}

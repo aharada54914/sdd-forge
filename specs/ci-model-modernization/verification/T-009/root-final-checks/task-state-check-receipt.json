@@ -1,0 +1,28 @@
+{
+  "id": "task-state-check",
+  "command": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+    "/workspace/sdd-forge/specs/ci-model-modernization/tasks.md"
+  ],
+  "started_at": "2026-10-20T16:46:21.282052+00:00",
+  "finished_at": "2026-10-20T16:46:22.172372+00:00",
+  "elapsed_seconds": 0.8903234070021426,
+  "exit_code": 0,
+  "log": "specs/ci-model-modernization/verification/T-009/root-final-checks/task-state-check.log",
+  "log_sha256": "7253e1d83575ea38c9ef54680751615cb2e3375b218a5fd4b7f69fc3cc5ef116",
+  "source_before": {
+    "specs/ci-model-modernization/tasks.md": "52c2be8a04235b3ee3c505b7a44d3d472d9fcb6a43c1aed9a6a25636e54890ee",
+    "specs/ci-model-modernization/traceability.json": "c666b974d1bf387de3083115c9bee94c7345a12488229ad74ce30271844165fc",
+    "plugins/sdd-quality-loop/scripts/check-task-state.sh": "209dab3d0fa72d980dc6247fef2f4566950ca3c228543dda8d930a1eec9e286d",
+    "plugins/sdd-quality-loop/scripts/check-traceability.sh": "f735a2b315161a2dfe61e45a199ffc513b8461a2cccb3adf00d74830dc56016d",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py": "d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd"
+  },
+  "source_after": {
+    "specs/ci-model-modernization/tasks.md": "52c2be8a04235b3ee3c505b7a44d3d472d9fcb6a43c1aed9a6a25636e54890ee",
+    "specs/ci-model-modernization/traceability.json": "c666b974d1bf387de3083115c9bee94c7345a12488229ad74ce30271844165fc",
+    "plugins/sdd-quality-loop/scripts/check-task-state.sh": "209dab3d0fa72d980dc6247fef2f4566950ca3c228543dda8d930a1eec9e286d",
+    "plugins/sdd-quality-loop/scripts/check-traceability.sh": "f735a2b315161a2dfe61e45a199ffc513b8461a2cccb3adf00d74830dc56016d",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py": "d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd"
+  }
+}

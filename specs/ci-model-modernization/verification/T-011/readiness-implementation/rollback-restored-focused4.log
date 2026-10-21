@@ -1,0 +1,9 @@
+test_exact_declared_cli_setup_can_leave_unrelated_cli_job_unselected (__main__.OmissionReadinessTests.test_exact_declared_cli_setup_can_leave_unrelated_cli_job_unselected) ... ok
+test_setup_declaration_does_not_admit_another_raw_command_or_site (__main__.OmissionReadinessTests.test_setup_declaration_does_not_admit_another_raw_command_or_site) ... ok
+test_unknown_predicates_and_missing_matrix_keys_stay_mandatory (__main__.OmissionReadinessTests.test_unknown_predicates_and_missing_matrix_keys_stay_mandatory) ... ok
+test_validated_generated_gate_does_not_itself_force_unrelated_suite (__main__.OmissionReadinessTests.test_validated_generated_gate_does_not_itself_force_unrelated_suite) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.023s
+
+OK

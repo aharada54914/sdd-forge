@@ -1,0 +1,68 @@
+{
+  "stage": "actual Root Red before product edits or test-only commit",
+  "helper_sha256": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894",
+  "test_inputs": [
+    {
+      "path": "tests/model-identity.tests.py",
+      "sha256": "218942686af85ea84b032f30caa8ea1311c9459d1d57067e71e0f13867088d2f"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6"
+    }
+  ],
+  "results": [
+    {
+      "name": "model-identity",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/model-identity.tests.py"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "started_at": "2026-10-19T19:46:52.371165+00:00",
+      "finished_at": "2026-10-19T19:46:53.925643+00:00",
+      "exit_code": 1,
+      "logs": {
+        "stdout": {
+          "path": "specs/ci-model-modernization/verification/T-005/attempt-1/red/model-identity.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "specs/ci-model-modernization/verification/T-005/attempt-1/red/model-identity.stderr",
+          "sha256": "c01b0f28a7a937dff644d1d5663a760dafe7e1c414dcbfcf4c0619be7e463988"
+        }
+      },
+      "summary": [
+        "Ran 70 tests in 1.416s",
+        "FAILED (failures=1015)"
+      ]
+    },
+    {
+      "name": "verification-catalog",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "started_at": "2026-10-19T19:46:52.371555+00:00",
+      "finished_at": "2026-10-19T19:46:54.206517+00:00",
+      "exit_code": 1,
+      "logs": {
+        "stdout": {
+          "path": "specs/ci-model-modernization/verification/T-005/attempt-1/red/verification-catalog.stdout",
+          "sha256": "007cae7f7ad90ae93f527a1c1f3bf108b271132a8ca1fcebb99fff17050f8552"
+        },
+        "stderr": {
+          "path": "specs/ci-model-modernization/verification/T-005/attempt-1/red/verification-catalog.stderr",
+          "sha256": "fd4380bc88a5062947cbadd3454c524976bf80321d18bf77a3af4dd7cddddc9c"
+        }
+      },
+      "summary": [
+        "Ran 44 tests in 1.730s",
+        "FAILED (failures=4, errors=5)"
+      ]
+    }
+  ]
+}

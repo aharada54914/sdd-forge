@@ -1,0 +1,71 @@
+[
+  {
+    "name": "catalog-and-wiring",
+    "argv": [
+      "bash",
+      "tests/ci-suite-wiring.tests.sh"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:03:06Z",
+    "finished_at": "2026-10-19T19:03:08Z",
+    "exit_code": 0,
+    "stdout_sha256": "007cae7f7ad90ae93f527a1c1f3bf108b271132a8ca1fcebb99fff17050f8552",
+    "stderr_sha256": "73c0ed709f37661c28d857bcc4cc99485a7bb280768a307df8c380703205edb9"
+  },
+  {
+    "name": "verification-ci-plan",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/verification-ci-plan.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:03:08Z",
+    "finished_at": "2026-10-19T19:03:26Z",
+    "exit_code": 0,
+    "stdout_sha256": "64b81ba6146bddf06d568217745f846ba687e922e1af58f901f81a227263f115",
+    "stderr_sha256": "bed35ddf0f1eeb944e00ee21fd82f5e147eb85ec5a178cea3a23adc68b76c296"
+  },
+  {
+    "name": "verification-impact",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/verification-impact.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:03:26Z",
+    "finished_at": "2026-10-19T19:03:26Z",
+    "exit_code": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "8f8e4e58f86619e7607b413465cb7caac673765f4b0726f8e222965e019778be"
+  },
+  {
+    "name": "verification-ci",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/verification-ci.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:03:26Z",
+    "finished_at": "2026-10-19T19:04:02Z",
+    "exit_code": 0,
+    "stdout_sha256": "7c89bcc0dd4324f3c8baed14c36f813e41bb5c56a839b0b270426c34910dfaec",
+    "stderr_sha256": "eaae4a81f3d8884c038230a3685e3ed1452e08cefa08254c859d46bbbcd704b0"
+  },
+  {
+    "name": "required-checks-posix",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "tests/required-checks-posix.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t004-rollback-dqmp617h/repo",
+    "started_at": "2026-10-19T19:04:02Z",
+    "finished_at": "2026-10-19T19:04:44Z",
+    "exit_code": 0,
+    "stdout_sha256": "96445f41c1605c50a8ac43fea5acf518fe0d19eeffd4598160e34c3588a0a34d",
+    "stderr_sha256": "e7f50d08cf951966a85bf0e6ade07cbc57add10e8e9dabcf9fc5cb240e488e4c"
+  }
+]

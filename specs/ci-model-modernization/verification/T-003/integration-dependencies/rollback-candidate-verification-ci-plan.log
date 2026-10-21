@@ -1,0 +1,11 @@
+.......................fixture execution
+fixture execution
+.fixture execution
+fixture execution
+..........................
+----------------------------------------------------------------------
+Ran 50 tests in 19.143s
+
+OK
+RT014 bounded mutation variants: 230 x 2 boundaries
+Independent planning hashes: ['56cdc74fedbb93f2780fc68386378856d1e3738fb876f9f6a3d90adc8fbd128a', '56cdc74fedbb93f2780fc68386378856d1e3738fb876f9f6a3d90adc8fbd128a', '56cdc74fedbb93f2780fc68386378856d1e3738fb876f9f6a3d90adc8fbd128a', '56cdc74fedbb93f2780fc68386378856d1e3738fb876f9f6a3d90adc8fbd128a']

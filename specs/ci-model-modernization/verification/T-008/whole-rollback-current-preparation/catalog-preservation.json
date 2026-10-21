@@ -1,0 +1,21 @@
+{
+  "T009_edges_preserved": [
+    {
+      "source": "tests/model-policy.tests.py",
+      "target": "tests/model-freshness-check.tests.sh"
+    },
+    {
+      "source": "tests/model-policy.tests.py",
+      "target": "tests/model-freshness-check.tests.ps1"
+    },
+    {
+      "source": "tests/model-freshness-check.tests.ps1",
+      "target": "tests/model-freshness-check.tests.sh"
+    }
+  ],
+  "composite_sha256": "5a6ffe616a9c5b2c2afc01025234b34be2fec925cfde4d2aa90a98e46e354cac",
+  "current_sha256": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+  "inverse_semantics_equals_verified_preT009": true,
+  "original219_sha256": "1cd0f5185cb41987aa2c04e7964e29285f9172cc86243461015ee0b8f2552eef",
+  "preT009_sha256": "48f5f9a0907d1747137aa800a6c1f5db69207d81bda62a1ae95694d138f6708c"
+}

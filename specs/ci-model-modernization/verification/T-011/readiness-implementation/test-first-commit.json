@@ -1,0 +1,7 @@
+{
+  "commit": "a72eab2ec5e5362f635b4814fecd9e791a300e68",
+  "paths": [
+    "tests/verification-ci-plan.tests.py"
+  ],
+  "before_product_apply": true
+}

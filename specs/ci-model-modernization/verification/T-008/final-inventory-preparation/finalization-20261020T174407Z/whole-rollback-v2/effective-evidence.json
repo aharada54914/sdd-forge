@@ -1,0 +1,330 @@
+{
+  "status": "ONE_CATALOG_HISTORY_FIXTURE_FAILURE_PENDING_SCOPED_REPLAY",
+  "baseline_commands": 20,
+  "baseline_passed": 19,
+  "failed_commands": [
+    "verification-catalog.tests.py"
+  ],
+  "all_whole_source_rollback_restore_invariants": {
+    "baseline_sources_unchanged": true,
+    "current_sources_restored_exactly": true,
+    "preserved_namespace_unchanged": true,
+    "T009_runtime_preserved": true,
+    "current_git_tree_restored_exactly": true,
+    "admitted_inputs_unchanged": true,
+    "parent_manifest_unchanged": true
+  },
+  "owned_descendants_clean": true,
+  "output_files": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/26-spec-review-loop.tests.sh.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/results.json",
+      "sha256": "887f35ed329ec6c4ff21388758331929347783a2d68a3518f34204ea4c2ab38a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/02-config-maintenance.auto.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/29-self-improvement-guard.tests.sh.stdout",
+      "sha256": "44153f319d296ee2dc4fc9362d8366bf5560cd0c1b5943dfd99209325d5bf063"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/baseline-after.json",
+      "sha256": "c4cc15533840ee9097ffa931d5a85e33044a14d0e69e2df71e7bae6950137651"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/00-init.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/05-config-commit.gpgSign.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/31-model-freshness-check.tests.ps1.stdout",
+      "sha256": "1525b54747616cfac3f0d54f70ed4282f7c4ff9bf21130d3338bbed9a87031b7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/18-model-policy-launch-platform.tests.py.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/21-agent-model-routing.tests.ps1.stdout",
+      "sha256": "3bcfa38413e7a45810b7e1f338650cd53d13ca2b405fd8379cbd1dd7a3032037"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/11-exact-T008-rollback-preserving-T009-tree.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/29-self-improvement-guard.tests.sh.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/13-render-agent-frontmatter.tests.ps1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/10-exact-T008-rollback-preserving-T009-commit.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/33-restored-exact-frozen-current-commit.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/15-install.tests.ps1.stdout",
+      "sha256": "d619cfcd6fcba763b959a21a82e8d6f04a556190e10535e2db462c9290c79c0c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/30-model-freshness-check.tests.sh.stdout",
+      "sha256": "c062b6d02dfb1cdb0ea5b9a3ad5fdccf0b3966237301f5a11f68669a5135bd4e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/24-cross-model.tests.sh.stderr",
+      "sha256": "8585071d89196900e6af310f849b4d4ae5b90757646d03ff0b9c078109563259"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/23-emit-run-record-feature-scope.tests.ps1.stdout",
+      "sha256": "3423d8c942802bd6d84e41d6b0ad077be604e10d29ab48300fa03ae15c5832e6"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/16-verification-catalog.tests.py.stdout",
+      "sha256": "007cae7f7ad90ae93f527a1c1f3bf108b271132a8ca1fcebb99fff17050f8552"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/34-restored-exact-frozen-current-tree.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/16-verification-catalog.tests.py.stderr",
+      "sha256": "3a4655234acaef224b0ffdaea4905092323e689f4ee9af8c4f054af32f8e038a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/11-exact-T008-rollback-preserving-T009-tree.stdout",
+      "sha256": "97595201362e5b423ab5aa237f3d32ba89c707eeb63428cd1c6b040c5846d027"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/04-config-core.fsmonitor.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/03-config-core.autocrlf.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/04-config-core.fsmonitor.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/21-agent-model-routing.tests.ps1.stderr",
+      "sha256": "350ad7d29c3e338f134beb0c9e8443c31da90db3072cb26b6663d59d8b9e8ea9"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/17-model-policy-launch.tests.py.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/13-render-agent-frontmatter.tests.ps1.stdout",
+      "sha256": "31d39fbde4402758feed1ebfa43d7562aae678fd4abcee571b08e28e2b8b9df4"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/09-exact-T008-rollback-preserving-T009-add.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/07-frozen-current-commit.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/10-exact-T008-rollback-preserving-T009-commit.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/25-cross-model.tests.ps1.stdout",
+      "sha256": "01df2d156090f38d76fcaceec735c836ed407db49afb093f8c34bb6736b98a2d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/admitted-before.json",
+      "sha256": "25bdce74c251c3c8ba9e001b9b01f3dad990b9b2eb02ea1b01efebf01df548a9"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/baseline-before.json",
+      "sha256": "c4cc15533840ee9097ffa931d5a85e33044a14d0e69e2df71e7bae6950137651"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/20-agent-model-routing.tests.sh.stderr",
+      "sha256": "c985fbf403d48c87765c3774a99c74d3675b5efb2a3189bfe23d205a350a8f24"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/06-frozen-current-add.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/32-restored-exact-frozen-current-add.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/07-frozen-current-commit.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/01-config-gc.auto.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/15-install.tests.ps1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/14-install.tests.sh.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/14-install.tests.sh.stdout",
+      "sha256": "baf5105d5b33d717896410824bc7e521c66035b8a67425da8130e147bc1e64a1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/33-restored-exact-frozen-current-commit.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/34-restored-exact-frozen-current-tree.stdout",
+      "sha256": "3b5577d7f5b0078e3de5fd35bda033eca7ea98bb44e900f71f95ce5430cb46c2"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/23-emit-run-record-feature-scope.tests.ps1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/12-render-agent-frontmatter.tests.sh.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/24-cross-model.tests.sh.stdout",
+      "sha256": "6212cd41e361618597d83d681d3594328727470b63976ef9b36b674b94893822"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/27-quality-nontty-transport.tests.py.stderr",
+      "sha256": "171b1098e3156007a68d07db9f483d19fa7535a93d4c322751f2fa0ad563fc0a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/03-config-core.autocrlf.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/22-emit-run-record-feature-scope.tests.sh.stdout",
+      "sha256": "801481e1d4c63aad5302f4e1b86f62afbede8f77e8ca3c1445e208452e0b6ad6"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/20-agent-model-routing.tests.sh.stdout",
+      "sha256": "19d1f866a143b342d3467e95e0ac60b1bee77853362c40b3569ee151078a521d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/19-model-policy.tests.py.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/05-config-commit.gpgSign.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/25-cross-model.tests.ps1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/26-spec-review-loop.tests.sh.stdout",
+      "sha256": "19744fb30b2818b507058d743c9aa3c265fee7f42661bbf0eead7013667ccf9f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/12-render-agent-frontmatter.tests.sh.stdout",
+      "sha256": "0007afffe6aaa6121b07683e5c8650513976ab605de0108729899fc25b82cdc4"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/30-model-freshness-check.tests.sh.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/28-quality-gate-cycle-limit.tests.sh.stdout",
+      "sha256": "3cf2fe2996e24244274e4e7918224d275bec62e0ecec72268c0f4dc70469744d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/current-after.json",
+      "sha256": "4032cd445fcae959663531008d9c11a154e4eba29db3d61b9d76ff3896299f2d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/32-restored-exact-frozen-current-add.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/08-frozen-current-tree.stdout",
+      "sha256": "3b5577d7f5b0078e3de5fd35bda033eca7ea98bb44e900f71f95ce5430cb46c2"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/31-model-freshness-check.tests.ps1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/17-model-policy-launch.tests.py.stderr",
+      "sha256": "6e3413b77e25c0e5ba43acb1553a810b9eaf7938d56607613555e16e8489dc80"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/18-model-policy-launch-platform.tests.py.stderr",
+      "sha256": "8915574b0cb4d25c5a9275567f48ea25724fbb1a0548af7b14ffb0e27ceb1ad3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/19-model-policy.tests.py.stderr",
+      "sha256": "b8c4324fd0f8c11ec2867781238e447ab427fa478d2314fe32646186cf90799f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/01-config-gc.auto.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/00-init.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/current-before.json",
+      "sha256": "4032cd445fcae959663531008d9c11a154e4eba29db3d61b9d76ff3896299f2d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/28-quality-gate-cycle-limit.tests.sh.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/09-exact-T008-rollback-preserving-T009-add.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/06-frozen-current-add.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/27-quality-nontty-transport.tests.py.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/08-frozen-current-tree.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/02-config-maintenance.auto.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/22-emit-run-record-feature-scope.tests.sh.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/whole-rollback-current-2/admitted-after.json",
+      "sha256": "25bdce74c251c3c8ba9e001b9b01f3dad990b9b2eb02ea1b01efebf01df548a9"
+    }
+  ],
+  "remediation": "Actual pinned T003before-inventory.json addedonlyforcatalog reader. Own completebaselineclone44PASSalready. Rootcanonicalfullsource rollback+catalog-onlyreplaynext; do notclaimoriginal20allPASSinoneinvocation.",
+  "scope": "WholeT008source original27restore/newpathsabsence/currentexactrestore measured; preservesT001\u20137/T009.19actualbaselinecommandsPASS. NoRootproductchanges."
+}

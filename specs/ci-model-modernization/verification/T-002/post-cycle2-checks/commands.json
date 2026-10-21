@@ -1,0 +1,134 @@
+[
+  {
+    "id": "risk",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/ci-model-modernization/tasks.md T-002",
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:16Z",
+    "finished_at": "2026-10-19T15:13:16Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/risk.log"
+  },
+  {
+    "id": "lint",
+    "command": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-ci.py",
+      "tests/verification-ci.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:16Z",
+    "finished_at": "2026-10-19T15:13:16Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/lint.log"
+  },
+  {
+    "id": "typecheck",
+    "command": [
+      "/tmp/ci-model-resume-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/verification-ci.py",
+      "tests/verification-ci.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:16Z",
+    "finished_at": "2026-10-19T15:13:16Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/typecheck.log"
+  },
+  {
+    "id": "build",
+    "command": [
+      "python3",
+      "-m",
+      "py_compile",
+      "tests/verification-ci.py",
+      "tests/verification-ci.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:16Z",
+    "finished_at": "2026-10-19T15:13:16Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/build.log"
+  },
+  {
+    "id": "unit-tests",
+    "command": [
+      "python3",
+      "-B",
+      "tests/verification-ci.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:16Z",
+    "finished_at": "2026-10-19T15:14:04Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/unit-tests.log"
+  },
+  {
+    "id": "regression",
+    "command": [
+      "python3",
+      "-B",
+      "-c",
+      "import subprocess; [subprocess.run(['python3','-B',p],check=True) for p in ['tests/verification-ci-plan.tests.py','tests/verification-impact.tests.py','tests/verification-catalog.tests.py','tests/required-checks-posix.tests.py']]"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:16Z",
+    "finished_at": "2026-10-19T15:13:42Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/regression.log"
+  },
+  {
+    "id": "placeholder-scan",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "tests/verification-ci.py",
+      "contracts/verification-ci-result.schema.json",
+      "contracts/verification-ci-observations.schema.json"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:16Z",
+    "finished_at": "2026-10-19T15:13:16Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/placeholder-scan.log"
+  },
+  {
+    "id": "task-state-check",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:16Z",
+    "finished_at": "2026-10-19T15:13:16Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/task-state-check.log"
+  },
+  {
+    "id": "workflow-state",
+    "command": "bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:16Z",
+    "finished_at": "2026-10-19T15:13:58Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/workflow-state.log"
+  },
+  {
+    "id": "requirement-traceability",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "specs/ci-model-modernization/traceability.json",
+      "/workspace/sdd-forge",
+      "require-evidence"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:42Z",
+    "finished_at": "2026-10-19T15:13:42Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/requirement-traceability.log"
+  },
+  {
+    "id": "check-component-coverage",
+    "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+    "exit_code": 0,
+    "started_at": "2026-10-19T15:13:42Z",
+    "finished_at": "2026-10-19T15:13:42Z",
+    "evidence": "specs/ci-model-modernization/verification/T-002/post-cycle2-checks/check-component-coverage.log"
+  }
+]

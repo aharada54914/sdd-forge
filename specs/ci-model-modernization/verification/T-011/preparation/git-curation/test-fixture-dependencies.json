@@ -1,0 +1,83 @@
+[
+  {
+    "path": "specs/ci-model-modernization/verification/T-004/native-schema/account-schema-acquisition.json",
+    "exists": true,
+    "tracked": false,
+    "in_source_proposal": true,
+    "reasons": [
+      "model-observation.tests.py pinned acquisition fixture"
+    ]
+  },
+  {
+    "path": "specs/ci-model-modernization/verification/T-004/native-schema/acquisition.json",
+    "exists": true,
+    "tracked": false,
+    "in_source_proposal": true,
+    "reasons": [
+      "model-observation.tests.py pinned acquisition fixture"
+    ]
+  },
+  {
+    "path": "specs/ci-model-modernization/verification/T-004/native-schema/v1/InitializeParams.json",
+    "exists": true,
+    "tracked": false,
+    "in_source_proposal": true,
+    "reasons": [
+      "pinned native schema consumed by model-observation.tests.py"
+    ]
+  },
+  {
+    "path": "specs/ci-model-modernization/verification/T-004/native-schema/v1/InitializeResponse.json",
+    "exists": true,
+    "tracked": false,
+    "in_source_proposal": true,
+    "reasons": [
+      "pinned native schema consumed by model-observation.tests.py"
+    ]
+  },
+  {
+    "path": "specs/ci-model-modernization/verification/T-004/native-schema/v2/GetAccountParams.json",
+    "exists": true,
+    "tracked": false,
+    "in_source_proposal": true,
+    "reasons": [
+      "pinned native schema consumed by model-observation.tests.py"
+    ]
+  },
+  {
+    "path": "specs/ci-model-modernization/verification/T-004/native-schema/v2/GetAccountResponse.json",
+    "exists": true,
+    "tracked": false,
+    "in_source_proposal": true,
+    "reasons": [
+      "pinned native schema consumed by model-observation.tests.py"
+    ]
+  },
+  {
+    "path": "specs/ci-model-modernization/verification/T-004/native-schema/v2/ModelListParams.json",
+    "exists": true,
+    "tracked": false,
+    "in_source_proposal": true,
+    "reasons": [
+      "pinned native schema consumed by model-observation.tests.py"
+    ]
+  },
+  {
+    "path": "specs/ci-model-modernization/verification/T-004/native-schema/v2/ModelListResponse.json",
+    "exists": true,
+    "tracked": false,
+    "in_source_proposal": true,
+    "reasons": [
+      "pinned native schema consumed by model-observation.tests.py"
+    ]
+  },
+  {
+    "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/native-readonly/generated-schema/v2/ThreadStartParams.json",
+    "exists": true,
+    "tracked": false,
+    "in_source_proposal": true,
+    "reasons": [
+      "literal current-test data dependency: tests/model-policy-installed.tests.py"
+    ]
+  }
+]

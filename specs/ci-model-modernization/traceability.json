@@ -9,7 +9,7 @@
       ],
       "tests": [
         "TEST-001: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
-        "TEST-002: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-002: tests/verification-ci-plan.tests.py RenameConsumerTests.test_content_changing_rename_selects_old_and_new_consumers",
         "TEST-003: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
         "TEST-004: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
         "TEST-005: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
@@ -35,7 +35,27 @@
         "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
         "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/regression.log",
         "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/mutation-detection.json",
-        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json"
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle5-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle5-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-5/coverage-fix/mutation-and-rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle6-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-6/order-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-6/order-fix/inventory-parity.json",
+        "specs/ci-model-modernization/verification/T-001/post-a9-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-a9-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/contract-amendment.md",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/schema-check.log",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/green.log",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/cli-compat.json",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-json-depth-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-json-depth-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/verification-summary.json",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/schema-source-results.json",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/rollback.json"
       ],
       "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
     },
@@ -71,7 +91,27 @@
         "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
         "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/regression.log",
         "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/mutation-detection.json",
-        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json"
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle5-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle5-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-5/coverage-fix/mutation-and-rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle6-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-6/order-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-6/order-fix/inventory-parity.json",
+        "specs/ci-model-modernization/verification/T-001/post-a9-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-a9-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/contract-amendment.md",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/schema-check.log",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/green.log",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/cli-compat.json",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-json-depth-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-json-depth-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/verification-summary.json",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/schema-source-results.json",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/rollback.json"
       ],
       "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
     },
@@ -84,7 +124,7 @@
         "TEST-011: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
         "TEST-012: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
         "TEST-013: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
-        "TEST-014: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-014: tests/verification-ci-plan.tests.py ProofTests.test_required_dependency_deletion_invalidates_activated_definition plus WireTests omission-reason rejection",
         "TEST-015: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
         "TEST-051: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
         "TEST-052: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
@@ -105,7 +145,27 @@
         "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
         "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/regression.log",
         "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/mutation-detection.json",
-        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json"
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle5-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle5-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-5/coverage-fix/mutation-and-rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle6-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-6/order-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-6/order-fix/inventory-parity.json",
+        "specs/ci-model-modernization/verification/T-001/post-a9-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-a9-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/contract-amendment.md",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/schema-check.log",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/green.log",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/cli-compat.json",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-json-depth-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-json-depth-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/verification-summary.json",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/schema-source-results.json",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/rollback.json"
       ],
       "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
     },
@@ -135,9 +195,466 @@
         "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/unit-tests.log",
         "specs/ci-model-modernization/verification/T-001/post-cycle4-checks/regression.log",
         "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/mutation-detection.json",
-        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json"
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-4/revision-coverage-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle5-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-cycle5-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-5/coverage-fix/mutation-and-rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-cycle6-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-6/order-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/quality-cycle-6/order-fix/inventory-parity.json",
+        "specs/ci-model-modernization/verification/T-001/post-a9-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-a9-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/contract-amendment.md",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/a9-amendment/schema-check.log",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/green.log",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/cli-compat.json",
+        "specs/ci-model-modernization/verification/T-001/json-depth-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-001/post-json-depth-checks/unit-tests.log",
+        "specs/ci-model-modernization/verification/T-001/post-json-depth-checks/regression.log",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/verification-summary.json",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/schema-source-results.json",
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/rollback.json"
       ],
       "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
+    },
+    {
+      "req": "REQ-005",
+      "acs": [
+        "AC-005"
+      ],
+      "tests": [
+        "TEST-019: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-020: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-021: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-022: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-023: Cycle1RegressionTests collector CLI real ZIP to aggregate CLI retains failed/current receipts for genuine and partial reruns; copied intermediate API-ID source forgery rejected; current missing/failed/unselected/malformed proof fails",
+        "TEST-024: tests/verification-ci.tests.py A9AggregateTests: exact event/Git context; detector/native/skip observations, source attempts, producer/consumer/schema counterparts; local simulated Actions only",
+        "TEST-055: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-056: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-057: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-058: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-059: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-060: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-061: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-062: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log",
+        "TEST-063: tests/verification-ci.tests.py executed complete protocol acceptance; see a9-resume/green-verification-ci.log"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-002/attempt-1/green-final.log",
+        "specs/ci-model-modernization/verification/T-002/attempt-1/red-pr-lineage.log",
+        "specs/ci-model-modernization/verification/T-002/attempt-1/red-execution-binding.log",
+        "specs/ci-model-modernization/verification/T-002/attempt-1/red-current-callers.log",
+        "specs/ci-model-modernization/verification/T-002/attempt-1/rollback.json",
+        "specs/ci-model-modernization/verification/T-002/root-diagnostics/execution.json",
+        "specs/ci-model-modernization/verification/T-002/read-only-api-smoke/execution.json",
+        "specs/ci-model-modernization/verification/T-002/attempt-1/a9-contract-question.md",
+        "docs/review-tickets/RT-20261019-007.yml",
+        "specs/ci-model-modernization/verification/T-002/a9-resume/green-verification-ci.log",
+        "specs/ci-model-modernization/verification/T-002/a9-resume/contract-addendum.md",
+        "specs/ci-model-modernization/verification/T-002/a9-resume/rollback.json",
+        "specs/ci-model-modernization/verification/T-002/a9-resume/schema-validation.log",
+        "specs/ci-model-modernization/verification/T-002/a9-resume/static-final-commands.json",
+        "specs/ci-model-modernization/verification/T-002/cycle1-fix/green-cycle1.log",
+        "specs/ci-model-modernization/verification/T-002/cycle1-fix/red-cycle1-final.log",
+        "specs/ci-model-modernization/verification/T-002/cycle1-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-002/cycle1-fix/mutation-result.json",
+        "specs/ci-model-modernization/verification/T-002/cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-002/cycle2-fix/green.log",
+        "specs/ci-model-modernization/verification/T-002/cycle2-fix/schema-check.json",
+        "specs/ci-model-modernization/verification/T-002/cycle2-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-002/cycle2-fix/final-checks.json"
+      ],
+      "scope": "T002 full collector/aggregator implemented; RT010/012/013 focused fixes plus formal T001 shared-codec RT011 downstream regression passed caller136 tests/schema/rollback, pending independent cycle3. No hosted completion asserted."
+    },
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-004"
+      ],
+      "tests": [
+        "TEST-018: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py"
+      ],
+      "evidence": [
+        "reports/implementation/ci-model-modernization/T-003.md",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/current-validation.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/obligation-mapping.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/product-preservation.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/schema-validation.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-results.json",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/final-verification-summary.json",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/final-plan-schema-results.json",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/rollback-final-results.json"
+      ],
+      "scope": "T003 deterministic workflow integration only; real hosted/native/cache/performance and category activation remain downstream T011."
+    },
+    {
+      "req": "REQ-007",
+      "acs": [
+        "AC-007"
+      ],
+      "tests": [
+        "TEST-028: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-029: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-030: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-067: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-068: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-069: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-070: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py"
+      ],
+      "evidence": [
+        "reports/implementation/ci-model-modernization/T-003.md",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/current-validation.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/obligation-mapping.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/product-preservation.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/schema-validation.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-results.json",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/final-verification-summary.json",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/final-plan-schema-results.json",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/rollback-final-results.json"
+      ],
+      "scope": "T003 deterministic workflow integration only; real hosted/native/cache/performance and category activation remain downstream T011."
+    },
+    {
+      "req": "REQ-008",
+      "acs": [
+        "AC-008"
+      ],
+      "tests": [
+        "TEST-031: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-032: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-033: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-071: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-072: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-073: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-074: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py"
+      ],
+      "evidence": [
+        "reports/implementation/ci-model-modernization/T-003.md",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/current-validation.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/obligation-mapping.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/product-preservation.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/schema-validation.json",
+        "specs/ci-model-modernization/verification/T-003/integration-dependencies/rollback-results.json",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/final-verification-summary.json",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/final-plan-schema-results.json",
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/rollback-final-results.json"
+      ],
+      "scope": "T003 deterministic workflow integration only; real hosted/native/cache/performance and category activation remain downstream T011."
+    },
+    {
+      "req": "REQ-012",
+      "acs": [
+        "AC-012"
+      ],
+      "tests": [
+        "TEST-083: task-owned discovery, normalization, native-client provenance and resource-bound acceptance in tests/model-observation.tests.py",
+        "TEST-084: task-owned discovery, normalization, native-client provenance and resource-bound acceptance in tests/model-observation.tests.py",
+        "TEST-085: task-owned discovery, normalization, native-client provenance and resource-bound acceptance in tests/model-observation.tests.py",
+        "TEST-086: task-owned discovery, normalization, native-client provenance and resource-bound acceptance in tests/model-observation.tests.py",
+        "TEST-087: task-owned discovery, normalization, native-client provenance and resource-bound acceptance in tests/model-observation.tests.py",
+        "TEST-088: task-owned discovery, normalization, native-client provenance and resource-bound acceptance in tests/model-observation.tests.py"
+      ],
+      "evidence": [
+        "reports/implementation/ci-model-modernization/T-004.md",
+        "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/results.json",
+        "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/rollback/final-results.json",
+        "reports/quality-gate/20261019-ci-model-modernization-T-004-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-004/quality-cycle-2/review-completion.json"
+      ],
+      "scope": "T004 discovery/provenance only; model listing is not inference access or adoption."
+    },
+    {
+      "req": "REQ-015",
+      "acs": [
+        "AC-015"
+      ],
+      "tests": [
+        "TEST-100: T005 core binding/resume/delivery acceptance in tests/model-identity.tests.py",
+        "TEST-101: T005 core binding/resume/delivery acceptance in tests/model-identity.tests.py",
+        "TEST-102: T005 core binding/resume/delivery acceptance in tests/model-identity.tests.py",
+        "TEST-131: T005 core binding/resume/delivery acceptance in tests/model-identity.tests.py"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-005/attempt-1/red/results.json",
+        "specs/ci-model-modernization/verification/T-005/attempt-1/red-commit.json",
+        "reports/implementation/ci-model-modernization/T-005.md",
+        "specs/ci-model-modernization/verification/T-005/attempt-1/final-verification.json",
+        "specs/ci-model-modernization/verification/T-005/rollback/final-results.json",
+        "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/final-verification.json",
+        "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/rollback/final-results.json",
+        "reports/quality-gate/20261019-ci-model-modernization-T-005-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-005.evidence.json"
+      ],
+      "scope": "T005 core binding/resume/delivery Done after actual independent QA2 PASS0 and generated/checked bundle. Shared later selection/comparison ownership remains incomplete; requirement status stays In Progress."
+    },
+    {
+      "req": "REQ-016",
+      "acs": [
+        "AC-016"
+      ],
+      "tests": [
+        "TEST-107: T005 core binding/resume/delivery acceptance in tests/model-identity.tests.py",
+        "TEST-108: T005 core binding/resume/delivery acceptance in tests/model-identity.tests.py",
+        "TEST-132: T005 core binding/resume/delivery acceptance in tests/model-identity.tests.py",
+        "TEST-133: T005 core binding/resume/delivery acceptance in tests/model-identity.tests.py"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-005/attempt-1/red/results.json",
+        "specs/ci-model-modernization/verification/T-005/attempt-1/red-commit.json",
+        "reports/implementation/ci-model-modernization/T-005.md",
+        "specs/ci-model-modernization/verification/T-005/attempt-1/final-verification.json",
+        "specs/ci-model-modernization/verification/T-005/rollback/final-results.json",
+        "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/final-verification.json",
+        "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/rollback/final-results.json",
+        "reports/quality-gate/20261019-ci-model-modernization-T-005-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-005.evidence.json",
+        "reports/implementation/ci-model-modernization/T-006.md",
+        "specs/ci-model-modernization/verification/T-006/attempt-1/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/report-counterpart-proof.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json",
+        "reports/quality-gate/20261019-ci-model-modernization-T-006-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-006.evidence.json"
+      ],
+      "scope": "T006 selection Done after actual independent QA2 PASS0 and generated/checked evidence bundle. Shared downstream native launch/installed entries/adoption or comparison remain incomplete; final requirement status remains In Progress."
+    },
+    {
+      "req": "REQ-011",
+      "acs": [
+        "AC-011"
+      ],
+      "tests": [
+        "TEST-079",
+        "TEST-080",
+        "TEST-081",
+        "TEST-082",
+        "TEST-138",
+        "TEST-139",
+        "TEST-140",
+        "TEST-141",
+        "TEST-142",
+        "TEST-143"
+      ],
+      "evidence": [
+        "reports/implementation/ci-model-modernization/T-006.md",
+        "specs/ci-model-modernization/verification/T-006/attempt-1/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/report-counterpart-proof.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json",
+        "reports/quality-gate/20261019-ci-model-modernization-T-006-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-006.evidence.json",
+        "reports/implementation/ci-model-modernization/T-007.md",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/source-integrity-final.json",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-rollback-final-green.json",
+        "reports/quality-gate/20261020-ci-model-modernization-T-007-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-007.evidence.json",
+        "reports/implementation/ci-model-modernization/T-008.md",
+        "specs/ci-model-modernization/verification/T-008.contract.json",
+        "specs/ci-model-modernization/verification/T-008/caller-progress.json",
+        "specs/ci-model-modernization/verification/T-008/assembled-current-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/assembled-current-application/shared54-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/rollback-effective-evidence.json",
+        "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-008.evidence.json"
+      ],
+      "scope": "T006 selection Done after actual independent QA2 PASS0 and generated/checked evidence bundle. Shared downstream native launch/installed entries/adoption or comparison remain incomplete; final requirement status remains In Progress. T007 transport subset Done after actual independent QA2 PASS0 and generated/checked evidence bundle; assigned12 branches only. Installed entries/adoption/hosted outcomes remain downstream; shared requirement In Progress. T008 Done after actual independent QA2 PASS (0 Critical, 0 Major, 0 Minor), canonical cycle2 2235-input delivery and generated/checked evidence bundle. Assigned installed-entry and exact65+17 caller scope only; configured-versus-actual native proof limits remain. T010 candidate adoption and T011 hosted activation/release remain uncompleted; shared requirement status remains In Progress."
+    },
+    {
+      "req": "REQ-013",
+      "acs": [
+        "AC-013"
+      ],
+      "tests": [
+        "TEST-089",
+        "TEST-090",
+        "TEST-091",
+        "TEST-092",
+        "TEST-093",
+        "TEST-150",
+        "TEST-151"
+      ],
+      "evidence": [
+        "reports/implementation/ci-model-modernization/T-006.md",
+        "specs/ci-model-modernization/verification/T-006/attempt-1/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/report-counterpart-proof.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json",
+        "reports/quality-gate/20261019-ci-model-modernization-T-006-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-006.evidence.json"
+      ],
+      "scope": "T006 selection Done after actual independent QA2 PASS0 and generated/checked evidence bundle. Shared downstream native launch/installed entries/adoption or comparison remain incomplete; final requirement status remains In Progress."
+    },
+    {
+      "req": "REQ-014",
+      "acs": [
+        "AC-014"
+      ],
+      "tests": [
+        "TEST-094",
+        "TEST-095",
+        "TEST-096",
+        "TEST-097",
+        "TEST-098",
+        "TEST-099",
+        "TEST-147",
+        "TEST-148",
+        "TEST-149",
+        "TEST-152",
+        "TEST-153",
+        "TEST-154",
+        "TEST-155",
+        "TEST-156",
+        "TEST-157",
+        "TEST-158",
+        "TEST-159",
+        "TEST-160",
+        "TEST-161",
+        "TEST-162"
+      ],
+      "evidence": [
+        "reports/implementation/ci-model-modernization/T-006.md",
+        "specs/ci-model-modernization/verification/T-006/attempt-1/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/report-counterpart-proof.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json",
+        "reports/quality-gate/20261019-ci-model-modernization-T-006-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-006.evidence.json",
+        "reports/implementation/ci-model-modernization/T-007.md",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/source-integrity-final.json",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-rollback-final-green.json",
+        "reports/quality-gate/20261020-ci-model-modernization-T-007-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-007.evidence.json",
+        "reports/implementation/ci-model-modernization/T-008.md",
+        "specs/ci-model-modernization/verification/T-008.contract.json",
+        "specs/ci-model-modernization/verification/T-008/caller-progress.json",
+        "specs/ci-model-modernization/verification/T-008/assembled-current-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/assembled-current-application/shared54-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/rollback-effective-evidence.json",
+        "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-008.evidence.json"
+      ],
+      "scope": "T006 selection Done after actual independent QA2 PASS0 and generated/checked evidence bundle. Shared downstream native launch/installed entries/adoption or comparison remain incomplete; final requirement status remains In Progress. T007 transport subset Done after actual independent QA2 PASS0 and generated/checked evidence bundle; assigned12 branches only. Installed entries/adoption/hosted outcomes remain downstream; shared requirement In Progress. T008 Done after actual independent QA2 PASS (0 Critical, 0 Major, 0 Minor), canonical cycle2 2235-input delivery and generated/checked evidence bundle. Assigned installed-entry and exact65+17 caller scope only; configured-versus-actual native proof limits remain. T010 candidate adoption and T011 hosted activation/release remain uncompleted; shared requirement status remains In Progress."
+    },
+    {
+      "req": "REQ-019",
+      "acs": [
+        "AC-019"
+      ],
+      "tests": [
+        "TEST-122",
+        "TEST-123",
+        "TEST-124",
+        "TEST-125",
+        "TEST-126",
+        "TEST-127"
+      ],
+      "evidence": [
+        "reports/implementation/ci-model-modernization/T-006.md",
+        "specs/ci-model-modernization/verification/T-006/attempt-1/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/root-source-review/report-counterpart-proof.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/implementation-report.md",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/final-proof-summary.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
+        "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json",
+        "reports/quality-gate/20261019-ci-model-modernization-T-006-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-006.evidence.json",
+        "reports/implementation/ci-model-modernization/T-007.md",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/source-integrity-final.json",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-rollback-final-green.json",
+        "reports/quality-gate/20261020-ci-model-modernization-T-007-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-007.evidence.json",
+        "reports/implementation/ci-model-modernization/T-008.md",
+        "specs/ci-model-modernization/verification/T-008.contract.json",
+        "specs/ci-model-modernization/verification/T-008/caller-progress.json",
+        "specs/ci-model-modernization/verification/T-008/assembled-current-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/assembled-current-application/shared54-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/rollback-effective-evidence.json",
+        "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-008.evidence.json"
+      ],
+      "scope": "T006 selection Done after actual independent QA2 PASS0 and generated/checked evidence bundle. Shared downstream native launch/installed entries/adoption or comparison remain incomplete; final requirement status remains In Progress. T007 transport subset Done after actual independent QA2 PASS0 and generated/checked evidence bundle; assigned12 branches only. Installed entries/adoption/hosted outcomes remain downstream; shared requirement In Progress. T008 Done after actual independent QA2 PASS (0 Critical, 0 Major, 0 Minor), canonical cycle2 2235-input delivery and generated/checked evidence bundle. Assigned installed-entry and exact65+17 caller scope only; configured-versus-actual native proof limits remain. T010 candidate adoption and T011 hosted activation/release remain uncompleted; shared requirement status remains In Progress."
+    },
+    {
+      "req": "REQ-018",
+      "acs": [
+        "AC-018"
+      ],
+      "tests": [
+        "TEST-117",
+        "TEST-119",
+        "TEST-121",
+        "TEST-116: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory",
+        "TEST-118: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory",
+        "TEST-120: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory",
+        "TEST-134: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory",
+        "TEST-135: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory",
+        "TEST-136: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory",
+        "TEST-137: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory",
+        "TEST-144: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory",
+        "TEST-145: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory",
+        "TEST-146: T008 installed renderer/caller integration in tests/model-policy-installed.tests.py; current full78/955 and semantic caller inventory"
+      ],
+      "evidence": [
+        "reports/implementation/ci-model-modernization/T-007.md",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/source-integrity-final.json",
+        "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-rollback-final-green.json",
+        "reports/quality-gate/20261020-ci-model-modernization-T-007-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-007.evidence.json",
+        "reports/implementation/ci-model-modernization/T-008.md",
+        "specs/ci-model-modernization/verification/T-008.contract.json",
+        "specs/ci-model-modernization/verification/T-008/caller-progress.json",
+        "specs/ci-model-modernization/verification/T-008/assembled-current-application/full-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/assembled-current-application/shared54-effective-evidence.json",
+        "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/rollback-effective-evidence.json",
+        "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
+        "specs/ci-model-modernization/verification/T-008.evidence.json"
+      ],
+      "scope": "T007 protected transport subset Done after actual independent QA2 PASS0; installed role/caller closure remains T008, shared requirement In Progress. T008 Done after actual independent QA2 PASS (0 Critical, 0 Major, 0 Minor), canonical cycle2 2235-input delivery and generated/checked evidence bundle. Assigned installed-entry and exact65+17 caller scope only; configured-versus-actual native proof limits remain. T010 candidate adoption and T011 hosted activation/release remain uncompleted; shared requirement status remains In Progress."
+    },
+    {
+      "req": "REQ-017",
+      "acs": [
+        "AC-017"
+      ],
+      "tests": [
+        "TEST-111: both locking suites preserve weekly/manual trigger, permissions and existing notifications",
+        "TEST-112: canonical Bash protocol fixtures cover each/both source-unavailable and no partial diff",
+        "TEST-113: repeated candidate/deprecation notifications reuse existing markers/dedup",
+        "TEST-114: controlled malicious prose/date fixtures do not execute or write registry/configuration",
+        "TEST-115: policy/catalog before/after hashes and scoped rollback prove human adoption boundary"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-009/attempt-1/command-receipts.json",
+        "specs/ci-model-modernization/verification/T-009/attempt-1/rollback-results.json",
+        "specs/ci-model-modernization/verification/T-009/attempt-1/catalog-preservation.json",
+        "reports/quality-gate/20261020-ci-model-modernization-T-009-cycle-1.md",
+        "specs/ci-model-modernization/verification/T-009.evidence.json"
+      ]
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "actual_command_exit": 1,
+  "methods": 2,
+  "assertion_failures": 3,
+  "errors": 0,
+  "log": "specs/ci-model-modernization/verification/T-006/root-empty-minimum-probe/red.log",
+  "log_sha256": "ab15354d084337b1aaa1f3bd86d51c298f0f0602c5f96ac0029b633bf99b8b15",
+  "log_capture": "Faithful concatenation of actual unified-exec initial and final merged output chunks; no rerun or inference",
+  "source_pins": [
+    {
+      "path": "plugins/sdd-implementation/scripts/model-policy.py",
+      "sha256": "8c377c94db6be7a29adbc5b0567fb3f3f813709af2d203ec6ab997cc9d404524"
+    },
+    {
+      "path": "tests/model-policy.tests.py",
+      "sha256": "afc996a6dceb154f2560da72eb5be1f6e89a73a6500b3d0678fa74437675e45a"
+    }
+  ],
+  "subreaper": "specs/ci-model-modernization/verification/T-006/root-empty-minimum-probe/red-subreaper.json",
+  "recorded_at": "2026-10-19T21:43:23.921368+00:00"
+}

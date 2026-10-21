@@ -1,0 +1,17 @@
+ticket_id: RT-20261019-009
+status: resolved
+type: implementation-defect
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-002
+summary: "Nested malformed observations escape typed result/error boundary"
+problem: "Unchecked job.get/step.get and nested repository/workflow_run.get raise AttributeError on null/scalar/list JSON, not caught by aggregate/main handlers. Existing malformed tests omit these branches."
+contract: "design.md:224-225,248; tasks.md:111"
+expected_fix: "Validate untrusted nested object types, fail via existing typed boundary; CLI negatives for null/scalar/list jobs/steps/repository/workflow_run assert schema-valid failure output, documented exit status, no traceback or success publication."
+evidence: specs/ci-model-modernization/verification/T-002/quality-cycle-1/review-completion.json
+auto_fix_allowed: true
+requires_human_decision: false
+
+resolution: Explicitly accepted repaired by actual full T002 independent cycle2; unrelated new Major findings remain separately ticketed.
+resolution_evidence: reports/quality-gate/20261019-ci-model-modernization-T-002-cycle-2.md

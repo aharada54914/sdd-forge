@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-20T18:10:25.906382+00:00",
+  "actual_work_context": "/root/t008_cycle1_evaluator",
+  "configured_model": "gpt-6-astra",
+  "configured_effort": "high",
+  "backend_actual_id": null,
+  "proof": "unverified",
+  "invocation_sha256": "017630d9d0048b4e5b1ffc81be56b404e214b91d4edefd058b1f99c3962d1dea",
+  "evaluator_answer_sha256": "e34c46b2dc8392b52653154028ca7b518cea761bfd8bc316ffd570bc6376a3a7",
+  "root_and_scratch_inputs_verified": 1853,
+  "input_mismatches": [],
+  "verdict": "FAIL",
+  "critical": 0,
+  "major": 1,
+  "minor": 0,
+  "source": "Actual fresh evaluator final response, recorded verbatim by Root"
+}

@@ -1,0 +1,90 @@
+{
+  "commands": [
+    {
+      "name": "unit",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/model-policy.tests.py"
+      ],
+      "env_overrides": {},
+      "started_at": "2026-10-19T20:37:37.449784+00:00",
+      "finished_at": "2026-10-19T20:37:38.124329+00:00",
+      "exit_code": 1,
+      "stdout": "specs/ci-model-modernization/verification/T-006/root-red/unit.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "specs/ci-model-modernization/verification/T-006/root-red/unit.stderr",
+      "stderr_sha256": "c869e286721e313b7b91914467798679662e495cbe7428b7acd100da42f1a971"
+    },
+    {
+      "name": "smoke-bash",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/model-policy.tests.py",
+        "PolicySelection.test_wrapper_policy_smoke"
+      ],
+      "env_overrides": {
+        "SDD_TEST_POLICY_BACKEND": "bash"
+      },
+      "started_at": "2026-10-19T20:37:38.125239+00:00",
+      "finished_at": "2026-10-19T20:37:38.199210+00:00",
+      "exit_code": 1,
+      "stdout": "specs/ci-model-modernization/verification/T-006/root-red/smoke-bash.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "specs/ci-model-modernization/verification/T-006/root-red/smoke-bash.stderr",
+      "stderr_sha256": "962b985d8b20de566b08ce112d97958a9e927b7d5bc60d029eda0a612a9a9d22"
+    },
+    {
+      "name": "smoke-powershell",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/model-policy.tests.py",
+        "PolicySelection.test_wrapper_policy_smoke"
+      ],
+      "env_overrides": {
+        "SDD_TEST_POLICY_BACKEND": "powershell"
+      },
+      "started_at": "2026-10-19T20:37:38.199369+00:00",
+      "finished_at": "2026-10-19T20:37:38.658867+00:00",
+      "exit_code": 1,
+      "stdout": "specs/ci-model-modernization/verification/T-006/root-red/smoke-powershell.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "specs/ci-model-modernization/verification/T-006/root-red/smoke-powershell.stderr",
+      "stderr_sha256": "61420d00e48f686e696ce2d74f17d61cacd8d8bd9b2567a7ac28758441cdeae4"
+    },
+    {
+      "name": "ruff",
+      "argv": [
+        "/tmp/ci-model-resume-python/bin/ruff",
+        "check",
+        "tests/model-policy.tests.py"
+      ],
+      "env_overrides": {},
+      "started_at": "2026-10-19T20:37:38.659059+00:00",
+      "finished_at": "2026-10-19T20:37:38.667171+00:00",
+      "exit_code": 0,
+      "stdout": "specs/ci-model-modernization/verification/T-006/root-red/ruff.stdout",
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr": "specs/ci-model-modernization/verification/T-006/root-red/ruff.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "product_untouched_verified": true,
+  "test_sources": [
+    {
+      "path": "tests/model-policy.tests.py",
+      "sha256": "bef11e6cf93a4f26363b5a15e501872ff961d551fa10c3c0d497f33df03cbdeb"
+    },
+    {
+      "path": "tests/agent-model-routing.tests.sh",
+      "sha256": "55b4d7a9a4e2aebf550acabe5961a5278d3c8ce8c9670631d15b7f9bfa2fd532"
+    },
+    {
+      "path": "tests/agent-model-routing.tests.ps1",
+      "sha256": "5709f7f97967ae2fc4909a21dbc46a35813634bc3b81c52d60048e203d6af98a"
+    }
+  ],
+  "root_review": "714line stdlib suite,35branchmap,17roles,4hosts and14additive shelllines; fullrouting oldregistration failures kept separate from intended entrypoint Red"
+}

@@ -1,0 +1,2170 @@
+{
+  "state": "READ-ONLY design; no skill/source proposals applied",
+  "parent_manifest_sha256": "c154dff3c976fdb7cdc23a6ae1f1272c8121506b891353fb99fff98a130488cf",
+  "skill_guidance": {
+    "admitted_path": "specs/ci-model-modernization/verification/T-008/caller-design-inputs/pstack-author-skill.md",
+    "sha256": "0e742f9e47cfb8eb4e76ea486c9880070afbd3d29aaa286bbf84799e3429d5d5",
+    "used": "trigger/intended behavior/boundaries; structural source reuse; behavioral representative tests, no wording-only proof"
+  },
+  "counts": {
+    "lexical": 53,
+    "semantic": 12,
+    "total": 65,
+    "protected_exact": 6
+  },
+  "categories": {
+    "native-template": 2,
+    "separate-maintenance": 2,
+    "workflow-runtime": 1,
+    "separate-ci": 1,
+    "existing-policy-engine": 4,
+    "documentation-or-history": 8,
+    "ordinary-role": 8,
+    "ordinary-skill": 9,
+    "ordinary-reference": 1,
+    "inherited-panelist-template": 2,
+    "retained-policy-or-indirect": 7,
+    "existing-runtime-consumer": 8,
+    "protected-role": 4,
+    "verified-component": 4,
+    "protected-skill": 2,
+    "unsupported-host-template": 2
+  },
+  "rows": [
+    {
+      "index": 1,
+      "inventory_origin": "lexical",
+      "path": ".codex/agents/sdd-evaluator.toml",
+      "sha256": "31411fad2ea5bbdd06c3f3d8276b9b3535bb21717877522143a2512be7ec188a",
+      "category": "native-template",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Use fixed installed template for generated native config; native five-method test draft pending. No global ~/.codex role edits; one configuration thread is not a substantive review.",
+      "source_evidence": [
+        {
+          "line": 1,
+          "text": "# x-sdd-model: openai/gpt-5.2-codex"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 2,
+      "inventory_origin": "lexical",
+      "path": ".codex/agents/sdd-investigator.toml",
+      "sha256": "5a10183be5d4ba742d7c80d929ac1cdd59b4d32109c48c7615ea05e4b6d6886d",
+      "category": "native-template",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Use fixed installed template for generated native config; native five-method test draft pending. No global ~/.codex role edits; one configuration thread is not a substantive review.",
+      "source_evidence": [
+        {
+          "line": 1,
+          "text": "# x-sdd-model: openai/gpt-5.1-codex-mini"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 3,
+      "inventory_origin": "lexical",
+      "path": ".github/scripts/check-model-freshness.sh",
+      "sha256": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56",
+      "category": "separate-maintenance",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "T009 fetch/notification maintenance, not managed model launch. Retain exact ownership and no T008 runtime-completion claim.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 4,
+      "inventory_origin": "lexical",
+      "path": ".github/workflows/model-freshness-check.yml",
+      "sha256": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69",
+      "category": "separate-maintenance",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "T009 fetch/notification maintenance, not managed model launch. Retain exact ownership and no T008 runtime-completion claim.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 5,
+      "inventory_origin": "lexical",
+      "path": ".github/workflows/self-improvement.yml",
+      "sha256": "2b0910511c0736565a939fbfd67d04bb5acea134bd8a6218cca0ba96e231ae97",
+      "category": "workflow-runtime",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "replace fixed claude-sonnet-5 with policy-prepared validated model/effort/session/executable from observed actual CLI. Reuse exact pinned action installation semantics; reject action env/settings caps/remaps conflicts. Preserve schedule/manual/permissions/secrets/tools75/send/PR guards; fixture adoption only, no workflow dispatch.",
+      "source_evidence": [
+        {
+          "line": 133,
+          "text": "            --model claude-sonnet-5"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 6,
+      "inventory_origin": "lexical",
+      "path": ".github/workflows/test.yml",
+      "sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+      "category": "separate-ci",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "T003/T011 deterministic CI routing; preserve current workflow; no inference selection here.",
+      "source_evidence": [
+        {
+          "line": 710,
+          "text": "      - name: Test run-panelist-effort suite (bash)"
+        },
+        {
+          "line": 713,
+          "text": "        run: bash ./tests/run-panelist-effort.tests.sh"
+        },
+        {
+          "line": 714,
+          "text": "      - name: Test run-panelist-effort suite (pwsh)"
+        },
+        {
+          "line": 716,
+          "text": "        run: ./tests/run-panelist-effort.tests.ps1"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 7,
+      "inventory_origin": "lexical",
+      "path": "contracts/agent-model-capabilities.json",
+      "sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+      "category": "existing-policy-engine",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Preserve current public algorithms/catalog/selector compatibility; T008 consumers use existing selected policy engine. Adoption remains T010.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 8,
+      "inventory_origin": "lexical",
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "sha256": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "category": "existing-policy-engine",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Preserve current public algorithms/catalog/selector compatibility; T008 consumers use existing selected policy engine. Adoption remains T010.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 9,
+      "inventory_origin": "lexical",
+      "path": "contracts/agent-model-capabilities.v2.md",
+      "sha256": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+      "category": "documentation-or-history",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "source_evidence": [
+        {
+          "line": 85,
+          "text": "`codex-cli: \"flag\"` (the Codex CLI's `--effort` flag applies, same as"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 10,
+      "inventory_origin": "lexical",
+      "path": "contracts/rollback-1.5.0.json",
+      "sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197",
+      "category": "documentation-or-history",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "source_evidence": [
+        {
+          "line": 122,
+          "text": "      \"path\": \"plugins/sdd-implementation/scripts/select-agent-model.ps1\","
+        },
+        {
+          "line": 127,
+          "text": "      \"path\": \"plugins/sdd-implementation/scripts/select-agent-model.sh\","
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 11,
+      "inventory_origin": "lexical",
+      "path": "docs/agent-capability-matrix.md",
+      "sha256": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+      "category": "documentation-or-history",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "source_evidence": [
+        {
+          "line": 53,
+          "text": "**Vendor / Invocation:** `openai` \u2014 invoked via codex CLI (`run-panelist-gpt.{sh,ps1}`)."
+        },
+        {
+          "line": 79,
+          "text": "**Vendor / Invocation:** `google` \u2014 invoked via gemini CLI (`run-panelist-gemini.{sh,ps1}`)."
+        },
+        {
+          "line": 140,
+          "text": "Codex agent model selection is a runtime control (`--model` / `--effort` flags"
+        },
+        {
+          "line": 155,
+          "text": "`select-agent-model`'s `--effort-policy` flag chooses HOW the winning"
+        },
+        {
+          "line": 170,
+          "text": "supported indefinitely via an explicit `--effort-policy welded` flag \u2014 no"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 12,
+      "inventory_origin": "lexical",
+      "path": "docs/ci-staging/test-yml-combined-candidate.yml",
+      "sha256": "88617ccf22f095126555cbe94c07e05b8a15f2db15e8805c21c8c85e9bc5685c",
+      "category": "documentation-or-history",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "source_evidence": [
+        {
+          "line": 425,
+          "text": "      - name: Test run-panelist-effort suite (bash)"
+        },
+        {
+          "line": 430,
+          "text": "        run: bash ./tests/run-panelist-effort.tests.sh"
+        },
+        {
+          "line": 432,
+          "text": "      - name: Test run-panelist-effort suite (pwsh)"
+        },
+        {
+          "line": 434,
+          "text": "        run: ./tests/run-panelist-effort.tests.ps1"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 13,
+      "inventory_origin": "lexical",
+      "path": "docs/skill-reference.md",
+      "sha256": "121e122e63079d02262412d08b73a78231bfa28827438d33bf87058b5bce43ed",
+      "category": "documentation-or-history",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "source_evidence": [
+        {
+          "line": 400,
+          "text": "| `run-panelist-gpt` | sh / ps1 | OpenAI GPT \u30d1\u30cd\u30ea\u30b9\u30c8\u3092 `codex` CLI \u7d4c\u7531\u3067\u9694\u96e2\u30b9\u30af\u30e9\u30c3\u30c1\u5185\u3067\u5b9f\u884c |"
+        },
+        {
+          "line": 401,
+          "text": "| `run-panelist-gemini` | sh / ps1 | Google Gemini \u30d1\u30cd\u30ea\u30b9\u30c8\u3092 `gemini` CLI \u7d4c\u7531\u3067\u9694\u96e2\u30b9\u30af\u30e9\u30c3\u30c1\u5185\u3067\u5b9f\u884c |"
+        },
+        {
+          "line": 412,
+          "text": "| `select-agent-model` | sdd-implementation | sh / ps1 | `contracts/agent-model-capabilities.json` \u3092\u53c2\u7167\u3057\u3001\u30ea\u30b9\u30af\u968e\u5c64\u30fb\u5931\u6557\u5c65\u6b74\u304b\u3089\u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u306e\u30e2\u30c7\u30eb / effort \u968e\u5c64\u3092\u9078\u629e |"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 14,
+      "inventory_origin": "lexical",
+      "path": "docs/workflow-improvements/WFI-005.md",
+      "sha256": "f4c78efc4c4b4697c8eea2e543d090e7c1ef1ddf941ebebf5b375bb4a9f4bb1f",
+      "category": "documentation-or-history",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 15,
+      "inventory_origin": "lexical",
+      "path": "docs/workflow-improvements/WFI-006.md",
+      "sha256": "80bd9ed76c8c19dd24fd39b8e7f84987f8391583e034c1cf3ca11ef870602951",
+      "category": "documentation-or-history",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 16,
+      "inventory_origin": "lexical",
+      "path": "docs/workflow-improvements/WFI-040.md",
+      "sha256": "8e1565f4226fb41d033de0b80be4522c93b3b6e0e87a0e0f98308edbd29f6ddc",
+      "category": "documentation-or-history",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain historical/frozen bytes; current guidance consistency belongs T011 after actual activation. Not executing choice; no bulk literal replacement.",
+      "source_evidence": [
+        {
+          "line": 128,
+          "text": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh"
+        },
+        {
+          "line": 129,
+          "text": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh"
+        },
+        {
+          "line": 138,
+          "text": "plugins/sdd-implementation/scripts/select-agent-model.sh"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 17,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-bootstrap/agents/investigator.md",
+      "sha256": "cf1e6b4bd3cbbb6a3dc767413443677c12a70b9faf2e9608cc402d3cff9e8e0a",
+      "category": "ordinary-role",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "source_evidence": [
+        {
+          "line": 6,
+          "text": "model: haiku"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 18,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-domain/agents/domain-reviewer-a.md",
+      "sha256": "782addb1bb2f60253ac48dfc0a5966b968b5b53f9ee1246dd45ae3c27717fefd",
+      "category": "ordinary-role",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "source_evidence": [
+        {
+          "line": 11,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 19,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-domain/agents/domain-reviewer-b.md",
+      "sha256": "031cae9862ad7cf0d4776c26d5e06f49c40db197360c9a72fc5305d03045172e",
+      "category": "ordinary-role",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "source_evidence": [
+        {
+          "line": 11,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 20,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+      "sha256": "36484fe991db49da3bc5aaeb6421b661b1412270d8059daec6128c15389eec1f",
+      "category": "ordinary-skill",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "domain-reviewer-a/b: prepare independent controls before either named-role launch. Copilot --model auto at164\u2013196 must not allocate under missing trusted mapping; retain identity reservation/tools/denials/sanitized bridge.",
+      "source_evidence": [
+        {
+          "line": 173,
+          "text": "copilot --model auto --output-format json --disable-builtin-mcps --no-remote --no-remote-export --no-custom-instructions --no-ask-user --available-tools= -p 'Initialize an empty runtime session only. Do not use tools, inspect project files, perform a review, or infer any task. Reply exactly READY.'"
+        },
+        {
+          "line": 196,
+          "text": "copilot --session-id <actual-session> --model auto --output-format json --disable-builtin-mcps --no-remote --no-remote-export --no-custom-instructions --available-tools=view,rg,glob,bash --allow-tool='shell(sha256sum)' --allow-tool='shell(printf)' --deny-tool=write --no-ask-user --plugin-dir <instal"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 21,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-implementation/scripts/select-agent-model.ps1",
+      "sha256": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+      "category": "existing-policy-engine",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Preserve current public algorithms/catalog/selector compatibility; T008 consumers use existing selected policy engine. Adoption remains T010.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 22,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-implementation/scripts/select-agent-model.sh",
+      "sha256": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+      "category": "existing-policy-engine",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Preserve current public algorithms/catalog/selector compatibility; T008 consumers use existing selected policy engine. Adoption remains T010.",
+      "source_evidence": [
+        {
+          "line": 94,
+          "text": "    --effort-policy)"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 23,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-implementation/skills/diagnose/SKILL.md",
+      "sha256": "39177f847eff6d547a8bec279bca6d6b623396c2c59ee412bad9e0470b22de44",
+      "category": "ordinary-skill",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "diagnosis role: frontmatter model:sonnet is a current choice. Add managed preparation/native carrier before skill execution; preserve reproduction-first, fix handoff and human boundaries. Host effort mechanism must be observed, not inferred.",
+      "source_evidence": [
+        {
+          "line": 5,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 24,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "ec5a392cea7190660b8517317977584d36179e718856061acf968b36ef6bd23f",
+      "category": "ordinary-reference",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "investigator/evaluator delegations: route existing shipped-role calls through supported model control boundary; preserve fresh single-purpose context and same-session-file-reload exception. Do not present per-invocation generated config as a new global role.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 25,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+      "sha256": "18d151073e388fe9e864d7192230c8686c6d8a24414d04f02796c00db4194a6a",
+      "category": "ordinary-role",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "source_evidence": [
+        {
+          "line": 6,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 26,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/panelist-gemini.md",
+      "sha256": "b45eeab1c070a96115d6d2813fff4a92cfc73796ed171ba1c8cf6112c4cd6093",
+      "category": "inherited-panelist-template",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "No independent model choice; retain inherited template and verify actual cross-model caller supplies controls to supported vendor runner. Not a separate native selection proof.",
+      "source_evidence": [
+        {
+          "line": 6,
+          "text": "model: inherit"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 27,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/panelist-gpt.md",
+      "sha256": "e0134fc5be428b1a0ab4b700f989d4fb7a114c119b12405dab14da9bda4629de",
+      "category": "inherited-panelist-template",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "No independent model choice; retain inherited template and verify actual cross-model caller supplies controls to supported vendor runner. Not a separate native selection proof.",
+      "source_evidence": [
+        {
+          "line": 6,
+          "text": "model: inherit"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 28,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/wfi-auditor-a.md",
+      "sha256": "864f6b857131ece8da42948fe17311b2e42c971cd6b4b64ccb39ed5241ec3230",
+      "category": "ordinary-role",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "source_evidence": [
+        {
+          "line": 7,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 29,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/agents/wfi-auditor-b.md",
+      "sha256": "ad7a7defc893d9a60ca4b9506a144340759bf3090ab90157814c0113b781a298",
+      "category": "ordinary-role",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "source_evidence": [
+        {
+          "line": 9,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 30,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/references/cross-model-verification-policy.md",
+      "sha256": "0a27c8cea42ae1b5c9bb8e58a5d7d3ea1bc43032453eea8233a563c839bc6e69",
+      "category": "retained-policy-or-indirect",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "source_evidence": [
+        {
+          "line": 47,
+          "text": "| CLI absent | `1` | No. The runner exits before the verdict-write step. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail with exit 1, while zero verdict files make the gate fail with exit 2. (`run-panelist-gpt.sh:13"
+        },
+        {
+          "line": 48,
+          "text": "| CLI exits non-zero | `1` | No. The runner exits before the verdict-write step. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail with exit 1, while zero verdict files make the gate fail with exit 2. (`run-panelist-g"
+        },
+        {
+          "line": 49,
+          "text": "| CLI rate-limited | `1`, through either the CLI-exits-non-zero path or the timeout path | No. Either generic path exits before the verdict-write step. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail with exit 1, wh"
+        },
+        {
+          "line": 50,
+          "text": "| CLI hangs / exceeds the time bound | `1` | No. The timeout handler exits before the verdict-write step. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail with exit 1, while zero verdict files make the gate fail with"
+        },
+        {
+          "line": 51,
+          "text": "| CLI returns malformed output | `1` when the output is rejected by runner validation | No. Validation completes before the verdict-write step and exits on rejection. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail "
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 31,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+      "category": "retained-policy-or-indirect",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "source_evidence": [
+        {
+          "line": 52,
+          "text": "    \"plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh\","
+        },
+        {
+          "line": 53,
+          "text": "    \"plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh\","
+        },
+        {
+          "line": 58,
+          "text": "    \"plugins/sdd-review-loop/scripts/launch-impl-review.py\","
+        },
+        {
+          "line": 72,
+          "text": "    \"plugins/sdd-implementation/scripts/select-agent-model.sh\","
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 32,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
+      "sha256": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+      "category": "existing-runtime-consumer",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "source_evidence": [
+        {
+          "line": 113,
+          "text": "# 2-layer discipline established in select-agent-model.ps1/"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 33,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "sha256": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+      "category": "existing-runtime-consumer",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "source_evidence": [
+        {
+          "line": 3,
+          "text": "# Usage: emit-run-record.sh <feature-slug> [--track full|lite] [--model-main <id>]"
+        },
+        {
+          "line": 4,
+          "text": "#                           [--model-reviewers <id>] [--plugin-version <version>]"
+        },
+        {
+          "line": 5,
+          "text": "#                           [--effort-main <e>] [--effort-reviewers <e>]"
+        },
+        {
+          "line": 6,
+          "text": "#                           [--effort-control-main <flag|frontmatter|none>]"
+        },
+        {
+          "line": 7,
+          "text": "#                           [--effort-control-reviewers <flag|frontmatter|none>]"
+        },
+        {
+          "line": 8,
+          "text": "#                           [--effort-applied-main <e|none>]"
+        },
+        {
+          "line": 9,
+          "text": "#                           [--effort-applied-reviewers <e|none>]"
+        },
+        {
+          "line": 22,
+          "text": "# pre-feature invocation) unless ANY --effort-* flag below is supplied, in"
+        },
+        {
+          "line": 27,
+          "text": "# --effort-applied-<role> value paired with --effort-control-<role> flag);"
+        },
+        {
+          "line": 77,
+          "text": "    --model-launch|--model-launch-sha256|--model-delivery-binding|--model-delivery-binding-sha256|--model-slot)"
+        },
+        {
+          "line": 81,
+          "text": "    --model-launch) model_launch=\"${2:-}\"; model_flags=$((model_flags + 1)); shift 2 ;;"
+        },
+        {
+          "line": 82,
+          "text": "    --model-launch-sha256) model_launch_sha256=\"${2:-}\"; model_flags=$((model_flags + 1)); shift 2 ;;"
+        },
+        {
+          "line": 83,
+          "text": "    --model-delivery-binding) model_delivery_binding=\"${2:-}\"; model_flags=$((model_flags + 1)); shift 2 ;;"
+        },
+        {
+          "line": 84,
+          "text": "    --model-delivery-binding-sha256) model_delivery_binding_sha256=\"${2:-}\"; model_flags=$((model_flags + 1)); shift 2 ;;"
+        },
+        {
+          "line": 85,
+          "text": "    --model-slot) model_slot=\"${2:-}\"; model_flags=$((model_flags + 1)); shift 2 ;;"
+        },
+        {
+          "line": 87,
+          "text": "    --model-main)     model_main=\"${2:-unknown}\"; model_main_set=1; shift 2 ;;"
+        },
+        {
+          "line": 88,
+          "text": "    --model-reviewers) model_reviewers=\"${2:-unknown}\"; model_reviewers_set=1; shift 2 ;;"
+        },
+        {
+          "line": 90,
+          "text": "    --effort-main)"
+        },
+        {
+          "line": 92,
+          "text": "    --effort-reviewers)"
+        },
+        {
+          "line": 94,
+          "text": "    --effort-control-main)"
+        },
+        {
+          "line": 96,
+          "text": "      require_effort_control_value \"--effort-control-main\" \"$effort_control_main\""
+        },
+        {
+          "line": 98,
+          "text": "    --effort-control-reviewers)"
+        },
+        {
+          "line": 100,
+          "text": "      require_effort_control_value \"--effort-control-reviewers\" \"$effort_control_reviewers\""
+        },
+        {
+          "line": 102,
+          "text": "    --effort-applied-main)"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 34,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+      "category": "retained-policy-or-indirect",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "source_evidence": [
+        {
+          "line": 126,
+          "text": "    \"plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh\","
+        },
+        {
+          "line": 127,
+          "text": "    \"plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh\","
+        },
+        {
+          "line": 132,
+          "text": "    \"plugins/sdd-review-loop/scripts/launch-impl-review.py\","
+        },
+        {
+          "line": 146,
+          "text": "    \"plugins/sdd-implementation/scripts/select-agent-model.sh\","
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 35,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+      "category": "retained-policy-or-indirect",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "source_evidence": [
+        {
+          "line": 5,
+          "text": "  PROTECTED_GATE_SUFFIXES: Object.freeze([\"plugins/sdd-quality-loop/scripts/sdd-hook-guard.js\",\"plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\",\"plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1\",\"plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh\",\"plugins/sdd-quality-loop/scripts/kill-switch"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 36,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+      "category": "retained-policy-or-indirect",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "source_evidence": [
+        {
+          "line": 5,
+          "text": "    PROTECTED_GATE_SUFFIXES = @('plugins/sdd-quality-loop/scripts/sdd-hook-guard.js', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh', 'plugins/sdd-quality-loop/scripts/kill-switch.js', "
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 37,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+      "category": "retained-policy-or-indirect",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "source_evidence": [
+        {
+          "line": 4,
+          "text": "PROTECTED_GATE_SUFFIXES = ('plugins/sdd-quality-loop/scripts/sdd-hook-guard.js', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh', 'plugins/sdd-quality-loop/scripts/kill-switch.js', 'plug"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 38,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+      "sha256": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+      "category": "existing-runtime-consumer",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "source_evidence": [
+        {
+          "line": 3,
+          "text": "#   run-panelist-gemini.ps1 --task T-NNN --feature <f> --input <bundle-path>"
+        },
+        {
+          "line": 4,
+          "text": "#                           [--spec-root <dir>] [--model <model-id>]"
+        },
+        {
+          "line": 17,
+          "text": "# prompt. Appended to input on stdin (if any).\"). A bare `gemini --model"
+        },
+        {
+          "line": 31,
+          "text": "$selectedControlFlags = @(\"--model-controls\", \"--model-controls-sha256\", \"--run-id\", \"--session-id\")"
+        },
+        {
+          "line": 55,
+          "text": "        \"--model\"     { $Model       = $passedArgs[$argIdx+1]; $argIdx += 2 }"
+        },
+        {
+          "line": 59,
+          "text": "            [Console]::Error.WriteLine(\"run-panelist-gemini: unknown argument: $($passedArgs[$argIdx])\")"
+        },
+        {
+          "line": 73,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gemini: SDD_PANELIST_TIMEOUT must be a positive whole number of seconds (got: $panelistTimeoutRaw)\")"
+        },
+        {
+          "line": 79,
+          "text": "if (-not $TaskId)    { [Console]::Error.WriteLine(\"run-panelist-gemini: --task is required\");    exit 2 }"
+        },
+        {
+          "line": 80,
+          "text": "if (-not $Feature)   { [Console]::Error.WriteLine(\"run-panelist-gemini: --feature is required\"); exit 2 }"
+        },
+        {
+          "line": 81,
+          "text": "if (-not $InputPath) { [Console]::Error.WriteLine(\"run-panelist-gemini: --input is required\");   exit 2 }"
+        },
+        {
+          "line": 83,
+          "text": "    [Console]::Error.WriteLine(\"run-panelist-gemini: input file not found: $InputPath\"); exit 1"
+        },
+        {
+          "line": 88,
+          "text": "    [Console]::Error.WriteLine(\"run-panelist-gemini: gemini CLI not found in PATH \u2014 skipping Gemini panelist (graceful degrade)\")"
+        },
+        {
+          "line": 154,
+          "text": "    [Console]::Error.WriteLine(\"run-panelist-gemini: invoking gemini --model $Model -p <prompt> (task=$TaskId feature=$Feature)\")"
+        },
+        {
+          "line": 167,
+          "text": "                -ArgumentList \"--model\", $Model, \"-p\", $promptText `"
+        },
+        {
+          "line": 190,
+          "text": "            [Console]::Error.WriteLine(\"run-panelist-gemini: gemini CLI exceeded SDD_PANELIST_TIMEOUT=${PanelistTimeout}s; terminated\")"
+        },
+        {
+          "line": 196,
+          "text": "            [Console]::Error.WriteLine(\"run-panelist-gemini: gemini CLI exited $($proc.ExitCode)\")"
+        },
+        {
+          "line": 201,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gemini: failed to start gemini: $_\")"
+        },
+        {
+          "line": 268,
+          "text": "            [Console]::Error.WriteLine(\"run-panelist-gemini: no JSON object found in gemini output\")"
+        },
+        {
+          "line": 270,
+          "text": "            [Console]::Error.WriteLine(\"run-panelist-gemini: no $targetSchema verdict found among $($candidates.Count) candidate JSON object(s) in gemini output\")"
+        },
+        {
+          "line": 277,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gemini: wrong schema: $($verdict.schema)\"); exit 1"
+        },
+        {
+          "line": 280,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gemini: blind must be true\"); exit 1"
+        },
+        {
+          "line": 283,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gemini: input_digest must be 64 lowercase hex\"); exit 1"
+        },
+        {
+          "line": 286,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gemini: verdict must be PASS or NEEDS_WORK\"); exit 1"
+        },
+        {
+          "line": 294,
+          "text": "    [Console]::Error.WriteLine(\"run-panelist-gemini: verdict written to $outPath\")"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 39,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
+      "sha256": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+      "category": "existing-runtime-consumer",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "source_evidence": [
+        {
+          "line": 4,
+          "text": "#   run-panelist-gemini.sh --task T-NNN --feature <f> --input <bundle-path>"
+        },
+        {
+          "line": 5,
+          "text": "#                          [--spec-root <dir>] [--model <model-id>]"
+        },
+        {
+          "line": 23,
+          "text": "# prompt. Appended to input on stdin (if any).\"). Bare `gemini --model"
+        },
+        {
+          "line": 41,
+          "text": "        --model-controls|--model-controls-sha256|--run-id|--session-id)"
+        },
+        {
+          "line": 52,
+          "text": "    printf 'run-panelist-gemini: lib/panelist-common.sh unavailable beside this script\\n' >&2"
+        },
+        {
+          "line": 72,
+          "text": "        --model)     model=\"$2\";        shift 2 ;;"
+        },
+        {
+          "line": 75,
+          "text": "        *) printf 'run-panelist-gemini: unknown argument: %s\\n' \"$1\" >&2; exit 2 ;;"
+        },
+        {
+          "line": 79,
+          "text": "sdd_panelist_validate_timeout \"run-panelist-gemini\" \"$_panelist_timeout\""
+        },
+        {
+          "line": 83,
+          "text": "sdd_panelist_require_args \"run-panelist-gemini\" \"$task_id\" \"$feature\" \"$input_path\""
+        },
+        {
+          "line": 88,
+          "text": "    printf 'run-panelist-gemini: gemini CLI not found in PATH \u2014 skipping Gemini panelist (graceful degrade)\\n' >&2"
+        },
+        {
+          "line": 92,
+          "text": "    printf 'run-panelist-gemini: python3 is required to supervise the panelist process group\\n' >&2"
+        },
+        {
+          "line": 103,
+          "text": "    printf 'run-panelist-gemini: cannot create output directory: %s\\n' \"$out_dir\" >&2; exit 2"
+        },
+        {
+          "line": 173,
+          "text": "printf 'run-panelist-gemini: invoking gemini --model %s -p <prompt> (task=%s feature=%s)\\n' \\"
+        },
+        {
+          "line": 177,
+          "text": "_sdd_run_bounded \"$_panelist_timeout\" gemini --model \"$model\" -p \"$_prompt_text\" \\"
+        },
+        {
+          "line": 182,
+          "text": "        printf 'run-panelist-gemini: gemini CLI exceeded SDD_PANELIST_TIMEOUT=%ss; terminated\\n' \\"
+        },
+        {
+          "line": 185,
+          "text": "        printf 'run-panelist-gemini: gemini CLI exited %d\\n' \"$_rc\" >&2"
+        },
+        {
+          "line": 283,
+          "text": "        print(\"run-panelist-gemini: no JSON object found in gemini output\", file=sys.stderr)"
+        },
+        {
+          "line": 286,
+          "text": "            f\"run-panelist-gemini: no {TARGET_SCHEMA} verdict found among \""
+        },
+        {
+          "line": 299,
+          "text": "    print(f\"run-panelist-gemini: verdict missing fields: {missing}\", file=sys.stderr)"
+        },
+        {
+          "line": 303,
+          "text": "    print(f\"run-panelist-gemini: wrong schema: {verdict.get('schema')}\", file=sys.stderr)"
+        },
+        {
+          "line": 306,
+          "text": "    print(\"run-panelist-gemini: blind must be true\", file=sys.stderr)"
+        },
+        {
+          "line": 309,
+          "text": "    print(f\"run-panelist-gemini: input_digest must be 64 lowercase hex\", file=sys.stderr)"
+        },
+        {
+          "line": 312,
+          "text": "    print(f\"run-panelist-gemini: verdict must be PASS or NEEDS_WORK\", file=sys.stderr)"
+        },
+        {
+          "line": 323,
+          "text": "print(f\"run-panelist-gemini: verdict written to {out_path}\", file=sys.stderr)"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 40,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
+      "sha256": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+      "category": "existing-runtime-consumer",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "source_evidence": [
+        {
+          "line": 3,
+          "text": "#   run-panelist-gpt.ps1 --task T-NNN --feature <f> --input <bundle-path>"
+        },
+        {
+          "line": 4,
+          "text": "#                        [--spec-root <dir>] [--model <model-id>]"
+        },
+        {
+          "line": 5,
+          "text": "#                        [--effort <low|medium|high|xhigh>]"
+        },
+        {
+          "line": 18,
+          "text": "# a bare `codex --model ... <prompt>` is rejected by this CLI version's"
+        },
+        {
+          "line": 22,
+          "text": "# context bleed\" intent by construction. `--effort` (epic-159-pillar-c"
+        },
+        {
+          "line": 24,
+          "text": "# (codex-cli has no `--effort` flag; reasoning effort is a config"
+        },
+        {
+          "line": 33,
+          "text": "# Injection rejection (REQ-006 AC-052; security-spec.md B3): --model and"
+        },
+        {
+          "line": 34,
+          "text": "# --effort are validated BEFORE the codex ArgumentList is assembled. Values"
+        },
+        {
+          "line": 36,
+          "text": "# \";\" (command-separator shape) are rejected fail-closed; --effort is"
+        },
+        {
+          "line": 48,
+          "text": "$selectedControlFlags = @(\"--model-controls\", \"--model-controls-sha256\", \"--run-id\", \"--session-id\")"
+        },
+        {
+          "line": 63,
+          "text": "# explicit --model still overrides. Mirrors run-panelist-gpt.sh."
+        },
+        {
+          "line": 78,
+          "text": "        \"--model\"     { $Model       = $passedArgs[$argIdx+1]; $argIdx += 2 }"
+        },
+        {
+          "line": 79,
+          "text": "        \"--effort\"    { $Effort      = $passedArgs[$argIdx+1]; $argIdx += 2 }"
+        },
+        {
+          "line": 83,
+          "text": "            [Console]::Error.WriteLine(\"run-panelist-gpt: unknown argument: $($passedArgs[$argIdx])\")"
+        },
+        {
+          "line": 97,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gpt: SDD_PANELIST_TIMEOUT must be a positive whole number of seconds (got: $panelistTimeoutRaw)\")"
+        },
+        {
+          "line": 103,
+          "text": "# \u2500\u2500 Reject argv-injection-shaped --model/--effort values (AC-052) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+        },
+        {
+          "line": 112,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gpt: $FlagName contains whitespace (rejected, argv-injection shape): $Value\")"
+        },
+        {
+          "line": 116,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gpt: $FlagName has a leading \"\"-\"\" (rejected, flag-injection shape): $Value\")"
+        },
+        {
+          "line": 120,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gpt: $FlagName contains \"\";\"\" (rejected, command-separator shape): $Value\")"
+        },
+        {
+          "line": 125,
+          "text": "if ($Model) { Assert-NotInjectionShaped \"--model\" $Model }"
+        },
+        {
+          "line": 127,
+          "text": "    Assert-NotInjectionShaped \"--effort\" $Effort"
+        },
+        {
+          "line": 129,
+          "text": "        [Console]::Error.WriteLine(\"run-panelist-gpt: --effort must be one of low|medium|high|xhigh (got: $Effort)\")"
+        },
+        {
+          "line": 134,
+          "text": "if (-not $TaskId)    { [Console]::Error.WriteLine(\"run-panelist-gpt: --task is required\");    exit 2 }"
+        },
+        {
+          "line": 135,
+          "text": "if (-not $Feature)   { [Console]::Error.WriteLine(\"run-panelist-gpt: --feature is required\"); exit 2 }"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 41,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+      "sha256": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+      "category": "existing-runtime-consumer",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "source_evidence": [
+        {
+          "line": 4,
+          "text": "#   run-panelist-gpt.sh --task T-NNN --feature <f> --input <bundle-path>"
+        },
+        {
+          "line": 5,
+          "text": "#                       [--spec-root <dir>] [--model <model-id>]"
+        },
+        {
+          "line": 6,
+          "text": "#                       [--effort <low|medium|high|xhigh>]"
+        },
+        {
+          "line": 28,
+          "text": "#   - --effort (epic-159-pillar-c T-006, REQ-006/AC-035): optional, forwarded"
+        },
+        {
+          "line": 30,
+          "text": "#     (codex-cli 0.147.0 has no `--effort` flag; reasoning effort is a"
+        },
+        {
+          "line": 38,
+          "text": "#   - Injection rejection (REQ-006 AC-052; security-spec.md B3): --model and"
+        },
+        {
+          "line": 39,
+          "text": "#     --effort are validated BEFORE the `codex` invocation is assembled."
+        },
+        {
+          "line": 42,
+          "text": "#     (non-zero exit, diagnostic, zero `codex` invocations); --effort is"
+        },
+        {
+          "line": 47,
+          "text": "#     source --model/--effort only from `select-agent-model --host"
+        },
+        {
+          "line": 62,
+          "text": "        --model-controls|--model-controls-sha256|--run-id|--session-id)"
+        },
+        {
+          "line": 73,
+          "text": "    printf 'run-panelist-gpt: lib/panelist-common.sh unavailable beside this script\\n' >&2"
+        },
+        {
+          "line": 87,
+          "text": "# explicit --model still overrides."
+        },
+        {
+          "line": 100,
+          "text": "        --model)     model=\"$2\";        shift 2 ;;"
+        },
+        {
+          "line": 101,
+          "text": "        --effort)    effort=\"$2\";       shift 2 ;;"
+        },
+        {
+          "line": 104,
+          "text": "        *) printf 'run-panelist-gpt: unknown argument: %s\\n' \"$1\" >&2; exit 2 ;;"
+        },
+        {
+          "line": 108,
+          "text": "sdd_panelist_validate_timeout \"run-panelist-gpt\" \"$_panelist_timeout\""
+        },
+        {
+          "line": 110,
+          "text": "# \u2500\u2500 Reject argv-injection-shaped --model/--effort values (AC-052) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+        },
+        {
+          "line": 120,
+          "text": "            printf 'run-panelist-gpt: %s contains whitespace (rejected, argv-injection shape): %s\\n' \\"
+        },
+        {
+          "line": 127,
+          "text": "            printf 'run-panelist-gpt: %s has a leading \"-\" (rejected, flag-injection shape): %s\\n' \\"
+        },
+        {
+          "line": 134,
+          "text": "            printf 'run-panelist-gpt: %s contains \";\" (rejected, command-separator shape): %s\\n' \\"
+        },
+        {
+          "line": 141,
+          "text": "[ -n \"$model\" ] && _reject_shape \"--model\" \"$model\""
+        },
+        {
+          "line": 143,
+          "text": "    _reject_shape \"--effort\" \"$effort\""
+        },
+        {
+          "line": 147,
+          "text": "            printf 'run-panelist-gpt: --effort must be one of low|medium|high|xhigh (got: %s)\\n' \\"
+        },
+        {
+          "line": 156,
+          "text": "sdd_panelist_require_args \"run-panelist-gpt\" \"$task_id\" \"$feature\" \"$input_path\""
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 42,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "ce29654fc042e2e1fad4ce0f12c159dcbdc390137f5acc867a7e99d0dd4a21a2",
+      "category": "ordinary-skill",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "evaluator: append actual prepared controls to existing authorized shared Claude launcher without changing permission/delivery/reservation order. Replace obsolete comment-only effort and legacy candidates-file Codex guidance with observed native fields; configuration-only codex-entry cannot substitute review turn/delivery.",
+      "source_evidence": [
+        {
+          "line": 155,
+          "text": "   `--effort-control-main frontmatter` (no `--effort-applied-main`) so the"
+        },
+        {
+          "line": 163,
+          "text": "   resolve `--model`/`--effort` from the live registry \u2014 never from"
+        },
+        {
+          "line": 167,
+          "text": "   plugins/sdd-implementation/scripts/select-agent-model.sh \\"
+        },
+        {
+          "line": 177,
+          "text": "   `# x-sdd-model:`/`# x-sdd-effort:` reference comments T-003's renderer"
+        },
+        {
+          "line": 184,
+          "text": "   `--model`/`--effort` value that is not a member of the registry's own"
+        },
+        {
+          "line": 190,
+          "text": "   `run-panelist-gpt.sh`/`.ps1` implement this same rejection for their own"
+        },
+        {
+          "line": 191,
+          "text": "   `--model`/`--effort` arguments \u2014 `tests/run-panelist-effort.tests.sh`/"
+        },
+        {
+          "line": 195,
+          "text": "   codex --model <live-model> --effort <live-effort> ..."
+        },
+        {
+          "line": 262,
+          "text": "   `rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 43,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+      "sha256": "7df7769628098e0201671cb8c901347f445b1b8479bfb8ec624b433202140bc0",
+      "category": "retained-policy-or-indirect",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Retain consent/guard-generation/retrospective role ownership; no independent model allocation found in admitted inventory. Keep downstream callsite integration obligation.",
+      "source_evidence": [
+        {
+          "line": 356,
+          "text": "  --model-main <model id used for implementation> \\"
+        },
+        {
+          "line": 357,
+          "text": "  --model-reviewers <model id used for review agents> \\"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 44,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+      "category": "protected-role",
+      "edit_boundary": "current human-copy proposal only; no direct source edit",
+      "behavior_disposition": "Current native model/effort human-copy proposal under current-human-copy only; preserve original and frozen epic159. Staged proposal does not prove applied/deployed role.",
+      "source_evidence": [
+        {
+          "line": 10,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 45,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+      "sha256": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+      "category": "protected-role",
+      "edit_boundary": "current human-copy proposal only; no direct source edit",
+      "behavior_disposition": "Current native model/effort human-copy proposal under current-human-copy only; preserve original and frozen epic159. Staged proposal does not prove applied/deployed role.",
+      "source_evidence": [
+        {
+          "line": 10,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 46,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+      "sha256": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731",
+      "category": "ordinary-role",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "source_evidence": [
+        {
+          "line": 10,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 47,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/spec-reviewer-b.md",
+      "sha256": "d9d7e8e3abb0d822daaeb19b30183f7e283602c741d440d35d78accac166cbb1",
+      "category": "ordinary-role",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Generate explicit native model/effort through validated managed renderer before actual supported-host role allocation; preserve role instructions/tools/read-only boundaries. Static default/frontmatter alone is not per-run selection proof.",
+      "source_evidence": [
+        {
+          "line": 10,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 48,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+      "sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+      "category": "protected-role",
+      "edit_boundary": "current human-copy proposal only; no direct source edit",
+      "behavior_disposition": "Current native model/effort human-copy proposal under current-human-copy only; preserve original and frozen epic159. Staged proposal does not prove applied/deployed role.",
+      "source_evidence": [
+        {
+          "line": 10,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 49,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+      "sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+      "category": "protected-role",
+      "edit_boundary": "current human-copy proposal only; no direct source edit",
+      "behavior_disposition": "Current native model/effort human-copy proposal under current-human-copy only; preserve original and frozen epic159. Staged proposal does not prove applied/deployed role.",
+      "source_evidence": [
+        {
+          "line": 10,
+          "text": "model: sonnet"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 50,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "sha256": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+      "category": "existing-runtime-consumer",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "source_evidence": [
+        {
+          "line": 33,
+          "text": "        'launch-impl-review.py', 'validate-nontty-spec-launch.py',"
+        },
+        {
+          "line": 562,
+          "text": "    parser.add_argument('--model-controls',"
+        },
+        {
+          "line": 563,
+          "text": "                        help='root-relative model-launch-controls/v1 path; requires --model-controls-sha256')"
+        },
+        {
+          "line": 564,
+          "text": "    parser.add_argument('--model-controls-sha256', help='raw SHA-256 pin of --model-controls')"
+        },
+        {
+          "line": 570,
+          "text": "                              '--model-controls and --model-controls-sha256 are all-or-none')"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 51,
+      "inventory_origin": "lexical",
+      "path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "sha256": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+      "category": "existing-runtime-consumer",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Reuse unchanged T007 control/binding/delivery/consent transport. New maintained callers must actually supply flags; no algorithm/native transport rewrite.",
+      "source_evidence": [
+        {
+          "line": 116,
+          "text": "    MODEL_POLICY_HELPER, 'plugins/sdd-implementation/scripts/select-agent-model.sh',"
+        },
+        {
+          "line": 117,
+          "text": "    'plugins/sdd-implementation/scripts/select-agent-model.ps1',"
+        },
+        {
+          "line": 226,
+          "text": "    \"\"\"Documented Claude precedence over --model/--effort and the generated agent (configuration only).\"\"\""
+        },
+        {
+          "line": 404,
+          "text": "    model, effort, agent = value('--model'), value('--effort'), value('--agent')"
+        },
+        {
+          "line": 415,
+          "text": "    return {'model_argv': ['--model', model], 'effort_argv': ['--effort', effort],"
+        },
+        {
+          "line": 731,
+          "text": "               '--model', selected_model, '--permission-mode', 'dontAsk',"
+        },
+        {
+          "line": 743,
+          "text": "        command[index:index] = ['--effort', model_binding['effort']]"
+        },
+        {
+          "line": 799,
+          "text": "        model_require(declared('--effort'), 'effort-unavailable',"
+        },
+        {
+          "line": 800,
+          "text": "                      'installed Claude help does not declare --effort')"
+        },
+        {
+          "line": 801,
+          "text": "    for flag in ('-p', '--session-id', '--model', '--permission-mode', '--tools',"
+        },
+        {
+          "line": 2296,
+          "text": "    return [executable, 'exec', '--model', resolved['native_id'], '-c',"
+        },
+        {
+          "line": 2312,
+          "text": "        model_argv=['--model', resolved['native_id']], effort_argv=['-c', 'model_reasoning_effort=' + resolved['effort']],"
+        },
+        {
+          "line": 2322,
+          "text": "    model_require(wrapper == PANELIST_SCRIPTS + 'run-panelist-gpt' + extension,"
+        },
+        {
+          "line": 2403,
+          "text": "                 '--model', '--effort', '--model-controls', '--model-controls-sha256', '--run-id', '--session-id'}"
+        },
+        {
+          "line": 2409,
+          "text": "    required = permitted - {'--model', '--effort', '--spec-root', '--digest', '--consent'}"
+        },
+        {
+          "line": 2419,
+          "text": "    control_path_text(options['--model-controls'])"
+        },
+        {
+          "line": 2420,
+          "text": "    model_require(SHA256.fullmatch(options['--model-controls-sha256']) is not None,"
+        },
+        {
+          "line": 2577,
+          "text": "            options['--model-controls'], options['--model-controls-sha256'], environment, host=host), role=role, host=host,"
+        },
+        {
+          "line": 2578,
+          "text": "            run_id=scope['run_id'], session_id=scope['session_id'], controls=options['--model-controls'],"
+        },
+        {
+          "line": 2579,
+          "text": "            controls_sha256=options['--model-controls-sha256'])"
+        },
+        {
+          "line": 2583,
+          "text": "                          (('--model', 'native_id'), ('--effort', 'effort'))),"
+        },
+        {
+          "line": 2599,
+          "text": "            wrapper = local_reference(root, root / (PANELIST_SCRIPTS + 'run-panelist-gpt' + ext))"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 52,
+      "inventory_origin": "lexical",
+      "path": "render-agent-frontmatter.ps1",
+      "sha256": "e8dd1f5f4222420e21c13a51ab6f221e0393d23a83e6ab86b5d5346a7bcff6ae",
+      "category": "verified-component",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Renderer native fields/protected staging or exact seven-file installed runtime closure is Green; this component evidence does not close all maintained callers.",
+      "source_evidence": [
+        {
+          "line": 30,
+          "text": "    # plugins/sdd-implementation/scripts/select-agent-model.ps1, T-002)."
+        },
+        {
+          "line": 51,
+          "text": "    ModelControls = '--model-controls'; ModelControlsSha256 = '--model-controls-sha256'"
+        },
+        {
+          "line": 274,
+          "text": "        $lines[$i] -cmatch '^# x-sdd-model: \\S+$' -or"
+        },
+        {
+          "line": 283,
+          "text": "    $newLines.Add(\"# x-sdd-model: $ModelName\")"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 53,
+      "inventory_origin": "lexical",
+      "path": "render-agent-frontmatter.sh",
+      "sha256": "a400dc8f2825d982a759b81b86bcfaaec78e47f78347c6fc00903744c6b3fbe6",
+      "category": "verified-component",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Renderer native fields/protected staging or exact seven-file installed runtime closure is Green; this component evidence does not close all maintained callers.",
+      "source_evidence": [
+        {
+          "line": 6,
+          "text": "# agent files and `# x-sdd-model:`/`# x-sdd-effort:` reference comments into"
+        },
+        {
+          "line": 23,
+          "text": "#   render-agent-frontmatter.sh [--root PATH] --model-controls FILE --model-controls-sha256 SHA"
+        },
+        {
+          "line": 48,
+          "text": "# already a repository dependency per select-agent-model.sh's own heredoc"
+        },
+        {
+          "line": 57,
+          "text": "    --model-controls|--model-controls-sha256|--run-id|--session-id|--managed-target)"
+        },
+        {
+          "line": 92,
+          "text": "CODEX_MODEL_RE = re.compile(r'^# x-sdd-model: \\S+$')"
+        },
+        {
+          "line": 165,
+          "text": "        # Case-sensitive key match (mirrors select-agent-model's ordinal"
+        },
+        {
+          "line": 235,
+          "text": "    new_lines = [f\"# x-sdd-model: {model_name}\", f\"# x-sdd-effort: {effort}\"] + rest"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 54,
+      "inventory_origin": "semantic-addition",
+      "path": "install.sh",
+      "sha256": "688bf4db5f1c8a55d413548543e019346bcda0f4374824bf5bc29644c8927851",
+      "category": "verified-component",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Renderer native fields/protected staging or exact seven-file installed runtime closure is Green; this component evidence does not close all maintained callers.",
+      "source_evidence": [
+        {
+          "line": 770,
+          "text": "    \"plugins/sdd-implementation/scripts/select-agent-model.sh\""
+        },
+        {
+          "line": 771,
+          "text": "    \"plugins/sdd-implementation/scripts/select-agent-model.ps1\""
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 55,
+      "inventory_origin": "semantic-addition",
+      "path": "install.ps1",
+      "sha256": "5106b3e955d4817066ad6b72dffd81a7c9dad99f4fc2664a06bbb5680dcdbaa8",
+      "category": "verified-component",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "Renderer native fields/protected staging or exact seven-file installed runtime closure is Green; this component evidence does not close all maintained callers.",
+      "source_evidence": [
+        {
+          "line": 581,
+          "text": "        \"plugins/sdd-implementation/scripts/select-agent-model.sh\","
+        },
+        {
+          "line": 582,
+          "text": "        \"plugins/sdd-implementation/scripts/select-agent-model.ps1\","
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 56,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+      "sha256": "4e33234e370bbdf873cd370c90743172f86cb333f526667a7ee3a7a4714f6174",
+      "category": "ordinary-skill",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "investigator: context:fork/agent:sdd-investigator can allocate before body. Preparation must occur at upstream supported host trigger before fork, not merely inside already-running skill; retain no-write/report behavior.",
+      "source_evidence": [
+        {
+          "line": 6,
+          "text": "context: fork"
+        },
+        {
+          "line": 7,
+          "text": "agent: sdd-investigator"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 57,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+      "category": "ordinary-skill",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "implementer: restore already approved task/context; attach managed selection to actual implementation allocation via implement-tasks/ship, not claim a model change by reading this skill in an existing session. No task-status/approval relaxations.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 58,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "sha256": "63ec0313cd660be60940bdcb0d8e88337b6e380ac4bb43a13100461ba388f291",
+      "category": "ordinary-skill",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "implementer: bind selected controls to each validated immutable task manifest and fresh run/session/agent. Preserve incapable-host evidence/reload exception without fabricating a new session or model application.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 59,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md",
+      "sha256": "452b2138848e71268a5b02c51f6642c274c21d4fb8a5d353352cd907c04d03be",
+      "category": "ordinary-skill",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "workflow-auditor-a/b: prepare separately before each fresh named-agent allocation. Preserve allowed inputs, category output schema, check-ID-only bridge and audit status ownership.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 60,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+      "sha256": "73ae95edb3c6dd7b1b8e85fd1e618cb78797a7c2269f72abb11ec23933e2a1f2",
+      "category": "ordinary-skill",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "panelist-gpt/gemini: prepend prepare then pass controls/rawpin/run/session to actual existing Bash/PS runners. Keep original consent/sanitized input/vendor isolation/parallelism. Unsupported Gemini mapping stays typed; Anthropic generic Agent route still needs actual carrier proof.",
+      "source_evidence": [
+        {
+          "line": 38,
+          "text": "isolation (see `run-panelist-gpt.{sh,ps1}` and `run-panelist-gemini.{sh,ps1}`)."
+        },
+        {
+          "line": 144,
+          "text": "bash plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh \\"
+        },
+        {
+          "line": 153,
+          "text": "bash plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh \\"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 61,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656",
+      "category": "ordinary-skill",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "spec-reviewer-a/b: prepare matching role controls and append flags to existing launch-impl-review.py. Proposed identities are not pre-reserved: shared launcher retains its sole canonical reservation after preflight. Preserve sequential A/B and sanitized summary.",
+      "source_evidence": [
+        {
+          "line": 77,
+          "text": "rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py <absolute-repository-root> <absolute-invocation-path> <absolute-round-directory>/launch-<UUID>"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 62,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "sha256": "bc9c6ed4e2ad6fdfa84bca4eea7c52a92d825957005e18e0f8a8ec2848ed7f75",
+      "category": "protected-skill",
+      "edit_boundary": "current human-copy proposal only; no direct source edit",
+      "behavior_disposition": "same shared-launcher controls integration for impl-reviewer-a/b, stage a current human-copy proposal only. Preserve ledger single reservation, sequential roles and protected source until sanctioned application.",
+      "source_evidence": [
+        {
+          "line": 399,
+          "text": "rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py <absolute-repository-root> <absolute-invocation-path> <absolute-round-directory>/launch-<UUID>"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 63,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "sha256": "ab5705112fb2646ca4987b553ce58eebd956f8b8c61d91ce505d95bb2fb97ee3",
+      "category": "protected-skill",
+      "edit_boundary": "current human-copy proposal only; no direct source edit",
+      "behavior_disposition": "same shared-launcher controls integration for task-reviewer-a/b, stage a current human-copy proposal only. Preserve ledger single reservation, sequential roles and protected source until sanctioned application.",
+      "source_evidence": [
+        {
+          "line": 319,
+          "text": "rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py <absolute-repository-root> <absolute-invocation-path> <absolute-round-directory>/launch-<UUID>"
+        }
+      ],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 64,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md",
+      "sha256": "6d3a714ebc686860b9407410033b7ef1bfb21d8df70cc93b11b1b00ec0b02e3e",
+      "category": "unsupported-host-template",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "No trusted Copilot native mapping exists: require typed model-unavailable before allocation. No fabricated mapping/frontmatter precedence; template presence is not managed runtime support.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    },
+    {
+      "index": 65,
+      "inventory_origin": "semantic-addition",
+      "path": "plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md",
+      "sha256": "32be124ba06f958c73780c57176b19b68cf897bd1a16931408f010546f7874ec",
+      "category": "unsupported-host-template",
+      "edit_boundary": "ordinary task-scoped only after its actual Red and admission",
+      "behavior_disposition": "No trusted Copilot native mapping exists: require typed model-unavailable before allocation. No fabricated mapping/frontmatter precedence; template presence is not managed runtime support.",
+      "source_evidence": [],
+      "runtime_closure": "open unless explicitly verified component; no bulk closure inferred"
+    }
+  ],
+  "indirect_entries": [
+    {
+      "path": "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md",
+      "sha256": "bd25b434d06b1573c934e5cc2869233bc85dd919d95b97496742ebbb2433ec67",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 85,
+          "text": "  skill cache. Never change that prerequisite or launch a second writer."
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md",
+      "sha256": "5468d3d7c4e28335221f612be656180333608b27b2bed0542d38fe71843ac8a5",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 85,
+          "text": "  skill cache. Never change that prerequisite or launch a second writer."
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "sha256": "9d78e75b7c98aaca5a4ef2ef0727b7924be84cf79346f327ff03c931a2a62000",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 44,
+          "text": "| `investigate` | investigate-codebase | Read-only codebase analysis only |"
+        },
+        {
+          "line": 52,
+          "text": "| `--reset` | Pass to impl-review-loop or task-review-loop after a BLOCKED verdict |"
+        },
+        {
+          "line": 144,
+          "text": "Delegate entirely to `/sdd-bootstrap:investigate-codebase <mode> <source>`."
+        },
+        {
+          "line": 207,
+          "text": "2. **Spec-review gate** \u2014 invoke `/sdd-review-loop:spec-review-loop --feature <slug>`."
+        },
+        {
+          "line": 214,
+          "text": "3. **Impl-review gate** \u2014 invoke `/sdd-review-loop:impl-review-loop --feature <slug>`."
+        },
+        {
+          "line": 225,
+          "text": "5. **Task-review gate** \u2014 invoke `/sdd-review-loop:task-review-loop --feature <slug>`."
+        },
+        {
+          "line": 253,
+          "text": "- after `investigate-codebase` completes \u2014 findings persist in"
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+      "sha256": "c8e82741a7bee882ea837813aa14becd52c83361d49f833212add5a968d3bfa2",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": []
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
+      "sha256": "4f2373243ff346a8594c5e2810b243be6e182354b46b1257b99a8356fd4497ba",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 46,
+          "text": "   - Required: `reports/implementation/`, `reports/quality-gate/`,"
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "sha256": "91489f9fffc419f706e44cacfc6f93d7b6254e54c91e146a6b52e0a2d946fe5a",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 59,
+          "text": "   modes, run `investigate-codebase` first and pass its outputs as context here."
+        },
+        {
+          "line": 91,
+          "text": "  `disabled-legacy`, do not enter this phase and do not spawn a resolver"
+        },
+        {
+          "line": 97,
+          "text": "  `capability-resolver: <check-id>: <detail>` diagnostic to the session and"
+        },
+        {
+          "line": 182,
+          "text": "  `specs/<feature>/baseline-behavior.md`; run `investigate-codebase` first if"
+        },
+        {
+          "line": 210,
+          "text": "Phase 2 outputs (generated after impl-review-loop passes):"
+        },
+        {
+          "line": 278,
+          "text": "2. Invoke `/sdd-review-loop:spec-review-loop --feature <feature>`."
+        },
+        {
+          "line": 283,
+          "text": "   `/sdd-review-loop:spec-review-loop --reset --feature <feature>`."
+        },
+        {
+          "line": 287,
+          "text": "Run after design.md is generated and spec-review-loop has passed."
+        },
+        {
+          "line": 290,
+          "text": "2. Invoke `/sdd-review-loop:impl-review-loop --feature <feature>`."
+        },
+        {
+          "line": 296,
+          "text": "   `/sdd-review-loop:impl-review-loop --reset --feature <feature>`."
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-domain/skills/concept-test/SKILL.md",
+      "sha256": "81f7a75615404e0cd31bbc24e40b2f79e018102ff106a3eb80c42b00635f8faf",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": []
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/SKILL.md",
+      "sha256": "24171685e75415493bb1addfd2812853b300091b15fba40325c090a796f9f8c1",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 66,
+          "text": "`Seed-Source: reverse (investigate-codebase, <feature>)` header line), it"
+        },
+        {
+          "line": 246,
+          "text": "   diagnostic, and retain the previous valid contract unchanged."
+        },
+        {
+          "line": 294,
+          "text": "the artifact set is ready for `domain-review-loop` (T-005, a later task)"
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-model/SKILL.md",
+      "sha256": "1f73139a596101269a5a123e51e51d6ec71a9b208b3696f6060b19c6df041dad",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 47,
+          "text": "| `reverse` | No | `domain-reverse`, then `domain-interviewer` | Seeds the interview from an existing codebase via `investigate-codebase` |"
+        },
+        {
+          "line": 82,
+          "text": "   /sdd-bootstrap:investigate-codebase feature <target>"
+        },
+        {
+          "line": 86,
+          "text": "   `investigate-codebase`; this skill calls `domain-reverse`, not"
+        },
+        {
+          "line": 87,
+          "text": "   `investigate-codebase` directly):"
+        },
+        {
+          "line": 94,
+          "text": "2. `domain-reverse` runs `investigate-codebase`, converts its"
+        },
+        {
+          "line": 99,
+          "text": "   `Seed-Source: reverse (investigate-codebase, <feature>)` header:"
+        },
+        {
+          "line": 207,
+          "text": "  `domain/context-map.md` and that `domain-review-loop` (T-005) must run"
+        },
+        {
+          "line": 231,
+          "text": "- `domain-review-loop` and the two-reviewer/cross-model review gate (T-005,"
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+      "sha256": "a1a0136267b674d04a025e9eae701164c92049d783ddcc41a28ba48d5e2be2f2",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 3,
+          "text": "description: Reverse-generation seed for the DDD upstream lane. Runs investigate-codebase against the target project and converts its investigation.md output into a candidate domain-model seed (candidate bounded contexts, concepts, ubiquitous-language terms, e"
+        },
+        {
+          "line": 24,
+          "text": "`sdd-bootstrap-interviewer` uses to invoke `investigate-codebase`):"
+        },
+        {
+          "line": 27,
+          "text": "/sdd-bootstrap:investigate-codebase feature <target>"
+        },
+        {
+          "line": 31,
+          "text": "the same procedure inline in a fresh context, per `investigate-codebase`'s"
+        },
+        {
+          "line": 35,
+          "text": "Use the investigate-codebase skill."
+        },
+        {
+          "line": 42,
+          "text": "1. **Invoke `investigate-codebase`.** Call it in `feature` mode against the"
+        },
+        {
+          "line": 47,
+          "text": "   feature slug `investigate-codebase` produced. If the file is missing after"
+        },
+        {
+          "line": 49,
+          "text": "   `investigate-codebase` as the failed seed step; never invent findings in"
+        },
+        {
+          "line": 68,
+          "text": "   annotated `Seed-Source: reverse (investigate-codebase, <feature>)`, so the"
+        },
+        {
+          "line": 143,
+          "text": "Seed-Source: reverse (investigate-codebase, <feature>)"
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-sync/SKILL.md",
+      "sha256": "ae41f8da490ef18ceb0328151a322590a63526be99e6386fbf9a45ec72fc3f7e",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": []
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md",
+      "sha256": "7eadc63911214f798dc2c1a97b18609af7db8f474bc34c6246b791a0597edea0",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 3,
+          "text": "description: Implementation-phase visual verification loop for UI tasks. Launches the app (Claude Preview MCP for web, wpf-visual-verify for WPF desktop), compares the rendered UI against approved mockups, ux-spec states, and \u2014 when the project carries one \u2014 t"
+        },
+        {
+          "line": 11,
+          "text": "`implement-task` after the scoped self-review and before the implementation"
+        },
+        {
+          "line": 27,
+          "text": "- **Web**: a dev server can be started (`.claude/launch.json`, or a dev"
+        },
+        {
+          "line": 39,
+          "text": "1. Build and launch (or re-render) the affected view."
+        },
+        {
+          "line": 65,
+          "text": "  remains the job of quality-gate and human review."
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-lite/skills/lite-gate/SKILL.md",
+      "sha256": "c07a099bf1fbe28ae2d75124181aa11d6c3e83362bcb4ce0c5817956b6a5cf59",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 3,
+          "text": "description: Lightweight deterministic quality gate for the sdd-lite flow. Runs placeholder-scan and the project's lint/typecheck/build/test commands, writes a lite quality report, moves the task to Done, then validates the final Done state with check-task-sta"
+        },
+        {
+          "line": 37,
+          "text": "lite \u30b2\u30fc\u30c8\u3068\u3057\u3066\u5b9f\u884c\u3057\u3066\u3088\u3044\u304b\u3001full quality-gate \u306b\u5207\u308a\u66ff\u3048\u308b\u3079\u304d\u304b\u306f\u3001"
+        },
+        {
+          "line": 77,
+          "text": "  full quality-gate \u306b\u5207\u308a\u66ff\u3048\u308b\u3002"
+        },
+        {
+          "line": 91,
+          "text": "   \u540d\u524d\u4ed8\u304d\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u30c1\u30a7\u30c3\u30af\u306f Step 2b \u3068\u540c\u3058 `run-lite-gate.py` \u306b `--check <id>` \u3092\u5fc5\u8981\u306a\u6570\u3060\u3051\u6e21\u3057\u3001\u307e\u3068\u3081\u3066\u5b9f\u884c\u3059\u308b\u3002\u4f8b\u3048\u3070 `--check lint --check typecheck --check build --check test`\u3002\u5225\u306e\u53d7\u3051\u5165\u308c/\u56de\u5e30\u30b3\u30de\u30f3\u30c9\u304c\u5fc5\u8981\u306a\u3089\u3001\u305d\u306e\u5b9f\u5728\u3059\u308b id \u3092\u8ffd\u52a0\u3059\u308b\u3002`--output reports/quality-gate/<task-id>.execution.json` \u3067\u5b9f\u6e2c\u306e stdout / stde"
+        },
+        {
+          "line": 128,
+          "text": "3. `reports/quality-gate/<task-id>.md` \u3092 `templates/quality-report-lite.md` \u304b\u3089\u751f\u6210\u3059\u308b\u3002\u5148\u982d\u306b `Task ID: <task-id>` \u3068 `VERDICT: PASS|FAIL` \u3092\u5fc5\u305a\u7f6e\u304f\uff08`check-task-state-lite` \u306e Done \u5224\u5b9a\u304c\u4f9d\u5b58\uff09\u3002\u5b9f\u884c\u7d50\u679c\u306f\u751f\u6210\u3055\u308c\u305f execution.json \u3092\u53c2\u7167\u3057\u3001\u5404\u30c1\u30a7\u30c3\u30af\u306e\u51fa\u529b\u3092\u518d\u8ee2\u8a18\u3057\u306a\u3044\u3002\u72ec\u7acb\u30ec\u30d3\u30e5\u30fc\u306e\u62c5\u5f53\u30b3\u30f3\u30c6\u30ad\u30b9\u30c8\u3001\u78ba\u8a8d\u3057\u305f\u53d7\u3051\u5165\u308c\u6761\u4ef6\u30fb\u56de\u5e30\u3001\u304a\u3088\u3073\u6b8b\u308b\u554f\u984c\u3092"
+        },
+        {
+          "line": 134,
+          "text": "- evidence-bundle / contract.json / cross-model-verify / \u4e8c\u8005\u627f\u8a8d / \u30ea\u30b9\u30af\u968e\u5c64\u5f37\u5236\u306f\u884c\u308f\u306a\u3044\uff08\u6607\u683c\u6642\u306f full quality-gate \u306b\u5207\u66ff\uff09\u3002"
+        },
+        {
+          "line": 136,
+          "text": "- Done \u306f\u672c\u30b9\u30ad\u30eb\u306e\u307f\u304c\u8a2d\u5b9a\u3059\u308b\uff08implement-task \u306f\u8a2d\u5b9a\u3057\u306a\u3044\uff09\u3002"
+        },
+        {
+          "line": 142,
+          "text": "VERDICT \u3068\u5404\u30c1\u30a7\u30c3\u30af\u7d50\u679c\u3001Done \u5316\u306e\u6709\u7121\u3092\u5831\u544a\u3059\u308b\u3002FAIL \u6642\u306f\u4e0d\u8db3\u70b9\u3092\u660e\u793a\u3057 implement-task \u3078\u306e\u5dee\u3057\u623b\u3057\u3092\u6848\u5185\u3059\u308b\u3002"
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "sha256": "4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 29,
+          "text": "\u30ea\u30dd\u30b8\u30c8\u30ea root \u306b `AGENTS.md` \u304c\u5b58\u5728\u3057\u3001`scripts/check-sdd-structure.sh`\uff08\u307e\u305f\u306f `.ps1`\uff09\u304c `missing:` \u3092\u51fa\u3055\u306a\u3044\u3053\u3068\u3002\u672a\u6574\u5099\u306a\u3089 `/sdd-bootstrap:sdd-adopt` \u3092\u6848\u5185\u3057\u3066\u505c\u6b62\u3059\u308b\u3002lite \u3067\u3082 SDD \u69cb\u9020\uff08AGENTS.md + \u5fc5\u9808\u30c7\u30a3\u30ec\u30af\u30c8\u30ea\uff09\u306f\u524d\u63d0\uff08implement-task \u306e\u524d\u63d0\u6761\u4ef6\uff09\u3002"
+        },
+        {
+          "line": 232,
+          "text": "- \u30a2\u30d7\u30ea\u306e\u30b3\u30fc\u30c9\u3092\u5b9f\u88c5\u3057\u306a\u3044\uff08\u5b9f\u88c5\u306f `implement-task`\uff09\u3002"
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md",
+      "sha256": "0215d3a6c097c893727276afc6078415cc83c3aa4273dc8bc62865bc3af6efa1",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 17,
+          "text": "   diagnose it systematically (reproduce \u2192 isolate \u2192 hypothesis \u2192 minimal fix"
+        },
+        {
+          "line": 24,
+          "text": "7. Run `quality-gate` again before the task can become `Done`."
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
+      "sha256": "392e32a6478337274b0a927f58ed31d0fe0204c12bf5817e121d457de6a3ac98",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 9,
+          "text": "Human-invoked toggle that auto-passes routine human *approval* checkpoints (tasks.md `Approval: Approved`, routine quality-gate sign-off, `accepted` baseline-diff approval) with an expiring token. It never auto-passes genuine *judgment* (see \"What Is NOT Bypas"
+        },
+        {
+          "line": 82,
+          "text": "- Contract approval / routine `Done` sign-off in `quality-gate`"
+        },
+        {
+          "line": 229,
+          "text": "2. Keep all normal quality-gate reports, contracts, and verification artifacts"
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
+      "disposition": "indirect entry/current host; consume migrated downstream named role boundary; no independent model option found in admitted body",
+      "evidence": [
+        {
+          "line": 38,
+          "text": "| `--full` | Force full track (quality-gate); verifies acceptance-tests.md + traceability.md exist |"
+        },
+        {
+          "line": 39,
+          "text": "| `--verify` | Before quality-gate, run cross-model-verify for tasks that have `Cross-Model: enabled` |"
+        },
+        {
+          "line": 240,
+          "text": "  **FULL** track even when `--lite` was requested. Print the checker diagnostic"
+        },
+        {
+          "line": 244,
+          "text": "  implementation or the lite gate, print that diagnostic, and direct the user"
+        },
+        {
+          "line": 270,
+          "text": "Invoke `/sdd-implementation:implement-tasks specs/<feature>/tasks.md`."
+        },
+        {
+          "line": 275,
+          "text": "to implement-tasks."
+        },
+        {
+          "line": 279,
+          "text": "Invoke `/sdd-implementation:implement-task specs/<feature>/tasks.md#T-NNN` for"
+        },
+        {
+          "line": 301,
+          "text": "   `/sdd-quality-loop:cross-model-verify specs/<feature>/tasks.md#T-NNN` before"
+        },
+        {
+          "line": 317,
+          "text": "     quality gate and print a diagnostic naming the task:"
+        },
+        {
+          "line": 326,
+          "text": "   tasks.md entry: invoke `/sdd-quality-loop:cross-model-verify specs/<feature>/tasks.md#T-NNN`"
+        }
+      ]
+    }
+  ],
+  "important_correction": "Prior caller-snippet comment saying identities are reserved before shared launcher is inaccurate. Caller proposes/obtains identities; shared protected launcher retains sole atomic reservation after its preflight. Do not double reserve.",
+  "remaining_host_boundary": "Generic Agent/fork/skill in already-running context must prove a supported model/effort carrier before allocation; typing a model into prose or configuration-only thread proof does not establish substantive execution."
+}

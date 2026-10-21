@@ -1,0 +1,251 @@
+{
+  "task_id": "T-009",
+  "feature": "ci-model-modernization",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd",
+  "created": "2026-10-20T16:40:50.267076+00:00",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/lint.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/lint.log",
+      "command": "/tmp/ci-model-resume-python/bin/ruff check /workspace/sdd-forge/specs/ci-model-modernization/verification/T-009/attempt-1/embedded-product.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:38:46.452656Z",
+      "finished_at": "2026-10-20T16:38:46.460163Z"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/typecheck.log",
+      "command": "/tmp/ci-model-resume-python/bin/python -m mypy --check-untyped-defs --cache-dir /workspace/.task-scratch/ci-model-modernization/t009-mypy /workspace/sdd-forge/specs/ci-model-modernization/verification/T-009/attempt-1/embedded-product.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:38:46.460900Z",
+      "finished_at": "2026-10-20T16:38:46.557846Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/bash-locking.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/red-bash.log",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/bash-locking.log",
+      "command": "bash tests/model-freshness-check.tests.sh",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:38:46.604406Z",
+      "finished_at": "2026-10-20T16:38:47.661228Z"
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/powershell-locking.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/red-bash.log",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/powershell-locking.log",
+      "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/model-freshness-check.tests.ps1",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:38:47.662122Z",
+      "finished_at": "2026-10-20T16:38:48.915347Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/static-checks.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/static-checks.log",
+      "command": "python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-009/attempt-1/static-checks.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:38:46.566229Z",
+      "finished_at": "2026-10-20T16:38:46.603547Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/placeholder-scan.log",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh .github/scripts/check-model-freshness.sh .github/workflows/model-freshness-check.yml",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:38:46.558744Z",
+      "finished_at": "2026-10-20T16:38:46.565448Z"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/root-final-checks/task-state-check-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/root-final-checks/task-state-check-receipt.json",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh /workspace/sdd-forge/specs/ci-model-modernization/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:46:21Z",
+      "finished_at": "2026-10-20T16:46:22Z"
+    },
+    {
+      "id": "smoke-run",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/bash-locking.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/bash-locking.log",
+      "command": "bash tests/model-freshness-check.tests.sh",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:38:46.604406Z",
+      "finished_at": "2026-10-20T16:38:47.661228Z"
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/rollback-results.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "python3 -B specs/ci-model-modernization/verification/T-009/attempt-1/rollback-check.py",
+      "exit_code": 0,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No graphical frontend or design system is changed by this Ubuntu-only maintenance task.",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No graphical frontend or design system is changed by this Ubuntu-only maintenance task.",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/bash-locking.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/red-bash.log",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/bash-locking.log",
+      "command": "bash tests/model-freshness-check.tests.sh",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:38:46.604406Z",
+      "finished_at": "2026-10-20T16:38:47.661228Z"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/ci-plan-integration.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/attempt-1/ci-plan-integration.log",
+      "command": "python3 -B tests/verification-ci-plan.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:38:51.655551Z",
+      "finished_at": "2026-10-20T16:39:10.712093Z"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/root-final-checks/requirement-traceability-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/root-final-checks/requirement-traceability-receipt.json",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh /workspace/sdd-forge/specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:46:22Z",
+      "finished_at": "2026-10-20T16:46:22Z"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-009/root-final-checks/check-component-coverage.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-009/root-final-checks/check-component-coverage-receipt.json",
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-20T16:46:22Z",
+      "finished_at": "2026-10-20T16:46:22Z"
+    }
+  ]
+}

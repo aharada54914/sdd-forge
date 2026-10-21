@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/model-policy.tests.py",
+    "PolicySelection.test_supported_policy_options_always_fail_with_one_typed_error"
+  ],
+  "exit_code": 1,
+  "test_sha256": "2884b56ae739e332709b4aa42f2125aa07be2ddc331ebedefe293093c3f23a27",
+  "at": "2026-10-19T20:56:34.749087+00:00"
+}

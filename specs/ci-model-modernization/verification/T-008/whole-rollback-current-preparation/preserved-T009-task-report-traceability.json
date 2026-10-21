@@ -1,0 +1,44 @@
+[
+  {
+    "disposition": "not part of rollback writes; Root namespace unchanged",
+    "input": "inputs/preserved-witness/specs/ci-model-modernization/tasks.md",
+    "mode": 384,
+    "path": "specs/ci-model-modernization/tasks.md",
+    "sha256": "74898daf50a890ff64bede561e46d39bd4ed5fb6a79a0352bd92535a17a4168b"
+  },
+  {
+    "disposition": "not part of rollback writes; Root namespace unchanged",
+    "input": "inputs/preserved-witness/specs/ci-model-modernization/traceability.md",
+    "mode": 384,
+    "path": "specs/ci-model-modernization/traceability.md",
+    "sha256": "b41d1d5be9fa308f756069fb5405e91a084c1cfd28bd922f6274eb3641a548c7"
+  },
+  {
+    "disposition": "not part of rollback writes; Root namespace unchanged",
+    "input": "inputs/preserved-witness/specs/ci-model-modernization/traceability.json",
+    "mode": 384,
+    "path": "specs/ci-model-modernization/traceability.json",
+    "sha256": "c598976b7a123b5525447fbaaf291eebb7c538daec20b8f10ed148591707d990"
+  },
+  {
+    "disposition": "not part of rollback writes; Root namespace unchanged",
+    "input": "inputs/preserved-witness/reports/implementation/ci-model-modernization/T-009.md",
+    "mode": 384,
+    "path": "reports/implementation/ci-model-modernization/T-009.md",
+    "sha256": "80498c96e84ce51d3425cc413bfd79fb85026263f60e133d374ccfaf8be5b2a1"
+  },
+  {
+    "disposition": "not part of rollback writes; Root namespace unchanged",
+    "input": "inputs/preserved-witness/specs/ci-model-modernization/verification/T-009.evidence.json",
+    "mode": 384,
+    "path": "specs/ci-model-modernization/verification/T-009.evidence.json",
+    "sha256": "e6e1584c19dfef30b21e9aaeaa41147c895cd4da432703c79d7c4ab0843f20ee"
+  },
+  {
+    "disposition": "not part of rollback writes; Root namespace unchanged",
+    "input": "inputs/preserved-witness/specs/ci-model-modernization/verification/T-009.contract.json",
+    "mode": 384,
+    "path": "specs/ci-model-modernization/verification/T-009.contract.json",
+    "sha256": "6cea035800b5646db2f90e121f03eee5a33d19f2bf4ca4d7f37ac9294ea202b0"
+  }
+]

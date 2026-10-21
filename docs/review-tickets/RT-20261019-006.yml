@@ -1,0 +1,22 @@
+ticket_id: RT-20261019-006
+status: resolved
+type: nondeterministic-canonical-plan
+severity: critical
+target:
+  feature: ci-model-modernization
+  task: T-001
+summary: Multiple activated categories produce process-dependent plan hashes
+problem: Category insertion follows a set of changed paths; activation_evidence arrays retain that nondeterministic order and therefore disagree during independent plan reconstruction.
+expected_fix:
+  - Order evidence deterministically by category identity.
+  - Compare complete affected plans and digests from independent processes with distinct hash seeds.
+  - Preserve classification, proof validation, omissions and full fallback.
+  - Run related regressions and scoped rollback, then obtain fresh independent acceptance.
+approval: Clear deterministic-contract repair within approved T-001; latest user instruction directs completion of remaining work.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 6
+evidence: specs/ci-model-modernization/verification/T-001/quality-cycle-6/work-review/evaluator.txt
+reproduction: specs/ci-model-modernization/verification/T-001/quality-cycle-6/order-fix/red.log
+resolution: Fresh independent cycle 7 explicitly accepted this correction; no unresolved finding.
+resolution_evidence: specs/ci-model-modernization/verification/T-001/quality-cycle-7/work-review/evaluator.txt

@@ -1,0 +1,519 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/run-core-with-case-inventory.py"
+      ],
+      "exit_code": 1,
+      "started_at": "2026-10-20T01:48:04.347581+00:00",
+      "finished_at": "2026-10-20T01:50:12.698232+00:00",
+      "elapsed_seconds": 128.35066070899484,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/1.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/1.stderr.log",
+          "sha256": "d7488e420342da0af9f41fe31f34a7acd4e6fe8b99142a962b5c2c066b12afa3"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/model-policy-launch-platform.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:12.698753+00:00",
+      "finished_at": "2026-10-20T01:50:12.862968+00:00",
+      "elapsed_seconds": 0.1642267580027692,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/2.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/2.stderr.log",
+          "sha256": "800346069b7c77896a63bf9caf4716560e8342f5599a74f58ff8b74006e44266"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/quality-nontty-transport.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:12.863439+00:00",
+      "finished_at": "2026-10-20T01:50:14.787119+00:00",
+      "elapsed_seconds": 1.9236870939930668,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/3.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/3.stderr.log",
+          "sha256": "10533868577e8b95c8486a7fc3eefc1c8499d031c9c5f643b3f1c8670ff4cb46"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-state.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:14.787581+00:00",
+      "finished_at": "2026-10-20T01:50:19.486769+00:00",
+      "elapsed_seconds": 4.6991985800123075,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/4.stdout.log",
+          "sha256": "324dc0b19c750f2a9fe2a873d25cef892bdb649489de6ab956391c78a01950fd"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/4.stderr.log",
+          "sha256": "97704c18cc94cb8e9c87f243500230a57ce1a671e35bf8681e3ec24e52e98baa"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-precheck-ps.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:19.487414+00:00",
+      "finished_at": "2026-10-20T01:50:37.327019+00:00",
+      "elapsed_seconds": 17.839616510013002,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/5.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/5.stderr.log",
+          "sha256": "9c5d76817fe4d70de942fa29e42071997aa39371b6dc5f1d35d699b481119f62"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-precheck-bash.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:37.327525+00:00",
+      "finished_at": "2026-10-20T01:50:41.654646+00:00",
+      "elapsed_seconds": 4.327134405000834,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/6.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/6.stderr.log",
+          "sha256": "9f9aa8f91b9924172e147420003afffbaa6153f367302fa0518aad8eaf5251c9"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-launch.tests.py"
+      ],
+      "exit_code": 1,
+      "started_at": "2026-10-20T01:50:41.655183+00:00",
+      "finished_at": "2026-10-20T01:50:47.495932+00:00",
+      "elapsed_seconds": 5.8407609990099445,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/7.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/7.stderr.log",
+          "sha256": "4ab26785b721cbd0942dd26416eb782a0d8fc9bb1a636e09392d0f03db384914"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/fixed-review-inputs.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:47.496447+00:00",
+      "finished_at": "2026-10-20T01:50:48.816860+00:00",
+      "elapsed_seconds": 1.3204242280044127,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/8.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/8.stderr.log",
+          "sha256": "bafa205e27b1be4e4b2fc0acc65bab66ec27adeaa0c001cef090e9c5f9d1f43d"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/shared-launch-build.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:48.817550+00:00",
+      "finished_at": "2026-10-20T01:50:55.662456+00:00",
+      "elapsed_seconds": 6.844919082999695,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/9.stdout.log",
+          "sha256": "7e2371d1016e33c86f3fce03ef7b261492ab36eb1aada88d965e0bee01169e6a"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/9.stderr.log",
+          "sha256": "aa7b9ec25a3e15d87e95f326cb22e949df693ef3330b6393e8d00165c4ba05e9"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/review-context-anchors.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:55.663033+00:00",
+      "finished_at": "2026-10-20T01:50:55.777322+00:00",
+      "elapsed_seconds": 0.11430241099151317,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/10.stdout.log",
+          "sha256": "9f7b0cdf5c50355e6194634bc3d8098bb95277db77db801920e73f8b34b204f4"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/10.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "bash",
+        "tests/emit-run-record-feature-scope.tests.sh"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:55.778066+00:00",
+      "finished_at": "2026-10-20T01:50:56.443838+00:00",
+      "elapsed_seconds": 0.6657791080069728,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/11.stdout.log",
+          "sha256": "801481e1d4c63aad5302f4e1b86f62afbede8f77e8ca3c1445e208452e0b6ad6"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/11.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/emit-run-record-feature-scope.tests.ps1"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:50:56.444398+00:00",
+      "finished_at": "2026-10-20T01:51:04.204948+00:00",
+      "elapsed_seconds": 7.760560516995611,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/12.stdout.log",
+          "sha256": "3423d8c942802bd6d84e41d6b0ad077be604e10d29ab48300fa03ae15c5832e6"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/12.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/build-check.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-20T01:51:04.205512+00:00",
+      "finished_at": "2026-10-20T01:51:04.971501+00:00",
+      "elapsed_seconds": 0.7660023789940169,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/13.stdout.log",
+          "sha256": "828479fa1febebb5143c3eaca0331f5577100820beddbcff72b5554e0c4a95dc"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/13.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/generated-evidence-checks.py"
+      ],
+      "exit_code": 1,
+      "started_at": "2026-10-20T01:51:04.972089+00:00",
+      "finished_at": "2026-10-20T01:51:07.352505+00:00",
+      "elapsed_seconds": 2.380430573000922,
+      "logs": [
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/14.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/full-affected/14.stderr.log",
+          "sha256": "2e2a73e90e25003235f5d956b0c1c5d4edef81167d1d6b9af99ee4e8acfcff47"
+        }
+      ]
+    }
+  ],
+  "source_before": {
+    ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+    "contracts/agent-model-capabilities.json": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "contracts/agent-model-capabilities.v2.md": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+    "contracts/model-delivery.schema.json": "ddaa7802d5b93610d458f6a43a8d3a6b5ba71ac2c2b9279972cb1e52112af632",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736",
+    "contracts/model-observation.schema.json": "8be7eac9e201b90a6ec14121880cf5d9979592edada9b858ff969e863c9f5c32",
+    "contracts/model-policy-error.schema.json": "356747311f20399e848ffb90bec6b1c86d230f3c40cf5583c9cdace6347d601b",
+    "contracts/model-policy-request.schema.json": "871b0dcd5b29729aa559d29f5777f5637095fb93cd5e91755b8fb959da898d7c",
+    "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+    "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+    "contracts/model-role-config.schema.json": "e7193c9061e62217d3c0402b0835ec25f8381e6500338640a870df403f61fff8",
+    "contracts/model-selection.schema.json": "1249afc5c21ebb2d78344819f86f5d2e5b8f39a21b158147a5cf63066e512a8d",
+    "contracts/task-input-manifest.schema.json": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749",
+    "contracts/verification-ci-observations.schema.json": "2066711a7531c8e3cb4dd8b88471e9dc22f1070b0e42b1b27400f51cebac42b4",
+    "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+    "contracts/verification-ci-result.schema.json": "4ce73bcf9204acc32da741e4c5a4be98ceca5be5b04dfc11402f9710fdba34e5",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-implementation/scripts/select-agent-model.ps1": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+    "plugins/sdd-implementation/scripts/select-agent-model.sh": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh": "430e0e45c6bb417cd65f7f7f228bb59280d6d0817c8b34236223b8fbd4702029",
+    "plugins/sdd-implementation/skills/implement-task/SKILL.md": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+    "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md": "ec5a392cea7190660b8517317977584d36179e718856061acf968b36ef6bd23f",
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+    "plugins/sdd-implementation/templates/implementation-report.template.md": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75",
+    "plugins/sdd-quality-loop/agents/evaluator.md": "18d151073e388fe9e864d7192230c8686c6d8a24414d04f02796c00db4194a6a",
+    "plugins/sdd-quality-loop/agents/panelist-gemini.md": "b45eeab1c070a96115d6d2813fff4a92cfc73796ed171ba1c8cf6112c4cd6093",
+    "plugins/sdd-quality-loop/agents/panelist-gpt.md": "e0134fc5be428b1a0ab4b700f989d4fb7a114c119b12405dab14da9bda4629de",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-a.md": "864f6b857131ece8da42948fe17311b2e42c971cd6b4b64ccb39ed5241ec3230",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-b.md": "ad7a7defc893d9a60ca4b9506a144340759bf3090ab90157814c0113b781a298",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py": "4a9fa0c679b77959983eb3cc6c0674c03c2c3e3641d41b374fdbae51cb758a3e",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py": "48a565069a10edb132c98d22d8efc24a714442faad7a71585d3067d06305acf2",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py": "a9c23a27bee1174a46ec7203c90ace1988ea582d0d47cb5f029ed3e16c659766",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1": "e6325e03773792ad28081447a5884e040fa537f9261f81f13c87d6d597064cda",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": "47e7d8de3281e3b20b52a2c03ecde820167a20149bbdaac6022d7ebe4f7e9735",
+    "plugins/sdd-review-loop/agents/impl-reviewer-a.md": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+    "plugins/sdd-review-loop/agents/impl-reviewer-b.md": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+    "plugins/sdd-review-loop/agents/spec-reviewer-a.md": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731",
+    "plugins/sdd-review-loop/agents/spec-reviewer-b.md": "d9d7e8e3abb0d822daaeb19b30183f7e283602c741d440d35d78accac166cbb1",
+    "plugins/sdd-review-loop/agents/task-reviewer-a.md": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+    "plugins/sdd-review-loop/agents/task-reviewer-b.md": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+    "plugins/sdd-review-loop/scripts/fixed-review-inputs.py": "c3c88aff64bc9de6f5e989bce03a25d027f73f159676fb7a9ef155d835de4aa7",
+    "plugins/sdd-review-loop/scripts/fixed-review-state.py": "0051f87b6bea7921d5963aa32b34189e5888f5eeecdf204ef465001b38811153",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "2f08227f3c697307777e762fc6c01f604e9ffe5d521a304930563ff5895fd867",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.sh": "c35b033f438ee0f6e16113cf7e399d90ee7278237f96fc68f6d2e453b0e98b76",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "d81536bb39044d780b6238ed782fc3b85735b2580532b865a0c9bef4fe6ab6ee",
+    "plugins/sdd-review-loop/scripts/lib/fixed-input-source.ps1": "3acfab8eb3c144ae437e1495cb98b6d162edac4f2029bf9a340744ade19ba046",
+    "plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh": "e0d521a0ea059516c46b0cd36f6397d680e49a294903ab259e0a75c3e762ee46",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh": "a32d8e831d0360470c90c80089208fd401262cbe47fba2e2a0e90157f724e1ee",
+    "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+    "plugins/sdd-review-loop/scripts/preflight-host-review.py": "2bc182b85691ac0cc848f5ff5c34e1a5ba488cfe7025f6e6ea9b079f4847b752",
+    "plugins/sdd-review-loop/scripts/probe-nontty-review.py": "de497ca1a28b3e07ba1b7e717dd629dd66068c78b31698689628cbf494f2108b",
+    "plugins/sdd-review-loop/scripts/review-contract-validate.ps1": "cb3a1b2181fa5731252457bcd82134da2e2243cbbf97a70a893555b01dafc96a",
+    "plugins/sdd-review-loop/scripts/review-contract-validate.sh": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6",
+    "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1": "06c8e58f2256f6b8c2ff698a73e6d1308caf5ab73ec2e20e7c8074ea8d991e42",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "08792df3be712917b9e771abec28e153a8d013624286ad221da1837f2d462b2e",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4",
+    "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py": "52bc01ad07f930d3dffd3788e6a44e506b3a041a502fcc0ffa3a814262ef9e53",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "6fc9975eb047af08004a299be8a5d0a00dbf2e91fb8af917e5b60235e187acbe",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.sh": "2b8881f9f5cd5d27811cdbb0b5eec1510073993761f68f3c4882b951fdf8d588",
+    "plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1": "03a36e7234f35c290a3648cecdbd72b4a48da50159b496330aca802dd94ba7b1",
+    "plugins/sdd-review-loop/scripts/validate-layer-traceability.py": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "7c5cf78be1dbd4f7643ad9a005415e223448626744beb69bf0105129a6f4834d",
+    "tests/agent-model-routing.tests.ps1": "5709f7f97967ae2fc4909a21dbc46a35813634bc3b81c52d60048e203d6af98a",
+    "tests/agent-model-routing.tests.sh": "55b4d7a9a4e2aebf550acabe5961a5278d3c8ce8c9670631d15b7f9bfa2fd532",
+    "tests/ci-dependency-cache.py": "81273f739e8cac02c2c4168356a0d60bbb1bd7ec8edf957008c35be2ffba5aab",
+    "tests/ci-suite-wiring.tests.sh": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b",
+    "tests/emit-run-record-feature-scope.tests.ps1": "5036eef87d73ab66769af206757911738bdd9f37d6ed597a795b55ba76992515",
+    "tests/emit-run-record-feature-scope.tests.sh": "be7ee8bc84d275979d02c2596aa126e05c64e5df7f4be05ec8527810704e8a8d",
+    "tests/fixtures/emit-run-record/v1-no-flag.ps1.golden.json": "71a323cf32778195b2d1910539f8b711f21a3658b81cc2ef1b36f1a8f30af17d",
+    "tests/fixtures/emit-run-record/v1-no-flag.sh.golden.json": "b73056d912fec5c12324c6298e9b427603461afb4ac533a948af2cdbb3fde6df",
+    "tests/model-identity.tests.py": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+    "tests/model-observation.tests.py": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+    "tests/model-policy-launch-platform.tests.py": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810",
+    "tests/model-policy-launch.tests.py": "ad2be3c969aac5133de944b6f53c2a62825a3fe8837d0840f9e92487d4a4b3b5",
+    "tests/model-policy.tests.py": "afc996a6dceb154f2560da72eb5be1f6e89a73a6500b3d0678fa74437675e45a",
+    "tests/prepare-panelist.tests.ps1": "32501f8c01484180599eb11446d86996a40c9bd829131a8412d2a08e13e4127a",
+    "tests/prepare-panelist.tests.sh": "12d0e40aad109fb69099d6dda8d99fb7d066034c5959f7b5037d078e24e0e151",
+    "tests/quality-nontty-transport.tests.py": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+    "tests/required-checks-posix.tests.py": "4a412e19b3a1b50c7ba13d801468c08682eed24f8e76d587d0434b79f9982b19",
+    "tests/review-context-anchors.tests.py": "687153fc21a12493bc7716211815fb0ba3cde9f8bf3febe8bc0e78d96c0ce80e",
+    "tests/review-context-boundary.tests.sh": "3c191f24add33c6f0f7acf5dd271a45b14a0435f8b469c62c46a82647e97f6d2",
+    "tests/run-ci-unwired.sh": "c738721d6eb682a2cb1bdb41b40768a14a1d994713e42c4f46983c8d870eafac",
+    "tests/run-panelist-effort.tests.ps1": "71063e3ec7b19d87f43801ba4885eeda88d250600de60910e533712855458700",
+    "tests/run-panelist-effort.tests.sh": "9deef560ebd9d85381a153f0051a563259a0d2b50b248d49c987e89bf5e1c481",
+    "tests/shared-launch-build.tests.py": "8eb686b2b30ad5a258155f4ff635874d195098ffeafa2d05f3e2086a32f18b04",
+    "tests/shared-launch-python-requirements.txt": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d",
+    "tests/shared-launch-python/pyproject.toml": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12",
+    "tests/verification-catalog.json": "1cd0f5185cb41987aa2c04e7964e29285f9172cc86243461015ee0b8f2552eef",
+    "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+    "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+    "tests/verification-ci.py": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50",
+    "tests/verification-ci.tests.py": "f10abbbd3f94b3e926cf5568a9d3a4c4672b698a88df464fae56b8034c99b85a",
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+    "tests/verification-impact.tests.py": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+    "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+    "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+    "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/run-full-affected.py": "16aedec187410c4a5b7fe98d23b161450bd462f449cc8da76faeb9a7471dc0d2",
+    "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/generated-evidence-checks.py": "e78c18f2ef82db01a3fc92444d53986f443d329d081d8795dd0869596ba874ca",
+    "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/build-check.py": "44db0f4d1ba2bdc98e71ea71ea968054e084ca7c65c4b9668c7e9e67645f3fee",
+    "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/run-core-with-case-inventory.py": "cd5ae3f9097e291a85fda595277cb536b252f8e434c427f92e36b0c490534228"
+  },
+  "status": "FAIL",
+  "source_after": {
+    ".github/workflows/test.yml": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d",
+    "contracts/agent-model-capabilities.json": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "contracts/agent-model-capabilities.v2.md": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6",
+    "contracts/model-delivery.schema.json": "ddaa7802d5b93610d458f6a43a8d3a6b5ba71ac2c2b9279972cb1e52112af632",
+    "contracts/model-launch-controls.schema.json": "5920e2a1fe8a827c8f0d1590ca597aa1f045d2928db65a7b63e0ff037de10736",
+    "contracts/model-observation.schema.json": "8be7eac9e201b90a6ec14121880cf5d9979592edada9b858ff969e863c9f5c32",
+    "contracts/model-policy-error.schema.json": "356747311f20399e848ffb90bec6b1c86d230f3c40cf5583c9cdace6347d601b",
+    "contracts/model-policy-request.schema.json": "871b0dcd5b29729aa559d29f5777f5637095fb93cd5e91755b8fb959da898d7c",
+    "contracts/model-policy.schema.json": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12",
+    "contracts/model-policy.v1.json": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+    "contracts/model-role-config.schema.json": "e7193c9061e62217d3c0402b0835ec25f8381e6500338640a870df403f61fff8",
+    "contracts/model-selection.schema.json": "1249afc5c21ebb2d78344819f86f5d2e5b8f39a21b158147a5cf63066e512a8d",
+    "contracts/task-input-manifest.schema.json": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749",
+    "contracts/verification-ci-observations.schema.json": "2066711a7531c8e3cb4dd8b88471e9dc22f1070b0e42b1b27400f51cebac42b4",
+    "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+    "contracts/verification-ci-result.schema.json": "4ce73bcf9204acc32da741e4c5a4be98ceca5be5b04dfc11402f9710fdba34e5",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-implementation/scripts/select-agent-model.ps1": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+    "plugins/sdd-implementation/scripts/select-agent-model.sh": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh": "430e0e45c6bb417cd65f7f7f228bb59280d6d0817c8b34236223b8fbd4702029",
+    "plugins/sdd-implementation/skills/implement-task/SKILL.md": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+    "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md": "ec5a392cea7190660b8517317977584d36179e718856061acf968b36ef6bd23f",
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+    "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+    "plugins/sdd-implementation/templates/implementation-report.template.md": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75",
+    "plugins/sdd-quality-loop/agents/evaluator.md": "18d151073e388fe9e864d7192230c8686c6d8a24414d04f02796c00db4194a6a",
+    "plugins/sdd-quality-loop/agents/panelist-gemini.md": "b45eeab1c070a96115d6d2813fff4a92cfc73796ed171ba1c8cf6112c4cd6093",
+    "plugins/sdd-quality-loop/agents/panelist-gpt.md": "e0134fc5be428b1a0ab4b700f989d4fb7a114c119b12405dab14da9bda4629de",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-a.md": "864f6b857131ece8da42948fe17311b2e42c971cd6b4b64ccb39ed5241ec3230",
+    "plugins/sdd-quality-loop/agents/wfi-auditor-b.md": "ad7a7defc893d9a60ca4b9506a144340759bf3090ab90157814c0113b781a298",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1": "2ee3ac2f231bf2a23b08b26fd9087e994dc188eb420450ae2f8573b8bc7dfe78",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh": "34d78b07b8c8299dc7dbb8af7ec9c37f02db725bc0720b5d7f6c841a3a53e838",
+    "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py": "4a9fa0c679b77959983eb3cc6c0674c03c2c3e3641d41b374fdbae51cb758a3e",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py": "48a565069a10edb132c98d22d8efc24a714442faad7a71585d3067d06305acf2",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1": "4819a52aa4b0f70c33439378d73017af7d1418dffc349565595c634706654032",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh": "8cddb8a00f48be935653d325a3c8d9c37dbb3f2e44498b2b9ac3560ad533e9a4",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1": "7ce231e412f7c51cd9b6c1b5bc6286bd99767a9fc057c930f63e440065fe8d2c",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh": "0ae9513a68c7b31a262909150c21686bf269fb3b719e1b3876f66f463a8c58f6",
+    "plugins/sdd-quality-loop/scripts/supplemental-delivery-inputs.py": "a9c23a27bee1174a46ec7203c90ace1988ea582d0d47cb5f029ed3e16c659766",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1": "e6325e03773792ad28081447a5884e040fa537f9261f81f13c87d6d597064cda",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": "47e7d8de3281e3b20b52a2c03ecde820167a20149bbdaac6022d7ebe4f7e9735",
+    "plugins/sdd-review-loop/agents/impl-reviewer-a.md": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+    "plugins/sdd-review-loop/agents/impl-reviewer-b.md": "af34ac767af2956b488ba59e75605324df623f9faa46ff239c007bd6c16fece8",
+    "plugins/sdd-review-loop/agents/spec-reviewer-a.md": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731",
+    "plugins/sdd-review-loop/agents/spec-reviewer-b.md": "d9d7e8e3abb0d822daaeb19b30183f7e283602c741d440d35d78accac166cbb1",
+    "plugins/sdd-review-loop/agents/task-reviewer-a.md": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+    "plugins/sdd-review-loop/agents/task-reviewer-b.md": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+    "plugins/sdd-review-loop/scripts/fixed-review-inputs.py": "c3c88aff64bc9de6f5e989bce03a25d027f73f159676fb7a9ef155d835de4aa7",
+    "plugins/sdd-review-loop/scripts/fixed-review-state.py": "0051f87b6bea7921d5963aa32b34189e5888f5eeecdf204ef465001b38811153",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "2f08227f3c697307777e762fc6c01f604e9ffe5d521a304930563ff5895fd867",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.sh": "c35b033f438ee0f6e16113cf7e399d90ee7278237f96fc68f6d2e453b0e98b76",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "d81536bb39044d780b6238ed782fc3b85735b2580532b865a0c9bef4fe6ab6ee",
+    "plugins/sdd-review-loop/scripts/lib/fixed-input-source.ps1": "3acfab8eb3c144ae437e1495cb98b6d162edac4f2029bf9a340744ade19ba046",
+    "plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh": "e0d521a0ea059516c46b0cd36f6397d680e49a294903ab259e0a75c3e762ee46",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh": "a32d8e831d0360470c90c80089208fd401262cbe47fba2e2a0e90157f724e1ee",
+    "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs": "0a3d9961c53d01520a37fc41bf86ef7a7e5e6cc3254d427789b6115634e1369b",
+    "plugins/sdd-review-loop/scripts/preflight-host-review.py": "2bc182b85691ac0cc848f5ff5c34e1a5ba488cfe7025f6e6ea9b079f4847b752",
+    "plugins/sdd-review-loop/scripts/probe-nontty-review.py": "de497ca1a28b3e07ba1b7e717dd629dd66068c78b31698689628cbf494f2108b",
+    "plugins/sdd-review-loop/scripts/review-contract-validate.ps1": "cb3a1b2181fa5731252457bcd82134da2e2243cbbf97a70a893555b01dafc96a",
+    "plugins/sdd-review-loop/scripts/review-contract-validate.sh": "431f6cd98493b5a5c42a5d66e5bde11c9087f450709a1eecf05600a00373ecd6",
+    "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1": "06c8e58f2256f6b8c2ff698a73e6d1308caf5ab73ec2e20e7c8074ea8d991e42",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "08792df3be712917b9e771abec28e153a8d013624286ad221da1837f2d462b2e",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4",
+    "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py": "52bc01ad07f930d3dffd3788e6a44e506b3a041a502fcc0ffa3a814262ef9e53",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "6fc9975eb047af08004a299be8a5d0a00dbf2e91fb8af917e5b60235e187acbe",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.sh": "2b8881f9f5cd5d27811cdbb0b5eec1510073993761f68f3c4882b951fdf8d588",
+    "plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1": "03a36e7234f35c290a3648cecdbd72b4a48da50159b496330aca802dd94ba7b1",
+    "plugins/sdd-review-loop/scripts/validate-layer-traceability.py": "b893b7799734bcf67b4d84d7d6d3a314de41024bc9a342ff5d68f71f2db5222d",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "7c5cf78be1dbd4f7643ad9a005415e223448626744beb69bf0105129a6f4834d",
+    "tests/agent-model-routing.tests.ps1": "5709f7f97967ae2fc4909a21dbc46a35813634bc3b81c52d60048e203d6af98a",
+    "tests/agent-model-routing.tests.sh": "55b4d7a9a4e2aebf550acabe5961a5278d3c8ce8c9670631d15b7f9bfa2fd532",
+    "tests/ci-dependency-cache.py": "81273f739e8cac02c2c4168356a0d60bbb1bd7ec8edf957008c35be2ffba5aab",
+    "tests/ci-suite-wiring.tests.sh": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b",
+    "tests/emit-run-record-feature-scope.tests.ps1": "5036eef87d73ab66769af206757911738bdd9f37d6ed597a795b55ba76992515",
+    "tests/emit-run-record-feature-scope.tests.sh": "be7ee8bc84d275979d02c2596aa126e05c64e5df7f4be05ec8527810704e8a8d",
+    "tests/fixtures/emit-run-record/v1-no-flag.ps1.golden.json": "71a323cf32778195b2d1910539f8b711f21a3658b81cc2ef1b36f1a8f30af17d",
+    "tests/fixtures/emit-run-record/v1-no-flag.sh.golden.json": "b73056d912fec5c12324c6298e9b427603461afb4ac533a948af2cdbb3fde6df",
+    "tests/model-identity.tests.py": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+    "tests/model-observation.tests.py": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+    "tests/model-policy-launch-platform.tests.py": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810",
+    "tests/model-policy-launch.tests.py": "ad2be3c969aac5133de944b6f53c2a62825a3fe8837d0840f9e92487d4a4b3b5",
+    "tests/model-policy.tests.py": "afc996a6dceb154f2560da72eb5be1f6e89a73a6500b3d0678fa74437675e45a",
+    "tests/prepare-panelist.tests.ps1": "32501f8c01484180599eb11446d86996a40c9bd829131a8412d2a08e13e4127a",
+    "tests/prepare-panelist.tests.sh": "12d0e40aad109fb69099d6dda8d99fb7d066034c5959f7b5037d078e24e0e151",
+    "tests/quality-nontty-transport.tests.py": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+    "tests/required-checks-posix.tests.py": "4a412e19b3a1b50c7ba13d801468c08682eed24f8e76d587d0434b79f9982b19",
+    "tests/review-context-anchors.tests.py": "687153fc21a12493bc7716211815fb0ba3cde9f8bf3febe8bc0e78d96c0ce80e",
+    "tests/review-context-boundary.tests.sh": "3c191f24add33c6f0f7acf5dd271a45b14a0435f8b469c62c46a82647e97f6d2",
+    "tests/run-ci-unwired.sh": "c738721d6eb682a2cb1bdb41b40768a14a1d994713e42c4f46983c8d870eafac",
+    "tests/run-panelist-effort.tests.ps1": "71063e3ec7b19d87f43801ba4885eeda88d250600de60910e533712855458700",
+    "tests/run-panelist-effort.tests.sh": "9deef560ebd9d85381a153f0051a563259a0d2b50b248d49c987e89bf5e1c481",
+    "tests/shared-launch-build.tests.py": "8eb686b2b30ad5a258155f4ff635874d195098ffeafa2d05f3e2086a32f18b04",
+    "tests/shared-launch-python-requirements.txt": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d",
+    "tests/shared-launch-python/pyproject.toml": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12",
+    "tests/verification-catalog.json": "1cd0f5185cb41987aa2c04e7964e29285f9172cc86243461015ee0b8f2552eef",
+    "tests/verification-catalog.tests.py": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6",
+    "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+    "tests/verification-ci.py": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50",
+    "tests/verification-ci.tests.py": "f10abbbd3f94b3e926cf5568a9d3a4c4672b698a88df464fae56b8034c99b85a",
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+    "tests/verification-impact.tests.py": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+    "tests/verification-workflow.py": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+    "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+    "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/run-full-affected.py": "16aedec187410c4a5b7fe98d23b161450bd462f449cc8da76faeb9a7471dc0d2",
+    "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/generated-evidence-checks.py": "e78c18f2ef82db01a3fc92444d53986f443d329d081d8795dd0869596ba874ca",
+    "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/build-check.py": "44db0f4d1ba2bdc98e71ea71ea968054e084ca7c65c4b9668c7e9e67645f3fee",
+    "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/run-core-with-case-inventory.py": "cd5ae3f9097e291a85fda595277cb536b252f8e434c427f92e36b0c490534228"
+  }
+}

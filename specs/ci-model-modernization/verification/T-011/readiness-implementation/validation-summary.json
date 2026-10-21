@@ -1,0 +1,366 @@
+{
+  "timestamp": "2026-10-20T18:38:31.031261+00:00",
+  "scope": "T011 bounded local readiness integration; not QA/Done/adoption/hosted omission/release",
+  "test_first_commit": "a72eab2ec5e5362f635b4814fecd9e791a300e68",
+  "admission": {
+    "manifest_sha256": "18d6762f900bc83b83bacfa93e4cc5f576a6f73cc853f0c54887d39811bac747",
+    "snapshot": "/workspace/.task-scratch/ci-model-modernization/t011-readiness-implementation/input-snapshot",
+    "source_file_count": 55,
+    "all_snapshot_hashes_match": true,
+    "all_snapshot_files_and_directories_readonly": true,
+    "prepare_task_snapshot_exit": 0,
+    "validate_task_input_manifest_exit": 0,
+    "identity": {
+      "task_id": "T-011",
+      "run_id": "t011-readiness-20261020T183406Z",
+      "session_id": "work-agent:root:t011_readiness_implementer",
+      "agent_instance_id": "work-agent:root:t011_readiness_implementer",
+      "model_tier": "strong",
+      "provider": "openai",
+      "model": "gpt-6-astra",
+      "isolation_mode": "fresh-agent"
+    },
+    "model_identity_scope": "Configured by Root, not an independently observed native model ID.",
+    "cost_scope": "Caller planning allowance only; not billing or rate evidence. Root configured Astra/high/strong; no independent native model-ID attestation."
+  },
+  "checks": {
+    "full54": {
+      "label": "full54",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci-plan.tests.py",
+        "-v"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:35:12.412255+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 20.171320039997227,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "impact": {
+      "label": "impact",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-impact.tests.py",
+        "-v"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:35:03.962484+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3083705040044151,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "catalog": {
+      "label": "catalog",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-catalog.tests.py",
+        "-v"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:35:06.959364+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 3.309504642005777,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "ci-receipt-aggregate": {
+      "label": "ci-receipt-aggregate",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification-ci.tests.py",
+        "-v"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:35:43.355503+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 39.682183853001334,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "safe-required-checks-corrected": {
+      "label": "safe-required-checks-corrected",
+      "command": [
+        "python3",
+        "-B",
+        "tests/required-checks-posix.tests.py",
+        ".github/workflows/test.yml",
+        "-v"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:36:24.516232+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 46.672610141002224,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "workflow-wiring": {
+      "label": "workflow-wiring",
+      "command": [
+        "bash",
+        "tests/ci-suite-wiring.tests.sh"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:35:07.067882+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 3.370122476000688,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "ruff-installed": {
+      "label": "ruff-installed",
+      "command": [
+        "/workspace/.tools/sdd-forge-python/bin/ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/verification-impact.py",
+        "tests/verification-ci-plan.tests.py"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:35:37.881887+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.044444102997658774,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "mypy-installed": {
+      "label": "mypy-installed",
+      "command": [
+        "/workspace/.tools/sdd-forge-python/bin/mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/verification-impact.py",
+        "tests/verification-ci-plan.tests.py"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:35:38.396861+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.5382031949993689,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "readiness-counterpart-check": {
+      "label": "readiness-counterpart-check",
+      "command": [
+        "python3",
+        "-B",
+        "specs/ci-model-modernization/verification/T-011/readiness-implementation/check-readiness.py"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:36:21.651699+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3862361020001117,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "old-parser-compatibility": {
+      "label": "old-parser-compatibility",
+      "command": [
+        "python3",
+        "-B",
+        "specs/ci-model-modernization/verification/T-011/readiness-implementation/compatibility-cli-repro.py"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:36:32.685019+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.43860286800190806,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "manifest-validation": {
+      "label": "manifest-validation",
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+        "--manifest",
+        "specs/ci-model-modernization/verification/T-011/readiness-implementation/task-input-manifest.json",
+        "--snapshot-root",
+        "/workspace/.task-scratch/ci-model-modernization/t011-readiness-implementation/input-snapshot",
+        "--expected-task",
+        "T-011"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:37:43.558071+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 0.02937456099607516,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    "rollback": {
+      "label": "rollback",
+      "command": [
+        "python3",
+        "-B",
+        "specs/ci-model-modernization/verification/T-011/readiness-implementation/check-rollback.py"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "timestamp": "2026-10-20T18:38:22.911711+00:00",
+      "exit_code": 0,
+      "elapsed_seconds": 59.78581771699828,
+      "environment": {
+        "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    }
+  },
+  "before_product_pins": {
+    "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+    "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+    "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac"
+  },
+  "after_product_pins": {
+    "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+    "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+    "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531"
+  },
+  "full54_test_file_sha256": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e",
+  "known_initial_check_errors": {
+    "safe-required-checks": "Invoker passed -v in mandatory optional workflow-path position; corrected with explicit .github/workflows/test.yml; original failure retained.",
+    "ruff": "Default interpreter has no ruff module; installed tool used, original failure retained.",
+    "mypy": "Default interpreter has no mypy module; installed tool used, original failure retained."
+  },
+  "pending": [
+    "Independent review/QA and product commit by Root",
+    "T010 actual trials blocked on Codex CLI token-refresh authentication; no further provider/auth actions",
+    "Actual final-B consumer inventory/full/mutation proof and category activation",
+    "Exact false setting observation (prior endpoint403) and actual hosted selected omission/native wrappers",
+    "Old-parser/new-setup typed failure compatibility branch; no full-plan claim",
+    "Complete final exact-commit local/hosted profiles and immutable release"
+  ],
+  "products_committed": false,
+  "rollback": {
+    "scope": "Disposable local source subset; only T011 three products and four new test methods toggled; preexisting work preserved. No source repository checkout/reset. Catalog suite files are read-only validation closure and not executed as a full profile.",
+    "timestamp": "2026-10-20T18:38:22.903988+00:00",
+    "checkout": "/workspace/.task-scratch/ci-model-modernization/t011-readiness-implementation/rollback-checkout",
+    "fixture_baseline_revision": "d79b15233bae8822c4fe92f5edd5d3a7b5febb50",
+    "copied_source_files": 379,
+    "baseline_pins": {
+      "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+      "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+      "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+      "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b"
+    },
+    "restored_candidate_pins": {
+      "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+      "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+      "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531",
+      "tests/verification-ci-plan.tests.py": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e"
+    },
+    "source_repository_candidate_pins": {
+      "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+      "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+      "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531",
+      "tests/verification-ci-plan.tests.py": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e"
+    },
+    "exact_restoration": true,
+    "checks": [
+      {
+        "phase": "rollback-baseline50",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "tests/verification-ci-plan.tests.py",
+          "-v"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 20.300618562992895,
+        "pins": {
+          "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+          "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+          "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+          "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b"
+        }
+      },
+      {
+        "phase": "rollback-candidate54",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "tests/verification-ci-plan.tests.py",
+          "-v"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 19.510930579999695,
+        "pins": {
+          "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+          "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+          "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531",
+          "tests/verification-ci-plan.tests.py": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e"
+        }
+      },
+      {
+        "phase": "rollback-reverted50",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "tests/verification-ci-plan.tests.py",
+          "-v"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 19.463857316004578,
+        "pins": {
+          "tests/verification-impact.py": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493",
+          "tests/verification-catalog.json": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d",
+          "contracts/verification-ci-plan.schema.json": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac",
+          "tests/verification-ci-plan.tests.py": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b"
+        }
+      },
+      {
+        "phase": "rollback-restored-focused4",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "-B",
+          "tests/verification-ci-plan.tests.py",
+          "OmissionReadinessTests",
+          "-v"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.14142235199688002,
+        "pins": {
+          "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+          "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+          "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531",
+          "tests/verification-ci-plan.tests.py": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e"
+        }
+      }
+    ]
+  },
+  "final_source_pins": {
+    "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+    "tests/verification-catalog.json": "08074bce6a8b65fd9e3aea66f5ee13998a52b7c5d7bafcaa2e9d65ede977bb6e",
+    "contracts/verification-ci-plan.schema.json": "9af73cb9da2a6da8fbad5d39f31c15c21d5b325fe3e27ed042ba049bc47af531",
+    "tests/verification-ci-plan.tests.py": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e",
+    "specs/ci-model-modernization/tasks.md": "8602f7440a586d79a4c21551aef8f4c3998efda1baca3f5197ac779ee74467d9"
+  },
+  "git_index_empty": true,
+  "whole_worktree_diff_check_exit": 0
+}

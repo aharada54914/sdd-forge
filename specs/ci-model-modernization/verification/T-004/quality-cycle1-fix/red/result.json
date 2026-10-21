@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "tests/model-observation.tests.py",
+    "VersionAcquisitionBoundTests"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-19T18:54:15Z",
+  "finished_at": "2026-10-19T18:54:17Z",
+  "exit_code": 1,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "b74f5f2268def84ddbfcbc7e4df90920f3d1994357c39777ff210c33211b276c",
+  "source_hashes": {
+    "plugins/sdd-implementation/scripts/model-policy.py": "816cd37eb4fdf5ca4b3af872e1caadc16778f97daea0180fd3f8a01e47a3a2fa",
+    "tests/model-observation.tests.py": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+    "contracts/model-observation.schema.json": "8be7eac9e201b90a6ec14121880cf5d9979592edada9b858ff969e863c9f5c32",
+    "contracts/model-policy-error.schema.json": "356747311f20399e848ffb90bec6b1c86d230f3c40cf5583c9cdace6347d601b",
+    "tests/verification-catalog.json": "3e3a747c84369d4f7713302d9895c0b143df0538384e62a966f1ed361bf9a4db",
+    "tests/verification-catalog.tests.py": "c44127ba6505c9ad780e7e3007e589ae1287a70af4ad2fe92b057d32a4c76448"
+  }
+}

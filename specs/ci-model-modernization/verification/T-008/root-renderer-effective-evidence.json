@@ -1,0 +1,299 @@
+{
+  "scope": "T008 first renderer slice only; installed/native/caller/automation/rollback/independent quality gate open",
+  "groups": [
+    {
+      "source": "root-renderer-green-1/results.json",
+      "source_sha256": "a7a908864db484a9aa2f7be65eaffd5ea5d39f25b5361243850889aa50db325b",
+      "row_index": 0,
+      "command": [
+        "/tmp/ci-model-resume-python/bin/ruff",
+        "check",
+        "plugins/sdd-implementation/scripts/managed-model-entry.py",
+        "tests/model-policy-installed.tests.py"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/1.stdout.log",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/1.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "mode": "actual PASS reused with unchanged runtime/test source proof"
+    },
+    {
+      "source": "root-renderer-green-1/results.json",
+      "source_sha256": "a7a908864db484a9aa2f7be65eaffd5ea5d39f25b5361243850889aa50db325b",
+      "row_index": 1,
+      "command": [
+        "/tmp/ci-model-resume-python/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "plugins/sdd-implementation/scripts/managed-model-entry.py",
+        "tests/model-policy-installed.tests.py"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/2.stdout.log",
+          "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/2.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "mode": "actual PASS reused with unchanged runtime/test source proof"
+    },
+    {
+      "source": "root-renderer-green-1/results.json",
+      "source_sha256": "a7a908864db484a9aa2f7be65eaffd5ea5d39f25b5361243850889aa50db325b",
+      "row_index": 2,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-renderer-green-1/build-check.py"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/3.stdout.log",
+          "sha256": "dcbfbc8303f21812edd5114829decc1a43ccd6cb6a4ffa2bb05e4da79a81acb6"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/3.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "mode": "actual PASS reused with unchanged runtime/test source proof"
+    },
+    {
+      "source": "root-renderer-green-1/results.json",
+      "source_sha256": "a7a908864db484a9aa2f7be65eaffd5ea5d39f25b5361243850889aa50db325b",
+      "row_index": 3,
+      "command": [
+        "bash",
+        "-n",
+        "render-agent-frontmatter.sh"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/4.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/4.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "mode": "actual PASS reused with unchanged runtime/test source proof"
+    },
+    {
+      "source": "root-renderer-green-1/results.json",
+      "source_sha256": "a7a908864db484a9aa2f7be65eaffd5ea5d39f25b5361243850889aa50db325b",
+      "row_index": 4,
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-Command",
+        "$tokens=$null; $errors=$null; $null=[System.Management.Automation.Language.Parser]::ParseFile((Join-Path (Get-Location) 'render-agent-frontmatter.ps1'),[ref]$tokens,[ref]$errors); if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; exit 1 }; Write-Output 'POWERSHELL_PARSE_OK'"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/5.stdout.log",
+          "sha256": "35d64f0bde0ab6fc1b63befa63daab2ee195bee447f0f5a9aea9caf7ced25ac6"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/5.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "mode": "actual PASS reused with unchanged runtime/test source proof"
+    },
+    {
+      "source": "root-renderer-green-1/results.json",
+      "source_sha256": "a7a908864db484a9aa2f7be65eaffd5ea5d39f25b5361243850889aa50db325b",
+      "row_index": 5,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/root-renderer-green-1/run-renderer-tests.py"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/6.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-renderer-green-1/6.stderr.log",
+          "sha256": "112a8a17da7bfb1858f2b7cbd3ca44a33a98050256bc015347de30e4c875c670"
+        }
+      ],
+      "mode": "actual PASS reused with unchanged runtime/test source proof"
+    },
+    {
+      "source": "root-catalog-green-1/results.json",
+      "source_sha256": "3edd7e3750606c6ff8f62dc32c8b3b09674d601db2141a9fe0102c8c281a4995",
+      "row_index": 0,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/1.stdout.log",
+          "sha256": "007cae7f7ad90ae93f527a1c1f3bf108b271132a8ca1fcebb99fff17050f8552"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/1.stderr.log",
+          "sha256": "f28d5c3733ff84bae6afe96fc61770d7ae598b9d0fc4c0e734c10967fbce19e8"
+        }
+      ],
+      "mode": "fresh actual PASS after catalog registration"
+    },
+    {
+      "source": "root-catalog-green-1/results.json",
+      "source_sha256": "3edd7e3750606c6ff8f62dc32c8b3b09674d601db2141a9fe0102c8c281a4995",
+      "row_index": 1,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification-impact.tests.py"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/2.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/2.stderr.log",
+          "sha256": "157a98b66d422569e68b74b61a228086ab2f2972218c5d9c3bd87f6a2820902a"
+        }
+      ],
+      "mode": "fresh actual PASS after catalog registration"
+    },
+    {
+      "source": "root-catalog-green-1/results.json",
+      "source_sha256": "3edd7e3750606c6ff8f62dc32c8b3b09674d601db2141a9fe0102c8c281a4995",
+      "row_index": 2,
+      "command": [
+        "bash",
+        "tests/render-agent-frontmatter.tests.sh"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/3.stdout.log",
+          "sha256": "0007afffe6aaa6121b07683e5c8650513976ab605de0108729899fc25b82cdc4"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/3.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "mode": "fresh actual PASS after catalog registration"
+    },
+    {
+      "source": "root-catalog-green-1/results.json",
+      "source_sha256": "3edd7e3750606c6ff8f62dc32c8b3b09674d601db2141a9fe0102c8c281a4995",
+      "row_index": 3,
+      "command": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/render-agent-frontmatter.tests.ps1"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/4.stdout.log",
+          "sha256": "31d39fbde4402758feed1ebfa43d7562aae678fd4abcee571b08e28e2b8b9df4"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/4.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "mode": "fresh actual PASS after catalog registration"
+    },
+    {
+      "source": "root-catalog-green-1/results.json",
+      "source_sha256": "3edd7e3750606c6ff8f62dc32c8b3b09674d601db2141a9fe0102c8c281a4995",
+      "row_index": 4,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--list"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/5.stdout.log",
+          "sha256": "a5cc295c7cf5ec6407c8cca7c7d084f6b097cc6411bbe00e80756aea2174541c"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/5.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "mode": "fresh actual PASS after catalog registration"
+    },
+    {
+      "source": "root-catalog-green-1/results.json",
+      "source_sha256": "3edd7e3750606c6ff8f62dc32c8b3b09674d601db2141a9fe0102c8c281a4995",
+      "row_index": 5,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "ci-shared-python",
+        "--list"
+      ],
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/6.stdout.log",
+          "sha256": "ad2694ca045e6c0859046dc0b641bec580aebd6e6fb7b1e11d45d61c0cb2f47f"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-008/root-catalog-green-1/6.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "mode": "fresh actual PASS after catalog registration"
+    }
+  ],
+  "reuse_proof": {
+    "path": "specs/ci-model-modernization/verification/T-008/root-renderer-source-reuse.json",
+    "sha256": "9dc71b7dd14c05072f6ea2fa8e54f5eb5d96e118b04f847f06aa7ff2abee409f"
+  },
+  "functional": {
+    "tests_run": 15,
+    "subtests_run": 228,
+    "subtests_passed": 228,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "successful": true
+  },
+  "catalog_tests": 44,
+  "impact_tests": 6,
+  "legacy_bash_checks": 30,
+  "legacy_powershell_checks": 34,
+  "both_inventories_list_new_suite_once": true
+}

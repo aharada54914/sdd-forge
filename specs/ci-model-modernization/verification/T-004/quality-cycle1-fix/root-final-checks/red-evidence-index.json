@@ -1,0 +1,22 @@
+{
+  "test_only_commits": [
+    "346eeb1d",
+    "86c12ff8",
+    "329fc179",
+    "59984174"
+  ],
+  "evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/red/result.json",
+      "sha256": "8caf689bb8670b75de40f1291aa4746df390a7f461a0702c96756e7a5406fb42"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/current/results.json",
+      "sha256": "32e77bb42fe7db61093364aaf7d4490f433cc043c22478332b32d735f60c95df"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/current/mypy.stdout",
+      "sha256": "dfec43cefd5d9fe1d1d2478754735e9d198a0b9aff0520164a1da458851cb84e"
+    }
+  ]
+}

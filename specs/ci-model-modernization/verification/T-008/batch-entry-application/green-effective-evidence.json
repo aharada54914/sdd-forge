@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "methods": {
+    "tests_run": 4,
+    "subtests_run": 4,
+    "subtests_passed": 4,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "successful": true
+  },
+  "source_pins_unchanged": 138,
+  "static": "Ruff/mypy15files+Bash/PShparsersPASS",
+  "manifest_sha256": "014ecfb1ffd5e13c6a6330a048da0a0d22a3606d17c571521dc8f0c90b52ea5d",
+  "source_evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-investigator-batch-green-1/results.json",
+      "sha256": "cf5ea12e643ffddf4957bc1ed5c881169a37a2d7e700b9f1dc186635fefaaf14"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/root-investigator-batch-green-1/focused-result.json",
+      "sha256": "17d1712a4daa4a1be218482f2c2b07780564252698f179efb8c8882e46d7bcfb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-008/batch-entry-application/green-subreaper.json",
+      "sha256": "cceade46e2db496e4dcd29a9b61f942c78591cb0d21c5e98af79e8f4cc2df2c2"
+    }
+  ],
+  "scope": "Actual installed Claude batch definition/dispatch shape and typed unsupported entry; fixture configuration only. Stale inherited domain/spec scope label in raw controller is superseded here. No real four-plus-one native allocation/backend identity/adoption/full T008 acceptance claim."
+}

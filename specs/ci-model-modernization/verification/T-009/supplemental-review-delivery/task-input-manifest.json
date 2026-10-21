@@ -1,0 +1,322 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-009",
+  "run_id": "ci-model-modernization-T-009-attempt-1",
+  "session_id": "work-agent:root:t009_freshness",
+  "agent_instance_id": "work-agent:root:t009_freshness",
+  "model_tier": "strong",
+  "provider": "unknown",
+  "model": "unknown",
+  "estimated_cost_per_attempt_usd": "1.00",
+  "cost_estimate_source": "Supplemental pre-output packaging planning allowance only, chosen before this snapshot/report metadata output. Not measured cost, provider price, registered model choice, or retrospective original implementation estimate. Strong is planning class; actual provider/model/effort are unreported.",
+  "cost_estimate_timestamp": "2026-10-20T16:46:00Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": ".github/scripts/check-model-freshness.sh",
+      "sha256": "17df22edcb5dd736ceafcf43954a8699a2b62ab0d14ea028a869ff94da2b6f9e"
+    },
+    {
+      "path": ".github/workflows/model-freshness-check.yml",
+      "sha256": "1034ecdcb8abb4e1d9a514ec7270fa539e72615bdcc73442023b40040f232b1f"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "103528c48dd8c2dd996cbc68908aeccd9d77602a972200c3930c279f70c1a8cf"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "sha256": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b"
+    },
+    {
+      "path": "contracts/model-policy.schema.json",
+      "sha256": "1ba3972e56c50df7cce225c8a9666ce4a78f4a5ff44352b44dd9e7a9567e2c12"
+    },
+    {
+      "path": "contracts/model-policy.v1.json",
+      "sha256": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749"
+    },
+    {
+      "path": "docs/adr/0037-conservative-ci-selection.md",
+      "sha256": "0832c2296330252ea294090629fe4abee5471b3eb8dcda33e4ca1ed85dbae364"
+    },
+    {
+      "path": "docs/adr/0038-current-model-role-policy.md",
+      "sha256": "5641c2262f8b777f15c7724842f671aa97fe44eb75c8adc23194ca074d04241b"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
+      "sha256": "40f35e11b76a30ab38f183a772f1f18a35b0b2be8aaab399b012afeb4e96fa68"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "sha256": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "0c926d76c0aab214fe305ad5974dc6636aea81cc2764a0b37292ea61cb4f1f75"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "sha256": "62c81b13b5d700eb690b0c526136e8e516298cabb2b93b50b3f875d447cec15a"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.md",
+      "sha256": "c709e94d9110c83acc71e6f6fd3f1448146a8e8c72b46cf1d4ed44d507bc1be0"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009.contract.json",
+      "sha256": "c4d903982c4065156853fef8bba2a453b8b98980d4be03dbc6201cca9babdf36"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009.evidence.json",
+      "sha256": "6d4558a4de5add72841bafd5e9f0d4954620d4f747ac3d5755faa7a61a39dfd7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/baseline-bash.log",
+      "sha256": "c374473ffc054b66e1df2f02df6bf6ea2a0b6096b5958e6d1eefedaafaf232cb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/baseline-powershell.log",
+      "sha256": "1f3d42135b3335d3e5b14a889b0d3242a9827849f0b31b14742623896f76d793"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/baseline-source/.github/scripts/check-model-freshness.sh",
+      "sha256": "ffbed44f81fc2a582a22225ed2e352d130b25c9b843ca39f93e24bdfd55cef56"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/baseline-source/.github/workflows/model-freshness-check.yml",
+      "sha256": "44ae9bdc23b88d020f5ca4bcf4125ea7ce1d497e72fe0ab340c0f23ce7733b69"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/baseline-source/tests/model-freshness-check.tests.ps1",
+      "sha256": "adb089fb58bc0b990e2f038bfbe5184630c64a67c817b193bf45aaa59fcd6d96"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/baseline-source/tests/model-freshness-check.tests.sh",
+      "sha256": "cdf99531d74dee1963c95b45d382a3d988798ea7549fdc4a76069f7e26f53faa"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/bash-locking.log",
+      "sha256": "c062b6d02dfb1cdb0ea5b9a3ad5fdccf0b3966237301f5a11f68669a5135bd4e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/before-bash-rollback.log",
+      "sha256": "c062b6d02dfb1cdb0ea5b9a3ad5fdccf0b3966237301f5a11f68669a5135bd4e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/before-hashes.json",
+      "sha256": "0b7dd9eb2391d22c88dc180d735e0154dd6d99493c26ddc7a0c18bc84b22a346"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/before-powershell-rollback.log",
+      "sha256": "1525b54747616cfac3f0d54f70ed4282f7c4ff9bf21130d3338bbed9a87031b7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/catalog-integration.log",
+      "sha256": "87498be4d404247690d05f6c7e0919c5928b465072d9e90695156b19a13d5fee"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/catalog-preservation.json",
+      "sha256": "bcced81b63a679de054d64b65a693c5ebeee7fe11e5381778a9945f1dfc931b8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/ci-plan-integration.log",
+      "sha256": "74f91f0dc50a008e4a127c3830fdb5e9cc99466e88e49d4c858557a804443972"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/command-receipts.json",
+      "sha256": "cb0caee16469b16db0ea0194327931f9ab2bd6b53cd7a96b26dbf7dbacbb59cd"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/embedded-product.py",
+      "sha256": "73af8581048dc85455daad6d8277737b2956c0c84046fe9b18634c3638435985"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/field-preflight.md",
+      "sha256": "0658ca28d104ca094ff40d0c09e7cc0849e968878d2855756147802dc35337a6"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/green-bash-final.log",
+      "sha256": "c062b6d02dfb1cdb0ea5b9a3ad5fdccf0b3966237301f5a11f68669a5135bd4e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/green-bash.log",
+      "sha256": "49473fbd122ab7d8020c18a06eca2cb20ca811ec714f12d3b17dec84ac3fec86"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/green-powershell-final.log",
+      "sha256": "1525b54747616cfac3f0d54f70ed4282f7c4ff9bf21130d3338bbed9a87031b7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/green-powershell.log",
+      "sha256": "8361eef0c0f3721ab3510fe2fbebe876aaddc174e748ab17ea6f40dc2f06999b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/pending-contract-check.log",
+      "sha256": "4ed8e0aa8e9ee62c57148f11e568372c1716b7e22bf281575da877a00bfd97ce"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/powershell-locking.log",
+      "sha256": "1525b54747616cfac3f0d54f70ed4282f7c4ff9bf21130d3338bbed9a87031b7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/pre-supplement-report.md",
+      "sha256": "8df3eb186ae2a5786fcfb21b64e575701630c85a180200463e6b5daaf9ab16bb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/red-bash.log",
+      "sha256": "ff819ff81a52e786f910841aa2eb010cadf8008dea65eece4a3de443d4abbf37"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/red-conflicting-dates.log",
+      "sha256": "db58018084a23376ca005af5a871fd14f44da5ca6dbb7b52de52c2e0a1879a32"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/red-powershell.log",
+      "sha256": "53d2a47778038dfb6a8d4c86f40c68afa33424c5ea731f7c23d2402e8fc6b010"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/red-replay-bash-rollback.log",
+      "sha256": "ff819ff81a52e786f910841aa2eb010cadf8008dea65eece4a3de443d4abbf37"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/red-replay-powershell-rollback.log",
+      "sha256": "53d2a47778038dfb6a8d4c86f40c68afa33424c5ea731f7c23d2402e8fc6b010"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/restored-bash-rollback.log",
+      "sha256": "c062b6d02dfb1cdb0ea5b9a3ad5fdccf0b3966237301f5a11f68669a5135bd4e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/restored-powershell-rollback.log",
+      "sha256": "1525b54747616cfac3f0d54f70ed4282f7c4ff9bf21130d3338bbed9a87031b7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/rollback-bash-rollback.log",
+      "sha256": "c374473ffc054b66e1df2f02df6bf6ea2a0b6096b5958e6d1eefedaafaf232cb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/rollback-check.py",
+      "sha256": "91c9fa596ad71ef9ffd8b54df862723b22f855cf3c0952281c236a9ca8025a70"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/rollback-powershell-rollback.log",
+      "sha256": "1f3d42135b3335d3e5b14a889b0d3242a9827849f0b31b14742623896f76d793"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/rollback-results.json",
+      "sha256": "87fe790d30cf582c8ed8a492999fc7bcd53df28e9a9107048dbfb99fd787f705"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/run-checks.py",
+      "sha256": "ceb13deed1dcd34f6082a8382b75f4ffe759ca2dc118d6aaf4cb86d215948364"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/static-checks.log",
+      "sha256": "ec2ef1fc59111bc1f4cd619d9647742fca37a62697b25f349eb3c1f1d1d964bf"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/static-checks.py",
+      "sha256": "399e125de19e8479030d8114720a94ca7df3410f3697bcb38ac21a1247b1cfec"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/attempt-1/typecheck.log",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/read-only-preparation/contract-notes.md",
+      "sha256": "0b5f34177f1cc0182a3e5d1730455ecbb7710f5ae15cb9a7ded63f4375cd33ed"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-009/read-only-preparation/source-closure.json",
+      "sha256": "26ee70c0af654310a2562c4412734857a945b58549841bbef09cc850c9e3b7ad"
+    },
+    {
+      "path": "tests/model-freshness-check.tests.ps1",
+      "sha256": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141"
+    },
+    {
+      "path": "tests/model-freshness-check.tests.sh",
+      "sha256": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "a92772fb332e8243b396305d53c7003793e938eb93757f73273f3fe09c75052d"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6"
+    },
+    {
+      "path": "tests/verification-ci-plan.tests.py",
+      "sha256": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b"
+    },
+    {
+      "path": "tests/verification-impact.py",
+      "sha256": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493"
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "sha256": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb"
+    },
+    {
+      "path": "tests/verification.py",
+      "sha256": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/implementation/ci-model-modernization/T-009.md",
+    "specs/ci-model-modernization/verification/T-009/supplemental-review-delivery/"
+  ]
+}

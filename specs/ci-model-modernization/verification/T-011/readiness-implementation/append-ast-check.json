@@ -1,0 +1,8 @@
+{
+  "old_methods": 50,
+  "new_methods": 54,
+  "old_ASTs_unchanged": true,
+  "fragment_sha256": "854d6167b13593e3228ebaa7d72bf94d74de7c2cde287df76466611751fbe31b",
+  "before_sha256": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b",
+  "after_sha256": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e"
+}

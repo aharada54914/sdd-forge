@@ -1,0 +1,7 @@
+{
+  "old_methods_preserved": 67,
+  "new_methods": 5,
+  "python_compile": "PASS",
+  "ast_preservation": "PASS",
+  "evidence": "controlled local recording fixture only; no actual Action/SDK query/provider/identity/adoption claim"
+}

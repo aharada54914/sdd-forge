@@ -823,7 +823,8 @@
               "kind": {
                 "enum": [
                   "build",
-                  "audit"
+                  "audit",
+                  "setup"
                 ]
               }
             }
@@ -898,24 +899,100 @@
               "status": {
                 "enum": [
                   "PASS",
-                  "FAIL"
+                  "FAIL",
+                  "EXPECTED_SKIP"
                 ]
               },
               "reason": {
                 "enum": [
                   "verified",
-                  "execution-failed"
+                  "execution-failed",
+                  "advisory-inactive"
                 ]
               },
               "job_id": {
-                "type": "integer",
+                "type": [
+                  "integer",
+                  "null"
+                ],
                 "minimum": 1
               },
               "source_attempt": {
-                "type": "integer",
+                "type": [
+                  "integer",
+                  "null"
+                ],
                 "minimum": 1
               }
-            }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "EXPECTED_SKIP"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "reason": {
+                      "const": "advisory-inactive"
+                    },
+                    "job_id": {
+                      "type": "null"
+                    },
+                    "source_attempt": {
+                      "type": "null"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "PASS"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "reason": {
+                      "const": "verified"
+                    },
+                    "job_id": {
+                      "type": "integer"
+                    },
+                    "source_attempt": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "FAIL"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "reason": {
+                      "const": "execution-failed"
+                    },
+                    "job_id": {
+                      "type": "integer"
+                    },
+                    "source_attempt": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            ]
           },
           "minItems": 1,
           "uniqueItems": true

@@ -290,6 +290,14 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 - **3環境に対応**: Claude Code、Codex CLI、Copilot CLI の環境でスキル・エージェント・フック・スクリプトがリポジトリ内ファイルを通じて相互ハンドオフし、環境を超えて作業を継続できます。
 - **バグ修正トラック (`diagnose`)**: ハードなバグ・リグレッション・フレーキーテスト・性能退行に対し、フル SDD を通す前に再現→計装→根本原因→最小修正の5フェーズ診断規律を回し、軽量トラックへの入口を兼ねます。詳細は [docs/workflow-guide.md の「バグ修正トラック（diagnose）」](docs/workflow-guide.md#バグ修正トラックdiagnose)をご覧ください。
 
+## モデルポリシーと CI 運用（概要）
+
+- **管理されたモデル選択**: 実装・調査・レビュー・ドメイン・監査・診断・自動化の各エントリは、共有モデルポリシーから互換な候補を解決します。`latest-compatible` は日付付きの観測と登録済みポリシーの優先順に基づく互換候補、`pinned` は明示指定です。導入済みホストに反映できない場合は `model-policy-error/v1` の typed stop で止まり、成功扱いにしません。設定・解決したモデルと実ターンで報告されたモデル ID は別物です。
+- **CI**: PR は信頼済みベースの planner で計画され、分類できない変更は保守的な full 計画になります。計画ジョブの失敗や破損した計画は必須チェックを失敗させます。新しい CI 設定を使う前に、信頼済みベースの planner を対応版へ更新する必要があります。現時点でロールアウトが有効なカテゴリはなく、削減率や実環境での採用は主張しません。復旧と必須コンテキストは [contributor/workflow-detail.md](docs/contributor/workflow-detail.md)、リリース手順は [contributor/release-runbook.md](docs/contributor/release-runbook.md) を参照してください。
+- **範囲**: ChatGPT UI の親セッションや非管理の呼び出しは制御外です。外部送信の同意と独立レビューは変わりません。実クラウド受け入れ（#911）は未了のままで、ネイティブ実行の証明はホストごとに別です。
+
+詳細: [docs/workflow-guide.md](docs/workflow-guide.md#managed-model-operation)、[docs/agent-capability-matrix.md](docs/agent-capability-matrix.md)、[docs/verification.md](docs/verification.md)。公開済みタグから導入する場合は上記の `--ref <ref>` に注釈付きタグを指定します（`--source-directory` は Git 追跡済みファイルのみを読みます）。
+
 ## ドキュメントマップ
 
 | ドキュメント | 対象読者・目的 |

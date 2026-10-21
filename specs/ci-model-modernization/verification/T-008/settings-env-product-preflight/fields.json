@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-20T10:35:45.851710+00:00",
+  "status": "PRE_PRODUCT_RECORDED",
+  "tests_only_commit": "d02ee1a209a7f2105cf4de5c22bcc758200aad76",
+  "product_before_sha256": "abee8193b150dadfa0d13cebe17564e404abaaa5626991dd2f69f647dc256522",
+  "fields": [
+    {
+      "field": "closed seven native override values",
+      "counterpart": "original driver.native_overrides over captured shell plus documented file scopes",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_installed_claude_prepare_checks_effective_settings_environment"
+    },
+    {
+      "field": "user/project/local/managed env precedence",
+      "counterpart": "user then project then local, finally existing effective managed per-variable projection; file overrides shell for ordinary CLI",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_installed_claude_prepare_checks_effective_settings_environment"
+    },
+    {
+      "field": "recognized native env value type",
+      "counterpart": "only strings accepted; malformed known value config-invalid before publication, values never echoed",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_installed_claude_prepare_checks_effective_settings_environment"
+    },
+    {
+      "field": "original native conflict meaning",
+      "counterpart": "unchanged original driver.require_native_precedence for effort/forced model/alias remap, after effective projection",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_installed_claude_prepare_checks_effective_settings_environment"
+    },
+    {
+      "field": "captured environment/settings/output preservation",
+      "counterpart": "captured child/core env unchanged, private closed projection only; immutable settings and existing3outputs, no unrelated env leak",
+      "mismatch_test": "InstalledClaudeLocalAuthorityTests.test_installed_claude_prepare_checks_effective_settings_environment"
+    }
+  ],
+  "actual_red": "settings-env-test-application/red-effective-evidence.json",
+  "inherited_preflight": "local-authority-product-preflight/current-fields.json",
+  "scope": "Only existing _claude_checks: effective local model env projection passed to original precedence check. No new persisted fields/schema/native transport/selector. Ordinary CLI config projection only; embedded parent/remote authority remains incomplete."
+}

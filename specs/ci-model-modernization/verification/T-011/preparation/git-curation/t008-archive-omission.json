@@ -1,0 +1,17 @@
+{
+  "path": "specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/11-git-archive.stdout",
+  "exists": true,
+  "bytes": 28088320,
+  "disposition": "excluded-binary-archive-stdout",
+  "recorded_archive_sha256": "27cdf4774959ce5aab9f5ef7e2882c807b874f874317c0b4e0d9bfffc436bad3",
+  "recorded_stdout_sha256": [
+    "27cdf4774959ce5aab9f5ef7e2882c807b874f874317c0b4e0d9bfffc436bad3"
+  ],
+  "recorded_exit_codes": [
+    0
+  ],
+  "metadata_source": "specs/ci-model-modernization/verification/T-008/root-current-legacy-installers-10/results.json",
+  "metadata_source_sha256": "1899068a9c83c93f4397d1653b88fa457d7f7a8e41bd9e518b791ff9cfd67574",
+  "archive_read_or_expanded_by_curation": false,
+  "limit": "Retains historical command/hash/payload/source-overlay proof only. Archive content is not shipped, independently rehashed or re-expanded by curation."
+}

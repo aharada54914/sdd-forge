@@ -17,10 +17,16 @@ transport = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(transport)
 
 
-def runtime_files(root, stage, fixed_inputs=False):
+def runtime_files(root, stage, fixed_inputs=False, model_policy=False):
     if not fixed_inputs:
-        return {p for folder in ('plugins/sdd-review-loop', 'plugins/sdd-quality-loop', 'plugins/sdd-domain', 'contracts')
-                for p in (root / folder).rglob('*') if p.is_file()}
+        files = {p for folder in ('plugins/sdd-review-loop', 'plugins/sdd-quality-loop', 'plugins/sdd-domain', 'contracts')
+                 for p in (root / folder).rglob('*') if p.is_file()}
+        if model_policy:
+            # Same present-file semantics as above; selected launches additionally pin the
+            # helper-validated trusted inventory, which must exist with its validated bytes.
+            files.update(path for path in (root / name for name in transport.TRUSTED_MODEL_RUNTIME)
+                         if path.is_file())
+        return files
     review = 'plugins/sdd-review-loop/'
     quality = 'plugins/sdd-quality-loop/scripts/'
     names = {review + 'scripts/' + name for name in (
@@ -53,6 +59,8 @@ def runtime_files(root, stage, fixed_inputs=False):
                       'specs/workflow-state-registry.json'))
     if stage == 'task':
         names.add(review + 'scripts/validate-layer-traceability.py')
+    if model_policy:
+        names.update(transport.TRUSTED_MODEL_RUNTIME)
     files = {root / name for name in names}
     for path in files:
         transport.require(path.is_file() and not path.is_symlink() and
@@ -61,11 +69,14 @@ def runtime_files(root, stage, fixed_inputs=False):
     return files
 
 
-def run(root, command, destination, prompt=None):
+def run(root, command, destination, prompt=None, env=None):
+    # Selected launches pass the captured child environment; legacy calls stay byte-identical.
+    options = {} if env is None else {'env': env}
+    transport.check_launch_output()
     result = subprocess.run(command, cwd=root, input=prompt, text=True,
-                            capture_output=True, timeout=600)
-    destination.write_text(result.stdout)
-    destination.with_suffix(destination.suffix + '.stderr').write_text(result.stderr)
+                            capture_output=True, timeout=600, **options)
+    transport.write_launch_text(destination, result.stdout)
+    transport.write_launch_text(destination.with_suffix(destination.suffix + '.stderr'), result.stderr)
     transport.require(result.returncode == 0, 'command failed; see ' + str(destination))
     return result.stdout
 
@@ -87,6 +98,39 @@ def required_dependencies(root, data, fixed_inputs=None):
         transport.require(admitted.get(entry['path']) == entry['sha256'],
                           'conditional input missing or stale: ' + entry['path'])
     return result
+
+
+def domain_admission(root, data, admitted, runtime='bash'):
+    """Original finalizer's read-only canonical precheck; no spec discovery and no specs/ inputs."""
+    transport.require(data['feature'] == transport.DOMAIN_FEATURE,
+                      'domain invocation feature is not the domain-model namespace')
+    pattern = re.compile(r'reports/domain-review/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')
+    rounds = [m for m in (pattern.fullmatch(path) for path in admitted) if m is not None]
+    transport.require(len(rounds) == 1, 'one admitted precheck is required')
+    attempt, round_number = (int(value) for value in rounds[0].groups())
+    source = Path(root) / 'plugins/sdd-domain/scripts/finalize-domain-review.py'
+    transport.require(source.is_file() and not source.is_symlink(), 'domain finalizer is unavailable')
+    finalizer_spec = importlib.util.spec_from_file_location('domain_finalizer', source)
+    if finalizer_spec is None or finalizer_spec.loader is None:
+        raise ValueError('domain finalizer loader unavailable')
+    finalizer = importlib.util.module_from_spec(finalizer_spec)
+    finalizer_spec.loader.exec_module(finalizer)
+    review = finalizer.Review(root, attempt, round_number, runtime)
+    _, required = review.precheck()
+    review.unchanged()
+    expected = set(required)
+    if data['role'].endswith('-b'):
+        summary_path = review.relative + '/integrated-summary.json'
+        expected.add(summary_path)
+        # The parent validates the bridge before exposing it to B; native B still cannot read raw A.
+        canonical_summary = review.derive(summary_only=True)['integrated-summary.json']
+        transport.require(review.read(summary_path) == canonical_summary,
+                          'B summary is not exactly derived from reviewer A')
+        review.unchanged()
+    transport.require(admitted == expected,
+                      'input manifest differs from required stage/role set: missing=' +
+                      repr(sorted(expected - admitted)) + ' extra=' + repr(sorted(admitted - expected)))
+    return rounds[0].group(), attempt, round_number
 
 
 def checked_input_paths(root, data, fixed_inputs=None):
@@ -254,8 +298,16 @@ def quality_delivery_result(text, count, *, reserved=False):
     return receipt
 
 
+@transport.protected_launch_output
 def launch(root, invocation, output, manifest_sha256=None, *,
-           fixed_input_record=None, fixed_input_snapshot=None):
+           fixed_input_record=None, fixed_input_snapshot=None, model_binding=None):
+    environment = None
+    if model_binding is not None:
+        transport.require(isinstance(model_binding, dict) and
+                          set(model_binding) == {'controls', 'controls_sha256'},
+                          'model binding requires exactly controls and controls_sha256')
+        # One private child environment for controls validation, argv and the final wrapper.
+        environment = transport.captured_environment()
     root = root.resolve()
     transport.require(invocation.is_file() and not invocation.is_symlink(),
                       'invocation is not a regular file')
@@ -267,8 +319,13 @@ def launch(root, invocation, output, manifest_sha256=None, *,
     data, _ = transport.manifest(root, invocation)
     fixed_inputs = transport.fixed_input_binding(
         root, data, fixed_input_record, fixed_input_snapshot)
+    # Controls fail here, before any native probe, output or reservation.
+    binding = (transport.model_launch_binding(root, data, model_binding['controls'],
+                                              model_binding['controls_sha256'],
+                                              environment=environment)
+               if model_binding is not None else None)
     stage = data['stage']
-    transport.require(stage in ('spec', 'impl', 'task', 'quality'), 'unsupported review stage')
+    transport.require(stage in ('spec', 'impl', 'task', 'quality', 'domain'), 'unsupported review stage')
     transport.require(stage != 'quality' or manifest_sha256 is not None,
                       'quality launch requires an external caller manifest pin')
     feature = data.get('feature', '')
@@ -307,6 +364,17 @@ def launch(root, invocation, output, manifest_sha256=None, *,
         role_path = root / 'plugins/sdd-quality-loop/agents/evaluator.md'
         verify = None
         dependency_presence = required_dependencies(root, data, fixed_inputs)
+    elif stage == 'domain':
+        transport.require(fixed_inputs is None, 'domain review has no fixed-input route')
+        admitted = checked_input_paths(root, data)
+        precheck_name, attempt, round_number = domain_admission(root, data, admitted)
+        round_dir = root / Path(precheck_name).parent
+        transport.require(output.resolve().parent == round_dir.resolve() and
+                          output.name == 'launch-' + session,
+                          'output must be a fresh round/session directory')
+        role_path = root / transport.role_definition_path(data['role'])
+        verify = None
+        dependency_presence = None
     else:
         pattern = re.compile(r'reports/' + stage + r'-review/' + re.escape(feature) +
                              r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')
@@ -340,14 +408,19 @@ def launch(root, invocation, output, manifest_sha256=None, *,
     transport.require(len(role_parts) == 3 and not role_parts[0].strip(),
                       'role frontmatter missing')
     selected_model = 'sonnet'
-    if stage == 'quality':
+    if binding is not None:
+        # Trusted role file is read, never edited; the launcher generates the selected values.
+        selected_model = binding['native_model']
+        native_alignment = transport.role_frontmatter_alignment(
+            role_parts[1], selected_model, binding['effort'])
+    elif stage == 'quality':
         model_line = re.findall(r'^model: ([A-Za-z0-9_-]+)$', role_parts[1], re.MULTILINE)
         transport.require(len(model_line) == 1, 'role model missing or ambiguous')
         selected_model = model_line[0]
-    transport.require(selected_model == 'sonnet',
+    transport.require(binding is not None or selected_model == 'sonnet',
                       'role model conflicts with Sonnet-only launch authorization')
     # Exclusive creation prevents an interrupted launch from replaying reservation.
-    output.mkdir()
+    transport.create_launch_output(output)
     execution_digest = transport.record_fixed_execution(output, invocation, data, fixed_inputs)
     transcript = output / (session + '.jsonl')
     preflight_result = transport.preflight(root, invocation, transcript)
@@ -362,8 +435,8 @@ def launch(root, invocation, output, manifest_sha256=None, *,
         transport.require(not preflight_path.exists() and not preflight_path.is_symlink() and
                           not allocation_path.exists() and not allocation_path.is_symlink(),
                           'round already has preflight or allocation evidence')
-        with preflight_path.open('xb') as record:
-            record.write(json.dumps(preflight_result, sort_keys=True).encode())
+        transport.write_launch_bytes(preflight_path, json.dumps(preflight_result, sort_keys=True).encode(),
+                                     exclusive=True)
         proposal = {
             'kind': 'claude-nontty-caller-proposal',
             'host_id': session, 'host_session_id': session,
@@ -375,21 +448,26 @@ def launch(root, invocation, output, manifest_sha256=None, *,
             'preflight_result': preflight_result['status'],
         }
         proposal_bytes = json.dumps(proposal, sort_keys=True).encode()
-        with allocation_path.open('xb') as record:
-            record.write(proposal_bytes)
-        with (output / 'caller-proposal.json').open('xb') as record:
-            record.write(proposal_bytes)
+        transport.write_launch_bytes(allocation_path, proposal_bytes, exclusive=True)
+        transport.write_launch_bytes(output / 'caller-proposal.json', proposal_bytes, exclusive=True)
     role = {'description': 'Repository-bound independent implementation reviewer',
             'prompt': role_parts[2].strip(), 'model': selected_model,
             'tools': transport.agent_tools(stage),
             'disallowedTools': ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit']}
+    if binding is not None:
+        role['effort'] = binding['effort']
     if fixed_inputs:
         role['prompt'] += ('\nFixed-input route: the launcher verifies input identity. '
                            'Do not run hash-only commands or Bash. Read the exact supplied '
                            'snapshot paths; retain all substantive review checks.')
     # Pin current dependencies, not just the caller's manifest. No baseline promotion.
     files = {invocation, role_path, probe}
-    files.update(runtime_files(root, stage, bool(fixed_inputs)))
+    files.update(runtime_files(root, stage, bool(fixed_inputs), model_policy=binding is not None))
+    control_pins: dict[str, str] = {}
+    if binding is not None:
+        control_pins = {str(root.joinpath(*entry['path'].split('/'))): entry['sha256'] for entry in
+                        [binding['controls'], *binding['pins'], *binding['trusted']]}
+        files.update(Path(path) for path in control_pins)
     selected = {entry['path'] for entry in fixed_inputs['inventory']['inputs']} if fixed_inputs else set()
     files.update((Path(fixed_inputs['snapshot']) if e['path'] in selected else root) / e['path']
                  for e in data['allowed_input_manifest'])
@@ -403,7 +481,9 @@ def launch(root, invocation, output, manifest_sha256=None, *,
     if sha256sum is not None:
         files.add(Path(sha256sum).resolve(strict=True))
     pins = {str(p): transport.sha(p) for p in files}
-    (output / 'dependencies.json').write_text(json.dumps(pins, sort_keys=True))
+    transport.require(all(pins[path] == digest for path, digest in control_pins.items()),
+                      'model control dependency differs from its validated pin')
+    transport.write_launch_text(output / 'dependencies.json', json.dumps(pins, sort_keys=True))
     if verify is not None:
         run(root, verify, output / 'verify-before.txt')
     preview = run(root, check, output / 'preview.txt')
@@ -411,21 +491,30 @@ def launch(root, invocation, output, manifest_sha256=None, *,
         transport.require(preview == initial_preview,
                           'quality admission changed after initial preview')
     receipt = output / 'receipt.txt'
-    receipt.write_text(preview)
+    transport.write_launch_text(receipt, preview)
     policy = output / 'policy.json'
     settings = output / 'settings.json'
     route_options = {'fixed_inputs': fixed_inputs} if fixed_inputs else {}
     policy_bytes, settings_value = transport.launch_policy(
         root, invocation, receipt, policy, **route_options)
-    policy.write_bytes(policy_bytes)
-    settings.write_text(json.dumps(settings_value))
+    transport.write_launch_bytes(policy, policy_bytes)
+    transport.write_launch_text(settings, json.dumps(settings_value))
     permissions = transport.receipt_control(
         data, preview, invocation.relative_to(root).as_posix(),
             root=None if fixed_inputs else root)['exact_permission_rules']
     if fixed_inputs:
         permissions = ['Read']
+    # Kept apart from route_options: launch_policy/expected_prompt take no model keywords.
+    model_options = ({'model_binding': binding, 'environment': environment}
+                     if binding is not None else {})
     command = transport.claude_command(root, session, data['role'], role, permissions,
-                                       settings, invocation, receipt, policy, **route_options)
+                                       settings, invocation, receipt, policy,
+                                       **route_options, **model_options)
+    launch_digest = (transport.record_model_launch(output, binding, command, native_alignment)
+                     if binding is not None else None)
+    context_digest = (transport.record_model_execution(
+        root, output, data, invocation, role_path, policy, settings, receipt, binding, command, environment,
+        fixed_inputs) if binding is not None else None)
     probe_command = ['rtk', 'proxy', sys.executable, '-B', str(probe), str(invocation)]
     if fixed_inputs:
         probe_command += ['--fixed-input-record', fixed_inputs['record'],
@@ -443,19 +532,33 @@ def launch(root, invocation, output, manifest_sha256=None, *,
                       proof.get('source_invocation_sha256') == pins[str(invocation)] and
                       proof.get('admitted_paths') == [e['path'] for e in data['allowed_input_manifest']],
                       'native permission proof incomplete or for different inputs')
-    transport.require(required_dependencies(root, data, fixed_inputs) == dependency_presence,
+    transport.require(stage == 'domain' or
+                      required_dependencies(root, data, fixed_inputs) == dependency_presence,
                       'conditional dependency presence changed')
     transport.require(all(transport.sha(Path(p)) == digest for p, digest in pins.items()),
                       'dependency changed during native preflight')
+    if binding is not None:
+        # The diagnostic is a permission probe only; controls are revalidated with the same snapshot.
+        transport.require(transport.model_launch_binding(
+            root, data, model_binding['controls'], model_binding['controls_sha256'],
+            environment=environment) == binding, 'model controls changed during native preflight')
     transport.preflight(root, invocation, transcript)
     if verify is not None:
         run(root, verify, output / 'verify-after.txt')
+    if stage == 'domain':
+        domain_admission(root, data, admitted)
     transport.require(run(root, check, output / 'preview-after.txt') == preview,
                       'admission changed during native preflight')
     transport.require(transport.claude_command(root, session, data['role'], role, permissions,
-                      settings, invocation, receipt, policy, **route_options) == command, 'launch argv changed')
+                      settings, invocation, receipt, policy, **route_options, **model_options) == command,
+                      'launch argv changed')
     transport.require(transport.fixed_input_binding(root, data, fixed_input_record,
                       fixed_input_snapshot) == fixed_inputs, 'fixed inputs changed before reservation')
+    if binding is not None:
+        # Sidecar mismatch fails here; nothing after reservation retries the identity.
+        transport.verify_model_launch(root, output, launch_digest, binding, command,
+                                      environment=environment)
+    transport.check_launch_output()
     if stage == 'quality':
         reserved = quality_delivery_result(
             run(root, delivery + ['--reserve'], output / 'reserved.txt'),
@@ -463,24 +566,33 @@ def launch(root, invocation, output, manifest_sha256=None, *,
     else:
         reserved = run(root, check + ['--reserve'], output / 'reserved.txt')
     transport.require(reserved == preview, 'reservation differs from preview; do not retry identity')
-    receipt.write_text(reserved)
+    transport.write_launch_text(receipt, reserved, unchanged=True)
     prompt = output / 'prompt.txt'
-    prompt.write_bytes(transport.expected_prompt(root, invocation, receipt, strict=True,
+    transport.write_launch_bytes(prompt, transport.expected_prompt(root, invocation, receipt, strict=True,
                                                  conditional_state=dependency_presence, **route_options))
     wrapper = output / 'wrapper.json'
-    run(root, command, wrapper, prompt.read_text())
+    transport.check_launch_output()
+    run(root, command, wrapper, prompt.read_text(), **({'env': environment} if binding is not None else {}))
+    # Raw recheck only: a fresh reselection here could expire with the observation mid-review.
+    transport.require(all(transport.sha(Path(path)) == digest for path, digest in control_pins.items()),
+                      'model controls or trusted runtime changed during review')
     transcripts = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
     transport.require(len(transcripts) == 1, 'native transcript missing or ambiguous')
-    transcript.write_bytes(transcripts[0].read_bytes())
+    transport.write_launch_bytes(transcript, transcripts[0].read_bytes())
     result = transport.postflight(root, invocation, transcript, prompt, wrapper, receipt,
                                   strict=True, conditional_state=dependency_presence, **route_options)
+    if stage == 'domain':
+        domain_admission(root, data, admitted)
     transport.require(transport.fixed_input_binding(root, data, fixed_input_record,
                       fixed_input_snapshot) == fixed_inputs, 'fixed inputs changed during review')
     if execution_digest is not None:
         transport.require(transport.sha(output / 'fixed-execution.json') == execution_digest,
                           'fixed execution binding changed during review')
-    with (output / 'delivery.json').open('x', encoding='utf-8') as stream:
-        stream.write(json.dumps(result, sort_keys=True))
+    if binding is not None:
+        result['model_launch_sha256'] = launch_digest
+        result['model_delivery_binding_sha256'] = transport.record_model_delivery(
+            root, output, binding, launch_digest, context_digest)
+    transport.write_launch_text(output / 'delivery.json', json.dumps(result, sort_keys=True), exclusive=True)
     transport.record_fixed_delivery(output, execution_digest)
     transport.verify_fixed_delivery(output, execution_digest, invocation)
     # Delivery is not a verdict. Existing canonical output validation/adoption follows.
@@ -495,11 +607,22 @@ if __name__ == '__main__':
     parser.add_argument('--manifest-sha256', help='external caller pin; required for quality')
     parser.add_argument('--fixed-input-record', type=Path)
     parser.add_argument('--fixed-input-snapshot', type=Path)
+    # Raw text: Path() would silently erase duplicate separators and dot components.
+    parser.add_argument('--model-controls',
+                        help='root-relative model-launch-controls/v1 path; requires --model-controls-sha256')
+    parser.add_argument('--model-controls-sha256', help='raw SHA-256 pin of --model-controls')
     args = parser.parse_args()
     try:
+        model_binding = None
+        if args.model_controls is not None or args.model_controls_sha256 is not None:
+            transport.require(args.model_controls is not None and args.model_controls_sha256 is not None,
+                              '--model-controls and --model-controls-sha256 are all-or-none')
+            model_binding = {'controls': Path(transport.control_path_text(args.model_controls)),
+                             'controls_sha256': args.model_controls_sha256}
         print(json.dumps(launch(args.root, args.invocation, args.output,
                                 args.manifest_sha256, fixed_input_record=args.fixed_input_record,
-                                fixed_input_snapshot=args.fixed_input_snapshot), sort_keys=True))
+                                fixed_input_snapshot=args.fixed_input_snapshot,
+                                model_binding=model_binding), sort_keys=True))
     except (ValueError, OSError, KeyError, TypeError, subprocess.TimeoutExpired) as error:
         print('LAUNCH_STOPPED: ' + str(error), file=sys.stderr)
         sys.exit(1)

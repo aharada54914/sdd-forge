@@ -1,0 +1,290 @@
+=== AC-002: Diversity checks ===
+ok: CM-001: anthropic-only panel fails (diversity)
+ok: CM-001b: aggregate result=FAIL written
+ok: CM-002: anthropic+openai panel passes diversity
+ok: CM-003: no verdicts → exit 2 (tool error)
+ok: CM-004: openai+google panel passes (non_anthropic>=1, distinct>=2)
+=== AC-003: Schema validation ===
+ok: CM-005: blind=false → exit 2 (schema error)
+ok: CM-006: bad input_digest → exit 2 (schema error)
+ok: CM-007: missing consent.kind → exit 2 (schema error)
+=== AC-004: Consensus checks ===
+ok: CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)
+ok: CM-009: Critical finding → exit 1 (consensus fail)
+ok: CM-010: all PASS no critical → exit 0
+ok: CM-010b: aggregate result=PASS written
+ok: CM-011: --evaluator PASS matches panel → exit 0
+ok: CM-012: evaluator diverges → exit 1
+ok: CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true
+ok: CM-013: --expect-digest matches → exit 0
+ok: CM-014: --expect-digest mismatch → exit 1
+ok: CM-015: aggregate JSON has all required fields
+=== TEST-003/TEST-012: PowerShell timeout configuration ===
+ok: TEST-012: gpt default is extracted from runner source
+ok: TEST-003: gpt accepts unset timeout
+ok: TEST-003: gpt accepts empty timeout
+ok: TEST-003: gpt accepts one timeout
+ok: TEST-003: gpt accepts huge timeout
+ok: TEST-003: gpt accepts its source-derived default
+ok: TEST-003: gpt rejects '0' before vendor invocation
+ok: TEST-003: gpt rejects '-5' before vendor invocation
+ok: TEST-003: gpt rejects 'abc' before vendor invocation
+ok: TEST-012: gemini default is extracted from runner source
+ok: TEST-003: gemini accepts unset timeout
+ok: TEST-003: gemini accepts empty timeout
+ok: TEST-003: gemini accepts one timeout
+ok: TEST-003: gemini accepts huge timeout
+ok: TEST-003: gemini accepts its source-derived default
+ok: TEST-003: gemini rejects '0' before vendor invocation
+ok: TEST-003: gemini rejects '-5' before vendor invocation
+ok: TEST-003: gemini rejects 'abc' before vendor invocation
+ok: TEST-012: PowerShell runners declare the same source-derived default
+=== TEST-004(a)/TEST-005: PowerShell timeout lifecycle ===
+measurement: TEST-004(a) runner=gpt elapsed_ms=2396 limit_ms=10000 stub_pid=406736 stub_alive=0 child_pid=406738 child_alive=0 exit=1 verdict=0
+ok: TEST-004(a): gpt returns within the wall-clock bound with no stub or child alive
+ok: TEST-005: gpt timeout exits 1 without a verdict
+measurement: timeout gpt panelist-process: pid=406736 wait_completed=0 observed_at=1792517831230 observed_exited=0 cleanup_kill=1
+ok: timeout gpt awaited process observation
+measurement: TEST-004(a) runner=gemini elapsed_ms=2366 limit_ms=10000 stub_pid=406758 stub_alive=0 child_pid=406760 child_alive=0 exit=1 verdict=0
+ok: TEST-004(a): gemini returns within the wall-clock bound with no stub or child alive
+ok: TEST-005: gemini timeout exits 1 without a verdict
+measurement: timeout gemini panelist-process: pid=406758 wait_completed=0 observed_at=1792517833622 observed_exited=0 cleanup_kill=1
+ok: timeout gemini awaited process observation
+ok: TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS
+note: TEST-004(b) intentionally has no PowerShell counterpart; TEST-004(a) checks descendant liveness
+=== TEST-004(c): PowerShell normal completion ===
+ok: empty phase log reports ordinary FAIL and continues (completed=False)
+ok: empty phase log reports ordinary FAIL and continues (completed=True)
+ok: TEST-004(c): empty phase log regression
+ok: TEST-004(c): phase receipt parser (empty)
+ok: TEST-004(c): phase receipt parser (complete)
+ok: TEST-004(c): phase receipt parser (duplicate)
+ok: TEST-004(c): phase receipt parser (partial)
+ok: TEST-004(c): deterministic boundary evidence (lower edge)
+ok: TEST-004(c): deterministic boundary evidence (deadline edge)
+ok: TEST-004(c): deterministic boundary evidence (early completion)
+ok: TEST-004(c): deterministic boundary evidence (late child output)
+ok: TEST-004(c): deterministic boundary evidence (reversed child phases)
+ok: TEST-004(c): deterministic boundary evidence (missing output receipt)
+ok: TEST-004(c): deterministic boundary evidence (missing wait receipt)
+ok: TEST-004(c): gpt startup warm-up
+measurement: TEST-004(c) runner=gpt iteration=1 invoked_at_epoch_ms=1792517836492 stub_start_epoch_ms=1792517836752 startup_inside_budget_ms=26
+measurement: TEST-004(c) runner=gpt iteration=1 elapsed_ms=3765 deadline_ms=4000 runner_deadline_epoch_ms=1792517840726 stub_launch_ms=260 exit=0 verdict=1
+measurement: TEST-004(c) runner=gpt iteration=1 last_stage=sleep=1792517836752
+measurement: TEST-004(c) runner=gpt iteration=1 wait_end=1792517838726
+measurement: TEST-004(c) runner=gpt iteration=1 output_end=1792517839226
+measurement: TEST-004(c) runner=gpt iteration=1 receipt_end=1792517838726
+measurement: TEST-004(c) runner=gpt iteration=1 console_ready=1792517838726
+measurement: TEST-004(c) runner=gpt iteration=1 write_start=1792517838726
+measurement: TEST-004(c) runner=gpt iteration=1 write_end=1792517838726
+measurement: TEST-004(c) runner=gpt iteration=1 flush_start=1792517839226
+measurement: TEST-004(c) runner=gpt iteration=1 flush_end=1792517839226
+measurement: TEST-004(c) runner=gpt iteration=1 phase_persist=1792517839226
+measurement: TEST-004(c) runner=gpt iteration=1 wait_end=1792517838726 output_end=1792517839226 observed_at=1792517839231 deadline=1792517840726 completion_timing=1
+ok: TEST-004(c): gpt normal completion with delayed output iteration 1
+measurement: normal gpt 1 panelist-process: pid=406820 wait_completed=1 observed_at=1792517839231 observed_exited=1 cleanup_kill=0
+ok: normal gpt 1 awaited process observation
+measurement: TEST-004(c) runner=gpt iteration=2 invoked_at_epoch_ms=1792517840265 stub_start_epoch_ms=1792517840546 startup_inside_budget_ms=26
+measurement: TEST-004(c) runner=gpt iteration=2 elapsed_ms=3790 deadline_ms=4000 runner_deadline_epoch_ms=1792517844520 stub_launch_ms=281 exit=0 verdict=1
+measurement: TEST-004(c) runner=gpt iteration=2 last_stage=sleep=1792517840547
+measurement: TEST-004(c) runner=gpt iteration=2 wait_end=1792517842520
+measurement: TEST-004(c) runner=gpt iteration=2 output_end=1792517843020
+measurement: TEST-004(c) runner=gpt iteration=2 receipt_end=1792517842520
+measurement: TEST-004(c) runner=gpt iteration=2 console_ready=1792517842520
+measurement: TEST-004(c) runner=gpt iteration=2 write_start=1792517842520
+measurement: TEST-004(c) runner=gpt iteration=2 write_end=1792517842520
+measurement: TEST-004(c) runner=gpt iteration=2 flush_start=1792517843020
+measurement: TEST-004(c) runner=gpt iteration=2 flush_end=1792517843020
+measurement: TEST-004(c) runner=gpt iteration=2 phase_persist=1792517843020
+measurement: TEST-004(c) runner=gpt iteration=2 wait_end=1792517842520 output_end=1792517843020 observed_at=1792517843025 deadline=1792517844520 completion_timing=1
+ok: TEST-004(c): gpt normal completion with delayed output iteration 2
+measurement: normal gpt 2 panelist-process: pid=406847 wait_completed=1 observed_at=1792517843025 observed_exited=1 cleanup_kill=0
+ok: normal gpt 2 awaited process observation
+measurement: TEST-004(c) runner=gpt iteration=3 invoked_at_epoch_ms=1792517844061 stub_start_epoch_ms=1792517844332 startup_inside_budget_ms=25
+measurement: TEST-004(c) runner=gpt iteration=3 elapsed_ms=3779 deadline_ms=4000 runner_deadline_epoch_ms=1792517848307 stub_launch_ms=271 exit=0 verdict=1
+measurement: TEST-004(c) runner=gpt iteration=3 last_stage=sleep=1792517844333
+measurement: TEST-004(c) runner=gpt iteration=3 wait_end=1792517846307
+measurement: TEST-004(c) runner=gpt iteration=3 output_end=1792517846807
+measurement: TEST-004(c) runner=gpt iteration=3 receipt_end=1792517846307
+measurement: TEST-004(c) runner=gpt iteration=3 console_ready=1792517846307
+measurement: TEST-004(c) runner=gpt iteration=3 write_start=1792517846307
+measurement: TEST-004(c) runner=gpt iteration=3 write_end=1792517846307
+measurement: TEST-004(c) runner=gpt iteration=3 flush_start=1792517846807
+measurement: TEST-004(c) runner=gpt iteration=3 flush_end=1792517846807
+measurement: TEST-004(c) runner=gpt iteration=3 phase_persist=1792517846807
+measurement: TEST-004(c) runner=gpt iteration=3 wait_end=1792517846307 output_end=1792517846807 observed_at=1792517846812 deadline=1792517848307 completion_timing=1
+ok: TEST-004(c): gpt normal completion with delayed output iteration 3
+measurement: normal gpt 3 panelist-process: pid=406871 wait_completed=1 observed_at=1792517846812 observed_exited=1 cleanup_kill=0
+ok: normal gpt 3 awaited process observation
+measurement: TEST-004(c) runner=gpt iteration=4 invoked_at_epoch_ms=1792517847842 stub_start_epoch_ms=1792517848111 startup_inside_budget_ms=26
+measurement: TEST-004(c) runner=gpt iteration=4 elapsed_ms=3777 deadline_ms=4000 runner_deadline_epoch_ms=1792517852085 stub_launch_ms=269 exit=0 verdict=1
+measurement: TEST-004(c) runner=gpt iteration=4 last_stage=sleep=1792517848111
+measurement: TEST-004(c) runner=gpt iteration=4 wait_end=1792517850085
+measurement: TEST-004(c) runner=gpt iteration=4 output_end=1792517850585
+measurement: TEST-004(c) runner=gpt iteration=4 receipt_end=1792517850085
+measurement: TEST-004(c) runner=gpt iteration=4 console_ready=1792517850085
+measurement: TEST-004(c) runner=gpt iteration=4 write_start=1792517850085
+measurement: TEST-004(c) runner=gpt iteration=4 write_end=1792517850085
+measurement: TEST-004(c) runner=gpt iteration=4 flush_start=1792517850585
+measurement: TEST-004(c) runner=gpt iteration=4 flush_end=1792517850585
+measurement: TEST-004(c) runner=gpt iteration=4 phase_persist=1792517850585
+measurement: TEST-004(c) runner=gpt iteration=4 wait_end=1792517850085 output_end=1792517850585 observed_at=1792517850591 deadline=1792517852085 completion_timing=1
+ok: TEST-004(c): gpt normal completion with delayed output iteration 4
+measurement: normal gpt 4 panelist-process: pid=406895 wait_completed=1 observed_at=1792517850591 observed_exited=1 cleanup_kill=0
+ok: normal gpt 4 awaited process observation
+measurement: TEST-004(c) runner=gpt iteration=5 invoked_at_epoch_ms=1792517851621 stub_start_epoch_ms=1792517851903 startup_inside_budget_ms=26
+measurement: TEST-004(c) runner=gpt iteration=5 elapsed_ms=3789 deadline_ms=4000 runner_deadline_epoch_ms=1792517855877 stub_launch_ms=282 exit=0 verdict=1
+measurement: TEST-004(c) runner=gpt iteration=5 last_stage=sleep=1792517851903
+measurement: TEST-004(c) runner=gpt iteration=5 wait_end=1792517853877
+measurement: TEST-004(c) runner=gpt iteration=5 output_end=1792517854377
+measurement: TEST-004(c) runner=gpt iteration=5 receipt_end=1792517853877
+measurement: TEST-004(c) runner=gpt iteration=5 console_ready=1792517853877
+measurement: TEST-004(c) runner=gpt iteration=5 write_start=1792517853877
+measurement: TEST-004(c) runner=gpt iteration=5 write_end=1792517853877
+measurement: TEST-004(c) runner=gpt iteration=5 flush_start=1792517854377
+measurement: TEST-004(c) runner=gpt iteration=5 flush_end=1792517854377
+measurement: TEST-004(c) runner=gpt iteration=5 phase_persist=1792517854377
+measurement: TEST-004(c) runner=gpt iteration=5 wait_end=1792517853877 output_end=1792517854377 observed_at=1792517854382 deadline=1792517855877 completion_timing=1
+ok: TEST-004(c): gpt normal completion with delayed output iteration 5
+measurement: normal gpt 5 panelist-process: pid=406916 wait_completed=1 observed_at=1792517854382 observed_exited=1 cleanup_kill=0
+ok: normal gpt 5 awaited process observation
+measurement: TEST-004(c2) runner=gpt case=success iteration=1 panelist-recheck: pid=406944 wait_completed=0 release_at=1792517857715 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=406944 wait_completed=0 observed_at=1792517857727 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gpt real recheck success iteration 1
+measurement: TEST-004(c2) runner=gpt case=success iteration=2 panelist-recheck: pid=406965 wait_completed=0 release_at=1792517861055 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=406965 wait_completed=0 observed_at=1792517861073 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gpt real recheck success iteration 2
+measurement: TEST-004(c2) runner=gpt case=success iteration=3 panelist-recheck: pid=406986 wait_completed=0 release_at=1792517864392 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=406986 wait_completed=0 observed_at=1792517864407 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gpt real recheck success iteration 3
+measurement: TEST-004(c2) runner=gpt case=success iteration=4 panelist-recheck: pid=407007 wait_completed=0 release_at=1792517867715 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407007 wait_completed=0 observed_at=1792517867731 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gpt real recheck success iteration 4
+measurement: TEST-004(c2) runner=gpt case=success iteration=5 panelist-recheck: pid=407028 wait_completed=0 release_at=1792517871033 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407028 wait_completed=0 observed_at=1792517871049 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gpt real recheck success iteration 5
+measurement: TEST-004(c2) runner=gpt case=nonzero iteration=1 panelist-recheck: pid=407049 wait_completed=0 release_at=1792517874365 child_exit=7 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407049 wait_completed=0 observed_at=1792517874379 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gpt real recheck nonzero iteration 1
+measurement: TEST-004(c2) runner=gpt case=incomplete iteration=1 panelist-recheck: pid=407070 wait_completed=0 release_at=1792517877687 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407070 wait_completed=0 observed_at=1792517877698 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gpt real recheck incomplete iteration 1
+ok: TEST-004(c): gemini startup warm-up
+measurement: TEST-004(c) runner=gemini iteration=1 invoked_at_epoch_ms=1792517880039 stub_start_epoch_ms=1792517880337 startup_inside_budget_ms=26
+measurement: TEST-004(c) runner=gemini iteration=1 elapsed_ms=3802 deadline_ms=4000 runner_deadline_epoch_ms=1792517884311 stub_launch_ms=298 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=1 last_stage=sleep=1792517880337
+measurement: TEST-004(c) runner=gemini iteration=1 wait_end=1792517882312
+measurement: TEST-004(c) runner=gemini iteration=1 output_end=1792517882812
+measurement: TEST-004(c) runner=gemini iteration=1 receipt_end=1792517882312
+measurement: TEST-004(c) runner=gemini iteration=1 console_ready=1792517882312
+measurement: TEST-004(c) runner=gemini iteration=1 write_start=1792517882312
+measurement: TEST-004(c) runner=gemini iteration=1 write_end=1792517882312
+measurement: TEST-004(c) runner=gemini iteration=1 flush_start=1792517882812
+measurement: TEST-004(c) runner=gemini iteration=1 flush_end=1792517882812
+measurement: TEST-004(c) runner=gemini iteration=1 phase_persist=1792517882812
+measurement: TEST-004(c) runner=gemini iteration=1 wait_end=1792517882312 output_end=1792517882812 observed_at=1792517882817 deadline=1792517884311 completion_timing=1
+ok: TEST-004(c): gemini normal completion with delayed output iteration 1
+measurement: normal gemini 1 panelist-process: pid=407113 wait_completed=1 observed_at=1792517882817 observed_exited=1 cleanup_kill=0
+ok: normal gemini 1 awaited process observation
+measurement: TEST-004(c) runner=gemini iteration=2 invoked_at_epoch_ms=1792517883844 stub_start_epoch_ms=1792517884090 startup_inside_budget_ms=27
+measurement: TEST-004(c) runner=gemini iteration=2 elapsed_ms=3756 deadline_ms=4000 runner_deadline_epoch_ms=1792517888063 stub_launch_ms=246 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=2 last_stage=sleep=1792517884090
+measurement: TEST-004(c) runner=gemini iteration=2 wait_end=1792517886063
+measurement: TEST-004(c) runner=gemini iteration=2 output_end=1792517886563
+measurement: TEST-004(c) runner=gemini iteration=2 receipt_end=1792517886063
+measurement: TEST-004(c) runner=gemini iteration=2 console_ready=1792517886063
+measurement: TEST-004(c) runner=gemini iteration=2 write_start=1792517886063
+measurement: TEST-004(c) runner=gemini iteration=2 write_end=1792517886063
+measurement: TEST-004(c) runner=gemini iteration=2 flush_start=1792517886563
+measurement: TEST-004(c) runner=gemini iteration=2 flush_end=1792517886563
+measurement: TEST-004(c) runner=gemini iteration=2 phase_persist=1792517886563
+measurement: TEST-004(c) runner=gemini iteration=2 wait_end=1792517886063 output_end=1792517886563 observed_at=1792517886568 deadline=1792517888063 completion_timing=1
+ok: TEST-004(c): gemini normal completion with delayed output iteration 2
+measurement: normal gemini 2 panelist-process: pid=407134 wait_completed=1 observed_at=1792517886568 observed_exited=1 cleanup_kill=0
+ok: normal gemini 2 awaited process observation
+measurement: TEST-004(c) runner=gemini iteration=3 invoked_at_epoch_ms=1792517887603 stub_start_epoch_ms=1792517887893 startup_inside_budget_ms=27
+measurement: TEST-004(c) runner=gemini iteration=3 elapsed_ms=3793 deadline_ms=4000 runner_deadline_epoch_ms=1792517891866 stub_launch_ms=290 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=3 last_stage=sleep=1792517887893
+measurement: TEST-004(c) runner=gemini iteration=3 wait_end=1792517889866
+measurement: TEST-004(c) runner=gemini iteration=3 output_end=1792517890366
+measurement: TEST-004(c) runner=gemini iteration=3 receipt_end=1792517889866
+measurement: TEST-004(c) runner=gemini iteration=3 console_ready=1792517889866
+measurement: TEST-004(c) runner=gemini iteration=3 write_start=1792517889866
+measurement: TEST-004(c) runner=gemini iteration=3 write_end=1792517889866
+measurement: TEST-004(c) runner=gemini iteration=3 flush_start=1792517890366
+measurement: TEST-004(c) runner=gemini iteration=3 flush_end=1792517890366
+measurement: TEST-004(c) runner=gemini iteration=3 phase_persist=1792517890366
+measurement: TEST-004(c) runner=gemini iteration=3 wait_end=1792517889866 output_end=1792517890366 observed_at=1792517890371 deadline=1792517891866 completion_timing=1
+ok: TEST-004(c): gemini normal completion with delayed output iteration 3
+measurement: normal gemini 3 panelist-process: pid=407157 wait_completed=1 observed_at=1792517890371 observed_exited=1 cleanup_kill=0
+ok: normal gemini 3 awaited process observation
+measurement: TEST-004(c) runner=gemini iteration=4 invoked_at_epoch_ms=1792517891397 stub_start_epoch_ms=1792517891646 startup_inside_budget_ms=26
+measurement: TEST-004(c) runner=gemini iteration=4 elapsed_ms=3757 deadline_ms=4000 runner_deadline_epoch_ms=1792517895620 stub_launch_ms=249 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=4 last_stage=sleep=1792517891646
+measurement: TEST-004(c) runner=gemini iteration=4 wait_end=1792517893620
+measurement: TEST-004(c) runner=gemini iteration=4 output_end=1792517894121
+measurement: TEST-004(c) runner=gemini iteration=4 receipt_end=1792517893620
+measurement: TEST-004(c) runner=gemini iteration=4 console_ready=1792517893620
+measurement: TEST-004(c) runner=gemini iteration=4 write_start=1792517893620
+measurement: TEST-004(c) runner=gemini iteration=4 write_end=1792517893621
+measurement: TEST-004(c) runner=gemini iteration=4 flush_start=1792517894121
+measurement: TEST-004(c) runner=gemini iteration=4 flush_end=1792517894121
+measurement: TEST-004(c) runner=gemini iteration=4 phase_persist=1792517894121
+measurement: TEST-004(c) runner=gemini iteration=4 wait_end=1792517893620 output_end=1792517894121 observed_at=1792517894125 deadline=1792517895620 completion_timing=1
+ok: TEST-004(c): gemini normal completion with delayed output iteration 4
+measurement: normal gemini 4 panelist-process: pid=407182 wait_completed=1 observed_at=1792517894125 observed_exited=1 cleanup_kill=0
+ok: normal gemini 4 awaited process observation
+measurement: TEST-004(c) runner=gemini iteration=5 invoked_at_epoch_ms=1792517895155 stub_start_epoch_ms=1792517895410 startup_inside_budget_ms=28
+measurement: TEST-004(c) runner=gemini iteration=5 elapsed_ms=3756 deadline_ms=4000 runner_deadline_epoch_ms=1792517899382 stub_launch_ms=255 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=5 last_stage=sleep=1792517895410
+measurement: TEST-004(c) runner=gemini iteration=5 wait_end=1792517897382
+measurement: TEST-004(c) runner=gemini iteration=5 output_end=1792517897882
+measurement: TEST-004(c) runner=gemini iteration=5 receipt_end=1792517897382
+measurement: TEST-004(c) runner=gemini iteration=5 console_ready=1792517897382
+measurement: TEST-004(c) runner=gemini iteration=5 write_start=1792517897382
+measurement: TEST-004(c) runner=gemini iteration=5 write_end=1792517897382
+measurement: TEST-004(c) runner=gemini iteration=5 flush_start=1792517897882
+measurement: TEST-004(c) runner=gemini iteration=5 flush_end=1792517897882
+measurement: TEST-004(c) runner=gemini iteration=5 phase_persist=1792517897882
+measurement: TEST-004(c) runner=gemini iteration=5 wait_end=1792517897382 output_end=1792517897882 observed_at=1792517897887 deadline=1792517899382 completion_timing=1
+ok: TEST-004(c): gemini normal completion with delayed output iteration 5
+measurement: normal gemini 5 panelist-process: pid=407209 wait_completed=1 observed_at=1792517897887 observed_exited=1 cleanup_kill=0
+ok: normal gemini 5 awaited process observation
+measurement: TEST-004(c2) runner=gemini case=success iteration=1 panelist-recheck: pid=407230 wait_completed=0 release_at=1792517901176 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407230 wait_completed=0 observed_at=1792517901191 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gemini real recheck success iteration 1
+measurement: TEST-004(c2) runner=gemini case=success iteration=2 panelist-recheck: pid=407251 wait_completed=0 release_at=1792517904483 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407251 wait_completed=0 observed_at=1792517904502 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gemini real recheck success iteration 2
+measurement: TEST-004(c2) runner=gemini case=success iteration=3 panelist-recheck: pid=407282 wait_completed=0 release_at=1792517907803 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407282 wait_completed=0 observed_at=1792517907818 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gemini real recheck success iteration 3
+measurement: TEST-004(c2) runner=gemini case=success iteration=4 panelist-recheck: pid=407303 wait_completed=0 release_at=1792517911114 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407303 wait_completed=0 observed_at=1792517911130 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gemini real recheck success iteration 4
+measurement: TEST-004(c2) runner=gemini case=success iteration=5 panelist-recheck: pid=407324 wait_completed=0 release_at=1792517914443 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407324 wait_completed=0 observed_at=1792517914458 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gemini real recheck success iteration 5
+measurement: TEST-004(c2) runner=gemini case=nonzero iteration=1 panelist-recheck: pid=407349 wait_completed=0 release_at=1792517917992 child_exit=7 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407349 wait_completed=0 observed_at=1792517918005 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gemini real recheck nonzero iteration 1
+measurement: TEST-004(c2) runner=gemini case=incomplete iteration=1 panelist-recheck: pid=407370 wait_completed=0 release_at=1792517921275 child_exit=0 observed_exited=1
+measurement: TEST-004(c2) panelist-process: pid=407370 wait_completed=0 observed_at=1792517921288 observed_exited=1 cleanup_kill=0
+ok: TEST-004(c2): gemini real recheck incomplete iteration 1
+=== TEST-001/002: panelist failure taxonomy ===
+ok: TEST-001: CLI absent states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI exits non-zero states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI rate-limited states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI hangs / exceeds the time bound states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI returns malformed output states exit, no-verdict, and gate propagation
+ok: TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout
+=== TEST-007/008/013: threat-model security cross-references ===
+ok: TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence
+ok: TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows
+ok: TEST-013: all three MCP servers state trust posture and cite primary MCP guidance
+=== TEST-009/010/014: runtime trust surfaces and closed risk ===
+ok: TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence
+ok: TEST-010: hook-trust bypass explicitly states the first-run approval forfeited
+ok: TEST-014: unbounded external panelist risk is recorded as closed with its timeout control
+
+Results: 104 passed, 0 failed

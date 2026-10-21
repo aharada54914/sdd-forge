@@ -1,0 +1,250 @@
+{
+  "task_id": "T-005",
+  "feature": "ci-model-modernization",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "0250669eb9f4ad0ddad7017e47e98937cf6c5fa28e8ec136791d63c0c7609b05",
+  "quality_report": "reports/quality-gate/20261019-ci-model-modernization-T-005-cycle-2.md",
+  "verification_contract": "specs/ci-model-modernization/verification/T-005.contract.json",
+  "git_commit": "ab98aa5670c5b6764778e6ce2066f483b9b1c9ed",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/ci-model-resume-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-implementation/scripts/model-policy.py tests/model-identity.tests.py tests/verification-catalog.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:16:55Z",
+      "finished_at": "2026-10-19T20:16:55Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/lint-receipt.json",
+      "evidence_sha256": "b2be89007aa1a4a89843251c55cbf8e3cdb4ffcb4a71238278dce40e6c44a81e"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/ci-model-resume-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-implementation/scripts/model-policy.py tests/model-identity.tests.py tests/verification-catalog.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:16:55Z",
+      "finished_at": "2026-10-19T20:16:55Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/typecheck-receipt.json",
+      "evidence_sha256": "71631e34f3774ce6b01886b8e138ba2914a86661b1b0809a079b866bead9b029"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/model-identity.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:16:55Z",
+      "finished_at": "2026-10-19T20:17:03Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/unit-tests-receipt.json",
+      "evidence_sha256": "7cfda6a9701edaf39ea3f72633b3e9bbfa4b685cc29f0f23bd3f885f48e18525"
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/model-identity.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:18:09Z",
+      "finished_at": "2026-10-19T20:18:20Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/integration-tests-receipt.json",
+      "evidence_sha256": "444a2c7e9f3dfdec7b331ea3355580c0bbb7336a4a6044adf33f8e5c1a4f6b46"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B -c 'import ast, hashlib\nfrom pathlib import Path\nfor name in ['\"'\"'plugins/sdd-implementation/scripts/model-policy.py'\"'\"','\"'\"'tests/model-identity.tests.py'\"'\"','\"'\"'tests/verification-catalog.tests.py'\"'\"']:\n raw=Path(name).read_bytes(); ast.parse(raw, filename=name); compile(raw,name,'\"'\"'exec'\"'\"'); print(name,hashlib.sha256(raw).hexdigest(),'\"'\"'parse/compile PASS'\"'\"')\n'",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:21:30Z",
+      "finished_at": "2026-10-19T20:21:30Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/build.log",
+      "evidence_sha256": "d821daa23edd44f6f35b6099e297cd705f373e4c332bbb1999bca136a678eb24"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-implementation/scripts/model-policy.py contracts/model-selection.schema.json contracts/model-delivery.schema.json",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:20:53Z",
+      "finished_at": "2026-10-19T20:20:53Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/placeholder-scan.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:20:53Z",
+      "finished_at": "2026-10-19T20:20:54Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/task-state-check.log",
+      "evidence_sha256": "9e788d78437513f7edb1f2072d0e8e5e7fe4789283540fe8e20f90ebd74d028d"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/model-identity.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:16:55Z",
+      "finished_at": "2026-10-19T20:17:03Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/acceptance-tests-receipt.json",
+      "evidence_sha256": "7cfda6a9701edaf39ea3f72633b3e9bbfa4b685cc29f0f23bd3f885f48e18525"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/verification-ci.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:18:09Z",
+      "finished_at": "2026-10-19T20:18:49Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/regression-receipt.json",
+      "evidence_sha256": "88dc5a7dcb74a912d1af2fa2b19c11b6df20bcb9354067a9217aeca41ed36ed0"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:20:53Z",
+      "finished_at": "2026-10-19T20:20:53Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/requirement-traceability.log",
+      "evidence_sha256": "acea2f4a83c8d634eeea51a8310654b40a2bb46b63be19037be7b5a072a06e91"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-19T20:20:53Z",
+      "finished_at": "2026-10-19T20:20:53Z",
+      "evidence": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-005.contract.json",
+      "sha256": "3d34233b8c52955b492dc6013853b332b6def75158f26969680ea9806186013e"
+    },
+    {
+      "path": "reports/quality-gate/20261019-ci-model-modernization-T-005-cycle-2.md",
+      "sha256": "53c79b8b93094e1d69f732780cc42d7469ae9f14ffa45804e03becb1c29a38d2"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/acceptance-tests-receipt.json",
+      "sha256": "7cfda6a9701edaf39ea3f72633b3e9bbfa4b685cc29f0f23bd3f885f48e18525"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/build.log",
+      "sha256": "d821daa23edd44f6f35b6099e297cd705f373e4c332bbb1999bca136a678eb24"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/integration-tests-receipt.json",
+      "sha256": "444a2c7e9f3dfdec7b331ea3355580c0bbb7336a4a6044adf33f8e5c1a4f6b46"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/lint-receipt.json",
+      "sha256": "b2be89007aa1a4a89843251c55cbf8e3cdb4ffcb4a71238278dce40e6c44a81e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/regression-receipt.json",
+      "sha256": "88dc5a7dcb74a912d1af2fa2b19c11b6df20bcb9354067a9217aeca41ed36ed0"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/requirement-traceability.log",
+      "sha256": "acea2f4a83c8d634eeea51a8310654b40a2bb46b63be19037be7b5a072a06e91"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/task-state-check.log",
+      "sha256": "9e788d78437513f7edb1f2072d0e8e5e7fe4789283540fe8e20f90ebd74d028d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/typecheck-receipt.json",
+      "sha256": "71631e34f3774ce6b01886b8e138ba2914a86661b1b0809a079b866bead9b029"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/root-final-checks/unit-tests-receipt.json",
+      "sha256": "7cfda6a9701edaf39ea3f72633b3e9bbfa4b685cc29f0f23bd3f885f48e18525"
+    }
+  ]
+}

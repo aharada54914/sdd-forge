@@ -1,0 +1,72 @@
+{
+  "kind": "Current post-cycle1 Root T003 TDD evidence index, preserves original checkpoints and adds actual RT015/016 Red before Claude product patch",
+  "checkpoints": [
+    "f2f85e411daa961577f61ad6ee5ad4a97823206d",
+    "885413724f65ad3c9e6730b325d995bd94a3bb6f",
+    "f78b16fac3d2a23c8ae57bf619ff0d96ee37fd3d",
+    "199f746bc9d05ec448d41732ea8c4529171053ba"
+  ],
+  "evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/integration-dependencies/red-executions.json",
+      "sha256": "7a292d6c9534d2262c6660d95c328fea9debc71ea836be7f51b863729f307495"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/integration-dependencies/red-runtime.log",
+      "sha256": "bdfd48e4a821f38d8a72a70645cf587c5123dff80d68af14071b239beec99776"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/integration-dependencies/red-workflow.log",
+      "sha256": "a72c50455370e915b634fb78f6f8d10b930b610cc316824c2c3108bfcb64fb3b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/claude-cache-delegation/test-draft-handoff.json",
+      "sha256": "0c64a28e365cdf8be8c15f2b8c49398246cab4e0a7074d9dc0994ebcda84a845"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/claude-cache-delegation/test-draft-red.log",
+      "sha256": "2175a5b6782968789e10b318df2559b4e7916cf0b879523bce6dc6b4057c68b9"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/integration-dependencies/claude-integrated-red.log",
+      "sha256": "d5f5f055020e4d6e04f3c8d3085f3d0c43aac4bcbe72b8df60a329cef8ad0c38"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/integration-dependencies/legacy-live-control-red.log",
+      "sha256": "4919d25016a10b97964d961fdafbb91540fbc09051831fd2732bd038c1595beb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/red-executions.json",
+      "sha256": "a7f87ad227b65052478abc2b1cd5aa4ca5fa272d7292138aee94ee32faaf2290"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/receipt-red.log",
+      "sha256": "7500a0b846809cb2455517a66f5a65fd1a31f7a9ab0e9cdd675b353026e0efa2"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/planner-red.log",
+      "sha256": "74342ac3fe6a4aff830047520e20e17bece276efb070431d2a23a8948c72eade"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/sentinel-sensitivity.json",
+      "sha256": "167eb2cf29f98aa4778ec17c320f13175df6da342f0c0305c3fc64fda0adaf68"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/pre-product-report.md",
+      "sha256": "3cefe266170624073ad6a04b957048b171ed49df5156e4cce9f3f3883f8b422c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-red-record.json",
+      "sha256": "7e4d63cfffb5a50717cfed04ff826396cf29fc835d860cc37c88c4fca3015436"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-red.log",
+      "sha256": "e6a57c7700168404a2f9512349af4dbbe3472498b0b6bc51c4fc942953ea9fbf"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-003/cycle1-fix/metadata-admission-preflight.md",
+      "sha256": "6a10e6dd142392d435664d740d8bbc6f4379ee5ff122c07eafbc5991c0d79aa2"
+    }
+  ],
+  "limits": "Missing-helper failures prove absence sensitivity only;230x2 existingRT014 negativevariants are subcases; historicalbaselineT2 remainsdistinct. PrimaryandClaudeimplementation both began after their corresponding actualRed checkpoint."
+}

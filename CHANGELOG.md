@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Shared model policy with managed entry integration (`latest-compatible` / `pinned`, typed `model-policy-error/v1` stops) and managed renderer inputs; legacy rendering stays compatible.
+- Revision-bound CI planning with conservative full fallback and `SDD_CI_FORCE_FULL` recovery; weekly read-only model freshness check separates candidate, explicit deprecation and fetch-unavailable.
+
+### Verification and release limits
+- No rollout category is active; no savings figure is claimed. Real model comparison trials (T-010) are blocked by native CLI authentication failures, with no answers available for evaluation; no candidate promotion or quality conclusion follows. Fixture results are not hosted CI or native backend proof.
+- Live cloud acceptance (#911) remains pending; no cloud-readiness claim.
+
 ## v1.19.0 (2026-10-18)
 
 ### Added

@@ -1,0 +1,120 @@
+{
+  "status": "APPLIED",
+  "admission_sha256": "9c7da0c441cd0530541857c22b25212f792671e61c24e193b5d0e725d805de8e",
+  "files": [
+    {
+      "path": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+      "before_sha256": "03dff6c88392524e71a2be9740ef045d31839ac967d364e39e8333d718dec18a",
+      "after_sha256": "b7a52142b547e148990bef0db4e8c43ed6f82e9e2584a0b3379b4d73c3fd0bec",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "before_sha256": "b56ae84af326d11fd69815ae50983536fce78e3f57d69ff977a6ae6c2c1539a8",
+      "after_sha256": "bff47384791412b36f54c8009f3244b10b21232b70a7a61835616fc4df54174b",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+      "before_sha256": "4e33234e370bbdf873cd370c90743172f86cb333f526667a7ee3a7a4714f6174",
+      "after_sha256": "f7374159f2b426bbea66409657bcfdb8ac8cd7c3ce34d24ecaa7fcc96cb963be",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-model/SKILL.md",
+      "before_sha256": "0998f641c883677ecbfdae265cdf3372f963fd78ffa88c843c3d3c901ac3952f",
+      "after_sha256": "5fe52d0057944b6899f2600493d3045771ebd036203b0aadf0fa4c06ab8ed9cc",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-reverse/SKILL.md",
+      "before_sha256": "239ccc3f5f793ea28f4583742c68f2f246b86cc7155aa223e019cbfaeaf6ca3a",
+      "after_sha256": "b4a61606b281402539bde6a4c3b77c3bfb545dd405e31aa8db56288ba09532d5",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+      "before_sha256": "a7ccb0b1609ab2367759e0a6480b21a28bbe65fc284704bd5039036d30aecbf6",
+      "after_sha256": "7638ce5cbeadc5a2d0872bf487e0c2e55e24fffd3bd435537db22b076ea01d5b",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/diagnose/SKILL.md",
+      "before_sha256": "e7d337fbcc08ac1d068ec799d06bb725f9bc9bce89202f5482ce8eb8645dd385",
+      "after_sha256": "59df6dd5abd4b7fa7b13c6299c242404149379a2f766074d9f3379c93c661610",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "before_sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+      "after_sha256": "dd815ef80c61cad17e65c8fe6942029a36cb5c05379be33973c47ba57fdc0553",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-tasks/SKILL.md",
+      "before_sha256": "7eceef691b1a25679cb322640698357accd99abb7436df256e3b69a922670c49",
+      "after_sha256": "f8ace1dd326892dcf146611de1bc20492544f88bf5c53cb049dd6e413482b1f9",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "before_sha256": "c13ec13a3548aea2f1e6b18089ecffb03bc383f2f6f22075a0012d79b75fe79d",
+      "after_sha256": "938ec040fbc37ca1864fe4083177a640957979a700aae303059518fdf1b668c6",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "before_sha256": "4a4886a30757ffe98294e94a341199b4f81a6b3a0a48f62404642162b0fc87f4",
+      "after_sha256": "6fd4eac7efd7d127d2f0c6ebd467c766417d927ee07bfbc2036660498db9b7ba",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md",
+      "before_sha256": "345ea2450a53cd6d769a81a565ef95424e9d1c4858a558abe3825657d98a9d58",
+      "after_sha256": "288065d68c1f79c47a06d19563120f22c5efc1005012f98a153878a1883096f6",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md",
+      "before_sha256": "94b8b701eacd5c6611fdf1c7670a7006977307fcd8b07b1beba286724dfd9edb",
+      "after_sha256": "8dde4d0d8bfd18e08ac274e7130a51022537f0593e7dc50c9b88c668555e7741",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "before_sha256": "726740e6139b21499999b4e0dc1493bedae15fcf17f2429fc993402e233c2343",
+      "after_sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+      "before_sha256": "7adbc72658519e03802e569289f7234df7dfe4090f5688bcbc48dc963cb4145d",
+      "after_sha256": "9e2cc13d047c3294631937050ac4e4efe373a2c21ee1bef0653d03c5230fec09",
+      "mode": 384,
+      "original_body_preserved": true
+    },
+    {
+      "path": "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+      "before_sha256": "92b55347b9f717650c52b092ddb38de3f8b7f15469f90ddc745e005119e81d98",
+      "after_sha256": "ad0e38d3d758e6534a78adb517a28de604bca738412f057b50b00ebbc29a2220",
+      "mode": 384,
+      "original_body_preserved": true
+    }
+  ],
+  "mode": "insertion-only, original16 Skill bodies preserved",
+  "admission_setup_failure": "first attempt pinned transient candidate __pycache__ already removed; retained directory, excluded bytecode then canonical preflight passed"
+}

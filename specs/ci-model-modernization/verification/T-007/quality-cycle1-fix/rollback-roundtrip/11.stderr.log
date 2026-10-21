@@ -1,0 +1,12 @@
+run-panelist-gpt: invoking /tmp/tmp.A9Iw3A0UX1/stub-bin/codex exec --model openai/gpt-5.2-codex -c model_reasoning_effort=high --sandbox read-only --skip-git-repo-check -C /tmp/tmp.8a08Dokbtv - (task=T-035 feature=stub-feat)
+run-panelist-gpt: verdict written to /tmp/tmp.A9Iw3A0UX1/specroot/stub-feat/verification/T-035.panelist-openai.verdict.json
+run-panelist-gpt: invoking /tmp/tmp.A9Iw3A0UX1/stub-bin/codex exec --model openai/gpt-5.2-codex --sandbox read-only --skip-git-repo-check -C /tmp/tmp.77Jv9l7hiI - (task=T-035b feature=stub-feat)
+run-panelist-gpt: verdict written to /tmp/tmp.A9Iw3A0UX1/specroot/stub-feat/verification/T-035b.panelist-openai.verdict.json
+run-panelist-gpt: invoking /tmp/tmp.A9Iw3A0UX1/stub-bin/codex exec --model openai/gpt-5.1-codex -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check -C /tmp/tmp.L4QgBiCyZ8 - (task=T-036 feature=stub-feat)
+run-panelist-gpt: verdict written to /tmp/tmp.A9Iw3A0UX1/specroot/stub-feat/verification/T-036.panelist-openai.verdict.json
+run-panelist-gpt: invoking /tmp/tmp.A9Iw3A0UX1/stub-bin/codex exec --model openai/gpt-5.2-codex -c model_reasoning_effort=high --sandbox read-only --skip-git-repo-check -C /tmp/tmp.X7ccFbtDE8 - (task=T-037-sdd-evaluator feature=stub-feat)
+run-panelist-gpt: verdict written to /tmp/tmp.A9Iw3A0UX1/specroot/stub-feat/verification/T-037-sdd-evaluator.panelist-openai.verdict.json
+run-panelist-gpt: invoking /tmp/tmp.A9Iw3A0UX1/stub-bin/codex exec --model openai/gpt-5.1-codex-mini -c model_reasoning_effort=low --sandbox read-only --skip-git-repo-check -C /tmp/tmp.xZ3zMKbAP3 - (task=T-037-sdd-investigator feature=stub-feat)
+run-panelist-gpt: verdict written to /tmp/tmp.A9Iw3A0UX1/specroot/stub-feat/verification/T-037-sdd-investigator.panelist-openai.verdict.json
+run-panelist-gpt: invoking /tmp/tmp.A9Iw3A0UX1/stub-bin/codex exec --model openai/gpt-5.2-codex -c model_reasoning_effort=high --sandbox read-only --skip-git-repo-check -C /tmp/tmp.EjpLdvmtKS - (task=T-052-control feature=f)
+run-panelist-gpt: verdict written to /tmp/tmp.A9Iw3A0UX1/specroot/f/verification/T-052-control.panelist-openai.verdict.json

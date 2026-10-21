@@ -1,0 +1,46 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "before_sha256": "636d456437bce3afc5cf19d148bd9ac927a3e5e18313a9a82d2aabd210971ca4",
+      "reviewed_candidate_sha256": "c81421c73cfc4ee4d8d31cd3a95c662a5681831540281addbd97d034af38e5c6",
+      "after_sha256": "5deb5cdfc7989fc3e8efbaa94ac3b021fad763432f7f0da998aa9826bcd36959"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "before_sha256": "280353a3c2be3dbb34775c8433da8c2df3403ef22b3bd620cc27fbae173fecd6",
+      "reviewed_candidate_sha256": "ec8c0d15aa2b31f0c3ddb56d174b1867f0b70460abe883064929120116c5c29a",
+      "after_sha256": "886b53505afecadedb489dc2e2c576c57fd83656ac806169613d9f3cbb8aa777"
+    },
+    {
+      "path": "docs/verification.md",
+      "before_sha256": "fdfa71daea4ed40f4c5b44e545e0ad8d248c536bf2e3d6f29257cd357f894e24",
+      "reviewed_candidate_sha256": "164d0a012d1e60ec6e61bd5633f66272e2e58bb1e8e1c0191f94fa5df50e9e6a",
+      "after_sha256": "01b379933b537c91969bba2b863f772413eb15e8156a4b5b8a5d7dc99933239a"
+    },
+    {
+      "path": "docs/agent-capability-matrix.md",
+      "before_sha256": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+      "reviewed_candidate_sha256": "40c82cb63365bec7fdec8c57260b5ea4ccac88b57fba127d093fdc4e324f6ef4",
+      "after_sha256": "e3a998bc6cbb9639054cd221ce897e34b1ca5aec14466f648fd9f9800ae4c999"
+    },
+    {
+      "path": "docs/workflow-guide.md",
+      "before_sha256": "fa405baa60bc7f06c63ffae630a421a99a3a62c2623e90c0443b37d60ef91f09",
+      "reviewed_candidate_sha256": "d7c0703ca4e950fa34e4f250c164bf0d7493d0982b1475e6b92353ad3d052f6a",
+      "after_sha256": "20852242076078024ac10abe2d05bd131020c416db063469b7f37c57fff9d00e"
+    },
+    {
+      "path": "docs/contributor/workflow-detail.md",
+      "before_sha256": "beb5cfc81e5549927e9e5c0cc03cb4a2402b57adb52dbd60082eeabcfe855e71",
+      "reviewed_candidate_sha256": "c63e586cf5e922d18928fc85cb4bada3fa1ee406a17cf25911db4e8670404b7d",
+      "after_sha256": "53cc7170f89dbbec290892ecb26b76bf924cbaedaf010246227774c9c91d32db"
+    },
+    {
+      "path": "docs/contributor/release-runbook.md",
+      "before_sha256": "0a5ff56974a9003c4f65be874f8b3b81016fd9d45456119a8efe02fb5c101a51",
+      "reviewed_candidate_sha256": "eb0193f777799e1ae476f6c67b988f5add05e1ad33c5e3a2f1cfea2b13cbe485",
+      "after_sha256": "f93f0f25f837db56ae0d23a11fea62f05c7feee83a1740e266d56c96d2a488eb"
+    }
+  ]
+}

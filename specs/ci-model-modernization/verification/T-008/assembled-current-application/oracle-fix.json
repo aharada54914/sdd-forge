@@ -1,0 +1,5 @@
+{
+  "before_sha256": "070c17c247b456de2241fd8159dcb1844c5699800d14f3a338abadc1f02395ca",
+  "after_sha256": "420cd793d8837c7a3305155ff9992e9e56a262b3abcf5693408c45b2348b3154",
+  "change": "Scope batch test to original maintained batch section; preserves exactone fence/error/no-work assertions; all defaultboundary176+48 checks retained. Move mainblock to end so CLI discovers78. No product source changed."
+}

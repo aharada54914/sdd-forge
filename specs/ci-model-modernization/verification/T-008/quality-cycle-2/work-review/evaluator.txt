@@ -1,0 +1,26 @@
+VERDICT: PASS
+FINDINGS: Critical 0 / Major 0 / Minor 0.
+
+Independent evaluator: `work-agent:root:t008_cycle2_evaluator`, reservation sequence `1293`. Review was read-only within the supplied scratch; no repository/Git/provider access, product writes, or test reruns.
+
+CHECKED:
+
+- Invocation SHA-256 `ab6cdabfc5369a7e946659e4559268b934457c1109e880bce7cb24db18a428f8` matches. All **2,235 admitted inputs** verified before and after review, with zero mismatches.
+- Frozen report SHA-256 `eef500e6dcdbed4236bdc356645c2e7abe41e39729b7ca8ff4f169cfca4fc280` matches. All **224 Outputs** exist and match their reported hashes.
+- Reviewed task acceptance at `specs/ci-model-modernization/tasks.md:422`, assigned acceptance tests, requirements/design/layer specifications, verification contract, evaluation rubric and security checklist.
+- Inspected native rendering and forwarding at `managed-model-entry.py:183`, `:209`, `:238`, `:1586`, `:1865`, `:1980`, `:2108`, `:2143`, plus both renderer/install fronts. Selection validation, exact native fields, typed unsupported routes, workload preservation, final settings checks and stream/exit handling have substantive implementation and negative tests.
+- Traced TEST-116/118/120 and TEST-134–139/144–146 through installed test sources, maintained caller fences and delivered evidence. Domain/WFI/protected pair tests preserve separate identities, sanitized B input, actual guards and pending human approval. Consent remains exercised by the shared transport regression.
+- Checked all 65 semantic rows and 17 indirect entries against current source hashes and original evidence-reference digests. All 53 original lexical paths remain represented; all 65 semantic obligations/edit boundaries/closure descriptions are preserved. The historical lexical inventory was read **only from the admitted factual copy**, hash `52e4ee3138697d5993f6d4252b0cd8c925158193eb2b11ea395024d000e28b1d`; original-path provenance is recorded, not independently re-read.
+- Read raw execution logs and their controllers/receipts: installed **78 methods / 955 subtests**, shared **54 / 875**, legacy Bash **51 checks**, PowerShell installer integration, lint/typecheck and focused default/batch checks pass. Current product/test pins match the full/shared execution snapshots.
+- Inspected meaningful Red failures, recorded test-first commit references and prospective field/producer/counterpart/mismatch maps. Git ancestry itself was not independently inspected under this review’s access boundary.
+- Verified rollback raw evidence: **19 successful suites in v2**, with its catalog failure retained; **catalog44 succeeds in scoped v3**. Both runs’ admitted/baseline/current before-after records match and exact restore/T-009 preservation invariants hold. This supports the documented aggregate, not one all-20 latest invocation.
+- Final contract, task-state and require-evidence traceability logs pass. Component coverage explicitly reports `not-applicable (disabled-legacy)`.
+
+Scope and limitations:
+
+- Native Codex proof is an actual installed, same-client, read-only **zero-turn configuration** operation. `actual_id` remains null/unverified. It establishes neither substantive backend execution nor model quality/applied backend effort.
+- `tests/quality-nontty-transport.tests.py:184–187` skips the optional real-Claude-help probe when Claude is unavailable; rollback logs preserve `OK (skipped=1)`. This is a disclosed native-availability limitation, not a missing assigned T-008 acceptance branch: current installed/shared acceptance suites have zero skips, and the task requires one supported actual installed host, supplied by Codex. No later observation retroactively proves this skipped execution.
+- Legacy binary archive contents were not admitted or expanded; its recorded command/hash and admitted payload/overlay receipts were reviewed.
+- No live Claude/Copilot/Gemini judgment, hosted Action/SDK query, real four-plus-one allocation, adoption, cloud validation or release readiness is inferred.
+
+This verdict covers the frozen T-008 implementation review. Root still must persist this actual verdict and complete the formal gate/evidence binding before changing task status to Done.

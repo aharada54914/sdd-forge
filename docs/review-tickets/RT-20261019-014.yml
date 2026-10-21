@@ -1,0 +1,20 @@
+ticket_id: RT-20261019-014
+status: resolved
+type: implementation-compatibility-defect
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-001
+summary: "Exact verifier admission blocks the approved acyclic collector integration"
+problem: "Current verifier_job and plan_inventory admit only one aggregate run plus checkout. Actual planner/runner/C.collect/C.aggregate fixture with a predecessor collector gives six native PASS rows and only collector evidence-missing because its own snapshot is in progress. The current aggregate correctly accepts completed workloads while required-checks runs, but locked parser install, same-run original-plan gh download and existing C.collect setup there are rejected."
+contract: "Approved T001 orchestration-verifier interpretation and T003 existing planner/collector/aggregate integration; historical T001 addendum explicitly requires scoped tests for other orchestration shapes. Existing C CLI and plan/result schemas stay unchanged."
+expected_fix: "Admit only the exact ordered successor required-checks preparation described in T003 boundary-handoff.md: pinned tested checkout, locked ignore-scripts parser install, same-run original-planning-attempt gh plan data download, existing C.collect argv, unchanged sole final aggregate argv. Retain native identity/always/all-job needs, no matrix or best effort, exact command/shell/cwd/env projections and complete workload inventory. Both verifier_job and plan_inventory must agree. Retain old accepted shape. Reject every unknown/extra/conditional/duplicated/reordered/altered setup action or run, shell composition/substitution, and test work disguised by name. No arbitrary non-suite/job exemption or fake PASS/omission/receipt. Preserve A9 projection and existing source/rerun/JSON guards."
+evidence: specs/ci-model-modernization/verification/T-003/attempt-1/boundary-handoff.md
+reproducer: specs/ci-model-modernization/verification/T-003/attempt-1/boundary-reproducer.py
+reproducer_log: specs/ci-model-modernization/verification/T-003/attempt-1/boundary-reproducer.log
+auto_fix_allowed: true
+requires_human_decision: false
+classification: "Root inspected actual nine boundary probes and preserved source hashes. This is a narrow existing T001 control-admission compatibility repair using already approved C APIs, not new architecture, authorization, model policy, wire fields or live workflow activation. T003 remains paused for the owner fix."
+review_authorization: specs/ci-model-modernization/verification/T-001/cycle-limit-authorization-through-10.json
+resolution: "Actual fresh independent whole-task T001 cycle10 PASS0; Root verified all551 repo/scratch hashes before recording, generated and validated T001 bundle before Done. Bounded typed5-step/timeout5 control admission repaired; T003 workflow integration remains downstream."
+resolution_evidence: reports/quality-gate/20261019-ci-model-modernization-T-001-cycle-10.md

@@ -1,0 +1,1 @@
+{"budget":null,"cli":{"model_id":"gpt-6-astra","policy":"pinned"},"host":"codex-cli","observation_path":"observation.json","policy_path":"policy.json","project_config_path":null,"requested_effort":"high","resume_selection_path":null,"risk":"high","role":"panelist-gpt","schema":"model-policy-request/v1"}

@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "/tmp/ci-model-resume-python/bin/python",
+    "-m",
+    "mypy",
+    "--config-file",
+    "tests/shared-launch-python/pyproject.toml",
+    "plugins/sdd-implementation/scripts/model-policy.py",
+    "tests/model-identity.tests.py",
+    "tests/verification-catalog.tests.py"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-19T20:16:55.192676+00:00",
+  "elapsed_seconds": 0.4046260050017736,
+  "exit_code": 0,
+  "sources": [
+    {
+      "path": "plugins/sdd-implementation/scripts/model-policy.py",
+      "sha256": "0a49d7648482b80d69833ea0166d714f360106aaefe5216f65b00182fd1c95fb"
+    },
+    {
+      "path": "contracts/model-selection.schema.json",
+      "sha256": "1249afc5c21ebb2d78344819f86f5d2e5b8f39a21b158147a5cf63066e512a8d"
+    },
+    {
+      "path": "contracts/model-delivery.schema.json",
+      "sha256": "ddaa7802d5b93610d458f6a43a8d3a6b5ba71ac2c2b9279972cb1e52112af632"
+    },
+    {
+      "path": "tests/model-identity.tests.py",
+      "sha256": "da24c1cbb5fd8c9892b65c756b3246da82f3a076054da8471da827d519fd277e"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "c799ee14873ed0caf65be69b58acb588d5f53d0f2bab86913c025257e1d18d8a"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "0783c689ce7b042d5f96bc219a82f57bc9a1407288a26f576677bc1ae1b495a6"
+    }
+  ],
+  "stdout_sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "native_execution": false
+}

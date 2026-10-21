@@ -1,0 +1,106 @@
+--- reviewed-candidate/README.md
++++ applied/README.md
+@@ -293,7 +293,7 @@
+ ## モデルポリシーと CI 運用（概要）
+ 
+ - **管理されたモデル選択**: 実装・調査・レビュー・ドメイン・監査・診断・自動化の各エントリは、共有モデルポリシーから互換な候補を解決します。`latest-compatible` は日付付きの観測と登録済みポリシーの優先順に基づく互換候補、`pinned` は明示指定です。導入済みホストに反映できない場合は `model-policy-error/v1` の typed stop で止まり、成功扱いにしません。設定・解決したモデルと実ターンで報告されたモデル ID は別物です。
+-- **CI**: PR は信頼済みベースの planner で計画されますが、判断できない場合は full に倒します。現時点でロールアウトが有効なカテゴリはなく、削減率や実環境での採用は主張しません。復旧と必須コンテキストは [contributor/workflow-detail.md](docs/contributor/workflow-detail.md)、リリース手順は [contributor/release-runbook.md](docs/contributor/release-runbook.md) を参照してください。
++- **CI**: PR は信頼済みベースの planner で計画され、分類できない変更は保守的な full 計画になります。計画ジョブの失敗や破損した計画は必須チェックを失敗させます。新しい CI 設定を使う前に、信頼済みベースの planner を対応版へ更新する必要があります。現時点でロールアウトが有効なカテゴリはなく、削減率や実環境での採用は主張しません。復旧と必須コンテキストは [contributor/workflow-detail.md](docs/contributor/workflow-detail.md)、リリース手順は [contributor/release-runbook.md](docs/contributor/release-runbook.md) を参照してください。
+ - **範囲**: ChatGPT UI の親セッションや非管理の呼び出しは制御外です。外部送信の同意と独立レビューは変わりません。実クラウド受け入れ（#911）は未了のままで、ネイティブ実行の証明はホストごとに別です。
+ 
+ 詳細: [docs/workflow-guide.md](docs/workflow-guide.md#managed-model-operation)、[docs/agent-capability-matrix.md](docs/agent-capability-matrix.md)、[docs/verification.md](docs/verification.md)。公開済みタグから導入する場合は上記の `--ref <ref>` に注釈付きタグを指定します（`--source-directory` は Git 追跡済みファイルのみを読みます）。
+--- reviewed-candidate/CHANGELOG.md
++++ applied/CHANGELOG.md
+@@ -7,7 +7,7 @@
+ - Revision-bound CI planning with conservative full fallback and `SDD_CI_FORCE_FULL` recovery; weekly read-only model freshness check separates candidate, explicit deprecation and fetch-unavailable.
+ 
+ ### Verification and release limits
+-- No rollout category is active; no savings figure is claimed. Real-trial adoption (T-010) has not started, and fixture results are not hosted CI or native backend proof.
++- No rollout category is active; no savings figure is claimed. Real model comparison trials (T-010) are blocked by native CLI authentication failures, with no answers available for evaluation; no candidate promotion or quality conclusion follows. Fixture results are not hosted CI or native backend proof.
+ - Live cloud acceptance (#911) remains pending; no cloud-readiness claim.
+ 
+ ## v1.19.0 (2026-10-18)
+--- reviewed-candidate/docs/verification.md
++++ applied/docs/verification.md
+@@ -50,6 +50,16 @@
+ recovery switch. `true` forces the full profile. An absent or invalid value
+ also takes the full profile. A literal `false` does not by itself activate a
+ category that is not marked active.
++
++Conservative full planning requires valid planner inputs. A failed `ci-plan`
++job or malformed plan fails the required aggregate check. In particular, older
++trusted-base planners reject the new catalog's `setup` descriptors with
++`verification-ci-error/v1` / `input-invalid`, even with `--force-full true`.
++Upgrade the trusted base to matching planner and catalog tooling before using
++the new CI configuration. For recovery, repair the incompatible inputs and run
++full manually on a revision with matching tooling; forcing full alone does not
++repair this parser incompatibility. The live repository variable's value has
++not been verified.
+ 
+ Receipts can be compared with the proposal to find failures it would have missed.
+ Missing, skipped, or mismatched observations are not successful comparisons.
+--- reviewed-candidate/docs/agent-capability-matrix.md
++++ applied/docs/agent-capability-matrix.md
+@@ -160,6 +160,10 @@
+ `pinned` (an explicit model ID); role and effort restrictions still apply.
+ Observations are dated and scoped to a host and CLI version; a policy
+ `source_date` or an old trial is not perpetual availability.
++
++The ci-model-modernization T-010 comparison is blocked by native CLI
++authentication failures and has produced no answers for evaluation. It supports
++no candidate promotion or comparative quality claim.
+ 
+ For Codex, `render-agent-frontmatter.sh` managed mode (`--model-controls`,
+ `--model-controls-sha256`, `--run-id`, `--session-id`, `--managed-target`)
+--- reviewed-candidate/docs/workflow-guide.md
++++ applied/docs/workflow-guide.md
+@@ -516,7 +516,7 @@
+ 3 段のゲート連鎖（spec / implementation-policy / task review）は変更しません。以下は、各エントリがモデルを決める経路の補足です。
+ 
+ - **対象エントリ**: 実装、調査、レビュー、ドメイン、監査、診断、自動化。いずれも共有モデルポリシーから、role・risk・effort の制限を満たす互換候補を解決します。レビュアーの独立性と外部送信の同意は変わりません。
+-- **`latest-compatible` と `pinned`**: `latest-compatible` は、その時点で観測・設定された互換候補から選びます。`pinned` は明示指定した ID を使い、候補が使えなければ代替せず止まります。可用性の観測は日付とホストに限定され、ポリシーの `source_date` や過去のネイティブ試行を恒久的な可用性・実ターンのモデル ID・価格・品質比較の根拠にはしません。
++- **`latest-compatible` と `pinned`**: `latest-compatible` は、その時点で観測・設定された互換候補から登録済みポリシーの優先順で選びます。`pinned` は明示指定した ID を使い、候補が使えなければ代替せず止まります。可用性の観測は日付とホストに限定され、ポリシーの `source_date` や過去のネイティブ試行を恒久的な可用性・実ターンのモデル ID・価格・品質比較の根拠にはしません。ci-model-modernization の T-010 比較試行は認証エラーで停止しており、候補の採用や品質比較の結論はありません。
+ - **導入済みキャリアか typed stop**: 解決結果は、検証済みの model controls を `render-agent-frontmatter.sh` の `--model-controls` / `--model-controls-sha256` / `--run-id` / `--session-id` / `--managed-target` に渡して導入済みのネイティブホスト定義に反映します。反映先（キャリア）が無い、または controls が検証できない場合は作業前に `model-policy-error/v1`（`reason` は同スキーマの列挙値）で止まります。ネイティブ証明が無いことは成功ではありません。
+ - **再開と子**: 現在束縛されたワーカーは、その束縛のまま継続できます。新しい子ワーカーは、自身の束縛（run/session と controls）を必要とし、親の束縛を暗黙に継承しません。
+ - **制御外**: ChatGPT UI の親や非管理の呼び出しは本ポリシーの制御外です。設定・解決したモデルを、実際に報告されたモデル ID と同一視しません。
+--- reviewed-candidate/docs/contributor/workflow-detail.md
++++ applied/docs/contributor/workflow-detail.md
+@@ -718,12 +718,18 @@
+ | **Force push blocked** | `git push --force-with-lease` を含む強制プッシュは禁止 |
+ | **Deletion blocked** | ブランチ削除は禁止 |
+ 
+-変更の分類や信頼済み入力を検証できない場合、planner は保守的な full 計画を返します。
++有効な入力で変更を分類できない場合、planner は保守的な full 計画を返します。
+ 計画ジョブ（`ci-plan`）自体の失敗や計画ファイルの破損は、必須の集約チェックを失敗させます。
+-復旧して再実行するには
+-`SDD_CI_FORCE_FULL=true` を設定して full を強制します。未設定や不正な値でも full
++対応する planner と設定が揃っている場合は、復旧時に
++`SDD_CI_FORCE_FULL=true` を設定して full を強制できます。未設定や不正な値でも full
+ であり、リテラルの `false` だけでは未証明のカテゴリは有効になりません。現時点で
+-ロールアウトが有効なカテゴリはありません。上の必須コンテキスト名は変更しません。
++ロールアウトが有効なカテゴリはなく、リポジトリ変数の実際の設定値も未確認です。
++上の必須コンテキスト名は変更しません。
++
++新しい CI 設定を導入する前に、PR の信頼済みベースを対応する planner へ更新してください。
++旧版は新しい catalog の `setup` 設定を `input-invalid` として拒否し、full 強制でも
++復旧しません。この場合は入力とツールの版を揃え、その revision で手動の full を
++実行して確認します。
+ 
+ ### Merge queue (CI + merge 順序制御)
+ 
+--- reviewed-candidate/docs/contributor/release-runbook.md
++++ applied/docs/contributor/release-runbook.md
+@@ -173,6 +173,13 @@
+ 
+ 順序の補足（最終コミットを F とする）:
+ 
++現在、ci-model-modernization の T-010 比較試行は認証エラーで停止しており、
++T-011 は進行中です。候補モデルの採用、CI カテゴリの有効化、新しいバージョンや
++タグの公開は未実施です。以下は、残る検証を終えて公開するときの手順です。
++新しい CI 設定を使う PR では、先に信頼済みベースの planner を対応版へ更新します。
++旧版による設定の拒否は full 強制でも解消しないため、対応するツールを揃えた
++revision で手動 full を確認してください。
++
+ 1. docs と version（CHANGELOG の Unreleased を含む）を先に確定し、curated な最終コミット F を作ります。
+ 2. F で、隔離した checkout のローカル full と、実際の hosted full を実行します。fixture の結果は hosted の観測の代わりになりません。
+ 3. リリース対象コードの必須チェックを通してから、F に新しい注釈付き不変タグ `v<version>` を作ります。既存タグは変更せず、リモートの既存タグが変わっていないことも確認します。

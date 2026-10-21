@@ -24,6 +24,9 @@
 # row in acceptance-tests.md mandates the stubbing MECHANISM, only that the
 # same fixture-driven assertions are exercised natively -- recorded here and
 # in the implementation report's Specification Differences.
+# T009: the historical native-port description above applies to legacy checks.
+# Additional protocol checks below run the real canonical Bash product with
+# controlled fixtures; no new PowerShell runtime algorithm is introduced.
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot

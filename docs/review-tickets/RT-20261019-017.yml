@@ -1,0 +1,15 @@
+ticket_id: RT-20261019-017
+status: resolved
+type: review-input-completeness
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-003
+summary: "Mandatory performance checklist absent from reserved review admission"
+expected_fix: "Include performance-checklist.md in the next immutable manifest and require fresh independent review; preserve actual cycle1 outcome and185input hashes."
+evidence: reports/quality-gate/20261019-ci-model-modernization-T-003-cycle-1.md
+auto_fix_allowed: true
+requires_human_decision: false
+classification: "Narrow existing approved CI integration or caller evidence repair; no new architecture, authorization, API/schema, activation or publication decision."
+resolution: "Actual fresh full-scope T003 cycle2 PASS with zero findings; all346 repo/scratch pins verified on delivery,190 tests and182->190->182 rollback passed; generated evidence bundle validated before Done."
+resolution_evidence: reports/quality-gate/20261019-ci-model-modernization-T-003-cycle-2.md

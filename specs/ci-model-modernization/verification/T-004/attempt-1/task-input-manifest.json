@@ -1,0 +1,288 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-004",
+  "run_id": "work-agent:root:t004_implementation",
+  "session_id": "work-agent:root:t004_implementation",
+  "agent_instance_id": "work-agent:root:t004_implementation",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-19T17:31:38Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "inputs/.github/workflows/test.yml",
+      "sha256": "c186a2f749fc2b48b4419bb17e8c9ab93af177cf8b4ce57015dedb365e0b5d3d"
+    },
+    {
+      "path": "inputs/AGENTS.md",
+      "sha256": "103528c48dd8c2dd996cbc68908aeccd9d77602a972200c3930c279f70c1a8cf"
+    },
+    {
+      "path": "inputs/contracts/agent-model-capabilities.json",
+      "sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1"
+    },
+    {
+      "path": "inputs/contracts/agent-model-capabilities.v2.json",
+      "sha256": "847fe86588ea22dcb0a13b7b61548aa254f22a8244aa5153e63efefe8a4d200e"
+    },
+    {
+      "path": "inputs/contracts/agent-model-capabilities.v2.md",
+      "sha256": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6"
+    },
+    {
+      "path": "inputs/contracts/task-input-manifest.schema.json",
+      "sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749"
+    },
+    {
+      "path": "inputs/contracts/verification-ci-observations.schema.json",
+      "sha256": "2066711a7531c8e3cb4dd8b88471e9dc22f1070b0e42b1b27400f51cebac42b4"
+    },
+    {
+      "path": "inputs/contracts/verification-ci-plan.schema.json",
+      "sha256": "1e7c3bc7ae251821b848d073981f559184d5579306446c763a77f099c77764ac"
+    },
+    {
+      "path": "inputs/contracts/verification-ci-result.schema.json",
+      "sha256": "4ce73bcf9204acc32da741e4c5a4be98ceca5be5b04dfc11402f9710fdba34e5"
+    },
+    {
+      "path": "inputs/docs/adr/0037-conservative-ci-selection.md",
+      "sha256": "0832c2296330252ea294090629fe4abee5471b3eb8dcda33e4ca1ed85dbae364"
+    },
+    {
+      "path": "inputs/docs/adr/0038-current-model-role-policy.md",
+      "sha256": "5641c2262f8b777f15c7724842f671aa97fe44eb75c8adc23194ca074d04241b"
+    },
+    {
+      "path": "inputs/external/workspace/.tools/sdd-forge-dev/pstack-codex/skills/pstack-architect/SKILL.md",
+      "sha256": "51fdcc8276ac022a7663afeb9d5e5707715c0be1ad2d7ea5c6ae7c8657a402a2"
+    },
+    {
+      "path": "inputs/external/workspace/.tools/sdd-forge-dev/pstack-codex/skills/pstack-blast-radius/SKILL.md",
+      "sha256": "3ff578665c61394aea0fbe5a4243e8d6280d841d6e73c12a4e81f81d2ccc9b06"
+    },
+    {
+      "path": "inputs/external/workspace/.tools/sdd-forge-dev/pstack-codex/skills/pstack-how/SKILL.md",
+      "sha256": "4a073ee6a2e27e7022260b8f9f7c5bf79cbb442f0f7636d4ca110b8b4bd2531a"
+    },
+    {
+      "path": "inputs/external/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/coding-standards/SKILL.md",
+      "sha256": "e80544c3d1eac5b14f22022146bd91a6b0ecc30e099cf5181894853aeb81dee1"
+    },
+    {
+      "path": "inputs/external/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/eval-harness/SKILL.md",
+      "sha256": "3a5339a5a80099a5c9d55da9b6c8e05a690f5befc6f78d779c75dd79d818ca07"
+    },
+    {
+      "path": "inputs/external/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/security-review/SKILL.md",
+      "sha256": "b9eb6416eebc8dda046674f0a2dbb3be88aff526d182b60a0f55998d3d6d0d8d"
+    },
+    {
+      "path": "inputs/external/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/verification-loop/SKILL.md",
+      "sha256": "5b06be54d4852f60e6cf1b04c6e9a4748554334eb3e41af6c0959b544e6464ae"
+    },
+    {
+      "path": "inputs/external/workspace/.tools/sdd-forge-dev/upstream/ponytail/skills/ponytail/SKILL.md",
+      "sha256": "9badd22a32e19cb884e46dfa8d3aae82bb81dfa5484105b8b4f0262df823a509"
+    },
+    {
+      "path": "inputs/external/workspace/AGENTS.md",
+      "sha256": "0b57a17a89b0ad81a6be9f0c884930af3ee7f1091a6f5056c28af8714ba6aed8"
+    },
+    {
+      "path": "inputs/plugins/sdd-implementation/scripts/select-agent-model.ps1",
+      "sha256": "f676675b41a91a9fc95c9fa9115542bf6a9430a3fe1c7d404438f8723c5321b0"
+    },
+    {
+      "path": "inputs/plugins/sdd-implementation/scripts/select-agent-model.sh",
+      "sha256": "d6225ff74bfcca136a551331ded93f2c57036f7268ce5c11ce5278b7e3105a54"
+    },
+    {
+      "path": "inputs/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "430e0e45c6bb417cd65f7f7f228bb59280d6d0817c8b34236223b8fbd4702029"
+    },
+    {
+      "path": "inputs/plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c"
+    },
+    {
+      "path": "inputs/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "ec5a392cea7190660b8517317977584d36179e718856061acf968b36ef6bd23f"
+    },
+    {
+      "path": "inputs/plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "inputs/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "inputs/reports/implementation/ci-model-modernization/T-003.md",
+      "sha256": "1e9480a383ee97319027924beddf515fe82cedcbd991cb4aac877dc0289eedc1"
+    },
+    {
+      "path": "inputs/reports/quality-gate/20261019-ci-model-modernization-T-003-cycle-2.md",
+      "sha256": "585e3090e4239d723ad0acee3b86fd2f5293a9b9af971d7173b9ecb45b35cc65"
+    },
+    {
+      "path": "inputs/reports/verification/model-selection-host-observation-20261018.json",
+      "sha256": "3f7abf838daa83794f2837cee72efe87e3633f25a08b99e74d9262016960c0cd"
+    },
+    {
+      "path": "inputs/reports/verification/model-selection-host-schema-20261018.json",
+      "sha256": "fa6008d040ccd2437cfecbce430bd99d5dc8b06d8d1ea381b6061f05e9a4608b"
+    },
+    {
+      "path": "inputs/reports/verification/model-selection-selector-baseline-20261018.json",
+      "sha256": "79a337cfd7633a9e2f87e499c63d977edc89b6193c73097b349fb11ea397c926"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/design.md",
+      "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/investigation.md",
+      "sha256": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/tasks.md",
+      "sha256": "a62816e1eab95ecafb6bfd0f18be89f8f02457e29a33fbba1a39415d956d5ffc"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/traceability.json",
+      "sha256": "dac532989bfec9ebfa91a9fa5f1e77501ac7a9e565665db3188920380d1d95d4"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/traceability.md",
+      "sha256": "4a617b4061c9766814bcbd90d724940edb342a3da33594f37759dbc4c79dab0e"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-003.evidence.json",
+      "sha256": "4d49a0e53ad96447b1ebe8bbb49bce1f74da21d6b8bd224a43df89dc0f96dd06"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-003/cycle1-fix/historical-shadow-impact.py",
+      "sha256": "325aa985ddc0746c7276398235fe090700c118b7b0e088baf24e4cb944060ff3"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-003/cycle1-fix/implementation-report.md",
+      "sha256": "135b99fd8005266dc944f59c074a64f08fbed80e33371889f3fa587fabe82c11"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-003/integration-dependencies/before-inventory.json",
+      "sha256": "45a2829f598b956b425c38bc86970d6c54bd88f0615333ee4cd868212ac43e05"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-003/quality-cycle-2/review-completion.json",
+      "sha256": "91c21740ee340d6b2957159b39514f635a2d5b33bed60602feab566dc0b5a727"
+    },
+    {
+      "path": "inputs/specs/ci-model-modernization/verification/T-003/quality-cycle-2/work-review/evaluator.txt",
+      "sha256": "a11ed3abeab9dd22556203ca83318c0a32672323c0ea1085f880acccf8597b25"
+    },
+    {
+      "path": "inputs/tests/ci-dependency-cache.py",
+      "sha256": "81273f739e8cac02c2c4168356a0d60bbb1bd7ec8edf957008c35be2ffba5aab"
+    },
+    {
+      "path": "inputs/tests/ci-suite-wiring.tests.sh",
+      "sha256": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b"
+    },
+    {
+      "path": "inputs/tests/required-checks-posix.tests.py",
+      "sha256": "4a412e19b3a1b50c7ba13d801468c08682eed24f8e76d587d0434b79f9982b19"
+    },
+    {
+      "path": "inputs/tests/run-ci-unwired.sh",
+      "sha256": "c738721d6eb682a2cb1bdb41b40768a14a1d994713e42c4f46983c8d870eafac"
+    },
+    {
+      "path": "inputs/tests/shared-launch-build.tests.py",
+      "sha256": "8eb686b2b30ad5a258155f4ff635874d195098ffeafa2d05f3e2086a32f18b04"
+    },
+    {
+      "path": "inputs/tests/shared-launch-python-requirements.txt",
+      "sha256": "e9806c51dcb31feae3cbd2d762751132582adab0bebe68dafd98472a4330b09d"
+    },
+    {
+      "path": "inputs/tests/shared-launch-python/pyproject.toml",
+      "sha256": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12"
+    },
+    {
+      "path": "inputs/tests/verification-catalog.json",
+      "sha256": "0651f7b29116197e23a5374d5d39f8f232869899e6e0c98223050cad21bffeb8"
+    },
+    {
+      "path": "inputs/tests/verification-catalog.tests.py",
+      "sha256": "686d4f63085633688af1976c54c7cf86c6f5663245722d139ccf586820b7af08"
+    },
+    {
+      "path": "inputs/tests/verification-ci-plan.tests.py",
+      "sha256": "0f6fea654ba7fb9bade863eacbf971050815f191c169acaa11f54a7918ca6b7b"
+    },
+    {
+      "path": "inputs/tests/verification-ci.py",
+      "sha256": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50"
+    },
+    {
+      "path": "inputs/tests/verification-ci.tests.py",
+      "sha256": "f10abbbd3f94b3e926cf5568a9d3a4c4672b698a88df464fae56b8034c99b85a"
+    },
+    {
+      "path": "inputs/tests/verification-impact.py",
+      "sha256": "ffb03afa6ee692cfd50224e3c399bff491abdc0bad03b62b72a0f5fb38904493"
+    },
+    {
+      "path": "inputs/tests/verification-impact.tests.py",
+      "sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc"
+    },
+    {
+      "path": "inputs/tests/verification-workflow.py",
+      "sha256": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb"
+    },
+    {
+      "path": "inputs/tests/verification.py",
+      "sha256": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1"
+    }
+  ],
+  "allowed_outputs": [
+    "contracts/model-observation.schema.json",
+    "contracts/model-policy-error.schema.json",
+    "plugins/sdd-implementation/scripts/model-policy.py",
+    "tests/model-observation.tests.py",
+    "tests/verification-catalog.json",
+    "tests/verification-catalog.tests.py",
+    "reports/implementation/ci-model-modernization/T-004.md",
+    "specs/ci-model-modernization/verification/T-004/"
+  ]
+}

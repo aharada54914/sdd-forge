@@ -1,0 +1,111 @@
+test_TEST024_detector_and_skip_observation_mismatch_matrix (__main__.A9AggregateTests.test_TEST024_detector_and_skip_observation_mismatch_matrix) ... fixture execution
+fixture execution
+ok
+test_TEST024_event_and_git_context_positive_branches (__main__.A9AggregateTests.test_TEST024_event_and_git_context_positive_branches) ... fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+ok
+test_TEST024_inactive_success_and_active_skip_are_failures (__main__.A9AggregateTests.test_TEST024_inactive_success_and_active_skip_are_failures) ... fixture execution
+fixture execution
+fixture execution
+ok
+test_TEST024_rerun_skipped_timestamps_and_detector_lineage (__main__.A9AggregateTests.test_TEST024_rerun_skipped_timestamps_and_detector_lineage) ... fixture execution
+fixture execution
+ok
+test_TEST024_result_shape_and_consumer_counterparts (__main__.A9AggregateTests.test_TEST024_result_shape_and_consumer_counterparts) ... fixture execution
+fixture execution
+ok
+test_TEST024_unknown_projection_and_bound_event_fail_closed (__main__.A9AggregateTests.test_TEST024_unknown_projection_and_bound_event_fail_closed) ... fixture execution
+fixture execution
+fixture execution
+ok
+test_TEST019_positive_full_receipts_native_obligations (__main__.AggregateTests.test_TEST019_positive_full_receipts_native_obligations) ... fixture execution
+ok
+test_TEST020_055_056_failure_cancel_skip_timeout_neutral (__main__.AggregateTests.test_TEST020_055_056_failure_cancel_skip_timeout_neutral) ... fixture execution
+ok
+test_TEST021_057_absent_malformed_plan_and_empty_evidence (__main__.AggregateTests.test_TEST021_057_absent_malformed_plan_and_empty_evidence) ... fixture execution
+ok
+test_TEST022_060_061_062_063_identity_and_hash_mutations (__main__.AggregateTests.test_TEST022_060_061_062_063_identity_and_hash_mutations) ... fixture execution
+ok
+test_TEST023_copied_success_preserves_original_ids_and_attempts (__main__.AggregateTests.test_TEST023_copied_success_preserves_original_ids_and_attempts) ... fixture execution
+ok
+test_TEST023_genuine_rerun_keeps_failed_history (__main__.AggregateTests.test_TEST023_genuine_rerun_keeps_failed_history) ... fixture execution
+ok
+test_TEST058_missing_receipt (__main__.AggregateTests.test_TEST058_missing_receipt) ... fixture execution
+ok
+test_TEST059_empty_receipt_success (__main__.AggregateTests.test_TEST059_empty_receipt_success) ... fixture execution
+ok
+test_affected_partition_omissions_and_verified_merge (__main__.AggregateTests.test_affected_partition_omissions_and_verified_merge) ... fixture execution
+ok
+test_cli_create_only_output_and_fixed_error (__main__.AggregateTests.test_cli_create_only_output_and_fixed_error) ... fixture execution
+ok
+test_copied_job_missing_original_despite_other_history_fails (__main__.AggregateTests.test_copied_job_missing_original_despite_other_history_fails) ... fixture execution
+ok
+test_direct_work_rejects_dirty_checked_out_source (__main__.AggregateTests.test_direct_work_rejects_dirty_checked_out_source) ... fixture execution
+ok
+test_full_result_consumed_by_predecessor_activation_validator (__main__.AggregateTests.test_full_result_consumed_by_predecessor_activation_validator) ... fixture execution
+ok
+test_history_unstarted_cancel_then_true_success (__main__.AggregateTests.test_history_unstarted_cancel_then_true_success) ... fixture execution
+ok
+test_manifest_hash_and_containment_counterparts (__main__.AggregateTests.test_manifest_hash_and_containment_counterparts) ... fixture execution
+ok
+test_new_planner_attempt_requires_fresh_execution (__main__.AggregateTests.test_new_planner_attempt_requires_fresh_execution) ... fixture execution
+ok
+test_plan_partition_recomputed_not_self_authorized (__main__.AggregateTests.test_plan_partition_recomputed_not_self_authorized) ... fixture execution
+ok
+test_pr_independent_persisted_plan_fields (__main__.AggregateTests.test_pr_independent_persisted_plan_fields) ... fixture execution
+ok
+test_receipt_persisted_fields_counterparts (__main__.AggregateTests.test_receipt_persisted_fields_counterparts) ... fixture execution
+ok
+test_receipt_profile_is_exact_invocation_not_equivalent_membership (__main__.AggregateTests.test_receipt_profile_is_exact_invocation_not_equivalent_membership) ... fixture execution
+ok
+test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts (__main__.AggregateTests.test_rerun_missing_history_ambiguous_lineage_and_relabelled_receipts) ... fixture execution
+ok
+test_second_planning_attempt_without_specific_planner_job (__main__.AggregateTests.test_second_planning_attempt_without_specific_planner_job) ... fixture execution
+ok
+test_unexpected_receipt_and_duplicate_selected_receipt_fail (__main__.AggregateTests.test_unexpected_receipt_and_duplicate_selected_receipt_fail) ... fixture execution
+ok
+test_collection_artifact_job_name_binding_and_mismatches (__main__.BoundaryTests.test_collection_artifact_job_name_binding_and_mismatches) ... ok
+test_collection_field_counterparts_and_schema (__main__.BoundaryTests.test_collection_field_counterparts_and_schema) ... ok
+test_collection_pagination_history_and_get_only (__main__.BoundaryTests.test_collection_pagination_history_and_get_only) ... ok
+test_corrupt_deflate_is_typed_error_without_partial_files (__main__.BoundaryTests.test_corrupt_deflate_is_typed_error_without_partial_files) ... ok
+test_current_workflow_all_receipt_callers_match_existing_profiles (__main__.BoundaryTests.test_current_workflow_all_receipt_callers_match_existing_profiles) ... ok
+test_expanded_name_binding_matrix_order_and_collisions (__main__.BoundaryTests.test_expanded_name_binding_matrix_order_and_collisions) ... ok
+test_pagination_rejects_partial_duplicate_loop_and_other_origin (__main__.BoundaryTests.test_pagination_rejects_partial_duplicate_loop_and_other_origin) ... ok
+test_result_and_error_all_persisted_field_counterparts (__main__.BoundaryTests.test_result_and_error_all_persisted_field_counterparts) ... ok
+test_schema_enums_and_all_properties_match_producers (__main__.BoundaryTests.test_schema_enums_and_all_properties_match_producers) ... ok
+test_strict_contract_inputs (__main__.BoundaryTests.test_strict_contract_inputs) ... ok
+test_transport_failures_redact_headers_and_signed_urls (__main__.BoundaryTests.test_transport_failures_redact_headers_and_signed_urls) ... ok
+test_zip_safety_complete_before_extraction (__main__.BoundaryTests.test_zip_safety_complete_before_extraction) ... ok
+test_zip_valid_json_payloads_and_create_only (__main__.BoundaryTests.test_zip_valid_json_payloads_and_create_only) ... ok
+test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns (__main__.Cycle1RegressionTests.test_RT008_collector_to_aggregate_retains_failed_history_for_genuine_and_partial_reruns) ... fixture execution
+ok
+test_RT008_copied_observation_id_is_not_historical_execution_origin (__main__.Cycle1RegressionTests.test_RT008_copied_observation_id_is_not_historical_execution_origin) ... fixture execution
+ok
+test_RT008_historical_receipts_cannot_replace_current_required_proof (__main__.Cycle1RegressionTests.test_RT008_historical_receipts_cannot_replace_current_required_proof) ... fixture execution
+ok
+test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures (__main__.Cycle1RegressionTests.test_RT009_aggregate_hash_consistent_nested_json_types_return_typed_failures) ... fixture execution
+ok
+test_RT009_collect_nested_json_types_return_typed_cli_errors (__main__.Cycle1RegressionTests.test_RT009_collect_nested_json_types_return_typed_cli_errors) ... fixture execution
+ok
+test_RT010_finite_duration_integer_and_float_cli_contract (__main__.Cycle1RegressionTests.test_RT010_finite_duration_integer_and_float_cli_contract) ... fixture execution
+ok
+test_RT010_nonfinite_duration_raw_json_cli_rejected (__main__.Cycle1RegressionTests.test_RT010_nonfinite_duration_raw_json_cli_rejected) ... fixture execution
+ok
+test_RT011_deep_json_collect_and_hash_bound_aggregate_cli_boundaries (__main__.Cycle1RegressionTests.test_RT011_deep_json_collect_and_hash_bound_aggregate_cli_boundaries) ... fixture execution
+ok
+test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary (__main__.Cycle1RegressionTests.test_RT012_supported_lzma_and_corrupt_decoder_cli_boundary) ... fixture execution
+ok
+test_RT013_path_resolution_loop_cli_returns_typed_error (__main__.Cycle1RegressionTests.test_RT013_path_resolution_loop_cli_returns_typed_error) ... fixture execution
+ok
+
+----------------------------------------------------------------------
+Ran 52 tests in 40.622s
+
+OK

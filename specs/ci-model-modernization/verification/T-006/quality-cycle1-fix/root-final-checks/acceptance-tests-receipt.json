@@ -1,0 +1,29 @@
+{
+  "actual_command": {
+    "name": "policy",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/model-policy.tests.py"
+    ],
+    "cwd": "/tmp/ci-model-t006-rollback-o_egd04e/repo",
+    "started_at": "2026-10-19T21:45:27.355254+00:00",
+    "elapsed_seconds": 39.56,
+    "exit_code": 0,
+    "stdout": {
+      "path": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/rollback-proof/candidate/policy.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/rollback-proof/candidate/policy.stderr",
+      "sha256": "442ae233761d6aa4910c5f7c0795e84363b7c7f472e2cc9b44eb88d03a4be1c7"
+    },
+    "unittest_methods": 51
+  },
+  "supporting_evidence": [
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/final-proof-summary.json",
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
+    "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json"
+  ],
+  "finish_time_basis": "Derived from recorded wall start + measured elapsed, normalized to seconds; not independent sampled finish."
+}

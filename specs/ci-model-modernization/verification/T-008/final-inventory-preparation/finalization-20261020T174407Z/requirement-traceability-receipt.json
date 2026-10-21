@@ -1,0 +1,15 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+    "specs/ci-model-modernization/traceability.json",
+    "/workspace/sdd-forge",
+    "require-evidence"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-20T17:44:08Z",
+  "finished_at": "2026-10-20T17:44:08Z",
+  "exit_code": 0,
+  "log": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/requirement-traceability.log",
+  "log_sha256": "a48f262961eec4d4bd70a392eff95cb46f4e5371c85d301f6ff4b2580bcc3df3"
+}

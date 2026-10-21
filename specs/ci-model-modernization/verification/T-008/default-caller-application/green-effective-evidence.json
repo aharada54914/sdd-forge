@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "methods": {
+    "tests_run": 2,
+    "subtests_run": 224,
+    "subtests_passed": 224,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "successful": true
+  },
+  "positive_matrix_cases": 176,
+  "oracle_negative_cases": 48,
+  "source_pins_unchanged": 163,
+  "old76_ASTs_unchanged": true,
+  "static": "Ruff/mypy15files+Bash/PShparsersPASS",
+  "scope": "Installed actual16Skill22role4host2installer typedrefusal. No backendmodelwork/adoption/fullTaskacceptance."
+}

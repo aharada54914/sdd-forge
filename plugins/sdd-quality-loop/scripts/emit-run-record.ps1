@@ -36,10 +36,26 @@ param(
     [string]$EffortAppliedMain,
     [string]$EffortAppliedReviewers,
     [string]$CapabilityEnforcement,
-    [string]$CapabilityBlockId
+    [string]$CapabilityBlockId,
+    [string]$ModelLaunch,
+    [string]$ModelLaunchSha256,
+    [string]$ModelDeliveryBinding,
+    [string]$ModelDeliveryBindingSha256,
+    [string]$ModelSlot
 )
 
 $ErrorActionPreference = "Stop"
+$modelParameters = @('ModelLaunch', 'ModelLaunchSha256', 'ModelDeliveryBinding', 'ModelDeliveryBindingSha256', 'ModelSlot')
+$modelCount = 0
+foreach ($parameterName in $modelParameters) {
+    if ($PSBoundParameters.ContainsKey($parameterName)) { $modelCount++ }
+}
+$selectedModel = $modelCount -gt 0
+if ($selectedModel -and ($modelCount -ne 5 -or -not $ModelLaunch -or -not $ModelLaunchSha256 -or
+    -not $ModelDeliveryBinding -or -not $ModelDeliveryBindingSha256 -or $ModelSlot -cnotin @('main', 'reviewers'))) {
+    [Console]::Error.WriteLine('emit-run-record: selected model arguments must be supplied together with a valid slot')
+    exit 1
+}
 
 # --- PowerShell case-sensitivity layer 1: ordinal enum membership check ----
 # -Effort*Control* values must match {flag, frontmatter, none} exactly
@@ -78,6 +94,7 @@ $emitV2 = $PSBoundParameters.ContainsKey('EffortMain') `
     -or $PSBoundParameters.ContainsKey('EffortControlReviewers') `
     -or $PSBoundParameters.ContainsKey('EffortAppliedMain') `
     -or $PSBoundParameters.ContainsKey('EffortAppliedReviewers')
+$emitV2 = $emitV2 -or $selectedModel
 $emitCapability = $PSBoundParameters.ContainsKey('CapabilityEnforcement') `
     -or $PSBoundParameters.ContainsKey('CapabilityBlockId')
 
@@ -279,6 +296,24 @@ if ($emitV2) {
     }
 }
 
-$record | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $out
+if ($selectedModel) {
+    $modelArguments = @('model-installed-run-record', (Get-Location).Path, '--launch', $ModelLaunch,
+        '--launch-sha256', $ModelLaunchSha256, '--delivery-binding', $ModelDeliveryBinding,
+        '--delivery-binding-sha256', $ModelDeliveryBindingSha256, '--slot', $ModelSlot, '--feature', $Feature)
+    $suffix = if ($ModelSlot -ceq 'main') { 'Main' } else { 'Reviewers' }
+    foreach ($pair in @(@('Model', 'model'), @('Effort', 'effort'), @('EffortControl', 'control'), @('EffortApplied', 'applied'))) {
+        $parameterName = $pair[0] + $suffix
+        if ($PSBoundParameters.ContainsKey($parameterName)) {
+            $modelArguments += @('--assert-' + $pair[1], [string]$PSBoundParameters[$parameterName])
+        }
+    }
+    $validator = Join-Path $PSScriptRoot '../../sdd-review-loop/scripts/validate-nontty-spec-launch.py'
+    $verified = $record | ConvertTo-Json -Depth 6 | & python3 $validator @modelArguments
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+    # Only publish after every linked artifact and explicit actor field is checked.
+    $verified | Set-Content -Encoding Utf8 $out
+} else {
+    $record | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $out
+}
 Write-Host "emit-run-record: wrote $out"
 exit 0

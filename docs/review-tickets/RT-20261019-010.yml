@@ -1,0 +1,16 @@
+ticket_id: RT-20261019-010
+status: resolved
+type: implementation-defect
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-002
+summary: "Finite JSON integer duration overflows implicit float conversion"
+problem: "Matching seconds=10**400 passes strict JSON/int shape, math.isfinite raises OverflowError; per-obligation/main handlers omit it. Existing negative only -1."
+contract: "design.md:219 finite numbers; :225/:248 typed result/error exits"
+expected_fix: "Preserve existing numeric semantics: mathematically finite arbitrary JSON integers remain finite; no invented bound/global swallowing. Add actual CLI boundary regression and correct the field validation."
+evidence: specs/ci-model-modernization/verification/T-002/quality-cycle-2/review-completion.json
+auto_fix_allowed: true
+requires_human_decision: false
+resolution: "Actual whole-task independent T002 cycle3 PASS0; all369 repository/scratch input hashes verified at delivery, current136 tests/static/schema/rollback PASS, generated evidence bundle validated. A9 both-counterpart acceptance complete; no hosted/integration/release claim."
+resolution_evidence: reports/quality-gate/20261019-ci-model-modernization-T-002-cycle-3.md

@@ -1,0 +1,74 @@
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+FAILED: tests/a.tests.py
+==> tests/a.tests.py
+SKIPPED: tests/a.tests.py
+==> tests/native-a.tests.ps1
+FAILED: tests/native-a.tests.ps1
+==> tests/native-b.tests.ps1
+PASSED: tests/native-b.tests.ps1
+==> tests/a.tests.py
+fixture
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+==> tests/a.tests.py
+changed
+PASSED: tests/a.tests.py
+==> tests/b.tests.py
+fixture
+PASSED: tests/b.tests.py
+test_balanced_shards_are_deterministic_disjoint_complete (__main__.CatalogTests.test_balanced_shards_are_deterministic_disjoint_complete) ... ok
+test_cli_direct_suite_and_receipt_are_bound_to_selection (__main__.CatalogTests.test_cli_direct_suite_and_receipt_are_bound_to_selection) ... ok
+test_delegated_suite_requires_registered_executed_parent (__main__.CatalogTests.test_delegated_suite_requires_registered_executed_parent) ... ok
+test_failed_suite_does_not_hide_later_results_and_receipt (__main__.CatalogTests.test_failed_suite_does_not_hide_later_results_and_receipt) ... ok
+test_malformed_runtime_arguments_rejected (__main__.CatalogTests.test_malformed_runtime_arguments_rejected) ... ok
+test_missing_runtime_is_failure_unless_profile_explicitly_optional (__main__.CatalogTests.test_missing_runtime_is_failure_unless_profile_explicitly_optional) ... ok
+test_native_powershell_failure_and_fresh_process_are_preserved (__main__.CatalogTests.test_native_powershell_failure_and_fresh_process_are_preserved) ... ok
+test_new_suite_requires_explicit_registration (__main__.CatalogTests.test_new_suite_requires_explicit_registration) ... ok
+test_planner_is_registered_and_live_categories_are_inactive (__main__.CatalogTests.test_planner_is_registered_and_live_categories_are_inactive) ... ok
+test_real_catalog_and_wrappers_list_exact_same_suites (__main__.CatalogTests.test_real_catalog_and_wrappers_list_exact_same_suites) ... ok
+test_receipt_written_atomically (__main__.CatalogTests.test_receipt_written_atomically) ... ok
+test_runtime_metadata_unavailable_does_not_hide_execution (__main__.CatalogTests.test_runtime_metadata_unavailable_does_not_hide_execution) ... ok
+test_unassigned_or_cyclic_delegation_fails (__main__.CatalogTests.test_unassigned_or_cyclic_delegation_fails) ... ok
+test_unknown_duplicate_and_missing_entries_fail (__main__.CatalogTests.test_unknown_duplicate_and_missing_entries_fail) ... ok
+test_worktree_changes_are_recorded_without_claiming_reusable_evidence (__main__.CatalogTests.test_worktree_changes_are_recorded_without_claiming_reusable_evidence) ... ok
+test_wrapper_actions_are_position_independent_and_shards_cover_profile (__main__.CatalogTests.test_wrapper_actions_are_position_independent_and_shards_cover_profile) ... ok
+test_RT015_actual_workflow_metadata_condition_admits_full_planning (__main__.WorkflowIntegrationTests.test_RT015_actual_workflow_metadata_condition_admits_full_planning) ... ok
+test_RT015_every_upload_row_matches_selected_receipt_producers (__main__.WorkflowIntegrationTests.test_RT015_every_upload_row_matches_selected_receipt_producers) ... ok
+test_RT015_metadata_normalization_rejects_workload_and_condition_mutations (__main__.WorkflowIntegrationTests.test_RT015_metadata_normalization_rejects_workload_and_condition_mutations) ... ok
+test_RT015_missing_required_receipt_and_hidden_upload_mutations_fail (__main__.WorkflowIntegrationTests.test_RT015_missing_required_receipt_and_hidden_upload_mutations_fail) ... ok
+test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar (__main__.WorkflowIntegrationTests.test_RT015_pinned_uses_only_metadata_condition_preserves_workload_grammar) ... ok
+test_T003_actual_receipt_identity_body_matches_collector (__main__.WorkflowIntegrationTests.test_T003_actual_receipt_identity_body_matches_collector) ... ok
+test_T003_all_expanded_job_identities_are_unambiguous (__main__.WorkflowIntegrationTests.test_T003_all_expanded_job_identities_are_unambiguous) ... ok
+test_T003_all_native_contexts_survive_failed_planner (__main__.WorkflowIntegrationTests.test_T003_all_native_contexts_survive_failed_planner) ... ok
+test_T003_cache_policy_mutations_reject_evidence_and_cross_event_writes (__main__.WorkflowIntegrationTests.test_T003_cache_policy_mutations_reject_evidence_and_cross_event_writes) ... ok
+test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped (__main__.WorkflowIntegrationTests.test_T003_dependency_cache_is_archive_only_pinned_and_event_scoped) ... ok
+test_T003_every_existing_runner_persists_a_receipt_and_uploads_it (__main__.WorkflowIntegrationTests.test_T003_every_existing_runner_persists_a_receipt_and_uploads_it) ... ok
+test_T003_exact_plan_conditions_are_supported (__main__.WorkflowIntegrationTests.test_T003_exact_plan_conditions_are_supported) ... ok
+test_T003_full_and_affected_conditions_use_actual_output_values (__main__.WorkflowIntegrationTests.test_T003_full_and_affected_conditions_use_actual_output_values) ... ok
+test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os (__main__.WorkflowIntegrationTests.test_T003_full_suite_invocation_multiset_preserves_shell_args_and_os) ... ok
+test_T003_measured_cloud_partition_keeps_three_native_obligations (__main__.WorkflowIntegrationTests.test_T003_measured_cloud_partition_keeps_three_native_obligations) ... ok
+test_T003_planner_outputs_have_one_declared_producer (__main__.WorkflowIntegrationTests.test_T003_planner_outputs_have_one_declared_producer) ... ok
+test_T003_pr_number_cancellation_and_non_pr_run_groups (__main__.WorkflowIntegrationTests.test_T003_pr_number_cancellation_and_non_pr_run_groups) ... ok
+test_T003_required_verifier_uses_accepted_prepared_shape (__main__.WorkflowIntegrationTests.test_T003_required_verifier_uses_accepted_prepared_shape) ... ok
+test_T003_suite_projection_rejects_original_obligation_mutations (__main__.WorkflowIntegrationTests.test_T003_suite_projection_rejects_original_obligation_mutations) ... ok
+test_T003_triggers_and_unproven_categories_remain_conservative (__main__.WorkflowIntegrationTests.test_T003_triggers_and_unproven_categories_remain_conservative) ... ok
+test_T003_unknown_plan_group_and_output_declarations_fail_closed (__main__.WorkflowIntegrationTests.test_T003_unknown_plan_group_and_output_declarations_fail_closed) ... ok
+test_T004_model_suite_registration_and_dependency (__main__.WorkflowIntegrationTests.test_T004_model_suite_registration_and_dependency) ... ok
+test_T004_model_suite_runs_once_on_each_native_os (__main__.WorkflowIntegrationTests.test_T004_model_suite_runs_once_on_each_native_os) ... ok
+test_T004_native_coverage_mutations_fail (__main__.WorkflowIntegrationTests.test_T004_native_coverage_mutations_fail) ... ok
+test_T005_catalog_counterparts (__main__.WorkflowIntegrationTests.test_T005_catalog_counterparts) ... ok
+test_T005_identity_registration_projects_away_from_historical_inventory (__main__.WorkflowIntegrationTests.test_T005_identity_registration_projects_away_from_historical_inventory) ... ok
+test_T005_identity_suite_runs_once_on_each_native_os (__main__.WorkflowIntegrationTests.test_T005_identity_suite_runs_once_on_each_native_os) ... ok
+test_T005_native_coverage_mutations (__main__.WorkflowIntegrationTests.test_T005_native_coverage_mutations) ... ok
+
+----------------------------------------------------------------------
+Ran 44 tests in 3.178s
+
+OK

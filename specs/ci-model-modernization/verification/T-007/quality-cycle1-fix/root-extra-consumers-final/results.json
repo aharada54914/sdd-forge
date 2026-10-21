@@ -1,0 +1,83 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/unified-launch-order.tests.py"
+      ],
+      "started_at": "2026-10-20T01:57:41.654382+00:00",
+      "finished_at": "2026-10-20T01:57:56.904553+00:00",
+      "elapsed_seconds": 15.250182698990102,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/unified-launch-order.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/unified-launch-order.stderr.log",
+          "sha256": "a220273ca63f09c47885d1a1e2e786e802773e4c48b79fae5ac2361b8dc0da86"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/concept-review-continuity.tests.py"
+      ],
+      "started_at": "2026-10-20T01:57:56.904942+00:00",
+      "finished_at": "2026-10-20T01:59:02.169903+00:00",
+      "elapsed_seconds": 65.26497683300113,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/concept-review-continuity.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/concept-review-continuity.stderr.log",
+          "sha256": "41dac95cca0f81c2dd9c0b4e6ddfd2dc25f60eafcee02a2be216b8604929f3fd"
+        }
+      ]
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "tests/host-review-preflight.tests.py"
+      ],
+      "started_at": "2026-10-20T01:59:02.170255+00:00",
+      "finished_at": "2026-10-20T01:59:12.393469+00:00",
+      "elapsed_seconds": 10.223227986003621,
+      "exit_code": 0,
+      "logs": [
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/host-review-preflight.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "specs/ci-model-modernization/verification/T-007/quality-cycle1-fix/root-extra-consumers-final/host-review-preflight.stderr.log",
+          "sha256": "595775aa9f75afde59f86b4bbf1fb85b6c024a2721943b5aa8182c2ce13ae7d5"
+        }
+      ]
+    }
+  ],
+  "source_before": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "tests/unified-launch-order.tests.py": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+    "tests/concept-review-continuity.tests.py": "ce42518a4cea3cb5d71adb3bf57de606708b3d3d839ee185760cbd9044570819",
+    "tests/host-review-preflight.tests.py": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8"
+  },
+  "source_after": {
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "9269855a05b79331394419c37490ee5cc531514be7627e15fb3e8cb9ab655463",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "98fdc94b654738a1772a6cafa85c213b87edfc4c22a447640fd47cba3d4884cf",
+    "tests/unified-launch-order.tests.py": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+    "tests/concept-review-continuity.tests.py": "ce42518a4cea3cb5d71adb3bf57de606708b3d3d839ee185760cbd9044570819",
+    "tests/host-review-preflight.tests.py": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8"
+  },
+  "source_unchanged": true,
+  "controller_sha256": "101348d38e01af09d7ad435a040c69fca51e9f0991b98f6fd154d69f6d9fbc4e"
+}

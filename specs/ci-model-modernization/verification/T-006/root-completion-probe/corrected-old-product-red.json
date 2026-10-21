@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/model-policy.tests.py",
+    "PolicySelection.test_direct_completion_cannot_bypass_risk_effort_or_escalation"
+  ],
+  "cwd": "/tmp/ci-t006-corrected-pre-replay-ak8_p_me",
+  "exit_code": 1,
+  "basis": "Exact30pin pre-replay product snapshot + correctedcurrenttest; existingmatrix-first precedencepreserved, roledefault exercisedonlywhenmatrix.low absent",
+  "old_manifest_sha256": "23c08b39853915bffbc58ee9616efcd96641c35795a18aa8269e8d74b36055bd",
+  "test_sha256": "07f1f018eafb13cdd72be0f6a618fb72a3d1a1fe8c1603bab169c41f5896b7cd",
+  "at": "2026-10-19T20:51:09.548985+00:00"
+}

@@ -1,0 +1,64 @@
+{
+  "artifacts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/capture-v4-qa1-fix.py",
+      "sha256": "6d8b357159ebbbdc16bdca9c75717dc6d05b8d9d40318e6a449547c0e3eba4a3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/qa1-fix-command-controller.py",
+      "sha256": "13b5f8faeaa6b03f8ea87e61751e81129723e3ed906e376c52269002bee0ee3e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/command-qa1-fix-final.json",
+      "sha256": "c3805b1085ed98f914f816fe2e52034818797ac815786dd1191348bd4ab76cc1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/native-qa1-fix-final.stdout.log",
+      "sha256": "6fb846e443b52d1ee139b38c462b01447a20e761ca3b8292b6e2302a79d88796"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/native-qa1-fix-final.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/qa1-fix-own-subreaper.json",
+      "sha256": "7313f46ad13ff22d197192369e10aad7e6fce10f1fc320759ea410fd92ed56b9"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/qa1-fix-root-verification.json",
+      "sha256": "c7bec82181f5ebdeeb19d125faf629dbacab10f2428f9a0eb1b2d099c97d1921"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-qa1-fix-final/controls.json",
+      "sha256": "e7268b9dfb743847813727f8572c4adb38cfebf3b5f7f13f6de7d7262ce297fc"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-qa1-fix-final/fixture-adoption.json",
+      "sha256": "3eb3cebf82e1f57bba9b1b905cb93f033774a85cae430c0724a79dd6ac9077cc"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-qa1-fix-final/observation.json",
+      "sha256": "052018af752b05dbe8a6db9b456a9ab40589114b4df461a4879b6e188b44cae5"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-qa1-fix-final/policy.json",
+      "sha256": "0a0284cacb09370df2401574092cabbb850c87f8c17dcf3c7d6836ad384764f4"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-qa1-fix-final/request.json",
+      "sha256": "8cb9a2cd8556312b4e1a7bde88993c266290d62c96e562f1f49023199ae84ce4"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-qa1-fix-final/result.json",
+      "sha256": "da84a62f48a7429abe8b35b3a760c67074c868e8dcba8885460f72c33ee2d62a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-qa1-fix-final/selection.json",
+      "sha256": "4e9dd8fa11394c0537ac539958bdc929bd35ebbbebdd66353730de989f38481c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-007/root-native-smoke/actual-qa1-fix-final/validation.json",
+      "sha256": "d3d5ff9b4ffc8b75dc67e1ab6f06961963f4c52673317c1403d4e2610decb34d"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+ticket_id: RT-20261019-019
+status: resolved
+type: model-metadata-contract-consistency
+severity: major
+target:
+  feature: ci-model-modernization
+  task: T-005
+summary: "HTTPS runtime acceptance can publish a selection rejected by the shipped schema"
+expected_fix: "Align original-string authority validation and schema; commit failing empty-port/bracket-suffix producer/CLI regressions before repair; preserve prior observations/records and rerun fresh full-scope quality review."
+evidence: reports/quality-gate/20261019-ci-model-modernization-T-005-cycle-1.md
+auto_fix_allowed: true
+requires_human_decision: false
+classification: "Narrow approved T005 record/contract consistency repair; metadata only, no new protocol, ranking, inference, authority or release decision."
+resolution: "Actual fresh T005 QA2 PASS0; generated evidence bundle checked before Done. URI producer/schema repair verified with326 candidate and245 restored methods, zero skips."

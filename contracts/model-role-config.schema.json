@@ -1,0 +1,639 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "model-role-config/v1",
+  "description": "Runtime additionally validates duplicate keys/IDs, reference consistency, safe file containment and valid UTC calendar values. Evidence hashes establish consistency, not authentic model behavior.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "default_policy",
+    "roles"
+  ],
+  "properties": {
+    "schema": {
+      "const": "model-role-config/v1"
+    },
+    "default_policy": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "latest-compatible",
+            "pinned"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "implementer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "investigator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "spec-reviewer-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "spec-reviewer-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "impl-reviewer-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "impl-reviewer-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "task-reviewer-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "task-reviewer-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "evaluator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "domain-reviewer-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "domain-reviewer-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "workflow-auditor-a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "workflow-auditor-b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "diagnosis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "self-improvement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "panelist-gpt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "panelist-gemini": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model_id",
+            "policy"
+          ],
+          "properties": {
+            "model_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "policy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "latest-compatible",
+                    "pinned"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}(?![\\s\\S])"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "\\S"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    },
+    "utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?Z(?![\\s\\S])",
+      "format": "date-time"
+    }
+  }
+}

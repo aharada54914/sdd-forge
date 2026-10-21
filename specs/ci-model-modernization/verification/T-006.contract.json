@@ -1,0 +1,311 @@
+{
+  "task_id": "T-006",
+  "feature": "ci-model-modernization",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd",
+  "created": "2026-10-19T20:27:29Z",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/lint-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/lint-receipt.json",
+      "command": "/tmp/ci-model-resume-python/bin/ruff check plugins/sdd-implementation/scripts/model-policy.py tests/model-policy.tests.py tests/model-identity.tests.py tests/verification-catalog.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:49:12Z",
+      "finished_at": "2026-10-19T21:49:12Z"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/typecheck-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/typecheck-receipt.json",
+      "command": "/tmp/ci-model-resume-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-implementation/scripts/model-policy.py tests/model-policy.tests.py tests/model-identity.tests.py tests/verification-catalog.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:49:26Z",
+      "finished_at": "2026-10-19T21:49:27Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/unit-tests-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/unit-tests-receipt.json",
+      "command": "python3 -B tests/model-policy.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:45:27Z",
+      "finished_at": "2026-10-19T21:46:06Z"
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/integration-tests-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/integration-tests-receipt.json",
+      "command": "python3 -B specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/contract-proof.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:48:56Z",
+      "finished_at": "2026-10-19T21:49:02Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/build-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/build-receipt.json",
+      "command": "python3 -B tests/shared-launch-build.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:49:02Z",
+      "finished_at": "2026-10-19T21:49:09Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/placeholder-scan.log",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-implementation/scripts/model-policy.py contracts/model-selection.schema.json contracts/model-delivery.schema.json contracts/model-policy.v1.json contracts/model-policy.schema.json contracts/model-policy-request.schema.json contracts/model-role-config.schema.json plugins/sdd-implementation/scripts/select-agent-model.sh plugins/sdd-implementation/scripts/select-agent-model.ps1",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:51:04Z",
+      "finished_at": "2026-10-19T21:51:04Z"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/task-state-check.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/task-state-check.log",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:51:04Z",
+      "finished_at": "2026-10-19T21:51:05Z"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Selector and policy CLI only; required integration, acceptance, legacy routing and both PowerShell sweeps cover scope. No graphical surface; native managed launch and controlled adoption remain downstream T007/T008/T010. No in-scope proof waived.",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Selector and policy CLI only; required integration, acceptance, legacy routing and both PowerShell sweeps cover scope. No graphical surface; native managed launch and controlled adoption remain downstream T007/T008/T010. No in-scope proof waived.",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Selector and policy CLI only; required integration, acceptance, legacy routing and both PowerShell sweeps cover scope. No graphical surface; native managed launch and controlled adoption remain downstream T007/T008/T010. No in-scope proof waived.",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Selector and policy CLI only; required integration, acceptance, legacy routing and both PowerShell sweeps cover scope. No graphical surface; native managed launch and controlled adoption remain downstream T007/T008/T010. No in-scope proof waived.",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/acceptance-tests-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/acceptance-tests-receipt.json",
+      "command": "python3 -B tests/model-policy.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:45:27Z",
+      "finished_at": "2026-10-19T21:46:06Z"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/regression-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/regression-receipt.json",
+      "command": "python3 -B tests/verification-ci-plan.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:46:38Z",
+      "finished_at": "2026-10-19T21:46:56Z"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/requirement-traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/requirement-traceability.log",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:51:41Z",
+      "finished_at": "2026-10-19T21:51:41Z"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011",
+        "REQ-013",
+        "REQ-014",
+        "REQ-016",
+        "REQ-019"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/red-evidence-index.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-final-checks/check-component-coverage.log",
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-19T21:51:41Z",
+      "finished_at": "2026-10-19T21:51:41Z"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+    "specs/ci-model-modernization/tasks.md"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-20T17:44:07Z",
+  "finished_at": "2026-10-20T17:44:08Z",
+  "exit_code": 0,
+  "log": "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/task-state-check.log",
+  "log_sha256": "c55f1262b295b7d8d4c149aa63d69fe00e4f9332b202c416f5bba0b52c974a25"
+}

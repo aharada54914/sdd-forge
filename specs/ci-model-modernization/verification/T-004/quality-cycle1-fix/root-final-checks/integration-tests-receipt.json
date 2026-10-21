@@ -1,0 +1,38 @@
+{
+  "selected_actual_command_receipt": {
+    "name": "native-readonly",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/attempt-1/capture-native-readonly.py",
+      "--root",
+      "/workspace/sdd-forge",
+      "--output",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/native-readonly"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-19T19:02:15Z",
+    "finished_at": "2026-10-19T19:02:16Z",
+    "exit_code": 0,
+    "stdout_sha256": "5ede86f1982caa082660532b4816b8b3d15078be3a94af433de6d98564f4b746",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "full_scope_receipts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/results.json",
+      "sha256": "1a0310e7bba20c45041a27d1cbfc2866547eb01fea9637a7693bd11aa05a0c60",
+      "scope": "model51 nativefake/CLI/context methods; actualnative capture and CLI"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/final/schema-cases.json",
+      "sha256": "bf90d9cdb1689db2a09ae09adaaaa643346444ba587a8c007e375ba606caea80",
+      "scope": "41 schema/counterpart cases"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-004/quality-cycle1-fix/rollback/candidate/results.json",
+      "sha256": "d92897658c2d725a3ca56188a1b92b6208ffbfaecd3dc45f2599d12f7e05bdbd",
+      "scope": "unchanged catalog40"
+    }
+  ],
+  "interpretation": "Selected command actually executed as recorded; all scope receipts separately hash-verified. Shared model50 execution is not multiplied. Regression selected command is one of the recorded final candidate family, whose complete245 tests passed via unchanged194 plus current51, with failed initial f05 static results explicitly excluded."
+}

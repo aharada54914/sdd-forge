@@ -1,0 +1,166 @@
+test_selected_quality_initial_output_ancestor_alias_has_no_side_effects (t007_qa1_output_red.PairedClaudeLaunch.test_selected_quality_initial_output_ancestor_alias_has_no_side_effects) ... FAIL
+test_protected_delivery_rejects_ancestor_swap_before_binding_publication (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_binding_publication) ... 
+  test_protected_delivery_rejects_ancestor_swap_before_binding_publication (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_binding_publication) (fixed=False) ... FAIL
+  test_protected_delivery_rejects_ancestor_swap_before_binding_publication (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_binding_publication) (fixed=True) ... FAIL
+test_protected_delivery_rejects_ancestor_swap_before_first_artifact (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_first_artifact) ... 
+  test_protected_delivery_rejects_ancestor_swap_before_first_artifact (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_first_artifact) (fixed=False) ... FAIL
+  test_protected_delivery_rejects_ancestor_swap_before_first_artifact (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_first_artifact) (fixed=True) ... FAIL
+test_protected_model_writers_reject_initial_output_ancestor_alias (t007_qa1_output_red.ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias) ... 
+  test_protected_model_writers_reject_initial_output_ancestor_alias (t007_qa1_output_red.ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias) (fixed=False, writer='launch') ... FAIL
+  test_protected_model_writers_reject_initial_output_ancestor_alias (t007_qa1_output_red.ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias) (fixed=False, writer='delivery') ... FAIL
+  test_protected_model_writers_reject_initial_output_ancestor_alias (t007_qa1_output_red.ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias) (fixed=True, writer='launch') ... FAIL
+  test_protected_model_writers_reject_initial_output_ancestor_alias (t007_qa1_output_red.ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias) (fixed=True, writer='delivery') ... FAIL
+
+======================================================================
+FAIL: test_selected_quality_initial_output_ancestor_alias_has_no_side_effects (t007_qa1_output_red.PairedClaudeLaunch.test_selected_quality_initial_output_ancestor_alias_has_no_side_effects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1625, in test_selected_quality_initial_output_ancestor_alias_has_no_side_effects
+    (self.root / 'specs/example/tasks.md').write_text('## T-001 Fixture\nStatus: In Progress\n')
+AssertionError: Lists differ: [PosixPath('/tmp/model-launch-fixture-mnq5[73 chars]fe')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+PosixPath('/tmp/model-launch-fixture-mnq5aygy/repo/quality-output-target/launch-7476b8ce-81ef-40f7-929f-e8c61390d2fe')
+
+- [PosixPath('/tmp/model-launch-fixture-mnq5aygy/repo/quality-output-target/launch-7476b8ce-81ef-40f7-929f-e8c61390d2fe')]
++ [] : selected quality launch created redirected artifacts
+
+======================================================================
+FAIL: test_protected_delivery_rejects_ancestor_swap_before_binding_publication (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_binding_publication) (fixed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1976, in test_protected_delivery_rejects_ancestor_swap_before_binding_publication
+    'selection': self.selection, 'delivery': self.delivery,
+AssertionError: Lists differ: [PosixPath('/tmp/model-launch-fixture-x98k[54 chars]on')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+PosixPath('/tmp/model-launch-fixture-x98khicy/repo/publication-target/model-delivery-binding.json')
+
+- [PosixPath('/tmp/model-launch-fixture-x98khicy/repo/publication-target/model-delivery-binding.json')]
++ [] : accepted binding escaped to swapped ancestor
+
+======================================================================
+FAIL: test_protected_delivery_rejects_ancestor_swap_before_binding_publication (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_binding_publication) (fixed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1976, in test_protected_delivery_rejects_ancestor_swap_before_binding_publication
+    'selection': self.selection, 'delivery': self.delivery,
+AssertionError: Lists differ: [PosixPath('/tmp/model-launch-fixture-d47q[54 chars]on')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+PosixPath('/tmp/model-launch-fixture-d47qblz9/repo/publication-target/model-delivery-binding.json')
+
+- [PosixPath('/tmp/model-launch-fixture-d47qblz9/repo/publication-target/model-delivery-binding.json')]
++ [] : accepted binding escaped to swapped ancestor
+
+======================================================================
+FAIL: test_protected_delivery_rejects_ancestor_swap_before_first_artifact (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_first_artifact) (fixed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1932, in test_protected_delivery_rejects_ancestor_swap_before_first_artifact
+    target = self.root / context[name]['path']
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [PosixPath('/tmp/model-launch-fixture-2fjz[210 chars]on')] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+PosixPath('/tmp/model-launch-fixture-2fjzsfo9/repo/swap-target/model-delivery.json')
+
++ []
+- [PosixPath('/tmp/model-launch-fixture-2fjzsfo9/repo/swap-target/model-delivery.json'),
+-  PosixPath('/tmp/model-launch-fixture-2fjzsfo9/repo/swap-target/model-events.json'),
+-  PosixPath('/tmp/model-launch-fixture-2fjzsfo9/repo/swap-target/model-selection.json')] : swapped ancestor received model artifacts
+
+======================================================================
+FAIL: test_protected_delivery_rejects_ancestor_swap_before_first_artifact (t007_qa1_output_red.ModelRunRecords.test_protected_delivery_rejects_ancestor_swap_before_first_artifact) (fixed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1932, in test_protected_delivery_rejects_ancestor_swap_before_first_artifact
+    target = self.root / context[name]['path']
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [PosixPath('/tmp/model-launch-fixture-8msf[210 chars]on')] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+PosixPath('/tmp/model-launch-fixture-8msf7fjg/repo/swap-target/model-delivery.json')
+
++ []
+- [PosixPath('/tmp/model-launch-fixture-8msf7fjg/repo/swap-target/model-delivery.json'),
+-  PosixPath('/tmp/model-launch-fixture-8msf7fjg/repo/swap-target/model-events.json'),
+-  PosixPath('/tmp/model-launch-fixture-8msf7fjg/repo/swap-target/model-selection.json')] : swapped ancestor received model artifacts
+
+======================================================================
+FAIL: test_protected_model_writers_reject_initial_output_ancestor_alias (t007_qa1_output_red.ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias) (fixed=False, writer='launch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1886, in test_protected_model_writers_reject_initial_output_ancestor_alias
+    self.accepted_record('bash')
+                ^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [PosixPath('/tmp/model-launch-fixture-21qg[38 chars]on')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+PosixPath('/tmp/model-launch-fixture-21qgw9d7/repo/alias-target/model-launch.json')
+
+- [PosixPath('/tmp/model-launch-fixture-21qgw9d7/repo/alias-target/model-launch.json')]
++ [] : protected producer wrote through output alias
+
+======================================================================
+FAIL: test_protected_model_writers_reject_initial_output_ancestor_alias (t007_qa1_output_red.ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias) (fixed=False, writer='delivery')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1886, in test_protected_model_writers_reject_initial_output_ancestor_alias
+    self.accepted_record('bash')
+                ^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [PosixPath('/tmp/model-launch-fixture-46oy[213 chars]on')] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+PosixPath('/tmp/model-launch-fixture-46oydtns/repo/alias-target/model-delivery.json')
+
++ []
+- [PosixPath('/tmp/model-launch-fixture-46oydtns/repo/alias-target/model-delivery.json'),
+-  PosixPath('/tmp/model-launch-fixture-46oydtns/repo/alias-target/model-events.json'),
+-  PosixPath('/tmp/model-launch-fixture-46oydtns/repo/alias-target/model-selection.json')] : protected producer wrote through output alias
+
+======================================================================
+FAIL: test_protected_model_writers_reject_initial_output_ancestor_alias (t007_qa1_output_red.ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias) (fixed=True, writer='launch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1886, in test_protected_model_writers_reject_initial_output_ancestor_alias
+    self.accepted_record('bash')
+                ^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [PosixPath('/tmp/model-launch-fixture-s7ci[38 chars]on')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+PosixPath('/tmp/model-launch-fixture-s7cizh0c/repo/alias-target/model-launch.json')
+
+- [PosixPath('/tmp/model-launch-fixture-s7cizh0c/repo/alias-target/model-launch.json')]
++ [] : protected producer wrote through output alias
+
+======================================================================
+FAIL: test_protected_model_writers_reject_initial_output_ancestor_alias (t007_qa1_output_red.ModelRunRecords.test_protected_model_writers_reject_initial_output_ancestor_alias) (fixed=True, writer='delivery')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-launch.tests.py", line 1886, in test_protected_model_writers_reject_initial_output_ancestor_alias
+    self.accepted_record('bash')
+                ^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [PosixPath('/tmp/model-launch-fixture-3bqm[213 chars]on')] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+PosixPath('/tmp/model-launch-fixture-3bqmpk_u/repo/alias-target/model-delivery.json')
+
++ []
+- [PosixPath('/tmp/model-launch-fixture-3bqmpk_u/repo/alias-target/model-delivery.json'),
+-  PosixPath('/tmp/model-launch-fixture-3bqmpk_u/repo/alias-target/model-events.json'),
+-  PosixPath('/tmp/model-launch-fixture-3bqmpk_u/repo/alias-target/model-selection.json')] : protected producer wrote through output alias
+
+----------------------------------------------------------------------
+Ran 4 tests in 10.615s
+
+FAILED (failures=9)

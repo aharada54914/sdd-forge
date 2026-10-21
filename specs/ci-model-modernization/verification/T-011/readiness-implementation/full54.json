@@ -1,0 +1,17 @@
+{
+  "label": "full54",
+  "command": [
+    "python3",
+    "-B",
+    "tests/verification-ci-plan.tests.py",
+    "-v"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "timestamp": "2026-10-20T18:35:12.412255+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 20.171320039997227,
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

@@ -1,0 +1,66 @@
+EFFFFF
+======================================================================
+ERROR: test_finite_large_integer_amounts_remain_exact_through_binding_and_resume (__main__.SupplementalMonetaryMetadataTests.test_finite_large_integer_amounts_remain_exact_through_binding_and_resume)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1789, in test_finite_large_integer_amounts_remain_exact_through_binding_and_resume
+    self.assertIsNone(self.validate(record))
+                      ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 337, in validate
+    return self.fn('validate_selection_record')(record, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-implementation/scripts/model-policy.py", line 789, in validate_selection_record
+    if type(amount) not in (int, float) or amount < 0 or not math.isfinite(amount) or value['unit'] != 'USD':
+                                                             ^^^^^^^^^^^^^^^^^^^^^
+OverflowError: int too large to convert to float
+
+======================================================================
+FAIL: test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo (__main__.SupplementalMonetaryMetadataTests.test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo) (valid='https://[::1]/pricing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1810, in test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo
+    self.assertIsNotNone(re.search(pattern, url), 'producer-accepted HTTPS must match schema')
+AssertionError: unexpectedly None : producer-accepted HTTPS must match schema
+
+======================================================================
+FAIL: test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo (__main__.SupplementalMonetaryMetadataTests.test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo) (valid='https://[2001:db8::1]:443/pricing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1810, in test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo
+    self.assertIsNotNone(re.search(pattern, url), 'producer-accepted HTTPS must match schema')
+AssertionError: unexpectedly None : producer-accepted HTTPS must match schema
+
+======================================================================
+FAIL: test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo (__main__.SupplementalMonetaryMetadataTests.test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo) (invalid='https://example.invalid:abc/pricing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1816, in test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo
+    self.assertRejects(INVALID, self.validate, seal(record))
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 334, in assertRejects
+    self.fail('accepted input that must be rejected with %s' % sorted(allowed))
+AssertionError: accepted input that must be rejected with ['input-invalid']
+
+======================================================================
+FAIL: test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo (__main__.SupplementalMonetaryMetadataTests.test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo) (invalid='https://@example.invalid/pricing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1816, in test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo
+    self.assertRejects(INVALID, self.validate, seal(record))
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 334, in assertRejects
+    self.fail('accepted input that must be rejected with %s' % sorted(allowed))
+AssertionError: accepted input that must be rejected with ['input-invalid']
+
+======================================================================
+FAIL: test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo (__main__.SupplementalMonetaryMetadataTests.test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo) (invalid='https://example.invalid:65536/pricing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 1816, in test_https_source_metadata_accepts_ipv6_and_rejects_invalid_port_or_userinfo
+    self.assertRejects(INVALID, self.validate, seal(record))
+  File "/workspace/sdd-forge/tests/model-identity.tests.py", line 334, in assertRejects
+    self.fail('accepted input that must be rejected with %s' % sorted(allowed))
+AssertionError: accepted input that must be rejected with ['input-invalid']
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+FAILED (failures=5, errors=1)
