@@ -12,8 +12,8 @@
 #   stripped, so the check behaves identically before and after the human
 #   applies the candidate to the live file. A throwaway fixture with one
 #   baseline name dropped MUST fail the coverage check first; the real
-#   candidate then passes it, with `required-checks`' `needs:` membership
-#   confirmed byte-unchanged.
+#   candidate then passes it, with `required-checks`' complete `needs:` list
+#   (membership AND order) confirmed unchanged.
 # TEST-018 (AC-018): self-improvement.yml and model-freshness-check.yml stay
 #   isolated from the test workflow / required-checks graph.
 # TEST-020 (AC-020): DESIGNED-RED until human-copy. The LIVE workflow's
@@ -22,8 +22,12 @@
 #   result here, alone, is the correct pre-human-copy fail-closed state
 #   (mirrors tests/quality-gate-cycle-limit.tests.sh:434-437), not a defect.
 #
-# Technique: text markers only (tests/workflow-state-ci-integration.tests.sh
-# precedent) -- no YAML-parsing dependency, bash 3.2 compatible.
+# Technique: job names, step names/count and `needs:` come from the repo's
+# structural loader (tests/verification-workflow.py load_workflow), parsed once
+# per workflow into JSON, so quoting and line-wrapping style cannot change what
+# is observed. Text markers remain only for things YAML parsing discards
+# (comments) or that are plain substrings (suite commands, checkout pins).
+# bash 3.2 compatible.
 #
 # The historical phase3 draft is superseded and must never be applied over
 # newer jobs. With no arguments validate the live workflow. An optional first
@@ -60,93 +64,72 @@ work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
 # ---------------------------------------------------------------------------
-# Helpers (text markers only; bash 3.2 safe)
+# Structural parse (once) + helpers; bash 3.2 safe
 # ---------------------------------------------------------------------------
-# Emit every `- name:` value inside <job> of <file>.
-job_step_names() {
-    python3 - "$1" "$2" <<'PY'
-import sys
-path, job = sys.argv[1], sys.argv[2]
-lines = open(path, encoding="utf-8").read().split("\n")
-start = end = None
-for i, ln in enumerate(lines):
-    if ln == "  %s:" % job:
-        start = i
-        continue
-    if start is not None and i > start and ln.startswith("  ") \
-            and not ln.startswith("   ") and ln.rstrip().endswith(":"):
-        end = i
-        break
-if start is None:
-    raise SystemExit("job not found: %s" % job)
-if end is None:
-    end = len(lines)
-for ln in lines[start:end]:
-    if ln.startswith("      - name: "):
-        print(ln[len("      - name: "):])
+live_json="$work/live.json"
+cand_json="$work/cand.json"
+python3 -I - "$repo_root" "$live_workflow" "$live_json" "$candidate" "$cand_json" <<'PY' \
+    || { echo "FAIL: structural workflow parse failed (invalid YAML or parser unavailable)"; exit 1; }
+import importlib.util, json, sys
+from pathlib import Path
+root, *pairs = sys.argv[1:]
+spec = importlib.util.spec_from_file_location(
+    "verification_workflow", Path(root) / "tests" / "verification-workflow.py")
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+for src, dst in zip(pairs[0::2], pairs[1::2]):
+    Path(dst).write_text(json.dumps(module.load_workflow(Path(src), Path(root))), encoding="utf-8")
 PY
-}
 
-# Count total step entries (lines beginning "      - ") inside <job> of <file>.
-job_step_entry_count() {
-    python3 - "$1" "$2" <<'PY'
-import sys
-path, job = sys.argv[1], sys.argv[2]
-lines = open(path, encoding="utf-8").read().split("\n")
-start = end = None
-for i, ln in enumerate(lines):
-    if ln == "  %s:" % job:
-        start = i
-        continue
-    if start is not None and i > start and ln.startswith("  ") \
-            and not ln.startswith("   ") and ln.rstrip().endswith(":"):
-        end = i
-        break
-if end is None:
-    end = len(lines)
-print(sum(1 for ln in lines[start:end] if ln.startswith("      - ")))
-PY
-}
-
-job_keys() {
-    python3 - "$1" <<'PY'
-import sys
-lines = open(sys.argv[1], encoding="utf-8").read().split("\n")
-injobs = False
-for ln in lines:
-    if ln.rstrip() == "jobs:":
-        injobs = True
-        continue
-    if injobs:
-        if ln and not ln.startswith(" "):
-            break
-        if ln.startswith("  ") and not ln.startswith("   ") and ln.rstrip().endswith(":"):
-            print(ln.strip().rstrip(":"))
+# wf_query <json> jobs | steps <job> | needs [<job>]
+#   jobs : job keys, in order
+#   steps: one line per step of <job> (its name; empty line if unnamed)
+#   needs: with <job>, its full `needs` as JSON (order preserved); without,
+#          one `job:need` line per dependency of every job
+wf_query() {
+    python3 -I - "$@" <<'PY'
+import json, sys
+wf = json.load(open(sys.argv[1], encoding="utf-8"))
+kind, jobs = sys.argv[2], wf["jobs"]
+if kind == "jobs":
+    print("\n".join(jobs))
+elif kind == "steps":
+    for step in jobs[sys.argv[3]].get("steps", []):
+        print(step.get("name", ""))
+elif len(sys.argv) > 3:
+    print(json.dumps(jobs[sys.argv[3]].get("needs")))
+else:
+    for key, job in jobs.items():
+        needs = job.get("needs") or []
+        for need in [needs] if isinstance(needs, str) else needs:
+            print("%s:%s" % (key, need))
 PY
 }
 
 echo "=== TEST-016 (AC-016): candidate structure, every step prefixed ==="
 
-live_jobs="$(job_keys "$live_workflow")"
-cand_jobs="$(job_keys "$candidate")"
+live_jobs="$(wf_query "$live_json" jobs)"
+cand_jobs="$(wf_query "$cand_json" jobs)"
 if [ "$live_jobs" = "$cand_jobs" ]; then
     ok "TEST-016: job count and job names are byte-unchanged ($(echo "$live_jobs" | tr '\n' ' '))"
 else
     fail "TEST-016: job list diverged -- live=[$live_jobs] candidate=[$cand_jobs]"
 fi
 
-# EVERY step must be prefixed: the number of prefixed `- name:` lines must equal
-# the total number of step entries, so an unnamed step (which cannot carry a
+# EVERY step must be prefixed: the number of prefixed names must equal the
+# total number of step entries, so an unnamed step (which cannot carry a
 # prefix) makes the counts diverge and fails this assertion.
-cand_named="$(job_step_names "$candidate" test | wc -l | tr -d ' ')"
-cand_prefixed="$(job_step_names "$candidate" test | grep -c '^"\[deterministic\] ' || true)"
-cand_entries="$(job_step_entry_count "$candidate" test | tr -d ' ')"
+wf_query "$cand_json" steps test > "$work/cand-steps.txt"
+cand_entries="$(wc -l < "$work/cand-steps.txt" | tr -d ' ')"
+cand_named="$(grep -c . "$work/cand-steps.txt" || true)"
+cand_prefixed="$(grep -c '^\[deterministic\] ' "$work/cand-steps.txt" || true)"
 if [ "$cand_prefixed" -eq "$cand_entries" ] && [ "$cand_named" -eq "$cand_entries" ]; then
     ok "TEST-016: all $cand_entries 'test'-job step entries are named AND carry the [deterministic] prefix (no unnamed step)"
 else
     fail "TEST-016: step-entry/name/prefix counts diverge -- entries=$cand_entries named=$cand_named prefixed=$cand_prefixed (an unnamed or unprefixed step exists)"
 fi
 
+# Comments are discarded by the YAML parser, so this stays a text marker.
 if grep -q '^      # eval-lane: (none yet)$' "$candidate"; then
     ok "TEST-016: the documented, currently-empty eval-lane comment placeholder is present"
 else
@@ -154,11 +137,10 @@ else
 fi
 
 # AC-016 is scoped as document/YAML conformance, so the candidate must be a
-# LOADABLE YAML document -- not merely the right lines. The `[deterministic] `
-# prefix is exactly the hazard here: an UNQUOTED scalar beginning with `[`
-# opens a YAML flow sequence and makes the whole file unparseable, which no
-# text-marker assertion can see. This check is dependency-free and fails
-# closed; a real parser run is added on top when one is available.
+# LOADABLE YAML document -- not merely the right lines. The structural parse
+# above already fails closed on invalid YAML; this raw check additionally
+# flags the hazard directly: an UNQUOTED scalar beginning with `[` opens a YAML
+# flow sequence and makes the whole file unparseable.
 bad_scalar="$(python3 - "$candidate" <<'PY'
 import sys
 bad = []
@@ -184,7 +166,7 @@ if command -v ruby >/dev/null 2>&1; then
         fail "TEST-016: the candidate does NOT parse as YAML (ruby/Psych) -- applying it would make the workflow unloadable"
     fi
 else
-    echo "note: ruby not available; YAML parseability rests on the scalar-shape check above"
+    echo "note: ruby not available; YAML parseability rests on the structural parse above"
 fi
 
 echo "=== TEST-017 (AC-017): idempotent RED-then-GREEN step-coverage self-check ==="
@@ -192,15 +174,17 @@ echo "=== TEST-017 (AC-017): idempotent RED-then-GREEN step-coverage self-check 
 # Baseline = live step names with any existing [deterministic] prefix stripped.
 # Stripping makes the check idempotent: pre-apply the live names are bare, post-
 # apply they already carry the prefix, and both reduce to the same base set.
-job_step_names "$live_workflow" test | sed -e 's/^"\[deterministic\] //' -e 's/"$//' > "$work/base-steps.txt"
+wf_query "$live_json" steps test | sed -e 's/^\[deterministic\] //' > "$work/base-steps.txt"
 base_count="$(wc -l < "$work/base-steps.txt" | tr -d ' ')"
 
-# coverage_check <file>: every baseline name must appear PREFIXED in <file>.
+# coverage_check <workflow.json>: every baseline name must appear PREFIXED among
+# the parsed `test`-job step names of <workflow.json>.
 coverage_check() {
     local target="$1" missing=0 name
+    wf_query "$target" steps test > "$work/coverage-names.txt"
     while IFS= read -r name; do
         [ -n "$name" ] || continue
-        if ! grep -Fqx "      - name: \"[deterministic] ${name}\"" "$target"; then
+        if ! grep -Fqx "[deterministic] ${name}" "$work/coverage-names.txt"; then
             echo "    missing: ${name}"
             missing=$((missing + 1))
         fi
@@ -208,32 +192,39 @@ coverage_check() {
     [ "$missing" -eq 0 ]
 }
 
-# RED: drop one baseline name's prefixed line from a candidate copy.
+# RED: delete the actual third `test`-job step from the parsed candidate.
 dropped_step="$(sed -n '3p' "$work/base-steps.txt")"
-grep -vFx "      - name: \"[deterministic] ${dropped_step}\"" "$candidate" > "$work/red-fixture.draft.yml"
-if coverage_check "$work/red-fixture.draft.yml" > "$work/red-output.txt" 2>&1; then
+python3 -I - "$cand_json" "$work/red-fixture.json" <<'PY'
+import json, sys
+wf = json.load(open(sys.argv[1], encoding="utf-8"))
+del wf["jobs"]["test"]["steps"][2]
+json.dump(wf, open(sys.argv[2], "w", encoding="utf-8"))
+PY
+if coverage_check "$work/red-fixture.json" > "$work/red-output.txt" 2>&1; then
     fail "TEST-017-RED: the dropped-step fixture PASSED the coverage check -- the check is vacuous"
 else
     ok "TEST-017-RED: dropped step '${dropped_step}' correctly failed the coverage check (check is non-vacuous)"
 fi
 
 # GREEN: the real candidate passes.
-if coverage_check "$candidate" > "$work/green-output.txt" 2>&1; then
+if coverage_check "$cand_json" > "$work/green-output.txt" 2>&1; then
     ok "TEST-017-GREEN: all $base_count baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)"
 else
     fail "TEST-017-GREEN: the candidate omits baseline step name(s): $(cat "$work/green-output.txt")"
 fi
 
-live_needs="$(grep -A6 '^  required-checks:' "$live_workflow" | grep '^    needs:' | head -1 || true)"
-cand_needs="$(grep -A6 '^  required-checks:' "$candidate" | grep '^    needs:' | head -1 || true)"
-if [ -n "$live_needs" ] && [ "$live_needs" = "$cand_needs" ]; then
-    ok "TEST-017: required-checks' needs: line is byte-unchanged (${live_needs# })"
+# Full membership AND order of required-checks' needs, however it is wrapped.
+live_needs="$(wf_query "$live_json" needs required-checks)"
+cand_needs="$(wf_query "$cand_json" needs required-checks)"
+if [ "$live_needs" != "null" ] && [ "$live_needs" = "$cand_needs" ]; then
+    ok "TEST-017: required-checks' complete needs list is unchanged (${live_needs})"
 else
-    fail "TEST-017: required-checks' needs: diverged -- live=[$live_needs] candidate=[$cand_needs]"
+    fail "TEST-017: required-checks' needs diverged -- live=[$live_needs] candidate=[$cand_needs]"
 fi
 
 echo "=== TEST-018 (AC-018): sibling workflow graph isolation unchanged ==="
 
+wf_query "$cand_json" needs > "$work/cand-needs.txt"
 for sibling in self-improvement model-freshness-check; do
     sfile="$workflows_dir/${sibling}.yml"
     if [ ! -f "$sfile" ]; then
@@ -245,12 +236,12 @@ for sibling in self-improvement model-freshness-check; do
     else
         ok "TEST-018: the candidate does not reuse ${sibling}.yml as a workflow (isolation preserved)"
     fi
-    if job_keys "$candidate" | grep -Fqx "$sibling"; then
+    if printf '%s\n' "$cand_jobs" | grep -Fqx "$sibling"; then
         fail "TEST-018: ${sibling} appears as a job in the candidate -- isolation broken"
     else
         ok "TEST-018: ${sibling} is not a job in the candidate (isolation preserved)"
     fi
-    if grep '^    needs:' "$candidate" | grep -Fq "$sibling"; then
+    if grep -Fq ":${sibling}" "$work/cand-needs.txt"; then
         fail "TEST-018: ${sibling} appears in a needs: list in the candidate -- isolation broken"
     else
         ok "TEST-018: ${sibling} appears in no needs: list in the candidate (isolation preserved)"
