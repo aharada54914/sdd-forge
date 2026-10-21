@@ -1,0 +1,64 @@
+{
+  "bash": {
+    "argv": [
+      "bash",
+      "/workspace/distribution-audit/prebaseline-53c2be4f/source/install.sh",
+      "--source-directory",
+      "/workspace/distribution-audit/prebaseline-53c2be4f/source",
+      "--install-root",
+      "/workspace/distribution-audit/prebaseline-53c2be4f/current-bash-installed",
+      "--target",
+      "FilesOnly",
+      "--skip-plugin-install",
+      "--skip-agent-install"
+    ],
+    "exit": 0,
+    "files": 612,
+    "bytes": 11175117,
+    "forbidden": [],
+    "mcp_files": [
+      "mcp/ci-mcp/package.json",
+      "mcp/sdd-forge-mcp/package.json",
+      "mcp/local-env-mcp/package.json",
+      "mcp/ci-mcp/dist/index.js",
+      "mcp/sdd-forge-mcp/dist/index.js",
+      "mcp/local-env-mcp/dist/index.js"
+    ]
+  },
+  "pwsh": {
+    "argv": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "/workspace/distribution-audit/prebaseline-53c2be4f/source/install.ps1",
+      "-SourceDirectory",
+      "/workspace/distribution-audit/prebaseline-53c2be4f/source",
+      "-InstallRoot",
+      "/workspace/distribution-audit/prebaseline-53c2be4f/current-pwsh-installed",
+      "-Target",
+      "FilesOnly",
+      "-SkipPluginInstall",
+      "-SkipAgentInstall"
+    ],
+    "exit": 0,
+    "files": 612,
+    "bytes": 11175117,
+    "forbidden": [],
+    "mcp_files": [
+      "mcp/ci-mcp/package.json",
+      "mcp/sdd-forge-mcp/package.json",
+      "mcp/local-env-mcp/package.json",
+      "mcp/ci-mcp/dist/index.js",
+      "mcp/sdd-forge-mcp/dist/index.js",
+      "mcp/local-env-mcp/dist/index.js"
+    ]
+  },
+  "parity": true,
+  "source_mode": "Clean detached shared clone of exact 53c2be4f; no hardlinks; committed bytes",
+  "head": "53c2be4f798ca084654f95dee860d3b7d233ac40",
+  "source_sha256": {
+    "install.sh": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a",
+    "install.ps1": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f",
+    "install-payload.txt": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93"
+  }
+}

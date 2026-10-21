@@ -1,0 +1,90 @@
+{
+  "source_commit": "53c2be4f798ca084654f95dee860d3b7d233ac40",
+  "files": [
+    {
+      "path": "summary.json",
+      "bytes": 1770,
+      "sha256": "0445bde8839c95a392dc96b7c0e7aba43c51eaff6705f9df5c492ff560f5245f"
+    },
+    {
+      "path": "current-audit.json",
+      "bytes": 2044,
+      "sha256": "39b07c7a7f8ade16d1789cfdb2c30a2d9fc116fbfdcb48c4f9337777c20c1e03"
+    },
+    {
+      "path": "archive-audit.json",
+      "bytes": 223,
+      "sha256": "745450344c53b1cd7944e900e41609c55a2530426cc0c22ba7717a33c5426808"
+    },
+    {
+      "path": "doc-link-audit.json",
+      "bytes": 157,
+      "sha256": "7f362476905cfc2705ff264daa03c15a55449fac4f37053676438d134cc3d7e3"
+    },
+    {
+      "path": "installed-production.json",
+      "bytes": 617,
+      "sha256": "e1e3b9a560e6bdb1406bf3e299b3f897f7a9ba02006537c85b76b447db717a0a"
+    },
+    {
+      "path": "current-bash-inventory.json",
+      "bytes": 102906,
+      "sha256": "e7630ff58d963690e90f9d3b641fde7cea055d1911cfe58c9766a1a79de3cd46"
+    },
+    {
+      "path": "current-pwsh-inventory.json",
+      "bytes": 102906,
+      "sha256": "e7630ff58d963690e90f9d3b641fde7cea055d1911cfe58c9766a1a79de3cd46"
+    },
+    {
+      "path": "archive-bash-inventory.json",
+      "bytes": 102906,
+      "sha256": "e7630ff58d963690e90f9d3b641fde7cea055d1911cfe58c9766a1a79de3cd46"
+    },
+    {
+      "path": "archive-pwsh-inventory.json",
+      "bytes": 102906,
+      "sha256": "e7630ff58d963690e90f9d3b641fde7cea055d1911cfe58c9766a1a79de3cd46"
+    },
+    {
+      "path": "payload-bash.log",
+      "bytes": 108,
+      "sha256": "e33fd07f8477e26c1260c1147ceca5320397832f7b179fdef17efa4af7c72a6e"
+    },
+    {
+      "path": "payload-powershell.log",
+      "bytes": 108,
+      "sha256": "f7039bc768eee7973cfae0e58c99f225a3a4d6860d6b61cbf4ca78b75e61cf35"
+    },
+    {
+      "path": "installed-prepare.log",
+      "bytes": 98,
+      "sha256": "22110b992957bb57a5a412b07bbfe9ffa9a2a10ca1cb47d9faddb653c11b87ba"
+    },
+    {
+      "path": "shipped-policy.log",
+      "bytes": 410,
+      "sha256": "c5cedbbc8d797d2ccb6e96b2ed41c4e43f39f03f5f114420a52cc7731fad7ad2"
+    },
+    {
+      "path": "production-prepare-bash.log",
+      "bytes": 2852,
+      "sha256": "504d726587e60daf02f73f7fc4a22e815aecc3fa1115431b0bb637862c570c8b"
+    },
+    {
+      "path": "production-prepare-pwsh.log",
+      "bytes": 2852,
+      "sha256": "1c5832fe0f8c23c5d51b63125621753fe09740af8ad8a43dffee939dce02afca"
+    },
+    {
+      "path": "production-selector-bash.json",
+      "bytes": 969,
+      "sha256": "df7e3aca3cb2cbb8ef2fcc268d17d028e5724202c6dca206a7b24c82906655d7"
+    },
+    {
+      "path": "production-selector-pwsh.json",
+      "bytes": 969,
+      "sha256": "493fc40247a8ef46b593ce2cf7a413f7ce75c5c84c170fd73955ddc30a413394"
+    }
+  ]
+}

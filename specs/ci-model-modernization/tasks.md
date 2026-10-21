@@ -490,7 +490,7 @@ T-006
 ## T-010 Controlled model adoption evaluation
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: In Progress
+Status: Done
 Risk: medium
 Risk Rationale: Runs controlled evaluation and updates reviewed adoption references without changing capability or authorization algorithms.
 Required Workflow: acceptance-first

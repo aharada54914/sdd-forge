@@ -1,0 +1,156 @@
+{
+  "task_id": "T-010",
+  "feature": "ci-model-modernization",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "0250669eb9f4ad0ddad7017e47e98937cf6c5fa28e8ec136791d63c0c7609b05",
+  "quality_report": "reports/quality-gate/20261021-ci-model-modernization-T-010-cycle-1.md",
+  "verification_contract": "specs/ci-model-modernization/verification/T-010.contract.json",
+  "git_commit": "88c150aa75d37046a55b0c00dabe05d1699b312c",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "/workspace/.tools/sdd-forge-python/bin/ruff check --config tests/shared-launch-python/pyproject.toml tests/model-policy.tests.py tests/model-policy-launch.tests.py tests/model-policy-installed.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:18:13.100440Z",
+      "finished_at": "2026-10-21T13:18:13.111619Z",
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts-v2.json",
+      "evidence_sha256": "2b91a25bde4ba2e3019a0d1f91cbbb156795a49213664829d4f917007b561db6"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "/workspace/.tools/sdd-forge-python/bin/mypy --config-file tests/shared-launch-python/pyproject.toml tests/model-policy.tests.py tests/model-policy-launch.tests.py tests/model-policy-installed.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:18:13.100653Z",
+      "finished_at": "2026-10-21T13:18:13.511111Z",
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts-v2.json",
+      "evidence_sha256": "2b91a25bde4ba2e3019a0d1f91cbbb156795a49213664829d4f917007b561db6"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/installed-production-smoke.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:14:42.396792Z",
+      "finished_at": "2026-10-21T13:14:47.148465Z",
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-production-smoke.json",
+      "evidence_sha256": "8dfb7e40627824ab9759a436e1743e7a7f8d925bd1543687966a16ef9a713294"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh contracts/model-policy.v1.json contracts/model-adoption/ci-model-modernization-20261021.json",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:16:54.263725Z",
+      "finished_at": "2026-10-21T13:16:54.270871Z",
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "evidence_sha256": "b4db1c7a96967389c909aeb2c9498094320a164d561ab30dd57e0ecc3d7dcd50"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:16:54.272571Z",
+      "finished_at": "2026-10-21T13:16:55.323440Z",
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "evidence_sha256": "b4db1c7a96967389c909aeb2c9498094320a164d561ab30dd57e0ecc3d7dcd50"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/model-policy.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:13:19.337407Z",
+      "finished_at": "2026-10-21T13:13:53.475346Z",
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59-receipt.json",
+      "evidence_sha256": "ec4cc256adb1f3aa8a3b404e3140dea72beb232d0c0308f9618a497af4572603"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B specs/ci-model-modernization/verification/T-010/attempt-3/final-evidence-check.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:16:54.181024Z",
+      "finished_at": "2026-10-21T13:16:54.261630Z",
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "evidence_sha256": "b4db1c7a96967389c909aeb2c9498094320a164d561ab30dd57e0ecc3d7dcd50"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B tests/model-policy.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:13:19.337407Z",
+      "finished_at": "2026-10-21T13:13:53.475346Z",
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59-receipt.json",
+      "evidence_sha256": "ec4cc256adb1f3aa8a3b404e3140dea72beb232d0c0308f9618a497af4572603"
+    },
+    {
+      "id": "installed-reference-smoke",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/installed-production-smoke.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:14:42.396792Z",
+      "finished_at": "2026-10-21T13:14:47.148465Z",
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-production-smoke.json",
+      "evidence_sha256": "8dfb7e40627824ab9759a436e1743e7a7f8d925bd1543687966a16ef9a713294"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-010.contract.json",
+      "sha256": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f"
+    },
+    {
+      "path": "reports/quality-gate/20261021-ci-model-modernization-T-010-cycle-1.md",
+      "sha256": "08cae8de1102c7499037e24999f7e89bd283b279125a434327f607749c04914a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "sha256": "b4db1c7a96967389c909aeb2c9498094320a164d561ab30dd57e0ecc3d7dcd50"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-production-smoke.json",
+      "sha256": "8dfb7e40627824ab9759a436e1743e7a7f8d925bd1543687966a16ef9a713294"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59-receipt.json",
+      "sha256": "ec4cc256adb1f3aa8a3b404e3140dea72beb232d0c0308f9618a497af4572603"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts-v2.json",
+      "sha256": "2b91a25bde4ba2e3019a0d1f91cbbb156795a49213664829d4f917007b561db6"
+    }
+  ]
+}

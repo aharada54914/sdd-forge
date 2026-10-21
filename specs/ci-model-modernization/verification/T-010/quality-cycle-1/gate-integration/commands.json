@@ -1,0 +1,55 @@
+[
+  {
+    "label": "contract",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-contract.sh",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010.contract.json",
+      "/workspace/sdd-forge"
+    ],
+    "started_at": "2026-10-21T13:46:28Z",
+    "finished_at": "2026-10-21T13:46:28Z",
+    "elapsed_seconds": 0.02973525199922733,
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/contract.stdout.log",
+    "stdout_sha256": "88acd1606c689e4c2cb25cdea1b652f1a58ae28001d25f67ed8b5c7c21f627f1",
+    "stderr": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/contract.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "generate-bundle",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010.contract.json",
+      "/workspace/sdd-forge/reports/quality-gate/20261021-ci-model-modernization-T-010-cycle-1.md",
+      "/workspace/sdd-forge",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010.evidence.json"
+    ],
+    "started_at": "2026-10-21T13:46:28Z",
+    "finished_at": "2026-10-21T13:46:28Z",
+    "elapsed_seconds": 0.10204413702012971,
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/generate-bundle.stdout.log",
+    "stdout_sha256": "122cdb569bb543f68aecd9d2e5f29336f2d37fa31ac9b70d73882769234dc1e8",
+    "stderr": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/generate-bundle.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "check-bundle",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010.evidence.json",
+      "/workspace/sdd-forge"
+    ],
+    "started_at": "2026-10-21T13:46:28Z",
+    "finished_at": "2026-10-21T13:46:28Z",
+    "elapsed_seconds": 0.07910832698689774,
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/check-bundle.stdout.log",
+    "stdout_sha256": "71548db6efe773dd2850cf93c111d54420e77024bb7e0284ad4f1f1de8787205",
+    "stderr": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/check-bundle.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

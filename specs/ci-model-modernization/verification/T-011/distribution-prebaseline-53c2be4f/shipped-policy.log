@@ -1,0 +1,7 @@
+test_shipped_contracts_have_actual_schemas_and_reviewed_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_reviewed_adoption) ... ok
+test_shipped_adoption_reference_rejects_changed_evidence (__main__.PolicySelection.test_shipped_adoption_reference_rejects_changed_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.025s
+
+OK

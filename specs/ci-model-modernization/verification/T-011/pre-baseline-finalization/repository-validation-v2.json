@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "tests/validate-repository.sh"
+  ],
+  "start": "2026-10-21T13:59:06.073185+00:00",
+  "end": "2026-10-21T13:59:30.651382+00:00",
+  "seconds": 24.57820756098954,
+  "exit_code": 0,
+  "reason": "Recheck after T010 reviewed traceability Markdown restored; original failed attempt preserved",
+  "log_sha256": "8448d5435551f7384e27f00fa97b711e5abc45d49b7f89765fb4cabf285e8d25"
+}

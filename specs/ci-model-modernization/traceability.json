@@ -390,9 +390,14 @@
         "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/final-verification.json",
         "specs/ci-model-modernization/verification/T-005/quality-cycle1-fix/rollback/final-results.json",
         "reports/quality-gate/20261019-ci-model-modernization-T-005-cycle-2.md",
-        "specs/ci-model-modernization/verification/T-005.evidence.json"
+        "specs/ci-model-modernization/verification/T-005.evidence.json",
+        "reports/implementation/ci-model-modernization/T-010.md",
+        "specs/ci-model-modernization/verification/T-010.contract.json",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/role-decisions.json",
+        "reports/quality-gate/20261021-ci-model-modernization-T-010-cycle-1.md",
+        "specs/ci-model-modernization/verification/T-010.evidence.json"
       ],
-      "scope": "T005 core binding/resume/delivery Done after actual independent QA2 PASS0 and generated/checked bundle. Shared later selection/comparison ownership remains incomplete; requirement status stays In Progress."
+      "scope": "T005 core binding/resume/delivery Done after actual independent QA2 PASS0 and generated/checked bundle. Shared later selection/comparison ownership remains incomplete; requirement status stays In Progress. T010 controlled adoption subset Done after actual fresh independent implementation QA1 PASS (0 Critical, 0 Major, 0 Minor), verified424-input delivery and generated/checked evidence bundle. Current registered Astra implementer receives scoped evidence reference only; experimental Sol pass remains withheld as unregistered and failed reviewer/investigator/skill roles remain withheld. Two repetitions and fixture-only installed availability do not claim universal quality or actual backend identity. Shared downstream T011 hosted activation/final release scope remains incomplete; shared requirement status is not promoted by this scoped completion."
     },
     {
       "req": "REQ-016",
@@ -498,9 +503,14 @@
         "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/delivery-verification.json",
         "specs/ci-model-modernization/verification/T-006/quality-cycle1-fix/root-source-review/report-counterpart-proof.json",
         "reports/quality-gate/20261019-ci-model-modernization-T-006-cycle-2.md",
-        "specs/ci-model-modernization/verification/T-006.evidence.json"
+        "specs/ci-model-modernization/verification/T-006.evidence.json",
+        "reports/implementation/ci-model-modernization/T-010.md",
+        "specs/ci-model-modernization/verification/T-010.contract.json",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/role-decisions.json",
+        "reports/quality-gate/20261021-ci-model-modernization-T-010-cycle-1.md",
+        "specs/ci-model-modernization/verification/T-010.evidence.json"
       ],
-      "scope": "T006 selection Done after actual independent QA2 PASS0 and generated/checked evidence bundle. Shared downstream native launch/installed entries/adoption or comparison remain incomplete; final requirement status remains In Progress."
+      "scope": "T006 selection Done after actual independent QA2 PASS0 and generated/checked evidence bundle. Shared downstream native launch/installed entries/adoption or comparison remain incomplete; final requirement status remains In Progress. T010 controlled adoption subset Done after actual fresh independent implementation QA1 PASS (0 Critical, 0 Major, 0 Minor), verified424-input delivery and generated/checked evidence bundle. Current registered Astra implementer receives scoped evidence reference only; experimental Sol pass remains withheld as unregistered and failed reviewer/investigator/skill roles remain withheld. Two repetitions and fixture-only installed availability do not claim universal quality or actual backend identity. Shared downstream T011 hosted activation/final release scope remains incomplete; shared requirement status is not promoted by this scoped completion."
     },
     {
       "req": "REQ-014",
@@ -594,9 +604,14 @@
         "specs/ci-model-modernization/verification/T-008/assembled-current-application/shared54-effective-evidence.json",
         "specs/ci-model-modernization/verification/T-008/final-inventory-preparation/finalization-20261020T174407Z/rollback-effective-evidence.json",
         "reports/quality-gate/20261020-ci-model-modernization-T-008-cycle-2.md",
-        "specs/ci-model-modernization/verification/T-008.evidence.json"
+        "specs/ci-model-modernization/verification/T-008.evidence.json",
+        "reports/implementation/ci-model-modernization/T-010.md",
+        "specs/ci-model-modernization/verification/T-010.contract.json",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/role-decisions.json",
+        "reports/quality-gate/20261021-ci-model-modernization-T-010-cycle-1.md",
+        "specs/ci-model-modernization/verification/T-010.evidence.json"
       ],
-      "scope": "T006 selection Done after actual independent QA2 PASS0 and generated/checked evidence bundle. Shared downstream native launch/installed entries/adoption or comparison remain incomplete; final requirement status remains In Progress. T007 transport subset Done after actual independent QA2 PASS0 and generated/checked evidence bundle; assigned12 branches only. Installed entries/adoption/hosted outcomes remain downstream; shared requirement In Progress. T008 Done after actual independent QA2 PASS (0 Critical, 0 Major, 0 Minor), canonical cycle2 2235-input delivery and generated/checked evidence bundle. Assigned installed-entry and exact65+17 caller scope only; configured-versus-actual native proof limits remain. T010 candidate adoption and T011 hosted activation/release remain uncompleted; shared requirement status remains In Progress."
+      "scope": "T006 selection Done after actual independent QA2 PASS0 and generated/checked evidence bundle. Shared downstream native launch/installed entries/adoption or comparison remain incomplete; final requirement status remains In Progress. T007 transport subset Done after actual independent QA2 PASS0 and generated/checked evidence bundle; assigned12 branches only. Installed entries/adoption/hosted outcomes remain downstream; shared requirement In Progress. T008 Done after actual independent QA2 PASS (0 Critical, 0 Major, 0 Minor), canonical cycle2 2235-input delivery and generated/checked evidence bundle. Assigned installed-entry and exact65+17 caller scope only; configured-versus-actual native proof limits remain. T010 candidate adoption and T011 hosted activation/release remain uncompleted; shared requirement status remains In Progress. T010 controlled adoption subset Done after actual fresh independent implementation QA1 PASS (0 Critical, 0 Major, 0 Minor), verified424-input delivery and generated/checked evidence bundle. Current registered Astra implementer receives scoped evidence reference only; experimental Sol pass remains withheld as unregistered and failed reviewer/investigator/skill roles remain withheld. Two repetitions and fixture-only installed availability do not claim universal quality or actual backend identity. Shared downstream T011 hosted activation/final release scope remains incomplete; shared requirement status is not promoted by this scoped completion."
     },
     {
       "req": "REQ-018",

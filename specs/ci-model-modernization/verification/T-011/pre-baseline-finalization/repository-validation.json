@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "tests/validate-repository.sh"
+  ],
+  "start": "2026-10-21T13:52:37.356659+00:00",
+  "end": "2026-10-21T13:53:01.457096+00:00",
+  "seconds": 24.100444119016174,
+  "exit_code": 1,
+  "note": "Bash wrapper executes the required PowerShell repository validator; no duplicate direct invocation",
+  "log_sha256": "2711c965533a4ed9ea9e8d10ed5063218cd098a8f1cd24c3a2e4e1a04879e839"
+}

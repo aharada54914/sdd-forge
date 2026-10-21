@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-10-21T13:56:49Z",
+  "reason": "Post-Done Markdown evidence-cell additions and appended scope narrative changed task-reviewed semantic bytes; workflow supports only lifecycle Status normalization. Restore exact actual reviewed Markdown; preserve new actual completion/evidence chains in traceability.json and retained before-repair artifact. No provenance record/hash or validator changed.",
+  "source_path": "/workspace/.task-scratch/ci-model-modernization/ci-t011-taskplan-reviewer-a-hveu8lpj/specs/ci-model-modernization/traceability.md",
+  "source_sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd",
+  "before_sha256": "9f2859bfbb1bbc40b7803d25d04ab060c13bb497b3288f4e663dd21c9cf2a947",
+  "after_sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd",
+  "traceability_json_preserved_sha256": "cda749d47547549ff95de47c7031426ce49a72c916e553c16138ff441bfc6789",
+  "review_contract": "reports/task-review/ci-model-modernization/attempt-4/round-3/task-review-contract.json",
+  "review_contract_sha256": "23615e6a1866402d43623fc7901efa762b954a7e7b9b9114bfddb49c7e5e2085",
+  "scope": "T010 Done and actual QA/bundle unchanged; all T009 frozen records unchanged; no new review or restamp."
+}

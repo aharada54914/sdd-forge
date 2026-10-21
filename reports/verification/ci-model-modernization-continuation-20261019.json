@@ -200,7 +200,7 @@
     "question": "Dedicated EXPECTED_SKIP (null execution IDs) plus independent A9 activation proof, versus explicit A9-only NOT_SELECTED exception. Both require approved contract/counterpart review.",
     "state": "Approved and fully accepted; actual T0019/T0023 PASS0 with validatedbundles. RT007resolved.",
     "downstream": "T003 Done; T004 In Progress; no pending A9 permission.",
-    "latest_user_message_interpretation": "Actual user said \u3088\u3044 in response to the EXPECTED_SKIP proposal; approved amendment is recorded, not pending permission."
+    "latest_user_message_interpretation": "Actual user said よい in response to the EXPECTED_SKIP proposal; approved amendment is recorded, not pending permission."
   },
   "read_only_native_acquisition": {
     "evidence": "specs/ci-model-modernization/verification/T-002/read-only-api-smoke/execution.json",
@@ -1770,7 +1770,7 @@
     "focused": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/focused-effective-evidence.json",
     "legacy": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/legacy-effective-evidence.json",
     "full_running": "specs/ci-model-modernization/verification/T-008/root-current-installed-11",
-    "remaining": "Batch implementation, self-improvement actual action boundary, default/otherhost inventory closure, wholeT008rollback, finalreport/independentQA0, T009\u2013T011.",
+    "remaining": "Batch implementation, self-improvement actual action boundary, default/otherhost inventory closure, wholeT008rollback, finalreport/independentQA0, T009–T011.",
     "boundary": "Plugin AGENTS are product data per user; approved development Skill2 edits authorized. Runtime protected renderer/installer/human-copy behavior retained.",
     "full_evidence": "specs/ci-model-modernization/verification/T-008/protected-caller-product-application/full-effective-evidence.json"
   },
@@ -1910,7 +1910,7 @@
   },
   "latest_checkpoint_at": "2026-10-20T19:30:30.664905+00:00",
   "continuation_20261021": {
-    "updated_at": "2026-10-21T13:48:47.344605+00:00",
+    "updated_at": "2026-10-21T13:54:35.309521+00:00",
     "codex_device_auth": "completed successfully; no credentials recorded",
     "github_force_full_variable": "user confirmed false; effective PR plan still to verify",
     "model_trials": {
@@ -1920,7 +1920,7 @@
       "harbor_deterministic_pass": 4,
       "orchard_deterministic_fail": 4,
       "meadow_deterministic_pass": 4,
-      "status": "Actual independent T010 QA PASS, zero Critical/Major/Minor; 424 input pins unchanged; formal bundle/Done integration in progress",
+      "status": "T010 Done after actual independent QA PASS (zero findings), canonical evidence bundle, task-state and traceability checks",
       "deterministic_pass": 9,
       "deterministic_fail": 11
     },
@@ -1949,12 +1949,26 @@
           "CHANGELOG migration history",
           "Documented reproducible private-ec2 example lockfile"
         ],
-        "final_committed_install_audit": "pending"
+        "final_committed_install_audit": "pending",
+        "product_commit": "53c2be4f"
+      },
+      "committed_prebaseline_audit": {
+        "commit": "53c2be4f798ca084654f95dee860d3b7d233ac40",
+        "actual_four_scenarios": "Bash/PowerShell x Git-tracked source/committed Git archive; identical payloads",
+        "with_three_mcp_files": 612,
+        "with_three_mcp_bytes": 11175117,
+        "without_mcp_derived_files": 606,
+        "without_mcp_derived_bytes": 6875344,
+        "no_mcp_derivation": "Subtract exact six verified MCP entries from each actual inventory; not a separate install run",
+        "installed_doc_links_checked": 125,
+        "installed_doc_links_missing": 0,
+        "installed_policy_selector_prepare": "Passed both runtimes using actual shipped policy and explicitly synthetic availability; no model inference",
+        "stage": "pre-baseline only; final immutable release verification pending"
       }
     },
     "task_plan": "attempt4round3 actual A14/B9 PASS; workflow gate PASS",
     "release": "1.20.0 candidate version surfaces prepared; no new tag; v1.19.0 unchanged",
-    "pushed_head": "593a7e98",
+    "pushed_head": "53c2be4f",
     "claude_delegation": {
       "local_limit_reset_utc": "2026-10-21T16:00:00Z",
       "cloud_session_creation": "succeeded",
@@ -1965,7 +1979,7 @@
       "gh_download": "HTTP403 at artifact storage redirect",
       "authorized_github_connector": "successful probe download; GitHub SHA256 verified; external transport adapter prepared and 8 synthetic controller checks passed; actual collection pending"
     },
-    "head": "2b814eee"
+    "head": "53c2be4f"
   },
   "t010_final": {
     "status": "Done",

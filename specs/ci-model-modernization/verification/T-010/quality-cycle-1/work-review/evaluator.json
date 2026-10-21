@@ -1,0 +1,111 @@
+{
+  "actual_backend_id": null,
+  "cannot_verify_limits": [
+    "Read-only review used frozen code, hashes, parsing/schema validation and caller-owned command receipts. No tests, fixture-writing helpers, providers or native inference were rerun.",
+    "Provider actual backend IDs and historical availability beyond recorded observation scope are unverified. Two repetitions of a toy workload do not establish universal quality; fixed judge residual bias remains.",
+    "Skill evidence covers bounded command planning and input acceptance, not installed-loop activation. Failed review, investigation and skill outcomes remain withheld.",
+    "Earlier private candidate/rollback commands do not have separately persisted per-command UTC intervals; later source-bound Root regression/static/probe receipts do. Full suite at final type-narrowed hash was not executed.",
+    "Reservation was already performed by caller. Quoted receipt sequence 1306, prior tip 1305 and invocation identity/previous-record hash agree; live ledger was deliberately not reread or reserved again."
+  ],
+  "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "effort": "unknown",
+  "evaluated_at": "2026-10-21T13:42:20.730833+00:00",
+  "feature": "ci-model-modernization",
+  "findings": [],
+  "host_session_id": "work-agent:root:t010_cycle1_evaluator",
+  "identity": "work-agent:root:t010_cycle1_evaluator",
+  "integrity": {
+    "expected_invocation_sha256": "0c40a0b199a7d940e48a378521f8b21db6546b148eff0e3dfd8bd3e0ca46359e",
+    "fallback_mode": "none",
+    "final_mismatches": 0,
+    "initial_mismatches": 0,
+    "input_count": 424,
+    "input_mode": "file-manifest",
+    "invocation_sha256": "0c40a0b199a7d940e48a378521f8b21db6546b148eff0e3dfd8bd3e0ca46359e",
+    "original_trial_manifest_sha256": "352f5ebefb66bd8156e8e850b85b82eb591e5648a781e9ce7325965cd0955617",
+    "previous_record_sha256": "8c98b823adc0ef29c6a97611f5662e10467953465a29769b8f96dc6b22cbc099",
+    "read_only": true,
+    "reservation_record_sha256": "5281d018ebb0f02778ca664b6015a394ebfe4082c8999644c95f4464f88699dd",
+    "reservation_repeated": false,
+    "reservation_sequence": 1306,
+    "supplemental_manifest_sha256": "9e3f45f0d5e87a4e39377ee8a57809cbeabd26174d8dd6be8f856d11e2e22825"
+  },
+  "model": "unknown",
+  "review_process_note": "One inspection command accidentally rendered the private mapping list while requesting JSON keys. Parent was informed; no mapping contents or raw native facts are included in this canonical result. No product/evidence inputs were modified.",
+  "role": "sdd-evaluator",
+  "run_id": "work-agent:root:t010_cycle1_evaluator",
+  "schema": "independent-implementation-evaluation/v1",
+  "stage": "quality",
+  "task_id": "T-010",
+  "verdict": "PASS",
+  "verification_observations": [
+    {
+      "observation": "Reviewed approved acceptance-first T-010 scope, assigned comparison/native-versus-fixture acceptance and preservation constraints with current layer specifications. Negative experimental outcomes do not require promotion. Hosted activation and release remain T-011.",
+      "paths": [
+        "specs/ci-model-modernization/tasks.md",
+        "specs/ci-model-modernization/acceptance-tests.md",
+        "specs/ci-model-modernization/requirements.md",
+        "specs/ci-model-modernization/design.md",
+        "specs/ci-model-modernization/traceability.md",
+        "specs/ci-model-modernization/verification/T-010.contract.json"
+      ]
+    },
+    {
+      "observation": "Independent historical/current diff changes only policy source date and existing Astra lifecycle/adoption for implementer. Registry v1/v2 and four supplied production policy/entry/wrapper scripts match original trial manifest pins. Preferences, floors, host mappings and historical models remain unchanged. Inspected model-policy.py lines 1195-1227 and 1365-1384: registered IDs, evidence byte hashes and per-role adoption are enforced. No Sol registration or failed-role promotion.",
+      "paths": [
+        "contracts/model-policy.v1.json",
+        "contracts/model-adoption/ci-model-modernization-20261021.json",
+        "plugins/sdd-implementation/scripts/model-policy.py"
+      ]
+    },
+    {
+      "observation": "Parsed admitted summaries and raw events: 20 unique trial contexts and starts, 19 completions, 9 deterministic passes and 11 failures; one builtin webSearch start remains an interrupted failed investigation. Ten fresh successful pre-pair discovery receipts. Reviewed fixed runner request loading, 300-second deadline, skill-only binding and deterministic scorer. Inspected both adopted Astra candidate selector bodies: complete validation before selection, role/floor/availability intersection, pin precedence, nonmutation and compatibility are real code, not receipt-shaped constants. Original rubric remains c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8; skill v5 separately binds its whole sources. All 172 trial manifest leaves match admitted bytes.",
+      "paths": [
+        "specs/ci-model-modernization/verification/T-010/attempt-3/trial-output-manifest.json",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/",
+        "specs/ci-model-modernization/verification/T-010/pre-output-preparation/score.py",
+        "specs/ci-model-modernization/verification/T-010/pre-output-preparation/original-model-rubric.md",
+        "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/skill-rubric-v5.md"
+      ]
+    },
+    {
+      "observation": "Four completed configured Astra/high judges each have zero tools and elapsed time below 300 seconds, actual identity unknown. Independently validated all four input and original full response JSON schemas with jsonschema, embedded document SHA256s, unchanged protocol briefs/response schemas and 262 criterion citation anchors including four global rubric citations. Read final original-criterion/citation validation receipts, preserving deterministic failures and command-plan limits. All 20 judge manifest leaves and 20 private-map artifact bindings match. Private mapping is provenance evidence only, not an evaluator instruction or substitute for implementation QA.",
+      "paths": [
+        "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/judge-output-manifest.json",
+        "specs/ci-model-modernization/verification/T-010/pre-output-preparation/semantic-judge-protocol-v1/"
+      ]
+    },
+    {
+      "observation": "Inspected exact adoption positive and modified-evidence/unregistered-Sol negatives. Raw logs show candidate 59/59, restored baseline 57/57 and Root 59/59, with exact rollback source hashes. Final test hash dfd74cab0de011b27643f44254113f23f795eaba540ca3633abf4b32041de72a differs only by the Bash non-None narrowing: reversing that exact replacement reconstructs f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09. Final Ruff, mypy and affected single probe receipts pass; initial mypy failure retained. No claim of full 59 execution at final hash.",
+      "paths": [
+        "tests/model-policy.tests.py",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/policy-reference-regression-v3/",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59-receipt.json",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts-v2.json"
+      ]
+    },
+    {
+      "observation": "Compared historical test helpers: installed PACKAGE adds runtime evidence; synthetic Anthropic fixture clears unrelated adoption and adds meaningful regression. Inspected actual installer smoke and assert_prepared closure oracle. Both installed production selectors and prepare validate shipped policy/adoption bytes and reject unregistered Sol; source-before/after hashes match. This is actual installed code with fixture-only availability and zero native inference, not a native access claim.",
+      "paths": [
+        "tests/model-policy-installed.tests.py",
+        "tests/model-policy-launch.tests.py",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/installed-production-smoke.py",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-production-smoke.json"
+      ]
+    },
+    {
+      "observation": "All 72 report output path/hash rows match admitted artifacts. Reviewed actual command receipts and raw logs for static/schema/placeholder/state/acceptance/regression evidence with recorded UTC intervals. Supplemental delivery is after implementation and receipt-only, not new authorization; original pre-output trial manifest remains distinct. No synthetic measured cost, actual backend identity or unavailable-provider comparison is inferred.",
+      "paths": [
+        "reports/implementation/ci-model-modernization/T-010.md",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+        "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/canonical-delivery-validation.json"
+      ]
+    }
+  ]
+}

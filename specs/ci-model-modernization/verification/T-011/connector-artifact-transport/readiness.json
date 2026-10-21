@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-21T13:17:51.413530+00:00",
+  "status": "READY-for-coordinator-inputs-not-executed",
+  "controller_sha256": "c0a406a82ad7deabc997882fadc53ed3cba84f3844ab2e0115e231b3d3b446e2",
+  "collector_sha256": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50",
+  "synthetic_checks": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.004s\n\nOK\n",
+  "native_collection_executed": false,
+  "product_files_modified": false
+}

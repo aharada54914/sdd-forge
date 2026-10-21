@@ -1,0 +1,22 @@
+{
+  "observed_at": "2026-10-21T13:43:21Z",
+  "actual_work_context": "/root/t010_cycle1_evaluator",
+  "spawn_configuration": "fresh fork_turns none; no model/reasoning overrides",
+  "model": "unknown",
+  "effort": "unknown",
+  "actual_backend_id": null,
+  "actual_evaluator_result_path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/work-review/evaluator.json",
+  "actual_evaluator_result_sha256": "83931ae3fafec3edc77ba3cc54098b99d6dc3a2157178a4e9078c1673c904343",
+  "invocation_sha256": "0c40a0b199a7d940e48a378521f8b21db6546b148eff0e3dfd8bd3e0ca46359e",
+  "root_and_scratch_inputs_verified": 424,
+  "input_mismatches": [],
+  "verdict_as_returned": "PASS",
+  "scope": "Actual result preserved; this receipt checks delivery integrity only, not independent re-evaluation or verdict synthesis.",
+  "counts_as_returned": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "count_field_source": "actual evaluator.json counts object; initial null top-level fields preserved in private preparation receipt",
+  "counts_field_source": "actual evaluator.json counts object"
+}

@@ -1,0 +1,147 @@
+{
+  "scope": "Exact public T010 quality/Done metadata only; prior295 audited implementation/evidence paths already staged by Root separately",
+  "files": [
+    {
+      "path": "reports/quality-gate/20261021-ci-model-modernization-T-010-cycle-1.md",
+      "sha256": "08cae8de1102c7499037e24999f7e89bd283b279125a434327f607749c04914a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010.evidence.json",
+      "sha256": "c7c336e0d748740bbc17213a977b2aa540f093e28aaa15f8728f9ca53c527271"
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "sha256": "5e71e7e0315deb5c6a083c4890737b45b6958a736b0b9c2358e255ec18013ac6"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.json",
+      "sha256": "cda749d47547549ff95de47c7031426ce49a72c916e553c16138ff441bfc6789"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.md",
+      "sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/work-review/evaluator.json",
+      "sha256": "83931ae3fafec3edc77ba3cc54098b99d6dc3a2157178a4e9078c1673c904343"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/work-review/post-review-receipt.json",
+      "sha256": "a2fb7b4fdb3a8c1096074b109e78508bdcea003b63167aaba932e5951032dc97"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/check-bundle.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/check-bundle.stdout.log",
+      "sha256": "71548db6efe773dd2850cf93c111d54420e77024bb7e0284ad4f1f1de8787205"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/commands.json",
+      "sha256": "c746e98a57cdc54e91df03b9c9c4af062adae9d75276a2fcf6f90c2b89331ffb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/contract.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/contract.stdout.log",
+      "sha256": "88acd1606c689e4c2cb25cdea1b652f1a58ae28001d25f67ed8b5c7c21f627f1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/generate-bundle.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/generate-bundle.stdout.log",
+      "sha256": "122cdb569bb543f68aecd9d2e5f29336f2d37fa31ac9b70d73882769234dc1e8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/gate-integration/results.json",
+      "sha256": "c12cc348149d9b24295aae41294a3d6aa52c3c612058089e4c71a44b07e42735"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/before.json",
+      "sha256": "938b93698627ee1459c21f2cd6c878de4dd99fae9caaed4e990299f47203b746"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/commands.json",
+      "sha256": "8f87b0381c5991d5a03b005c6d8afab7ea214b15592a76b961bd8f93bd3b601d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/results.json",
+      "sha256": "42c5bf82276383e3e295ef711a4f795e79066233c3018318b26fadfa5b5d5faa"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/task-state.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/task-state.stdout.log",
+      "sha256": "cab18379978ed30065cd1ebbbfe251fe2e40a041ab032dc5dd3bf1522f1abf3e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/traceability.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/traceability.stdout.log",
+      "sha256": "a48f262961eec4d4bd70a392eff95cb46f4e5371c85d301f6ff4b2580bcc3df3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/provenance-repair/repair-receipt.json",
+      "sha256": "5d4d368e8e732c0a0c744132ed0c308019097322faac95d9e758fa065f58d476"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/provenance-repair/task-state.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/provenance-repair/task-state.stdout.log",
+      "sha256": "cab18379978ed30065cd1ebbbfe251fe2e40a041ab032dc5dd3bf1522f1abf3e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/provenance-repair/traceability-post-done-before-repair.md",
+      "sha256": "9f2859bfbb1bbc40b7803d25d04ab060c13bb497b3288f4e663dd21c9cf2a947"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/provenance-repair/traceability.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/provenance-repair/traceability.stdout.log",
+      "sha256": "a48f262961eec4d4bd70a392eff95cb46f4e5371c85d301f6ff4b2580bcc3df3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/provenance-repair/validation-results.json",
+      "sha256": "5677094c9af29cc5e8980d84a8dfff3700e57cbc04d27230b35c5e30b95dd5e1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/provenance-repair/workflow-state.stderr.log",
+      "sha256": "4a04157a5f7d4d9c1237a7e7a8f156719f8f5aa0ae9accfaf7cdc9852629038f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/provenance-repair/workflow-state.stdout.log",
+      "sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0"
+    }
+  ],
+  "count": 22,
+  "excluded": [
+    "private native receipts/events/account/provider payloads and judge map",
+    "full424-input QA invocation because it lists the private QA set; publish only its hash/identity proof in formalreport and postreview receipt",
+    "identity ledger, reservation/allocation receipts, source/scratch pin maps and task snapshots",
+    "preparation controllers, failed drafts and private source copies",
+    "continuation journal contents require separate existing-record curation; updated locally, not included here"
+  ],
+  "actual_independent_verdict": "PASS",
+  "reviewer_model_effort": "unknown, no overrides",
+  "curation_index_paths": [
+    "specs/ci-model-modernization/verification/T-010/quality-cycle-1/public-quality-curation.json",
+    "specs/ci-model-modernization/verification/T-010/quality-cycle-1/public-quality-paths.txt",
+    "specs/ci-model-modernization/verification/T-010/quality-cycle-1/public-quality-paths.nul"
+  ],
+  "staging_count": 34,
+  "staging_paths_nul_sha256": "08b0a07626b6778c2b6548018016f61de42a8b09d7b84e3ec9eeebd03298d3ef",
+  "provenance_repair": "Restore exact actual task-reviewed Markdown; retain completion chains in JSON and task-local before-repair artifact; actual full workflow/task-state/traceability revalidation PASS."
+}

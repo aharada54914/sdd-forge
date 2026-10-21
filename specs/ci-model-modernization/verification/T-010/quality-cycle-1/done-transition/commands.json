@@ -1,0 +1,45 @@
+[
+  {
+    "label": "task-state",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "/workspace/sdd-forge/specs/ci-model-modernization/tasks.md",
+      "reports/quality-gate",
+      "reports/implementation/ci-model-modernization",
+      "/workspace/sdd-forge"
+    ],
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization"
+    },
+    "started_at": "2026-10-21T13:48:51Z",
+    "finished_at": "2026-10-21T13:48:52Z",
+    "elapsed_seconds": 1.112938337988453,
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/task-state.stdout.log",
+    "stdout_sha256": "cab18379978ed30065cd1ebbbfe251fe2e40a041ab032dc5dd3bf1522f1abf3e",
+    "stderr": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/task-state.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "traceability",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "/workspace/sdd-forge/specs/ci-model-modernization/traceability.json",
+      "/workspace/sdd-forge",
+      "require-evidence"
+    ],
+    "environment": {
+      "TMPDIR": "/workspace/.task-scratch/ci-model-modernization"
+    },
+    "started_at": "2026-10-21T13:48:52Z",
+    "finished_at": "2026-10-21T13:48:52Z",
+    "elapsed_seconds": 0.034857366990763694,
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/traceability.stdout.log",
+    "stdout_sha256": "a48f262961eec4d4bd70a392eff95cb46f4e5371c85d301f6ff4b2580bcc3df3",
+    "stderr": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/traceability.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

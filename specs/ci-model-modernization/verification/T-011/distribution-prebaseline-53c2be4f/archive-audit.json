@@ -1,0 +1,14 @@
+{
+  "bash": {
+    "exit": 0,
+    "files": 612,
+    "bytes": 11175117,
+    "equals_local_git_payload": true
+  },
+  "pwsh": {
+    "exit": 0,
+    "files": 612,
+    "bytes": 11175117,
+    "equals_local_git_payload": true
+  }
+}

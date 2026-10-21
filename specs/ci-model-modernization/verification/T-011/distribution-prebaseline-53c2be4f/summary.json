@@ -1,0 +1,44 @@
+{
+  "schema": "installer-prebaseline-audit/v1",
+  "source_commit": "53c2be4f798ca084654f95dee860d3b7d233ac40",
+  "scope": "Committed pre-baseline shipping audit, not a final release tag claim",
+  "source": "clean detached shared Git clone; no hardlinks",
+  "actual_scenarios": [
+    "Bash local Git",
+    "PowerShell local Git",
+    "Bash committed Git archive",
+    "PowerShell committed Git archive"
+  ],
+  "all_scenarios_equal": true,
+  "with_all_three_mcp": {
+    "files": 612,
+    "bytes": 11175117
+  },
+  "without_mcp": {
+    "files": 606,
+    "bytes": 6875344,
+    "measurement": "Derived by removing exactly six separately inventoried MCP runtime entries from identical actual installations"
+  },
+  "original_no_mcp_baseline": {
+    "files": 16408,
+    "bytes": 189910946
+  },
+  "no_mcp_byte_reduction_percent": 96.37970104156082,
+  "forbidden_payload_files": [],
+  "native_helper_suites": {
+    "bash": "9/9",
+    "powershell": "9/9"
+  },
+  "production_policy": "Unchanged committed policy/registry/adoption bytes; gpt-6-astra implementer selector and prepare succeed on both actual installations using synthetic verified availability, no live inference",
+  "adoption_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+  "local_document_links": {
+    "checked": 125,
+    "missing": 0
+  },
+  "limits": [
+    "No final release tag exists for this audit",
+    "PowerShell tested on Linux, not native Windows",
+    "Model availability observation is synthetic; cloud/model execution evidence is separate"
+  ],
+  "post_execution_note": "Original installer inventories contain no caches. Subsequent in-process Python test-oracle imports create one model-policy bytecode cache in each owned install; shipping-file hashes remain unchanged."
+}

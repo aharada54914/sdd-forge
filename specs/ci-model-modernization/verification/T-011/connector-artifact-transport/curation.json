@@ -1,0 +1,50 @@
+{
+  "schema": "external-ci-transport-curation/v1",
+  "at": "2026-10-21T13:52:27.775859+00:00",
+  "observed_root_commit": "53c2be4f798ca084654f95dee860d3b7d233ac40",
+  "files": {
+    "collect_with_connector_zips.py": {
+      "sha256": "c0a406a82ad7deabc997882fadc53ed3cba84f3844ab2e0115e231b3d3b446e2",
+      "bytes": 8029
+    },
+    "README.md": {
+      "sha256": "cd1ff4b7d16b9ae56d1ac3bef0fbc3b145f518bf68a477bac7bad395dd0f7f03",
+      "bytes": 3113
+    },
+    "test_adapter.py": {
+      "sha256": "a1b3ade53b55398fff1066887ab16b1a120c1240f031d547146dbe2c854a0477",
+      "bytes": 5001
+    },
+    "readiness.json": {
+      "sha256": "fa8d3537ecbd218600621b01f2bf94dc1bcdb93c59222a69fd03e6a8ab616844",
+      "bytes": 496
+    },
+    "synthetic-checks.log": {
+      "sha256": "60bb849356ffbc091f601e17fc6ae0b2eb5e26d734d433da020c6e775efbf97f",
+      "bytes": 106
+    },
+    "manifest.template.json": {
+      "sha256": "83e3106edaa78282164527c71d2d98b10f593c28a563d79fe380bc04f34687ee",
+      "bytes": 945
+    }
+  },
+  "collector_source": {
+    "path": "tests/verification-ci.py",
+    "sha256": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50",
+    "unchanged": true
+  },
+  "scope": "Task-local transport preparation only; no new test engine, product changes, actual CI collection or dispatch. Original collector logic unchanged.",
+  "privacy_scan": {
+    "findings": [],
+    "excluded": [
+      "__pycache__",
+      "rollout-ready-commands.md",
+      "raw CLI logs",
+      "credential or account state",
+      "signed artifact URLs",
+      "actual connector ZIP inputs"
+    ]
+  },
+  "verification": "Original 8 synthetic contract checks passed; unchanged byte-for-byte controller and tests copied with historical log. This is not hosted proof.",
+  "usage": "README commands intentionally materialize/run the external /workspace/ci-artifact-transport controller; task-local copies preserve its exact reviewed source before B. Set actual manifest inputs only after a real run. Public template placeholders are not observations."
+}

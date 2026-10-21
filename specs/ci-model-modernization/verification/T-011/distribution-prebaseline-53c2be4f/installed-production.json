@@ -1,0 +1,18 @@
+[
+  {
+    "runtime": "bash",
+    "selector_exit": 0,
+    "prepare_exit": 0,
+    "catalog_id": "gpt-6-astra",
+    "adoption_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+    "availability_evidence": "synthetic verified-configuration fixture; no inference or live discovery"
+  },
+  {
+    "runtime": "pwsh",
+    "selector_exit": 0,
+    "prepare_exit": 0,
+    "catalog_id": "gpt-6-astra",
+    "adoption_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+    "availability_evidence": "synthetic verified-configuration fixture; no inference or live discovery"
+  }
+]
