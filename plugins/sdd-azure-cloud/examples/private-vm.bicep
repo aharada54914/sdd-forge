@@ -96,3 +96,5 @@ resource backup 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionConta
     policyId: backupPolicyId
   }
 }
+
+// T011 representative cloud example comparison; resources unchanged.
