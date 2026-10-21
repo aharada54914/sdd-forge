@@ -10,13 +10,24 @@ env:
   GIT_CONFIG_KEY_0: core.longpaths
   GIT_CONFIG_VALUE_0: true
 jobs:
-  native-archive-diagnostic:
+  focused-installer:
+    name: Focused installer (${{ matrix.runtime }})
     runs-on: windows-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [pwsh, powershell.exe]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: Inspect native archive Unicode paths
+      - name: Run actual archive and payload regressions
         shell: pwsh
-        run: python .github/scripts/native-archive-diagnostic.py
+        env:
+          TEST_POWERSHELL: ${{ matrix.runtime }}
+        run: |
+          $env:PWSH = (Get-Command $env:TEST_POWERSHELL -ErrorAction Stop).Source
+          & $env:PWSH -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()'
+          python tests/lib/install-payload-check.py --runtime powershell PayloadChecks.test_tracked_special_names_survive_local_and_archive PayloadChecks.test_windows_zip_metadata_and_containment PayloadChecks.test_archive_source_installs_the_same_payload PayloadChecks.test_mcp_placement_is_exactly_index_and_package
+          exit $LASTEXITCODE
