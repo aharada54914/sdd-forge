@@ -1,0 +1,294 @@
+{
+  "label": "cancelled-original-mutation",
+  "run_id": 39615327268,
+  "head_sha": "67f66723ab98ffab6aeef220fee4a942c8f2a821",
+  "head_branch": "t011/mutation-6c2b4e713915",
+  "workflow_id": 293526784,
+  "workflow_path": ".github/workflows/test.yml",
+  "event": "workflow_dispatch",
+  "status": "completed",
+  "conclusion": "cancelled",
+  "run_attempt": 1,
+  "created_at": "2026-10-21T14:15:47Z",
+  "run_started_at": "2026-10-21T14:15:47Z",
+  "updated_at": "2026-10-21T14:33:12Z",
+  "job_count": 45,
+  "job_conclusion_counts": {
+    "success": 14,
+    "cancelled": 24,
+    "failure": 6,
+    "skipped": 1
+  },
+  "non_success_jobs": [
+    {
+      "job_id": 119275089509,
+      "name": "complete POSIX regression inventory",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:17:25Z",
+      "completed_at": "2026-10-21T14:28:57Z"
+    },
+    {
+      "job_id": 119275089654,
+      "name": "loops-routing (windows-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:26:36Z",
+      "completed_at": "2026-10-21T14:28:03Z"
+    },
+    {
+      "job_id": 119275089689,
+      "name": "test (macos-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-21T14:19:28Z",
+      "completed_at": "2026-10-21T14:27:48Z"
+    },
+    {
+      "job_id": 119275089796,
+      "name": "version-gates (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-21T14:17:56Z",
+      "completed_at": "2026-10-21T14:18:13Z"
+    },
+    {
+      "job_id": 119275089797,
+      "name": "version-gates (macos-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-21T14:21:45Z",
+      "completed_at": "2026-10-21T14:26:58Z"
+    },
+    {
+      "job_id": 119275089802,
+      "name": "test (windows-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-21T14:19:47Z",
+      "completed_at": "2026-10-21T14:29:22Z"
+    },
+    {
+      "job_id": 119275089834,
+      "name": "POSIX unwired shard (0)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:23:00Z",
+      "completed_at": "2026-10-21T14:28:16Z"
+    },
+    {
+      "job_id": 119275089864,
+      "name": "test (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:27:50Z",
+      "completed_at": "2026-10-21T14:30:31Z"
+    },
+    {
+      "job_id": 119275089874,
+      "name": "installers (ubuntu-latest / all)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275089896,
+      "name": "POSIX unwired shard (2)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275089901,
+      "name": "cli-hook-enforcement (macos-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275089920,
+      "name": "cloud-native (macos-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:24:42Z",
+      "completed_at": "2026-10-21T14:28:45Z"
+    },
+    {
+      "job_id": 119275089958,
+      "name": "installers (windows-latest / core)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275089959,
+      "name": "POSIX unwired shard (3)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:23:12Z",
+      "completed_at": "2026-10-21T14:28:27Z"
+    },
+    {
+      "job_id": 119275089964,
+      "name": "cloud-native (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:20:49Z",
+      "completed_at": "2026-10-21T14:28:34Z"
+    },
+    {
+      "job_id": 119275090007,
+      "name": "ci-mcp-tests (macos-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275090099,
+      "name": "POSIX unwired shard (1)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275090138,
+      "name": "test-windows-heavy (a9)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275090139,
+      "name": "cloud-native (windows-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275090169,
+      "name": "version-gates-windows-bump (powershell)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275090171,
+      "name": "version-gates-windows-bump (bash)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-21T14:22:02Z",
+      "completed_at": "2026-10-21T14:27:16Z"
+    },
+    {
+      "job_id": 119275090265,
+      "name": "test-windows-heavy (compatibility)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-21T14:24:14Z",
+      "completed_at": "2026-10-21T14:26:05Z"
+    },
+    {
+      "job_id": 119275090300,
+      "name": "mcp-tests (macos-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275090456,
+      "name": "version-gates-windows-lanes (ownership)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275090490,
+      "name": "test-windows-heavy (gates)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:31Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275090615,
+      "name": "version-gates-windows-lanes (lite)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:27:44Z",
+      "completed_at": "2026-10-21T14:29:00Z"
+    },
+    {
+      "job_id": 119275090888,
+      "name": "version-gates-windows-lanes (capability)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:32Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275090893,
+      "name": "version-gates-windows-lanes (governance)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:32Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275091197,
+      "name": "mcp-tests (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:32Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275092572,
+      "name": "local-env-mcp-tests (windows-latest)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T14:16:32Z",
+      "completed_at": "2026-10-21T14:27:47Z"
+    },
+    {
+      "job_id": 119275176323,
+      "name": "capability-mode Gate",
+      "status": "completed",
+      "conclusion": "skipped",
+      "started_at": "2026-10-21T14:16:41Z",
+      "completed_at": "2026-10-21T14:16:41Z"
+    }
+  ],
+  "evidence_sources": [
+    {
+      "path": "/workspace/t011-rollout/outputs/6c2b4e713915/39615327268/final-run-api.json",
+      "sha256": "bf027a9b0bd1911f7706287501f92e6f7924d2f4513a9754ef30b0534b8b159d"
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/6c2b4e713915/run-39615327268-latest.json",
+      "sha256": "aaa54678ade1277b14d5722e4f6a1a80ce517caee838825da33a0a44b7f41cda"
+    }
+  ],
+  "acceptance": "Superseded diagnostic observation only; no passing baseline or mutation proof asserted.",
+  "excluded_fields": [
+    "actor",
+    "triggering_actor",
+    "head_commit",
+    "repository/head_repository",
+    "allURLfields",
+    "headers",
+    "credentials",
+    "step details",
+    "artifactZIPcontents"
+  ]
+}

@@ -552,8 +552,9 @@ def inactive_a9(root, plan, workflow, histories, origins, run):
     if active:
         return set()
     for job in advisory_history:
+        # Skipped jobs can retain requested labels without assigning a runner.
         if (job.get('status') != 'completed' or job.get('conclusion') != 'skipped'
-                or job.get('steps') != [] or job.get('labels') != []
+                or job.get('steps') != [] or job.get('labels') not in ([], [advisory_job['runs-on']])
                 or not (job.get('runner_id') is None or type(job.get('runner_id')) is int and job['runner_id'] == 0)
                 or job.get('runner_name') not in (None, '')):
             raise ValueError('inactive A9 requires actual nonexecuted skipped observations')

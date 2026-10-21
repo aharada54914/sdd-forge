@@ -1,0 +1,15 @@
+{
+  "recorded_at": "2026-10-21T14:52:35.495553+00:00",
+  "kind": "transcription of actual root exec_command tool result, not a separately captured process log",
+  "tool_result_chunk_id": "b2dc42",
+  "commands": [
+    "/workspace/.tools/sdd-forge-python/bin/ruff check --config tests/shared-launch-python/pyproject.toml tests/verification-ci.py tests/verification-ci.tests.py",
+    "/workspace/.tools/sdd-forge-python/bin/mypy --config-file tests/shared-launch-python/pyproject.toml tests/verification-ci.py tests/verification-ci.tests.py"
+  ],
+  "observed_check_stdout": "All checks passed!\nSuccess: no issues found in 2 source files\n",
+  "combined_shell_exit_code": 0,
+  "source_pins": {
+    "tests/verification-ci.py": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1",
+    "tests/verification-ci.tests.py": "f42916a4c73547405a98a0a86c2598f5be3aa040fea7cc94d7f8fe53b60ff44c"
+  }
+}

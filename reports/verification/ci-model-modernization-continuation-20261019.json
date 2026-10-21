@@ -134,7 +134,7 @@
     "bundle": "specs/ci-model-modernization/verification/T-010.evidence.json",
     "actual_review": "QA1 PASS 0C/0M/0m"
   },
-  "active": "T010 Done after actual independent QA1 PASS and checked bundle; T011 hosted/installer/documentation/final exact-revision release remains In Progress.",
+  "active": "T001–T010 Done; T011 In Progress. Native hosted failures and aggregate metadata mismatch corrected; replacement full baseline, measured rollout, exact-F profiles/release and independent final QA remain pending.",
   "cloud_release": {
     "tag": "v1.19.0",
     "tested_commit": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
@@ -356,7 +356,7 @@
     "current_fix_report_sha256": "0fcea36984f07a1f6fb1a62c4503e5e8cfc7444cf28f85843e74681f9f237710",
     "current_helper_sha256": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894"
   },
-  "updated_at": "2026-10-21T13:48:51Z",
+  "updated_at": "2026-10-21T14:51:53.082371+00:00",
   "t005_current_gate": {
     "state": "Done after actual QA2 PASS0 and generated/checked evidence bundle",
     "actual_context": "/root/t005_cycle2_evaluator",
@@ -372,7 +372,7 @@
     "contract": "PASS",
     "do_not_mutate_review_inputs_until_actual_verdict_and_root_full_reverification": true
   },
-  "current_task": "T-008",
+  "current_task": "T-011",
   "t006": {
     "state": "Done after actual independent QA2 PASS0 and generated/checked evidence bundle",
     "current_policy_methods": 51,
@@ -1905,12 +1905,13 @@
       "current_task_raw_sha256": "bfcc58800b99a4c68d052217c8fb562e69a2297b298333efdd2a4f128fad82f1"
     },
     "activation": "inactive; no actual hosted savings claimed",
-    "model_adoption": "none",
-    "version_tag": "no new version/tag; v1.19.0 remote tag object preserved"
+    "model_adoption": "T010 Done: registered Astra implementer retained after actual trials and independent QA; no unregistered Sol capability introduced.",
+    "version_tag": "1.20.0 candidate metadata prepared; no new tag published; v1.19.0 preserved.",
+    "checkpoint_scope": "Historical readiness checkpoint; current continuation_20261021 and hosted_rebaseline_20261021 below supersede its pre-T010 model/release status."
   },
-  "latest_checkpoint_at": "2026-10-20T19:30:30.664905+00:00",
+  "latest_checkpoint_at": "2026-10-21T14:51:53.082371+00:00",
   "continuation_20261021": {
-    "updated_at": "2026-10-21T14:10:45.265506+00:00",
+    "updated_at": "2026-10-21T14:51:53.082371+00:00",
     "codex_device_auth": "completed successfully; no credentials recorded",
     "github_force_full_variable": "user confirmed false; effective PR plan still to verify",
     "model_trials": {
@@ -2001,5 +2002,61 @@
     "input_mismatches": 0,
     "scope": "T010 controlled adoption subset Done after actual fresh independent implementation QA1 PASS (0 Critical, 0 Major, 0 Minor), verified424-input delivery and generated/checked evidence bundle. Current registered Astra implementer receives scoped evidence reference only; experimental Sol pass remains withheld as unregistered and failed reviewer/investigator/skill roles remain withheld. Two repetitions and fixture-only installed availability do not claim universal quality or actual backend identity. Shared downstream T011 hosted activation/final release scope remains incomplete; shared requirement status is not promoted by this scoped completion.",
     "commands_receipt": "specs/ci-model-modernization/verification/T-010/quality-cycle-1/done-transition/results.json"
+  },
+  "hosted_rebaseline_20261021": {
+    "recorded_at": "2026-10-21T14:51:53.082371+00:00",
+    "failed_baseline": {
+      "commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+      "run_id": 39615251761,
+      "status": "completed",
+      "conclusion": "failure",
+      "job_conclusions": {
+        "success": 30,
+        "skipped": 1,
+        "failure": 15
+      },
+      "plan_obligations": 449
+    },
+    "superseded_mutation": {
+      "commit": "67f66723ab98ffab6aeef220fee4a942c8f2a821",
+      "run_id": 39615327268,
+      "conclusion": "cancelled",
+      "reason": "Baseline requires corrections; original intended README failure and observations retained, not activation proof"
+    },
+    "fixture_correction_commits": [
+      "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "3ca7d32b38e47bd39309f2e27927634b178af461",
+      "2e0a7d68997c98cdd7b6e89c57a1a8f1d508321e"
+    ],
+    "collector_test_first_commit": "08d45e4fa821cb3bbb335dd1786eea30dc2429e8",
+    "collector_fix": {
+      "reason": "GitHub skipped A9 job retains declared runner labels without runner assignment. Accept only empty or exact declared labels with no steps/runner; all execution and unknown-label controls retained.",
+      "source_sha256": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1",
+      "tests_passed": 82,
+      "ruff": "PASS",
+      "mypy": "PASS",
+      "rollback": "Original source reproduces two positive subcase failures; rejects unknown metadata",
+      "old_run_replay": "Counterfactual diagnostic only: FAIL/execution-failed, 138 verified, 1 advisory-inactive, 310 execution-failed; not baseline acceptance"
+    },
+    "evidence": [
+      "specs/ci-model-modernization/verification/T-011/hosted-platform-followup",
+      "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup",
+      "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup",
+      "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup"
+    ],
+    "next": "Commit all corrections, dispatch new full B alone; only accepted B permits new mutation M, restore R and proof activation A.",
+    "remaining": [
+      "Actual full/selected README, MCP, cloud and shared comparisons",
+      "Final F complete POSIX and PowerShell profiles plus full hosted CI",
+      "New immutable annotated v1.20.0 tag and final installed payload audit",
+      "Combined-scope independent T011 QA and checked completion bundle"
+    ],
+    "limits": [
+      "No category activation or measured omission claimed yet",
+      "Native Windows fixes need replacement CI confirmation",
+      "Long Unicode PAX extraction with Windows native tar remains a preexisting unverified limitation; special-name regression now uses actual Git archive producer",
+      "Live cloud #911 remains blocked without owner-authorized sandbox; no cloud writes"
+    ],
+    "private_inputs": "Identity ledger and raw model/account/session data excluded from commits"
   }
 }

@@ -1,0 +1,84 @@
+{
+  "schema": "a9-skipped-label-public-curation/v1",
+  "files": {
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/README.md": {
+      "sha256": "008a9e894f3d60e5dfb324ce941c9cc2b1557107091699560de755fc319265e9",
+      "bytes": 2928
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/cancelled-original-mutation-final-status.json": {
+      "sha256": "3754481cdc282cef27e0f72c91657158def7ef16789ae54ebfb15eb98c737c2e",
+      "bytes": 8823
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/candidate-source.patch": {
+      "sha256": "2c4579b742639ba717a124df38863625d7f2bcbec6347dbec1fb6336a205c951",
+      "bytes": 574
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/counterfactual-replay-exceptions.json": {
+      "sha256": "e237bc9e0559eebca3d0fa361799e7205c8abfb0800dfac09543559242ea30db",
+      "bytes": 43093
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/counterfactual-replay-result.json": {
+      "sha256": "f67d115f154eeb637912f0ca9bc8e1c581b247e029e1a5f1b184b0ae1aa6ec84",
+      "bytes": 103891
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/counterfactual-replay-summary.json": {
+      "sha256": "bcd5a0a75552fc14e5af093b5a50301762b3a689575379f0108d85ae61127344",
+      "bytes": 364
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/evidence-receipt.json": {
+      "sha256": "127f0758a1fda13d2075c41fb72ce9b00f19ca52868e6e473ffa12d931b54db6",
+      "bytes": 9777
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/failed-original-baseline-final-status.json": {
+      "sha256": "c1bf4f5b1014399ddc48f3b2e944e6e5a825e8d3b5f758cedb3ecdc0f747945a",
+      "bytes": 5121
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/green-full.log": {
+      "sha256": "de82492eb8cea89c274bc360e6d1296de092bdab9f05728a22af95ee819cafc7",
+      "bytes": 14123
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/original-collection-pins.json": {
+      "sha256": "4c215fa82592167988907fb4bd8a3ab5beae6c7fb7819124c5991e7f1c626dd9",
+      "bytes": 1968
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/pre-rebaseline-workflow.log": {
+      "sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7",
+      "bytes": 1243
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/preflight.json": {
+      "sha256": "96753945ddcfcd0f08b4a6e162ee6b068ca1daef5b7e8416d7f06026b16993ee",
+      "bytes": 1074
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/red.log": {
+      "sha256": "ead1d3e42c12820f9765ef2c9d110710758f77980639b5ece986f7f0802ec653",
+      "bytes": 5877
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/report.json": {
+      "sha256": "713e028396ef58da33e7f0d2bdee313519a85c01a6a65091f970e817a825b302",
+      "bytes": 1152
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/rollback.log": {
+      "sha256": "84f9f61faf0d7540e83f10a3c8a411feabee5587112461438318c3b4049ac721",
+      "bytes": 6039
+    },
+    "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/root-static-observation.json": {
+      "sha256": "2b12c96533c718d813a5ca0fa8d1b95584004b7d2fefbde7fe4e40fd4d7d1ae6",
+      "bytes": 902
+    }
+  },
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "tests/verification-ci.py",
+      "before_commit": "08d45e4fa821cb3bbb335dd1786eea30dc2429e8",
+      "before_sha256": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50",
+      "after_candidate_sha256": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1"
+    },
+    {
+      "path": "reports/verification/ci-model-modernization-continuation-20261019.json",
+      "before_commit": "08d45e4fa821cb3bbb335dd1786eea30dc2429e8",
+      "before_sha256": "9fb2997f986680340595d0cea48b47bd40869495d324b87941dd16d5edfb8a61",
+      "after_candidate_sha256": "e738f8ff9aa39f59881e906bbbccd2a935a907b5f67f96f6ea3cf4deb4226fd0",
+      "privacy_review_scope": "Exact new diff only; historical alreadypublished Claude session UUID metadata unchanged and explicitly adjudicated byRoot"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "cause": "Hosted skipped A9 job preserves requested ubuntu-latest label without assigned runner or steps; inactive_a9 demanded empty labels.",
+  "actual_job_id": 119274495855,
+  "actual_run_id": 39615251761,
+  "actual_observations": "/workspace/t011-rollout/outputs/6c2b4e713915/39615251761/observations",
+  "counterparts": {
+    "labels": "[] or exactly [workflow jobs.a9-advisory.runs-on]",
+    "runner_id": "null or integer0 only",
+    "runner_name": "null or empty only",
+    "steps": "empty only",
+    "status": "completed",
+    "conclusion": "skipped"
+  },
+  "negative_controls": [
+    "unknown labels",
+    "additional labels",
+    "duplicate labels",
+    "non-list labels",
+    "assigned runner",
+    "executed steps",
+    "active advisory skip"
+  ],
+  "runtime_sha256_before": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50",
+  "tests_sha256_red": "f42916a4c73547405a98a0a86c2598f5be3aa040fea7cc94d7f8fe53b60ff44c",
+  "scope": [
+    "tests/verification-ci.tests.py",
+    "tests/verification-ci.py"
+  ],
+  "historical_proof_unchanged": true
+}

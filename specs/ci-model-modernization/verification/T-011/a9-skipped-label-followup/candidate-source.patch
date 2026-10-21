@@ -1,0 +1,9 @@
+diff --git a/tests/verification-ci.py b/tests/verification-ci.py
+index f5424bb6..3fb40de0 100644
+--- a/tests/verification-ci.py
++++ b/tests/verification-ci.py
+@@ -554,0 +555 @@ def inactive_a9(root, plan, workflow, histories, origins, run):
++        # Skipped jobs can retain requested labels without assigning a runner.
+@@ -556 +557 @@ def inactive_a9(root, plan, workflow, histories, origins, run):
+-                or job.get('steps') != [] or job.get('labels') != []
++                or job.get('steps') != [] or job.get('labels') not in ([], [advisory_job['runs-on']])

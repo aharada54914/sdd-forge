@@ -1,0 +1,11 @@
+{
+  "status": "FAIL",
+  "reason": "execution-failed",
+  "counts": {
+    "verified": 138,
+    "advisory-inactive": 1,
+    "execution-failed": 310
+  },
+  "runtime_sha256": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1",
+  "label": "Diagnostic replay of unchanged failed B observations with corrected current collector; not baseline acceptance"
+}

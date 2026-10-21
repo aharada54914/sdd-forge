@@ -1,0 +1,47 @@
+{
+  "scope": "Pins original collector/transport and failed trace without redistributing original collection or ZIPs",
+  "original_inputs": [
+    {
+      "path": "/workspace/t011-rollout/outputs/6c2b4e713915/39615251761/transport-report.json",
+      "sha256": "8d05df1fccbfd38f1204aa5fe41d332403c0ebb1aed32980ed01fc366379d460",
+      "bytes": 7837,
+      "retained_external": true,
+      "rewritten": false
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/6c2b4e713915/39615251761/transport-manifest.json",
+      "sha256": "796fa89e36c97c0537d29d796357242c566aebe976be1ec79cf7a2f9bd24ce74",
+      "bytes": 9153,
+      "retained_external": true,
+      "rewritten": false
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/6c2b4e713915/39615251761/diagnostic-aggregate.json",
+      "sha256": "9c401e1411045aa0938382f09f5658fed15235e10d0d1a642698c1c4829b8aab",
+      "bytes": 103195,
+      "retained_external": true,
+      "rewritten": false
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/6c2b4e713915/39615251761/diagnostic-original-exceptions.json",
+      "sha256": "ac586e29643cf832d5e7ea65d555b5b6fd61defc8d992d2078c790a9a1ebec5f",
+      "bytes": 333,
+      "retained_external": true,
+      "rewritten": false
+    }
+  ],
+  "original_aggregate": {
+    "schema": "verification-ci-result/v1",
+    "status": "FAIL",
+    "reason": "evidence-mismatch",
+    "run_id": "39615251761",
+    "api_head_sha": "6c2b4e7139158674dfaa1148c009db7da261706f",
+    "tested_revision": "6c2b4e7139158674dfaa1148c009db7da261706f",
+    "plan_sha256": "2c71013d33c855d85c243b888c538dd080a96ab7d7ea53ff6daf75b899a27895"
+  },
+  "original_transport_status": "collection-completed-not-aggregate-acceptance",
+  "historical_collector_sha256": "fc0867552dab374a3643eef32bf41aa006a3643b12294483d1dd8d4ee654da50",
+  "future_collector_sha256": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1",
+  "adapter_changed": false,
+  "history_rewritten": false
+}
