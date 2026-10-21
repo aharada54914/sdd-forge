@@ -29,5 +29,14 @@ jobs:
         run: |
           $env:PWSH = (Get-Command $env:TEST_POWERSHELL -ErrorAction Stop).Source
           & $env:PWSH -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()'
-          python tests/lib/install-payload-check.py --runtime powershell PayloadChecks.test_tracked_special_names_survive_local_and_archive PayloadChecks.test_windows_zip_metadata_and_containment PayloadChecks.test_archive_source_installs_the_same_payload PayloadChecks.test_mcp_placement_is_exactly_index_and_package
+          python tests/lib/install-payload-check.py --runtime powershell PayloadChecks.test_tracked_special_names_survive_local_and_archive PayloadChecks.test_windows_zip_metadata_and_containment PayloadChecks.test_archive_source_installs_the_same_payload PayloadChecks.test_mcp_placement_is_exactly_index_and_package PayloadChecks.test_windows_zip_directory_link_metadata
+          exit $LASTEXITCODE
+      - name: Probe native ZIP long paths
+        if: always()
+        shell: pwsh
+        env:
+          TEST_POWERSHELL: ${{ matrix.runtime }}
+        run: |
+          $env:PWSH = (Get-Command $env:TEST_POWERSHELL -ErrorAction Stop).Source
+          python .github/scripts/native-zip-longpath-probe.py
           exit $LASTEXITCODE

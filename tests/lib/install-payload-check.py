@@ -285,15 +285,17 @@ class Fixture:
             tar.addfile(info)
 
         with tarfile.open(dest, "w:gz") as tar:
+            added = set()
             for rel in self.tracked:
                 src = self.path / rel
                 if rel not in omit and src.is_file() and not src.is_symlink():
                     tar.add(str(src), arcname=f"{top}/{rel}", recursive=False)
+                    added.add(rel)
             for dirpath, _dirs, files in os.walk(self.path / "mcp"):
                 for name in files:
                     full = Path(dirpath, name)
                     rel = full.relative_to(self.path).as_posix()
-                    if rel not in omit:
+                    if rel not in omit and rel not in added:
                         tar.add(str(full), arcname=f"{top}/{rel}", recursive=False)
             for rel, text in ARCHIVE_JUNK.items():
                 data, info = text.encode(), tarfile.TarInfo(f"{top}/{rel}")
@@ -589,7 +591,7 @@ class PayloadChecks(unittest.TestCase):
         paths = ["plugins/sdd-bootstrap/" + name for name in names]
         self.fx.git("config", "core.quotePath", "true")
         for rel in paths:
-            self.fx.write(rel, "tracked UTF-8 payload\n")
+            (self.fx.path / rel).write_bytes(b"tracked UTF-8 payload\n")
         self.fx.git("add", "--", *paths)
         try:
             # Match the Git archive producer: Python PAX encodes even short Unicode
@@ -658,6 +660,34 @@ class PayloadChecks(unittest.TestCase):
                 self.precreate_install(root)
                 self.install_fails(root, archive=archive, skip_mcp=True)
                 self.assert_previous_intact(root)
+
+    def test_windows_zip_directory_link_metadata(self):
+        if os.name != "nt" or not isinstance(self.runner, PowerShell):
+            self.skipTest("Windows PowerShell ZIP transport")
+        top = "aharada54914-sdd-forge-0123abc/"
+        for label, relative in (("admitted-parent", "plugins/sdd-bootstrap/linked/"), ("source-root", "")):
+            with self.subTest(link=label):
+                archive = windows_zip_archive(self.fx.archive(), self.tmp / (label + ".zip"))
+                with zipfile.ZipFile(archive, "a") as target:
+                    link = zipfile.ZipInfo(top + relative)
+                    link.create_system, link.external_attr = 3, (stat.S_IFLNK | 0o777) << 16
+                    target.writestr(link, b"")
+                    if relative:
+                        target.writestr(top + relative + "child.txt", b"must not admit link descendants")
+                root = self.root_for("zip-dir-link-" + label)
+                self.precreate_install(root)
+                result = self.install_fails(root, archive=archive, skip_mcp=True)
+                self.assertRegex(result.stdout + result.stderr, r"(?i)symlink")
+                self.assert_previous_intact(root)
+        if self.has_node:
+            archive = windows_zip_archive(self.fx.archive(), self.tmp / "mcp-dir-link.zip")
+            with zipfile.ZipFile(archive, "a") as target:
+                link = zipfile.ZipInfo(top + "mcp/local-env-mcp/dist/")
+                link.create_system, link.external_attr = 3, (stat.S_IFLNK | 0o777) << 16
+                target.writestr(link, b"")
+            root = self.root_for("zip-mcp-dir-link")
+            self.install_ok(root, archive=archive, mcp=["local-env-mcp"])
+            self.assertFalse((root / "mcp/local-env-mcp").exists())
 
     def test_core_required_files_fail_closed(self):
         paths = ["plugins/" + plugin + "/.claude-plugin/plugin.json"
