@@ -19,6 +19,12 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+# Windows' native tar cannot represent all Git UTF-8/PAX names in its locale.
+# Keep POSIX tar so Unix executable modes retain their existing semantics.
+$useZipArchive = [System.IO.Path]::DirectorySeparatorChar -eq '\'
+$archivePathComparer = if ($useZipArchive) { [StringComparer]::OrdinalIgnoreCase } else { [StringComparer]::Ordinal }
+$archiveSymlinkPaths = [System.Collections.Generic.HashSet[string]]::new($archivePathComparer)
+
 # Resolve dependency closure to a fixed point. In particular, lite adds
 # bootstrap, which then adds the internal review-loop plugin.
 $autoIncluded = [System.Collections.Generic.List[string]]::new()
@@ -317,6 +323,7 @@ function Test-PlainItem {
     param([Parameter(Mandatory)][string]$Path)
 
     try {
+        if ($archiveSymlinkPaths.Contains([System.IO.Path]::GetFullPath($Path))) { return $false }
         return (([System.IO.File]::GetAttributes($Path) -band [System.IO.FileAttributes]::ReparsePoint) -eq 0)
     }
     catch {
@@ -578,9 +585,37 @@ function Download-AuthenticatedArchive {
     )
 
     $token = Get-GitHubAuthToken
-    $downloadUrl = "https://api.github.com/repos/$RepositoryName/tarball/$RefName"
+    $archiveKind = if ($useZipArchive) { "zipball" } else { "tarball" }
+    $downloadUrl = "https://api.github.com/repos/$RepositoryName/$archiveKind/$RefName"
     Write-Host "Downloading authenticated archive from $downloadUrl"
     Invoke-WebRequest -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath
+}
+
+function Expand-DownloadedZipArchive {
+    param([Parameter(Mandatory)][string]$ArchivePath, [Parameter(Mandatory)][string]$DestinationPath)
+
+    try {
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        $archive = [System.IO.Compression.ZipFile]::OpenRead($ArchivePath)
+        try {
+            foreach ($entry in $archive.Entries) {
+                # Git ZIP names are slash-separated. Reject Windows aliases/ADS.
+                if ($entry.FullName.Contains('\') -or $entry.FullName.Contains(':')) {
+                    throw "Downloaded archive contains an invalid path: $($entry.FullName)"
+                }
+                # .NET extracts Unix links as inert files; retain their type for
+                # the existing admitted-payload and MCP symlink checks.
+                if ((($entry.ExternalAttributes -shr 16) -band 0xF000) -eq 0xA000) {
+                    $path = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($DestinationPath, $entry.FullName))
+                    [void]$archiveSymlinkPaths.Add($path)
+                }
+            }
+        } finally { $archive.Dispose() }
+        # Native extraction rejects paths outside DestinationPath and collisions.
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($ArchivePath, $DestinationPath)
+    } catch {
+        throw "Downloaded archive extraction failed: $($_.Exception.Message)"
+    }
 }
 
 $cloudEntryFiles = @(".claude-plugin/plugin.json", ".codex-plugin/plugin.json", ".plugin/plugin.json", "skills/orchestrate/SKILL.md", "scripts/cloud.py")
@@ -772,11 +807,17 @@ try {
         $temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-plugins-" + [guid]::NewGuid())
         New-Item -ItemType Directory -Path $temporaryRoot | Out-Null
 
-        $archivePath = Join-Path $temporaryRoot "source.tar.gz"
+        $archiveName = if ($useZipArchive) { "source.zip" } else { "source.tar.gz" }
+        $archivePath = Join-Path $temporaryRoot $archiveName
         Download-AuthenticatedArchive -RepositoryName $Repository -RefName $Ref -ArchivePath $archivePath
-        & tar -xzf $archivePath -C $temporaryRoot
-        if ($LASTEXITCODE -ne 0) {
-            throw "Downloaded archive extraction failed with exit code $LASTEXITCODE."
+        if ($useZipArchive) {
+            Expand-DownloadedZipArchive -ArchivePath $archivePath -DestinationPath $temporaryRoot
+        }
+        else {
+            & tar -xzf $archivePath -C $temporaryRoot
+            if ($LASTEXITCODE -ne 0) {
+                throw "Downloaded archive extraction failed with exit code $LASTEXITCODE."
+            }
         }
 
         $sourceRoot = Get-ChildItem -Path $temporaryRoot -Directory |
@@ -954,7 +995,8 @@ try {
         catch {
             throw "Missing source file: $relativePath"
         }
-        if (($attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+        if (($attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0 -or
+            $archiveSymlinkPaths.Contains([System.IO.Path]::GetFullPath($sourcePath))) {
             throw "Refusing to stage symlink/reparse point: $relativePath"
         }
         if (($attributes -band [System.IO.FileAttributes]::Directory) -ne 0) {
