@@ -1,0 +1,28 @@
+{
+  "observed_at_utc": "2026-10-21T13:01:31.613004+00:00",
+  "hosted_failed_commit": "e845fbc8942b7ee496b9f9928e5ada61443048d9",
+  "root_verification": "working tree after applied runtime changes; all three file hashes stable before/after focused runs; later T-010 adoption-test edits are outside this evidence",
+  "files": [
+    {
+      "path": ".github/workflows/test.yml",
+      "before_sha256": "4eda63b687b0178ea83fa7fff7bda866dd0fd691a72bbc2f451bacd18c753893",
+      "after_sha256": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192",
+      "hosted_source_sha256": "4eda63b687b0178ea83fa7fff7bda866dd0fd691a72bbc2f451bacd18c753893",
+      "root_verification_sha256": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192"
+    },
+    {
+      "path": "tests/cloud-orchestration-routing.tests.py",
+      "before_sha256": "b96a66910c6af9f648c79635e300b814529c24cd26b78e9c3261ebcd68f7d263",
+      "after_sha256": "faedf01b5b959f61f60f3b9ef01d5d01b85758722e70e48cee33329805a99ab5",
+      "hosted_source_sha256": "b96a66910c6af9f648c79635e300b814529c24cd26b78e9c3261ebcd68f7d263",
+      "root_verification_sha256": "faedf01b5b959f61f60f3b9ef01d5d01b85758722e70e48cee33329805a99ab5"
+    },
+    {
+      "path": "tests/model-policy.tests.py",
+      "before_sha256": "afc996a6dceb154f2560da72eb5be1f6e89a73a6500b3d0678fa74437675e45a",
+      "after_sha256": "24223de0acb981651e03b71a4e5d8d6a6d25aa9b8e8abac6cd417a8366756243",
+      "hosted_source_sha256": "afc996a6dceb154f2560da72eb5be1f6e89a73a6500b3d0678fa74437675e45a",
+      "root_verification_sha256": "24223de0acb981651e03b71a4e5d8d6a6d25aa9b8e8abac6cd417a8366756243"
+    }
+  ]
+}

@@ -13,11 +13,14 @@ import json
 import itertools
 import os
 from pathlib import Path
+import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
 from typing import Any
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / 'plugins/sdd-implementation/scripts'
@@ -43,7 +46,37 @@ REASONS = {'config-invalid', 'config-conflict', 'native-precedence-conflict',
            'input-invalid'}
 SOURCE_DATE = '2026-10-18T00:00:00Z'
 PWSH = os.environ.get('SDD_TEST_PWSH', 'pwsh')
-BASH = os.environ.get('SDD_TEST_BASH', 'bash')
+
+
+def resolve_bash():
+    explicit = os.environ.get('SDD_TEST_BASH')
+    if explicit:
+        return explicit
+    if sys.platform != 'win32':
+        return 'bash'
+    # PATH may select the Windows WSL launcher instead of Git Bash.
+    git = shutil.which('git')
+    candidates = (() if git is None else
+                  (Path(git).parent / 'bash.exe', Path(git).parent.parent / 'bin/bash.exe'))
+    bash = next((str(path) for path in candidates if path.is_file()), None)
+    if bash is None:
+        raise RuntimeError('Git for Windows Bash is required')
+    return bash
+
+
+def bash_command(script, args):
+    bash = resolve_bash()
+    if sys.platform != 'win32':
+        return [bash, str(script), *args]
+    # Native Windows may expose a Store python3 alias: bind the product's python3
+    # calls to this test's interpreter and run the unchanged selector script.
+    prelude = 'python3() { %s "$@"; }\nexport -f python3\nexec "$BASH" "$@"' % shlex.quote(
+        Path(sys.executable).as_posix())
+    return [bash, '--noprofile', '--norc', '-c', prelude, '_', Path(script).as_posix(), *args]
+
+
+def output(result, limit=1000):
+    return 'stdout: %s\nstderr: %s' % (result.stdout[:limit], result.stderr[:limit])
 
 
 def canonical(value):
@@ -165,8 +198,8 @@ class PolicySelection(unittest.TestCase):
             command = [PWSH, '-NoProfile', '-File', str(SCRIPTS / 'select-agent-model.ps1'),
                        '-PolicyInput', 'request.json', '-Registry', 'registry.json']
         else:
-            command = [BASH, str(SCRIPTS / 'select-agent-model.sh'), '--policy-input',
-                       'request.json', '--registry', 'registry.json']
+            command = bash_command(SCRIPTS / 'select-agent-model.sh',
+                                   ['--policy-input', 'request.json', '--registry', 'registry.json'])
         try:
             return subprocess.run(command + list(extra), cwd=self.work,
                                   env={**self.environment, **(env or {})}, text=True,
@@ -175,7 +208,7 @@ class PolicySelection(unittest.TestCase):
             self.fail('Selector execution failed: ' + type(error).__name__)
 
     def selected(self, result, model=None):
-        self.assertEqual(result.returncode, 0, result.stderr[:1000])
+        self.assertEqual(result.returncode, 0, output(result))
         self.assertEqual(result.stderr, '')
         try:
             selection = json.loads(result.stdout)
@@ -202,7 +235,7 @@ class PolicySelection(unittest.TestCase):
         return selection
 
     def blocked(self, result, reasons):
-        self.assertEqual(result.returncode, 2, result.stderr[:1000])
+        self.assertEqual(result.returncode, 2, output(result))
         self.assertEqual(result.stdout, '')
         try:
             error = json.loads(result.stderr)
@@ -370,17 +403,18 @@ class PolicySelection(unittest.TestCase):
                 candidates = [{'name': item['name'], 'available': True, 'cost': '1.25', 'effort': 'high'}
                               for item in registry['models']]
                 self.write('legacy-candidates.json', candidates)
-                command = [BASH, str(SCRIPTS / 'select-agent-model.sh'), '--risk', 'high', '--registry',
-                           'legacy-registry.json', '--candidates-file', 'legacy-candidates.json', '--json']
+                command = bash_command(SCRIPTS / 'select-agent-model.sh', [
+                    '--risk', 'high', '--registry', 'legacy-registry.json',
+                    '--candidates-file', 'legacy-candidates.json', '--json'])
                 result = subprocess.run(command, cwd=self.work, env=self.environment, text=True,
                                         capture_output=True, timeout=30)
-                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.returncode, 0, output(result))
                 self.assertEqual(json.loads(result.stdout)['model'], 'vendor/zprimary')
                 del candidates[0]['cost']
                 self.write('legacy-candidates.json', candidates)
                 result = subprocess.run(command, cwd=self.work, env=self.environment, text=True,
                                         capture_output=True, timeout=30)
-                self.assertNotEqual(result.returncode, 0)
+                self.assertNotEqual(result.returncode, 0, output(result))
 
     def test_TEST124_bash_powershell_fixture_parity(self):
         first = self.selected(self.invoke(), CURRENT)
@@ -658,7 +692,7 @@ class PolicySelection(unittest.TestCase):
         self.save()
         payload = {'request_path': 'request.json', 'registry_path': 'registry.json', 'selector_options': {}}
         prepared = self.bridge('prepare-selection', payload)
-        self.assertEqual(prepared.returncode, 0, prepared.stderr[:1000])
+        self.assertEqual(prepared.returncode, 0, output(prepared))
         context = json.loads(prepared.stdout)
         winner = {'model': CURRENT, 'canonical_tier': 'strong', 'effort': 'high', 'effort_control': 'flag'}
         self.selected(self.bridge('complete-selection', {'context': context, 'winner': winner}), CURRENT)
@@ -695,7 +729,7 @@ class PolicySelection(unittest.TestCase):
                 prepared = self.bridge('prepare-selection', {
                     'request_path': 'request.json', 'registry_path': 'registry.json',
                     'selector_options': options})
-                self.assertEqual(prepared.returncode, 0, prepared.stderr[:1000])
+                self.assertEqual(prepared.returncode, 0, output(prepared))
                 winner = {'model': model, 'canonical_tier': tier,
                           'effort': effort, 'effort_control': 'flag'}
                 self.blocked(self.bridge('complete-selection', {
@@ -880,6 +914,74 @@ class PolicySelection(unittest.TestCase):
         self.assertEqual(policy['default_policy'], 'latest-compatible')
         for model in policy['models']:
             self.assertEqual(model['adoption'], [], 'T-006 must not invent new controlled adoption evidence')
+
+
+class PortableBashRuntime(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix='model-policy-bash-'))
+        self.addCleanup(shutil.rmtree, self.root, True)
+        self.env = patch.dict(os.environ)
+        self.env.start()
+        self.addCleanup(self.env.stop)
+        os.environ.pop('SDD_TEST_BASH', None)
+
+    def git_install(self, with_bash=True):
+        git = self.root / 'Git install/cmd/git.exe'
+        git.parent.mkdir(parents=True)
+        git.touch()
+        bash = self.root / 'Git install/bin/bash.exe'
+        if with_bash:
+            bash.parent.mkdir()
+            bash.touch()
+        return git, bash
+
+    def test_simulated_windows_prefers_git_bash_over_path_bash(self):
+        git, bash = self.git_install()
+        with patch.object(sys, 'platform', 'win32'), patch.object(shutil, 'which', return_value=str(git)):
+            command = bash_command(Path('scripts/select.sh'), ['--json'])
+        self.assertEqual(Path(command[0]), bash)
+        self.assertEqual(command[-2:], ['scripts/select.sh', '--json'])
+        self.assertIn(shlex.quote(Path(sys.executable).as_posix()), command[command.index('-c') + 1])
+
+    def test_explicit_override_stays(self):
+        git, _ = self.git_install()
+        os.environ['SDD_TEST_BASH'] = 'custom-bash'
+        with patch.object(sys, 'platform', 'win32'), patch.object(shutil, 'which', return_value=str(git)):
+            self.assertEqual(bash_command('select.sh', [])[0], 'custom-bash')
+
+    def test_missing_git_bash_fails_clearly(self):
+        git, _ = self.git_install(with_bash=False)
+        for found in (str(git), None):
+            with self.subTest(git=found), patch.object(sys, 'platform', 'win32'), \
+                    patch.object(shutil, 'which', return_value=found):
+                with self.assertRaisesRegex(RuntimeError, 'Git for Windows Bash is required'):
+                    bash_command('select.sh', [])
+
+    def test_posix_command_is_unchanged(self):
+        with patch.object(sys, 'platform', 'linux'):
+            self.assertEqual(bash_command(Path('a/select.sh'), ['--x', 'y']), ['bash', 'a/select.sh', '--x', 'y'])
+
+    def test_output_is_bounded(self):
+        result = subprocess.CompletedProcess([], 1, 'o' * 5000, 'e' * 5000)
+        self.assertLess(len(output(result)), 2100)
+        self.assertIn('stdout: ooo', output(result))
+
+    @unittest.skipIf(sys.platform == 'win32', 'bogus PATH shim is a POSIX executable')
+    def test_bound_python3_beats_bogus_path_python3(self):
+        bogus = self.root / 'bogus'
+        bogus.mkdir()
+        shim = bogus / 'python3'
+        shim.write_text('#!/bin/sh\necho BOGUS\nexit 7\n')
+        shim.chmod(0o755)
+        script = self.root / 'probe.sh'
+        script.write_text('python3 -c "import sys; print(sys.executable)"\n')
+        os.environ['SDD_TEST_BASH'] = shutil.which('bash')
+        with patch.object(sys, 'platform', 'win32'):
+            command = bash_command(script, [])
+        result = subprocess.run(command, text=True, capture_output=True, timeout=30,
+                                env={**os.environ, 'PATH': str(bogus) + os.pathsep + os.environ['PATH']})
+        self.assertEqual(result.returncode, 0, output(result))
+        self.assertTrue(Path(result.stdout.strip()).samefile(sys.executable), output(result))
 
 
 if __name__ == '__main__':

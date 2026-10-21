@@ -1,0 +1,42 @@
+{
+  "root_focused": [
+    {
+      "check": "policy",
+      "exit_code": 0
+    },
+    {
+      "check": "routing",
+      "exit_code": 0
+    },
+    {
+      "check": "foundation",
+      "exit_code": 0
+    }
+  ],
+  "root_counts": {
+    "policy": 57,
+    "routing": 2,
+    "foundation": 54
+  },
+  "candidate_additional_passing_counts": {
+    "verification-ci": 80,
+    "verification-ci-plan": 54,
+    "workflow-conditional": 9
+  },
+  "candidate_coverage_errors": [],
+  "mutation_checks": {
+    "remove_python3_function_export": 1,
+    "incorrect_git_bash_candidate": 1,
+    "restored_controlled_runtime_class": 0
+  },
+  "source_stability": true,
+  "limitations": [
+    "Linux PowerShell and simulated Windows resolver tests do not prove native Windows execution.",
+    "Actual hosted failure diagnostics omit child stdout; WSL/Store alias attribution is a hypothesis addressed with existing explicit Git Bash/interpreter binding.",
+    "Cloud native compilation and full CI are separate; focused checks do not claim Bicep/CDK/native-cloud PASS."
+  ],
+  "public_log_sha256": {
+    "hosted-red.log": "485d17892953937e2c07b89b971714dc7da74e47e667998a6bb8a2d0a4034f26",
+    "local-verification.log": "41a0da341334844b6f289a1f7ef703531bca829a5541a0ec98cb14c31a19f3e1"
+  }
+}

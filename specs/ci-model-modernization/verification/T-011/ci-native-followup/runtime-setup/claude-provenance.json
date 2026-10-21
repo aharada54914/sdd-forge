@@ -1,0 +1,36 @@
+{
+  "kind": "actual Claude Code implementation delegation; not independent review",
+  "candidate_isolation": true,
+  "root_applied_by_parent": true,
+  "stages": [
+    {
+      "stage": "cloud workflow dependency setup",
+      "requested_model": "sonnet",
+      "observed_models": [
+        "claude-sonnet-5-5"
+      ],
+      "result": {
+        "subtype": "success",
+        "is_error": false,
+        "num_turns": 9,
+        "duration_ms": 149693
+      },
+      "private_transcript_sha256": "4fb220f3c7550818a33483962c988e758006d8bc3ba47525d17e9ec37f1a1a6d"
+    },
+    {
+      "stage": "routing fixture and Windows test harness",
+      "requested_model": "sonnet",
+      "observed_models": [
+        "claude-sonnet-5-5"
+      ],
+      "result": {
+        "subtype": "success",
+        "is_error": false,
+        "num_turns": 9,
+        "duration_ms": 212018
+      },
+      "private_transcript_sha256": "9808816f7a8398697cce82a67b363ce9bd6c3453802bda6392f7356ddcc815b6"
+    }
+  ],
+  "excluded": "No raw transcript, credentials, tokens, or signed download URLs included."
+}

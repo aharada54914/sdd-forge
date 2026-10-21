@@ -1504,6 +1504,29 @@ jobs:
         env:
           npm_config_fetch_retries: '2'
           npm_config_loglevel: http
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+      - name: Bind npm cache to actual Node runtime
+        id: node-runtime
+        shell: bash
+        run: |
+          printf 'version=%s\n' "$(node --version)" >> "$GITHUB_OUTPUT"
+          printf 'npm_config_cache=%s\n' "$RUNNER_TEMP/npm-cache" >> "$GITHUB_ENV"
+      - name: Reuse integrity-checked npm download bytes
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ runner.temp }}/npm-cache/_cacache
+          key: >-
+            npm-${{ runner.os }}-node22-${{ steps.node-runtime.outputs.version }}-${{ github.event_name }}-${{
+            github.event.pull_request.number || 'trusted' }}-${{ hashFiles('mcp/sdd-forge-mcp/package-lock.json') }}
+      - name: Install pinned workflow parser dependencies
+        shell: bash
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+        env:
+          npm_config_fetch_retries: '2'
+          npm_config_loglevel: http
       - name: '[deterministic] Test cloud suites, installed packages and current multitarget boundaries'
         env:
           CLOUD_REQUIRE_NATIVE: ${{ runner.os == 'Linux' && '1' || '0' }}

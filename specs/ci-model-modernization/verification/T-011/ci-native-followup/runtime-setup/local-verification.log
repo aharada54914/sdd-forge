@@ -1,0 +1,435 @@
+=== runtime-root-green/policy.log ===
+test_TEST079_all_seventeen_roles_use_shared_policy (__main__.PolicySelection.test_TEST079_all_seventeen_roles_use_shared_policy) ... ok
+test_TEST080_role_floor_cannot_be_lowered_by_explicit_pin_or_cli_minimum (__main__.PolicySelection.test_TEST080_role_floor_cannot_be_lowered_by_explicit_pin_or_cli_minimum) ... ok
+test_TEST081_risk_escalation_and_terminal_recurrence (__main__.PolicySelection.test_TEST081_risk_escalation_and_terminal_recurrence) ... ok
+test_TEST089_verified_successor_wins_after_eligibility (__main__.PolicySelection.test_TEST089_verified_successor_wins_after_eligibility) ... ok
+test_TEST090_TEST151_unknown_successor_is_notice_not_adoption (__main__.PolicySelection.test_TEST090_TEST151_unknown_successor_is_notice_not_adoption) ... ok
+test_TEST091_names_and_list_order_do_not_rank_families (__main__.PolicySelection.test_TEST091_names_and_list_order_do_not_rank_families) ... ok
+test_TEST092_retired_historical_candidate_cannot_fill_current_gap (__main__.PolicySelection.test_TEST092_retired_historical_candidate_cannot_fill_current_gap) ... ok
+test_TEST093_host_registry_and_effort_intersection (__main__.PolicySelection.test_TEST093_host_registry_and_effort_intersection) ... ok
+test_TEST094_TEST110_explicit_historical_pin_stays_labelled_pinned (__main__.PolicySelection.test_TEST094_TEST110_explicit_historical_pin_stays_labelled_pinned) ... ok
+test_TEST097_unknown_and_miscased_policy_operator_layer (__main__.PolicySelection.test_TEST097_unknown_and_miscased_policy_operator_layer) ... ok
+test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution (__main__.PolicySelection.test_TEST098_TEST148_TEST149_injection_ids_are_rejected_without_execution) ... ok
+test_TEST099_TEST106_pin_cannot_grant_access_or_fallback (__main__.PolicySelection.test_TEST099_TEST106_pin_cannot_grant_access_or_fallback) ... ok
+test_TEST105_empty_current_intersection_blocks (__main__.PolicySelection.test_TEST105_empty_current_intersection_blocks) ... ok
+test_TEST109_budget_unknown_is_not_zero (__main__.PolicySelection.test_TEST109_budget_unknown_is_not_zero) ... ok
+test_TEST109_unknown_cost_without_budget_remains_null_and_preference_wins (__main__.PolicySelection.test_TEST109_unknown_cost_without_budget_remains_null_and_preference_wins) ... ok
+test_TEST122_TEST123_legacy_v1_v2_cost_and_fallback_contract (__main__.PolicySelection.test_TEST122_TEST123_legacy_v1_v2_cost_and_fallback_contract) ... ok
+test_TEST124_all_four_hosts_are_explicit_fixture_capabilities (__main__.PolicySelection.test_TEST124_all_four_hosts_are_explicit_fixture_capabilities) ... ok
+test_TEST124_bash_powershell_fixture_parity (__main__.PolicySelection.test_TEST124_bash_powershell_fixture_parity) ... ok
+test_TEST125_effort_never_enables_extra_modes (__main__.PolicySelection.test_TEST125_effort_never_enables_extra_modes) ... ok
+test_TEST126_selector_preserves_historical_input_bytes (__main__.PolicySelection.test_TEST126_selector_preserves_historical_input_bytes) ... ok
+test_TEST147_TEST159_pin_requires_id_and_implicit_pin_records_source (__main__.PolicySelection.test_TEST147_TEST159_pin_requires_id_and_implicit_pin_records_source) ... ok
+test_TEST150_native_mapping_is_explicit_and_unambiguous (__main__.PolicySelection.test_TEST150_native_mapping_is_explicit_and_unambiguous) ... ok
+test_TEST152_cli_model_shadows_valid_environment_and_project (__main__.PolicySelection.test_TEST152_cli_model_shadows_valid_environment_and_project) ... ok
+test_TEST153_environment_model_shadows_project (__main__.PolicySelection.test_TEST153_environment_model_shadows_project) ... ok
+test_TEST154_project_model_and_shipped_default (__main__.PolicySelection.test_TEST154_project_model_and_shipped_default) ... ok
+test_TEST155_generic_model_environment_is_rejected (__main__.PolicySelection.test_TEST155_generic_model_environment_is_rejected) ... ok
+test_TEST156_policy_precedence_is_independent_from_model_precedence (__main__.PolicySelection.test_TEST156_policy_precedence_is_independent_from_model_precedence) ... ok
+test_TEST157_project_role_policy_beats_project_default (__main__.PolicySelection.test_TEST157_project_role_policy_beats_project_default) ... ok
+test_TEST158_explicit_latest_and_any_effective_id_conflict (__main__.PolicySelection.test_TEST158_explicit_latest_and_any_effective_id_conflict) ... ok
+test_TEST160_all_shadowed_supported_values_are_validated (__main__.PolicySelection.test_TEST160_all_shadowed_supported_values_are_validated) ... ok
+test_bridge_closed_grammar_and_direct_winner_counterparts (__main__.PolicySelection.test_bridge_closed_grammar_and_direct_winner_counterparts) ... ok
+test_completion_rechecks_sources_after_real_native_replay (__main__.PolicySelection.test_completion_rechecks_sources_after_real_native_replay) ... ok
+test_deep_successor_cycle_is_a_typed_configuration_error (__main__.PolicySelection.test_deep_successor_cycle_is_a_typed_configuration_error) ... ok
+test_direct_completion_cannot_bypass_risk_effort_or_escalation (__main__.PolicySelection.test_direct_completion_cannot_bypass_risk_effort_or_escalation) ... ok
+test_empty_optional_minimum_direct_completion_preserves_role_floor (__main__.PolicySelection.test_empty_optional_minimum_direct_completion_preserves_role_floor) ... ok
+test_empty_optional_minimum_matches_omission_in_both_wrappers (__main__.PolicySelection.test_empty_optional_minimum_matches_omission_in_both_wrappers) ... ok
+test_explicit_selector_values_match_request_and_candidate_inputs_conflict (__main__.PolicySelection.test_explicit_selector_values_match_request_and_candidate_inputs_conflict) ... ok
+test_genuine_diagnostic_capture_cannot_authorize_selection (__main__.PolicySelection.test_genuine_diagnostic_capture_cannot_authorize_selection) ... ok
+test_missing_adoption_is_not_a_current_verified_model (__main__.PolicySelection.test_missing_adoption_is_not_a_current_verified_model) ... ok
+test_mixed_known_unknown_costs_have_total_order_for_every_permutation (__main__.PolicySelection.test_mixed_known_unknown_costs_have_total_order_for_every_permutation) ... ok
+test_observation_scope_freshness_completeness_and_active_capture_boundary (__main__.PolicySelection.test_observation_scope_freshness_completeness_and_active_capture_boundary) ... ok
+test_policy_reference_source_and_adoption_mismatches (__main__.PolicySelection.test_policy_reference_source_and_adoption_mismatches) ... ok
+test_powershell_mixed_known_prices_and_signed_zero_are_total_ordered (__main__.PolicySelection.test_powershell_mixed_known_prices_and_signed_zero_are_total_ordered) ... ok
+test_powershell_separate_operator_and_language_negative_fixtures (__main__.PolicySelection.test_powershell_separate_operator_and_language_negative_fixtures) ... ok
+test_python_api_rejects_fabricated_active_capture (__main__.PolicySelection.test_python_api_rejects_fabricated_active_capture) ... ok
+test_request_project_and_policy_closed_fields (__main__.PolicySelection.test_request_project_and_policy_closed_fields) ... ok
+test_resume_selection_roundtrip_and_resealed_mismatch (__main__.PolicySelection.test_resume_selection_roundtrip_and_resealed_mismatch) ... ok
+test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption (__main__.PolicySelection.test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption) ... ok
+test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths (__main__.PolicySelection.test_strict_json_duplicate_keys_nonfinite_and_unsafe_paths) ... ok
+test_supported_policy_options_always_fail_with_one_typed_error (__main__.PolicySelection.test_supported_policy_options_always_fail_with_one_typed_error) ... ok
+test_wrapper_policy_smoke (__main__.PolicySelection.test_wrapper_policy_smoke) ... ok
+test_bound_python3_beats_bogus_path_python3 (__main__.PortableBashRuntime.test_bound_python3_beats_bogus_path_python3) ... ok
+test_explicit_override_stays (__main__.PortableBashRuntime.test_explicit_override_stays) ... ok
+test_missing_git_bash_fails_clearly (__main__.PortableBashRuntime.test_missing_git_bash_fails_clearly) ... ok
+test_output_is_bounded (__main__.PortableBashRuntime.test_output_is_bounded) ... ok
+test_posix_command_is_unchanged (__main__.PortableBashRuntime.test_posix_command_is_unchanged) ... ok
+test_simulated_windows_prefers_git_bash_over_path_bash (__main__.PortableBashRuntime.test_simulated_windows_prefers_git_bash_over_path_bash) ... ok
+
+----------------------------------------------------------------------
+Ran 57 tests in 38.045s
+
+OK
+
+=== runtime-root-green/routing.log ===
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ok
+test_required_native_missing_tools_fail_instead_of_skip (__main__.NormalDriverRegistration.test_required_native_missing_tools_fail_instead_of_skip) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.165s
+
+OK
+
+=== runtime-root-green/foundation.log ===
+test_current_suite_remains_on_catalog_normal_and_native_ci_paths (__main__.CurrentAnchorTests.test_current_suite_remains_on_catalog_normal_and_native_ci_paths) ... ok
+test_fenced_heading_is_not_an_anchor (__main__.CurrentAnchorTests.test_fenced_heading_is_not_an_anchor) ... ok
+test_line_insertion_preserves_meaning (__main__.CurrentAnchorTests.test_line_insertion_preserves_meaning) ... ok
+test_missing_or_duplicate_heading_is_rejected (__main__.CurrentAnchorTests.test_missing_or_duplicate_heading_is_rejected) ... ok
+test_mixed_section_and_line_evidence_is_rejected (__main__.CurrentAnchorTests.test_mixed_section_and_line_evidence_is_rejected) ... ok
+test_requirement_in_another_section_does_not_satisfy_source (__main__.CurrentAnchorTests.test_requirement_in_another_section_does_not_satisfy_source) ... ok
+test_source_path_escape_is_rejected (__main__.CurrentAnchorTests.test_source_path_escape_is_rejected) ... ok
+test_symlinked_source_is_rejected (__main__.CurrentAnchorTests.test_symlinked_source_is_rejected) ... ok
+test_TEST_001a_interviewer_questions_and_layer_output (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001a_interviewer_questions_and_layer_output) ... ok
+test_TEST_001b_fixed_layer_template (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001b_fixed_layer_template) ... ok
+test_TEST_001c_risk_tier_verifier_contract (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001c_risk_tier_verifier_contract) ... ok
+test_TEST_001d_ui_design_loop (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001d_ui_design_loop) ... ok
+test_TEST_001e_endpoint_contract_checklist (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001e_endpoint_contract_checklist) ... ok
+test_TEST_001f_ci_mcp_package (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001f_ci_mcp_package) ... ok
+test_TEST_001g_provider_state_and_gate_stage_boundaries (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001g_provider_state_and_gate_stage_boundaries) ... ok
+test_TEST_001h_host_adapters_and_artifact_layout_migration (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001h_host_adapters_and_artifact_layout_migration) ... ok
+test_TEST_001i_compile_build_lint_checks_on_noncode_targets (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001i_compile_build_lint_checks_on_noncode_targets) ... ok
+test_duplicate_entry_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_duplicate_entry_id_is_rejected) ... ok
+test_full_inventory_has_no_outstanding_failures (historical_consumer_inventory.ConsumerInventoryTests.test_full_inventory_has_no_outstanding_failures) ... ok
+test_invalid_disposition_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_invalid_disposition_is_rejected) ... ok
+test_missing_required_entry_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_required_entry_is_rejected) ... ok
+test_missing_source_file_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_source_file_is_rejected) ... ok
+test_out_of_range_line_end_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_out_of_range_line_end_is_rejected) ... ok
+test_same_consumer_under_another_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_same_consumer_under_another_id_is_rejected) ... ok
+test_stale_source_keyword_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_stale_source_keyword_is_rejected) ... ok
+test_actual_registry_has_no_provider_terms (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_actual_registry_has_no_provider_terms) ... ok
+test_capability_registry_schema_rejects_provider_extra_field (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_capability_registry_schema_rejects_provider_extra_field) ... ok
+test_mutated_registry_with_provider_name_is_detected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_mutated_registry_with_provider_name_is_detected) ... ok
+test_nested_predicate_credentials_and_state_keys_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_nested_predicate_credentials_and_state_keys_are_rejected) ... ok
+test_provider_keys_in_predicates_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_keys_in_predicates_are_rejected) ... ok
+test_provider_neutral_nested_predicate_values_are_accepted (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_neutral_nested_predicate_values_are_accepted) ... ok
+test_actual_tools_are_exactly_the_five_read_only_tools (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_actual_tools_are_exactly_the_five_read_only_tools) ... ok
+test_core_api_dependency_mutations_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_api_dependency_mutations_are_rejected) ... ok
+test_core_contracts_have_no_api_dependency (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_contracts_have_no_api_dependency) ... ok
+test_duplicate_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_duplicate_tool_is_rejected) ... ok
+test_mutated_api_dependency_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_api_dependency_is_rejected) ... ok
+test_mutated_non_get_method_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_non_get_method_is_rejected) ... ok
+test_mutated_write_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_write_tool_is_rejected) ... ok
+test_removed_fetch_calls_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_removed_fetch_calls_are_rejected) ... ok
+test_row1_core_owns_lifecycle_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row1_core_owns_lifecycle_not_provider_identity) ... ok
+test_row2_capability_registry_owns_obligations_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row2_capability_registry_owns_obligations_not_provider_identity) ... ok
+test_row3_provider_binding_owns_identity_not_core_policy (foundation_contract_boundaries.OwnershipBoundaryTests.test_row3_provider_binding_owns_identity_not_core_policy) ... ok
+test_row4_host_adapter_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row4_host_adapter_boundary_is_recorded) ... ok
+test_row5_ui_provider_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row5_ui_provider_boundary_is_recorded) ... ok
+test_context_projection_keeps_legal_shapes_and_binding_ids (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_keeps_legal_shapes_and_binding_ids) ... ok
+test_context_projection_rejects_provider_fields (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_rejects_provider_fields) ... ok
+test_negative_provider_field_at_characteristics_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_characteristics_rejected) ... ok
+test_negative_provider_field_at_root_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_root_rejected) ... ok
+test_negative_provider_fields_at_component_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_component_rejected) ... ok
+test_negative_provider_fields_at_remaining_object_boundaries (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_remaining_object_boundaries) ... ok
+test_positive_ordinary_fields_and_binding_ids_accepted (foundation_contract_boundaries.ProjectContextBoundaryTests.test_positive_ordinary_fields_and_binding_ids_accepted) ... ok
+test_provider_binding_schema_accepts_provider_product_credentials_state (foundation_contract_boundaries.ProjectContextBoundaryTests.test_provider_binding_schema_accepts_provider_product_credentials_state) ... ok
+test_runtime_resolver_and_contract_reader_keep_legal_shapes (foundation_contract_boundaries.ProjectContextBoundaryTests.test_runtime_resolver_and_contract_reader_keep_legal_shapes) ... ok
+test_shared_path_shape_stays_exclusive_and_typed (foundation_contract_boundaries.ProjectContextBoundaryTests.test_shared_path_shape_stays_exclusive_and_typed) ... ok
+
+----------------------------------------------------------------------
+Ran 54 tests in 0.633s
+
+OK
+
+=== portable-runtime/mutation-no-export.log ===
+test_bound_python3_beats_bogus_path_python3 (__main__.PortableBashRuntime.test_bound_python3_beats_bogus_path_python3) ... FAIL
+test_explicit_override_stays (__main__.PortableBashRuntime.test_explicit_override_stays) ... ok
+test_missing_git_bash_fails_clearly (__main__.PortableBashRuntime.test_missing_git_bash_fails_clearly) ... ok
+test_output_is_bounded (__main__.PortableBashRuntime.test_output_is_bounded) ... ok
+test_posix_command_is_unchanged (__main__.PortableBashRuntime.test_posix_command_is_unchanged) ... ok
+test_simulated_windows_prefers_git_bash_over_path_bash (__main__.PortableBashRuntime.test_simulated_windows_prefers_git_bash_over_path_bash) ... ok
+
+======================================================================
+FAIL: test_bound_python3_beats_bogus_path_python3 (__main__.PortableBashRuntime.test_bound_python3_beats_bogus_path_python3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<candidate>/tests/model-policy.tests.py", line 983, in test_bound_python3_beats_bogus_path_python3
+    self.assertEqual(result.returncode, 0, output(result))
+AssertionError: 7 != 0 : stdout: BOGUS
+
+stderr: 
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.008s
+
+FAILED (failures=1)
+
+=== portable-runtime/mutation-wrong-bash.log ===
+test_bound_python3_beats_bogus_path_python3 (__main__.PortableBashRuntime.test_bound_python3_beats_bogus_path_python3) ... ok
+test_explicit_override_stays (__main__.PortableBashRuntime.test_explicit_override_stays) ... ok
+test_missing_git_bash_fails_clearly (__main__.PortableBashRuntime.test_missing_git_bash_fails_clearly) ... ok
+test_output_is_bounded (__main__.PortableBashRuntime.test_output_is_bounded) ... ok
+test_posix_command_is_unchanged (__main__.PortableBashRuntime.test_posix_command_is_unchanged) ... ok
+test_simulated_windows_prefers_git_bash_over_path_bash (__main__.PortableBashRuntime.test_simulated_windows_prefers_git_bash_over_path_bash) ... ERROR
+
+======================================================================
+ERROR: test_simulated_windows_prefers_git_bash_over_path_bash (__main__.PortableBashRuntime.test_simulated_windows_prefers_git_bash_over_path_bash)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<candidate>/tests/model-policy.tests.py", line 941, in test_simulated_windows_prefers_git_bash_over_path_bash
+    command = bash_command(Path('scripts/select.sh'), ['--json'])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<candidate>/tests/model-policy.tests.py", line 68, in bash_command
+    bash = resolve_bash()
+           ^^^^^^^^^^^^^^
+  File "<candidate>/tests/model-policy.tests.py", line 63, in resolve_bash
+    raise RuntimeError('Git for Windows Bash is required')
+RuntimeError: Git for Windows Bash is required
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.018s
+
+FAILED (errors=1)
+
+=== dependency-boundary/dependencies-absent-red-routing.log ===
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ERROR
+
+======================================================================
+ERROR: test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<candidate>/tests/cloud-orchestration-routing.tests.py", line 1456, in test_catalog_and_every_native_ci_cell_admit_all_six_suites
+    data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<candidate>/tests/verification-workflow.py", line 27, in load_workflow
+    raise ValueError('workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies')
+ValueError: workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies
+
+----------------------------------------------------------------------
+Ran 1 test in 0.065s
+
+FAILED (errors=1)
+
+=== dependency-boundary/dependencies-absent-red-foundation.log ===
+test_current_suite_remains_on_catalog_normal_and_native_ci_paths (__main__.CurrentAnchorTests.test_current_suite_remains_on_catalog_normal_and_native_ci_paths) ... ERROR
+test_fenced_heading_is_not_an_anchor (__main__.CurrentAnchorTests.test_fenced_heading_is_not_an_anchor) ... ok
+test_line_insertion_preserves_meaning (__main__.CurrentAnchorTests.test_line_insertion_preserves_meaning) ... ok
+test_missing_or_duplicate_heading_is_rejected (__main__.CurrentAnchorTests.test_missing_or_duplicate_heading_is_rejected) ... ok
+test_mixed_section_and_line_evidence_is_rejected (__main__.CurrentAnchorTests.test_mixed_section_and_line_evidence_is_rejected) ... ok
+test_requirement_in_another_section_does_not_satisfy_source (__main__.CurrentAnchorTests.test_requirement_in_another_section_does_not_satisfy_source) ... ok
+test_source_path_escape_is_rejected (__main__.CurrentAnchorTests.test_source_path_escape_is_rejected) ... ok
+test_symlinked_source_is_rejected (__main__.CurrentAnchorTests.test_symlinked_source_is_rejected) ... ok
+test_TEST_001a_interviewer_questions_and_layer_output (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001a_interviewer_questions_and_layer_output) ... ok
+test_TEST_001b_fixed_layer_template (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001b_fixed_layer_template) ... ok
+test_TEST_001c_risk_tier_verifier_contract (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001c_risk_tier_verifier_contract) ... ok
+test_TEST_001d_ui_design_loop (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001d_ui_design_loop) ... ok
+test_TEST_001e_endpoint_contract_checklist (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001e_endpoint_contract_checklist) ... ok
+test_TEST_001f_ci_mcp_package (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001f_ci_mcp_package) ... ok
+test_TEST_001g_provider_state_and_gate_stage_boundaries (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001g_provider_state_and_gate_stage_boundaries) ... ok
+test_TEST_001h_host_adapters_and_artifact_layout_migration (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001h_host_adapters_and_artifact_layout_migration) ... ok
+test_TEST_001i_compile_build_lint_checks_on_noncode_targets (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001i_compile_build_lint_checks_on_noncode_targets) ... ok
+test_duplicate_entry_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_duplicate_entry_id_is_rejected) ... ok
+test_full_inventory_has_no_outstanding_failures (historical_consumer_inventory.ConsumerInventoryTests.test_full_inventory_has_no_outstanding_failures) ... ok
+test_invalid_disposition_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_invalid_disposition_is_rejected) ... ok
+test_missing_required_entry_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_required_entry_is_rejected) ... ok
+test_missing_source_file_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_source_file_is_rejected) ... ok
+test_out_of_range_line_end_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_out_of_range_line_end_is_rejected) ... ok
+test_same_consumer_under_another_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_same_consumer_under_another_id_is_rejected) ... ok
+test_stale_source_keyword_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_stale_source_keyword_is_rejected) ... ok
+test_actual_registry_has_no_provider_terms (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_actual_registry_has_no_provider_terms) ... ok
+test_capability_registry_schema_rejects_provider_extra_field (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_capability_registry_schema_rejects_provider_extra_field) ... ok
+test_mutated_registry_with_provider_name_is_detected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_mutated_registry_with_provider_name_is_detected) ... ok
+test_nested_predicate_credentials_and_state_keys_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_nested_predicate_credentials_and_state_keys_are_rejected) ... ok
+test_provider_keys_in_predicates_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_keys_in_predicates_are_rejected) ... ok
+test_provider_neutral_nested_predicate_values_are_accepted (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_neutral_nested_predicate_values_are_accepted) ... ok
+test_actual_tools_are_exactly_the_five_read_only_tools (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_actual_tools_are_exactly_the_five_read_only_tools) ... ok
+test_core_api_dependency_mutations_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_api_dependency_mutations_are_rejected) ... ok
+test_core_contracts_have_no_api_dependency (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_contracts_have_no_api_dependency) ... ok
+test_duplicate_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_duplicate_tool_is_rejected) ... ok
+test_mutated_api_dependency_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_api_dependency_is_rejected) ... ok
+test_mutated_non_get_method_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_non_get_method_is_rejected) ... ok
+test_mutated_write_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_write_tool_is_rejected) ... ok
+test_removed_fetch_calls_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_removed_fetch_calls_are_rejected) ... ok
+test_row1_core_owns_lifecycle_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row1_core_owns_lifecycle_not_provider_identity) ... ok
+test_row2_capability_registry_owns_obligations_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row2_capability_registry_owns_obligations_not_provider_identity) ... ok
+test_row3_provider_binding_owns_identity_not_core_policy (foundation_contract_boundaries.OwnershipBoundaryTests.test_row3_provider_binding_owns_identity_not_core_policy) ... ok
+test_row4_host_adapter_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row4_host_adapter_boundary_is_recorded) ... ok
+test_row5_ui_provider_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row5_ui_provider_boundary_is_recorded) ... ok
+test_context_projection_keeps_legal_shapes_and_binding_ids (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_keeps_legal_shapes_and_binding_ids) ... ok
+test_context_projection_rejects_provider_fields (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_rejects_provider_fields) ... ok
+test_negative_provider_field_at_characteristics_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_characteristics_rejected) ... ok
+test_negative_provider_field_at_root_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_root_rejected) ... ok
+test_negative_provider_fields_at_component_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_component_rejected) ... ok
+test_negative_provider_fields_at_remaining_object_boundaries (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_remaining_object_boundaries) ... ok
+test_positive_ordinary_fields_and_binding_ids_accepted (foundation_contract_boundaries.ProjectContextBoundaryTests.test_positive_ordinary_fields_and_binding_ids_accepted) ... ok
+test_provider_binding_schema_accepts_provider_product_credentials_state (foundation_contract_boundaries.ProjectContextBoundaryTests.test_provider_binding_schema_accepts_provider_product_credentials_state) ... ok
+test_runtime_resolver_and_contract_reader_keep_legal_shapes (foundation_contract_boundaries.ProjectContextBoundaryTests.test_runtime_resolver_and_contract_reader_keep_legal_shapes) ... ok
+test_shared_path_shape_stays_exclusive_and_typed (foundation_contract_boundaries.ProjectContextBoundaryTests.test_shared_path_shape_stays_exclusive_and_typed) ... ok
+
+======================================================================
+ERROR: test_current_suite_remains_on_catalog_normal_and_native_ci_paths (__main__.CurrentAnchorTests.test_current_suite_remains_on_catalog_normal_and_native_ci_paths)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<candidate>/tests/sdd-domain-multitarget-foundation.tests.py", line 106, in test_current_suite_remains_on_catalog_normal_and_native_ci_paths
+    data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<candidate>/tests/verification-workflow.py", line 27, in load_workflow
+    raise ValueError('workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies')
+ValueError: workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies
+
+----------------------------------------------------------------------
+Ran 54 tests in 0.556s
+
+FAILED (errors=1)
+
+=== dependency-boundary/dependencies-present-routing.log ===
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.120s
+
+OK
+
+=== dependency-boundary/dependencies-present-foundation.log ===
+test_current_suite_remains_on_catalog_normal_and_native_ci_paths (__main__.CurrentAnchorTests.test_current_suite_remains_on_catalog_normal_and_native_ci_paths) ... ok
+test_fenced_heading_is_not_an_anchor (__main__.CurrentAnchorTests.test_fenced_heading_is_not_an_anchor) ... ok
+test_line_insertion_preserves_meaning (__main__.CurrentAnchorTests.test_line_insertion_preserves_meaning) ... ok
+test_missing_or_duplicate_heading_is_rejected (__main__.CurrentAnchorTests.test_missing_or_duplicate_heading_is_rejected) ... ok
+test_mixed_section_and_line_evidence_is_rejected (__main__.CurrentAnchorTests.test_mixed_section_and_line_evidence_is_rejected) ... ok
+test_requirement_in_another_section_does_not_satisfy_source (__main__.CurrentAnchorTests.test_requirement_in_another_section_does_not_satisfy_source) ... ok
+test_source_path_escape_is_rejected (__main__.CurrentAnchorTests.test_source_path_escape_is_rejected) ... ok
+test_symlinked_source_is_rejected (__main__.CurrentAnchorTests.test_symlinked_source_is_rejected) ... ok
+test_TEST_001a_interviewer_questions_and_layer_output (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001a_interviewer_questions_and_layer_output) ... ok
+test_TEST_001b_fixed_layer_template (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001b_fixed_layer_template) ... ok
+test_TEST_001c_risk_tier_verifier_contract (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001c_risk_tier_verifier_contract) ... ok
+test_TEST_001d_ui_design_loop (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001d_ui_design_loop) ... ok
+test_TEST_001e_endpoint_contract_checklist (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001e_endpoint_contract_checklist) ... ok
+test_TEST_001f_ci_mcp_package (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001f_ci_mcp_package) ... ok
+test_TEST_001g_provider_state_and_gate_stage_boundaries (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001g_provider_state_and_gate_stage_boundaries) ... ok
+test_TEST_001h_host_adapters_and_artifact_layout_migration (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001h_host_adapters_and_artifact_layout_migration) ... ok
+test_TEST_001i_compile_build_lint_checks_on_noncode_targets (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001i_compile_build_lint_checks_on_noncode_targets) ... ok
+test_duplicate_entry_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_duplicate_entry_id_is_rejected) ... ok
+test_full_inventory_has_no_outstanding_failures (historical_consumer_inventory.ConsumerInventoryTests.test_full_inventory_has_no_outstanding_failures) ... ok
+test_invalid_disposition_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_invalid_disposition_is_rejected) ... ok
+test_missing_required_entry_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_required_entry_is_rejected) ... ok
+test_missing_source_file_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_source_file_is_rejected) ... ok
+test_out_of_range_line_end_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_out_of_range_line_end_is_rejected) ... ok
+test_same_consumer_under_another_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_same_consumer_under_another_id_is_rejected) ... ok
+test_stale_source_keyword_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_stale_source_keyword_is_rejected) ... ok
+test_actual_registry_has_no_provider_terms (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_actual_registry_has_no_provider_terms) ... ok
+test_capability_registry_schema_rejects_provider_extra_field (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_capability_registry_schema_rejects_provider_extra_field) ... ok
+test_mutated_registry_with_provider_name_is_detected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_mutated_registry_with_provider_name_is_detected) ... ok
+test_nested_predicate_credentials_and_state_keys_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_nested_predicate_credentials_and_state_keys_are_rejected) ... ok
+test_provider_keys_in_predicates_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_keys_in_predicates_are_rejected) ... ok
+test_provider_neutral_nested_predicate_values_are_accepted (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_neutral_nested_predicate_values_are_accepted) ... ok
+test_actual_tools_are_exactly_the_five_read_only_tools (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_actual_tools_are_exactly_the_five_read_only_tools) ... ok
+test_core_api_dependency_mutations_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_api_dependency_mutations_are_rejected) ... ok
+test_core_contracts_have_no_api_dependency (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_contracts_have_no_api_dependency) ... ok
+test_duplicate_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_duplicate_tool_is_rejected) ... ok
+test_mutated_api_dependency_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_api_dependency_is_rejected) ... ok
+test_mutated_non_get_method_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_non_get_method_is_rejected) ... ok
+test_mutated_write_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_write_tool_is_rejected) ... ok
+test_removed_fetch_calls_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_removed_fetch_calls_are_rejected) ... ok
+test_row1_core_owns_lifecycle_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row1_core_owns_lifecycle_not_provider_identity) ... ok
+test_row2_capability_registry_owns_obligations_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row2_capability_registry_owns_obligations_not_provider_identity) ... ok
+test_row3_provider_binding_owns_identity_not_core_policy (foundation_contract_boundaries.OwnershipBoundaryTests.test_row3_provider_binding_owns_identity_not_core_policy) ... ok
+test_row4_host_adapter_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row4_host_adapter_boundary_is_recorded) ... ok
+test_row5_ui_provider_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row5_ui_provider_boundary_is_recorded) ... ok
+test_context_projection_keeps_legal_shapes_and_binding_ids (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_keeps_legal_shapes_and_binding_ids) ... ok
+test_context_projection_rejects_provider_fields (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_rejects_provider_fields) ... ok
+test_negative_provider_field_at_characteristics_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_characteristics_rejected) ... ok
+test_negative_provider_field_at_root_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_root_rejected) ... ok
+test_negative_provider_fields_at_component_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_component_rejected) ... ok
+test_negative_provider_fields_at_remaining_object_boundaries (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_remaining_object_boundaries) ... ok
+test_positive_ordinary_fields_and_binding_ids_accepted (foundation_contract_boundaries.ProjectContextBoundaryTests.test_positive_ordinary_fields_and_binding_ids_accepted) ... ok
+test_provider_binding_schema_accepts_provider_product_credentials_state (foundation_contract_boundaries.ProjectContextBoundaryTests.test_provider_binding_schema_accepts_provider_product_credentials_state) ... ok
+test_runtime_resolver_and_contract_reader_keep_legal_shapes (foundation_contract_boundaries.ProjectContextBoundaryTests.test_runtime_resolver_and_contract_reader_keep_legal_shapes) ... ok
+test_shared_path_shape_stays_exclusive_and_typed (foundation_contract_boundaries.ProjectContextBoundaryTests.test_shared_path_shape_stays_exclusive_and_typed) ... ok
+
+----------------------------------------------------------------------
+Ran 54 tests in 0.565s
+
+OK
+
+=== dependency-boundary/rollback-dependencies-absent-red-routing.log ===
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ERROR
+
+======================================================================
+ERROR: test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<candidate>/tests/cloud-orchestration-routing.tests.py", line 1456, in test_catalog_and_every_native_ci_cell_admit_all_six_suites
+    data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<candidate>/tests/verification-workflow.py", line 27, in load_workflow
+    raise ValueError('workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies')
+ValueError: workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies
+
+----------------------------------------------------------------------
+Ran 1 test in 0.066s
+
+FAILED (errors=1)
+
+=== dependency-boundary/rollback-dependencies-absent-red-foundation.log ===
+test_current_suite_remains_on_catalog_normal_and_native_ci_paths (__main__.CurrentAnchorTests.test_current_suite_remains_on_catalog_normal_and_native_ci_paths) ... ERROR
+test_fenced_heading_is_not_an_anchor (__main__.CurrentAnchorTests.test_fenced_heading_is_not_an_anchor) ... ok
+test_line_insertion_preserves_meaning (__main__.CurrentAnchorTests.test_line_insertion_preserves_meaning) ... ok
+test_missing_or_duplicate_heading_is_rejected (__main__.CurrentAnchorTests.test_missing_or_duplicate_heading_is_rejected) ... ok
+test_mixed_section_and_line_evidence_is_rejected (__main__.CurrentAnchorTests.test_mixed_section_and_line_evidence_is_rejected) ... ok
+test_requirement_in_another_section_does_not_satisfy_source (__main__.CurrentAnchorTests.test_requirement_in_another_section_does_not_satisfy_source) ... ok
+test_source_path_escape_is_rejected (__main__.CurrentAnchorTests.test_source_path_escape_is_rejected) ... ok
+test_symlinked_source_is_rejected (__main__.CurrentAnchorTests.test_symlinked_source_is_rejected) ... ok
+test_TEST_001a_interviewer_questions_and_layer_output (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001a_interviewer_questions_and_layer_output) ... ok
+test_TEST_001b_fixed_layer_template (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001b_fixed_layer_template) ... ok
+test_TEST_001c_risk_tier_verifier_contract (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001c_risk_tier_verifier_contract) ... ok
+test_TEST_001d_ui_design_loop (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001d_ui_design_loop) ... ok
+test_TEST_001e_endpoint_contract_checklist (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001e_endpoint_contract_checklist) ... ok
+test_TEST_001f_ci_mcp_package (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001f_ci_mcp_package) ... ok
+test_TEST_001g_provider_state_and_gate_stage_boundaries (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001g_provider_state_and_gate_stage_boundaries) ... ok
+test_TEST_001h_host_adapters_and_artifact_layout_migration (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001h_host_adapters_and_artifact_layout_migration) ... ok
+test_TEST_001i_compile_build_lint_checks_on_noncode_targets (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001i_compile_build_lint_checks_on_noncode_targets) ... ok
+test_duplicate_entry_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_duplicate_entry_id_is_rejected) ... ok
+test_full_inventory_has_no_outstanding_failures (historical_consumer_inventory.ConsumerInventoryTests.test_full_inventory_has_no_outstanding_failures) ... ok
+test_invalid_disposition_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_invalid_disposition_is_rejected) ... ok
+test_missing_required_entry_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_required_entry_is_rejected) ... ok
+test_missing_source_file_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_source_file_is_rejected) ... ok
+test_out_of_range_line_end_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_out_of_range_line_end_is_rejected) ... ok
+test_same_consumer_under_another_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_same_consumer_under_another_id_is_rejected) ... ok
+test_stale_source_keyword_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_stale_source_keyword_is_rejected) ... ok
+test_actual_registry_has_no_provider_terms (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_actual_registry_has_no_provider_terms) ... ok
+test_capability_registry_schema_rejects_provider_extra_field (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_capability_registry_schema_rejects_provider_extra_field) ... ok
+test_mutated_registry_with_provider_name_is_detected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_mutated_registry_with_provider_name_is_detected) ... ok
+test_nested_predicate_credentials_and_state_keys_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_nested_predicate_credentials_and_state_keys_are_rejected) ... ok
+test_provider_keys_in_predicates_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_keys_in_predicates_are_rejected) ... ok
+test_provider_neutral_nested_predicate_values_are_accepted (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_neutral_nested_predicate_values_are_accepted) ... ok
+test_actual_tools_are_exactly_the_five_read_only_tools (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_actual_tools_are_exactly_the_five_read_only_tools) ... ok
+test_core_api_dependency_mutations_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_api_dependency_mutations_are_rejected) ... ok
+test_core_contracts_have_no_api_dependency (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_contracts_have_no_api_dependency) ... ok
+test_duplicate_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_duplicate_tool_is_rejected) ... ok
+test_mutated_api_dependency_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_api_dependency_is_rejected) ... ok
+test_mutated_non_get_method_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_non_get_method_is_rejected) ... ok
+test_mutated_write_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_write_tool_is_rejected) ... ok
+test_removed_fetch_calls_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_removed_fetch_calls_are_rejected) ... ok
+test_row1_core_owns_lifecycle_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row1_core_owns_lifecycle_not_provider_identity) ... ok
+test_row2_capability_registry_owns_obligations_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row2_capability_registry_owns_obligations_not_provider_identity) ... ok
+test_row3_provider_binding_owns_identity_not_core_policy (foundation_contract_boundaries.OwnershipBoundaryTests.test_row3_provider_binding_owns_identity_not_core_policy) ... ok
+test_row4_host_adapter_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row4_host_adapter_boundary_is_recorded) ... ok
+test_row5_ui_provider_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row5_ui_provider_boundary_is_recorded) ... ok
+test_context_projection_keeps_legal_shapes_and_binding_ids (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_keeps_legal_shapes_and_binding_ids) ... ok
+test_context_projection_rejects_provider_fields (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_rejects_provider_fields) ... ok
+test_negative_provider_field_at_characteristics_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_characteristics_rejected) ... ok
+test_negative_provider_field_at_root_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_root_rejected) ... ok
+test_negative_provider_fields_at_component_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_component_rejected) ... ok
+test_negative_provider_fields_at_remaining_object_boundaries (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_remaining_object_boundaries) ... ok
+test_positive_ordinary_fields_and_binding_ids_accepted (foundation_contract_boundaries.ProjectContextBoundaryTests.test_positive_ordinary_fields_and_binding_ids_accepted) ... ok
+test_provider_binding_schema_accepts_provider_product_credentials_state (foundation_contract_boundaries.ProjectContextBoundaryTests.test_provider_binding_schema_accepts_provider_product_credentials_state) ... ok
+test_runtime_resolver_and_contract_reader_keep_legal_shapes (foundation_contract_boundaries.ProjectContextBoundaryTests.test_runtime_resolver_and_contract_reader_keep_legal_shapes) ... ok
+test_shared_path_shape_stays_exclusive_and_typed (foundation_contract_boundaries.ProjectContextBoundaryTests.test_shared_path_shape_stays_exclusive_and_typed) ... ok
+
+======================================================================
+ERROR: test_current_suite_remains_on_catalog_normal_and_native_ci_paths (__main__.CurrentAnchorTests.test_current_suite_remains_on_catalog_normal_and_native_ci_paths)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<candidate>/tests/sdd-domain-multitarget-foundation.tests.py", line 106, in test_current_suite_remains_on_catalog_normal_and_native_ci_paths
+    data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<candidate>/tests/verification-workflow.py", line 27, in load_workflow
+    raise ValueError('workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies')
+ValueError: workflow YAML parser failed; install the pinned sdd-forge-mcp dependencies
+
+----------------------------------------------------------------------
+Ran 54 tests in 0.537s
+
+FAILED (errors=1)
+

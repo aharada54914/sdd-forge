@@ -1455,11 +1455,20 @@ class NormalDriverRegistration(unittest.TestCase):
         spec.loader.exec_module(workflow)
         data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
         self.assertEqual(workflow.coverage_errors(data, catalog), [])
+        job = "cloud-native"  # the catalog's ci-cloud profile runs these suites
         for os_name in ("ubuntu-latest", "macos-latest", "windows-latest"):
             isolated = copy.deepcopy(data)
-            isolated["jobs"] = {"test": isolated["jobs"]["test"]}
-            isolated["jobs"]["test"]["strategy"]["matrix"]["os"] = [os_name]
-            self.assertTrue(expected <= workflow.workflow_coverage(isolated, catalog)["test"], os_name)
+            isolated["jobs"] = {name: isolated["jobs"][name] for name in ("ci-plan", job)}
+            # The planner must declare exactly the retained groups' outputs.
+            keep = {"run_ci_plan", "run_" + job.replace("-", "_"), "plan_artifact_name"}
+            outputs = isolated["jobs"]["ci-plan"]["outputs"]
+            isolated["jobs"]["ci-plan"]["outputs"] = {key: value for key, value in outputs.items() if key in keep}
+            isolated["jobs"][job]["strategy"]["matrix"]["os"] = [os_name]
+            self.assertTrue(expected <= workflow.workflow_coverage(isolated, catalog)[job], os_name)
+        # Removed execution must not pass on prose alone.
+        missing = copy.deepcopy(data)
+        missing["jobs"][job]["steps"] = []
+        self.assertFalse(expected <= workflow.workflow_coverage(missing, catalog)[job])
 
 
 if __name__ == "__main__":

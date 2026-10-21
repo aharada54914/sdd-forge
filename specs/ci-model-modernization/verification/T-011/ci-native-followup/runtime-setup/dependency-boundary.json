@@ -1,0 +1,43 @@
+{
+  "checks": [
+    {
+      "phase": "dependencies-absent-red",
+      "test": "routing",
+      "exit_code": 1,
+      "log_sha256": "5f49aa3082db2faf2645045c829d5a3dfaef0ddaf812c0ebf63edbe1c724059b"
+    },
+    {
+      "phase": "dependencies-absent-red",
+      "test": "foundation",
+      "exit_code": 1,
+      "log_sha256": "e06544c48c8ed8cf5ae592d309d8ca8d692aecae5a70cc901deb2392aa693480"
+    },
+    {
+      "phase": "dependencies-present",
+      "test": "routing",
+      "exit_code": 0,
+      "log_sha256": "88c110e8435404a2bc4d7f08789fe928bf4f827fa3862352a4805184e0bb4f57"
+    },
+    {
+      "phase": "dependencies-present",
+      "test": "foundation",
+      "exit_code": 0,
+      "log_sha256": "e01083fcaa8dc294e33020edd4cfbf9e40fd9b413e55e8d786d866761c80ec56"
+    },
+    {
+      "phase": "rollback-dependencies-absent-red",
+      "test": "routing",
+      "exit_code": 1,
+      "log_sha256": "8efd3e33a94780d0f63a69ca5c9ab368011d7f79052f054585354aa7a50dabcd"
+    },
+    {
+      "phase": "rollback-dependencies-absent-red",
+      "test": "foundation",
+      "exit_code": 1,
+      "log_sha256": "d4a89f737faacb6cb5f7756a89ecce51d31b29a089d62b5c05ca54fdffced73d"
+    }
+  ],
+  "dependency_source": "existing installed js-yaml and argparse package bytes from root; no network or dependency version change",
+  "root_package_lock_sha256": "2073331df48c2e05d7547aee4bde63a291c3940c5ece5bbb363a186b127c1608",
+  "candidate_node_modules_removed": true
+}
