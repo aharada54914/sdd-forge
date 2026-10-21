@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "ci-model-modernization",
+  "attempt": 4,
+  "round": 3,
+  "run_id": "work-agent:root:t011_completion_plan3_b",
+  "host_session_id": "work-agent:root:t011_completion_plan3_b",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/ci-model-modernization/requirements.md",
+        "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+      },
+      {
+        "path": "specs/ci-model-modernization/acceptance-tests.md",
+        "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+      },
+      {
+        "path": "specs/ci-model-modernization/design.md",
+        "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+      },
+      {
+        "path": "specs/ci-model-modernization/tasks.md",
+        "sha256": "4f1b28f67971b0675da3ec635704ca1ed1b743cc2e4dca6e91f454173f557fec"
+      },
+      {
+        "path": "specs/ci-model-modernization/traceability.md",
+        "sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+      },
+      {
+        "path": "specs/ci-model-modernization/ux-spec.md",
+        "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+      },
+      {
+        "path": "specs/ci-model-modernization/frontend-spec.md",
+        "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+      },
+      {
+        "path": "specs/ci-model-modernization/infra-spec.md",
+        "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+      },
+      {
+        "path": "specs/ci-model-modernization/security-spec.md",
+        "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-4/round-3/precheck-result.json",
+        "sha256": "b7ce933bb3b1d76c681997a95305172933efe71f831896a66fa22308bf35b214"
+      },
+      {
+        "path": "reports/task-review/ci-model-modernization/attempt-4/round-3/integrated-summary.json",
+        "sha256": "f7f3017fcac8b5ab304133e28606cc20bb5b27be06d6b892cae674310a147da1"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS: tasks.md T-011 Risk/Risk Rationale (lines 546-548), Scope and Additional correction diagnostics identify runtime obligation selection, workflow/cache context, installer distribution and protection/mirror boundaries. High/tdd matches the sensitive public execution/install and guard contracts in risk-classification-policy.md and security-spec.md Authorization/Cache and Supply Chain. Public-contract sensitivity remains even with Breaking API: No; the scope contains no safety/regulated or irreversible destructive operation requiring critical. T-010 retains medium for controlled evidence/adoption references without algorithm changes; unchanged prior tasks are not reclassified heuristically."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "PASS: tasks.md T-011 Additional correction diagnostics and chronology (lines 613-617) requires source-bound diagnosis, a separately identified failing-test commit before each workflow/installer product correction, subsequent Green/subset rollback, and meaningful mirror/protection regressions committed before product changes; cloud parser setup explicitly reuses committed parser-consumer regressions with separate source-bound Red/Green/rollback. Done When line 623 preserves readiness test-first commit a72eab2ec5e5362f635b4814fecd9e791a300e68 and named independent high-risk implementation review with pinned inputs, traceability and spec/environment provenance over the combined scope. Earlier high tasks explicitly require failing tests committed before implementation and named independent review. No critical task activates second-approver/signed-bundle requirements. This assesses planned criteria and chronology references, not actual implementation evidence or adoption completion."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS: tasks.md T-011 Goal, Planned Files, Scope and Additional correction diagnostics bound the changed work to the observed rollout/install blockers and exact-tested release. Although several files change, the workflow/parser setup, installer allowlist and runtime consumers, exact successor mirror publication, canonical guard regeneration and current-fixture repairs each have identified causes and separate regression/rollback criteria under one final installed-distribution/hosted verification result. The shared install-payload-check helper is reused by the existing two installer suites and four guard counterparts are mechanical outputs, avoiding independent duplicated implementations. T-010 still owns controlled model adoption; the plan does not absorb a separate model-selection feature or open-ended refactoring."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS: tasks.md T-011 Readiness bugfix diagnostic path keeps truly unknown predicates, missing matrix values and unrecognized commands mandatory and records old-parser/new-setup rejection. Additional correction diagnostics specifies local versus archive broad-copy causes, required dependency inventory, missing/mutated/duplicate successor pins, changed predecessor/live bytes, omitted protection entries and all platform counterparts. Done When requires upgrade removal of obsolete development payload, selection/Node gates, minimal MCP required files, installed callers, rollback, actual hosted startup and platform/cache parity. Historical bytes are preserved; current phase2 ci-plan and successor-publication fixture assertions remain behavior-sensitive. Unproven selection classes remain full; unavailable real merge_group stays explicitly pending."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS: tasks.md T-011 Planned Files and diagnostics link parser/workflow negative regressions to tests/verification-ci-plan.tests.py and tests/verification-catalog.tests.py; actual distribution behavior to tests/install.tests.sh/.ps1 through tests/lib/install-payload-check.py plus installed/cloud fixtures; mirror/guard behavior to exact publication and parity/negative controls; and current ci-plan/successor behavior to phase2 and ship-track tests. Done When and Test Ownership map TEST-016/017 to actual hosted native contexts/omission, TEST-027 to full parity, TEST-034-036/075-077 to source-consumer/mutation/full comparisons and measurements, TEST-037/038/128-130 to current documentation and immutable exact-tested delivery. This matches acceptance-tests.md and design.md Test Strategy; deterministic fixtures cannot substitute for native/hosted/adoption results."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS: tasks.md Shared file ordering and rollback requires task-owned restoration in a disposable checkout, before/source hashes and baseline reruns without ledger/history rewriting; CI rollback preserves aggregate proof through force-full. T-011 diagnostics require exact subset rollback for readiness and separate workflow, installer, cloud parser, mirror/protection corrections; installer acceptance includes upgrade and rollback controls. T-011 Done When line 629 requires documented tested rollback with before/after hashes and actual baseline results. infra-spec.md Release and Rollback retains prior tags and validated pinned-model recovery. These are observable planned rollback results rather than an unsupported promise to revert."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS: tasks.md Shared file ordering and rollback serializes shared helpers/catalogs and establishes predecessor ownership. T-011 Scope explicitly amends only bounded readiness/runtime/distribution repairs while preserving T-010 ownership and final completion barriers. Planned Files assigns model-policy.tests.py only a native Windows Bash harness correction coordinated with T-010 adoption tests, not policy/adoption algorithm changes. Installers share install-payload.txt and tests/lib/install-payload-check.py; protection changes originate in the canonical registry and regenerate four counterparts, so outputs have an ordered producer. Current publication fixtures and mirror successor checks preserve historical snapshots rather than overlapping evidence ownership."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS: tasks.md dependency narrative and T-011 Blockers retain T-009 maintenance references and T-010 actual controlled adoption as prerequisites for final rollout/release. T-011 Scope narrowly authorizes the bounded omission-readiness correction independently of T-010 while explicitly keeping final rollout, adoption and release blocked; this does not claim either task Done. The T-001/T-002/T-003 plan/evidence/workflow chain supplies the interpreted predicates and proof contracts consumed by T-011; T-008 supplies installed entries used in its runtime audit. Shared-file serialization and the explicit model-policy test coordination avoid an uncoordinated T-010 overlap. No new unrelated blocker is introduced."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS: tasks.md T-011 Readiness bugfix diagnostic path retains the exact 443 full/443 selected symptom, pre-correction bytes/commands/hashes, condition_value unknown-predicate and exact setup-declaration causal investigation, four tests-first regressions, prior50+new4 Green and mismatch controls. Additional correction diagnostics requires investigation before installer correction: trace measured broad local Git and recursive archive copies, inventory actual runtime callers/dependencies, and compare MCP recursive dist copying to esbuild/runtime entrypoints. Done When records the illegal job-level runner.temp cache binding and measured 16,408-file/189,910,946-byte payload. Scope identifies hosted run 39598838307 failure classes; diagnostics retain exact failing commands/source hashes for drift and separate source-bound cause/Red/Green/rollback for cloud parser, exact mirror pair, protection registry and harness corrections. Final hosted wrappers and installed audits verify the original boundaries again. Referenced implementation records were not opened and are not treated as execution proof."
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "ci-model-modernization",
+  "run_id": "taskplan-ci-model-modernization-attempt4-round3-integration",
+  "verdict": "PASS",
+  "round": 3,
+  "attempt": 4,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

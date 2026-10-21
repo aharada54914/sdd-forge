@@ -1,0 +1,8 @@
+{
+  "recorded_at": "2026-10-21T13:01:28.287462+00:00",
+  "before_sha256": "b92521761a0e57781cbc221fc03ba2cac07e996865be1fdec467cbc8d5431d06",
+  "after_sha256": "a38a4e2000f1055231c96d4fbfa71d4432762937bb07d4df060ca7aaed045763",
+  "prior_contract_sha256": "a209babedc8d6e202ee25a8dda073562737f3dc3b66cfeedcad27d3913222673",
+  "scope": "Actual hosted failure corrections; T001-T010 bodies unchanged",
+  "run": 39598838307
+}

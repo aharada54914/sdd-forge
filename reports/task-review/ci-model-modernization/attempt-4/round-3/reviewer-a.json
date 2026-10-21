@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "ci-model-modernization",
+  "attempt": 4,
+  "round": 3,
+  "run_id": "work-agent:root:t011_completion_plan3_a",
+  "host_session_id": "work-agent:root:t011_completion_plan3_a",
+  "manifest": [
+    {
+      "path": "specs/ci-model-modernization/requirements.md",
+      "sha256": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd"
+    },
+    {
+      "path": "specs/ci-model-modernization/acceptance-tests.md",
+      "sha256": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1"
+    },
+    {
+      "path": "specs/ci-model-modernization/design.md",
+      "sha256": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b"
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "sha256": "4f1b28f67971b0675da3ec635704ca1ed1b743cc2e4dca6e91f454173f557fec"
+    },
+    {
+      "path": "specs/ci-model-modernization/traceability.md",
+      "sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+    },
+    {
+      "path": "specs/ci-model-modernization/ux-spec.md",
+      "sha256": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+    },
+    {
+      "path": "specs/ci-model-modernization/frontend-spec.md",
+      "sha256": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657"
+    },
+    {
+      "path": "specs/ci-model-modernization/infra-spec.md",
+      "sha256": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c"
+    },
+    {
+      "path": "specs/ci-model-modernization/security-spec.md",
+      "sha256": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-4/round-3/precheck-result.json",
+      "sha256": "b7ce933bb3b1d76c681997a95305172933efe71f831896a66fa22308bf35b214"
+    },
+    {
+      "path": "reports/task-review/ci-model-modernization/attempt-4/round-3/dependency-graph.json",
+      "sha256": "aa88eb42f8eb2117e0ad1cdfccf4a44a072140809919ea06dff23f12b66b6026"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md REQ-001 through REQ-020 each map to a defined AC-001 through AC-020 in acceptance-tests.md. All 162 defined TEST rows reference these ACs. Invocation identity, task/task-reviewer-a stage-role, read-only file-manifest mode, fallback none and all 12 delivered pins match the packet; sequence 1304 and previous-record quotation match the supplied successful reservation. The stale reserved invocation was not rerun."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md has 11 uniquely identified tasks. Each Blockers section is either None (T-001) or a comma-separated list of existing task IDs without self-reference. T-011 names T-009 and T-010, matching dependency-graph.json and the current precheck blockers_format_valid=true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 20 requirements appear in task Requirements fields and traceability.md. T-011 remains the final owner for REQ-004/006 hosted omission/full parity and REQ-009/010/020 rollout/documentation/release. Its added cache-context, parser setup, installer distribution and protection/mirror repairs are bounded prerequisites to that final supported-runtime/full-verification delivery, with explicit compatibility and retained-evidence controls; they do not replace upstream requirement ownership."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 20 ACs have concrete TEST branches and task ownership. T-011 owns TEST-016/017/027/034-038/075-077/128-130: hosted native contexts and omission, full native inventory, category comparisons and timing, operator documentation and exact-tested immutable tag. Added corrections require their own regression, rollback and installed/runtime observations, while existing hosted and adoption acceptance remains mandatory."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each T-001 through T-011 declares valid requirements and owns acceptance tests. T-011 additional corrections are tied to observed failures preventing its assigned rollout/full-native/release outcomes: illegal pre-job cache context, oversized installation, cloud parser dependencies, platform harness interference, current publication drift and omitted chain-invoked protection entries. No unrelated service, credential, merge or adoption algorithm is introduced."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "The 162 Test Ownership rows correspond exactly to the 162 acceptance-tests.md TEST definitions; every row names an existing task, the same AC, and an AC whose requirement is declared by that task. No defined test lacks an owner and no ownership row invents a test. T-011 additional installer, mirror, guard and predicate regressions reinforce its final-delivery acceptance rather than replacing any original TEST assertion."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "This packet expressly admits approved post-implementation lifecycle states. Current tasks.md records T-001 through T-009 Done and T-010/T-011 In Progress. T-011 Scope explicitly authorizes bounded readiness continuation independently of T-010 execution while retaining the final T-010 dependency; no lifecycle field claims model adoption, completed hosted rollout, release acceptance or an implementation quality verdict."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All tasks specify Risk, Risk Rationale, Required Workflow, Data Migration and Breaking API. T-011 is high/tdd with runtime-selection, cache-context and distribution-boundary rationale. Additional correction diagnostics require separate source-bound failures, a failing-test commit before each new workflow/installer product correction, mirror/protection tests committed before product application, subsequent Green, subset rollback and named independent high-risk implementation review. Precheck workflow_match_precheck is PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each TEST has exactly one final owner. Shared AC-004 and AC-006 divide earlier core/workflow construction from T-011 actual native/omission/full-parity proof; shared model ACs similarly separate selector, transport, installed-entry and adoption contracts. Acceptance ownership explicitly prevents a core task from claiming downstream completion. New T-011 regression coverage does not duplicate or reassign final adoption ownership."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "The passed contract chain is T-001 planner to T-002 aggregation to T-003 workflow to T-004 discovery to T-005 binding to T-006 selection to T-007 transports to T-008 installed entries. T-009 maintenance consumes T-006, T-010 adoption consumes T-008, and T-011 joins both. T-011 repairs consume already-completed CI/install/guard surfaces; coordinated tests/model-policy.tests.py edits remain serialized with T-010. Its Scope preserves the T-010 final-rollout/release blocker and permits only the declared bounded continuation before then."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Independently traversed all 11 nodes and 11 declared edges in dependency-graph.json; every node resolves without a cycle. T-009 and T-010 are parallel prerequisites that converge at T-011, with no reverse edge or fabricated dependency between maintenance and adoption."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-011 is the combined feature final-delivery task established in requirements.md Overview. Its broader changes remain bounded to observed rollout/runtime blockers and distribution readiness: legal cache context and pinned parser setup, explicit local/archive installation allowlist and minimal MCP bundle, current publication/predicate corrections, and canonical protection membership with four regenerated counterparts. Separate diagnostics, test chronology and subset rollback keep each correction reviewable. Adoption, selector redesign, external protection changes and historical rewrites remain outside this final-delivery scope."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-011 names exact current regression surfaces, including tests/lib/install-payload-check.py used by both installer suites, phase2 Bash/PowerShell predicate and successor checks, installed/cloud manifest fixtures, and guard/mirror negative controls. Diagnostics require exact failing commands/source hashes and Red/Green/rollback; mirror checks cover missing/mutated/duplicate pins and changed predecessor/live bytes, guard checks cover omitted entries and all counterparts, and harness repairs may neither exclude protection changes nor swallow cleanup failures. Done When requires legal hosted startup with cache parity, local/archive/upgrade/rollback and actual installed callers, measured final payload counts/bytes and released-install audit, final exact-commit complete local/hosted evidence, independent implementation verdict and immutable tag. No live checks are demanded by this task-plan review. precheck frozen_artifact_done_when is empty, so there are no flagged frozen DoneWhen task IDs to adjudicate."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 20 traceability.md requirement rows name the same task owners as tasks.md, and all 162 traceability TEST references are defined and owned under the same AC/REQ chain. T-011 final evidence destinations remain reports/implementation/ci-model-modernization/T-011.md and verification/T-011/. Its new planned files and detailed diagnostics supply correction-level evidence within those destinations and its final implementation review, preserving the frozen traceability body and historical records. Shared requirements remain incomplete pending their downstream owners; no task-plan PASS is substituted for implementation, adoption, hosted or release acceptance."
+    }
+  ],
+  "findings": []
+}
