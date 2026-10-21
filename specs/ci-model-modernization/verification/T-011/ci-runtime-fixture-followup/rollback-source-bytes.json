@@ -1,0 +1,15 @@
+{
+  "scope": "disposable two-file source restore/reapply only; runtime cache Red/Green separately recorded; no CI or full runtime rollback claim",
+  "files": {
+    "tests/model-policy-installed.tests.py": {
+      "baseline_sha256": "52f6cfa8434c7db4e8ea33699db7fc907e046a69be1d091bdcf3ba2ab284933d",
+      "candidate_sha256": "d1a8eb49b718c7b67fe1f8daa1d958ee484e8fc7e2d4805edfef34493abd21a9",
+      "restored_then_reapplied_exactly": true
+    },
+    "tests/a9-advisory-evidence.tests.py": {
+      "baseline_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+      "candidate_sha256": "051f08819d05b53d8d3f526f546993d55602c296006b30db1a7cebc851c421ea",
+      "restored_then_reapplied_exactly": true
+    }
+  }
+}

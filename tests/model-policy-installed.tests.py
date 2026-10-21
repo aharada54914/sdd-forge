@@ -722,8 +722,10 @@ class InstalledEntryTests(LaunchFixture):
         (codex / 'config.toml').write_text('# user configuration canary\nmodel = "user-choice"\n')
         (codex / 'agents' / 'sdd-evaluator.toml').write_text('# user agent canary; never replaced\n')
         self.codex_home = tree(codex)
+        # 2026-10-21: PowerShell caches live in fixture-owned space outside the protected HOME snapshot.
         self.environment.update(HOME=str(self.home), CLAUDE_CONFIG_DIR=str(self.home / '.claude'),
                                 XDG_DATA_HOME=str(self.home / '.local/share'),
+                                XDG_CACHE_HOME=str(self.base / 'runtime-cache'),
                                 SDD_CODEX_HOME=str(codex), SDD_CURSOR_DIR=str(self.base / 'cursor-absent'),
                                 SDD_VSCODE_USER_DIR=str(self.base / 'vscode-absent'),
                                 GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
@@ -2748,8 +2750,10 @@ class InstalledNativeEntryTests(LaunchFixture):
         (codex / 'config.toml').write_text('# user configuration canary\nmodel = "user-choice"\n')
         (codex / 'agents' / 'sdd-evaluator.toml').write_text('# user agent canary; never replaced\n')
         self.codex_home = tree(codex)
+        # 2026-10-21: PowerShell caches live in fixture-owned space outside the protected HOME snapshot.
         self.environment.update(HOME=str(self.home), CLAUDE_CONFIG_DIR=str(self.home / '.claude'),
                                 XDG_DATA_HOME=str(self.home / '.local/share'),
+                                XDG_CACHE_HOME=str(self.base / 'runtime-cache'),
                                 SDD_CODEX_HOME=str(codex), SDD_CURSOR_DIR=str(self.base / 'cursor-absent'),
                                 SDD_VSCODE_USER_DIR=str(self.base / 'vscode-absent'),
                                 GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')

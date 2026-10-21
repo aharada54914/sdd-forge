@@ -52,7 +52,10 @@ def fixture(root):
     path = directory / 'contract.json'; path.write_text(json.dumps(contract))
     def git(*args):
         return subprocess.check_output(['git', *args], cwd=root, stderr=subprocess.PIPE).decode().strip()
-    git('init', '-q'); git('config', 'core.autocrlf', 'false'); git('add', '.')
+    git('init', '-q'); git('config', 'core.autocrlf', 'false')
+    # 2026-10-21: no detached auto maintenance may outlive fixture cleanup (.git deletion).
+    git('config', 'maintenance.auto', 'false'); git('config', 'gc.auto', '0')
+    git('add', '.')
     git('-c', 'user.name=Synthetic Fixture', '-c', 'user.email=fixture@example.invalid',
         '-c', 'commit.gpgsign=false', 'commit', '-qm', 'synthetic baseline')
     base = git('rev-parse', 'HEAD')

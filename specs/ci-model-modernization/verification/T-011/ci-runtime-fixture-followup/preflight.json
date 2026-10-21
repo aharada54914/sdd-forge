@@ -1,0 +1,14 @@
+{
+  "files": {
+    "tests/model-policy-installed.tests.py": "52f6cfa8434c7db4e8ea33699db7fc907e046a69be1d091bdcf3ba2ab284933d",
+    "tests/a9-advisory-evidence.tests.py": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706"
+  },
+  "hosted_red": "run39598838307: 15 protected HOME snapshot failures from PowerShell startup cache; A9 cleanup errno39 .git",
+  "counterparts": "protected fixture HOME vs runtime-owned fixture cache; temporary repo lifetime vs detached git maintenance",
+  "preserve": [
+    "full home snapshot",
+    "cleanup errors",
+    "all assertions",
+    "product/runtime behavior"
+  ]
+}

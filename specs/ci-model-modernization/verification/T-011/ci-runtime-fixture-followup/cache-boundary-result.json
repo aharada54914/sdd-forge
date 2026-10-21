@@ -1,0 +1,12 @@
+{
+  "runtime": "real child PowerShell from $PSHOME, launched through required workspace wrapper; explicit startup environment reproduces hosted missing XDG_CACHE_HOME",
+  "baseline_home": [
+    ".cache/powershell/StartupProfileData-NonInteractive",
+    ".cache/powershell/telemetry.uuid"
+  ],
+  "fixed_home": [],
+  "runtime_cache": [
+    "powershell/StartupProfileData-NonInteractive",
+    "powershell/telemetry.uuid"
+  ]
+}
