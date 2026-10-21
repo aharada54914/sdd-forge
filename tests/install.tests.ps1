@@ -21,12 +21,12 @@ if ($Lane -in @('all', 'core')) {
     $parseErrors = $null
     $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $repositoryRoot 'install.ps1'), [ref]$tokens, [ref]$parseErrors)
     if ($parseErrors.Count) { throw 'Installer parse failed' }
-    $tarCalls = @($ast.FindAll({ param($node)
+    $downloadCalls = @($ast.FindAll({ param($node)
         $node -is [Management.Automation.Language.CommandAst] -and
-        $node.GetCommandName() -ceq 'tar' -and $node.Extent.Text.Contains('-xzf')
+        $node.GetCommandName() -ceq 'Download-AuthenticatedArchive'
     }, $true))
-    if ($tarCalls.Count -ne 1) { throw 'Expected one production archive extraction' }
-    $block = $tarCalls[0].Parent
+    if ($downloadCalls.Count -ne 1) { throw 'Expected one production archive download' }
+    $block = $downloadCalls[0].Parent
     while ($block -and $block -isnot [Management.Automation.Language.StatementBlockAst]) { $block = $block.Parent }
     if (-not $block) { throw 'Archive branch not found' }
     $body = [scriptblock]::Create($block.Extent.Text.Substring(1, $block.Extent.Text.Length - 2))
@@ -36,24 +36,41 @@ if ($Lane -in @('all', 'core')) {
         New-Item -ItemType Directory -Path $partial -Force | Out-Null
         Set-Content -LiteralPath (Join-Path $partial 'marketplace.json') -Value '{}'
     }
-    function tar { $global:LASTEXITCODE = $script:archiveTestExit }
+    function tar {
+        $script:archiveTarCalls++
+        $global:LASTEXITCODE = $script:archiveTestExit
+    }
+    function Expand-DownloadedZipArchive {
+        param($ArchivePath, $DestinationPath)
+        $script:archiveZipCalls++
+        if ($script:archiveTestExit -ne 0) { throw 'Downloaded archive extraction failed in ZIP fixture.' }
+    }
     $Repository = 'fixture/only'
     $Ref = 'fixture'
-    foreach ($code in @(0, 2)) {
-        $script:archiveTestExit = $code
-        $temporaryRoot = $null
-        $caught = $null
-        try { . $body } catch { $caught = $_ }
-        finally {
-            if ($temporaryRoot -and (Test-Path -LiteralPath $temporaryRoot)) {
-                Remove-Item -LiteralPath $temporaryRoot -Recurse -Force
+    foreach ($useZipArchive in @($false, $true)) {
+        foreach ($code in @(0, 2)) {
+            $script:archiveTestExit = $code
+            $script:archiveTarCalls = 0
+            $script:archiveZipCalls = 0
+            $temporaryRoot = $null
+            $caught = $null
+            try { . $body } catch { $caught = $_ }
+            finally {
+                if ($temporaryRoot -and (Test-Path -LiteralPath $temporaryRoot)) {
+                    Remove-Item -LiteralPath $temporaryRoot -Recurse -Force
+                }
             }
+            $expectedTarCalls = if ($useZipArchive) { 0 } else { 1 }
+            $expectedZipCalls = if ($useZipArchive) { 1 } else { 0 }
+            if ($script:archiveTarCalls -ne $expectedTarCalls -or $script:archiveZipCalls -ne $expectedZipCalls) {
+                throw "Archive mode selected the wrong extractor: ZIP=$useZipArchive"
+            }
+            if ($code -eq 0 -and $caught) { throw "Successful extraction rejected: $caught" }
+            if ($code -ne 0 -and (-not $caught -or "$caught" -cnotmatch 'archive extraction failed')) {
+                throw 'Failed extraction with partial marketplace must stop with extraction diagnostic'
+            }
+            Write-Host "ok: archive extraction ZIP=$useZipArchive exit $code handled"
         }
-        if ($code -eq 0 -and $caught) { throw "Successful extraction rejected: $caught" }
-        if ($code -ne 0 -and (-not $caught -or "$caught" -cnotmatch 'archive extraction failed')) {
-            throw 'Failed tar with partial marketplace must stop with extraction diagnostic'
-        }
-        Write-Host "ok: archive extraction exit $code handled"
     }
     $global:LASTEXITCODE = 0
 }
@@ -334,19 +351,26 @@ function New-ArchiveFixture {
     )
 
     $archiveRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-archive-" + [guid]::NewGuid())
-    $archivePath = Join-Path $archiveRoot "source.tar.gz"
+    $archiveFormat = if ([IO.Path]::DirectorySeparatorChar -eq '\') { 'zip' } else { 'tar.gz' }
+    $archivePath = Join-Path $archiveRoot ("source." + $archiveFormat)
     New-Item -ItemType Directory -Path $archiveRoot -Force | Out-Null
 
     # Let Git write the archive so path quoting/encoding never crosses a
     # PowerShell string boundary (notably for decomposed Unicode names on
     # Windows). Keep archive creation and extraction as separate checked
     # steps; a failed archive must not be mistaken for an empty fixture.
-    & git -C $SourceRoot archive --format=tar.gz "--prefix=repo/" "--output=$archivePath" HEAD
+    & git -C $SourceRoot archive "--format=$archiveFormat" "--prefix=repo/" "--output=$archivePath" HEAD
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $archivePath -PathType Leaf)) {
         throw "Unable to create tracked fixture archive."
     }
-    & tar -xzf $archivePath -C $archiveRoot
-    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $archiveRoot "repo") -PathType Container)) {
+    if ($archiveFormat -eq 'zip') {
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [IO.Compression.ZipFile]::ExtractToDirectory($archivePath, $archiveRoot)
+    } else {
+        & tar -xzf $archivePath -C $archiveRoot
+        if ($LASTEXITCODE -ne 0) { throw "Unable to extract tracked fixture archive." }
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $archiveRoot "repo") -PathType Container)) {
         throw "Unable to extract tracked fixture archive."
     }
     return $archivePath
@@ -497,6 +521,8 @@ function Invoke-RemoteInstallerScenario {
     $originalPath = $env:PATH
     $originalCodexHome = $env:SDD_CODEX_HOME
     $originalGhToken = $env:GH_TOKEN
+    $archiveEndpoint = if ([IO.Path]::DirectorySeparatorChar -eq '\') { 'zipball' } else { 'tarball' }
+    $expectedArchiveUrl = "https://api.github.com/repos/aharada54914/sdd-forge/$archiveEndpoint/main"
     $global:SddInstallerFixtureArchivePath = New-ArchiveFixture -SourceRoot $installerSourceRoot
 
     function global:Invoke-WebRequest {
@@ -510,7 +536,7 @@ function Invoke-RemoteInstallerScenario {
         if ($Headers.Authorization -ne "Bearer fake-gh-token") {
             throw "missing GitHub auth header"
         }
-        if ($Uri -notmatch '^https://api\.github\.com/repos/aharada54914/sdd-forge/tarball/main$') {
+        if ($Uri -cne $expectedArchiveUrl) {
             throw "unexpected remote download URL: $Uri"
         }
         if ($Uri -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
@@ -541,7 +567,7 @@ function Invoke-RemoteInstallerScenario {
         }
 
         $log = Get-Content -Raw $commandLog
-        if ($log -notmatch 'Invoke-WebRequest https://api\.github\.com/repos/aharada54914/sdd-forge/tarball/main') {
+        if ($log -notmatch [regex]::Escape("Invoke-WebRequest $expectedArchiveUrl")) {
             throw "Authenticated remote install did not use the GitHub API archive URL"
         }
         if ($log -match 'raw\.githubusercontent\.com|codeload\.github\.com') {

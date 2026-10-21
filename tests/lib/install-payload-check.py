@@ -31,6 +31,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]  # <repo>/tests/lib/<this file>
@@ -291,7 +292,9 @@ class Fixture:
             for dirpath, _dirs, files in os.walk(self.path / "mcp"):
                 for name in files:
                     full = Path(dirpath, name)
-                    tar.add(str(full), arcname=f"{top}/{full.relative_to(self.path).as_posix()}", recursive=False)
+                    rel = full.relative_to(self.path).as_posix()
+                    if rel not in omit:
+                        tar.add(str(full), arcname=f"{top}/{rel}", recursive=False)
             for rel, text in ARCHIVE_JUNK.items():
                 data, info = text.encode(), tarfile.TarInfo(f"{top}/{rel}")
                 info.size = len(data)
@@ -300,6 +303,27 @@ class Fixture:
                 link(tar, rel, target)
         self._archives[key] = dest
         return dest
+
+
+def windows_zip_archive(archive, destination):
+    """Keep fixture bytes and Unix link metadata in the Windows transport format."""
+    with tarfile.open(archive) as source, zipfile.ZipFile(destination, "w") as target:
+        for member in source:
+            item = zipfile.ZipInfo(member.name + ("/" if member.isdir() else ""))
+            item.create_system = 3
+            kind = stat.S_IFLNK if member.issym() else (stat.S_IFDIR if member.isdir() else stat.S_IFREG)
+            item.external_attr = (kind | member.mode) << 16
+            if member.isdir():
+                data = b""
+            elif member.issym():
+                data = member.linkname.encode("utf-8")
+            elif member.isfile():
+                with source.extractfile(member) as content:
+                    data = content.read()
+            else:
+                raise ValueError("Unsupported fixture archive entry: " + member.name)
+            target.writestr(item, data)
+    return destination
 
 
 @contextlib.contextmanager
@@ -363,7 +387,7 @@ class PowerShell:
         "$ErrorActionPreference = 'Stop'\n"
         "function global:Invoke-WebRequest {\n"
         "    param([string]$Uri, $Headers, [string]$OutFile)\n"
-        f"    if ($Uri -ne '{ARCHIVE_URL}') {{ throw \"Unexpected download URI: $Uri\" }}\n"
+        f"    if ($Uri -ne '{ARCHIVE_URL.replace('/tarball/', '/zipball/') if os.name == 'nt' else ARCHIVE_URL}') {{ throw \"Unexpected download URI: $Uri\" }}\n"
         f"    if ($Headers['Authorization'] -ne 'Bearer {TEST_TOKEN}') {{ throw 'Unexpected authorization header' }}\n"
         "    Copy-Item -LiteralPath $env:PAYLOAD_TEST_ARCHIVE -Destination $OutFile -Force\n"
         "}\n"
@@ -382,6 +406,8 @@ class PowerShell:
         base = [self.pwsh, "-NoLogo", "-NoProfile", "-NonInteractive", "-File"]
         installer, env = str(REPO / "install.ps1"), scenario_env(tmp)
         if archive:
+            if os.name == "nt" and not zipfile.is_zipfile(archive):
+                archive = windows_zip_archive(archive, tmp / "source.zip")
             params = {"InstallRoot": str(root), "Target": "FilesOnly", "SkipPluginInstall": True,
                       "SkipAgentInstall": True, **({"SkipMcp": True} if skip_mcp else {}),
                       **({"Mcp": list(mcp)} if mcp else {}), **({"Plugins": list(plugins)} if plugins else {})}
@@ -556,7 +582,7 @@ class PayloadChecks(unittest.TestCase):
         self.assert_previous_intact(root)
 
     def test_tracked_special_names_survive_local_and_archive(self):
-        # A >100-byte basename forces Git to use a PAX path extension.
+        # A >100-byte basename also exercises the Git PAX boundary on tar platforms.
         names = ["日本語.txt", "日本語" * 12 + ".txt"]
         if os.name != "nt":
             names += ['quoted"name.txt', "tab\tname.txt"]
@@ -568,9 +594,10 @@ class PayloadChecks(unittest.TestCase):
         try:
             # Match the Git archive producer: Python PAX encodes even short Unicode
             # names differently, exercising native tar charset handling instead.
-            archive = self.fx.base / "special-names.tar.gz"
+            archive_format = "zip" if os.name == "nt" and isinstance(self.runner, PowerShell) else "tar.gz"
+            archive = self.fx.base / ("special-names." + archive_format)
             tree = self.fx.git("write-tree").stdout.strip()
-            self.fx.git("archive", "--format=tar.gz", "--prefix=aharada54914-sdd-forge-0123abc/",
+            self.fx.git("archive", "--format=" + archive_format, "--prefix=aharada54914-sdd-forge-0123abc/",
                         "--output=" + str(archive), tree)
             for label, kwargs in (("local", {"source": self.fx.path}),
                                   ("archive", {"archive": archive})):
@@ -585,6 +612,52 @@ class PayloadChecks(unittest.TestCase):
             self.fx.git("rm", "--cached", "-q", "--", *paths)
             for rel in paths:
                 (self.fx.path / rel).unlink()
+
+    def test_windows_zip_metadata_and_containment(self):
+        if os.name != "nt" or not isinstance(self.runner, PowerShell):
+            self.skipTest("Windows PowerShell ZIP transport")
+        for label, rel in (("file", "plugins/sdd-bootstrap/link.txt"),
+                           ("parent", "plugins/sdd-bootstrap/linked")):
+            with self.subTest(link=label):
+                root = self.root_for("zip-link-" + label)
+                self.precreate_install(root)
+                archive = self.fx.archive(symlinks=[(rel, "../../../outside/secret.txt")])
+                result = self.install_fails(root, archive=archive, skip_mcp=True)
+                self.assertRegex(result.stdout + result.stderr, r"(?i)symlink")
+                self.assert_previous_intact(root)
+        root = self.root_for("zip-ignored-link")
+        self.install_ok(root, archive=self.fx.archive(symlinks=[("tests/ignored-link", "../../outside/secret.txt")]),
+                        skip_mcp=True)
+        self.assert_payload(root)
+        if self.has_node:
+            rel = "mcp/local-env-mcp/dist/index.js"
+            root = self.root_for("zip-mcp-link")
+            self.install_ok(root, archive=self.fx.archive(omit=[rel], symlinks=[(rel, "../../../outside/secret.txt")]),
+                            mcp=["local-env-mcp"])
+            self.assertFalse((root / "mcp/local-env-mcp").exists())
+        archive = windows_zip_archive(self.fx.archive(), self.tmp / "linked-parent.zip")
+        with zipfile.ZipFile(archive, "a") as target:
+            parent = "aharada54914-sdd-forge-0123abc/plugins/sdd-bootstrap/linked"
+            link = zipfile.ZipInfo(parent)
+            link.create_system, link.external_attr = 3, (stat.S_IFLNK | 0o777) << 16
+            target.writestr(link, "../../../outside")
+            target.writestr(parent + "/child.txt", b"must not escape via link parent")
+        root = self.root_for("zip-link-descendant")
+        self.precreate_install(root)
+        self.install_fails(root, archive=archive, skip_mcp=True)
+        self.assert_previous_intact(root)
+        for index, name in enumerate(("../escaped.txt", "/escaped.txt", "C:/escaped.txt",
+                                      "top/plugins/sdd-bootstrap/ads.txt:stream", r"top\plugins\aliased.txt",
+                                      "aharada54914-sdd-forge-0123abc/README.md",
+                                      "aharada54914-sdd-forge-0123abc/readme.md")):
+            with self.subTest(unsafe_name=name):
+                archive = windows_zip_archive(self.fx.archive(), self.tmp / f"unsafe-{index}.zip")
+                with zipfile.ZipFile(archive, "a") as target:
+                    target.writestr(name, b"untrusted fixture bytes")
+                root = self.root_for("zip-unsafe-" + str(index))
+                self.precreate_install(root)
+                self.install_fails(root, archive=archive, skip_mcp=True)
+                self.assert_previous_intact(root)
 
     def test_core_required_files_fail_closed(self):
         paths = ["plugins/" + plugin + "/.claude-plugin/plugin.json"
