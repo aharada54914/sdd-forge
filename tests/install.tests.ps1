@@ -30,6 +30,9 @@ if ($Lane -in @('all', 'core')) {
     while ($block -and $block -isnot [Management.Automation.Language.StatementBlockAst]) { $block = $block.Parent }
     if (-not $block) { throw 'Archive branch not found' }
     $body = [scriptblock]::Create($block.Extent.Text.Substring(1, $block.Extent.Text.Length - 2))
+    # This isolated block tests extraction dispatch/status; metadata is covered
+    # by the black-box payload cases above, using the real implementation.
+    function Test-PlainItem { param([string]$Path) return $true }
     function Download-AuthenticatedArchive {
         param($RepositoryName, $RefName, $ArchivePath)
         $partial = Join-Path (Split-Path $ArchivePath) 'partial/.agents/plugins'
