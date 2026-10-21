@@ -224,6 +224,37 @@ class WorkflowIntegrationTests(unittest.TestCase):
         cls.workflow = cls.w.load_workflow(ROOT / '.github/workflows/test.yml')
         cls.catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
 
+    def test_readme_category_preserves_non_cli_job_failure_closure(self):
+        # Actual job failure invalidates every obligation in that job, including
+        # omitted siblings. README consumers span installation, cloud packaging,
+        # release validation and documentation; only the independently audited
+        # CLI hook job is outside this conservative candidate selection.
+        # This checks the inactive definition too; it does not grant activation.
+        categories = [c for c in self.catalog['impact']['categories']
+                      if 'README.md' in c['paths']]
+        self.assertEqual(len(categories), 1)
+        obligations = self.w.plan_obligations(self.workflow, self.catalog)
+        selected = self.ci.P.selected_obligations(categories, self.catalog,
+                                                 self.workflow, obligations)
+        selected_ids = {o['id'] for o in selected}
+        omitted = [o for o in obligations if o['id'] not in selected_ids]
+        cli = [o for o in obligations if o['job'] == 'cli-hook-enforcement']
+        self.assertEqual(len(cli), 6, 're-audit CLI independence if its workload changes')
+        self.assertEqual({o['id'] for o in omitted}, {o['id'] for o in cli},
+                         'README selection must retain all non-CLI job obligations')
+        selected_jobs = {o['job'] for o in selected}
+        self.assertFalse(any(o['job'] in selected_jobs for o in omitted),
+                         'a failed selected step must not strand omitted job siblings')
+        known_consumers = {
+            'tests/workflow-documentation.tests.sh',
+            'tests/design-system-contract.tests.sh',
+            'tests/repository-release-validation.tests.sh',
+            'tests/bump-version-gate.tests.sh',
+            'tests/bump-version-gate.tests.ps1',
+            'tests/spec-review-loop.tests.sh',
+        }
+        self.assertLessEqual(known_consumers, {s for o in selected for s in o['suites']})
+
     def test_T003_required_verifier_uses_accepted_prepared_shape(self):
         self.assertIs(self.w.verifier_job(self.workflow), True,
                       'workflow must use the accepted exact prepared verifier caller')
