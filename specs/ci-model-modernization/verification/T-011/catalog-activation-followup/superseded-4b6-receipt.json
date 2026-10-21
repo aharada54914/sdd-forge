@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-21T14:03:08.513942+00:00",
+  "B": "4b6ecf77f1bef6686c0c41dff033c976c2a05b23",
+  "ref": "t011/baseline-4b6ecf77f1be",
+  "run_id": 39613218632,
+  "superseded_reason": "Coordinator found current catalog tests assert all categories inactive; correction required before activation baseline. Cancellation explicitly authorized.",
+  "mutation_created": false,
+  "restore_created": false,
+  "checkout_head": "4b6ecf77f1bef6686c0c41dff033c976c2a05b23",
+  "checkout_clean": true,
+  "observed_status": "queued",
+  "observed_conclusion": ""
+}

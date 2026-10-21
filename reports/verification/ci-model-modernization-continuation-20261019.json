@@ -1910,7 +1910,7 @@
   },
   "latest_checkpoint_at": "2026-10-20T19:30:30.664905+00:00",
   "continuation_20261021": {
-    "updated_at": "2026-10-21T13:54:35.309521+00:00",
+    "updated_at": "2026-10-21T14:10:45.265506+00:00",
     "codex_device_auth": "completed successfully; no credentials recorded",
     "github_force_full_variable": "user confirmed false; effective PR plan still to verify",
     "model_trials": {
@@ -1968,7 +1968,7 @@
     },
     "task_plan": "attempt4round3 actual A14/B9 PASS; workflow gate PASS",
     "release": "1.20.0 candidate version surfaces prepared; no new tag; v1.19.0 unchanged",
-    "pushed_head": "53c2be4f",
+    "pushed_head": "4b6ecf77",
     "claude_delegation": {
       "local_limit_reset_utc": "2026-10-21T16:00:00Z",
       "cloud_session_creation": "succeeded",
@@ -1979,7 +1979,15 @@
       "gh_download": "HTTP403 at artifact storage redirect",
       "authorized_github_connector": "successful probe download; GitHub SHA256 verified; external transport adapter prepared and 8 synthetic controller checks passed; actual collection pending"
     },
-    "head": "53c2be4f"
+    "head": "53c2be4f",
+    "superseded_baseline": {
+      "commit": "4b6ecf77f1bef6686c0c41dff033c976c2a05b23",
+      "run_id": 39613218632,
+      "conclusion": "cancelled",
+      "reason": "Pre-activation inspection found permanent-inactive assumptions in live catalog tests; correction required before baseline",
+      "clean_published_workflow_gate": "Passed without private identity ledger",
+      "replacement_tests": "46 catalog tests passed; valid proof fixture may omit, inactive/missing/tampered/stale proof stays full; no runtime algorithm or actual category activation changed"
+    }
   },
   "t010_final": {
     "status": "Done",

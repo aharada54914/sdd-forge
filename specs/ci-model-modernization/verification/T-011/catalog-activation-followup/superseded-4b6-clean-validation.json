@@ -1,0 +1,11 @@
+{
+  "head_sha": "4b6ecf77f1bef6686c0c41dff033c976c2a05b23",
+  "command": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH TMPDIR=/workspace/t011-rollout/tmp bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+  "cwd": "/workspace/t011-rollout/checkout",
+  "exit_code": 0,
+  "log_path": "/workspace/t011-rollout/outputs/superseded-4b6-workflow-state-validtmp.log",
+  "log_sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7",
+  "private_identity_ledger_copied": false,
+  "observed_at": "2026-10-21T14:06:50.127396+00:00",
+  "initial_failed_attempt": "superseded-4b6-workflow-state.log (nonexistent TMPDIR)"
+}

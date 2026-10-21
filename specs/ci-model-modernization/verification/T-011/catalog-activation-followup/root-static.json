@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-10-21T14:10:45.265506+00:00",
+  "source_sha256": "18d8997b3322fac8772e493892920309678f382ce0fe9df72d6037978c980dfb",
+  "timing": "Individual command start/end timestamps were not captured; these are actual tool-return observations, not rerun results",
+  "checks": [
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-python/bin/ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "observed_stdout": "All checks passed!\n"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-python/bin/mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "observed_stdout": "Success: no issues found in 1 source file\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "tests/verification-catalog.tests.py"
+      ],
+      "exit_code": 0,
+      "observed_stdout": ""
+    }
+  ]
+}

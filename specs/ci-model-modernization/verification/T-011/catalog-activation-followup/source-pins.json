@@ -1,0 +1,9 @@
+{
+  "path": "tests/verification-catalog.tests.py",
+  "before_sha256": "64bf678a8c15176d38e14a209fee4c1e354bcc3290ec1053e4e7a7dba20fbc38",
+  "candidate_sha256": "18d8997b3322fac8772e493892920309678f382ce0fe9df72d6037978c980dfb",
+  "root_unchanged": true,
+  "red_kind": "reinstate permanent-inactive behavior against existing bound synthetic ProofTests fixture; not hosted evidence",
+  "red_exit": 1,
+  "green_exit": 0
+}

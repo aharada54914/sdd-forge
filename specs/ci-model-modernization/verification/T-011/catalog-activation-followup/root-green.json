@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/verification-catalog.tests.py"
+  ],
+  "start": "2026-10-21T14:09:55.600435+00:00",
+  "end": "2026-10-21T14:09:58.533780+00:00",
+  "seconds": 2.93335492501501,
+  "exit_code": 0,
+  "source_before": "18d8997b3322fac8772e493892920309678f382ce0fe9df72d6037978c980dfb",
+  "source_after": "18d8997b3322fac8772e493892920309678f382ce0fe9df72d6037978c980dfb",
+  "log_sha256": "8c6722c7fbaa0a213b22996acf1432563a556936b7ab53d8907dabb757fe0576"
+}

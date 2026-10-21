@@ -1,0 +1,68 @@
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: local-env-mcp: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: ci-mcp: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: evidence-deep-verify: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-136-phase1-rce: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-136-phase1-guards: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-136-phase2-gates: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: second-approval-mask: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-159-pillar-a: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-159-pillar-a2: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-159-pillar-b: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-159-pillar-c: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-159-pillar-d: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-192-a4-facet-manifest: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: quality-loop-fixes: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-136-phase3: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-136-phase4-mcp: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-136-phase4-docs: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: mcp-readonly-preflight: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: design-sync-consent: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-189-a1-project-context: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: design-sync-scan: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: design-sync-standing-consent: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-190-a2-capability-registry: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-191-a3-path-ownership: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-193-a5-capability-resolver: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: sdd-domain-concept-contract: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: shared-review-launch-repair: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: epic-194-a6-lite-integration: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create file via template ‘/workspace/tmp/tmp.XXXXXXXXXX’: No such file or directory
+workflow-state: epic-196-a8-integration: stage-provenance: spec reviewer manifest input hash is stale
+mktemp: failed to create file via template ‘/workspace/tmp/tmp.XXXXXXXXXX’: No such file or directory
+workflow-state: epic-195-a7-compatibility: stage-provenance: spec reviewer manifest input hash is stale
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: sdd-domain-multitarget: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: a9-interrupted-review-recovery: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: cloud-orchestration: stage-provenance: ADR snapshot allocation failed
+mktemp: failed to create directory via template ‘/workspace/tmp/sdd-adr-snapshot.XXXXXX’: No such file or directory
+workflow-state: ci-model-modernization: stage-provenance: ADR snapshot allocation failed

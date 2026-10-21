@@ -181,15 +181,12 @@ class CatalogTests(unittest.TestCase):
                                  '--shard-count', '4', '--list'], text=True, capture_output=True)
         self.assertNotEqual(result.returncode, 0)
 
-    def test_planner_is_registered_and_live_categories_are_inactive(self):
+    def test_planner_is_registered_and_live_categories_have_valid_rules(self):
         catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
         suite = 'tests/verification-ci-plan.tests.py'
         self.assertIn(suite, catalog['profiles']['local-posix'])
         self.assertIn(suite, catalog['profiles']['ci-posix-fallback'])
         self.assertTrue(catalog['impact']['categories'])
-        for category in catalog['impact']['categories']:
-            self.assertIs(category['active'], False)
-            self.assertIsNone(category['evidence'])
         spec = importlib.util.spec_from_file_location('planner', ROOT / 'tests/verification-impact.py')
         assert spec and spec.loader
         planner = importlib.util.module_from_spec(spec)
@@ -392,14 +389,76 @@ class WorkflowIntegrationTests(unittest.TestCase):
         for event in ('push', 'merge_group', 'release', 'workflow_dispatch'):
             self.assertNotEqual(group(event, None, 1), group(event, None, 2))
 
+    def assert_category_proof_boundary(self, planner, catalog, workflow, root, revision):
+        # Positive fixture proofs use the real validator. Inactive definitions
+        # remain full even if they retain an old proof.
+        rule = planner.rule_digest(catalog, workflow)
+        obligations = planner.workflow_module().plan_obligations(workflow, catalog)
+        for category in catalog['impact']['categories']:
+            if category['active']:
+                planner.validate_activation(category, rule, root, revision,
+                                            catalog, workflow, obligations)
+            else:
+                path = (category['paths'][0] if category['paths']
+                        else category['prefixes'][0] + 'inactive-probe.txt')
+                selected, evidence, reason = planner.classify(
+                    [path], catalog, workflow, obligations, root, revision)
+                self.assertEqual((selected, evidence, reason),
+                                 (obligations, [], 'unproven-category'))
+
+    def test_T011_bound_activation_and_unproven_categories(self):
+        # Reuse the existing synthetic Git proof fixture; this is not hosted evidence.
+        spec = importlib.util.spec_from_file_location(
+            'catalog_activation_fixture', ROOT / 'tests/verification-ci-plan.tests.py')
+        assert spec and spec.loader
+        fixtures = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixtures)
+        fixture = fixtures.ProofTests('test_positive_affected_dependency_partition_and_bound_proof')
+        self.addCleanup(fixture.doCleanups)
+        fixture.setUp()
+        planner = fixtures.IMPACT
+        self.assert_category_proof_boundary(planner, fixture.catalog, fixture.workflow,
+                                            fixture.root, fixture.base)
+        control = fixture.plan()
+        self.assertEqual((control['mode'], control['reason']), ('affected', 'classified-change'))
+        self.assertTrue(control['omissions'])
+        for mutation in ('inactive', 'missing-proof', 'tampered-proof', 'stale-definition'):
+            changed = json.loads(json.dumps(fixture.catalog))
+            category = changed['impact']['categories'][0]
+            if mutation == 'inactive':
+                category['active'] = False
+                self.assert_category_proof_boundary(planner, changed, fixture.workflow,
+                                                    fixture.root, fixture.base)
+            else:
+                if mutation == 'missing-proof':
+                    category['evidence'] = None
+                elif mutation == 'tampered-proof':
+                    category['evidence']['sha256'] = '0' * 64
+                else:
+                    del changed['impact']['dependencies'][fixture.suites[0]]
+                with self.assertRaises(ValueError):
+                    self.assert_category_proof_boundary(planner, changed, fixture.workflow,
+                                                        fixture.root, fixture.base)
+            with self.subTest(mutation=mutation):
+                selected, evidence, reason = planner.classify(
+                    ['docs/guide.txt'], changed, fixture.workflow, fixture.full['obligations'],
+                    fixture.root, fixture.base)
+                self.assertEqual((selected, evidence, reason),
+                                 (fixture.full['obligations'], [], 'unproven-category'))
+
     def test_T003_triggers_and_unproven_categories_remain_conservative(self):
         self.assertEqual(set(self.workflow['on']), {'push', 'pull_request', 'merge_group', 'workflow_dispatch'})
         for value in self.workflow['on'].values():
             if isinstance(value, dict):
                 self.assertNotIn('paths', value)
                 self.assertNotIn('paths-ignore', value)
-        self.assertTrue(all(c['active'] is False and c['evidence'] is None
-                            for c in self.catalog['impact']['categories']))
+        revision = self.ci.P.git(ROOT, 'rev-parse', 'HEAD').decode().strip()
+        # Live activation may be stale after an unrelated edit and must fall back.
+        # Check conservative behavior without requiring current proof eligibility.
+        inactive = json.loads(json.dumps(self.catalog))
+        for category in inactive['impact']['categories']:
+            category.update(active=False, evidence=None)
+        self.assert_category_proof_boundary(self.ci.P, inactive, self.workflow, ROOT, revision)
         projection = {key: self.workflow.get(key, {}) for key in ('env', 'defaults')}
         projection['jobs'] = {name: self.workflow['jobs'][name] for name in ('a9-advisory-inputs', 'a9-advisory')}
         self.assertEqual(self.ci.P.sha(self.ci.P.canonical(projection)), self.w.A9_ACTIVATION_PROJECTION)
