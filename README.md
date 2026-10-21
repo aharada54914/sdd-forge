@@ -329,3 +329,5 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 ## 変更履歴
 
 詳しい変更履歴と版移行ガイドは [CHANGELOG.md](CHANGELOG.md) をご参照ください。
+
+<!-- T011 representative README-only comparison; release contract unchanged. -->
