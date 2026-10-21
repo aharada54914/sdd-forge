@@ -556,7 +556,8 @@ class PayloadChecks(unittest.TestCase):
         self.assert_previous_intact(root)
 
     def test_tracked_special_names_survive_local_and_archive(self):
-        names = ["日本語.txt"]
+        # A >100-byte basename forces Git to use a PAX path extension.
+        names = ["日本語.txt", "日本語" * 12 + ".txt"]
         if os.name != "nt":
             names += ['quoted"name.txt', "tab\tname.txt"]
         paths = ["plugins/sdd-bootstrap/" + name for name in names]
@@ -577,7 +578,8 @@ class PayloadChecks(unittest.TestCase):
                 self.install_ok(root, skip_mcp=True, **kwargs)
                 for rel in paths:
                     with self.subTest(source=label, path=rel):
-                        self.assertTrue((root / rel).is_file(), rel)
+                        self.assertTrue((root / rel).is_file(),
+                                        f"{rel}; installed siblings: {sorted(p.name for p in (root / rel).parent.iterdir())}")
                         self.assertEqual((root / rel).read_bytes(), (self.fx.path / rel).read_bytes())
         finally:
             self.fx.git("rm", "--cached", "-q", "--", *paths)
