@@ -1,0 +1,52 @@
+# install-payload.txt — what install.sh / install.ps1 copy into the install root.
+#
+# Consumed by BOTH installers for local Git sources and for downloaded archives.
+# One entry per line; blank lines and '#' comments are ignored.
+#   path/to/file   an exact file
+#   path/to/dir/   a directory prefix (must end in '/')
+# Entries are canonical relative paths: no '..', '.', absolute paths, backslashes,
+# wildcards, or empty segments. Listed paths that are absent from a source are
+# skipped; the installers' REQUIRED_PATHS checks still fail closed.
+#
+# Caches and private artifacts (.git, node_modules, __pycache__, *.pyc, tool
+# caches, .private, .learnings) are never copied, even under a listed directory.
+# --plugins selects registration and dependencies, not which of these are copied.
+# Development specs, reports, tests, CI, and local state are deliberately absent.
+
+# --- This manifest ---------------------------------------------------------
+install-payload.txt
+
+# --- Shared runtime (needed by installed plugins, agents, and registration) -
+.agents/plugins/marketplace.json
+.claude-plugin/marketplace.json
+.codex/agents/
+plugins/
+contracts/
+templates/cloud/
+skills/adversarial-review/
+scripts/check-sdd-structure.sh
+install.sh
+install.ps1
+uninstall.sh
+uninstall.ps1
+render-agent-frontmatter.sh
+render-agent-frontmatter.ps1
+LICENSE
+
+# --- User and normative documentation --------------------------------------
+README.md
+USERGUIDE.md
+PLUGIN-CONTRACTS.md
+CHANGELOG.md
+docs/THREAT-MODEL.md
+docs/agent-capability-matrix.md
+docs/ai-dlc-foundation-decision-v2.md
+docs/cloud-orchestration.md
+docs/skill-reference.md
+docs/troubleshooting.md
+docs/verification.md
+docs/workflow-guide.md
+docs/architecture/
+docs/adr/
+docs/contributor/
+docs/workflow-improvements/retention-checklist.md

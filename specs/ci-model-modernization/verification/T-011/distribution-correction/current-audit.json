@@ -1,0 +1,64 @@
+{
+  "bash": {
+    "argv": [
+      "bash",
+      "/workspace/sdd-forge/install.sh",
+      "--source-directory",
+      "/workspace/sdd-forge",
+      "--install-root",
+      "/workspace/distribution-audit/current-bash-installed",
+      "--target",
+      "FilesOnly",
+      "--skip-plugin-install",
+      "--skip-agent-install"
+    ],
+    "exit": 0,
+    "files": 620,
+    "bytes": 11242168,
+    "forbidden": [],
+    "mcp_files": [
+      "mcp/ci-mcp/package.json",
+      "mcp/sdd-forge-mcp/package.json",
+      "mcp/local-env-mcp/package.json",
+      "mcp/ci-mcp/dist/index.js",
+      "mcp/sdd-forge-mcp/dist/index.js",
+      "mcp/local-env-mcp/dist/index.js"
+    ]
+  },
+  "pwsh": {
+    "argv": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "/workspace/sdd-forge/install.ps1",
+      "-SourceDirectory",
+      "/workspace/sdd-forge",
+      "-InstallRoot",
+      "/workspace/distribution-audit/current-pwsh-installed",
+      "-Target",
+      "FilesOnly",
+      "-SkipPluginInstall",
+      "-SkipAgentInstall"
+    ],
+    "exit": 0,
+    "files": 620,
+    "bytes": 11242168,
+    "forbidden": [],
+    "mcp_files": [
+      "mcp/ci-mcp/package.json",
+      "mcp/sdd-forge-mcp/package.json",
+      "mcp/local-env-mcp/package.json",
+      "mcp/ci-mcp/dist/index.js",
+      "mcp/sdd-forge-mcp/dist/index.js",
+      "mcp/local-env-mcp/dist/index.js"
+    ]
+  },
+  "parity": true,
+  "source_mode": "Actual root working-tree bytes, private Git index adds uncommitted manifest; shared index untouched",
+  "head": "b434b1c07e53076bd2550847a65c13de28808363",
+  "source_sha256": {
+    "install.sh": "2bbeaa197eaa62df351d8c0412fc3eae748f3e8ec61f4bd5d19b94a25f28f94b",
+    "install.ps1": "8960c8e16318e919ee9bc3419b7dac7b7bce64f427015af1551e8e48335b81aa",
+    "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a"
+  }
+}

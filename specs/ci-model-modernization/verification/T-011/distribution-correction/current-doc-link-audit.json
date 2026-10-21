@@ -1,0 +1,5 @@
+{
+  "checked_existing_repo_relative_targets": 130,
+  "links_broken_by_payload_narrowing": [],
+  "scope": "Installed root README/guides/contracts/changelog and docs/**/*.md, source-existing local Markdown destinations; generated-project and already-nonexistent targets excluded"
+}

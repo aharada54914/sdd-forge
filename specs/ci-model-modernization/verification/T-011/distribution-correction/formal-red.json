@@ -1,0 +1,40 @@
+{
+  "phase": "formal Red before product application",
+  "head": "d437e9d0b4a75145f57da022b71964f7951bd0cd",
+  "source_hashes": {
+    "install.sh": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+    "install.ps1": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde",
+    "tests/install.tests.sh": "90cdaa3c63da488e85528ec02cf4626d09b48bbeef94dfc8f82d3c730d7eaf52",
+    "tests/install.tests.ps1": "6261311ef8fc8a0467d4be84912c8cb86561698785871d0547f38358a974df1c",
+    "tests/lib/install-payload-check.py": "436d097522e2f21b09878fc7fda2886897035416132ed72307f00969aafb8de0",
+    "tests/model-policy-installed.tests.py": "52f6cfa8434c7db4e8ea33699db7fc907e046a69be1d091bdcf3ba2ab284933d",
+    "tests/install-cloud.tests.py": "d13ac886d3802d4af5940a782bb89ae3725f6665138d79a3cf1cbe7b1f4e20e5"
+  },
+  "manifest_present": false,
+  "causal_traces": [
+    {
+      "entry": "tests/install.tests.sh -> tests/lib/install-payload-check.py --runtime bash",
+      "result": "7 tests,10 failures,1 skip",
+      "causes": [
+        "local and archive install succeed but leak fake specs/reports identity ledger/tests/.github",
+        "MCP extra dist file copied",
+        "upgrade reintroduces former developer payload",
+        "manifest missing accepted",
+        "admitted symlink handling parity"
+      ],
+      "log": "formal-red-bash.log"
+    },
+    {
+      "entry": "tests/install.tests.ps1 -Lane core -> helper --runtime powershell",
+      "result": "7 tests,10 failures,1 skip",
+      "causes": [
+        "local and archive install succeed but leak fake development state",
+        "MCP extra dist file copied",
+        "upgrade reintroduces former developer payload",
+        "manifest missing accepted"
+      ],
+      "log": "formal-red-pwsh.log"
+    }
+  ],
+  "skipped": "manifest format test skipped only because old source has no manifest; payload regressions actually executed"
+}

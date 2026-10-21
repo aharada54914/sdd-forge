@@ -1,0 +1,220 @@
+FFsFFFFFFFF
+======================================================================
+FAIL: test_archive_source_installs_the_same_payload (__main__.PayloadChecks.test_archive_source_installs_the_same_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 494, in test_archive_source_installs_the_same_payload
+    self.assert_payload(root)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 458, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['specs/fake/private.txt', 'reports/review[283 chars]txt'] != []
+
+First list contains 12 additional elements.
+First extra element 0:
+'specs/fake/private.txt'
+
++ []
+- ['specs/fake/private.txt',
+-  'reports/review-context/identity-ledger.json',
+-  'tests/private.txt',
+-  '.github/workflows/private.yml',
+-  '.learnings/private.txt',
+-  'AGENTS.md',
+-  'unlisted-root-file.txt',
+-  'docs/unlisted-dev-note.md',
+-  'templates/other/unlisted.txt',
+-  'skills/other-skill/SKILL.md',
+-  'scripts/dev-only.sh',
+-  '.private/secret.txt'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_local_source_installs_only_the_payload (__main__.PayloadChecks.test_local_source_installs_only_the_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 484, in test_local_source_installs_only_the_payload
+    self.assert_payload(root)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 458, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['specs/fake/private.txt', 'reports/review[260 chars].sh'] != []
+
+First list contains 11 additional elements.
+First extra element 0:
+'specs/fake/private.txt'
+
++ []
+- ['specs/fake/private.txt',
+-  'reports/review-context/identity-ledger.json',
+-  'tests/private.txt',
+-  '.github/workflows/private.yml',
+-  '.learnings/private.txt',
+-  'AGENTS.md',
+-  'unlisted-root-file.txt',
+-  'docs/unlisted-dev-note.md',
+-  'templates/other/unlisted.txt',
+-  'skills/other-skill/SKILL.md',
+-  'scripts/dev-only.sh'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_manifest_is_required (__main__.PayloadChecks.test_manifest_is_required) (case='local-removed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 558, in test_manifest_is_required
+    self.install_fails(root, skip_mcp=True, **kwargs)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 429, in install_fails
+    self.assertNotEqual(result.returncode, 0, "installer unexpectedly succeeded\n" + describe(result))
+AssertionError: 0 == 0 : installer unexpectedly succeeded
+argv: ['/usr/bin/bash', '/workspace/sdd-forge/install.sh', '--install-root', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-run-iz6_p6mx/no-manifest-local-removed/sdd-plugins', '--target', 'FilesOnly', '--skip-plugin-install', '--skip-agent-install', '--source-directory', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-fixture-_m1ldcb8/source', '--skip-mcp']
+exit: 0
+stdout:
+
+SDD plugins installed at: /workspace/.task-scratch/ci-model-modernization/sdd-payload-run-iz6_p6mx/no-manifest-local-removed/sdd-plugins
+Plugin registration was skipped because --target=FilesOnly.
+
+stderr:
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+
+======================================================================
+FAIL: test_manifest_is_required (__main__.PayloadChecks.test_manifest_is_required) (case='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 558, in test_manifest_is_required
+    self.install_fails(root, skip_mcp=True, **kwargs)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 429, in install_fails
+    self.assertNotEqual(result.returncode, 0, "installer unexpectedly succeeded\n" + describe(result))
+AssertionError: 0 == 0 : installer unexpectedly succeeded
+argv: ['/usr/bin/bash', '/workspace/sdd-forge/install.sh', '--install-root', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-run-iz6_p6mx/no-manifest-archive/sdd-plugins', '--target', 'FilesOnly', '--skip-plugin-install', '--skip-agent-install', '--skip-mcp']
+exit: 0
+stdout:
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+
+SDD plugins installed at: /workspace/.task-scratch/ci-model-modernization/sdd-payload-run-iz6_p6mx/no-manifest-archive/sdd-plugins
+Plugin registration was skipped because --target=FilesOnly.
+
+stderr:
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+
+======================================================================
+FAIL: test_mcp_placement_is_exactly_index_and_package (__main__.PayloadChecks.test_mcp_placement_is_exactly_index_and_package) (source='local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 511, in test_mcp_placement_is_exactly_index_and_package
+    self.assert_payload(root, mcp=MCP)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 458, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['specs/fake/private.txt', 'reports/review[260 chars].sh'] != []
+
+First list contains 11 additional elements.
+First extra element 0:
+'specs/fake/private.txt'
+
++ []
+- ['specs/fake/private.txt',
+-  'reports/review-context/identity-ledger.json',
+-  'tests/private.txt',
+-  '.github/workflows/private.yml',
+-  '.learnings/private.txt',
+-  'AGENTS.md',
+-  'unlisted-root-file.txt',
+-  'docs/unlisted-dev-note.md',
+-  'templates/other/unlisted.txt',
+-  'skills/other-skill/SKILL.md',
+-  'scripts/dev-only.sh'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_mcp_placement_is_exactly_index_and_package (__main__.PayloadChecks.test_mcp_placement_is_exactly_index_and_package) (source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 511, in test_mcp_placement_is_exactly_index_and_package
+    self.assert_payload(root, mcp=MCP)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 458, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['specs/fake/private.txt', 'reports/review[283 chars]txt'] != []
+
+First list contains 12 additional elements.
+First extra element 0:
+'specs/fake/private.txt'
+
++ []
+- ['specs/fake/private.txt',
+-  'reports/review-context/identity-ledger.json',
+-  'tests/private.txt',
+-  '.github/workflows/private.yml',
+-  '.learnings/private.txt',
+-  'AGENTS.md',
+-  'unlisted-root-file.txt',
+-  'docs/unlisted-dev-note.md',
+-  'templates/other/unlisted.txt',
+-  'skills/other-skill/SKILL.md',
+-  'scripts/dev-only.sh',
+-  '.private/secret.txt'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_mcp_placement_is_exactly_index_and_package (__main__.PayloadChecks.test_mcp_placement_is_exactly_index_and_package)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 514, in test_mcp_placement_is_exactly_index_and_package
+    self.assert_payload(selected, mcp=["local-env-mcp"])
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 458, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['specs/fake/private.txt', 'reports/review[260 chars].sh'] != []
+
+First list contains 11 additional elements.
+First extra element 0:
+'specs/fake/private.txt'
+
++ []
+- ['specs/fake/private.txt',
+-  'reports/review-context/identity-ledger.json',
+-  'tests/private.txt',
+-  '.github/workflows/private.yml',
+-  '.learnings/private.txt',
+-  'AGENTS.md',
+-  'unlisted-root-file.txt',
+-  'docs/unlisted-dev-note.md',
+-  'templates/other/unlisted.txt',
+-  'skills/other-skill/SKILL.md',
+-  'scripts/dev-only.sh'] : development payload leaked into the install
+
+======================================================================
+FAIL: test_symlink_in_admitted_path_is_refused_and_rolled_back (__main__.PayloadChecks.test_symlink_in_admitted_path_is_refused_and_rolled_back)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 537, in test_symlink_in_admitted_path_is_refused_and_rolled_back
+    result = self.install_fails(root, source=self.fx.path, skip_mcp=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 429, in install_fails
+    self.assertNotEqual(result.returncode, 0, "installer unexpectedly succeeded\n" + describe(result))
+AssertionError: 0 == 0 : installer unexpectedly succeeded
+argv: ['/usr/bin/bash', '/workspace/sdd-forge/install.sh', '--install-root', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-run-xxbhhp1k/symlink-local/sdd-plugins', '--target', 'FilesOnly', '--skip-plugin-install', '--skip-agent-install', '--source-directory', '/workspace/.task-scratch/ci-model-modernization/sdd-payload-fixture-_m1ldcb8/source', '--skip-mcp']
+exit: 0
+stdout:
+
+SDD plugins installed at: /workspace/.task-scratch/ci-model-modernization/sdd-payload-run-xxbhhp1k/symlink-local/sdd-plugins
+Plugin registration was skipped because --target=FilesOnly.
+
+stderr:
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+
+======================================================================
+FAIL: test_upgrade_removes_formerly_distributed_development_payload (__main__.PayloadChecks.test_upgrade_removes_formerly_distributed_development_payload) (source='local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 524, in test_upgrade_removes_formerly_distributed_development_payload
+    self.assertFalse(os.path.lexists(root / rel), f"upgrade kept formerly distributed content: {rel}")
+AssertionError: True is not false : upgrade kept formerly distributed content: specs
+
+======================================================================
+FAIL: test_upgrade_removes_formerly_distributed_development_payload (__main__.PayloadChecks.test_upgrade_removes_formerly_distributed_development_payload) (source='archive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 524, in test_upgrade_removes_formerly_distributed_development_payload
+    self.assertFalse(os.path.lexists(root / rel), f"upgrade kept formerly distributed content: {rel}")
+AssertionError: True is not false : upgrade kept formerly distributed content: specs
+
+----------------------------------------------------------------------
+Ran 7 tests in 4.277s
+
+FAILED (failures=10, skipped=1)

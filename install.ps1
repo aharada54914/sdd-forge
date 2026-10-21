@@ -312,26 +312,45 @@ function Test-NodeVersionOk {
     return $true
 }
 
+function Test-PlainItem {
+    # True when the path exists and is not a symlink / reparse point.
+    param([Parameter(Mandatory)][string]$Path)
+
+    try {
+        return (([System.IO.File]::GetAttributes($Path) -band [System.IO.FileAttributes]::ReparsePoint) -eq 0)
+    }
+    catch {
+        return $false
+    }
+}
+
 function Install-McpServerPayloads {
+    # Each MCP is a self-contained esbuild bundle (--outfile=dist/index.js), so
+    # exactly dist/index.js and package.json are placed; nothing else under
+    # dist/ is copied. A symlinked mcp tree or payload file is treated as absent
+    # rather than followed out of the source.
     param(
         [Parameter(Mandatory)][string]$SourceRootPath,
         [Parameter(Mandatory)][string]$InstallRootPath
     )
 
     foreach ($name in $Mcp) {
-        $srcDir = Join-Path (Join-Path $SourceRootPath "mcp") $name
+        $srcMcp = Join-Path $SourceRootPath "mcp"
+        $srcDir = Join-Path $srcMcp $name
         $srcDist = Join-Path $srcDir "dist"
         $srcIndex = Join-Path $srcDist "index.js"
         $srcPackageJson = Join-Path $srcDir "package.json"
-        if (-not (Test-Path $srcIndex) -or -not (Test-Path $srcPackageJson)) {
+        if (-not (Test-Path -LiteralPath $srcIndex -PathType Leaf) -or -not (Test-Path -LiteralPath $srcPackageJson -PathType Leaf) -or
+            -not (Test-PlainItem $srcMcp) -or -not (Test-PlainItem $srcDir) -or -not (Test-PlainItem $srcDist) -or
+            -not (Test-PlainItem $srcIndex) -or -not (Test-PlainItem $srcPackageJson)) {
             Write-Warning "MCP server '$name' payload (dist/index.js, package.json) was not found under mcp/$name. Skipping placement."
             continue
         }
         $destDir = Join-Path (Join-Path $InstallRootPath "mcp") $name
         $destDist = Join-Path $destDir "dist"
         New-Item -ItemType Directory -Path $destDist -Force | Out-Null
-        Copy-Item -Path (Join-Path $srcDist "*") -Destination $destDist -Recurse -Force
-        Copy-Item -Path $srcPackageJson -Destination (Join-Path $destDir "package.json") -Force
+        Copy-Item -LiteralPath $srcIndex -Destination (Join-Path $destDist "index.js") -Force
+        Copy-Item -LiteralPath $srcPackageJson -Destination (Join-Path $destDir "package.json") -Force
     }
 }
 
@@ -606,7 +625,9 @@ function Get-RequiredPaths {
         "plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md",
         "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md",
         "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md",
-        "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md"
+        "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md",
+        # The payload manifest selects what is installed; without it nothing can be.
+        "install-payload.txt"
     )
     foreach ($plugin in $allPluginNames) {
         $paths += "plugins/$plugin/.codex-plugin/plugin.json"
@@ -619,6 +640,67 @@ function Get-RequiredPaths {
         }
     }
     return $paths
+}
+
+# install-payload.txt (repository root) lists the exact paths and directory
+# prefixes (ending in '/') that make up the installed product. A local Git
+# source and a downloaded archive are filtered by the same manifest, so an
+# install never carries development specs, reports, tests, or local state.
+# -Plugins controls registration and dependencies, not what is copied.
+# install.sh implements the identical policy; keep the two in step.
+$payloadManifestName = "install-payload.txt"
+# Caches and private artifacts are never installed, even under an admitted directory.
+$payloadExcludedNames = @(".git", "node_modules", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".cache", ".venv", ".private", ".learnings", ".DS_Store")
+
+function Read-InstallPayloadManifest {
+    # One entry per line; blank lines and '#' comments are ignored. Entries are
+    # canonical relative paths: no '..', '.', absolute, backslash, wildcard, or
+    # empty segments. Anything else fails the install.
+    param([Parameter(Mandatory)][string]$ManifestPath)
+
+    if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf) -or -not (Test-PlainItem $ManifestPath)) {
+        throw "$payloadManifestName must be a regular file."
+    }
+    $text = [System.Text.Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($ManifestPath))
+    $entries = [System.Collections.Generic.List[string]]::new()
+    foreach ($rawLine in ($text -split "`r?`n")) {
+        $line = $rawLine.Trim()
+        if ($line.Length -eq 0 -or $line.StartsWith("#")) { continue }
+        if ($line -cnotmatch '^[A-Za-z0-9._@+-]+(/[A-Za-z0-9._@+-]+)*/?$' -or $line -cmatch '(^|/)\.+(/|$)') {
+            throw "Invalid $payloadManifestName entry (expected a canonical relative path or a directory prefix ending in '/'): $line"
+        }
+        $entries.Add($line)
+    }
+    if ($entries.Count -eq 0) {
+        throw "$payloadManifestName lists no payload paths."
+    }
+    return , $entries.ToArray()
+}
+
+function Get-ArchiveCandidatePaths {
+    # Files and symlinks below an extracted archive, as forward-slash relative
+    # paths. Symlinked directories are reported but never descended into.
+    param([Parameter(Mandatory)][string]$Root)
+
+    $paths = [System.Collections.Generic.List[string]]::new()
+    $pending = [System.Collections.Generic.Stack[string]]::new()
+    $pending.Push("")
+    while ($pending.Count -gt 0) {
+        $relativeDirectory = $pending.Pop()
+        $directoryPath = if ($relativeDirectory) { Join-Path $Root $relativeDirectory } else { $Root }
+        foreach ($entry in [System.IO.DirectoryInfo]::new($directoryPath).EnumerateFileSystemInfos()) {
+            if ($payloadExcludedNames -ccontains $entry.Name) { continue }
+            $relativePath = if ($relativeDirectory) { "$relativeDirectory/$($entry.Name)" } else { $entry.Name }
+            $isReparsePoint = ($entry.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0
+            if (-not $isReparsePoint -and ($entry.Attributes -band [System.IO.FileAttributes]::Directory) -ne 0) {
+                $pending.Push($relativePath)
+            }
+            else {
+                $paths.Add($relativePath)
+            }
+        }
+    }
+    return , $paths.ToArray()
 }
 
 function Write-InstallSummary {
@@ -723,6 +805,13 @@ try {
         }
     }
 
+    # The manifest is read from the source (working-tree bytes for a local
+    # source, whose tracked state was verified above) and validated before
+    # anything is staged.
+    # Direct assignment: the function returns `, $array`, and wrapping the call in
+    # @() would nest that array one level deeper.
+    $payloadEntries = Read-InstallPayloadManifest -ManifestPath (Join-Path $sourceRoot $payloadManifestName)
+
     # Validate all sdd-*.toml files: must have no BOM and must define name and developer_instructions.
     $agentSourceDir = Join-Path (Join-Path $sourceRoot ".codex") "agents"
     if (Test-Path $agentSourceDir) {
@@ -785,49 +874,84 @@ try {
     # relative paths against the process working directory rather than the
     # PowerShell location -- keep the root absolute so they always agree.
     $stagingRoot = (Resolve-Path -LiteralPath $stagingRoot).Path
+    # Stage only the payload listed in install-payload.txt. A local worktree is
+    # enumerated from its Git index (so untracked files never leak in) and the
+    # current working-tree bytes of each admitted path are copied; a downloaded
+    # archive is enumerated from its extracted tree and filtered by the same
+    # manifest, so both sources install the same product and neither carries
+    # development trees. The mcp/ tree is not in the manifest on purpose: MCP
+    # payload placement is handled exclusively by Install-McpServerPayloads
+    # (dist/index.js + package.json only, gated by -SkipMcp / -Mcp / the
+    # Node >= 22.19.0 check).
     if ($isLocalSource) {
-        # The mcp/ tree is excluded here even though it is Git-tracked: MCP
-        # payload placement is handled exclusively by Install-McpServerPayloads
-        # (dist/ + package.json only, gated by -SkipMcp / -Mcp / the Node >= 22.19.0
-        # check), so staging it unconditionally here would bypass that gating.
-        # tests/fixtures/ is excluded too: it is Git-tracked test scaffolding,
-        # not part of the installed product, and some fixtures are themselves
-        # symlinks that this loop's reparse-point rejection would otherwise
-        # (correctly, but unhelpfully) refuse to stage.
-        $trackedFiles = & git -C $sourceRoot ls-files -- . ':!mcp/**' ':!tests/fixtures/**'
+        $candidatePaths = @(& git -C $sourceRoot ls-files)
         if ($LASTEXITCODE -ne 0) {
             throw "Unable to enumerate Git-tracked source files."
         }
-        # Raw .NET file APIs instead of one Get-Item/New-Item/Copy-Item
-        # provider round-trip per file: FileInfo carries the same attribute
-        # source Get-Item wraps (so the reparse-point rejection is
-        # unchanged), each parent directory is created once, and File.Copy
-        # preserves file modes just as Copy-Item does.
-        $createdDirectories = New-Object 'System.Collections.Generic.HashSet[string]'
-        foreach ($relativePath in $trackedFiles) {
-            $sourcePath = Join-Path $sourceRoot $relativePath
-            $sourceItem = [System.IO.FileInfo]::new($sourcePath)
-            if (-not $sourceItem.Exists) {
-                throw "Missing Git-tracked source file: $relativePath"
-            }
-            if (($sourceItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
-                throw "Refusing to stage Git-tracked symlink/reparse point: $relativePath"
-            }
-            $destination = Join-Path $stagingRoot $relativePath
-            $parent = Split-Path -Parent $destination
-            if ($createdDirectories.Add($parent)) {
-                [System.IO.Directory]::CreateDirectory($parent) | Out-Null
-            }
-            [System.IO.File]::Copy($sourcePath, $destination, $true)
-        }
     }
     else {
-        # Remote archive input is a trusted release artifact with no local
-        # untracked state. Preserve its complete layout, excluding .git and
-        # mcp/ (MCP payload placement is handled exclusively by
-        # Install-McpServerPayloads, gated by -SkipMcp / -Mcp / Node >= 22.19.0).
-        foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force | Where-Object { $_.Name -ne ".git" -and $_.Name -ne "mcp" })) {
-            Copy-Item -Path $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
+        $candidatePaths = Get-ArchiveCandidatePaths -Root $sourceRoot
+    }
+    $exactEntries = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $prefixEntries = [System.Collections.Generic.List[string]]::new()
+    foreach ($payloadEntry in $payloadEntries) {
+        if ($payloadEntry.EndsWith("/")) { $prefixEntries.Add($payloadEntry) } else { [void]$exactEntries.Add($payloadEntry) }
+    }
+    # Raw .NET file APIs instead of one Get-Item/New-Item/Copy-Item provider
+    # round-trip per file: each parent directory is created once, each
+    # directory is checked for symlinks once, and File.Copy preserves file
+    # modes just as Copy-Item does. An admitted path that is a symlink / reparse
+    # point, or that sits below one, fails the install instead of being
+    # followed out of the source.
+    $createdDirectories = New-Object 'System.Collections.Generic.HashSet[string]'
+    $checkedDirectories = New-Object 'System.Collections.Generic.HashSet[string]'
+    foreach ($relativePath in $candidatePaths) {
+        $segments = $relativePath.Split("/")
+        $admitted = $false
+        if ($relativePath -cnotmatch '\.py[co]$' -and -not ($segments | Where-Object { $payloadExcludedNames -ccontains $_ })) {
+            if ($exactEntries.Contains($relativePath)) {
+                $admitted = $true
+            }
+            else {
+                foreach ($prefix in $prefixEntries) {
+                    if ($relativePath.StartsWith($prefix, [System.StringComparison]::Ordinal)) { $admitted = $true; break }
+                }
+            }
+        }
+        if (-not $admitted) { continue }
+
+        $walk = ""
+        for ($i = 0; $i -lt $segments.Length - 1; $i++) {
+            $walk = if ($walk) { "$walk/$($segments[$i])" } else { $segments[$i] }
+            if ($checkedDirectories.Add($walk) -and -not (Test-PlainItem (Join-Path $sourceRoot $walk))) {
+                throw "Refusing to stage through a symlink/reparse point: $walk"
+            }
+        }
+        $sourcePath = Join-Path $sourceRoot $relativePath
+        try {
+            $attributes = [System.IO.File]::GetAttributes($sourcePath)
+        }
+        catch {
+            throw "Missing source file: $relativePath"
+        }
+        if (($attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "Refusing to stage symlink/reparse point: $relativePath"
+        }
+        if (($attributes -band [System.IO.FileAttributes]::Directory) -ne 0) {
+            throw "Refusing to stage non-file payload entry: $relativePath"
+        }
+        $destination = Join-Path $stagingRoot $relativePath
+        $parent = Split-Path -Parent $destination
+        if ($createdDirectories.Add($parent)) {
+            [System.IO.Directory]::CreateDirectory($parent) | Out-Null
+        }
+        [System.IO.File]::Copy($sourcePath, $destination, $true)
+    }
+
+    # Fail closed if the manifest does not admit everything the installed runtime needs.
+    foreach ($relativePath in (Get-RequiredPaths)) {
+        if (-not (Test-Path -LiteralPath (Join-Path $stagingRoot $relativePath))) {
+            throw "$payloadManifestName does not admit required file: $relativePath"
         }
     }
 

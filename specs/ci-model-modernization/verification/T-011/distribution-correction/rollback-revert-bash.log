@@ -1,0 +1,32 @@
+F
+======================================================================
+FAIL: test_local_source_installs_only_the_payload (__main__.PayloadChecks.test_local_source_installs_only_the_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 484, in test_local_source_installs_only_the_payload
+    self.assert_payload(root)
+  File "/workspace/sdd-forge/tests/lib/install-payload-check.py", line 458, in assert_payload
+    self.assertEqual(leaked, [], "development payload leaked into the install")
+AssertionError: Lists differ: ['specs/fake/private.txt', 'reports/review[260 chars].sh'] != []
+
+First list contains 11 additional elements.
+First extra element 0:
+'specs/fake/private.txt'
+
++ []
+- ['specs/fake/private.txt',
+-  'reports/review-context/identity-ledger.json',
+-  'tests/private.txt',
+-  '.github/workflows/private.yml',
+-  '.learnings/private.txt',
+-  'AGENTS.md',
+-  'unlisted-root-file.txt',
+-  'docs/unlisted-dev-note.md',
+-  'templates/other/unlisted.txt',
+-  'skills/other-skill/SKILL.md',
+-  'scripts/dev-only.sh'] : development payload leaked into the install
+
+----------------------------------------------------------------------
+Ran 1 test in 0.442s
+
+FAILED (failures=1)

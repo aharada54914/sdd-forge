@@ -1,0 +1,96 @@
+{
+  "tests_first_commit": "b434b1c07e53076bd2550847a65c13de28808363",
+  "product_commit": null,
+  "product_status": "Reviewed products applied after tests-only commit; not committed by audit agent",
+  "source_sha256": {
+    "install.sh": "2bbeaa197eaa62df351d8c0412fc3eae748f3e8ec61f4bd5d19b94a25f28f94b",
+    "install.ps1": "8960c8e16318e919ee9bc3419b7dac7b7bce64f427015af1551e8e48335b81aa",
+    "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a",
+    "tests/install.tests.sh": "90cdaa3c63da488e85528ec02cf4626d09b48bbeef94dfc8f82d3c730d7eaf52",
+    "tests/install.tests.ps1": "6261311ef8fc8a0467d4be84912c8cb86561698785871d0547f38358a974df1c",
+    "tests/lib/install-payload-check.py": "436d097522e2f21b09878fc7fda2886897035416132ed72307f00969aafb8de0",
+    "tests/model-policy-installed.tests.py": "52f6cfa8434c7db4e8ea33699db7fc907e046a69be1d091bdcf3ba2ab284933d",
+    "tests/install-cloud.tests.py": "d13ac886d3802d4af5940a782bb89ae3725f6665138d79a3cf1cbe7b1f4e20e5"
+  },
+  "commands": [
+    {
+      "phase": "Red",
+      "command": "TMPDIR=/workspace/.task-scratch/ci-model-modernization PWSH=/workspace/.tools/sdd-forge-dev/bin/pwsh bash tests/install.tests.sh",
+      "exit": 1,
+      "log": "formal-red-bash.log",
+      "result": "7 helper tests, 10 failures, 1 skip; actual developer-payload leaks",
+      "log_sha256": "d11e368c3d0e1fa6c26c1016704676177165b22fa0a44bdaab93b7de302c1d04"
+    },
+    {
+      "phase": "Red",
+      "command": "TMPDIR=/workspace/.task-scratch/ci-model-modernization PWSH=/workspace/.tools/sdd-forge-dev/bin/pwsh /workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/install.tests.ps1 -Lane core",
+      "exit": 1,
+      "log": "formal-red-pwsh.log",
+      "result": "7 helper tests, 10 failures, 1 skip; actual developer-payload leaks",
+      "log_sha256": "1ddab1e69f45cc34b74ac77044df1d292740964a2fa5ae52758b90ac0dd5dc98"
+    },
+    {
+      "phase": "Green",
+      "command": "TMPDIR=/workspace/.task-scratch/ci-model-modernization PWSH=/workspace/.tools/sdd-forge-dev/bin/pwsh bash tests/install.tests.sh",
+      "exit": 0,
+      "log": "formal-green-bash.log",
+      "result": "7 helper tests + 51 existing checks pass",
+      "log_sha256": "d53162ea72ab445ee88cf1f2f27635f7ebd8f75f21fde32b3ab58e663707965a"
+    },
+    {
+      "phase": "Green",
+      "command": "TMPDIR=/workspace/.task-scratch/ci-model-modernization PWSH=/workspace/.tools/sdd-forge-dev/bin/pwsh /workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/install.tests.ps1",
+      "exit": 0,
+      "log": "formal-green-pwsh.log",
+      "result": "7 helper tests + entire existing all-lane suite pass",
+      "log_sha256": "193e92c530f30d495c56c573d9a1a0b7520ca67ccffb9cab6219e58c2f7f456b"
+    },
+    {
+      "phase": "Runtime",
+      "command": "TMPDIR=/workspace/.task-scratch/ci-model-modernization PWSH=/workspace/.tools/sdd-forge-dev/bin/pwsh python3 tests/model-policy-installed.tests.py InstalledEntryTests.test_prepare_from_both_installed_packages",
+      "exit": 0,
+      "log": "installed-prepare.log",
+      "result": "1 test passes: positive prepare from both actual installed minimal packages",
+      "log_sha256": "30bd1c582386be0240d54cdfaa5d40984c0110f9e28cb071aa746fc417c69880"
+    },
+    {
+      "phase": "Cloud packaging",
+      "command": "TMPDIR=/workspace/.task-scratch/ci-model-modernization PWSH=/workspace/.tools/sdd-forge-dev/bin/pwsh python3 tests/install-cloud.tests.py",
+      "exit": 0,
+      "log": "install-cloud-green.log",
+      "result": "14 tests pass, 130.549s; local synthetic operations only",
+      "log_sha256": "c5ab15181f26b42578aa914139595738d176288d5474db30e7aab4e580ff2b42"
+    }
+  ],
+  "payload": {
+    "baseline_without_mcp": {
+      "files": 16408,
+      "bytes": 189910946
+    },
+    "current_without_mcp": {
+      "files": 614,
+      "bytes": 6942395
+    },
+    "reduction_percent_same_mcp_mode": 96.344,
+    "current_with_all_3_mcp": {
+      "files": 620,
+      "bytes": 11242168
+    },
+    "bash_powershell_path_and_byte_parity": true,
+    "unneeded_root_dev_trees_installed": [],
+    "doc_links_broken_by_narrowing": 0
+  },
+  "causal_trace": [
+    "Local Git staging previously selected nearly all tracked repository files; remote archive staging recursively copied nearly all roots. Both copied developer specs, reports and tests.",
+    "Shared install-payload.txt now selects exact runtime/doc files and bounded prefixes on both paths. Required-path verification rejects incomplete policy before replace.",
+    "MCP recursive dist copy previously admitted arbitrary build artifacts. Both runtimes now copy only esbuild dist/index.js and package.json behind existing gates.",
+    "Tests inject fake tracked developer ledger/specs/CI/tests and poison dist files. Actual old installers leak them, new installers omit them; archive and local paths each run.",
+    "Successful upgrades replace old root and eliminate old dev payload; invalid policy/symlink rejection preserves old root. Disposable source rollback restores leak failures, reapplication restores Green with exact hashes."
+  ],
+  "limitations": [
+    "Linux execution of Bash and PowerShell, not direct Windows/macOS execution.",
+    "FilesOnly installation; no actual external CLI marketplace registration, login, cloud credentials or network provider calls.",
+    "Private Git index admits new uncommitted manifest for current-root audit; actual shared index unchanged. Repeat inventory after final doc/product commit.",
+    "Declared user/normative docs, all nine plugin directories, shared runtime and licenses intentionally retained; individual templates and plugin instructions are functional product assets."
+  ]
+}

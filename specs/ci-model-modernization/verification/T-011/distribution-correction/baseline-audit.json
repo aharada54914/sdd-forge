@@ -1,0 +1,308 @@
+{
+  "head": "e845fbc8942b7ee496b9f9928e5ada61443048d9",
+  "scope": "Unmodified Bash and PowerShell local Git FilesOnly installation, default plugin selection, skip MCP/agent/plugin registration. Archive staging inspected statically; no real provider registration or network performed.",
+  "commands": [
+    [
+      "bash",
+      "install.sh",
+      "--source-directory",
+      "/workspace/sdd-forge",
+      "--install-root",
+      "/workspace/distribution-audit/bash-installed",
+      "--target",
+      "FilesOnly",
+      "--skip-plugin-install",
+      "--skip-agent-install",
+      "--skip-mcp"
+    ],
+    [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "install.ps1",
+      "-SourceDirectory",
+      "/workspace/sdd-forge",
+      "-InstallRoot",
+      "/workspace/distribution-audit/pwsh-installed",
+      "-Target",
+      "FilesOnly",
+      "-SkipPluginInstall",
+      "-SkipAgentInstall",
+      "-SkipMcp"
+    ]
+  ],
+  "source_sha256": {
+    "install.sh": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+    "install.ps1": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde"
+  },
+  "bash": {
+    "files": 16408,
+    "bytes": 189910946,
+    "groups": {
+      ".agents": [
+        1,
+        2854
+      ],
+      ".claude-plugin": [
+        1,
+        2983
+      ],
+      ".codex": [
+        4,
+        10042
+      ],
+      ".gitattributes": [
+        1,
+        161
+      ],
+      ".github": [
+        11,
+        149428
+      ],
+      ".gitignore": [
+        1,
+        626
+      ],
+      ".learnings": [
+        3,
+        1985
+      ],
+      "AGENTS.md": [
+        1,
+        19176
+      ],
+      "CHANGELOG.md": [
+        1,
+        358014
+      ],
+      "CODEOWNERS": [
+        1,
+        1701
+      ],
+      "LICENSE": [
+        1,
+        1063
+      ],
+      "PLUGIN-CONTRACTS.md": [
+        1,
+        27281
+      ],
+      "README.md": [
+        1,
+        30072
+      ],
+      "USERGUIDE.md": [
+        1,
+        28025
+      ],
+      "contracts": [
+        64,
+        357593
+      ],
+      "docs": [
+        391,
+        2898472
+      ],
+      "handoffs": [
+        7,
+        29685
+      ],
+      "install.ps1": [
+        1,
+        47144
+      ],
+      "install.sh": [
+        1,
+        49940
+      ],
+      "plugins": [
+        452,
+        5237552
+      ],
+      "render-agent-frontmatter.ps1": [
+        1,
+        19088
+      ],
+      "render-agent-frontmatter.sh": [
+        1,
+        15997
+      ],
+      "reports": [
+        6071,
+        33964011
+      ],
+      "scripts": [
+        12,
+        144034
+      ],
+      "skills": [
+        4,
+        30099
+      ],
+      "specs": [
+        8923,
+        136075138
+      ],
+      "templates": [
+        14,
+        36066
+      ],
+      "tests": [
+        435,
+        10334348
+      ],
+      "uninstall.ps1": [
+        1,
+        16436
+      ],
+      "uninstall.sh": [
+        1,
+        21932
+      ]
+    }
+  },
+  "powershell": {
+    "files": 16408,
+    "bytes": 189910946,
+    "groups": {
+      ".agents": [
+        1,
+        2854
+      ],
+      ".claude-plugin": [
+        1,
+        2983
+      ],
+      ".codex": [
+        4,
+        10042
+      ],
+      ".gitattributes": [
+        1,
+        161
+      ],
+      ".github": [
+        11,
+        149428
+      ],
+      ".gitignore": [
+        1,
+        626
+      ],
+      ".learnings": [
+        3,
+        1985
+      ],
+      "AGENTS.md": [
+        1,
+        19176
+      ],
+      "CHANGELOG.md": [
+        1,
+        358014
+      ],
+      "CODEOWNERS": [
+        1,
+        1701
+      ],
+      "LICENSE": [
+        1,
+        1063
+      ],
+      "PLUGIN-CONTRACTS.md": [
+        1,
+        27281
+      ],
+      "README.md": [
+        1,
+        30072
+      ],
+      "USERGUIDE.md": [
+        1,
+        28025
+      ],
+      "contracts": [
+        64,
+        357593
+      ],
+      "docs": [
+        391,
+        2898472
+      ],
+      "handoffs": [
+        7,
+        29685
+      ],
+      "install.ps1": [
+        1,
+        47144
+      ],
+      "install.sh": [
+        1,
+        49940
+      ],
+      "plugins": [
+        452,
+        5237552
+      ],
+      "render-agent-frontmatter.ps1": [
+        1,
+        19088
+      ],
+      "render-agent-frontmatter.sh": [
+        1,
+        15997
+      ],
+      "reports": [
+        6071,
+        33964011
+      ],
+      "scripts": [
+        12,
+        144034
+      ],
+      "skills": [
+        4,
+        30099
+      ],
+      "specs": [
+        8923,
+        136075138
+      ],
+      "templates": [
+        14,
+        36066
+      ],
+      "tests": [
+        435,
+        10334348
+      ],
+      "uninstall.ps1": [
+        1,
+        16436
+      ],
+      "uninstall.sh": [
+        1,
+        21932
+      ]
+    }
+  },
+  "same_paths_and_bytes": true,
+  "unnecessary_specs_reports_tests_bytes": 180373497,
+  "unnecessary_share_percent": 94.98,
+  "mutable_tracked_development_ledger_installed": true,
+  "actual_cache_git_auth_filename_hits": 0,
+  "provider_MCP_dist_files": {
+    "mcp/ci-mcp/dist": [
+      "index.js"
+    ],
+    "mcp/local-env-mcp/dist": [
+      "index.js"
+    ],
+    "mcp/sdd-forge-mcp/dist": [
+      "index.js"
+    ]
+  },
+  "temporary_owned_install_trees_removed_after_hashing": true,
+  "source_edited": false
+}

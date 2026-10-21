@@ -437,22 +437,26 @@ node_version_ok() {
 }
 
 place_mcp_servers() {
-    # Copies the minimal MCP payload (dist/ + package.json) for each selected
-    # MCP from the source tree into INSTALL_ROOT/mcp/<name>/. This is
-    # independent of Git tracking state (unlike REQUIRED_PATHS) because the
-    # MCP dist/ bundle is not yet committed to the repository as of this task.
+    # Copies the minimal MCP payload for each selected MCP from the source tree
+    # into INSTALL_ROOT/mcp/<name>/. Each MCP is a self-contained esbuild bundle
+    # (--outfile=dist/index.js), so exactly dist/index.js and package.json are
+    # placed; nothing else under dist/ is copied. Placement is independent of Git
+    # tracking state so local rebuilt bundles remain supported. A symlinked mcp tree or
+    # payload file is treated as absent rather than followed out of the source.
     local source_root="$1"
     local install_root_path="$2"
     local name src_dir dest_dir
     for name in "${MCP_SELECTION[@]}"; do
         src_dir="${source_root}/mcp/${name}"
-        if [[ ! -f "${src_dir}/dist/index.js" || ! -f "${src_dir}/package.json" ]]; then
+        if [[ -L "${source_root}/mcp" || -L "$src_dir" || -L "${src_dir}/dist" \
+              || -L "${src_dir}/dist/index.js" || -L "${src_dir}/package.json" \
+              || ! -f "${src_dir}/dist/index.js" || ! -f "${src_dir}/package.json" ]]; then
             echo "Warning: MCP server '${name}' payload (dist/index.js, package.json) was not found under mcp/${name}. Skipping placement." >&2
             continue
         fi
         dest_dir="${install_root_path}/mcp/${name}"
         mkdir -p "${dest_dir}/dist"
-        cp -R "${src_dir}/dist/." "${dest_dir}/dist/"
+        cp -f "${src_dir}/dist/index.js" "${dest_dir}/dist/index.js"
         cp -f "${src_dir}/package.json" "${dest_dir}/package.json"
     done
 }
@@ -711,6 +715,101 @@ rollback() {
 trap 'rc=$?; if [[ $rc -ne 0 ]]; then rollback; fi; cleanup; exit $rc' EXIT
 
 # ---------------------------------------------------------------------------
+# Install payload selection
+# ---------------------------------------------------------------------------
+# install-payload.txt (repository root) lists the exact paths and directory
+# prefixes (ending in '/') that make up the installed product. A local Git
+# source and a downloaded archive are filtered by the same manifest, so an
+# install never carries development specs, reports, tests, or local state.
+# --plugins controls registration and dependencies, not what is copied.
+# install.ps1 implements the identical policy; keep the two in step.
+PAYLOAD_MANIFEST="install-payload.txt"
+PAYLOAD_ENTRIES=()
+
+load_payload_manifest() {
+    # One entry per line; blank lines and '#' comments are ignored. Entries are
+    # canonical relative paths: no '..', '.', absolute, backslash, wildcard, or
+    # empty segments. Anything else fails the install.
+    local LC_ALL=C
+    local manifest="$1" line
+    local entry_re='^[[:alnum:]._@+-]+(/[[:alnum:]._@+-]+)*/?$'
+    local dot_re='(^|/)\.+(/|$)'
+    if [[ -L "$manifest" || ! -f "$manifest" ]]; then
+        echo "Error: ${PAYLOAD_MANIFEST} must be a regular file." >&2
+        return 1
+    fi
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line%$'\r'}"
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
+        case "$line" in ''|'#'*) continue ;; esac
+        if [[ ! "$line" =~ $entry_re || "$line" =~ $dot_re ]]; then
+            echo "Error: Invalid ${PAYLOAD_MANIFEST} entry (expected a canonical relative path or a directory prefix ending in '/'): ${line}" >&2
+            return 1
+        fi
+        PAYLOAD_ENTRIES+=("$line")
+    done < "$manifest"
+    if [[ ${#PAYLOAD_ENTRIES[@]} -eq 0 ]]; then
+        echo "Error: ${PAYLOAD_MANIFEST} lists no payload paths." >&2
+        return 1
+    fi
+}
+
+payload_admits() {
+    # Returns 0 if the source-relative path belongs to the install payload.
+    local rel="$1" entry
+    # Caches and private artifacts are never installed, even under an admitted
+    # directory.
+    case "/${rel}/" in
+        */.git/*|*/node_modules/*|*/__pycache__/*|*/.pytest_cache/*|*/.mypy_cache/*|*/.ruff_cache/*|*/.cache/*|*/.venv/*|*/.private/*|*/.learnings/*|*/.DS_Store/*) return 1 ;;
+    esac
+    case "$rel" in *.pyc|*.pyo) return 1 ;; esac
+    for entry in "${PAYLOAD_ENTRIES[@]}"; do
+        if [[ "$entry" == */ ]]; then
+            [[ "$rel" == "$entry"* ]] && return 0
+        else
+            [[ "$rel" == "$entry" ]] && return 0
+        fi
+    done
+    return 1
+}
+
+select_payload_paths() {
+    # stdin: NUL-delimited candidate paths relative to SOURCE_ROOT.
+    # stdout: the NUL-delimited admitted subset. An admitted path that is a
+    # symlink, or that sits below a symlinked directory, fails the install
+    # instead of being followed out of the source.
+    local rel dir walk part last_dir=""
+    local -a parts
+    while IFS= read -r -d '' rel; do
+        rel="${rel#./}"
+        payload_admits "$rel" || continue
+        if [[ -L "${SOURCE_ROOT}/${rel}" ]]; then
+            echo "Error: Refusing to install symlink from the payload: ${rel}" >&2
+            return 1
+        fi
+        if [[ -d "${SOURCE_ROOT}/${rel}" ]]; then
+            echo "Error: Refusing to install non-file payload entry: ${rel}" >&2
+            return 1
+        fi
+        dir="${rel%/*}"
+        if [[ "$dir" != "$rel" && "$dir" != "$last_dir" ]]; then
+            walk=""
+            IFS=/ read -r -a parts <<< "$dir"
+            for part in "${parts[@]}"; do
+                walk="${walk:+${walk}/}${part}"
+                if [[ -L "${SOURCE_ROOT}/${walk}" ]]; then
+                    echo "Error: Refusing to install through a symlinked directory: ${walk}" >&2
+                    return 1
+                fi
+            done
+            last_dir="$dir"
+        fi
+        printf '%s\0' "$rel"
+    done
+}
+
+# ---------------------------------------------------------------------------
 # Resolve source
 # ---------------------------------------------------------------------------
 SOURCE_IS_LOCAL=0
@@ -796,6 +895,8 @@ REQUIRED_PATHS=(
     "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md"
     "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md"
     "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md"
+    # The payload manifest selects what is installed; without it nothing can be.
+    "install-payload.txt"
 )
 CLOUD_ENTRY_FILES=(.claude-plugin/plugin.json .codex-plugin/plugin.json .plugin/plugin.json skills/orchestrate/SKILL.md scripts/cloud.py)
 # Source precheck covers explicit selections; retained entries are checked in staging.
@@ -828,6 +929,10 @@ if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
         fi
     done
 fi
+
+# The manifest is read from the source (working-tree bytes for a local source,
+# whose tracked state was verified above) and validated before anything is staged.
+load_payload_manifest "${SOURCE_ROOT}/${PAYLOAD_MANIFEST}" || exit 1
 
 # Validate all sdd-*.toml files: must have no BOM and must define name and developer_instructions.
 agent_source_dir="${SOURCE_ROOT}/.codex/agents"
@@ -1009,35 +1114,36 @@ unset _lock_timeout _lock_stale _lock_deadline _lock_reclaimed _stale _lock_mtim
 
 STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 
-# A local worktree can contain credentials, caches, and nested untracked files.
-# Copy its Git index only. Downloaded archives are trusted release inputs and
-# have no local untracked state, so retain their complete archive layout.
-# The mcp/ tree is excluded here even though it is Git-tracked: MCP payload
-# placement is handled exclusively by place_mcp_servers (dist/ + package.json
-# only, gated by --skip-mcp / --mcp / the Node >= 22.19.0 check), so staging it
-# unconditionally here would bypass that gating. tests/fixtures/ is excluded
-# too: it is Git-tracked test scaffolding, not part of the installed product,
-# and staging it here would pull test-only symlinks into every install
-# (install.ps1's staging loop refuses those on purpose; keep the two
-# installers selecting the same file set).
+# Stage only the payload listed in install-payload.txt. A local worktree is
+# enumerated from its Git index (so untracked files never leak in) and the
+# current working-tree bytes of each admitted path are copied; a downloaded
+# archive is enumerated from its extracted tree and filtered by the same
+# manifest, so both sources install the same product and neither carries
+# development trees. The mcp/ tree is not in the manifest on purpose: MCP
+# payload placement is handled exclusively by place_mcp_servers (dist/index.js +
+# package.json only, gated by --skip-mcp / --mcp / the Node >= 22.19.0 check).
+# One tar pipeline replaces a mkdir+cp process pair per file; extraction
+# recreates the parent directories and keeps file modes.
 if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
-    # One tar pipeline instead of a mkdir+cp process pair per tracked file.
-    # The create side reads the NUL-delimited tracked list, so content still
-    # comes from the working tree, symlinks stay symlinks (as with cp -P),
-    # untracked files still never leak in, and extraction recreates the
-    # parent directories itself.
-    git -C "$SOURCE_ROOT" ls-files -z -- . ':!mcp/**' ':!tests/fixtures/**' \
-        | (cd "$SOURCE_ROOT" && tar --null -T - -cf -) \
-        | (cd "$STAGING_ROOT" && tar -xf -)
+    payload_candidates() { git -C "$SOURCE_ROOT" ls-files -z; }
 else
-    for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
-        [[ -e "$entry" ]] || continue
-        case "$(basename "$entry")" in
-            .git|mcp) continue ;;
-        esac
-        cp -R "$entry" "${STAGING_ROOT}/"
-    done
+    payload_candidates() {
+        (cd "$SOURCE_ROOT" && find . -mindepth 1 \( -name .git -o -name node_modules \) -prune -o \( -type f -o -type l \) -print0)
+    }
 fi
+payload_candidates \
+    | select_payload_paths \
+    | (cd "$SOURCE_ROOT" && tar --null -T - -cf -) \
+    | (cd "$STAGING_ROOT" && tar -xf -)
+unset -f payload_candidates
+
+# Fail closed if the manifest does not admit everything the installed runtime needs.
+for rel in "${REQUIRED_PATHS[@]}"; do
+    if [[ ! -e "${STAGING_ROOT}/${rel}" ]]; then
+        echo "Error: ${PAYLOAD_MANIFEST} does not admit required file: ${rel}" >&2
+        exit 1
+    fi
+done
 
 # Rebuild selected and previously materialized runtimes before replacing the tree.
 # Prior payload presence retains availability, never registration or executable bytes.

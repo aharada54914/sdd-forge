@@ -1,0 +1,74 @@
+{
+  "producer": "Actual Claude Code CLI",
+  "model": "sonnet",
+  "effort": "medium",
+  "raw_private_log": "events.jsonl",
+  "result": {
+    "type": "result",
+    "subtype": "success",
+    "is_error": false,
+    "duration_ms": 645256,
+    "num_turns": 25,
+    "usage": {
+      "input_tokens": 26,
+      "cache_creation_input_tokens": 458290,
+      "cache_read_input_tokens": 4177856,
+      "output_tokens": 91352,
+      "output_tokens_details": {
+        "thinking_tokens": 60239
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 458290,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 1888,
+          "cache_read_input_tokens": 454787,
+          "cache_creation_input_tokens": 3494,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 3494
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-sonnet-5-5": {
+        "inputTokens": 26,
+        "outputTokens": 91352,
+        "cacheReadInputTokens": 4177856,
+        "cacheCreationInputTokens": 458290,
+        "webSearchRequests": 0,
+        "costUSD": 3.1645176000000004,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 60239,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  },
+  "prompt_sha256": "0510b3cdc6697dc86d208e5d6b2e429f229441320ea98f2e7c800bc82e07eb1c",
+  "input_sha256": {
+    "install.ps1": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde",
+    "install.sh": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+    "tests/install.tests.sh": "3fe2fd8d63171180837d67216ce86d407a103f5c4087a7e029b07944b87b08a5",
+    "tests/install.tests.ps1": "f86244469c3315d36db0afaff331d7e88ddc5ba9d77974ab607290688641edcb"
+  },
+  "limitations": [
+    "Initial candidate PowerShell manifest nested array bug found by actual smoke; follow-up correction in progress.",
+    "No root source application or formal Green yet."
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "rollback.json": {
+    "bytes": 3749,
+    "sha256": "38bb7b9a1c920da21413420dc69f6f5a280e713925c09be2abb58deb9f6a1357"
+  },
+  "rollback-revert-powershell.log": {
+    "bytes": 1319,
+    "sha256": "903c9943b29c0e1767b9960e418ca5c1e36bb5b3731ed26d21e43c93a7d0fdc9"
+  },
+  "rollback-revert-bash.log": {
+    "bytes": 1319,
+    "sha256": "c8fb282d0301af4ee96ab432de488d16e166c1cf8987e4f45263a0f58c0df6ce"
+  },
+  "claude-initial-receipt.json": {
+    "bytes": 2378,
+    "sha256": "15d282e9ad7f8bc793f9079ff208ad08280860c5119c8a7011e18845869e4d4b"
+  },
+  "current-doc-link-audit.json": {
+    "bytes": 280,
+    "sha256": "312482dfcd627f537a26932db691cb8e41ec8aee4057b3e9c6caac085d7a52eb"
+  },
+  "current-audit.json": {
+    "bytes": 1877,
+    "sha256": "2419de7c2f0ed9a1dfa1faa435032bb75680cbcdbb4d12050b9ee4c11675a10e"
+  },
+  "claude-followup-receipt.json": {
+    "bytes": 920,
+    "sha256": "79492fda89fdb0bedeaa723a17548c7c168acd69aed4c70b3ed30fab3a267e17"
+  },
+  "installed-prepare.log": {
+    "bytes": 98,
+    "sha256": "30bd1c582386be0240d54cdfaa5d40984c0110f9e28cb071aa746fc417c69880"
+  },
+  "formal-green-bash.log": {
+    "bytes": 6923,
+    "sha256": "d53162ea72ab445ee88cf1f2f27635f7ebd8f75f21fde32b3ab58e663707965a"
+  },
+  "rollback-restore-bash.log": {
+    "bytes": 98,
+    "sha256": "936e6a0eb99ea219eb72536917f8f470138b213a5aff0436f54527db64565852"
+  },
+  "formal-red.json": {
+    "bytes": 1915,
+    "sha256": "ed61d7b25d29070bbf35c68aaf9e284004201ec2b5a7afcfc2512f08ca09ac24"
+  },
+  "formal-green-pwsh.log": {
+    "bytes": 23861,
+    "sha256": "193e92c530f30d495c56c573d9a1a0b7520ca67ccffb9cab6219e58c2f7f456b"
+  },
+  "formal-red-bash.log": {
+    "bytes": 12052,
+    "sha256": "d11e368c3d0e1fa6c26c1016704676177165b22fa0a44bdaab93b7de302c1d04"
+  },
+  "formal-red-pwsh.log": {
+    "bytes": 12006,
+    "sha256": "1ddab1e69f45cc34b74ac77044df1d292740964a2fa5ae52758b90ac0dd5dc98"
+  },
+  "rollback-restore-powershell.log": {
+    "bytes": 98,
+    "sha256": "c222b834f3b34ef3fb495fd5a80a28504ab1cc41ad3c6e7f0fe39210e6756bdc"
+  },
+  "installed-inventory.json": {
+    "bytes": 104155,
+    "sha256": "8da4d6c989f499965843b070d15d52e7cf114982796a5df65e6cfe86924ea202"
+  },
+  "baseline-audit.json": {
+    "bytes": 5282,
+    "sha256": "c1eb13b868468cb3277d0d46a2d1c63c9f0f8e6dbefe48d634e0e63a58c59813"
+  },
+  "verification.json": {
+    "bytes": 5701,
+    "sha256": "dde1ea7c0bd6c58cb77c496406f0c5120cc54b275b4b6a1e0b1af38748080dc1"
+  }
+}

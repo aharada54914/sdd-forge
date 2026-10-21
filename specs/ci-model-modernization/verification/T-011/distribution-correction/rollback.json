@@ -1,0 +1,94 @@
+{
+  "scope": "Disposable fixture only; root products unchanged throughout",
+  "events": [
+    {
+      "phase": "revert",
+      "runtime": "bash",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/sdd-forge/tests/lib/install-payload-check.py",
+        "--runtime",
+        "bash",
+        "--repo-root",
+        "/workspace/distribution-audit/candidate-fixture",
+        "PayloadChecks.test_local_source_installs_only_the_payload"
+      ],
+      "exit": 1,
+      "expected_result": true,
+      "log": "rollback-revert-bash.log",
+      "source_sha256": {
+        "install.sh": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+        "install.ps1": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde",
+        "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a"
+      }
+    },
+    {
+      "phase": "revert",
+      "runtime": "powershell",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/sdd-forge/tests/lib/install-payload-check.py",
+        "--runtime",
+        "powershell",
+        "--repo-root",
+        "/workspace/distribution-audit/candidate-fixture",
+        "PayloadChecks.test_local_source_installs_only_the_payload"
+      ],
+      "exit": 1,
+      "expected_result": true,
+      "log": "rollback-revert-powershell.log",
+      "source_sha256": {
+        "install.sh": "8920bd81d1bad1a04b13d058f92e2ea607221061953ae627bd172460102a70c6",
+        "install.ps1": "69cd573fdcc241e6a0eacd04fbfece4657f314e300e975f65c05eda174dd1fde",
+        "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a"
+      }
+    },
+    {
+      "phase": "restore",
+      "runtime": "bash",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/sdd-forge/tests/lib/install-payload-check.py",
+        "--runtime",
+        "bash",
+        "--repo-root",
+        "/workspace/distribution-audit/candidate-fixture",
+        "PayloadChecks.test_local_source_installs_only_the_payload"
+      ],
+      "exit": 0,
+      "expected_result": true,
+      "log": "rollback-restore-bash.log",
+      "source_sha256": {
+        "install.sh": "2bbeaa197eaa62df351d8c0412fc3eae748f3e8ec61f4bd5d19b94a25f28f94b",
+        "install.ps1": "8960c8e16318e919ee9bc3419b7dac7b7bce64f427015af1551e8e48335b81aa",
+        "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a"
+      }
+    },
+    {
+      "phase": "restore",
+      "runtime": "powershell",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/sdd-forge/tests/lib/install-payload-check.py",
+        "--runtime",
+        "powershell",
+        "--repo-root",
+        "/workspace/distribution-audit/candidate-fixture",
+        "PayloadChecks.test_local_source_installs_only_the_payload"
+      ],
+      "exit": 0,
+      "expected_result": true,
+      "log": "rollback-restore-powershell.log",
+      "source_sha256": {
+        "install.sh": "2bbeaa197eaa62df351d8c0412fc3eae748f3e8ec61f4bd5d19b94a25f28f94b",
+        "install.ps1": "8960c8e16318e919ee9bc3419b7dac7b7bce64f427015af1551e8e48335b81aa",
+        "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a"
+      }
+    }
+  ],
+  "restored_source_sha256": {
+    "install.sh": "2bbeaa197eaa62df351d8c0412fc3eae748f3e8ec61f4bd5d19b94a25f28f94b",
+    "install.ps1": "8960c8e16318e919ee9bc3419b7dac7b7bce64f427015af1551e8e48335b81aa",
+    "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a"
+  }
+}

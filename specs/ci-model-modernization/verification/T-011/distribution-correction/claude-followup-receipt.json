@@ -1,0 +1,19 @@
+{
+  "producer": "Actual Claude Code CLI",
+  "model": "sonnet",
+  "effort": "medium",
+  "completion": "Stopped by orchestrator after useful product correction and registered helper completed; large native-wrapper reconstruction omitted in favor of minimal original-suite hooks",
+  "raw_private_log": "followup-events.jsonl",
+  "prompt_sha256": "7b37585983623a8b689293045fada0970e38b4073213f6d31af413e9a8fca825",
+  "used_outputs": [
+    "install.ps1",
+    "tests/lib/install-payload-check.py"
+  ],
+  "orchestrator_edits": [
+    "removed irrelevant dangling outside link from ordinary archive fixture to isolate causal Red",
+    "preserved existing native suites with minimal helper invocation and manifest overlay",
+    "added manifest to two explicit installed-runtime fixture packages",
+    "removed stale tracked-bundle comment in install.sh"
+  ],
+  "rate_limit": "allowed in observed events; no wait/reset required"
+}
