@@ -1,0 +1,13 @@
+PesterVersion=4.10.1
+Pester v4.10.1
+Executing all tests in 'tests/sdd-domain/reverse-seed.Tests.ps1' matching test name domain-reverse SKILL.md contract
+
+Executing script tests/sdd-domain/reverse-seed.Tests.ps1
+
+  Describing domain-reverse SKILL.md contract
+    [+] exists as an internal, non-model-invocable skill 68ms
+    [-] documents invoking investigate-codebase as the seed source 18ms
+      Expected regular expression '/sdd-bootstrap:investigate-codebase' to match '---
+      at <ScriptBlock>, /workspace/sdd-forge/tests/sdd-domain/reverse-seed.Tests.ps1: line 52
+Tests completed in 377ms
+Tests Passed: 6, Failed: 1, Skipped: 0, Pending: 0, Inconclusive: 0

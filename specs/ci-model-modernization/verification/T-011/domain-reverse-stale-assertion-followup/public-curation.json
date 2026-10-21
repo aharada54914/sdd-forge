@@ -1,0 +1,81 @@
+{
+  "schema": "domain-reverse-public-curation/v1",
+  "files": {
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/README.md": {
+      "sha256": "d328abf6b20829fcef9cc15b98b252dbb02f4a6e83532c35e0931004352f36ed",
+      "bytes": 2005
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/candidate-source.patch": {
+      "sha256": "33b14d5ebe976055a9e4995b39075a72c19fb083bac9c1e2c40ade5f74b9907f",
+      "bytes": 1185
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/diff-check.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/diff-check.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/evidence-receipt.json": {
+      "sha256": "86d1ffec26732c1f3abc6ef8b2bfa38e3afe2623c936b8272ae5a81286169c8f",
+      "bytes": 9666
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/focused-red-command.json": {
+      "sha256": "08e3d12b57a757d7065c80f74c84218ce38108698a125bf3caecd6a713a7d2bf",
+      "bytes": 720
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/focused-red-failure-excerpt.log": {
+      "sha256": "b469440eed7475791dc66dbbb5d709a6244da09d9f66a005fb9eb50e8333bc51",
+      "bytes": 665
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/focused-red.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/result.json": {
+      "sha256": "8287d0b01c435c09a8f52ecadf3b58f72e09af6ffd56d0c96b1639dfe8b51edf",
+      "bytes": 4102
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/rollback-original-test-failure-excerpt.log": {
+      "sha256": "a818715a77b7c17bd735cb84729fb0dadec6bc307bf124367d9102b64f4a7285",
+      "bytes": 845
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/rollback-original-test.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/simplified-current-green.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/simplified-current-green.stdout.log": {
+      "sha256": "ef218c782584cfd18b4b4685b353c33bfd47055e61a7f3d139d6a6c6e04f3db4",
+      "bytes": 1873
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/simplified-disposable-restored-green.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/simplified-disposable-restored-green.stdout.log": {
+      "sha256": "6464da745a6d3b3ea2cb4f39b18e87b74f2e25e475a5baf63f315f52708ce7f3",
+      "bytes": 2000
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/simplified-validation-commands.json": {
+      "sha256": "a4cfa530ada6829e520095b5d33f834acbaec4a0466d736345694579f653638a",
+      "bytes": 2103
+    },
+    "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/validation-commands.json": {
+      "sha256": "249ee4fa36a2c5cead480a14c93de6dfc82ff3f7e97d7a885c248115fe04226a",
+      "bytes": 2354
+    }
+  },
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "tests/sdd-domain/reverse-seed.Tests.ps1",
+      "before_commit": "6d8a1daa8f8ff42ebff8766becd614aaa7b3b517",
+      "before_sha256": "408f493b4e6d76259b63af0527178e04c9414a06efa7b359e7f5cdca191a9037",
+      "after_candidate_sha256": "c1ff73a62cd3cb509501b8fe08ca3bb385c396abc5b59ea89592325926fd0e8a"
+    }
+  ]
+}

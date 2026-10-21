@@ -1,0 +1,44 @@
+[
+  {
+    "label": "current-green",
+    "argv": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-Command",
+      "Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop; Write-Output ('PesterVersion=' + (Get-Module Pester).Version); $r=Invoke-Pester -Script '/workspace/sdd-forge/tests/sdd-domain/reverse-seed.Tests.ps1' -PassThru; if ($r.FailedCount -gt 0 -or $r.SkippedCount -gt 0 -or $r.PendingCount -gt 0 -or $r.InconclusiveCount -gt 0) { exit 1 }"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "started_at": "2026-10-21T15:32:07.841313+00:00",
+    "finished_at": "2026-10-21T15:32:09.715327+00:00"
+  },
+  {
+    "label": "rollback-original-test",
+    "argv": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-Command",
+      "Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop; Write-Output ('PesterVersion=' + (Get-Module Pester).Version); $r=Invoke-Pester -Script '/workspace/.task-scratch/ci-model-modernization/t011-domain-reverse-seed/disposable/tests/sdd-domain/reverse-seed.Tests.ps1' -PassThru; if ($r.FailedCount -gt 0 -or $r.SkippedCount -gt 0 -or $r.PendingCount -gt 0 -or $r.InconclusiveCount -gt 0) { exit 1 }"
+    ],
+    "cwd": "/workspace/.task-scratch/ci-model-modernization/t011-domain-reverse-seed/disposable",
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "started_at": "2026-10-21T15:32:09.715528+00:00",
+    "finished_at": "2026-10-21T15:32:11.590145+00:00"
+  },
+  {
+    "label": "restored-current-test",
+    "argv": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-Command",
+      "Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop; Write-Output ('PesterVersion=' + (Get-Module Pester).Version); $r=Invoke-Pester -Script '/workspace/.task-scratch/ci-model-modernization/t011-domain-reverse-seed/disposable/tests/sdd-domain/reverse-seed.Tests.ps1' -PassThru; if ($r.FailedCount -gt 0 -or $r.SkippedCount -gt 0 -or $r.PendingCount -gt 0 -or $r.InconclusiveCount -gt 0) { exit 1 }"
+    ],
+    "cwd": "/workspace/.task-scratch/ci-model-modernization/t011-domain-reverse-seed/disposable",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "started_at": "2026-10-21T15:32:11.590329+00:00",
+    "finished_at": "2026-10-21T15:32:13.411138+00:00"
+  }
+]

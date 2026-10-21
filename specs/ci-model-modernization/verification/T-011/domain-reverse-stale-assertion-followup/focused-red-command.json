@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "-NoProfile",
+    "-Command",
+    "Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop; Write-Output ('PesterVersion=' + (Get-Module Pester).Version); $r=Invoke-Pester -Script tests/sdd-domain/reverse-seed.Tests.ps1 -TestName 'domain-reverse SKILL.md contract' -PassThru; if ($r.FailedCount -gt 0 -or $r.SkippedCount -gt 0) { exit 1 }"
+  ],
+  "exit_code": 1,
+  "started_at": "2026-10-21T15:31:15.716335+00:00",
+  "finished_at": "2026-10-21T15:31:17.401177+00:00",
+  "before_test_sha256": "408f493b4e6d76259b63af0527178e04c9414a06efa7b359e7f5cdca191a9037",
+  "skill_sha256": "b4a61606b281402539bde6a4c3b77c3bfb545dd405e31aa8db56288ba09532d5"
+}

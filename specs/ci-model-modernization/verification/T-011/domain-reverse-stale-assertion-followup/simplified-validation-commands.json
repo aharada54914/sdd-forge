@@ -1,0 +1,36 @@
+{
+  "commands": [
+    {
+      "label": "simplified-current-green",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-Command",
+        "Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop; Write-Output ('PesterVersion=' + (Get-Module Pester).Version); $r=Invoke-Pester -Script '/workspace/sdd-forge/tests/sdd-domain/reverse-seed.Tests.ps1' -PassThru; if ($r.FailedCount -gt 0 -or $r.SkippedCount -gt 0 -or $r.PendingCount -gt 0 -or $r.InconclusiveCount -gt 0) { exit 1 }"
+      ],
+      "cwd": "/workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-21T15:33:58.920963+00:00",
+      "finished_at": "2026-10-21T15:34:00.639081+00:00",
+      "final_test_sha256": "c1ff73a62cd3cb509501b8fe08ca3bb385c396abc5b59ea89592325926fd0e8a"
+    },
+    {
+      "label": "simplified-disposable-restored-green",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-Command",
+        "Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop; Write-Output ('PesterVersion=' + (Get-Module Pester).Version); $r=Invoke-Pester -Script '/workspace/.task-scratch/ci-model-modernization/t011-domain-reverse-seed/disposable/tests/sdd-domain/reverse-seed.Tests.ps1' -PassThru; if ($r.FailedCount -gt 0 -or $r.SkippedCount -gt 0 -or $r.PendingCount -gt 0 -or $r.InconclusiveCount -gt 0) { exit 1 }"
+      ],
+      "cwd": "/workspace/.task-scratch/ci-model-modernization/t011-domain-reverse-seed/disposable",
+      "exit_code": 0,
+      "started_at": "2026-10-21T15:34:00.639170+00:00",
+      "finished_at": "2026-10-21T15:34:02.364018+00:00",
+      "final_test_sha256": "c1ff73a62cd3cb509501b8fe08ca3bb385c396abc5b59ea89592325926fd0e8a"
+    }
+  ],
+  "disposable_original_test_restore_sha256": "408f493b4e6d76259b63af0527178e04c9414a06efa7b359e7f5cdca191a9037",
+  "disposable_final_test_restore_sha256": "c1ff73a62cd3cb509501b8fe08ca3bb385c396abc5b59ea89592325926fd0e8a",
+  "root_final_test_sha256": "c1ff73a62cd3cb509501b8fe08ca3bb385c396abc5b59ea89592325926fd0e8a",
+  "skill_bytes_equal": true
+}

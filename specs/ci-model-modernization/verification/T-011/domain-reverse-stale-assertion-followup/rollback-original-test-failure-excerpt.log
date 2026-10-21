@@ -1,0 +1,13 @@
+PesterVersion=4.10.1
+Pester v4.10.1
+Executing all tests in '/workspace/.task-scratch/ci-model-modernization/t011-domain-reverse-seed/disposable/tests/sdd-domain/reverse-seed.Tests.ps1'
+
+Executing script /workspace/.task-scratch/ci-model-modernization/t011-domain-reverse-seed/disposable/tests/sdd-domain/reverse-seed.Tests.ps1
+
+  Describing domain-reverse SKILL.md contract
+    [+] exists as an internal, non-model-invocable skill 47ms
+    [-] documents invoking investigate-codebase as the seed source 17ms
+      Expected regular expression '/sdd-bootstrap:investigate-codebase' to match '---
+      at <ScriptBlock>, /workspace/.task-scratch/ci-model-modernization/t011-domain-reverse-seed/disposable/tests/sdd-domain/reverse-seed.Tests.ps1: line 52
+Tests completed in 523ms
+Tests Passed: 19, Failed: 1, Skipped: 0, Pending: 0, Inconclusive: 0

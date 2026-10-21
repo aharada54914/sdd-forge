@@ -47,9 +47,20 @@ Describe "domain-reverse SKILL.md contract" {
         $script:skillText | Should Match "user-invocable: false"
     }
 
-    It "documents invoking investigate-codebase as the seed source" {
-        $script:skillText | Should Match "investigate-codebase"
-        $script:skillText | Should Match "/sdd-bootstrap:investigate-codebase"
+    It "documents the managed investigate-codebase handoff as the seed source" {
+        $requiredMarkers = @(
+            'investigate-codebase',
+            'managed-model-entry.py" claude-entry',
+            '--role investigator --host claude-code',
+            '--prompt-file "<prompt-file>" --prompt-sha256 "<prompt-sha256>"',
+            'Mode: feature',
+            'Target: <target>',
+            'Stop on a typed failure; do not fall back to an unmanaged Skill or Agent.',
+            'INV/BL identifiers'
+        )
+        foreach ($requiredMarker in $requiredMarkers) {
+            $script:skillText | Should Match ([regex]::Escape($requiredMarker))
+        }
     }
 
     It "declares all seven required candidate-seed sections" {
