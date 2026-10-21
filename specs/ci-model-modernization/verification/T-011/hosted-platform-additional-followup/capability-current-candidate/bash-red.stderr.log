@@ -1,0 +1,2 @@
+not ok: QG-fix: rebuilt CI workflow candidate drops a live job -- FAIL: candidate drops 2 live job(s): cloud-native ci-plan
+not ok: historical/current workflow contract failed -- current candidate drops live jobs

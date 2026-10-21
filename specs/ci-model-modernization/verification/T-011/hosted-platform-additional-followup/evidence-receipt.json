@@ -1,0 +1,751 @@
+{
+  "schema": "additional-hosted-followup-evidence/v1",
+  "at": "2026-10-21T14:38:40.138453+00:00",
+  "failed_hosted_source_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "observed_head": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+  "records": [
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/summary.json",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/summary.json",
+      "original_sha256": "6ccea97e6761a4db22cb1aabd48ddb4a4a9d91893edba6a6f0f8b2479f0b6a8d",
+      "published_sha256": "6ccea97e6761a4db22cb1aabd48ddb4a4a9d91893edba6a6f0f8b2479f0b6a8d",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/source-pins.json",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/source-pins.json",
+      "original_sha256": "a40c99e531898dc531b1c7b59de6d0c3810ff27fc9e2ced81cd4726a8c5aee4f",
+      "published_sha256": "a40c99e531898dc531b1c7b59de6d0c3810ff27fc9e2ced81cd4726a8c5aee4f",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/hosted-red-excerpt.log",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/hosted-red-excerpt.log",
+      "original_sha256": "d1328c73715e3abd90bc2053ea114c09f54966690e94dfd109f5aec733ce8065",
+      "published_sha256": "d1328c73715e3abd90bc2053ea114c09f54966690e94dfd109f5aec733ce8065",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/new-tests-red.log",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/new-tests-red.log",
+      "original_sha256": "81a9b05fa534248f7c47f4f5b25b744d44f3c136312181fb24389f2253dddc8f",
+      "published_sha256": "81a9b05fa534248f7c47f4f5b25b744d44f3c136312181fb24389f2253dddc8f",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/existing-red.log",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/existing-red.log",
+      "original_sha256": "86513e1f1310792c2b6eae102b1080b545349d890c8d4ec8c96778a6317f925f",
+      "published_sha256": "86513e1f1310792c2b6eae102b1080b545349d890c8d4ec8c96778a6317f925f",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/current-capture-green.log",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/current-capture-green.log",
+      "original_sha256": "c16d37dd0830bfeb3c6a7ac04fef9861a30912575f2b983ed75c646eeac90d5d",
+      "published_sha256": "c16d37dd0830bfeb3c6a7ac04fef9861a30912575f2b983ed75c646eeac90d5d",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/compatibility-bash-green.log",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/compatibility-bash-green.log",
+      "original_sha256": "9e6d1a51b7277c2c99ce0d6d50d61f05d24532c6816697eada546c209c533f82",
+      "published_sha256": "9e6d1a51b7277c2c99ce0d6d50d61f05d24532c6816697eada546c209c533f82",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/compatibility-powershell-green.log",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/compatibility-powershell-green.log",
+      "original_sha256": "9e6d1a51b7277c2c99ce0d6d50d61f05d24532c6816697eada546c209c533f82",
+      "published_sha256": "9e6d1a51b7277c2c99ce0d6d50d61f05d24532c6816697eada546c209c533f82",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/negative-powershell.log",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/negative-powershell.log",
+      "original_sha256": "fb1bda5c4ca7160d9757e2e5adfd360995a2bc240979de61c18e80ad5952c024",
+      "published_sha256": "fb1bda5c4ca7160d9757e2e5adfd360995a2bc240979de61c18e80ad5952c024",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/rollback.log",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/rollback.log",
+      "original_sha256": "85a2d1cbceda1a00af87d0fcf05a41536eb2e56c6c869f8adac593ac3d43b24f",
+      "published_sha256": "85a2d1cbceda1a00af87d0fcf05a41536eb2e56c6c869f8adac593ac3d43b24f",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/static.log",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/static.log",
+      "original_sha256": "d531e09f48f74278f784f0b6003ea12111aff975ed72666847d13fa1c8280598",
+      "published_sha256": "d531e09f48f74278f784f0b6003ea12111aff975ed72666847d13fa1c8280598",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/original-external-manifest.json",
+      "source_path": "/workspace/distribution-audit/compatibility-oracle-fix/public-evidence/evidence-manifest.json",
+      "original_sha256": "f1ab909a3ce1f68548ba0b8843be6611993c9a2faeca9813a73c89ba8dabd2c6",
+      "published_sha256": "f1ab909a3ce1f68548ba0b8843be6611993c9a2faeca9813a73c89ba8dabd2c6",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/result.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/result.json",
+      "original_sha256": "ce145278530b707704c395bcd8270b825ae41a7d20ec70b6aad607a7df8c2dee",
+      "published_sha256": "ce145278530b707704c395bcd8270b825ae41a7d20ec70b6aad607a7df8c2dee",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/before-source-pins.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/before-source-pins.json",
+      "original_sha256": "6987f8b261f5219ed2032bcad7cce28dfa841222d7136fe5e4597727281d9fb9",
+      "published_sha256": "6987f8b261f5219ed2032bcad7cce28dfa841222d7136fe5e4597727281d9fb9",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/red-commands.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/red-commands.json",
+      "original_sha256": "524d465abdae3609c84308b9430d2f31fde67c69efdbeb6cf36e92e2fe87ef28",
+      "published_sha256": "524d465abdae3609c84308b9430d2f31fde67c69efdbeb6cf36e92e2fe87ef28",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/green-commands.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/green-commands.json",
+      "original_sha256": "240763e74293eaaf8f2f04ec8a9e441708dab1293822190bb77f0e0e3ac13b41",
+      "published_sha256": "240763e74293eaaf8f2f04ec8a9e441708dab1293822190bb77f0e0e3ac13b41",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/green-2-commands.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/green-2-commands.json",
+      "original_sha256": "b8a80979ec18ec9756d14cd11d80e31692184d953cee38fb95bcb38dd319ee95",
+      "published_sha256": "b8a80979ec18ec9756d14cd11d80e31692184d953cee38fb95bcb38dd319ee95",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-red.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/bash-red.stderr.log",
+      "original_sha256": "dc33c375b678b380883074cdd3e20e788d75d94371534676b56266cf62e5ab7b",
+      "published_sha256": "dc33c375b678b380883074cdd3e20e788d75d94371534676b56266cf62e5ab7b",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-red.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/bash-red.stdout.log",
+      "original_sha256": "bc5c26b42579630b938fe9bb95860b3934e4bb76a5401a207d8246a7ef4067f2",
+      "published_sha256": "bc5c26b42579630b938fe9bb95860b3934e4bb76a5401a207d8246a7ef4067f2",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-red.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/powershell-red.stderr.log",
+      "original_sha256": "a7c5d307add555404e790a80464d3769d9ed3e930396c7302253de436f36d21e",
+      "published_sha256": "a7c5d307add555404e790a80464d3769d9ed3e930396c7302253de436f36d21e",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-red.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/powershell-red.stdout.log",
+      "original_sha256": "d697aefe64fb809d522517e446dbc1efb9b64dd0a3558c00632e001b7bdfc253",
+      "published_sha256": "d697aefe64fb809d522517e446dbc1efb9b64dd0a3558c00632e001b7bdfc253",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-green.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/bash-green.stderr.log",
+      "original_sha256": "55f6e2178214a06eded03d196e343422f24cf820bcd42159d7ebf05bd7149657",
+      "published_sha256": "55f6e2178214a06eded03d196e343422f24cf820bcd42159d7ebf05bd7149657",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-green.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/bash-green.stdout.log",
+      "original_sha256": "7aea838ffc6afde19e13607991e47ecc1615b440ffefb1a57c346a82d21c4ccc",
+      "published_sha256": "7aea838ffc6afde19e13607991e47ecc1615b440ffefb1a57c346a82d21c4ccc",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-green.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/powershell-green.stderr.log",
+      "original_sha256": "55f6e2178214a06eded03d196e343422f24cf820bcd42159d7ebf05bd7149657",
+      "published_sha256": "55f6e2178214a06eded03d196e343422f24cf820bcd42159d7ebf05bd7149657",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-green.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/powershell-green.stdout.log",
+      "original_sha256": "513f32a6264dbb963acfe94df2b86eff0cf75734c009cdc2a6e984357a2f7807",
+      "published_sha256": "513f32a6264dbb963acfe94df2b86eff0cf75734c009cdc2a6e984357a2f7807",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-green-2.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/bash-green-2.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-green-2.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/bash-green-2.stdout.log",
+      "original_sha256": "3d61dfcc6aac111f4df327e634f36495c6f9fef11f6459d98c8f9ee239cc9509",
+      "published_sha256": "3d61dfcc6aac111f4df327e634f36495c6f9fef11f6459d98c8f9ee239cc9509",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-green-2.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/powershell-green-2.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-green-2.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/powershell-green-2.stdout.log",
+      "original_sha256": "1ad129745bb8400829f8fabdae753204d65b6e066225f3b53dca45fba2627764",
+      "published_sha256": "1ad129745bb8400829f8fabdae753204d65b6e066225f3b53dca45fba2627764",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/workflow-controls.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/workflow-controls.stderr.log",
+      "original_sha256": "974227a3a4f82d18530019d0d050993818216f52818ff4204fcb6a4d3620a5c2",
+      "published_sha256": "974227a3a4f82d18530019d0d050993818216f52818ff4204fcb6a4d3620a5c2",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/workflow-controls.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/workflow-controls.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/workflow-controls-2.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/workflow-controls-2.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/workflow-controls-2.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/workflow-controls-2.stdout.log",
+      "original_sha256": "3858e961829b61abbb05073c385adb0db5ed6db6f4f366b416f58321d1a28c3d",
+      "published_sha256": "3858e961829b61abbb05073c385adb0db5ed6db6f4f366b416f58321d1a28c3d",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/diff-check-2.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/diff-check-2.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/diff-check-2.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-capability-workflow-candidate/diff-check-2.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/verification.json",
+      "source_path": "/workspace/native-ci-failures/phase2-guard-successor/verification.json",
+      "original_sha256": "ecd356be3406530b87786945e7fc9c2b5a8155edea33021a55152071f4b0233d",
+      "published_sha256": "ecd356be3406530b87786945e7fc9c2b5a8155edea33021a55152071f4b0233d",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/candidate-pins.json",
+      "source_path": "/workspace/native-ci-failures/phase2-guard-successor/candidate-pins.json",
+      "original_sha256": "44bc5a95989105836304bee878182963bfc237fe1429754452b11dcece71236c",
+      "published_sha256": "44bc5a95989105836304bee878182963bfc237fe1429754452b11dcece71236c",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/red-bash.log",
+      "source_path": "/workspace/native-ci-failures/phase2-guard-successor/red-bash.log",
+      "original_sha256": "4a451383499016ee62e145a3f8ecc0f13edfa3b11026698496a2031ec58417e6",
+      "published_sha256": "4a451383499016ee62e145a3f8ecc0f13edfa3b11026698496a2031ec58417e6",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/green-bash.log",
+      "source_path": "/workspace/native-ci-failures/phase2-guard-successor/green-bash.log",
+      "original_sha256": "d80eaaff3540ca8174369858be1cf99d45ba180206b46d41148c5ce91871faf9",
+      "published_sha256": "d80eaaff3540ca8174369858be1cf99d45ba180206b46d41148c5ce91871faf9",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/green-powershell.log",
+      "source_path": "/workspace/native-ci-failures/phase2-guard-successor/green-powershell.log",
+      "original_sha256": "11df81a7dfec3ab6c61e82b13fe92d2cc5dc5d02a6a1ee0b3543292a256ab229",
+      "published_sha256": "11df81a7dfec3ab6c61e82b13fe92d2cc5dc5d02a6a1ee0b3543292a256ab229",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/verification.json",
+      "source_path": "/workspace/t011-posix-path-followup/verification.json",
+      "original_sha256": "8e28bf268de3dca6516b338bfe533ab91ebcf75d180bd35af19ecdcacf3bb76d",
+      "published_sha256": "8e28bf268de3dca6516b338bfe533ab91ebcf75d180bd35af19ecdcacf3bb76d",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/reproduced-red.log",
+      "source_path": "/workspace/t011-posix-path-followup/reproduced-red.log",
+      "original_sha256": "9d9b10a9a5ca49a453b16eb7017b452b6a4f00962ed99db3ebf6ce45ececdb02",
+      "published_sha256": "20b0c533d348af79941e813e54ed3a07d9511763e0f31bf361c14fa6b4be76b9",
+      "transformation": "Exact source bytes; redundant blank lines at end of file removed, retaining one final LF",
+      "original_external_unchanged": true,
+      "prior_public_sha256": "9d9b10a9a5ca49a453b16eb7017b452b6a4f00962ed99db3ebf6ce45ececdb02",
+      "eof_normalization_at": "2026-10-21T14:40:47.494083+00:00"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/green.log",
+      "source_path": "/workspace/t011-posix-path-followup/green.log",
+      "original_sha256": "028c510a075fcf88f72c12bba297c2aafbd5566fcee9ddf2e328df7a647a1ffe",
+      "published_sha256": "028c510a075fcf88f72c12bba297c2aafbd5566fcee9ddf2e328df7a647a1ffe",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/ruff.log",
+      "source_path": "/workspace/t011-posix-path-followup/ruff.log",
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "published_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/mypy.log",
+      "source_path": "/workspace/t011-posix-path-followup/mypy.log",
+      "original_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "published_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/simulated-windows-path-green.log",
+      "source_path": "/workspace/t011-posix-path-followup/simulated-windows-path-green.log",
+      "original_sha256": "54d3240b37285c57c2a549d8615c10c9efec843b464bcd7710835463725a3bdd",
+      "published_sha256": "54d3240b37285c57c2a549d8615c10c9efec843b464bcd7710835463725a3bdd",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/hosted-windows-red-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/6c2b4e713915/gates-windows-connector.log",
+      "original_sha256": "59f5d3571e102f59633bf1fc0db93f369cdacb7c3c3f4417aad1a84d971e8058",
+      "raw_excerpt_sha256": "21a7b1b6dff5b7a0aa716c70d6dc0d1ad656c2def88c13aa75503adf51bfe8c5",
+      "published_sha256": "b8a09d62c454e7f067a752ca713e9b3001003c8c67f62ce00a472359179078c6",
+      "source_line_numbers_1_based": [
+        591,
+        592,
+        593,
+        594,
+        595,
+        596,
+        597,
+        598,
+        599,
+        600,
+        601,
+        602,
+        603,
+        604,
+        605,
+        606,
+        607,
+        608,
+        609,
+        610,
+        611,
+        612
+      ],
+      "transformation": "Selected declared diagnostic/summary lines, then CRLF/CR to LF and trailing ASCII spaces/tabs removed; source order preserved",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/README.md",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/README.md",
+      "original_sha256": "cbe3e3e66ee3f786e95774925b693de7e1a28ffbbb69cdff9bccc269b2e64247",
+      "published_sha256": "cbe3e3e66ee3f786e95774925b693de7e1a28ffbbb69cdff9bccc269b2e64247",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/results.json",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/results.json",
+      "original_sha256": "cde9101bfab8b4a6d4bfdfdede15c315a60327fb2f5e9c9019f49baedc716fda",
+      "published_sha256": "cde9101bfab8b4a6d4bfdfdede15c315a60327fb2f5e9c9019f49baedc716fda",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/source-pins.json",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/source-pins.json",
+      "original_sha256": "84b8d1fefcdbe4a26f9fcbe3c949a8412e59aeffd269673a85f71c3f7384a287",
+      "published_sha256": "84b8d1fefcdbe4a26f9fcbe3c949a8412e59aeffd269673a85f71c3f7384a287",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/fixture-pins.json",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/fixture-pins.json",
+      "original_sha256": "56a09bd1db96c3c7de6dafd14070f7f304187d07d58abad4cb28ab341a234ad0",
+      "published_sha256": "56a09bd1db96c3c7de6dafd14070f7f304187d07d58abad4cb28ab341a234ad0",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/fixture-results.json",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/fixture-results.json",
+      "original_sha256": "58baa1a135b449a2dc092a94e02b0a6c63b8c3147c411c92de7acea4e5b973bc",
+      "published_sha256": "58baa1a135b449a2dc092a94e02b0a6c63b8c3147c411c92de7acea4e5b973bc",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/final-status.json",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/final-status.json",
+      "original_sha256": "02ecbe265918c00417db4332884d79942c199fb860d4e953dc2e9bcb00ec4958",
+      "published_sha256": "02ecbe265918c00417db4332884d79942c199fb860d4e953dc2e9bcb00ec4958",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/cleanup.json",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/cleanup.json",
+      "original_sha256": "4453ac9baf34319a93ff808866af7000df93037ff912989e9b70151bf19084e7",
+      "published_sha256": "4453ac9baf34319a93ff808866af7000df93037ff912989e9b70151bf19084e7",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-baseline-classification.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/old-baseline-classification.log",
+      "original_sha256": "41e839a6305b8800f830a4f3b938613060a5c802a6b9778d72b0e3144c6fa42f",
+      "published_sha256": "41e839a6305b8800f830a4f3b938613060a5c802a6b9778d72b0e3144c6fa42f",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-baseline-generator.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/old-baseline-generator.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/reintroduced-defect-classification.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/reintroduced-defect-classification.log",
+      "original_sha256": "7e75f1545221ad27c88e57d317d11169f5933ed891c66e078ecf08586f72415d",
+      "published_sha256": "7e75f1545221ad27c88e57d317d11169f5933ed891c66e078ecf08586f72415d",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-classification.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/restored-current-classification.log",
+      "original_sha256": "9bad792a80bafefcce0b5bb546740c60b1cb4c40df99a9a6a68c08b5a66848f9",
+      "published_sha256": "9bad792a80bafefcce0b5bb546740c60b1cb4c40df99a9a6a68c08b5a66848f9",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-generator.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/restored-current-generator.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-sync.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/restored-current-sync.log",
+      "original_sha256": "08391c3973b22e4559539dbf07d3c5fe8d7da8855a7be8ea5787b17a7dcb2a41",
+      "published_sha256": "08391c3973b22e4559539dbf07d3c5fe8d7da8855a7be8ea5787b17a7dcb2a41",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-sync-with-reference.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/restored-current-sync-with-reference.log",
+      "original_sha256": "23bfc5b7c9e14de26cafdd23a7a4fb1ac199ccae8229b818abdaec7d59244304",
+      "published_sha256": "23bfc5b7c9e14de26cafdd23a7a4fb1ac199ccae8229b818abdaec7d59244304",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-fixture-a9-advisory-evidence.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/old-fixture-a9-advisory-evidence.log",
+      "original_sha256": "116df18865c77dc5e482929b0e4c077cb2789cd3106af51c39475ca43359a0f5",
+      "published_sha256": "116df18865c77dc5e482929b0e4c077cb2789cd3106af51c39475ca43359a0f5",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-fixture-model-policy-installed.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/old-fixture-model-policy-installed.log",
+      "original_sha256": "e0391db2d8e8425cdd3de5a5117ae74023d9d0b39b688d57c0ae0dc31628430a",
+      "published_sha256": "e0391db2d8e8425cdd3de5a5117ae74023d9d0b39b688d57c0ae0dc31628430a",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-fixture-a9-advisory-evidence.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/restored-fixture-a9-advisory-evidence.log",
+      "original_sha256": "93467b6a92218ab4f4e3ba119fc0533ef16d67bcf81dd96e22228fba9948ea94",
+      "published_sha256": "93467b6a92218ab4f4e3ba119fc0533ef16d67bcf81dd96e22228fba9948ea94",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-fixture-model-policy-installed.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/restored-fixture-model-policy-installed.log",
+      "original_sha256": "746afce99fe6bf4b7f11199824fdffca998deaecfaf957d19f0a707ddaf6672b",
+      "published_sha256": "746afce99fe6bf4b7f11199824fdffca998deaecfaf957d19f0a707ddaf6672b",
+      "transformation": "Exact source bytes",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-baseline-guard-diagnostic-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/old-baseline-guard.log",
+      "original_sha256": "b91e9e5ebb2f0d93ff7f2907b4476b552494d373299786495aa252f649d2d1f1",
+      "raw_excerpt_sha256": "a313352063d210665a7b51690f8eb2886f0f6511d0a82341836abfd176441fa6",
+      "published_sha256": "dead75806fdc5e0c8c57680a7a39613bc7b5aa21ebaf45be02a753dd46b636f3",
+      "source_line_numbers_1_based": [
+        310,
+        311,
+        312,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410
+      ],
+      "transformation": "Selected declared diagnostic/summary lines, then CRLF/CR to LF and trailing ASCII spaces/tabs removed; source order preserved",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/reintroduced-defect-guard-diagnostic-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/reintroduced-defect-guard.log",
+      "original_sha256": "5851a9a2d55e31aff6298f81122ce75c0dafb4a95184a3b3e38cd589581dbdf2",
+      "raw_excerpt_sha256": "c7439656252bf00465a0375f3a8d328e7e5e9bdea901deb90198c3a00227294a",
+      "published_sha256": "11e9acede4fea3942976b37b1dc169b883b10dac1e9062474c93b52befda8812",
+      "source_line_numbers_1_based": [
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        319,
+        320,
+        321,
+        412,
+        413,
+        414,
+        415,
+        416,
+        417,
+        418,
+        419
+      ],
+      "transformation": "Selected declared diagnostic/summary lines, then CRLF/CR to LF and trailing ASCII spaces/tabs removed; source order preserved",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-guard-diagnostic-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/executed-rollback/restored-current-guard.log",
+      "original_sha256": "322512d92d6b07d499caede9be989fefdbbe64b2feb5f6232bb8a3e080cb1033",
+      "raw_excerpt_sha256": "5016e340c606d3355c4be1b61f7493d467c42c4c5e8309f31eeb4730e2a63987",
+      "published_sha256": "5016e340c606d3355c4be1b61f7493d467c42c4c5e8309f31eeb4730e2a63987",
+      "source_line_numbers_1_based": [
+        412,
+        413,
+        414,
+        415,
+        416,
+        417,
+        418,
+        419
+      ],
+      "transformation": "Selected declared diagnostic/summary lines, then CRLF/CR to LF and trailing ASCII spaces/tabs removed; source order preserved",
+      "original_external_unchanged": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/candidate-source.patch",
+      "derivation": "git diff <observedHEAD> --unified=0 plus git diff --no-index for new source fixture",
+      "observed_head": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "source_paths": [
+        "tests/lib/current-byte-capture.py",
+        "tests/current-byte-capture.tests.py"
+      ],
+      "published_sha256": "aef5cf9521c8334bb65a900f8632d0e5329db3c9c0edb49965910f9e3caf4561",
+      "ordinary_source_edits_by_curator": false
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/candidate-source.patch",
+      "derivation": "git diff <observedHEAD> --unified=0 plus git diff --no-index for new source fixture",
+      "observed_head": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "source_paths": [
+        "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate",
+        "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate",
+        "tests/lib/a2-workflow-evolution.py"
+      ],
+      "published_sha256": "077780676c2a2b171707d603a23d1062a3653ea9b9dd9c2d0854f057b01b1e6d",
+      "ordinary_source_edits_by_curator": false
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/candidate-source.patch",
+      "derivation": "git diff <observedHEAD> --unified=0 plus git diff --no-index for new source fixture",
+      "observed_head": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "source_paths": [
+        "tests/phase2-guard-invariants.tests.sh",
+        "tests/phase2-guard-invariants.tests.ps1",
+        "tests/fixtures/phase2-guard-parity-current-publication.json"
+      ],
+      "published_sha256": "b627aeadcc8c4418bf410530e713f1bb7a4caf8805848d3a6bcccef7c7a1b5b9",
+      "ordinary_source_edits_by_curator": false
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/candidate-source.patch",
+      "derivation": "git diff <observedHEAD> --unified=0 plus git diff --no-index for new source fixture",
+      "observed_head": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "source_paths": [
+        "tests/model-policy.tests.py"
+      ],
+      "published_sha256": "9593d5babf7eb5c6b1bfc4cf8fc6ddd6a125d35a56a965c4a76347a27298f814",
+      "ordinary_source_edits_by_curator": false
+    }
+  ],
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "tests/lib/current-byte-capture.py",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "3cdee3f37d93c8249cd2265f69861343d2e3dfcdd0222a982bb2182d3aa00c40",
+      "after_candidate_sha256": "fe1adcd1e6debfaa6d044e37d34b06ec06cf6b17302dc2b735c076e53c131497",
+      "new_file": false
+    },
+    {
+      "path": "tests/current-byte-capture.tests.py",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "6bad54c5d1e10b7f9ad8debfaef914d1b69ec180f3d5d0656c6d6486e83528ea",
+      "after_candidate_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+      "new_file": false
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "1e3ccc3126233ff46d22d7f1654bfef9681ec39109f99da6b082841b808ddd36",
+      "after_candidate_sha256": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192",
+      "new_file": false
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "bbfbcc0cf41152c9fe624d71fc300748e0779ed18362b49438dcf294cf5d91b1",
+      "after_candidate_sha256": "9a3ee92a684bd9c4aad300b497d23903a14c4589bdeba571b7ab256e95a4b3ab",
+      "new_file": false
+    },
+    {
+      "path": "tests/lib/a2-workflow-evolution.py",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "ffb7788a72f0abeae9cedeab6d8ef6bd1d5ecfd1522766260ef269a2565074fc",
+      "after_candidate_sha256": "7d21a61cc7ab1fd96523c3c08efed83182bd2b48101bc48890bf527174e3849a",
+      "new_file": false
+    },
+    {
+      "path": "tests/phase2-guard-invariants.tests.sh",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "6fea122231c29fabe7ad8231656678dd2e5ac542961a168931a01dc7585eace7",
+      "after_candidate_sha256": "2f3ef6c7ab6faf62028790e9575cbd592c88a32716192970c54978aa31ff1e1a",
+      "new_file": false
+    },
+    {
+      "path": "tests/phase2-guard-invariants.tests.ps1",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "3bd0b77a2158185d8f9bdf977182f4a0e9304620a1c854d08a846e01335f6635",
+      "after_candidate_sha256": "140f5bdda1f695ea3e4b80f723e869892e479f2f1515e7e7e85a0e8e469a4a02",
+      "new_file": false
+    },
+    {
+      "path": "tests/fixtures/phase2-guard-parity-current-publication.json",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": null,
+      "after_candidate_sha256": "b2c1e3137179f0c774fd3f9641c1b0043a532d89a14dbf1008cb14b961c3d0d8",
+      "new_file": true
+    },
+    {
+      "path": "tests/model-policy.tests.py",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "dfd74cab0de011b27643f44254113f23f795eaba540ca3633abf4b32041de72a",
+      "after_candidate_sha256": "00295fff5d8d25b0c38fb4fc0f2f85ef2197e4e5dce64b132354272bd0d65ea7",
+      "new_file": false
+    }
+  ],
+  "pending": [
+    "Native Windows correction verification",
+    "Fresh exact-commit fullCI acceptance",
+    "Any category activation or release acceptance"
+  ],
+  "historical_limitations_preserved": [
+    "Original oldguard402PASS1FAIL, not allbaselinePASS",
+    "Initial sync missing-ref exit3 before local-ref prerequisite",
+    "LinuxPowerShell not nativeWindows",
+    "Old fixture compatibility does not disprove asynchronous Git race"
+  ],
+  "private_sources_excluded": true,
+  "ordinary_source_or_git_mutation_by_curator": false
+}

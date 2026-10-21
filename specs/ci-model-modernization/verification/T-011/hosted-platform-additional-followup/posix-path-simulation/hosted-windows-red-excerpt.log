@@ -1,0 +1,22 @@
+2026-10-21T14:28:57.2305092Z FAIL: test_posix_command_is_unchanged (__main__.PortableBashRuntime.test_posix_command_is_unchanged)
+2026-10-21T14:28:57.2306595Z ----------------------------------------------------------------------
+2026-10-21T14:28:57.2307489Z Traceback (most recent call last):
+2026-10-21T14:28:57.2308770Z   File "D:\a\sdd-forge\sdd-forge\tests\model-policy.tests.py", line 1008, in test_posix_command_is_unchanged
+2026-10-21T14:28:57.2310414Z     self.assertEqual(bash_command(Path('a/select.sh'), ['--x', 'y']), ['bash', 'a/select.sh', '--x', 'y'])
+2026-10-21T14:28:57.2311759Z AssertionError: Lists differ: ['bash', 'a\\select.sh', '--x', 'y'] != ['bash', 'a/select.sh', '--x', 'y']
+2026-10-21T14:28:57.2312424Z
+2026-10-21T14:28:57.2312604Z First differing element 1:
+2026-10-21T14:28:57.2313004Z 'a\\select.sh'
+2026-10-21T14:28:57.2313338Z 'a/select.sh'
+2026-10-21T14:28:57.2313515Z
+2026-10-21T14:28:57.2313696Z - ['bash', 'a\\select.sh', '--x', 'y']
+2026-10-21T14:28:57.2314149Z ?            ^^
+2026-10-21T14:28:57.2314365Z
+2026-10-21T14:28:57.2314516Z + ['bash', 'a/select.sh', '--x', 'y']
+2026-10-21T14:28:57.2314953Z ?            ^
+2026-10-21T14:28:57.2315157Z
+2026-10-21T14:28:57.2315161Z
+2026-10-21T14:28:57.2315385Z ----------------------------------------------------------------------
+2026-10-21T14:28:57.2315866Z Ran 59 tests in 166.703s
+2026-10-21T14:28:57.2316030Z
+2026-10-21T14:28:57.2316174Z FAILED (failures=1, skipped=1)

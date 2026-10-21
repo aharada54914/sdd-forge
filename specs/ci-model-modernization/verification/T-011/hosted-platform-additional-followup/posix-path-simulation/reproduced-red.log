@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "/workspace/sdd-forge/tests/model-policy.tests.py", line 1008, in test_posix_command_is_unchanged
+    self.assertEqual(bash_command(Path('a/select.sh'), ['--x', 'y']), ['bash', 'a/select.sh', '--x', 'y'])
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/case.py", line 885, in assertEqual
+    assertion_func(first, second, msg=msg)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/case.py", line 1091, in assertListEqual
+    self.assertSequenceEqual(list1, list2, msg, seq_type=list)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/case.py", line 1073, in assertSequenceEqual
+    self.fail(msg)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/case.py", line 715, in fail
+    raise self.failureException(msg)
+AssertionError: Lists differ: ['bash', 'a\\select.sh', '--x', 'y'] != ['bash', 'a/select.sh', '--x', 'y']
+
+First differing element 1:
+'a\\select.sh'
+'a/select.sh'
+
+- ['bash', 'a\\select.sh', '--x', 'y']
+?            ^^
+
++ ['bash', 'a/select.sh', '--x', 'y']
+?            ^

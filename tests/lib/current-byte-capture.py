@@ -64,6 +64,19 @@ def indexed_source(root):
     return files
 
 
+def install_payload(source):
+    """Independent FilesOnly/SkipMcp oracle over pre-execution indexed bytes."""
+    entries = [line.strip() for line in source['install-payload.txt'].decode('utf-8').splitlines()
+               if line.strip() and not line.lstrip().startswith('#')]
+    excluded = {'.git', 'node_modules', '__pycache__', '.pytest_cache', '.mypy_cache',
+                '.ruff_cache', '.cache', '.venv', '.private', '.learnings', '.DS_Store'}
+    return {name: data for name, data in source.items()
+            if not name.startswith('mcp/') and not name.endswith(('.pyc', '.pyo'))
+            and not excluded.intersection(name.split('/'))
+            and any(name.startswith(entry) if entry.endswith('/') else name == entry
+                    for entry in entries)}
+
+
 def capture(product, fixture, destination, canonical, runtime):
     product, fixture = product.resolve(), fixture.resolve()
     if product == fixture or product in fixture.parents or fixture in product.parents:
@@ -170,10 +183,9 @@ def capture(product, fixture, destination, canonical, runtime):
                 install = ['bash', str(fixture / 'install.sh'), '--source-directory', str(fixture), '--install-root', str(install_root), '--target', 'FilesOnly', '--skip-agent-install', '--skip-mcp']
                 uninstall = ['bash', str(fixture / 'uninstall.sh'), '--install-root', str(install_root), '--target', 'FilesOnly', '--skip-agent-uninstall', '--skip-mcp-uninstall']
             success(install, 'current install')
-            # FilesOnly public layout: indexed release files at install root,
-            # with MCP payload excluded by SkipMcp. Never read installer output
-            # or invoke installer logic to construct this expected manifest.
-            payload = {name: data for name, data in source.items() if not name.startswith('mcp/')}
+            # The public allowlist selects pre-execution indexed source bytes.
+            # Never read installer output or call installer logic for the oracle.
+            payload = install_payload(source)
             write('install-result', actual_manifest(install_root), manifest(payload))
             success(uninstall, 'current uninstall')
             write('uninstall-result', actual_manifest(install_root))

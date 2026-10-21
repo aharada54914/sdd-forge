@@ -1,0 +1,60 @@
+diff --git a/tests/lib/current-byte-capture.py b/tests/lib/current-byte-capture.py
+index dcf9cf23..bac573cf 100644
+--- a/tests/lib/current-byte-capture.py
++++ b/tests/lib/current-byte-capture.py
+@@ -66,0 +67,13 @@ def indexed_source(root):
++def install_payload(source):
++    """Independent FilesOnly/SkipMcp oracle over pre-execution indexed bytes."""
++    entries = [line.strip() for line in source['install-payload.txt'].decode('utf-8').splitlines()
++               if line.strip() and not line.lstrip().startswith('#')]
++    excluded = {'.git', 'node_modules', '__pycache__', '.pytest_cache', '.mypy_cache',
++                '.ruff_cache', '.cache', '.venv', '.private', '.learnings', '.DS_Store'}
++    return {name: data for name, data in source.items()
++            if not name.startswith('mcp/') and not name.endswith(('.pyc', '.pyo'))
++            and not excluded.intersection(name.split('/'))
++            and any(name.startswith(entry) if entry.endswith('/') else name == entry
++                    for entry in entries)}
++
++
+@@ -173,4 +186,3 @@ def capture(product, fixture, destination, canonical, runtime):
+-            # FilesOnly public layout: indexed release files at install root,
+-            # with MCP payload excluded by SkipMcp. Never read installer output
+-            # or invoke installer logic to construct this expected manifest.
+-            payload = {name: data for name, data in source.items() if not name.startswith('mcp/')}
++            # The public allowlist selects pre-execution indexed source bytes.
++            # Never read installer output or call installer logic for the oracle.
++            payload = install_payload(source)
+diff --git a/tests/current-byte-capture.tests.py b/tests/current-byte-capture.tests.py
+index d1928789..8573869b 100644
+--- a/tests/current-byte-capture.tests.py
++++ b/tests/current-byte-capture.tests.py
+@@ -21,0 +22,29 @@ RUNTIME = 'powershell' if os.name == 'nt' else 'bash'
++class InstallPayloadOracleTests(unittest.TestCase):
++    def test_declared_payload_uses_preexecution_bytes_and_bounded_paths(self):
++        declaration = b"# product contract\r\ninstall-payload.txt\r\nREADME.md\r\nplugins/\r\n"
++        source = {
++            'install-payload.txt': declaration, 'README.md': b'original user guide',
++            'README.md.extra': b'not an exact entry', 'plugins/a/runtime.py': b'original runtime',
++            'plugins-other/private.txt': b'not a directory descendant',
++            'tests/private.txt': b'development', '.github/workflows/build.yml': b'CI',
++            'mcp/server/dist/index.js': b'SkipMcp',
++            'plugins/a/__pycache__/runtime.pyc': b'cache', 'plugins/a/stray.pyo': b'cache',
++            'plugins/a/.private/session.json': b'private',
++        }
++        self.assertEqual(CAPTURE.install_payload(source), {
++            'install-payload.txt': declaration, 'README.md': b'original user guide',
++            'plugins/a/runtime.py': b'original runtime',
++        })
++
++    def test_expected_bytes_do_not_follow_mutated_installed_output(self):
++        source = {'install-payload.txt': b'plugins/\n', 'plugins/runtime.txt': b'original'}
++        expected = CAPTURE.manifest(CAPTURE.install_payload(source))
++        with tempfile.TemporaryDirectory() as folder:
++            root = Path(folder); (root / 'plugins').mkdir()
++            (root / 'plugins/runtime.txt').write_bytes(b'corrupted')
++            (root / 'unexpected.txt').write_bytes(b'extra')
++            self.assertNotEqual(CAPTURE.actual_manifest(root), expected)
++            (root / 'plugins/runtime.txt').unlink()
++            self.assertNotEqual(CAPTURE.actual_manifest(root), expected)
++
++

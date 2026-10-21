@@ -1,0 +1,367 @@
+{
+  "schema": "additional-hosted-followup-public-curation/v1",
+  "scope": "Exact derived public evidence only; ordinary source candidates recorded separately, no snapshots/executable copies",
+  "files": {
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/README.md": {
+      "sha256": "5d2b397e3b1feb507d50da1e5fa200740e102fe449e61ebc6d8525d2784bd80c",
+      "bytes": 3240
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-green-2.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-green-2.stdout.log": {
+      "sha256": "3d61dfcc6aac111f4df327e634f36495c6f9fef11f6459d98c8f9ee239cc9509",
+      "bytes": 2997
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-green.stderr.log": {
+      "sha256": "55f6e2178214a06eded03d196e343422f24cf820bcd42159d7ebf05bd7149657",
+      "bytes": 115
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-green.stdout.log": {
+      "sha256": "7aea838ffc6afde19e13607991e47ecc1615b440ffefb1a57c346a82d21c4ccc",
+      "bytes": 2899
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-red.stderr.log": {
+      "sha256": "dc33c375b678b380883074cdd3e20e788d75d94371534676b56266cf62e5ab7b",
+      "bytes": 213
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/bash-red.stdout.log": {
+      "sha256": "bc5c26b42579630b938fe9bb95860b3934e4bb76a5401a207d8246a7ef4067f2",
+      "bytes": 2787
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/before-source-pins.json": {
+      "sha256": "6987f8b261f5219ed2032bcad7cce28dfa841222d7136fe5e4597727281d9fb9",
+      "bytes": 1070
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/candidate-source.patch": {
+      "sha256": "077780676c2a2b171707d603a23d1062a3653ea9b9dd9c2d0854f057b01b1e6d",
+      "bytes": 80415
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/diff-check-2.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/diff-check-2.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/green-2-commands.json": {
+      "sha256": "b8a80979ec18ec9756d14cd11d80e31692184d953cee38fb95bcb38dd319ee95",
+      "bytes": 1261
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/green-commands.json": {
+      "sha256": "240763e74293eaaf8f2f04ec8a9e441708dab1293822190bb77f0e0e3ac13b41",
+      "bytes": 1209
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-green-2.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-green-2.stdout.log": {
+      "sha256": "1ad129745bb8400829f8fabdae753204d65b6e066225f3b53dca45fba2627764",
+      "bytes": 2998
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-green.stderr.log": {
+      "sha256": "55f6e2178214a06eded03d196e343422f24cf820bcd42159d7ebf05bd7149657",
+      "bytes": 115
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-green.stdout.log": {
+      "sha256": "513f32a6264dbb963acfe94df2b86eff0cf75734c009cdc2a6e984357a2f7807",
+      "bytes": 2900
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-red.stderr.log": {
+      "sha256": "a7c5d307add555404e790a80464d3769d9ed3e930396c7302253de436f36d21e",
+      "bytes": 207
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/powershell-red.stdout.log": {
+      "sha256": "d697aefe64fb809d522517e446dbc1efb9b64dd0a3558c00632e001b7bdfc253",
+      "bytes": 2788
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/red-commands.json": {
+      "sha256": "524d465abdae3609c84308b9430d2f31fde67c69efdbeb6cf36e92e2fe87ef28",
+      "bytes": 575
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/result.json": {
+      "sha256": "ce145278530b707704c395bcd8270b825ae41a7d20ec70b6aad607a7df8c2dee",
+      "bytes": 7026
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/workflow-controls-2.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/workflow-controls-2.stdout.log": {
+      "sha256": "3858e961829b61abbb05073c385adb0db5ed6db6f4f366b416f58321d1a28c3d",
+      "bytes": 83
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/workflow-controls.stderr.log": {
+      "sha256": "974227a3a4f82d18530019d0d050993818216f52818ff4204fcb6a4d3620a5c2",
+      "bytes": 60
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/capability-current-candidate/workflow-controls.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/candidate-source.patch": {
+      "sha256": "aef5cf9521c8334bb65a900f8632d0e5329db3c9c0edb49965910f9e3caf4561",
+      "bytes": 3667
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/compatibility-bash-green.log": {
+      "sha256": "9e6d1a51b7277c2c99ce0d6d50d61f05d24532c6816697eada546c209c533f82",
+      "bytes": 2671
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/compatibility-powershell-green.log": {
+      "sha256": "9e6d1a51b7277c2c99ce0d6d50d61f05d24532c6816697eada546c209c533f82",
+      "bytes": 2671
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/current-capture-green.log": {
+      "sha256": "c16d37dd0830bfeb3c6a7ac04fef9861a30912575f2b983ed75c646eeac90d5d",
+      "bytes": 114
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/existing-red.log": {
+      "sha256": "86513e1f1310792c2b6eae102b1080b545349d890c8d4ec8c96778a6317f925f",
+      "bytes": 722
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/hosted-red-excerpt.log": {
+      "sha256": "d1328c73715e3abd90bc2053ea114c09f54966690e94dfd109f5aec733ce8065",
+      "bytes": 650
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/negative-powershell.log": {
+      "sha256": "fb1bda5c4ca7160d9757e2e5adfd360995a2bc240979de61c18e80ad5952c024",
+      "bytes": 2927
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/new-tests-red.log": {
+      "sha256": "81a9b05fa534248f7c47f4f5b25b744d44f3c136312181fb24389f2253dddc8f",
+      "bytes": 1460
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/original-external-manifest.json": {
+      "sha256": "f1ab909a3ce1f68548ba0b8843be6611993c9a2faeca9813a73c89ba8dabd2c6",
+      "bytes": 1863
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/rollback.log": {
+      "sha256": "85a2d1cbceda1a00af87d0fcf05a41536eb2e56c6c869f8adac593ac3d43b24f",
+      "bytes": 899
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/source-pins.json": {
+      "sha256": "a40c99e531898dc531b1c7b59de6d0c3810ff27fc9e2ced81cd4726a8c5aee4f",
+      "bytes": 570
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/static.log": {
+      "sha256": "d531e09f48f74278f784f0b6003ea12111aff975ed72666847d13fa1c8280598",
+      "bytes": 84
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/compatibility-oracle/summary.json": {
+      "sha256": "6ccea97e6761a4db22cb1aabd48ddb4a4a9d91893edba6a6f0f8b2479f0b6a8d",
+      "bytes": 1482
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/evidence-receipt.json": {
+      "sha256": "d2d7af04468019c76772b2268c402efc6064de73ba5695f87f87f2addc253274",
+      "bytes": 46429
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/README.md": {
+      "sha256": "cbe3e3e66ee3f786e95774925b693de7e1a28ffbbb69cdff9bccc269b2e64247",
+      "bytes": 2056
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/cleanup.json": {
+      "sha256": "4453ac9baf34319a93ff808866af7000df93037ff912989e9b70151bf19084e7",
+      "bytes": 263
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/final-status.json": {
+      "sha256": "02ecbe265918c00417db4332884d79942c199fb860d4e953dc2e9bcb00ec4958",
+      "bytes": 197
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/fixture-pins.json": {
+      "sha256": "56a09bd1db96c3c7de6dafd14070f7f304187d07d58abad4cb28ab341a234ad0",
+      "bytes": 739
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/fixture-results.json": {
+      "sha256": "58baa1a135b449a2dc092a94e02b0a6c63b8c3147c411c92de7acea4e5b973bc",
+      "bytes": 1087
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-baseline-classification.log": {
+      "sha256": "41e839a6305b8800f830a4f3b938613060a5c802a6b9778d72b0e3144c6fa42f",
+      "bytes": 54
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-baseline-generator.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-baseline-guard-diagnostic-excerpt.log": {
+      "sha256": "dead75806fdc5e0c8c57680a7a39613bc7b5aa21ebaf45be02a753dd46b636f3",
+      "bytes": 577
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-fixture-a9-advisory-evidence.log": {
+      "sha256": "116df18865c77dc5e482929b0e4c077cb2789cd3106af51c39475ca43359a0f5",
+      "bytes": 251
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/old-fixture-model-policy-installed.log": {
+      "sha256": "e0391db2d8e8425cdd3de5a5117ae74023d9d0b39b688d57c0ae0dc31628430a",
+      "bytes": 290
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/reintroduced-defect-classification.log": {
+      "sha256": "7e75f1545221ad27c88e57d317d11169f5933ed891c66e078ecf08586f72415d",
+      "bytes": 1056
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/reintroduced-defect-guard-diagnostic-excerpt.log": {
+      "sha256": "11e9acede4fea3942976b37b1dc169b883b10dac1e9062474c93b52befda8812",
+      "bytes": 1807
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-classification.log": {
+      "sha256": "9bad792a80bafefcce0b5bb546740c60b1cb4c40df99a9a6a68c08b5a66848f9",
+      "bytes": 55
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-generator.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-guard-diagnostic-excerpt.log": {
+      "sha256": "5016e340c606d3355c4be1b61f7493d467c42c4c5e8309f31eeb4730e2a63987",
+      "bytes": 225
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-sync-with-reference.log": {
+      "sha256": "23bfc5b7c9e14de26cafdd23a7a4fb1ac199ccae8229b818abdaec7d59244304",
+      "bytes": 5503
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-current-sync.log": {
+      "sha256": "08391c3973b22e4559539dbf07d3c5fe8d7da8855a7be8ea5787b17a7dcb2a41",
+      "bytes": 97
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-fixture-a9-advisory-evidence.log": {
+      "sha256": "93467b6a92218ab4f4e3ba119fc0533ef16d67bcf81dd96e22228fba9948ea94",
+      "bytes": 251
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/restored-fixture-model-policy-installed.log": {
+      "sha256": "746afce99fe6bf4b7f11199824fdffca998deaecfaf957d19f0a707ddaf6672b",
+      "bytes": 290
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/results.json": {
+      "sha256": "cde9101bfab8b4a6d4bfdfdede15c315a60327fb2f5e9c9019f49baedc716fda",
+      "bytes": 1982
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/source-pins.json": {
+      "sha256": "84b8d1fefcdbe4a26f9fcbe3c949a8412e59aeffd269673a85f71c3f7384a287",
+      "bytes": 3758
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/candidate-pins.json": {
+      "sha256": "44bc5a95989105836304bee878182963bfc237fe1429754452b11dcece71236c",
+      "bytes": 662
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/candidate-source.patch": {
+      "sha256": "b627aeadcc8c4418bf410530e713f1bb7a4caf8805848d3a6bcccef7c7a1b5b9",
+      "bytes": 7813
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/green-bash.log": {
+      "sha256": "d80eaaff3540ca8174369858be1cf99d45ba180206b46d41148c5ce91871faf9",
+      "bytes": 5625
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/green-powershell.log": {
+      "sha256": "11df81a7dfec3ab6c61e82b13fe92d2cc5dc5d02a6a1ee0b3543292a256ab229",
+      "bytes": 6829
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/red-bash.log": {
+      "sha256": "4a451383499016ee62e145a3f8ecc0f13edfa3b11026698496a2031ec58417e6",
+      "bytes": 4008
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/phase2-guard-successor/verification.json": {
+      "sha256": "ecd356be3406530b87786945e7fc9c2b5a8155edea33021a55152071f4b0233d",
+      "bytes": 1564
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/candidate-source.patch": {
+      "sha256": "9593d5babf7eb5c6b1bfc4cf8fc6ddd6a125d35a56a965c4a76347a27298f814",
+      "bytes": 567
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/green.log": {
+      "sha256": "028c510a075fcf88f72c12bba297c2aafbd5566fcee9ddf2e328df7a647a1ffe",
+      "bytes": 764
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/hosted-windows-red-excerpt.log": {
+      "sha256": "b8a09d62c454e7f067a752ca713e9b3001003c8c67f62ce00a472359179078c6",
+      "bytes": 1458
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/mypy.log": {
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "bytes": 42
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/reproduced-red.log": {
+      "sha256": "20b0c533d348af79941e813e54ed3a07d9511763e0f31bf361c14fa6b4be76b9",
+      "bytes": 1243
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/ruff.log": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/simulated-windows-path-green.log": {
+      "sha256": "54d3240b37285c57c2a549d8615c10c9efec843b464bcd7710835463725a3bdd",
+      "bytes": 105
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/posix-path-simulation/verification.json": {
+      "sha256": "8e28bf268de3dca6516b338bfe533ab91ebcf75d180bd35af19ecdcacf3bb76d",
+      "bytes": 1042
+    }
+  },
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "tests/lib/current-byte-capture.py",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "3cdee3f37d93c8249cd2265f69861343d2e3dfcdd0222a982bb2182d3aa00c40",
+      "after_candidate_sha256": "fe1adcd1e6debfaa6d044e37d34b06ec06cf6b17302dc2b735c076e53c131497",
+      "new_file": false
+    },
+    {
+      "path": "tests/current-byte-capture.tests.py",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "6bad54c5d1e10b7f9ad8debfaef914d1b69ec180f3d5d0656c6d6486e83528ea",
+      "after_candidate_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+      "new_file": false
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "1e3ccc3126233ff46d22d7f1654bfef9681ec39109f99da6b082841b808ddd36",
+      "after_candidate_sha256": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192",
+      "new_file": false
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "bbfbcc0cf41152c9fe624d71fc300748e0779ed18362b49438dcf294cf5d91b1",
+      "after_candidate_sha256": "9a3ee92a684bd9c4aad300b497d23903a14c4589bdeba571b7ab256e95a4b3ab",
+      "new_file": false
+    },
+    {
+      "path": "tests/lib/a2-workflow-evolution.py",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "ffb7788a72f0abeae9cedeab6d8ef6bd1d5ecfd1522766260ef269a2565074fc",
+      "after_candidate_sha256": "7d21a61cc7ab1fd96523c3c08efed83182bd2b48101bc48890bf527174e3849a",
+      "new_file": false
+    },
+    {
+      "path": "tests/phase2-guard-invariants.tests.sh",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "6fea122231c29fabe7ad8231656678dd2e5ac542961a168931a01dc7585eace7",
+      "after_candidate_sha256": "2f3ef6c7ab6faf62028790e9575cbd592c88a32716192970c54978aa31ff1e1a",
+      "new_file": false
+    },
+    {
+      "path": "tests/phase2-guard-invariants.tests.ps1",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "3bd0b77a2158185d8f9bdf977182f4a0e9304620a1c854d08a846e01335f6635",
+      "after_candidate_sha256": "140f5bdda1f695ea3e4b80f723e869892e479f2f1515e7e7e85a0e8e469a4a02",
+      "new_file": false
+    },
+    {
+      "path": "tests/fixtures/phase2-guard-parity-current-publication.json",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": null,
+      "after_candidate_sha256": "b2c1e3137179f0c774fd3f9641c1b0043a532d89a14dbf1008cb14b961c3d0d8",
+      "new_file": true
+    },
+    {
+      "path": "tests/model-policy.tests.py",
+      "before_commit": "9b420b821ef48f864f4c517b59eb649fdcd047ab",
+      "before_sha256": "dfd74cab0de011b27643f44254113f23f795eaba540ca3633abf4b32041de72a",
+      "after_candidate_sha256": "00295fff5d8d25b0c38fb4fc0f2f85ef2197e4e5dce64b132354272bd0d65ea7",
+      "new_file": false
+    }
+  ]
+}

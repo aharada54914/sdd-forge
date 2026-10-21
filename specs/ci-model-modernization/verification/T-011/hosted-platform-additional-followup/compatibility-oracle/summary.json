@@ -1,0 +1,23 @@
+{
+  "scope": "Tests/fixture only; no installed product bytes changed",
+  "red_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "cause": "Shared current-byte-capture install-result oracle expected every indexed non-MCP file before the public install-payload allowlist contract. Hosted F1/F2 each had equal actual606 files but obsolete expected1416 files.",
+  "correction": "Parse public allowlist independently over pre-execution indexed source bytes; exact files, bounded directory prefixes, cache exclusions and SkipMcp. Keep all nine byte categories and two-invocation comparisons.",
+  "red": {
+    "hosted": "F1/F2 each606actual vs1416expected, both invocations equal",
+    "existing_local_test": "install-result mismatch before helper correction",
+    "new_tests": "2 missing independent oracle errors before helper addition"
+  },
+  "green": {
+    "current_byte_capture": "14 passed",
+    "compatibility_bash": "25 passed,0 failed",
+    "compatibility_powershell_linux": "25 passed,0 failed",
+    "static": "AST parse and git diff --check passed"
+  },
+  "negative": "PowerShell F1:install-result mutation returns1 with24passed/1failed",
+  "rollback": "Isolated original helper reproduced sole existing-test install-result mismatch; no root rollback or product mutation",
+  "limitations": [
+    "Native hosted Windows rerun still required; Linux PowerShell green is not native Windows proof",
+    "Known unrelated Windows long Unicode PAX tar limitation not changed"
+  ]
+}

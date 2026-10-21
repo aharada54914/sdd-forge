@@ -1,0 +1,20 @@
+{
+  "baseline_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "actual_hosted_red": {
+    "job_id": 119274595892,
+    "log": "/workspace/t011-rollout/outputs/6c2b4e713915/windows-119274595892-connector.log"
+  },
+  "source_review": "Exact17 added lines in Scenario30 require rm/cp denial and cat allowance for managed-model-entry.py and two PowerShell panelist runners; no existing assertion removed or loosened. Full diff retained.",
+  "changes": "Separate explicit guard successor fixture/schema and bounded epic136 target allowlist in Bash/PowerShell phase2 tests. Both full-file hashes, exact staged/live pair, unique matching entry and schema required. Original ship fixture/schema and all historical staged bytes/manifest remain unchanged.",
+  "red": "Bash54 passed/1 failed: only WFI016 guard staged/live mismatch",
+  "green": {
+    "bash": "68 passed/0 failed",
+    "linux_powershell": "82 passed/0 failed/1 platform skip"
+  },
+  "controls": "Original13 controls execute for BOTH reviewed targets: accept exact pair; reject live/staged mutation, missing fixture, wrong live/staged SHA, wrong staged path, duplicate entry, wrong schema, malformedJSON, missing schema, unequal unknown path even with entry; accept unchanged unknown path.",
+  "scope_limits": [
+    "Linux PowerShell does not prove native Windows. Hosted rerun still required.",
+    "Global human_copy_mirrors classifier and its two ship PUBLISHED rules unchanged. New fixture makes no global publication claim.",
+    "No historical snapshot rewritten; no runtime product changes."
+  ]
+}

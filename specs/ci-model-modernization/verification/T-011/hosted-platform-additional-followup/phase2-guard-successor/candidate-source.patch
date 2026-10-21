@@ -1,0 +1,109 @@
+diff --git a/tests/phase2-guard-invariants.tests.sh b/tests/phase2-guard-invariants.tests.sh
+index 14d4d3b1..4904a402 100644
+--- a/tests/phase2-guard-invariants.tests.sh
++++ b/tests/phase2-guard-invariants.tests.sh
+@@ -316,2 +316,2 @@ fi
+-# 2026-10-21: byte equality stays the DEFAULT for every target. The single
+-# explicit exception is the ship SKILL pair, accepted only when the reviewed
++# 2026-10-21: byte equality stays the DEFAULT for every target. The explicit
++# exceptions are the ship SKILL and guard parity pairs, accepted only when the reviewed
+@@ -325 +325 @@ successor_stage_rel='specs/epic-136-phase2-gates/human-copy'
+-# or when the ship pair matches its single fixture successor entry. Fails closed.
++# or when an allowlisted pair matches its single fixture successor entry. Fails closed.
+@@ -330,2 +330,2 @@ root, target, fixture, stage_rel = sys.argv[1:5]
+-SHIP = 'plugins/sdd-ship/skills/ship/SKILL.md'
+-SCHEMA = 'ship-track-selection-current-publication/v1'
++SCHEMAS = {'plugins/sdd-ship/skills/ship/SKILL.md': 'ship-track-selection-current-publication/v1',
++           'tests/guard-parity.tests.sh': 'phase2-guard-parity-current-publication/v1'}
+@@ -341 +341 @@ try:
+-    if target != SHIP:
++    if target not in SCHEMAS:
+@@ -343 +343 @@ try:
+-    staged_key = stage_rel + '/' + SHIP
++    staged_key = stage_rel + '/' + target
+@@ -346 +346 @@ try:
+-    if not isinstance(data, dict) or data.get('schema') != SCHEMA:
++    if not isinstance(data, dict) or data.get('schema') != SCHEMAS[target]:
+@@ -351 +351 @@ try:
+-    touching = [e for e in entries if e.get('live') == SHIP and e.get('staged') == staged_key]
++    touching = [e for e in entries if e.get('live') == target and e.get('staged') == staged_key]
+@@ -355 +355 @@ try:
+-    if e.get('live') != SHIP or e.get('staged') != staged_key:
++    if e.get('live') != target or e.get('staged') != staged_key:
+@@ -368 +368 @@ PY
+-ship_rel='plugins/sdd-ship/skills/ship/SKILL.md'
++successor_targets=('plugins/sdd-ship/skills/ship/SKILL.md' 'tests/guard-parity.tests.sh')
+@@ -387 +387 @@ copies = int(sys.argv[6]) if len(sys.argv) > 6 else 1
+-schema = sys.argv[7] if len(sys.argv) > 7 else 'ship-track-selection-current-publication/v1'
++schema = sys.argv[7] if len(sys.argv) > 7 else ('phase2-guard-parity-current-publication/v1' if live == 'tests/guard-parity.tests.sh' else 'ship-track-selection-current-publication/v1')
+@@ -399 +399 @@ expect_sync() {
+-  [[ "$got" == "$want" ]] && ok "WFI-016 control: $label" || bad "WFI-016 control: $label"
++  [[ "$got" == "$want" ]] && ok "WFI-016 control [$ship_rel]: $label" || bad "WFI-016 control [$ship_rel]: $label"
+@@ -400,0 +401 @@ expect_sync() {
++for ship_rel in "${successor_targets[@]}"; do
+@@ -430,0 +432,2 @@ expect_sync accept "$other_rel" 'equal unrelated files are accepted'
++done
++
+@@ -438 +441,3 @@ for sync_target in "${phase2_targets[@]}"; do
+-  if ! target_in_sync "$root" "$sync_target" "$successor_fixture"; then
++  fixture="$successor_fixture"
++  if [[ "$sync_target" == "tests/guard-parity.tests.sh" ]]; then fixture="$root/tests/fixtures/phase2-guard-parity-current-publication.json"; fi
++  if ! target_in_sync "$root" "$sync_target" "$fixture"; then
+diff --git a/tests/phase2-guard-invariants.tests.ps1 b/tests/phase2-guard-invariants.tests.ps1
+index 691d002e..364abb57 100644
+--- a/tests/phase2-guard-invariants.tests.ps1
++++ b/tests/phase2-guard-invariants.tests.ps1
+@@ -1046,2 +1046,2 @@ if ($runnerPredatesRefresh -and ($env:SDD_PHASE2_RUNNER_CHILD -ne '1')) {
+-# 2026-10-21: byte equality stays the DEFAULT for every target. The single
+-# explicit exception is the ship SKILL pair, accepted only when the reviewed
++# 2026-10-21: byte equality stays the DEFAULT for every target. The explicit
++# exceptions are the ship SKILL and guard parity pairs, accepted only when the reviewed
+@@ -1054 +1054 @@ $successorStageRel = 'specs/epic-136-phase2-gates/human-copy'
+-$successorShipRel = 'plugins/sdd-ship/skills/ship/SKILL.md'
++$successorTargets = @('plugins/sdd-ship/skills/ship/SKILL.md', 'tests/guard-parity.tests.sh')
+@@ -1061,2 +1061,3 @@ function Test-TargetInSync([string]$Root, [string]$Target, [string]$Fixture) {
+-        if ($Target -cne $successorShipRel) { return $false }
+-        $stagedKey = $successorStageRel + '/' + $successorShipRel
++        if ($successorTargets -cnotcontains $Target) { return $false }
++        $stagedKey = $successorStageRel + '/' + $Target
++        $expectedSchema = if ($Target -ceq 'tests/guard-parity.tests.sh') { 'phase2-guard-parity-current-publication/v1' } else { 'ship-track-selection-current-publication/v1' }
+@@ -1064 +1065 @@ function Test-TargetInSync([string]$Root, [string]$Target, [string]$Fixture) {
+-        if (($data -isnot [pscustomobject]) -or ($data.PSObject.Properties.Name -cnotcontains 'schema') -or ($data.schema -isnot [string]) -or ($data.schema -cne $successorSchema)) { return $false }
++        if (($data -isnot [pscustomobject]) -or ($data.PSObject.Properties.Name -cnotcontains 'schema') -or ($data.schema -isnot [string]) -or ($data.schema -cne $expectedSchema)) { return $false }
+@@ -1070 +1071 @@ function Test-TargetInSync([string]$Root, [string]$Target, [string]$Fixture) {
+-            (($_.PSObject.Properties.Name -ccontains 'live') -and ($_.live -ceq $successorShipRel)) -and
++            (($_.PSObject.Properties.Name -ccontains 'live') -and ($_.live -ceq $Target)) -and
+@@ -1077 +1078 @@ function Test-TargetInSync([string]$Root, [string]$Target, [string]$Fixture) {
+-        if (($match.live -cne $successorShipRel) -or ($match.staged -cne $stagedKey)) { return $false }
++        if (($match.live -cne $Target) -or ($match.staged -cne $stagedKey)) { return $false }
+@@ -1112 +1113 @@ function Assert-CtlSync([bool]$Want, [string]$Target, [string]$Label) {
+-    Assert-True ((Test-TargetInSync $ctl $Target $ctlFixture) -eq $Want) "WFI-016 control: $Label"
++    Assert-True ((Test-TargetInSync $ctl $Target $ctlFixture) -eq $Want) "WFI-016 control [$successorShipRel]: $Label"
+@@ -1113,0 +1115,2 @@ function Assert-CtlSync([bool]$Want, [string]$Target, [string]$Label) {
++foreach ($successorShipRel in $successorTargets) {
++$successorSchema = if ($successorShipRel -ceq 'tests/guard-parity.tests.sh') { 'phase2-guard-parity-current-publication/v1' } else { 'ship-track-selection-current-publication/v1' }
+@@ -1148,0 +1152 @@ try {
++}
+@@ -1162 +1166,2 @@ try {
+-        if (-not (Test-TargetInSync $root $syncTarget $successorFixture)) {
++        $fixture = if ($syncTarget -ceq 'tests/guard-parity.tests.sh') { Join-Path $root 'tests/fixtures/phase2-guard-parity-current-publication.json' } else { $successorFixture }
++        if (-not (Test-TargetInSync $root $syncTarget $fixture)) {
+diff --git a/tests/fixtures/phase2-guard-parity-current-publication.json b/tests/fixtures/phase2-guard-parity-current-publication.json
+new file mode 100644
+index 00000000..325ab6c4
+--- /dev/null
++++ b/tests/fixtures/phase2-guard-parity-current-publication.json
+@@ -0,0 +1,13 @@
++{
++  "schema": "phase2-guard-parity-current-publication/v1",
++  "note": "Exact reviewed successor for the frozen epic-136 guard regression suite; historical staging and manifest remain unchanged. Full-file drift is rejected.",
++  "successors": [
++    {
++      "live": "tests/guard-parity.tests.sh",
++      "staged": "specs/epic-136-phase2-gates/human-copy/tests/guard-parity.tests.sh",
++      "staged_sha256": "5f78d7c5f80fc50fa36e2083221866045b4a437ee6c8feba2dbc3e882bf760b9",
++      "live_sha256": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b",
++      "intentional_changes": "Only Scenario 30 is added (17 lines): rm and cp-onto must deny, while cat must allow, for managed-model-entry.py and the Gemini/GPT PowerShell panelist runners. No existing assertion is removed or loosened."
++    }
++  ]
++}

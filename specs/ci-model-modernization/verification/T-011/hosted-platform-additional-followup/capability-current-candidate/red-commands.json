@@ -1,0 +1,24 @@
+[
+  {
+    "label": "bash-red",
+    "argv": [
+      "bash",
+      "tests/generate-gate-capabilities.tests.sh"
+    ],
+    "exit_code": 1,
+    "started_at": "2026-10-21T14:31:53.619770+00:00",
+    "finished_at": "2026-10-21T14:31:55.650902+00:00"
+  },
+  {
+    "label": "powershell-red",
+    "argv": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/generate-gate-capabilities.tests.ps1"
+    ],
+    "exit_code": 1,
+    "started_at": "2026-10-21T14:31:55.650939+00:00",
+    "finished_at": "2026-10-21T14:31:59.646986+00:00"
+  }
+]

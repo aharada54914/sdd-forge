@@ -1,0 +1,15 @@
+{
+  "red_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "files": [
+    {
+      "path": "tests/lib/current-byte-capture.py",
+      "before_sha256": "3cdee3f37d93c8249cd2265f69861343d2e3dfcdd0222a982bb2182d3aa00c40",
+      "after_sha256": "fe1adcd1e6debfaa6d044e37d34b06ec06cf6b17302dc2b735c076e53c131497"
+    },
+    {
+      "path": "tests/current-byte-capture.tests.py",
+      "before_sha256": "6bad54c5d1e10b7f9ad8debfaef914d1b69ec180f3d5d0656c6d6486e83528ea",
+      "after_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a"
+    }
+  ]
+}

@@ -19,6 +19,35 @@ GENERATOR = 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'
 RUNTIME = 'powershell' if os.name == 'nt' else 'bash'
 
 
+class InstallPayloadOracleTests(unittest.TestCase):
+    def test_declared_payload_uses_preexecution_bytes_and_bounded_paths(self):
+        declaration = b"# product contract\r\ninstall-payload.txt\r\nREADME.md\r\nplugins/\r\n"
+        source = {
+            'install-payload.txt': declaration, 'README.md': b'original user guide',
+            'README.md.extra': b'not an exact entry', 'plugins/a/runtime.py': b'original runtime',
+            'plugins-other/private.txt': b'not a directory descendant',
+            'tests/private.txt': b'development', '.github/workflows/build.yml': b'CI',
+            'mcp/server/dist/index.js': b'SkipMcp',
+            'plugins/a/__pycache__/runtime.pyc': b'cache', 'plugins/a/stray.pyo': b'cache',
+            'plugins/a/.private/session.json': b'private',
+        }
+        self.assertEqual(CAPTURE.install_payload(source), {
+            'install-payload.txt': declaration, 'README.md': b'original user guide',
+            'plugins/a/runtime.py': b'original runtime',
+        })
+
+    def test_expected_bytes_do_not_follow_mutated_installed_output(self):
+        source = {'install-payload.txt': b'plugins/\n', 'plugins/runtime.txt': b'original'}
+        expected = CAPTURE.manifest(CAPTURE.install_payload(source))
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); (root / 'plugins').mkdir()
+            (root / 'plugins/runtime.txt').write_bytes(b'corrupted')
+            (root / 'unexpected.txt').write_bytes(b'extra')
+            self.assertNotEqual(CAPTURE.actual_manifest(root), expected)
+            (root / 'plugins/runtime.txt').unlink()
+            self.assertNotEqual(CAPTURE.actual_manifest(root), expected)
+
+
 class CurrentCaptureTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

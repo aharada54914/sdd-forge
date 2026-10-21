@@ -1,0 +1,6 @@
+2026-10-21T14:20:47.5422145Z FAIL: F1 install-result differs across invocation or independent expected bytes
+2026-10-21T14:20:47.6357011Z diagnostic: F1 invocation rows left=606 right=606 missing=0 extra=0 changed=0
+2026-10-21T14:20:47.7130789Z diagnostic: F1 canonical rows left=606 right=1416 missing=810 extra=0 changed=0
+2026-10-21T14:21:40.4444107Z FAIL: F2 install-result differs across invocation or independent expected bytes
+2026-10-21T14:21:40.4859856Z diagnostic: F2 invocation rows left=606 right=606 missing=0 extra=0 changed=0
+2026-10-21T14:21:40.5545855Z diagnostic: F2 canonical rows left=606 right=1416 missing=810 extra=0 changed=0

@@ -1,0 +1,23 @@
+EE
+======================================================================
+ERROR: test_declared_payload_uses_preexecution_bytes_and_bounded_paths (__main__.InstallPayloadOracleTests.test_declared_payload_uses_preexecution_bytes_and_bounded_paths)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/current-byte-capture.tests.py", line 34, in test_declared_payload_uses_preexecution_bytes_and_bounded_paths
+    self.assertEqual(CAPTURE.install_payload(source), {
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'current_capture' has no attribute 'install_payload'
+
+======================================================================
+ERROR: test_expected_bytes_do_not_follow_mutated_installed_output (__main__.InstallPayloadOracleTests.test_expected_bytes_do_not_follow_mutated_installed_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/current-byte-capture.tests.py", line 41, in test_expected_bytes_do_not_follow_mutated_installed_output
+    expected = CAPTURE.manifest(CAPTURE.install_payload(source))
+                                ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'current_capture' has no attribute 'install_payload'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (errors=2)

@@ -1,0 +1,38 @@
+{
+  "baseline_ref": "0cd5bc3a8885567b4aa7a157cb463627e07debec^",
+  "current_ref": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "baseline": {
+    "scripts/human_copy_mirrors.py": "2ea93f1061101eb5de6cc6e6bb201f95f81cf8a28408ad2cc7c241ae912e21e9",
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh": "564080c31fdcc4cf2270017867f90ea6e0265de000c07b141a6788479830ef80",
+    "tests/human-copy-mirrors-classification.tests.py": "7af195e4fbb1b092269175affd1b2de1ac392368e7052a1d787a8b4686e51c4c",
+    "tests/guard-parity.tests.sh": "5f78d7c5f80fc50fa36e2083221866045b4a437ee6c8feba2dbc3e882bf760b9"
+  },
+  "current": {
+    "scripts/human_copy_mirrors.py": "39d84c1646268cd5fa91daec0bfaae9e02425daccd002a1db4310a63e72e4c24",
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "76b30eff02a75f3e4b5e3ae9d72e9e7f6e4da759d93c41060035fb8d273558e0",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "ba14efb4c6cc13ec45a58adb785f6c06804ada1fdeebc5841e7244f525161c0b",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": "31f8676bb0d682b8d851ee5e376e65e7da913321871e4d88b0e055ccd8fd1fba",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js": "21953fae0208632708f96cbfda5dbd60854bf6c23c4c02c059e79404dd340873",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1": "d18aadc27964c71afa6ac682757ac624978419b7affd13b5ca3a5579c690cbad",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh": "025be50870db080685a9a51801df1ad708db99ec526bd6e8cc1165b0126321b8",
+    "tests/human-copy-mirrors-classification.tests.py": "b807af76279197119181cff5404346f47106d9643a05d7b458cc7c8393a6ebe0",
+    "tests/guard-parity.tests.sh": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b"
+  },
+  "restored": {
+    "scripts/human_copy_mirrors.py": "39d84c1646268cd5fa91daec0bfaae9e02425daccd002a1db4310a63e72e4c24",
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "76b30eff02a75f3e4b5e3ae9d72e9e7f6e4da759d93c41060035fb8d273558e0",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "ba14efb4c6cc13ec45a58adb785f6c06804ada1fdeebc5841e7244f525161c0b",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": "31f8676bb0d682b8d851ee5e376e65e7da913321871e4d88b0e055ccd8fd1fba",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js": "21953fae0208632708f96cbfda5dbd60854bf6c23c4c02c059e79404dd340873",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1": "d18aadc27964c71afa6ac682757ac624978419b7affd13b5ca3a5579c690cbad",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh": "025be50870db080685a9a51801df1ad708db99ec526bd6e8cc1165b0126321b8",
+    "tests/human-copy-mirrors-classification.tests.py": "b807af76279197119181cff5404346f47106d9643a05d7b458cc7c8393a6ebe0",
+    "tests/guard-parity.tests.sh": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b"
+  },
+  "equal": true
+}

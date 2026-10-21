@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "path": "summary.json",
+      "bytes": 1482,
+      "sha256": "6ccea97e6761a4db22cb1aabd48ddb4a4a9d91893edba6a6f0f8b2479f0b6a8d"
+    },
+    {
+      "path": "source-pins.json",
+      "bytes": 570,
+      "sha256": "a40c99e531898dc531b1c7b59de6d0c3810ff27fc9e2ced81cd4726a8c5aee4f"
+    },
+    {
+      "path": "hosted-red-excerpt.log",
+      "bytes": 650,
+      "sha256": "d1328c73715e3abd90bc2053ea114c09f54966690e94dfd109f5aec733ce8065"
+    },
+    {
+      "path": "new-tests-red.log",
+      "bytes": 1460,
+      "sha256": "81a9b05fa534248f7c47f4f5b25b744d44f3c136312181fb24389f2253dddc8f"
+    },
+    {
+      "path": "existing-red.log",
+      "bytes": 722,
+      "sha256": "86513e1f1310792c2b6eae102b1080b545349d890c8d4ec8c96778a6317f925f"
+    },
+    {
+      "path": "current-capture-green.log",
+      "bytes": 114,
+      "sha256": "c16d37dd0830bfeb3c6a7ac04fef9861a30912575f2b983ed75c646eeac90d5d"
+    },
+    {
+      "path": "compatibility-bash-green.log",
+      "bytes": 2671,
+      "sha256": "9e6d1a51b7277c2c99ce0d6d50d61f05d24532c6816697eada546c209c533f82"
+    },
+    {
+      "path": "compatibility-powershell-green.log",
+      "bytes": 2671,
+      "sha256": "9e6d1a51b7277c2c99ce0d6d50d61f05d24532c6816697eada546c209c533f82"
+    },
+    {
+      "path": "negative-powershell.log",
+      "bytes": 2927,
+      "sha256": "fb1bda5c4ca7160d9757e2e5adfd360995a2bc240979de61c18e80ad5952c024"
+    },
+    {
+      "path": "rollback.log",
+      "bytes": 899,
+      "sha256": "85a2d1cbceda1a00af87d0fcf05a41536eb2e56c6c869f8adac593ac3d43b24f"
+    },
+    {
+      "path": "static.log",
+      "bytes": 84,
+      "sha256": "d531e09f48f74278f784f0b6003ea12111aff975ed72666847d13fa1c8280598"
+    },
+    {
+      "path": "candidate.patch",
+      "bytes": 4717,
+      "sha256": "4a10991a43b16dec5bf7912634b0c1c9a6760ac1a6bea0cdb5e5bbf40a673539"
+    }
+  ]
+}

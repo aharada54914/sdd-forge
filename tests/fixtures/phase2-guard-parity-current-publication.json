@@ -1,0 +1,13 @@
+{
+  "schema": "phase2-guard-parity-current-publication/v1",
+  "note": "Exact reviewed successor for the frozen epic-136 guard regression suite; historical staging and manifest remain unchanged. Full-file drift is rejected.",
+  "successors": [
+    {
+      "live": "tests/guard-parity.tests.sh",
+      "staged": "specs/epic-136-phase2-gates/human-copy/tests/guard-parity.tests.sh",
+      "staged_sha256": "5f78d7c5f80fc50fa36e2083221866045b4a437ee6c8feba2dbc3e882bf760b9",
+      "live_sha256": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b",
+      "intentional_changes": "Only Scenario 30 is added (17 lines): rm and cp-onto must deny, while cat must allow, for managed-model-entry.py and the Gemini/GPT PowerShell panelist runners. No existing assertion is removed or loosened."
+    }
+  ]
+}

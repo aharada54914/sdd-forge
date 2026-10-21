@@ -1,0 +1,8 @@
+ok: parity [wfi061 file tool exact target (deny)]: both exit 2 (expected)
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 11.699s
+
+OK
+
+guard-parity.tests.sh: 412 passed, 0 failed

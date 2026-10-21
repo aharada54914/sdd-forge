@@ -1,0 +1,42 @@
+[
+  {
+    "label": "old-fixture-model-policy-installed",
+    "args": [
+      "python3",
+      "tests/model-policy-installed.tests.py",
+      "InstalledClaudeDelegationTests.test_implementation_delegation_executes_selected_readonly_investigation",
+      "-v"
+    ],
+    "exit": 0
+  },
+  {
+    "label": "restored-fixture-model-policy-installed",
+    "args": [
+      "python3",
+      "tests/model-policy-installed.tests.py",
+      "InstalledClaudeDelegationTests.test_implementation_delegation_executes_selected_readonly_investigation",
+      "-v"
+    ],
+    "exit": 0
+  },
+  {
+    "label": "old-fixture-a9-advisory-evidence",
+    "args": [
+      "python3",
+      "tests/a9-advisory-evidence.tests.py",
+      "RequestAndWorkflowTests.test_active_context_removal_and_mixed_tuple_fail_closed",
+      "-v"
+    ],
+    "exit": 0
+  },
+  {
+    "label": "restored-fixture-a9-advisory-evidence",
+    "args": [
+      "python3",
+      "tests/a9-advisory-evidence.tests.py",
+      "RequestAndWorkflowTests.test_active_context_removal_and_mixed_tuple_fail_closed",
+      "-v"
+    ],
+    "exit": 0
+  }
+]

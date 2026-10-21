@@ -1,0 +1,14 @@
+{
+  "tests/model-policy-installed.tests.py": {
+    "current_sha256": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+    "baseline_sha256": "52f6cfa8434c7db4e8ea33699db7fc907e046a69be1d091bdcf3ba2ab284933d",
+    "baseline_ref": "b434b1c07e53076bd2550847a65c13de28808363",
+    "restored_sha256": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd"
+  },
+  "tests/a9-advisory-evidence.tests.py": {
+    "current_sha256": "051f08819d05b53d8d3f526f546993d55602c296006b30db1a7cebc851c421ea",
+    "baseline_sha256": "a807a300059619afb95a7babddb4ac810fdd31050377064162b36098cf21f706",
+    "baseline_ref": "e845fbc8",
+    "restored_sha256": "051f08819d05b53d8d3f526f546993d55602c296006b30db1a7cebc851c421ea"
+  }
+}

@@ -1,0 +1,21 @@
+ok: parity [r10-gate-protect: variable write target fails closed]: both exit 2 (expected)
+FAIL: parity [protected entry rm denied: plugins/sdd-implementation/scripts/managed-model-entry.py]: both exit 0 but expected 2
+FAIL: parity [protected entry cp onto denied: plugins/sdd-implementation/scripts/managed-model-entry.py]: both exit 0 but expected 2
+ok: parity [protected entry cat allowed: plugins/sdd-implementation/scripts/managed-model-entry.py]: both exit 0 (expected)
+FAIL: parity [protected entry rm denied: plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1]: both exit 0 but expected 2
+FAIL: parity [protected entry cp onto denied: plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1]: both exit 0 but expected 2
+ok: parity [protected entry cat allowed: plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1]: both exit 0 (expected)
+FAIL: parity [protected entry rm denied: plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1]: both exit 0 but expected 2
+FAIL: parity [protected entry cp onto denied: plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1]: both exit 0 but expected 2
+ok: parity [protected entry cat allowed: plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1]: both exit 0 (expected)
+ok: cloud PowerShell [documented variable invocation]: exit 0
+FAIL: wfi037: chain-invoked scripts are unprotected: plugins/sdd-implementation/scripts/managed-model-entry.py plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1 plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1
+ok: wfi037: generated invariant modules match guard-invariants.json
+ok: parity [wfi061 file tool exact target (deny)]: both exit 2 (expected)
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 11.785s
+
+OK
+
+guard-parity.tests.sh: 405 passed, 7 failed

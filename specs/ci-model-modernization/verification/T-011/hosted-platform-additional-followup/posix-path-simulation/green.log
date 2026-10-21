@@ -1,0 +1,11 @@
+test_bound_python3_beats_bogus_path_python3 (__main__.PortableBashRuntime.test_bound_python3_beats_bogus_path_python3) ... ok
+test_explicit_override_stays (__main__.PortableBashRuntime.test_explicit_override_stays) ... ok
+test_missing_git_bash_fails_clearly (__main__.PortableBashRuntime.test_missing_git_bash_fails_clearly) ... ok
+test_output_is_bounded (__main__.PortableBashRuntime.test_output_is_bounded) ... ok
+test_posix_command_is_unchanged (__main__.PortableBashRuntime.test_posix_command_is_unchanged) ... ok
+test_simulated_windows_prefers_git_bash_over_path_bash (__main__.PortableBashRuntime.test_simulated_windows_prefers_git_bash_over_path_bash) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.024s
+
+OK

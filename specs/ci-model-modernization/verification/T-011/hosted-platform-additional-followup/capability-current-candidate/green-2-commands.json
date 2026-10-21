@@ -1,0 +1,51 @@
+[
+  {
+    "label": "bash-green-2",
+    "argv": [
+      "bash",
+      "tests/generate-gate-capabilities.tests.sh"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-21T14:34:15.559191+00:00",
+    "finished_at": "2026-10-21T14:34:17.686359+00:00"
+  },
+  {
+    "label": "powershell-green-2",
+    "argv": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/generate-gate-capabilities.tests.ps1"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-21T14:34:17.686410+00:00",
+    "finished_at": "2026-10-21T14:34:21.466859+00:00"
+  },
+  {
+    "label": "workflow-controls-2",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/lib/a2-workflow-evolution.py",
+      "/workspace/sdd-forge",
+      "--self-test"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-21T14:34:21.467086+00:00",
+    "finished_at": "2026-10-21T14:34:21.531413+00:00"
+  },
+  {
+    "label": "diff-check-2",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "tests/lib/a2-workflow-evolution.py",
+      "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-21T14:34:21.531458+00:00",
+    "finished_at": "2026-10-21T14:34:21.539490+00:00"
+  }
+]

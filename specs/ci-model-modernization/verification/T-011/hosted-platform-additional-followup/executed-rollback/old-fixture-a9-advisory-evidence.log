@@ -1,0 +1,6 @@
+test_active_context_removal_and_mixed_tuple_fail_closed (__main__.RequestAndWorkflowTests.test_active_context_removal_and_mixed_tuple_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.637s
+
+OK

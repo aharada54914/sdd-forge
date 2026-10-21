@@ -1,0 +1,6 @@
+{
+  "removed_owned_disposable_checkout": "/workspace/native-ci-failures/executed-rollback/source",
+  "active_cwd_processes": [],
+  "freed_bytes": 284311552,
+  "retained": "all command scripts, source hashes, original/expected-failure/current logs and receipts"
+}

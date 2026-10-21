@@ -53,6 +53,12 @@ def self_test(archived, manifest, live, candidate):
     proposed = jobs(candidate)
     new_block = proposed[added].encode()
     aggregate = proposed['required-checks'].encode()
+    removed_dependency = re.sub(rb'(?m)^      - ' + re.escape(added.encode()) + rb'\r?\n', b'', aggregate)
+    if removed_dependency == aggregate:
+        removed_dependency = aggregate.replace(b', ' + added.encode(), b'', 1)
+    weakened_result = aggregate.replace(b'!= "success"', b'== "success"', 1)
+    if weakened_result == aggregate:
+        weakened_result = aggregate.replace(b'verification-ci.py aggregate', b'verification-ci.py collect', 1)
     # Commentary at job indentation may move or change without altering CI.
     for comments in (b'', b'  # Different wording\n', b'  # First line\n  # Second line\n'):
         changed = re.sub(rb'^  #[^\n]*\n?', b'', candidate, flags=re.M)
@@ -75,9 +81,9 @@ def self_test(archived, manifest, live, candidate):
         ('new job execution change', archived, manifest, live,
          candidate.replace(new_block, new_block.replace(b'run: |', b'run: echo bypassed\n        ignored: |', 1), 1)),
         ('aggregate dependency removal', archived, manifest, live,
-         candidate.replace(aggregate, aggregate.replace(b', ' + added.encode(), b'', 1), 1)),
+         candidate.replace(aggregate, removed_dependency, 1)),
         ('aggregate result weakening', archived, manifest, live,
-         candidate.replace(aggregate, aggregate.replace(b'!= "success"', b'== "success"', 1), 1)),
+         candidate.replace(aggregate, weakened_result, 1)),
     ]
     for label, old, index, actual, proposed in cases:
         if (old, index, actual, proposed) == (archived, manifest, live, candidate):

@@ -1,0 +1,10 @@
+{
+  ".github/workflows/test.yml": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192",
+  "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate": "1e3ccc3126233ff46d22d7f1654bfef9681ec39109f99da6b082841b808ddd36",
+  "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate": "bbfbcc0cf41152c9fe624d71fc300748e0779ed18362b49438dcf294cf5d91b1",
+  "specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+  "specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256": "d34c730daece7de30a07f7b381b8e1084b166f2a0a881a8aa0efa3087870caec",
+  "tests/generate-gate-capabilities.tests.sh": "9b582adc310516f736125a42b257d98b304a70dd24285d362b42e8b48e471672",
+  "tests/generate-gate-capabilities.tests.ps1": "ebc184f41f2a5fe32c67f7c83ee8d4419a5828f690ee4bfbf8d8b000682755f7",
+  "tests/lib/a2-workflow-evolution.py": "ffb7788a72f0abeae9cedeab6d8ef6bd1d5ecfd1522766260ef269a2565074fc"
+}

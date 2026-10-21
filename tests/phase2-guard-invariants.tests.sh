@@ -313,8 +313,8 @@ fi
 # stages in its own bundle are not this bundle's staging surface, and reading
 # the registry as this bundle's inventory made this check fail for the wrong
 # reason (seven "missing" entries that were never staged here).
-# 2026-10-21: byte equality stays the DEFAULT for every target. The single
-# explicit exception is the ship SKILL pair, accepted only when the reviewed
+# 2026-10-21: byte equality stays the DEFAULT for every target. The explicit
+# exceptions are the ship SKILL and guard parity pairs, accepted only when the reviewed
 # successor fixture lists that exact live/staged pair exactly once and BOTH full
 # SHA-256 values match. The epic-136 staged candidate stays the frozen
 # predecessor; the historical manifest and protected-source checks above are
@@ -322,13 +322,13 @@ fi
 successor_fixture="$root/tests/fixtures/ship-track-selection-current-publication.json"
 successor_stage_rel='specs/epic-136-phase2-gates/human-copy'
 # target_in_sync <root> <target> <fixture>: exit 0 when live == staged bytes,
-# or when the ship pair matches its single fixture successor entry. Fails closed.
+# or when an allowlisted pair matches its single fixture successor entry. Fails closed.
 target_in_sync() {
   python3 -I - "$(native_path "$1")" "$2" "$(native_path "$3")" "$successor_stage_rel" <<'PY'
 import hashlib, json, os, re, sys
 root, target, fixture, stage_rel = sys.argv[1:5]
-SHIP = 'plugins/sdd-ship/skills/ship/SKILL.md'
-SCHEMA = 'ship-track-selection-current-publication/v1'
+SCHEMAS = {'plugins/sdd-ship/skills/ship/SKILL.md': 'ship-track-selection-current-publication/v1',
+           'tests/guard-parity.tests.sh': 'phase2-guard-parity-current-publication/v1'}
 def digest(p):
     with open(p, 'rb') as f:
         return hashlib.sha256(f.read()).hexdigest()
@@ -338,21 +338,21 @@ try:
     live_h, staged_h = digest(live), digest(staged)
     if live_h == staged_h:
         sys.exit(0)
-    if target != SHIP:
+    if target not in SCHEMAS:
         sys.exit(1)
-    staged_key = stage_rel + '/' + SHIP
+    staged_key = stage_rel + '/' + target
     with open(fixture, encoding='utf-8') as f:
         data = json.load(f)
-    if not isinstance(data, dict) or data.get('schema') != SCHEMA:
+    if not isinstance(data, dict) or data.get('schema') != SCHEMAS[target]:
         sys.exit(1)
     entries = data.get('successors')
     if not isinstance(entries, list) or not all(isinstance(e, dict) for e in entries):
         sys.exit(1)
-    touching = [e for e in entries if e.get('live') == SHIP and e.get('staged') == staged_key]
+    touching = [e for e in entries if e.get('live') == target and e.get('staged') == staged_key]
     if len(touching) != 1:
         sys.exit(1)
     e = touching[0]
-    if e.get('live') != SHIP or e.get('staged') != staged_key:
+    if e.get('live') != target or e.get('staged') != staged_key:
         sys.exit(1)
     full = re.compile(r'[0-9a-f]{64}\Z')
     ls, ss = e.get('live_sha256'), e.get('staged_sha256')
@@ -365,7 +365,7 @@ PY
 }
 
 # Fixture-level mutation controls on a tiny scratch tree (no repo copy).
-ship_rel='plugins/sdd-ship/skills/ship/SKILL.md'
+successor_targets=('plugins/sdd-ship/skills/ship/SKILL.md' 'tests/guard-parity.tests.sh')
 other_rel='plugins/sdd-lite/skills/lite-spec/SKILL.md'
 ctl="$work/successor-control"
 ctl_sha() { sha256sum "$1" | awk '{print $1}'; }
@@ -384,7 +384,7 @@ ctl_fixture() {
 import json, sys
 out, live, staged, sh, lh = sys.argv[1:6]
 copies = int(sys.argv[6]) if len(sys.argv) > 6 else 1
-schema = sys.argv[7] if len(sys.argv) > 7 else 'ship-track-selection-current-publication/v1'
+schema = sys.argv[7] if len(sys.argv) > 7 else ('phase2-guard-parity-current-publication/v1' if live == 'tests/guard-parity.tests.sh' else 'ship-track-selection-current-publication/v1')
 entry = {'live': live, 'staged': staged, 'staged_sha256': sh, 'live_sha256': lh}
 with open(out, 'w') as f:
     json.dump({'schema': schema, 'successors': [dict(entry) for _ in range(copies)]}, f)
@@ -396,8 +396,9 @@ ctl_good_fixture() {
 expect_sync() {
   local want="$1" target="$2" label="$3" got
   if target_in_sync "$ctl" "$target" "$ctl/fixture.json"; then got=accept; else got=reject; fi
-  [[ "$got" == "$want" ]] && ok "WFI-016 control: $label" || bad "WFI-016 control: $label"
+  [[ "$got" == "$want" ]] && ok "WFI-016 control [$ship_rel]: $label" || bad "WFI-016 control [$ship_rel]: $label"
 }
+for ship_rel in "${successor_targets[@]}"; do
 zero_hash="$(printf '%064d' 0)"
 ctl_reset; ctl_good_fixture
 expect_sync accept "$ship_rel" 'known successor pair is accepted'
@@ -428,6 +429,8 @@ expect_sync reject "$other_rel" 'unrelated unequal file is rejected even with a 
 ctl_reset; ctl_good_fixture
 expect_sync accept "$other_rel" 'equal unrelated files are accepted'
 
+done
+
 sync_ok=1
 for sync_target in "${phase2_targets[@]}"; do
   if [[ ! -f "$root/$sync_target" || ! -f "$stage/$sync_target" ]]; then
@@ -435,7 +438,9 @@ for sync_target in "${phase2_targets[@]}"; do
     sync_ok=0
     continue
   fi
-  if ! target_in_sync "$root" "$sync_target" "$successor_fixture"; then
+  fixture="$successor_fixture"
+  if [[ "$sync_target" == "tests/guard-parity.tests.sh" ]]; then fixture="$root/tests/fixtures/phase2-guard-parity-current-publication.json"; fi
+  if ! target_in_sync "$root" "$sync_target" "$fixture"; then
     echo "  out of sync: $sync_target"
     sync_ok=0
   fi

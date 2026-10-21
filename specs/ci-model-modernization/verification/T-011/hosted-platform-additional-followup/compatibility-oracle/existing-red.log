@@ -1,0 +1,14 @@
+F
+======================================================================
+FAIL: test_current_source_data_additions_and_edits_are_copied_exactly (__main__.CurrentCaptureTests.test_current_source_data_additions_and_edits_are_copied_exactly)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/current-byte-capture.tests.py", line 215, in test_current_source_data_additions_and_edits_are_copied_exactly
+    self.assertEqual(set(), self.capture())
+AssertionError: Items in the second set but not the first:
+'install-result'
+
+----------------------------------------------------------------------
+Ran 1 test in 4.248s
+
+FAILED (failures=1)

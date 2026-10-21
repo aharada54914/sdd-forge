@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-10-21T14:35:53.234468+00:00",
+  "baseline": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "source": "tests/model-policy.tests.py",
+  "before_sha256": "dfd74cab0de011b27643f44254113f23f795eaba540ca3633abf4b32041de72a",
+  "after_sha256": "00295fff5d8d25b0c38fb4fc0f2f85ef2197e4e5dce64b132354272bd0d65ea7",
+  "hosted_red": {
+    "run_id": 39615251761,
+    "job_id": 119274596139,
+    "failure": "POSIX simulation still constructed native WindowsPath, producing backslash despite mocked sys.platform"
+  },
+  "local_red": "existing method with module Path set to PureWindowsPath reproduces exact assertion failure",
+  "fix": "Explicit PurePosixPath for simulated POSIX test; bash_command and all Windows behavior assertions unchanged",
+  "green": {
+    "portable_runtime_tests": 6,
+    "failed": 0,
+    "same_simulated_windows_path_control": "PASS"
+  },
+  "checks": [
+    {
+      "name": "ruff",
+      "exit_code": 0
+    },
+    {
+      "name": "mypy",
+      "exit_code": 0
+    }
+  ],
+  "native_windows_rerun": "pending"
+}

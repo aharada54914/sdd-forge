@@ -1,0 +1,11 @@
+ok: cloud PowerShell [documented variable invocation]: exit 0
+FAIL: wfi037: chain-invoked scripts are unprotected: plugins/sdd-implementation/scripts/managed-model-entry.py plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1 plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1
+ok: wfi037: generated invariant modules match guard-invariants.json
+ok: parity [wfi061 file tool exact target (deny)]: both exit 2 (expected)
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 11.625s
+
+OK
+
+guard-parity.tests.sh: 402 passed, 1 failed

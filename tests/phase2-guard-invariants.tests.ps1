@@ -1043,38 +1043,39 @@ if ($runnerPredatesRefresh -and ($env:SDD_PHASE2_RUNNER_CHILD -ne '1')) {
 # phase2_human_copy_targets, which epic-190-a2's registration turned into a
 # repository-wide protection registry (19 -> 26 entries). Files another epic
 # stages in its own bundle are not this bundle's staging surface.
-# 2026-10-21: byte equality stays the DEFAULT for every target. The single
-# explicit exception is the ship SKILL pair, accepted only when the reviewed
+# 2026-10-21: byte equality stays the DEFAULT for every target. The explicit
+# exceptions are the ship SKILL and guard parity pairs, accepted only when the reviewed
 # successor fixture lists that exact live/staged pair exactly once and BOTH full
 # SHA-256 values match. The epic-136 staged candidate stays the frozen
 # predecessor; the historical manifest and protected-source checks above are
 # unchanged and still bind the staged bytes.
 $successorFixture = Join-Path $root 'tests/fixtures/ship-track-selection-current-publication.json'
 $successorStageRel = 'specs/epic-136-phase2-gates/human-copy'
-$successorShipRel = 'plugins/sdd-ship/skills/ship/SKILL.md'
+$successorTargets = @('plugins/sdd-ship/skills/ship/SKILL.md', 'tests/guard-parity.tests.sh')
 $successorSchema = 'ship-track-selection-current-publication/v1'
 function Test-TargetInSync([string]$Root, [string]$Target, [string]$Fixture) {
     try {
         $liveHash = (Get-FileHash -LiteralPath (Join-Path $Root $Target) -Algorithm SHA256).Hash.ToLowerInvariant()
         $stagedHash = (Get-FileHash -LiteralPath (Join-Path (Join-Path $Root $successorStageRel) $Target) -Algorithm SHA256).Hash.ToLowerInvariant()
         if ($liveHash -ceq $stagedHash) { return $true }
-        if ($Target -cne $successorShipRel) { return $false }
-        $stagedKey = $successorStageRel + '/' + $successorShipRel
+        if ($successorTargets -cnotcontains $Target) { return $false }
+        $stagedKey = $successorStageRel + '/' + $Target
+        $expectedSchema = if ($Target -ceq 'tests/guard-parity.tests.sh') { 'phase2-guard-parity-current-publication/v1' } else { 'ship-track-selection-current-publication/v1' }
         $data = Get-Content -Raw -LiteralPath $Fixture | ConvertFrom-Json -ErrorAction Stop
-        if (($data -isnot [pscustomobject]) -or ($data.PSObject.Properties.Name -cnotcontains 'schema') -or ($data.schema -isnot [string]) -or ($data.schema -cne $successorSchema)) { return $false }
+        if (($data -isnot [pscustomobject]) -or ($data.PSObject.Properties.Name -cnotcontains 'schema') -or ($data.schema -isnot [string]) -or ($data.schema -cne $expectedSchema)) { return $false }
         if ($data.PSObject.Properties.Name -cnotcontains 'successors') { return $false }
         if ($data.successors -isnot [array]) { return $false }
         $entries = @($data.successors)
         foreach ($entry in $entries) { if ($entry -isnot [pscustomobject]) { return $false } }
         $touching = @($entries | Where-Object {
-            (($_.PSObject.Properties.Name -ccontains 'live') -and ($_.live -ceq $successorShipRel)) -and
+            (($_.PSObject.Properties.Name -ccontains 'live') -and ($_.live -ceq $Target)) -and
             (($_.PSObject.Properties.Name -ccontains 'staged') -and ($_.staged -ceq $stagedKey)) })
         if ($touching.Count -ne 1) { return $false }
         $match = $touching[0]
         foreach ($field in 'live', 'staged', 'live_sha256', 'staged_sha256') {
             if (($match.PSObject.Properties.Name -cnotcontains $field) -or ($match.$field -isnot [string])) { return $false }
         }
-        if (($match.live -cne $successorShipRel) -or ($match.staged -cne $stagedKey)) { return $false }
+        if (($match.live -cne $Target) -or ($match.staged -cne $stagedKey)) { return $false }
         if (($match.live_sha256 -cnotmatch '^[0-9a-f]{64}$') -or ($match.staged_sha256 -cnotmatch '^[0-9a-f]{64}$')) { return $false }
         return (($match.live_sha256 -ceq $liveHash) -and ($match.staged_sha256 -ceq $stagedHash))
     } catch { return $false }
@@ -1109,8 +1110,10 @@ function Write-CtlGoodFixture([int]$Copies = 1, [string]$Schema = $successorSche
     Write-CtlFixture $successorShipRel ($successorStageRel + '/' + $successorShipRel) (Get-CtlHash (Get-CtlStagedPath $successorShipRel)) (Get-CtlHash (Join-Path $ctl $successorShipRel)) $Copies $Schema
 }
 function Assert-CtlSync([bool]$Want, [string]$Target, [string]$Label) {
-    Assert-True ((Test-TargetInSync $ctl $Target $ctlFixture) -eq $Want) "WFI-016 control: $Label"
+    Assert-True ((Test-TargetInSync $ctl $Target $ctlFixture) -eq $Want) "WFI-016 control [$successorShipRel]: $Label"
 }
+foreach ($successorShipRel in $successorTargets) {
+$successorSchema = if ($successorShipRel -ceq 'tests/guard-parity.tests.sh') { 'phase2-guard-parity-current-publication/v1' } else { 'ship-track-selection-current-publication/v1' }
 $zeroHash = '0' * 64
 try {
     Reset-Ctl; Write-CtlGoodFixture
@@ -1146,6 +1149,7 @@ try {
     Reset-Ctl; Write-CtlGoodFixture
     Assert-CtlSync $true $otherRel 'equal unrelated files are accepted'
 } finally { Remove-BootstrapFixture $ctl }
+}
 
 $syncOk = $true
 try {
@@ -1159,7 +1163,8 @@ try {
             $syncOk = $false
             continue
         }
-        if (-not (Test-TargetInSync $root $syncTarget $successorFixture)) {
+        $fixture = if ($syncTarget -ceq 'tests/guard-parity.tests.sh') { Join-Path $root 'tests/fixtures/phase2-guard-parity-current-publication.json' } else { $successorFixture }
+        if (-not (Test-TargetInSync $root $syncTarget $fixture)) {
             Write-Host "  out of sync: $syncTarget"
             $syncOk = $false
         }

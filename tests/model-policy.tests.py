@@ -12,7 +12,7 @@ import importlib.util
 import json
 import itertools
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import shlex
 import shutil
 import subprocess
@@ -1005,7 +1005,7 @@ class PortableBashRuntime(unittest.TestCase):
 
     def test_posix_command_is_unchanged(self):
         with patch.object(sys, 'platform', 'linux'):
-            self.assertEqual(bash_command(Path('a/select.sh'), ['--x', 'y']), ['bash', 'a/select.sh', '--x', 'y'])
+            self.assertEqual(bash_command(PurePosixPath('a/select.sh'), ['--x', 'y']), ['bash', 'a/select.sh', '--x', 'y'])
 
     def test_output_is_bounded(self):
         result = subprocess.CompletedProcess([], 1, 'o' * 5000, 'e' * 5000)

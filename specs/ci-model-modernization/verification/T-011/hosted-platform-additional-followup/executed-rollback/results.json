@@ -1,0 +1,96 @@
+[
+  {
+    "label": "old-baseline-classification",
+    "args": [
+      "python3",
+      "tests/human-copy-mirrors-classification.tests.py"
+    ],
+    "exit": 0,
+    "seconds": 0.033
+  },
+  {
+    "label": "old-baseline-guard",
+    "args": [
+      "bash",
+      "tests/guard-parity.tests.sh"
+    ],
+    "exit": 1,
+    "seconds": 62.445
+  },
+  {
+    "label": "old-baseline-generator",
+    "args": [
+      "python3",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "label": "reintroduced-defect-classification",
+    "args": [
+      "python3",
+      "tests/human-copy-mirrors-classification.tests.py"
+    ],
+    "exit": 1,
+    "seconds": 0.036
+  },
+  {
+    "label": "reintroduced-defect-guard",
+    "args": [
+      "bash",
+      "tests/guard-parity.tests.sh"
+    ],
+    "exit": 1,
+    "seconds": 62.592
+  },
+  {
+    "label": "restored-current-classification",
+    "args": [
+      "python3",
+      "tests/human-copy-mirrors-classification.tests.py"
+    ],
+    "exit": 0,
+    "seconds": 0.065
+  },
+  {
+    "label": "restored-current-guard",
+    "args": [
+      "bash",
+      "tests/guard-parity.tests.sh"
+    ],
+    "exit": 0,
+    "seconds": 62.795
+  },
+  {
+    "label": "restored-current-generator",
+    "args": [
+      "python3",
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.031
+  },
+  {
+    "label": "restored-current-sync",
+    "args": [
+      "python3",
+      "scripts/sync-human-copy-mirrors.py",
+      "--check"
+    ],
+    "exit": 3,
+    "seconds": 0.026
+  },
+  {
+    "label": "restored-current-sync-with-reference",
+    "args": [
+      "python3",
+      "scripts/sync-human-copy-mirrors.py",
+      "--check"
+    ],
+    "exit": 0,
+    "prerequisite": "refs/remotes/origin/main copied from existing root reference fcb8275a42061b8132ea88a36e69b02f4487be71, no network; initial missing-ref exit3 retained"
+  }
+]

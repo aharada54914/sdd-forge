@@ -1,0 +1,6 @@
+test_implementation_delegation_executes_selected_readonly_investigation (__main__.InstalledClaudeDelegationTests.test_implementation_delegation_executes_selected_readonly_investigation) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 5.046s
+
+OK

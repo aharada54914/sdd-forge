@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "scope": "Mutable current candidate refresh plus existing negative-control shape repair; no historical bytes, validator preservation rules or test assertions removed.",
+  "root_source_before": {
+    ".github/workflows/test.yml": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate": "1e3ccc3126233ff46d22d7f1654bfef9681ec39109f99da6b082841b808ddd36",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate": "bbfbcc0cf41152c9fe624d71fc300748e0779ed18362b49438dcf294cf5d91b1",
+    "specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256": "d34c730daece7de30a07f7b381b8e1084b166f2a0a881a8aa0efa3087870caec",
+    "tests/generate-gate-capabilities.tests.sh": "9b582adc310516f736125a42b257d98b304a70dd24285d362b42e8b48e471672",
+    "tests/generate-gate-capabilities.tests.ps1": "ebc184f41f2a5fe32c67f7c83ee8d4419a5828f690ee4bfbf8d8b000682755f7",
+    "tests/lib/a2-workflow-evolution.py": "ffb7788a72f0abeae9cedeab6d8ef6bd1d5ecfd1522766260ef269a2565074fc"
+  },
+  "root_source_after": {
+    ".github/workflows/test.yml": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate": "9a3ee92a684bd9c4aad300b497d23903a14c4589bdeba571b7ab256e95a4b3ab",
+    "specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+    "specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256": "d34c730daece7de30a07f7b381b8e1084b166f2a0a881a8aa0efa3087870caec",
+    "tests/generate-gate-capabilities.tests.sh": "9b582adc310516f736125a42b257d98b304a70dd24285d362b42e8b48e471672",
+    "tests/generate-gate-capabilities.tests.ps1": "ebc184f41f2a5fe32c67f7c83ee8d4419a5828f690ee4bfbf8d8b000682755f7",
+    "tests/lib/a2-workflow-evolution.py": "7d21a61cc7ab1fd96523c3c08efed83182bd2b48101bc48890bf527174e3849a"
+  },
+  "changed_paths": [
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate",
+    "tests/lib/a2-workflow-evolution.py"
+  ],
+  "unchanged_six_candidates_verified_against_HEAD": [
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/references/guard-invariants.json.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py.candidate"
+  ],
+  "compatibility_checks": [
+    {
+      "check": "old inline needs and shell aggregation retain all11 mutation controls",
+      "passed": true
+    },
+    {
+      "check": "reject missing independently named cloud-native",
+      "passed": true,
+      "diagnostic": "current candidate drops live jobs"
+    },
+    {
+      "check": "reject missing independently named ci-plan",
+      "passed": true,
+      "diagnostic": "current candidate drops live jobs"
+    }
+  ],
+  "suite_results": {
+    "actual_bash_red": "30PASS2FAIL",
+    "actual_powershell_red": "30PASS2FAIL",
+    "candidate_only_bash": "31PASS1FAIL",
+    "candidate_only_powershell": "31PASS1FAIL",
+    "final_bash": "32PASS0FAIL",
+    "final_powershell_linux": "32PASS0FAIL"
+  },
+  "mutation_cases": 11,
+  "log_and_command_hashes": {
+    "green-2-commands.json": "b8a80979ec18ec9756d14cd11d80e31692184d953cee38fb95bcb38dd319ee95",
+    "bash-red.stderr.log": "dc33c375b678b380883074cdd3e20e788d75d94371534676b56266cf62e5ab7b",
+    "powershell-green-2.stdout.log": "1ad129745bb8400829f8fabdae753204d65b6e066225f3b53dca45fba2627764",
+    "bash-red.stdout.log": "bc5c26b42579630b938fe9bb95860b3934e4bb76a5401a207d8246a7ef4067f2",
+    "bash-green-2.stdout.log": "3d61dfcc6aac111f4df327e634f36495c6f9fef11f6459d98c8f9ee239cc9509",
+    "workflow-controls-2.stdout.log": "3858e961829b61abbb05073c385adb0db5ed6db6f4f366b416f58321d1a28c3d",
+    "bash-green.stderr.log": "55f6e2178214a06eded03d196e343422f24cf820bcd42159d7ebf05bd7149657",
+    "bash-green.stdout.log": "7aea838ffc6afde19e13607991e47ecc1615b440ffefb1a57c346a82d21c4ccc",
+    "powershell-green.stdout.log": "513f32a6264dbb963acfe94df2b86eff0cf75734c009cdc2a6e984357a2f7807",
+    "diff-check.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "powershell-green-2.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "powershell-red.stderr.log": "a7c5d307add555404e790a80464d3769d9ed3e930396c7302253de436f36d21e",
+    "diff-check-2.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "powershell-red.stdout.log": "d697aefe64fb809d522517e446dbc1efb9b64dd0a3558c00632e001b7bdfc253",
+    "bash-green-2.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "powershell-green.stderr.log": "55f6e2178214a06eded03d196e343422f24cf820bcd42159d7ebf05bd7149657",
+    "diff-check.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "green-commands.json": "240763e74293eaaf8f2f04ec8a9e441708dab1293822190bb77f0e0e3ac13b41",
+    "workflow-controls.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff-check-2.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "red-commands.json": "524d465abdae3609c84308b9430d2f31fde67c69efdbeb6cf36e92e2fe87ef28",
+    "workflow-controls-2.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "workflow-controls.stderr.log": "974227a3a4f82d18530019d0d050993818216f52818ff4204fcb6a4d3620a5c2"
+  },
+  "patch_sha256": "df4a241f1a2ff944a974a336ef3e928631631c5bac064e6c53576a4bcbc6d833",
+  "limits": [
+    "PowerShell exercised on Linux; hosted native Windows rerun remains required.",
+    "No staging/commit/provider/network/formalQA; current live workflow stays unchanged."
+  ]
+}

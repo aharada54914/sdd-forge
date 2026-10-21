@@ -1,0 +1,14 @@
+{
+  "tests/phase2-guard-invariants.tests.sh": {
+    "baseline_sha256": "6fea122231c29fabe7ad8231656678dd2e5ac542961a168931a01dc7585eace7",
+    "candidate_sha256": "2f3ef6c7ab6faf62028790e9575cbd592c88a32716192970c54978aa31ff1e1a"
+  },
+  "tests/phase2-guard-invariants.tests.ps1": {
+    "baseline_sha256": "3bd0b77a2158185d8f9bdf977182f4a0e9304620a1c854d08a846e01335f6635",
+    "candidate_sha256": "140f5bdda1f695ea3e4b80f723e869892e479f2f1515e7e7e85a0e8e469a4a02"
+  },
+  "tests/fixtures/phase2-guard-parity-current-publication.json": {
+    "baseline_sha256": null,
+    "candidate_sha256": "b2c1e3137179f0c774fd3f9641c1b0043a532d89a14dbf1008cb14b961c3d0d8"
+  }
+}

@@ -1,0 +1,33 @@
+ok: TEST-025(1): generator exits 0 against a clean fixture Registry
+ok: TEST-025(2): fresh output is byte-identical to the golden expected projection
+ok: TEST-025(3): _generated block carries source/schema_version/sha256/notice correctly
+ok: TEST-025(4): no comment-line ('# Generated...') convention anywhere in the projection
+ok: TEST-025(5): capability_gate_map omits the promotion-stage gate (dangling-reference filtering), sorted, empty-array capability preserved
+ok: TEST-026(1): --check exits 0 against a freshly-regenerated, unmutated file
+ok: TEST-026(2): --check exits non-zero with a 'stale' diagnostic against a hand-mutated file
+ok: TEST-026(3): --check performs no filesystem write (mtime unchanged)
+ok: TEST-026(4): missing canonical Registry fails closed with a diagnostic
+ok: run-all.sh registers this suite
+ok: human-copy: staged workflow candidate registers this suite's CI steps, including the --check drift-lock step (Scope)
+ok: human-copy: staged workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: candidate: authenticated archive permits only additive protections; negative controls pass
+ok: human-copy: authenticated archive permits only additive protections; negative controls pass
+ok: QG-fix: live inventory preserves the authenticated candidate with verified additive protections
+ok: QG-fix: live generator preserves candidate semantics with verified baseline additions
+ok: generator regression control rejects missing shell keys in all three contracts
+ok: generator regression control rejects a case-changed export mapping
+ok: human-copy: applied archive inventory preserved with verified additive protections
+ok: human-copy: applied archive generator preserved with verified baseline additions
+ok: QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite
+ok: QG-fix: rebuilt CI workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: QG-fix: rebuilt CI workflow candidate sha256 matches its own MANIFEST.sha256.candidate
+ok: candidate bundle: all seven manifest hashes match
+ok: candidate bundle mutation missing rejected with expected diagnostic
+ok: candidate bundle mutation duplicate rejected with expected diagnostic
+ok: candidate bundle mutation malformed rejected with expected diagnostic
+ok: candidate bundle mutation hash rejected with expected diagnostic
+ok: QG-fix: rebuilt CI workflow candidate is a job-set superset of live (structural, not just a step-name grep)
+ok: Done When #4: no version string was hand-mutated in this task's production files (grep self-check)
+---- summary: pass=31 fail=1 designed-red=0 ----
+generate-gate-capabilities suite FAILED (31 passed, 1 failed, 0 designed-red)

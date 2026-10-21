@@ -1,0 +1,10 @@
+diff --git a/tests/model-policy.tests.py b/tests/model-policy.tests.py
+index 40048718..b7a7095f 100644
+--- a/tests/model-policy.tests.py
++++ b/tests/model-policy.tests.py
+@@ -15 +15 @@ import os
+-from pathlib import Path
++from pathlib import Path, PurePosixPath
+@@ -1008 +1008 @@ class PortableBashRuntime(unittest.TestCase):
+-            self.assertEqual(bash_command(Path('a/select.sh'), ['--x', 'y']), ['bash', 'a/select.sh', '--x', 'y'])
++            self.assertEqual(bash_command(PurePosixPath('a/select.sh'), ['--x', 'y']), ['bash', 'a/select.sh', '--x', 'y'])
