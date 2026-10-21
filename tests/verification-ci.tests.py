@@ -943,6 +943,26 @@ class A9AggregateTests(AggregateFixture):
         self.jobs[-1] = successful
         self.invoke(expected=1)
 
+    def test_TEST024_unexecuted_skip_retains_requested_runner_labels(self):
+        self.configure('workflow_dispatch')
+        original = copy.deepcopy(self.jobs[-1])
+        for labels in ([], [self.workflow['jobs']['a9-advisory']['runs-on']]):
+            for runner_id, runner_name in ((None, None), (0, '')):
+                with self.subTest(labels=labels, runner_id=runner_id):
+                    self.jobs[-1] = copy.deepcopy(original)
+                    self.jobs[-1].update(labels=labels, runner_id=runner_id, runner_name=runner_name)
+                    self.check_complete(self.invoke(), False)
+
+    def test_TEST024_unexecuted_skip_rejects_unrequested_runner_labels(self):
+        self.configure('workflow_dispatch')
+        original = copy.deepcopy(self.jobs[-1])
+        for labels in (['windows-latest'], ['ubuntu-latest', 'self-hosted'],
+                       ['ubuntu-latest', 'ubuntu-latest'], 'ubuntu-latest', None):
+            with self.subTest(labels=labels):
+                self.jobs[-1] = copy.deepcopy(original)
+                self.jobs[-1].update(labels=labels, runner_id=None, runner_name=None)
+                self.invoke(expected=1)
+
     def test_TEST024_detector_and_skip_observation_mismatch_matrix(self):
         self.configure()
         original = copy.deepcopy(self.jobs)
@@ -954,7 +974,7 @@ class A9AggregateTests(AggregateFixture):
         for field, value in dict(labels=['windows-latest'], runner_id=0, runner_name='',
                                  started_at=None, completed_at=None).items():
             changes.append(('detector-'+field, -2, field, value))
-        for field, value in dict(labels=['ubuntu-latest'], runner_id=999, runner_name='executed',
+        for field, value in dict(labels=['windows-latest'], runner_id=999, runner_name='executed',
                                  steps=[copy.deepcopy(original[-2]['steps'][-1])]).items():
             changes.append(('skip-'+field, -1, field, value))
         for label, index, field, value in changes:
