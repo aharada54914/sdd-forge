@@ -233,6 +233,9 @@ class LaunchFixture(unittest.TestCase):
                 (self.root / path).write_bytes(evidence)
                 model['lifecycle'] = 'current'
                 model['adoption'] = [{'role': role, 'path': path, 'sha256': sha_bytes(evidence)} for role in roles]
+            else:
+                # This caller policy is a synthetic Anthropic fixture, not live adoption evidence.
+                model['adoption'] = []
         return policy
 
     def policy_model(self, name):
@@ -447,6 +450,17 @@ class LaunchFixture(unittest.TestCase):
 
 
 class LaunchControls(LaunchFixture):
+
+    def test_synthetic_fixture_does_not_inherit_live_adoption_paths(self):
+        model = next(m for m in self.trusted_policy['models'] if m['id'] == 'gpt-6-astra')
+        model['adoption'] = [{'role': 'implementer', 'path': 'uncopied-live-adoption.json', 'sha256': 'a' * 64}]
+        policy = self.fixture_policy()
+        self.assertEqual(next(m for m in policy['models'] if m['id'] == 'gpt-6-astra')['adoption'], [])
+        for candidate in policy['models']:
+            if candidate['id'] not in ANTHROPIC:
+                self.assertEqual(candidate['adoption'], [])
+        self.assertFalse((self.root / 'uncopied-live-adoption.json').exists())
+
 
     def test_controls_cli_binds_valid_role_selection(self):
         env = {'SDD_MODEL_SPEC_REVIEWER_A': 'anthropic/sonnet'}

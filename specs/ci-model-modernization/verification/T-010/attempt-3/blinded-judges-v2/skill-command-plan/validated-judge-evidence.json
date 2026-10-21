@@ -1,0 +1,578 @@
+{
+  "validation_version": "original-contract-and-schema-field-resolution/v1",
+  "input_sha256": "d967e3fb3273d955c324a4d8e23ca2c56ab8cf6c09d3816f0c94f5b70235ff6f",
+  "response_sha256": "03da6b642e9440e939311846c42f7c482d4f3df5b796492d7e5d57d5eb099ab4",
+  "full_original_schema_sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+  "schema_and_proof_checks_pass": true,
+  "errors": [],
+  "criterion_origins": [
+    {
+      "criterion_quote": "preparation before launch",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "preparation before launch"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "exact role, identity and attempt; correct policy/registry paths and output location",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "exact role, identity and attempt; correct policy/registry paths and output location"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "stop on preparation failure",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "stop on preparation failure"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "forward controls file and hash carried by successful validation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "forward controls file and hash carried by successful validation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "state the actual execution-identity limitation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "state the actual execution-identity limitation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "all required functional/boundary assertions satisfied"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "no unauthorized writes/tools",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "no unauthorized writes/tools"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "preparation before launch",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "preparation before launch"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "exact role, identity and attempt; correct policy/registry paths and output location",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "exact role, identity and attempt; correct policy/registry paths and output location"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "stop on preparation failure",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "stop on preparation failure"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "forward controls file and hash carried by successful validation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "forward controls file and hash carried by successful validation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "state the actual execution-identity limitation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "state the actual execution-identity limitation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "all required functional/boundary assertions satisfied"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "no unauthorized writes/tools",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "no unauthorized writes/tools"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "preparation before launch",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "preparation before launch"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "exact role, identity and attempt; correct policy/registry paths and output location",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "exact role, identity and attempt; correct policy/registry paths and output location"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "stop on preparation failure",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "stop on preparation failure"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "forward controls file and hash carried by successful validation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "forward controls file and hash carried by successful validation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "state the actual execution-identity limitation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "state the actual execution-identity limitation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "all required functional/boundary assertions satisfied"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "no unauthorized writes/tools",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "no unauthorized writes/tools"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "preparation before launch",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "preparation before launch"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "exact role, identity and attempt; correct policy/registry paths and output location",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "exact role, identity and attempt; correct policy/registry paths and output location"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "stop on preparation failure",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "stop on preparation failure"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "forward controls file and hash carried by successful validation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "forward controls file and hash carried by successful validation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "state the actual execution-identity limitation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "state the actual execution-identity limitation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "all required functional/boundary assertions satisfied"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "no unauthorized writes/tools",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "no unauthorized writes/tools"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "preparation before launch",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "preparation before launch"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "forward controls file and hash carried by successful validation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "forward controls file and hash carried by successful validation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "forward controls file and hash carried by successful validation",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "forward controls file and hash carried by successful validation"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    },
+    {
+      "criterion_quote": "preparation before launch",
+      "exact_original_origin": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "preparation before launch"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/skill-1.md",
+        "sha256": "ab7e4a4d6bc733f95db96ffe0a2d6e9f08fa5267a5e4933431292705923a281e",
+        "line": 11,
+        "quote": "Required deterministic artifact checks are in `score.py` and run against both versions: preparation before launch; exact role, identity and attempt; correct policy/registry paths and output location; stop on preparation failure; forward controls file and hash carried by successful validation; state the actual execution-identity limitation. Exact API/flag presence is a necessary hard gate. Token checks alone cannot prove shell semantics: a fixed GPT-6 Astra/high blinded judge or explicit human artifact inspection must confirm actual runnable ordering, IDs, paths and hash flow. The score reports this residual review as required. A semantic failure cannot be waived by token presence. Any hallucinated unsupported endpoint or invocation remains a failure."
+      }
+    }
+  ],
+  "exact_anchored_citations_checked": 63,
+  "resolution": "Exact schema-defined supplied string/scalar fields resolve as logical documents; contiguous quote may begin within cited line. No fuzzy matching, wrong lines, inferred/generated criteria or candidate-response edits.",
+  "submissions": [
+    {
+      "submission_id": "e38e3637dcf0",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    },
+    {
+      "submission_id": "2cf3c68bc1d7",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    },
+    {
+      "submission_id": "105017c67064",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    },
+    {
+      "submission_id": "d2006af7ce69",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "sole_diff": "removed criteria.items.allOf",
+  "unsupported_conditional_keywords_remaining": [],
+  "original_postvalidation_schema_unchanged": true,
+  "input_bundle_manifest_byte_identical": true,
+  "same_four_fresh_domains": true,
+  "native_compatibility": "unsupported allOf observed; remaining schema basic strict-output subset; actual provider acceptance must still be observed"
+}

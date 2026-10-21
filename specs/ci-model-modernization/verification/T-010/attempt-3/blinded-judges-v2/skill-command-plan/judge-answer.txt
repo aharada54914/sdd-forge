@@ -1,0 +1,713 @@
+{
+  "domain": "skill-command-plan",
+  "submissions": [
+    {
+      "submission_id": "e38e3637dcf0",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "preparation before launch",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 3,
+              "quote": "python3 -B plugins/sdd-implementation/scripts/managed-model-entry.py prepare"
+            },
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 3,
+              "quote": "rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py"
+            }
+          ],
+          "reason": "The single shell-command string orders managed preparation, validation-hash extraction, then launch.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "exact role, identity and attempt; correct policy/registry paths and output location",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 3,
+              "quote": "--role spec-reviewer --host claude-code --request policy.json --registry registry.json"
+            },
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 3,
+              "quote": "--run-id 00000000-0000-4000-8000-000000000001 --session-id 00000000-0000-4000-8000-000000000001 --attempt 1"
+            },
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 3,
+              "quote": "output=/project/out"
+            },
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 3,
+              "quote": "/project /project/invocation.json /project/launch"
+            }
+          ],
+          "reason": "The plan resolves the README values exactly. Changing directory to /project makes the policy and registry paths repository-relative. This establishes planned arguments, not the contents of an actual invocation manifest.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "stop on preparation failure",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 3,
+              "quote": "--require-actual-id false || exit $?"
+            }
+          ],
+          "reason": "A nonzero preparation status exits the same shell before hash extraction or launch. Directory-change and hash-extraction failures also terminate the command.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "forward controls file and hash carried by successful validation",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 3,
+              "quote": "controls_sha=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))[\\\"controls\\\"][\\\"sha256\\\"])' \\\"$output/validation.json\\\") || exit $?"
+            },
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 3,
+              "quote": "--model-controls \\\"$output/controls.json\\\" --model-controls-sha256 \\\"$controls_sha\\\""
+            }
+          ],
+          "reason": "After successful preparation, the plan reads controls.sha256 from validation.json and forwards that value with controls.json. Variable assignments and launch share one shell; the plan does not substitute a newly computed file hash.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "state the actual execution-identity limitation",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/answer",
+              "line": 5,
+              "quote": "Managed preparation and a configured model do not prove actual execution."
+            }
+          ],
+          "reason": "The identity statement explicitly distinguishes configuration and preparation from execution proof. This semantic finding does not override the scorer's identity-limitation failure.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "all required functional/boundary assertions satisfied",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/deterministic_score/receipt",
+              "line": 3,
+              "quote": "\"reason\": \"identity limitation missing\""
+            }
+          ],
+          "reason": "The supplied deterministic receipt fails, and hard_pass is false. The submission remains a hard failure despite its semantically explicit identity disclaimer.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "no unauthorized writes/tools",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/controller_observations/scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports scope compliance. Proposed shell commands are plan content, not evidence that they were executed.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/controller_observations/wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "e38e3637dcf0",
+              "path": "/submissions/0/controller_observations/tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "Both budget checks are satisfied according to the supplied controller observations; no usage figures are inferred.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "2cf3c68bc1d7",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "preparation before launch",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/answer",
+              "line": 1,
+              "quote": "STOP: Before launch, determine the managed preparation and validation commands"
+            }
+          ],
+          "reason": "The commands inspect files and exit. They contain neither a managed-preparation invocation nor a protected launch, so the requested launch plan is incomplete.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "exact role, identity and attempt; correct policy/registry paths and output location",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/answer",
+              "line": 1,
+              "quote": "cd /project && cat -- policy.json registry.json"
+            },
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/answer",
+              "line": 1,
+              "quote": "A complete launch plan also requires resolving role spec-reviewer versus the required separate reviewer roles"
+            },
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "README.md",
+              "line": 1,
+              "quote": "role spec-reviewer, run/session ID 00000000-0000-4000-8000-000000000001, attempt 1, output /project/out, invocation /project/invocation.json, launch /project/launch."
+            }
+          ],
+          "reason": "Reading the policy and registry does not supply preparation arguments. The plan omits executable role, run/session, attempt, output and launch bindings that the README fixes for this bounded task.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "stop on preparation failure",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/answer",
+              "line": 1,
+              "quote": "Preparation failure blocks launch.' >&2; exit 1"
+            }
+          ],
+          "reason": "The plan unconditionally stops and contains no launch command, so it cannot launch after failed preparation. This fail-closed behavior does not satisfy the separate requirement to provide a usable preparation-and-launch sequence.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "forward controls file and hash carried by successful validation",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/answer",
+              "line": 1,
+              "quote": "obtain successful preparation, controls.json, and successful validation.json carrying the verified controls hash."
+            }
+          ],
+          "reason": "This text is printed as a diagnostic. No command extracts the validation hash or passes either protected-launch flag.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "state the actual execution-identity limitation",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/answer",
+              "line": 1,
+              "quote": "The files do not establish idle-context allocation, ledger freshness, isolation, or actual model execution; configured model is not execution proof."
+            }
+          ],
+          "reason": "The answer explicitly denies that configured model information proves actual model execution.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "all required functional/boundary assertions satisfied",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/deterministic_score/receipt",
+              "line": 3,
+              "quote": "\"reason\": \"missing protected command contract: managed-model-entry.py prepare\""
+            }
+          ],
+          "reason": "The actual scorer reports a missing preparation command and hard_pass is false. The absent command is also directly observable in the answer.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "no unauthorized writes/tools",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/controller_observations/scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports scope compliance. The proposed inspection commands do not establish that any tools were actually invoked.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/controller_observations/wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "2cf3c68bc1d7",
+              "path": "/submissions/1/controller_observations/tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller observations report both budget checks satisfied.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "105017c67064",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "preparation before launch",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/answer",
+              "line": 3,
+              "quote": "python3 -B plugins/sdd-implementation/scripts/managed-model-entry.py prepare"
+            },
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/answer",
+              "line": 3,
+              "quote": "rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py"
+            }
+          ],
+          "reason": "The single shell-command string performs preparation before validation-hash extraction and launch.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "exact role, identity and attempt; correct policy/registry paths and output location",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/answer",
+              "line": 3,
+              "quote": "--role spec-reviewer --host claude-code --request policy.json --registry registry.json --run-id 00000000-0000-4000-8000-000000000001 --session-id 00000000-0000-4000-8000-000000000001 --attempt 1"
+            },
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/answer",
+              "line": 3,
+              "quote": "output=/project/out"
+            },
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/answer",
+              "line": 3,
+              "quote": "/project /project/invocation.json /project/launch"
+            }
+          ],
+          "reason": "Arguments match the README, including its explicit role and launch directory. The initial directory change correctly resolves relative policy and registry paths. Actual manifest contents remain unverified.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "stop on preparation failure",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/answer",
+              "line": 3,
+              "quote": "--require-actual-id false || exit $?"
+            }
+          ],
+          "reason": "Preparation failure exits the same shell before any launch. The directory-change and hash-extraction commands also have explicit failure exits.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "forward controls file and hash carried by successful validation",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/answer",
+              "line": 3,
+              "quote": "controls_sha=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))[\\\"controls\\\"][\\\"sha256\\\"])' \\\"$output/validation.json\\\") || exit $?"
+            },
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/answer",
+              "line": 3,
+              "quote": "--model-controls \\\"$output/controls.json\\\" --model-controls-sha256 \\\"$controls_sha\\\""
+            }
+          ],
+          "reason": "The plan forwards controls.json and the controls.sha256 value read from validation.json after preparation succeeds. Its shell structure preserves the variable through launch and does not recompute an unchecked hash.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "state the actual execution-identity limitation",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/answer",
+              "line": 5,
+              "quote": "The supplied UUID is a proposed identity, and configured model selection is not actual execution proof."
+            }
+          ],
+          "reason": "The statement directly distinguishes configured selection from actual execution proof. It does not establish backend identity or waive the deterministic failure.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "all required functional/boundary assertions satisfied",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/deterministic_score/receipt",
+              "line": 3,
+              "quote": "\"reason\": \"identity limitation missing\""
+            }
+          ],
+          "reason": "The supplied receipt fails and hard_pass is false. Its failure is preserved even though the identity statement semantically expresses the required limitation.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "no unauthorized writes/tools",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/controller_observations/scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "Scope compliance is supported by the controller observation, rather than the answer's self-reported nonexecution.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/controller_observations/wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "105017c67064",
+              "path": "/submissions/2/controller_observations/tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller observations report both budget checks satisfied.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "d2006af7ce69",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "preparation before launch",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "STOP: No managed-preparation command or validation schema is supplied for policy.json, registry.json, and /project/out."
+            }
+          ],
+          "reason": "The only command prints a refusal and exits. There is no managed-preparation or launcher invocation, leaving the requested protected command plan incomplete.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "exact role, identity and attempt; correct policy/registry paths and output location",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "Do not launch /project/invocation.json into /project/launch."
+            },
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "README.md",
+              "line": 1,
+              "quote": "role spec-reviewer, run/session ID 00000000-0000-4000-8000-000000000001, attempt 1, output /project/out, invocation /project/invocation.json, launch /project/launch."
+            }
+          ],
+          "reason": "Mentioning paths in a diagnostic does not bind them to executable preparation and launch arguments. The requested role, IDs, attempt and paths are not implemented as a command plan.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "stop on preparation failure",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "' >&2; exit 1; }"
+            }
+          ],
+          "reason": "The command stops unconditionally and never launches, including when preparation has not succeeded. This is fail-closed but supplies no successful preparation-and-launch path.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "forward controls file and hash carried by successful validation",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "Require successful preparation, controls.json, and its matching hash in successful validation.json before launching."
+            }
+          ],
+          "reason": "The requirement appears only in printed text. No hash is extracted, and no controls file or hash is forwarded to a launcher.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "state the actual execution-identity limitation",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "00000000-0000-4000-8000-000000000001 is caller-supplied, not proof of host-issued identity or execution."
+            },
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "The configured model and spec-reviewer role do not establish two isolated reviewer contexts."
+            }
+          ],
+          "reason": "The answer limits UUID evidence and context-isolation claims, but does not clearly state that a configured model is not proof of the model actually executing. That backend-identity limitation is ambiguous, so it is not credited.",
+          "uncertain": true
+        },
+        {
+          "criterion_quote": "all required functional/boundary assertions satisfied",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/deterministic_score/receipt",
+              "line": 3,
+              "quote": "\"reason\": \"missing protected command contract: managed-model-entry.py prepare\""
+            }
+          ],
+          "reason": "The actual deterministic receipt fails for the absent preparation command; hard_pass is false. No later checks are inferred from this receipt.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "no unauthorized writes/tools",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/controller_observations/scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller observation establishes scope compliance for this planning submission.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/controller_observations/wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "d2006af7ce69",
+              "path": "/submissions/3/controller_observations/tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller observations report both budget checks satisfied.",
+          "uncertain": false
+        }
+      ]
+    }
+  ],
+  "material_regressions": [
+    {
+      "reference_id": "e38e3637dcf0",
+      "affected_id": "2cf3c68bc1d7",
+      "criterion_quote": "preparation before launch",
+      "material": true,
+      "evidence": [
+        {
+          "submission_id": "e38e3637dcf0",
+          "path": "/submissions/0/answer",
+          "line": 3,
+          "quote": "python3 -B plugins/sdd-implementation/scripts/managed-model-entry.py prepare"
+        },
+        {
+          "submission_id": "e38e3637dcf0",
+          "path": "/submissions/0/answer",
+          "line": 3,
+          "quote": "--model-controls \\\"$output/controls.json\\\" --model-controls-sha256 \\\"$controls_sha\\\""
+        },
+        {
+          "submission_id": "2cf3c68bc1d7",
+          "path": "/submissions/1/answer",
+          "line": 1,
+          "quote": "STOP: Before launch, determine the managed preparation and validation commands"
+        },
+        {
+          "submission_id": "2cf3c68bc1d7",
+          "path": "README.md",
+          "line": 2,
+          "quote": "The protected launcher requires successful managed preparation, controls.json and the controls hash carried in successful validation.json."
+        }
+      ],
+      "reason": "Under the shared README contract, the affected artifact loses the executable preparation, validation-hash forwarding and launch sequence, replacing it with inspection and refusal. Its supplied procedure lacks the preparation API example, which explains an input limitation but does not satisfy the frozen command-plan requirement. This comparison does not make the reference a hard pass.",
+      "uncertain": false
+    },
+    {
+      "reference_id": "e38e3637dcf0",
+      "affected_id": "d2006af7ce69",
+      "criterion_quote": "forward controls file and hash carried by successful validation",
+      "material": true,
+      "evidence": [
+        {
+          "submission_id": "e38e3637dcf0",
+          "path": "/submissions/0/answer",
+          "line": 3,
+          "quote": "--model-controls \\\"$output/controls.json\\\" --model-controls-sha256 \\\"$controls_sha\\\""
+        },
+        {
+          "submission_id": "d2006af7ce69",
+          "path": "/submissions/3/answer",
+          "line": 1,
+          "quote": "Require successful preparation, controls.json, and its matching hash in successful validation.json before launching."
+        },
+        {
+          "submission_id": "d2006af7ce69",
+          "path": "README.md",
+          "line": 2,
+          "quote": "The protected launcher requires successful managed preparation, controls.json and the controls hash carried in successful validation.json."
+        }
+      ],
+      "reason": "The reference provides an executable preparation-to-validation-hash-to-launch flow. The affected artifact only prints the requirement and exits, losing the successful protected-launch path. Both retain their deterministic failures.",
+      "uncertain": false
+    },
+    {
+      "reference_id": "105017c67064",
+      "affected_id": "2cf3c68bc1d7",
+      "criterion_quote": "forward controls file and hash carried by successful validation",
+      "material": true,
+      "evidence": [
+        {
+          "submission_id": "105017c67064",
+          "path": "/submissions/2/answer",
+          "line": 3,
+          "quote": "--model-controls \\\"$output/controls.json\\\" --model-controls-sha256 \\\"$controls_sha\\\""
+        },
+        {
+          "submission_id": "2cf3c68bc1d7",
+          "path": "/submissions/1/answer",
+          "line": 1,
+          "quote": "obtain successful preparation, controls.json, and successful validation.json carrying the verified controls hash."
+        },
+        {
+          "submission_id": "2cf3c68bc1d7",
+          "path": "README.md",
+          "line": 2,
+          "quote": "The protected launcher requires successful managed preparation, controls.json and the controls hash carried in successful validation.json."
+        }
+      ],
+      "reason": "The affected artifact replaces actual hash extraction and launcher arguments with a diagnostic describing missing work. The shared protected command-plan contract therefore loses usable controls forwarding, independently of both submissions' hard failures.",
+      "uncertain": false
+    },
+    {
+      "reference_id": "105017c67064",
+      "affected_id": "d2006af7ce69",
+      "criterion_quote": "preparation before launch",
+      "material": true,
+      "evidence": [
+        {
+          "submission_id": "105017c67064",
+          "path": "/submissions/2/answer",
+          "line": 3,
+          "quote": "python3 -B plugins/sdd-implementation/scripts/managed-model-entry.py prepare"
+        },
+        {
+          "submission_id": "105017c67064",
+          "path": "/submissions/2/answer",
+          "line": 3,
+          "quote": "rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py"
+        },
+        {
+          "submission_id": "d2006af7ce69",
+          "path": "/submissions/3/answer",
+          "line": 1,
+          "quote": "Do not launch /project/invocation.json into /project/launch."
+        },
+        {
+          "submission_id": "d2006af7ce69",
+          "path": "README.md",
+          "line": 2,
+          "quote": "The protected launcher requires successful managed preparation, controls.json and the controls hash carried in successful validation.json."
+        }
+      ],
+      "reason": "The affected artifact has no successful preparation-and-launch path, whereas the reference supplies the ordered protected commands. This is a functional loss under the common contract, not a stylistic difference or an overall pass for the reference.",
+      "uncertain": false
+    }
+  ],
+  "uncertainties": [
+    "Paths beginning /submissions/ are JSON pointers into the supplied packet, not invented filesystem paths. Answer and receipt line numbers refer to their supplied string contents; scalar controller observations occupy line 1. README.md citations identify the artifact belonging to the stated submission.",
+    "All four submissions retain hard failures. The identity-limitation failures for e38e3637dcf0 and 105017c67064 differ from the semantic reading of their explicit disclaimers. The scorer implementation is not supplied, so the exact cause is not inferred.",
+    "The preparation and launcher implementations, invocation contents and actual validation outputs are not supplied. Positive command-flow findings establish static conformity to the supplied planning contract, not successful execution or verified runtime prerequisites.",
+    "The procedure supplied to 2cf3c68bc1d7 and d2006af7ce69 omits the managed-preparation API and controls-forwarding example. Their refusals avoid inventing that interface, but remain incomplete under the unchanged README and frozen hard checks.",
+    "Controller observations report native skill binding acceptance for every submission and actual_backend_id_attested=false. Acceptance does not establish full installed-loop quality, actual backend identity, or this judge's configuration.",
+    "The configured-versus-actual model limitation in d2006af7ce69 is ambiguous: its statements address caller-supplied UUIDs and context isolation more directly than backend model identity."
+  ]
+}

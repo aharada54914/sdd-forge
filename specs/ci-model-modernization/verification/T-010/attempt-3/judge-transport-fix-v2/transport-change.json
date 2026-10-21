@@ -1,0 +1,9 @@
+{
+  "reason": "provider strict output schema rejected allOf; transport-only removal; full original schema and conditional independently validated after output",
+  "removed_path": "properties.submissions.items.properties.criteria.items.allOf",
+  "original_schema_sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+  "derived_schema_sha256": "46884e1f5192ff5d66a30501d89e480bed4dfeaefca0f6b2c3e984454666548d",
+  "original_bundle_manifest_sha256": "8a682aa69eccd1f4e48865b00bd0ec42de881d79d1b7b52d27937f662efe7de8",
+  "candidate_outputs_or_rubrics_changed": false,
+  "judge_answers_collected": 0
+}

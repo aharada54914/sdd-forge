@@ -1,0 +1,3 @@
+Updated `selector.py` to validate all supported fields, enforce freshness and eligibility, prioritize mandatory pins, and fall back in catalog order without mutating inputs.
+
+Only `selector.py` was changed. The existing test passed.

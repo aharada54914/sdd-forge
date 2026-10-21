@@ -1,0 +1,33 @@
+{
+  "at": "2026-10-21T13:05:22.285903+00:00",
+  "disposable_checkout": "/workspace/.task-scratch/ci-model-modernization/t010-policy-25fklbzw/checkout",
+  "root_product_files_changed": false,
+  "basis": "admitted229 immutable inputs plus Root-admitted native test harness24223de0; narrow adoption fragment preserves all six portable regressions; no root replacement",
+  "before": {
+    "policy": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+    "tests": "24223de0acb981651e03b71a4e5d8d6a6d25aa9b8e8abac6cd417a8366756243",
+    "registry": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b"
+  },
+  "after": {
+    "policy": "eb5ecc1940953a77e149c9cbe5eaaaf578a0e7b915af2bfd9e02687f3cf07f36",
+    "tests": "24223de0acb981651e03b71a4e5d8d6a6d25aa9b8e8abac6cd417a8366756243",
+    "registry": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b"
+  },
+  "rollback_exact": true,
+  "runs": [
+    {
+      "label": "candidate",
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c8ee9ce9dbcc61dccce3d58d574a8f0370d95e4e81b802087e2fc643a27a0f80"
+    },
+    {
+      "label": "restored-baseline",
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d5338da93e768e6f7266d24ab0762d34e5e7bbfbb758c5d735e296ed0bd9a213"
+    }
+  ],
+  "policy_proposal_sha256": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+  "test_fragment_sha256": "6aea5e54cdc8c4089c0b5b7344ad4432d798718e8c9454053d923a97937a0c99"
+}

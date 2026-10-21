@@ -1,0 +1,30 @@
+{
+  "status": "deterministic-pass",
+  "assertions": [
+    "public",
+    "unavailable",
+    "unknown-preference",
+    "floor",
+    "pin-valid",
+    "pin-unknown",
+    "pin-unavailable",
+    "pin-below-floor",
+    "pin-precedence",
+    "stale",
+    "role",
+    "unknown-only",
+    "malformed-floor",
+    "malformed-floor",
+    "malformed-floor",
+    "malformed-role",
+    "malformed-preferred",
+    "malformed-pinned",
+    "malformed-shadowed",
+    "malformed-unselected",
+    "duplicate",
+    "malformed-observation",
+    "malformed-available",
+    "compatible-extra"
+  ],
+  "outer_shape_rejections": 4
+}

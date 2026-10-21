@@ -1,0 +1,294 @@
+{
+  "protocol_version": "semantic-judge-protocol-v1",
+  "domain": "review",
+  "natural_request": "Review routing.py against README.md for correctness. Do not edit any files. Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}. Use one finding per independent defect and an empty findings list if there are no defects.\n\nPaired clean-control request:\nReview routing.py against README.md for correctness. Do not edit any files. Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}. Use one finding per independent defect and an empty findings list if there are no defects.\n",
+  "rubric_documents": [
+    {
+      "path": "criteria/model-rubric.md",
+      "content": "# Initial current-model adoption evaluation rubric\n\nDate: 2026-10-18 UTC\nStatus: Prepared before candidate outputs; evaluation not run\nAuthorization: approved model-selection-policy-research-20261018.md\n\n## Purpose and comparison controls\n\nEvaluate GPT-6.1 Sol for implementation/review and GPT-6 Luna for bounded investigation against the available previously registered GPT-6 Astra baseline. Each comparison varies the model only: identical fixture bytes, natural request, permitted tools, role-appropriate fixed effort and wall/tool budget. Use two fresh repetitions per case to expose obvious variability; this small project-shaped sample is not a general benchmark or a proof of universal model quality.\n\nThe current candidate list is an availability observation, not adoption proof. Re-discover availability and record actual CLI/schema before collecting outputs. Do not substitute unavailable models or reinterpret a host-configured ID as per-turn execution telemetry. Capture reroute notifications; state the exact identity-proof level. A comparison requiring unsupported actual execution-ID attestation is blocked rather than advertised as exact backend identity proof.\n\nCandidates receive separate temporary workspaces with ordinary project names, the same request and fixture files. Keep this rubric, model variant labels, expected findings and experiment metadata outside their input boundary. Do not expose unrelated repository/session content. No provider/network credentials, cloud writes, external panelist sends, registry edits or live notifications are part of these trials.\n\n## Cases and observable scoring\n\n| Case | Candidate / baseline | Natural task | Evidence and pass rule |\n|---|---|---|---|\n| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |\n| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |\n| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |\n\nFor each model/case use two fresh runs. Implementation and review use high effort; bounded investigation uses low effort, with the same effort within each paired comparison. Effort names do not imply equal compute across models. Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success. Record observed usage only when supplied; no synthetic price or dollar estimate.\n\n## Judgment and promotion\n\nDeterministic artifact/test results and exact seeded findings are primary. If an independent native judgment is used, keep the judge fixed at GPT-6 Astra/high for all paired outputs, use fresh isolated contexts and blind model labels. Its role is to assess artifact quality against this frozen rubric, not to waive failed assertions or invent unavailable actual-ID evidence. Record judgment availability and residual model/self-preference bias.\n\nPromote a model only for roles with complete actual observations, all required functional/boundary assertions satisfied in both repetitions, no unauthorized writes/tools, and no unresolved material regression against the baseline. A failed candidate stays an update candidate; investigate and rerun a new versioned experiment rather than removing failed results. Retain every attempt, source/input/output hash and failure. A historical model unavailable to this account is not a fabricated comparison arm.\n\nThis is initial adoption evidence for a limited repository workload. Normal independent task reviews and quality gates still apply, with their existing identity/input contracts. Later role or skill changes require their own relevant controlled evaluation; skill comparisons keep the model fixed.\n",
+      "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8"
+    }
+  ],
+  "fixtures": [
+    {
+      "fixture_id": "9ec43d470f64",
+      "files": [
+        {
+          "path": "fixtures/9ec43d470f64/README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "fixtures/9ec43d470f64/routing.py",
+          "content": "def select(request, catalog, observation):\n    if False:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}\n",
+          "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d"
+        }
+      ]
+    },
+    {
+      "fixture_id": "633dd7d03089",
+      "files": [
+        {
+          "path": "fixtures/633dd7d03089/README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "fixtures/633dd7d03089/routing.py",
+          "content": "def select(request, catalog, observation):\n    if not observation[\"fresh\"]:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"] and row[\"id\"] in observation[\"available\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e"
+        }
+      ]
+    }
+  ],
+  "submissions": [
+    {
+      "submission_id": "073335c1e4ba",
+      "fixture_id": "9ec43d470f64",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "routing.py",
+          "content": "def select(request, catalog, observation):\n    if False:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}\n",
+          "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d"
+        }
+      ],
+      "answer": "{\"findings\":[{\"path\":\"routing.py\",\"line\":2,\"observed\":\"if False:\",\"impact\":\"The freshness check never runs, so a stale account observation can authorize routing.\"},{\"path\":\"routing.py\",\"line\":4,\"observed\":\"eligible = [row[\\\"id\\\"] for row in catalog if row[\\\"tier\\\"] >= request[\\\"floor\\\"] and request[\\\"role\\\"] in row[\\\"roles\\\"]]\",\"impact\":\"Account availability is never checked, so routing can select a model unavailable to the account.\"},{\"path\":\"routing.py\",\"line\":11,\"observed\":\"return {\\\"configured_id\\\": selected, \\\"actual_id\\\": selected, \\\"verified\\\": True}\",\"impact\":\"actual_id is fabricated from configuration instead of response telemetry, concealing a different execution model or the absence of telemetry.\"},{\"path\":\"routing.py\",\"line\":11,\"observed\":\"return {\\\"configured_id\\\": selected, \\\"actual_id\\\": selected, \\\"verified\\\": True}\",\"impact\":\"verified is always true, claiming execution-ID attestation even when response actual_id is absent.\"}]}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "feec674b1604d43002e986b0e2801c85e8d51c5d15c0f6149de1e17da9ea86f8",
+        "hard_pass": false,
+        "receipt": "{\n  \"status\": \"fail\",\n  \"reason\": \"missing, duplicate or invented finding\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "f07c09018a67",
+      "fixture_id": "633dd7d03089",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "routing.py",
+          "content": "def select(request, catalog, observation):\n    if not observation[\"fresh\"]:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"] and row[\"id\"] in observation[\"available\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e"
+        }
+      ],
+      "answer": "{\"findings\":[]}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+        "hard_pass": true,
+        "receipt": "{\n  \"status\": \"deterministic-pass\",\n  \"semantic_review\": \"required for natural-language consequences/command execution equivalence; no model judge run\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "5f0b23b9dec4",
+      "fixture_id": "9ec43d470f64",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "routing.py",
+          "content": "def select(request, catalog, observation):\n    if False:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}\n",
+          "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d"
+        }
+      ],
+      "answer": "{\"findings\":[{\"path\":\"routing.py\",\"line\":2,\"observed\":\"if False:\",\"impact\":\"Stale account observations never trigger rejection and can authorize routing.\"},{\"path\":\"routing.py\",\"line\":4,\"observed\":\"eligible = [row[\\\"id\\\"] for row in catalog if row[\\\"tier\\\"] >= request[\\\"floor\\\"] and request[\\\"role\\\"] in row[\\\"roles\\\"]]\",\"impact\":\"Selection ignores account availability, so it can route to a model unavailable to the account.\"},{\"path\":\"routing.py\",\"line\":11,\"observed\":\"return {\\\"configured_id\\\": selected, \\\"actual_id\\\": selected, \\\"verified\\\": True}\",\"impact\":\"actual_id is copied from configuration instead of response telemetry, misreporting execution when the response identifies a different model and inventing telemetry when it is absent.\"},{\"path\":\"routing.py\",\"line\":11,\"observed\":\"return {\\\"configured_id\\\": selected, \\\"actual_id\\\": selected, \\\"verified\\\": True}\",\"impact\":\"verified is always true, falsely claiming execution-ID attestation even when response actual_id is absent.\"}]}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "feec674b1604d43002e986b0e2801c85e8d51c5d15c0f6149de1e17da9ea86f8",
+        "hard_pass": false,
+        "receipt": "{\n  \"status\": \"fail\",\n  \"reason\": \"missing, duplicate or invented finding\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "b821be013f6a",
+      "fixture_id": "633dd7d03089",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "routing.py",
+          "content": "def select(request, catalog, observation):\n    if not observation[\"fresh\"]:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"] and row[\"id\"] in observation[\"available\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e"
+        }
+      ],
+      "answer": "{\"findings\":[]}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+        "hard_pass": true,
+        "receipt": "{\n  \"status\": \"deterministic-pass\",\n  \"semantic_review\": \"required for natural-language consequences/command execution equivalence; no model judge run\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "1017d65b3da8",
+      "fixture_id": "9ec43d470f64",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "routing.py",
+          "content": "def select(request, catalog, observation):\n    if False:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}\n",
+          "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d"
+        }
+      ],
+      "answer": "{\"findings\":[{\"path\":\"routing.py\",\"line\":2,\"observed\":\"if False:\",\"impact\":\"Stale account observations can authorize routing because the freshness rejection never executes.\"},{\"path\":\"routing.py\",\"line\":4,\"observed\":\"eligible = [row[\\\"id\\\"] for row in catalog if row[\\\"tier\\\"] >= request[\\\"floor\\\"] and request[\\\"role\\\"] in row[\\\"roles\\\"]]\",\"impact\":\"A model meeting the role and floor can be selected even when unavailable to the account because account availability is never checked.\"},{\"path\":\"routing.py\",\"line\":11,\"observed\":\"return {\\\"configured_id\\\": selected, \\\"actual_id\\\": selected, \\\"verified\\\": True}\",\"impact\":\"Execution telemetry is replaced with the configured model ID, misreporting executions where response actual_id differs and fabricating an actual_id when absent.\"},{\"path\":\"routing.py\",\"line\":11,\"observed\":\"return {\\\"configured_id\\\": selected, \\\"actual_id\\\": selected, \\\"verified\\\": True}\",\"impact\":\"Responses without actual_id are marked verified even though no execution-ID attestation exists.\"}]}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "feec674b1604d43002e986b0e2801c85e8d51c5d15c0f6149de1e17da9ea86f8",
+        "hard_pass": false,
+        "receipt": "{\n  \"status\": \"fail\",\n  \"reason\": \"missing, duplicate or invented finding\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "9b0fe4f46006",
+      "fixture_id": "633dd7d03089",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "routing.py",
+          "content": "def select(request, catalog, observation):\n    if not observation[\"fresh\"]:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"] and row[\"id\"] in observation[\"available\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e"
+        }
+      ],
+      "answer": "{\"findings\":[]}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+        "hard_pass": true,
+        "receipt": "{\n  \"status\": \"deterministic-pass\",\n  \"semantic_review\": \"required for natural-language consequences/command execution equivalence; no model judge run\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "fe1ae0f84cd1",
+      "fixture_id": "633dd7d03089",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "routing.py",
+          "content": "def select(request, catalog, observation):\n    if not observation[\"fresh\"]:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"] and row[\"id\"] in observation[\"available\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e"
+        }
+      ],
+      "answer": "{\"findings\":[]}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+        "hard_pass": true,
+        "receipt": "{\n  \"status\": \"deterministic-pass\",\n  \"semantic_review\": \"required for natural-language consequences/command execution equivalence; no model judge run\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "0ecffffc3ae3",
+      "fixture_id": "9ec43d470f64",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.\n",
+          "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043"
+        },
+        {
+          "path": "routing.py",
+          "content": "def select(request, catalog, observation):\n    if False:\n        raise ValueError(\"stale observation\")\n    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n\n\ndef record(selected, response):\n    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}\n",
+          "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d"
+        }
+      ],
+      "answer": "{\"findings\":[{\"path\":\"routing.py\",\"line\":2,\"observed\":\"if False:\",\"impact\":\"The freshness check never runs, so a stale account observation can authorize routing.\"},{\"path\":\"routing.py\",\"line\":4,\"observed\":\"eligible = [row[\\\"id\\\"] for row in catalog if row[\\\"tier\\\"] >= request[\\\"floor\\\"] and request[\\\"role\\\"] in row[\\\"roles\\\"]]\",\"impact\":\"Account availability is never checked, so routing can select a model unavailable to the observed account.\"},{\"path\":\"routing.py\",\"line\":11,\"observed\":\"return {\\\"configured_id\\\": selected, \\\"actual_id\\\": selected, \\\"verified\\\": True}\",\"impact\":\"Execution telemetry is replaced with the configured model ID, concealing a different response actual_id and fabricating one when absent.\"},{\"path\":\"routing.py\",\"line\":11,\"observed\":\"return {\\\"configured_id\\\": selected, \\\"actual_id\\\": selected, \\\"verified\\\": True}\",\"impact\":\"The record claims verification even when the response omits actual_id and no execution-ID attestation exists.\"}]}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "feec674b1604d43002e986b0e2801c85e8d51c5d15c0f6149de1e17da9ea86f8",
+        "hard_pass": false,
+        "receipt": "{\n  \"status\": \"fail\",\n  \"reason\": \"missing, duplicate or invented finding\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    }
+  ]
+}

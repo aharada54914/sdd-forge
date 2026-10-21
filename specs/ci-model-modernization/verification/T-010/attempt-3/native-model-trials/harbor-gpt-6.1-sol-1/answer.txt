@@ -1,0 +1,3 @@
+Updated `selector.py` to validate all supported fields, enforce eligibility and freshness, honor pins and preferences, and preserve catalog order without mutating inputs.
+
+The public function signature is unchanged. Only `selector.py` was edited. The existing test passed.

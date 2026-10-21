@@ -1,0 +1,709 @@
+{
+  "task_id": "T-010",
+  "attempt": 3,
+  "status": "AUTHORIZED_AFTER_CANARY_ADMISSION_PASS",
+  "source_commit": "e6bc5f5a91483f0755d3a13eca9b371ddddc4030",
+  "snapshot_root": "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot",
+  "source_pins_only": "immutable snapshot/inputs; never mutable Root",
+  "batches": [
+    {
+      "name": "harbor-rep-1",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-harbor-rep-1",
+        "--output",
+        "harbor-rep-1.json"
+      ],
+      "arms": [
+        {
+          "case": "harbor",
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/harbor-gpt-6.1-sol-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "harbor",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-1/project",
+            "--reviewed-harbor"
+          ]
+        },
+        {
+          "case": "harbor",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/harbor-gpt-6-astra-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "harbor",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-1/project",
+            "--reviewed-harbor"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "harbor-rep-2",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-harbor-rep-2",
+        "--output",
+        "harbor-rep-2.json"
+      ],
+      "arms": [
+        {
+          "case": "harbor",
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/harbor-gpt-6.1-sol-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "harbor",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-2/project",
+            "--reviewed-harbor"
+          ]
+        },
+        {
+          "case": "harbor",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/harbor-gpt-6-astra-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "harbor",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-2/project",
+            "--reviewed-harbor"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "orchard-rep-1",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-orchard-rep-1",
+        "--output",
+        "orchard-rep-1.json"
+      ],
+      "arms": [
+        {
+          "case": "orchard",
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/orchard-gpt-6.1-sol-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "orchard",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-1/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-1/answer.txt"
+          ]
+        },
+        {
+          "case": "orchard",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/orchard-gpt-6-astra-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "orchard",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-1/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-1/answer.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "orchard-rep-2",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-orchard-rep-2",
+        "--output",
+        "orchard-rep-2.json"
+      ],
+      "arms": [
+        {
+          "case": "orchard",
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/orchard-gpt-6.1-sol-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "orchard",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-2/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-2/answer.txt"
+          ]
+        },
+        {
+          "case": "orchard",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/orchard-gpt-6-astra-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "orchard",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-2/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-2/answer.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "meadow-rep-1",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-meadow-rep-1",
+        "--output",
+        "meadow-rep-1.json"
+      ],
+      "arms": [
+        {
+          "case": "meadow",
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/meadow-gpt-6.1-sol-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "meadow",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-1/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-1/answer.txt"
+          ]
+        },
+        {
+          "case": "meadow",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/meadow-gpt-6-astra-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "meadow",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-1/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-1/answer.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "meadow-rep-2",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-meadow-rep-2",
+        "--output",
+        "meadow-rep-2.json"
+      ],
+      "arms": [
+        {
+          "case": "meadow",
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/meadow-gpt-6.1-sol-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "meadow",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-2/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-2/answer.txt"
+          ]
+        },
+        {
+          "case": "meadow",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/meadow-gpt-6-astra-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "meadow",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-2/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-2/answer.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "willow-rep-1",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-willow-rep-1",
+        "--output",
+        "willow-rep-1.json"
+      ],
+      "arms": [
+        {
+          "case": "willow",
+          "model": "gpt-6-luna",
+          "effort": "low",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/willow-gpt-6-luna-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "willow",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1/answer.txt"
+          ]
+        },
+        {
+          "case": "willow",
+          "model": "gpt-6-astra",
+          "effort": "low",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/willow-gpt-6-astra-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "willow",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1/answer.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "willow-rep-2",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-willow-rep-2",
+        "--output",
+        "willow-rep-2.json"
+      ],
+      "arms": [
+        {
+          "case": "willow",
+          "model": "gpt-6-luna",
+          "effort": "low",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/willow-gpt-6-luna-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "willow",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2/answer.txt"
+          ]
+        },
+        {
+          "case": "willow",
+          "model": "gpt-6-astra",
+          "effort": "low",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/arms/willow-gpt-6-astra-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py",
+            "willow",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2/answer.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "skill-rep-1",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-skill-rep-1",
+        "--output",
+        "skill-rep-1.json"
+      ],
+      "arms": [
+        {
+          "case": "cedar",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/arms/cedar-gpt-6-astra-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/score_artifacts.py",
+            "cedar",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-1/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-1/answer.txt"
+          ]
+        },
+        {
+          "case": "maple",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 1,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/arms/maple-gpt-6-astra-1.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-1",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/score_artifacts.py",
+            "maple",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-1/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-1/answer.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "skill-rep-2",
+      "parallelism": 2,
+      "discovery_cwd": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/discovery",
+      "discovery_argv": [
+        "python3",
+        "-B",
+        "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/plugins/sdd-implementation/scripts/model-policy.py",
+        "discover",
+        "--host",
+        "codex-cli",
+        "--scope-id",
+        "t010-attempt3-skill-rep-2",
+        "--output",
+        "skill-rep-2.json"
+      ],
+      "arms": [
+        {
+          "case": "cedar",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/arms/cedar-gpt-6-astra-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/score_artifacts.py",
+            "cedar",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-2/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-2/answer.txt"
+          ]
+        },
+        {
+          "case": "maple",
+          "model": "gpt-6-astra",
+          "effort": "high",
+          "repetition": 2,
+          "argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py",
+            "--config",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/arms/maple-gpt-6-astra-2.json",
+            "--output",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-2",
+            "--trial"
+          ],
+          "scoring_argv": [
+            "python3",
+            "-B",
+            "/workspace/.task-scratch/ci-model-modernization/ci-t010-attempt3-x6jpw02p/snapshot/inputs/specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/score_artifacts.py",
+            "maple",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-2/project",
+            "--answer",
+            "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-2/answer.txt"
+          ]
+        }
+      ]
+    }
+  ],
+  "harbor_scoring": "STOP until Root safety review of actual 4 submitted repairs",
+  "judges": "fixed blinded Astra/high protocol preserved; not called in this phase",
+  "on_access_or_quota_failure": "preserve actual native error, pause further generation and notify Root; no auth change/substitution/retry",
+  "budgets": "unchanged 300 seconds/24 tools, two fresh repetitions",
+  "schema_cost": "5.00 Root controller planning allowance only; not actual provider usage/pricing",
+  "capability_diff": {
+    "removed_argv": [
+      "--disable",
+      "code_mode_host"
+    ],
+    "all_other_disabled_features_unchanged": true
+  },
+  "prior_attempts": "attempt1 unauthorized20 and attempt2 tool-unavailable2 retained; not quality comparisons"
+}

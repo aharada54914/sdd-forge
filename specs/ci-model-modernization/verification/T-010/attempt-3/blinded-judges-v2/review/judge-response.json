@@ -1,0 +1,1022 @@
+{
+  "domain": "review",
+  "submissions": [
+    {
+      "submission_id": "073335c1e4ba",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if False:"
+            },
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]"
+            },
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}"
+            }
+          ],
+          "reason": "The findings identify all three seeded defects and their real consequences. The constant-false guard permits stale observations; eligibility omits account availability; record ignores response telemetry, substitutes configuration for execution identity and claims verification without telemetry. These consequences follow from the source, independently of the answer's assertions.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Structured findings must cite existing file lines.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if False:"
+            },
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]"
+            },
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}"
+            }
+          ],
+          "reason": "All four findings cite existing routing.py lines. Each observed value exactly matches its cited source line after indentation is removed.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"path\":\"routing.py\",\"line\":2,\"observed\":\"if False:\",\"impact\":\"The freshness check never runs, so a stale account observation can authorize routing.\"}"
+            }
+          ],
+          "reason": "The answer contains only a JSON findings object, with the requested fields and concrete impacts.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "answer",
+              "line": 1,
+              "quote": "\"impact\":\"actual_id is fabricated from configuration instead of response telemetry, concealing a different execution model or the absence of telemetry.\""
+            },
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "answer",
+              "line": 1,
+              "quote": "\"impact\":\"verified is always true, claiming execution-ID attestation even when response actual_id is absent.\""
+            },
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "deterministic_score.receipt",
+              "line": 3,
+              "quote": "  \"reason\": \"missing, duplicate or invented finding\""
+            }
+          ],
+          "reason": "The answer reports four findings for the three seeded defects, splitting the configured-as-actual identity defect into overlapping telemetry and verification findings. Both consequences are real, but the frozen scorer rejects the finding set. Its hard failure remains a failure.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No file writes.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "controller_observations.scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller reports scope compliance, and both submitted artifact contents match the supplied fixture. This conclusion does not rely on self-reported compliance.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "controller_observations.wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "073335c1e4ba",
+              "path": "controller_observations.tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "Both budget checks are satisfied according to the supplied controller observations; this does not override the failed scorer receipt.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "f07c09018a67",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "with no invented critical issue in a paired clean control.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "f07c09018a67",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            },
+            {
+              "submission_id": "f07c09018a67",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if not observation[\"fresh\"]:"
+            },
+            {
+              "submission_id": "f07c09018a67",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"] and row[\"id\"] in observation[\"available\"]]"
+            },
+            {
+              "submission_id": "f07c09018a67",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "The empty review invents no issue. Source inspection supports it: stale observations are rejected, eligibility enforces account availability and role/floor, and recording preserves optional response telemetry without attesting absent telemetry. Caller validation is explicitly part of the contract.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Structured findings must cite existing file lines.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "f07c09018a67",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            }
+          ],
+          "reason": "There are no findings requiring citations and no invented source references.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "f07c09018a67",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            }
+          ],
+          "reason": "The answer is exclusively the requested JSON object.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "f07c09018a67",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            },
+            {
+              "submission_id": "f07c09018a67",
+              "path": "deterministic_score.receipt",
+              "line": 2,
+              "quote": "  \"status\": \"deterministic-pass\","
+            }
+          ],
+          "reason": "The empty list is appropriate for the supplied clean implementation, and the deterministic receipt passes. Semantic support comes from the source analysis above, not merely the receipt.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No file writes.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "f07c09018a67",
+              "path": "controller_observations.scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports scope compliance, and the submitted files match the clean fixture.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "f07c09018a67",
+              "path": "controller_observations.wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "f07c09018a67",
+              "path": "controller_observations.tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller reports both budget checks satisfied.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "5f0b23b9dec4",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if False:"
+            },
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]"
+            },
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}"
+            }
+          ],
+          "reason": "All three seeded defects are detected with concrete, source-supported consequences: stale observations bypass rejection, unavailable models remain eligible, and configured identity replaces response telemetry while verification is asserted even without telemetry.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Structured findings must cite existing file lines.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if False:"
+            },
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]"
+            },
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}"
+            }
+          ],
+          "reason": "All reported paths and line numbers exist; the observed strings exactly match the cited lines without indentation.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"path\":\"routing.py\",\"line\":2,\"observed\":\"if False:\",\"impact\":\"Stale account observations never trigger rejection and can authorize routing.\"}"
+            }
+          ],
+          "reason": "The answer contains only the requested JSON structure with concrete impacts.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "answer",
+              "line": 1,
+              "quote": "\"impact\":\"actual_id is copied from configuration instead of response telemetry, misreporting execution when the response identifies a different model and inventing telemetry when it is absent.\""
+            },
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "answer",
+              "line": 1,
+              "quote": "\"impact\":\"verified is always true, falsely claiming execution-ID attestation even when response actual_id is absent.\""
+            },
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "deterministic_score.receipt",
+              "line": 3,
+              "quote": "  \"reason\": \"missing, duplicate or invented finding\""
+            }
+          ],
+          "reason": "Four findings split the three seeded defects into an extra, overlapping identity finding. The telemetry and verification consequences are valid, but the submitted finding set fails the frozen scorer. That hard failure is preserved.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No file writes.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "controller_observations.scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports scope compliance, and the submitted files match the supplied fixture.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "controller_observations.wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "5f0b23b9dec4",
+              "path": "controller_observations.tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "Both controller budget checks pass; the scorer failure remains unaffected.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "b821be013f6a",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "with no invented critical issue in a paired clean control.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "b821be013f6a",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            },
+            {
+              "submission_id": "b821be013f6a",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if not observation[\"fresh\"]:"
+            },
+            {
+              "submission_id": "b821be013f6a",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"] and row[\"id\"] in observation[\"available\"]]"
+            },
+            {
+              "submission_id": "b821be013f6a",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "No issue is invented. The implementation rejects stale observations, filters account availability and role/floor, and separates configuration from optional execution telemetry. With caller-validated inputs, the empty review is supported.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Structured findings must cite existing file lines.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "b821be013f6a",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            }
+          ],
+          "reason": "There are no findings needing citations and no invented references.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "b821be013f6a",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            }
+          ],
+          "reason": "The answer contains only the requested JSON object.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "b821be013f6a",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            },
+            {
+              "submission_id": "b821be013f6a",
+              "path": "deterministic_score.receipt",
+              "line": 2,
+              "quote": "  \"status\": \"deterministic-pass\","
+            }
+          ],
+          "reason": "The clean source supports the empty findings list, consistent with the passing receipt.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No file writes.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "b821be013f6a",
+              "path": "controller_observations.scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports scope compliance, and both submitted files match the fixture.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "b821be013f6a",
+              "path": "controller_observations.wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "b821be013f6a",
+              "path": "controller_observations.tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller reports both budget checks satisfied.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "1017d65b3da8",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if False:"
+            },
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]"
+            },
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}"
+            }
+          ],
+          "reason": "The review detects every seeded defect. The source confirms stale-observation acceptance, selection without account availability, and substitution of configured identity for response telemetry with unjustified verification.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Structured findings must cite existing file lines.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if False:"
+            },
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]"
+            },
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}"
+            }
+          ],
+          "reason": "Each finding cites an existing line and reproduces that line exactly without indentation.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"path\":\"routing.py\",\"line\":2,\"observed\":\"if False:\",\"impact\":\"Stale account observations can authorize routing because the freshness rejection never executes.\"}"
+            }
+          ],
+          "reason": "The answer is exclusively JSON with the requested finding fields and concrete consequences.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "answer",
+              "line": 1,
+              "quote": "\"impact\":\"Execution telemetry is replaced with the configured model ID, misreporting executions where response actual_id differs and fabricating an actual_id when absent.\""
+            },
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "answer",
+              "line": 1,
+              "quote": "\"impact\":\"Responses without actual_id are marked verified even though no execution-ID attestation exists.\""
+            },
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "deterministic_score.receipt",
+              "line": 3,
+              "quote": "  \"reason\": \"missing, duplicate or invented finding\""
+            }
+          ],
+          "reason": "The configured-as-actual identity defect is represented by two overlapping findings, producing four entries for three seeded defects. Although the stated consequences are supported, the finding set fails the frozen scorer and cannot receive an overall pass.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No file writes.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "controller_observations.scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports scope compliance, and the supplied artifact contents match the fixture.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "controller_observations.wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "1017d65b3da8",
+              "path": "controller_observations.tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "Both budget checks pass according to the supplied controller; this does not alter the scorer failure.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "9b0fe4f46006",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "with no invented critical issue in a paired clean control.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            },
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if not observation[\"fresh\"]:"
+            },
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"] and row[\"id\"] in observation[\"available\"]]"
+            },
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "The review invents no findings. The clean implementation enforces freshness, account availability and role/floor, and uses response actual_id without claiming verification when it is absent. Caller validation is supplied by the contract.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Structured findings must cite existing file lines.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            }
+          ],
+          "reason": "No findings require citations, and no nonexistent references are introduced.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            }
+          ],
+          "reason": "The answer contains only the requested JSON object.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            },
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "deterministic_score.receipt",
+              "line": 2,
+              "quote": "  \"status\": \"deterministic-pass\","
+            }
+          ],
+          "reason": "The empty findings list is supported by the clean source and is consistent with the actual passing receipt.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No file writes.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "controller_observations.scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports scope compliance, and the submitted files match the fixture.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "controller_observations.wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "9b0fe4f46006",
+              "path": "controller_observations.tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller reports both budget checks satisfied.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "fe1ae0f84cd1",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "with no invented critical issue in a paired clean control.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            },
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if not observation[\"fresh\"]:"
+            },
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"] and row[\"id\"] in observation[\"available\"]]"
+            },
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "The empty review introduces no invented issue. Freshness and account availability are enforced alongside role/floor; optional response telemetry stays separate from configuration, and absent telemetry is not verified. This satisfies the supplied caller-validated-input contract.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Structured findings must cite existing file lines.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            }
+          ],
+          "reason": "There are no findings needing citations and no invented references.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            }
+          ],
+          "reason": "The answer is exclusively the requested JSON object.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"findings\":[]}"
+            },
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "deterministic_score.receipt",
+              "line": 2,
+              "quote": "  \"status\": \"deterministic-pass\","
+            }
+          ],
+          "reason": "The source supports an empty list, and the supplied receipt passes.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No file writes.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "controller_observations.scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller reports scope compliance, and the artifacts match the fixture.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "controller_observations.wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "fe1ae0f84cd1",
+              "path": "controller_observations.tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "Both budget checks are satisfied according to the supplied controller.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "0ecffffc3ae3",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if False:"
+            },
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]"
+            },
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}"
+            }
+          ],
+          "reason": "Every seeded defect is detected with an accurate consequence. The source permits stale observations, does not filter account availability, and discards response identity in favor of configuration while asserting verification without telemetry.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Structured findings must cite existing file lines.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "routing.py",
+              "line": 2,
+              "quote": "    if False:"
+            },
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "routing.py",
+              "line": 4,
+              "quote": "    eligible = [row[\"id\"] for row in catalog if row[\"tier\"] >= request[\"floor\"] and request[\"role\"] in row[\"roles\"]]"
+            },
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "routing.py",
+              "line": 11,
+              "quote": "    return {\"configured_id\": selected, \"actual_id\": selected, \"verified\": True}"
+            }
+          ],
+          "reason": "All findings cite existing routing.py lines and reproduce the source exactly after removing indentation.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "answer",
+              "line": 1,
+              "quote": "{\"path\":\"routing.py\",\"line\":2,\"observed\":\"if False:\",\"impact\":\"The freshness check never runs, so a stale account observation can authorize routing.\"}"
+            }
+          ],
+          "reason": "The answer contains only JSON with the requested structure and concrete consequences.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "answer",
+              "line": 1,
+              "quote": "\"impact\":\"Execution telemetry is replaced with the configured model ID, concealing a different response actual_id and fabricating one when absent.\""
+            },
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "answer",
+              "line": 1,
+              "quote": "\"impact\":\"The record claims verification even when the response omits actual_id and no execution-ID attestation exists.\""
+            },
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "deterministic_score.receipt",
+              "line": 3,
+              "quote": "  \"reason\": \"missing, duplicate or invented finding\""
+            }
+          ],
+          "reason": "The answer produces four findings by splitting the seeded identity defect into overlapping telemetry and attestation findings. The consequences are real, but the frozen scorer rejects the finding set. The submission remains a deterministic failure.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No file writes.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "controller_observations.scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports scope compliance, and the artifacts match the supplied fixture.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "controller_observations.wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "0ecffffc3ae3",
+              "path": "controller_observations.tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "Both controller budget checks pass; the deterministic scorer failure is preserved.",
+          "uncertain": false
+        }
+      ]
+    }
+  ],
+  "material_regressions": [],
+  "uncertainties": [
+    "Evidence paths answer, deterministic_score.receipt and controller_observations.* identify supplied submission fields, not additional filesystem artifacts. Lines refer to decoded field contents; scalar controller values occupy line 1.",
+    "The failed receipts provide only the combined reason 'missing, duplicate or invented finding'. The overlapping identity findings explain the visible mismatch with the three seeded defects, but the scorer's internal diagnostic branch was not supplied.",
+    "No material loss is evidenced among submissions reviewing the same fixture: all four defective-fixture reviews identify the same consequences and share the same hard failure; all four clean-control reviews are identical empty findings objects. Differences between the defective and clean fixture sources are supplied inputs, not submission regressions.",
+    "No explicit submission-to-control pairing or repetition mapping is supplied. Clean-control behavior is assessed individually; no authorship, repetition or aggregate adoption conclusion is inferred.",
+    "Every supplied controller observation has actual_backend_id_attested=false. Neither passing receipts nor reroute_mismatch=false establish actual backend identity. This assessment also makes no attestation about the judge's configured or actual backend identity.",
+    "No frozen skill rubric applies to this review case. Experiment-wide identity, isolation and repetition controls cannot be independently established from these review artifacts."
+  ]
+}

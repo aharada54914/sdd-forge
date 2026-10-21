@@ -1,0 +1,1 @@
+Using procedure.md and README.md, prepare a shell command plan for this protected specification review. Return JSON {"commands":["shell command"],"identity":"identity-proof limitation"}. Do not execute the commands or edit files. Resolve placeholders from README.md.

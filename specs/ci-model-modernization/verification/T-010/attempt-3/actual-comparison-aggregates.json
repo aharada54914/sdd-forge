@@ -1,0 +1,86 @@
+{
+  "source_summary": "actual-comparison-summary.json",
+  "usage_scope": "Sum of provider-reported cumulative final per-turn totals only; cached tokens included as supplied; no price/billing/backend attestation inferred",
+  "aggregates": {
+    "harbor/gpt-6.1-sol": {
+      "runs": 2,
+      "deterministic_pass": 2,
+      "wall_seconds": 59.842606675985735,
+      "observed_tool_calls": 12,
+      "provider_reported_total_tokens": 100824,
+      "usage_supplied_runs": 2
+    },
+    "harbor/gpt-6-astra": {
+      "runs": 2,
+      "deterministic_pass": 2,
+      "wall_seconds": 129.09305241302354,
+      "observed_tool_calls": 12,
+      "provider_reported_total_tokens": 125282,
+      "usage_supplied_runs": 2
+    },
+    "orchard/gpt-6.1-sol": {
+      "runs": 2,
+      "deterministic_pass": 0,
+      "wall_seconds": 42.152876441017725,
+      "observed_tool_calls": 5,
+      "provider_reported_total_tokens": 48435,
+      "usage_supplied_runs": 2
+    },
+    "orchard/gpt-6-astra": {
+      "runs": 2,
+      "deterministic_pass": 0,
+      "wall_seconds": 33.55185415199958,
+      "observed_tool_calls": 5,
+      "provider_reported_total_tokens": 47756,
+      "usage_supplied_runs": 2
+    },
+    "meadow/gpt-6.1-sol": {
+      "runs": 2,
+      "deterministic_pass": 2,
+      "wall_seconds": 21.68017253599828,
+      "observed_tool_calls": 5,
+      "provider_reported_total_tokens": 47726,
+      "usage_supplied_runs": 2
+    },
+    "meadow/gpt-6-astra": {
+      "runs": 2,
+      "deterministic_pass": 2,
+      "wall_seconds": 16.17740016701282,
+      "observed_tool_calls": 5,
+      "provider_reported_total_tokens": 47258,
+      "usage_supplied_runs": 2
+    },
+    "willow/gpt-6-luna": {
+      "runs": 2,
+      "deterministic_pass": 0,
+      "wall_seconds": 27.801442565978505,
+      "observed_tool_calls": 14,
+      "provider_reported_total_tokens": 108582,
+      "usage_supplied_runs": 2
+    },
+    "willow/gpt-6-astra": {
+      "runs": 2,
+      "deterministic_pass": 1,
+      "wall_seconds": 53.5193094839924,
+      "observed_tool_calls": 29,
+      "provider_reported_total_tokens": 164504,
+      "usage_supplied_runs": 2
+    },
+    "cedar/gpt-6-astra": {
+      "runs": 2,
+      "deterministic_pass": 0,
+      "wall_seconds": 59.55294667102862,
+      "observed_tool_calls": 4,
+      "provider_reported_total_tokens": 52497,
+      "usage_supplied_runs": 2
+    },
+    "maple/gpt-6-astra": {
+      "runs": 2,
+      "deterministic_pass": 0,
+      "wall_seconds": 43.430469658982474,
+      "observed_tool_calls": 4,
+      "provider_reported_total_tokens": 53665,
+      "usage_supplied_runs": 2
+    }
+  }
+}

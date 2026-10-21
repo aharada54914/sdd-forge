@@ -1,0 +1,518 @@
+{
+  "validation_version": "original-contract-and-schema-field-resolution/v1",
+  "input_sha256": "7a67e5b3ef6afb6c0f107bf2a0d3c83ba408648114f1e4be93c75439fb07cf48",
+  "response_sha256": "39728a487027640bd4c1d5e8a79ef6499ea13b9b4c797c32ed4e0821d36a1930",
+  "full_original_schema_sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+  "schema_and_proof_checks_pass": true,
+  "errors": [],
+  "criterion_origins": [
+    {
+      "criterion_quote": "Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Request: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 4,
+        "quote": "Request: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Catalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 5,
+        "quote": "Catalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Observation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 6,
+        "quote": "Observation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Pinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 8,
+        "quote": "Pinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Existing input behavior stays compatible.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "Existing input behavior stays compatible."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "You may edit selector.py only.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "00a009beb3718bbf0629a58fd89684bdb4dbda623d1f406b93402f1f1a446e1c",
+        "line": 1,
+        "quote": "You may edit selector.py only."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Request: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 4,
+        "quote": "Request: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Catalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 5,
+        "quote": "Catalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Observation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 6,
+        "quote": "Observation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Pinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 8,
+        "quote": "Pinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Existing input behavior stays compatible.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "Existing input behavior stays compatible."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "You may edit selector.py only.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "00a009beb3718bbf0629a58fd89684bdb4dbda623d1f406b93402f1f1a446e1c",
+        "line": 1,
+        "quote": "You may edit selector.py only."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Request: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 4,
+        "quote": "Request: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Catalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 5,
+        "quote": "Catalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Observation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 6,
+        "quote": "Observation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Pinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 8,
+        "quote": "Pinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Existing input behavior stays compatible.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "Existing input behavior stays compatible."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "You may edit selector.py only.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "00a009beb3718bbf0629a58fd89684bdb4dbda623d1f406b93402f1f1a446e1c",
+        "line": 1,
+        "quote": "You may edit selector.py only."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Request: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 4,
+        "quote": "Request: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Catalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 5,
+        "quote": "Catalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Observation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 6,
+        "quote": "Observation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Pinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields.",
+      "exact_original_origin": {
+        "path": "fixtures/204912beceae/README.md",
+        "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+        "line": 8,
+        "quote": "Pinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Existing input behavior stays compatible.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "Existing input behavior stays compatible."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "You may edit selector.py only.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "00a009beb3718bbf0629a58fd89684bdb4dbda623d1f406b93402f1f1a446e1c",
+        "line": 1,
+        "quote": "You may edit selector.py only."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 19,
+        "quote": "| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |"
+      }
+    }
+  ],
+  "exact_anchored_citations_checked": 62,
+  "resolution": "Exact schema-defined supplied string/scalar fields resolve as logical documents; contiguous quote may begin within cited line. No fuzzy matching, wrong lines, inferred/generated criteria or candidate-response edits.",
+  "submissions": [
+    {
+      "submission_id": "3f55ad6981c1",
+      "all_semantic_criteria_satisfied": true,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": true
+    },
+    {
+      "submission_id": "cb44341d5074",
+      "all_semantic_criteria_satisfied": true,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": true
+    },
+    {
+      "submission_id": "ad4eabe62d23",
+      "all_semantic_criteria_satisfied": true,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": true
+    },
+    {
+      "submission_id": "14bda6d99d20",
+      "all_semantic_criteria_satisfied": true,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": true
+    }
+  ]
+}

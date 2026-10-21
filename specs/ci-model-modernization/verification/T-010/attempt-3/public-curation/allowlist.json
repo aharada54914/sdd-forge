@@ -1,0 +1,1183 @@
+{
+  "schema": "t010-public-evidence-allowlist/v1",
+  "at": "2026-10-21T13:33:17.447792+00:00",
+  "files": {
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-1/deterministic-score.stdout.json": {
+      "sha256": "6f8a2f87114654e5d7dc6accf01d39713f5ff4e2b22896783de50440c5294e69",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-1/answer.txt": {
+      "sha256": "c3efadf0468dbbc3bead3eb7d664d76a149ed565ef0cdae7caf2ad3315959ea8",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-1/project/test_selector.py": {
+      "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-1/project/selector.py": {
+      "sha256": "6c2c9beadfcc7928254640bdfdd40737a819888b8acaccc8eda5a2e941c15ddb",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-1/project/README.md": {
+      "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/harbor-gpt-6-astra-1-native-observation.json": {
+      "sha256": "19071582dd7faceb7300a5702262e6a683966de3ace5c888749361f5cd26b5ac",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-2/deterministic-score.stdout.json": {
+      "sha256": "6f8a2f87114654e5d7dc6accf01d39713f5ff4e2b22896783de50440c5294e69",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-2/answer.txt": {
+      "sha256": "f318a696b4e6f317ddf8991ce9b528ac0e8311be2ca7eb429787278fa090ce8a",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-2/project/test_selector.py": {
+      "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-2/project/selector.py": {
+      "sha256": "b7e4ee78aa2455b00863ba93d793845b42db21c13ef04c3dce228dfdf4f5c8e8",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6-astra-2/project/README.md": {
+      "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/harbor-gpt-6-astra-2-native-observation.json": {
+      "sha256": "9799319722d2e91faa6df82b8d7e0226c2def0ec17bd32386fbd0182270a3f3d",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-1/deterministic-score.stdout.json": {
+      "sha256": "6f8a2f87114654e5d7dc6accf01d39713f5ff4e2b22896783de50440c5294e69",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-1/answer.txt": {
+      "sha256": "b3b3d14e1a180917410468ed1c1f4a0466d1a64fc43b989626b7fafcc055421d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-1/project/test_selector.py": {
+      "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-1/project/selector.py": {
+      "sha256": "ebf3fe1e6180f02310ce2ed70f95b61e700831f7c5f7886be765ca08e42ad17f",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-1/project/README.md": {
+      "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/harbor-gpt-6.1-sol-1-native-observation.json": {
+      "sha256": "10a37877e0e34184568b7c668cd124b445b5d5618785a29b1fd49a32884d4599",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-2/deterministic-score.stdout.json": {
+      "sha256": "6f8a2f87114654e5d7dc6accf01d39713f5ff4e2b22896783de50440c5294e69",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-2/answer.txt": {
+      "sha256": "95e91d28d6dd9f934028e57337c49416104bf182677995f156436aff5fd01117",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-2/project/test_selector.py": {
+      "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-2/project/selector.py": {
+      "sha256": "ff289562ee7cd6ff2ca0f0f4e39c414c23da06db8b28801e15f53aa0d2ec2811",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/harbor-gpt-6.1-sol-2/project/README.md": {
+      "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/harbor-gpt-6.1-sol-2-native-observation.json": {
+      "sha256": "5e7603bb99d657c330affa24ac2dbbcfaada4ad8f47f13a6115b45aede1d2cda",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-1/deterministic-score.stdout.json": {
+      "sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-1/answer.txt": {
+      "sha256": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-1/project/routing.py": {
+      "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-1/project/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/meadow-gpt-6-astra-1-native-observation.json": {
+      "sha256": "0f7c11ff1e3254107241c1d6002ff4586c57417e2e384d8b529732a1b57d48cf",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-2/deterministic-score.stdout.json": {
+      "sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-2/answer.txt": {
+      "sha256": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-2/project/routing.py": {
+      "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6-astra-2/project/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/meadow-gpt-6-astra-2-native-observation.json": {
+      "sha256": "9c7b2901bb111f88130ce99917d964c04c55ff9c95b902cf83f378bf4393bdce",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-1/deterministic-score.stdout.json": {
+      "sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-1/answer.txt": {
+      "sha256": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-1/project/routing.py": {
+      "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-1/project/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/meadow-gpt-6.1-sol-1-native-observation.json": {
+      "sha256": "a87a37f4257b337ec7d108d90d4bae9aa9fbf37b21add55c8ad409c3ce2ac797",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-2/deterministic-score.stdout.json": {
+      "sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-2/answer.txt": {
+      "sha256": "9d0f2143c61cfbb6c0cf0425ce8b447811a32d48ec37333ba8b3700218631b36",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-2/project/routing.py": {
+      "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/meadow-gpt-6.1-sol-2/project/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/meadow-gpt-6.1-sol-2-native-observation.json": {
+      "sha256": "89529bb4e1b6a5573d86240d752f3eee26b31d4abcac26e35ebb6be87e1a3d67",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-1/deterministic-score.stdout.json": {
+      "sha256": "feec674b1604d43002e986b0e2801c85e8d51c5d15c0f6149de1e17da9ea86f8",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-1/answer.txt": {
+      "sha256": "16ded2427dc11544c137a9fb96184e99e761c76af8c221fe8ce826c968bcd62f",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-1/project/routing.py": {
+      "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-1/project/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/orchard-gpt-6-astra-1-native-observation.json": {
+      "sha256": "922f9907d0621ee12144ffc754b4003386b1d7b2b6c394d783ae040629ddae2f",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-2/deterministic-score.stdout.json": {
+      "sha256": "feec674b1604d43002e986b0e2801c85e8d51c5d15c0f6149de1e17da9ea86f8",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-2/answer.txt": {
+      "sha256": "da368394edf7a286289daa1b75498013ac255fee36189361480d99c3dcf54408",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-2/project/routing.py": {
+      "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6-astra-2/project/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/orchard-gpt-6-astra-2-native-observation.json": {
+      "sha256": "a93c5677c892d0ce6750c4ed03d40dd45a520c9a9b1e5f11db0f5f07c8b32e20",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-1/deterministic-score.stdout.json": {
+      "sha256": "feec674b1604d43002e986b0e2801c85e8d51c5d15c0f6149de1e17da9ea86f8",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-1/answer.txt": {
+      "sha256": "246c04aef45fbd24584a52846e7373777f965c90458b6928e635259917ade6a7",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-1/project/routing.py": {
+      "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-1/project/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/orchard-gpt-6.1-sol-1-native-observation.json": {
+      "sha256": "f786bb8af661f54d3af3fd45bf65288eeba0128d48dd0d95e9ac454a622cc130",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-2/deterministic-score.stdout.json": {
+      "sha256": "feec674b1604d43002e986b0e2801c85e8d51c5d15c0f6149de1e17da9ea86f8",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-2/answer.txt": {
+      "sha256": "fab348b33a7fbf142df5e462d2e4f84cfa2a80261d18b701e210ee9e8f840df6",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-2/project/routing.py": {
+      "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/orchard-gpt-6.1-sol-2/project/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/orchard-gpt-6.1-sol-2-native-observation.json": {
+      "sha256": "9836e35a477d9c4a66cae64f164037ae54b7742d2ba5f2754ae57c03fbc03371",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1/deterministic-score.stdout.json": {
+      "sha256": "99690e0f82557420e10ac2c9f685d8a621a4f27dc78476e687b65232e5c6bea9",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1/answer.txt": {
+      "sha256": "86cba92ba72ba974416ad092d4095b9f91b960ff59143b13bac724889526a536",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1/project/selector.py": {
+      "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1/project/README.md": {
+      "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1/project/launcher.py": {
+      "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-1/project/records.py": {
+      "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/willow-gpt-6-astra-1-native-observation.json": {
+      "sha256": "b3ed033720ec563d63d98a26287f3016e5a1947ec89450ea7a4db232e37ca0bd",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2/deterministic-score.stdout.json": {
+      "sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2/answer.txt": {
+      "sha256": "69e1ebda143920711610e95553e8a71dd5c0b82f02c7400523cbb2a692a95049",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2/project/selector.py": {
+      "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2/project/README.md": {
+      "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2/project/launcher.py": {
+      "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-astra-2/project/records.py": {
+      "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/willow-gpt-6-astra-2-native-observation.json": {
+      "sha256": "6e24260bb30a9c02547554f0dbbd4d6f26e9c390d85d1413b0aede7b4a541fc8",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1/deterministic-score.stdout.json": {
+      "sha256": "d5151d80d71a47e230d05c8508e692850b904dfa950e586dd516da153422d7d6",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1/answer.txt": {
+      "sha256": "4b79edfe47cc8c940ce6698d4abdd7b0e900b1f52c78985daf1e189daf68119a",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1/project/selector.py": {
+      "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1/project/README.md": {
+      "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1/project/launcher.py": {
+      "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-1/project/records.py": {
+      "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/willow-gpt-6-luna-1-native-observation.json": {
+      "sha256": "3f661b579fd5ac52df3e5b8c6fdbe363d102a3f2958ff1fedc8d2428f0f50f58",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2/deterministic-score.stdout.json": {
+      "sha256": "e5571ca85d4fe96dab94a099ba8b9dd9bd108b5f670a5965120e72c08f9574c0",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2/answer.txt": {
+      "sha256": "e6b79122aaebb7b4dc3bacb911031b43b6213b813526582b426ad38769168034",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2/project/selector.py": {
+      "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2/project/README.md": {
+      "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2/project/launcher.py": {
+      "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-model-trials/willow-gpt-6-luna-2/project/records.py": {
+      "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/willow-gpt-6-luna-2-native-observation.json": {
+      "sha256": "837fa56686d962f084c22790d70e14b8bbca072b0030e3adfd20f5824f228785",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-1/deterministic-score.stdout.json": {
+      "sha256": "808ad22e2ff08be3866fb569737cee80eb6d39aac4f32cb6b78ab70ce29e707b",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-1/answer.txt": {
+      "sha256": "467a17794b7c83ac927aac0cb28751a50d9a35552e239433467e0ba46ef18f63",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-1/project/README.md": {
+      "sha256": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-1/project/procedure.md": {
+      "sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/cedar-gpt-6-astra-1-native-observation.json": {
+      "sha256": "291fa80ac6050220c02f587605076c16ec2035dd6eb41e2630ebab4e62ebc1dc",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-2/deterministic-score.stdout.json": {
+      "sha256": "808ad22e2ff08be3866fb569737cee80eb6d39aac4f32cb6b78ab70ce29e707b",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-2/answer.txt": {
+      "sha256": "1935a2461e17936275b8cb621ef4dc4ad035a15a44d73f241e1c723ab99531de",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-2/project/README.md": {
+      "sha256": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/cedar-gpt-6-astra-2/project/procedure.md": {
+      "sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/cedar-gpt-6-astra-2-native-observation.json": {
+      "sha256": "7447217ad57937fa16807aa487193356f4bd4654bc5d8ea8c8538045c22ec31a",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-1/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-1/deterministic-score.stdout.json": {
+      "sha256": "99690e0f82557420e10ac2c9f685d8a621a4f27dc78476e687b65232e5c6bea9",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-1/answer.txt": {
+      "sha256": "7f2b601520c7a5e86261488d2eb1f00cd7b6be750238da43bc67007db9a67fd8",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-1/project/README.md": {
+      "sha256": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-1/project/procedure.md": {
+      "sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/maple-gpt-6-astra-1-native-observation.json": {
+      "sha256": "1d6b4031e990c92332325f6a1abef24307a37cdac3901e9e53a598c8d4f60f33",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-2/deterministic-score.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-2/deterministic-score.stdout.json": {
+      "sha256": "99690e0f82557420e10ac2c9f685d8a621a4f27dc78476e687b65232e5c6bea9",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-2/answer.txt": {
+      "sha256": "88c344c6b6b7ee1b9c3e9a8483cbace8270951f2f368aad14169d22b38895bc6",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-2/project/README.md": {
+      "sha256": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/native-skill-trials/maple-gpt-6-astra-2/project/procedure.md": {
+      "sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+      "role": "actual candidate artifact/answer or frozen deterministic score"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/maple-gpt-6-astra-2-native-observation.json": {
+      "sha256": "c1797b65c2c7c83dd618c7b2369e7f6299ce1b5a9c61b4a6bd4aabca300c9010",
+      "role": "sanitized native proof metadata; raw transcripts excluded"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/implementation/input.json": {
+      "sha256": "7a67e5b3ef6afb6c0f107bf2a0d3c83ba408648114f1e4be93c75439fb07cf48",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/implementation/brief.txt": {
+      "sha256": "a531eeb9e9f51cdd3f7059b66c618e3318ee1680e041a3716a03471cc20a6a80",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/implementation/input.schema.json": {
+      "sha256": "cb563b5ab3da63a7b6d63f765984c45d06012f3f13e123f7c5daddfc645f6f88",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/implementation/response.schema.json": {
+      "sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/implementation/judge-answer.txt": {
+      "sha256": "2b4956817677cef2419ebf186d893e4f5dc82108413afa28ccdbfbcaa783219c",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/implementation/judge-response.json": {
+      "sha256": "39728a487027640bd4c1d5e8a79ef6499ea13b9b4c797c32ed4e0821d36a1930",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/implementation/validated-judge-evidence.json": {
+      "sha256": "b0db9b91a40bc33f025320e47565c477fb4b2197f0e66ef3ede263c8c7c518dc",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/implementation-judge-observation.json": {
+      "sha256": "1c57c34a509a29ca8a828bb5826e946d0b43648c1ab980a2f1613910747ac166",
+      "role": "sanitized judge identity/budget/actual usage proof"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/review/input.json": {
+      "sha256": "05f77c340ba12c5b53f776b4fe52a11475c8980cc5dbef1f391c8283843927a9",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/review/brief.txt": {
+      "sha256": "a531eeb9e9f51cdd3f7059b66c618e3318ee1680e041a3716a03471cc20a6a80",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/review/input.schema.json": {
+      "sha256": "cb563b5ab3da63a7b6d63f765984c45d06012f3f13e123f7c5daddfc645f6f88",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/review/response.schema.json": {
+      "sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/review/judge-answer.txt": {
+      "sha256": "e502ee2b145168fc28f670989e277bc8c9eac44ca26c396009a2e23e0d08e217",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/review/judge-response.json": {
+      "sha256": "5de557276add3dfd1e8212b7b9d2750b3da451aa6e66b67dc2b6d8aefb75ad71",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/review/validated-judge-evidence.json": {
+      "sha256": "957b99b61c91c57e81337c50c88b3cb11921912a0361bb9c5b09d5dfda6457ba",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/review-judge-observation.json": {
+      "sha256": "82af0eba5f484080507553d112ababb7dd292db9bdff059b96232328f79ee3f8",
+      "role": "sanitized judge identity/budget/actual usage proof"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/investigation/input.json": {
+      "sha256": "b1c2417725a2a3f1ff831e10c94e667c1b6ec7d7c1b326a272a2360c2c2792c0",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/investigation/brief.txt": {
+      "sha256": "a531eeb9e9f51cdd3f7059b66c618e3318ee1680e041a3716a03471cc20a6a80",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/investigation/input.schema.json": {
+      "sha256": "cb563b5ab3da63a7b6d63f765984c45d06012f3f13e123f7c5daddfc645f6f88",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/investigation/response.schema.json": {
+      "sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/investigation/judge-answer.txt": {
+      "sha256": "4bc76f4b55e9ef16c169d10dbaff3a49ff9704c7ce1dc35b2df245e1fc0a1a65",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/investigation/judge-response.json": {
+      "sha256": "6b67166c6368f1541416390bae7518564059418d9bb5ea7dd0c09d3ab8b5e94b",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/investigation/validated-judge-evidence.json": {
+      "sha256": "be771556ec99e2eba13d324cc1af0e3f0ecf93b32d47ebb41573cb5efdf73747",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/investigation-judge-observation.json": {
+      "sha256": "91090728e017ddf550b7e36f7aaa3bf6c8db3f48c9c3d48d3bc50538a6998e25",
+      "role": "sanitized judge identity/budget/actual usage proof"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/skill-command-plan/input.json": {
+      "sha256": "d967e3fb3273d955c324a4d8e23ca2c56ab8cf6c09d3816f0c94f5b70235ff6f",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/skill-command-plan/brief.txt": {
+      "sha256": "a531eeb9e9f51cdd3f7059b66c618e3318ee1680e041a3716a03471cc20a6a80",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/skill-command-plan/input.schema.json": {
+      "sha256": "cb563b5ab3da63a7b6d63f765984c45d06012f3f13e123f7c5daddfc645f6f88",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/skill-command-plan/response.schema.json": {
+      "sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/skill-command-plan/judge-answer.txt": {
+      "sha256": "d83709c27e9e5eb7d8c7f5d4978eafc79c735a0adf20b39ba894927a49725371",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/skill-command-plan/judge-response.json": {
+      "sha256": "03da6b642e9440e939311846c42f7c482d4f3df5b796492d7e5d57d5eb099ab4",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/blinded-judges-v2/skill-command-plan/validated-judge-evidence.json": {
+      "sha256": "ae4b22968b8ba4c0220c103227a168b7d5a3a42b6ba80dd758a093e8351fe0b5",
+      "role": "frozen blinded bundle or actual validated judgment"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/skill-command-plan-judge-observation.json": {
+      "sha256": "73324cd8854033e5ef094b0857b3bc381b396902269e4274230f124726c72bff",
+      "role": "sanitized judge identity/budget/actual usage proof"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/harbor/test_selector.py": {
+      "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/harbor/selector.py": {
+      "sha256": "e4842eb48b8f3dcf2ee6a295227e735291c2cc13f73782a9960f25ac00de814f",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/harbor/README.md": {
+      "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/willow/selector.py": {
+      "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/willow/README.md": {
+      "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/willow/launcher.py": {
+      "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/willow/records.py": {
+      "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/orchard/routing.py": {
+      "sha256": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/orchard/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/meadow/routing.py": {
+      "sha256": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/meadow/README.md": {
+      "sha256": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/cedar/README.md": {
+      "sha256": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/cedar/procedure.md": {
+      "sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/maple/README.md": {
+      "sha256": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/maple/procedure.md": {
+      "sha256": "726740e6139b21499999b4e0dc1493bedae15fcf17f2429fc993402e233c2343",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/requests/skill.txt": {
+      "sha256": "892a637b4590105add56bf6b8aa66a06f5b4954b68dc0147470da14d6d04c642",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/requests/meadow.txt": {
+      "sha256": "d48ca55131043668a137c84499564f69ec97c1dea245654435eb899e1c03c903",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/requests/orchard.txt": {
+      "sha256": "d48ca55131043668a137c84499564f69ec97c1dea245654435eb899e1c03c903",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/requests/willow.txt": {
+      "sha256": "201f987ff24b4029b80cf86b140da3e1158dfa99085ad5f8c5c9d12cefb803b9",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/requests/harbor.txt": {
+      "sha256": "00a009beb3718bbf0629a58fd89684bdb4dbda623d1f406b93402f1f1a446e1c",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/inputs/cedar/README.md": {
+      "sha256": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/inputs/cedar/procedure.md": {
+      "sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/inputs/maple/README.md": {
+      "sha256": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/inputs/maple/procedure.md": {
+      "sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+      "role": "frozen pre-output input"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/original-model-rubric.md": {
+      "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-rubric-v1.md": {
+      "sha256": "62a305e2fbf34424feca2a05cdb6c33ab5b98e692ca506d4ded33a0d740be044",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/score.py": {
+      "sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/input-manifest.json": {
+      "sha256": "0e41bfd7f03d85b54202a4a404ced33fafb8ab29cd39dca405edd38bccb15e64",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/native-preparation-v2/fixture_tools.py": {
+      "sha256": "3cad3997537ff53b6879c4700de621be7cf323da3e9c42c6c7f1c0b3b880982a",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v3/runner.py": {
+      "sha256": "3e09fa9ddb73a11f83cbf0c1fb29abb6ba6bf7945db4ffff83b346eb4c659b32",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v3/skill-binding-rubric-v3.md": {
+      "sha256": "9cc71783f2d4a414216dd4714cb2eb12f4d5e0b5ab4066b508ff37c07c5ede5c",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/runner.py": {
+      "sha256": "91103847650913656b6b0291c449e0d003511caefcff9d871256915d4635b2e3",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/isolation.py": {
+      "sha256": "63a1d260c7fc7d60bdb100de7065841e40e9f9531e45fd514963b7b3e29331cd",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/score_artifacts.py": {
+      "sha256": "136818a5aeea60621524d962f7b7ef771a0319e301abed721e5804f97daed4e7",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/runner.py": {
+      "sha256": "9f160db034dce4055b4724edc46188e71119a413ea9bf3e9506506e7357b36e6",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/score_artifacts.py": {
+      "sha256": "25c48422192f77921d613a3e74b44db0ef66248714be890db93e092062ce5baf",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/skill-rubric-v5.md": {
+      "sha256": "f27df23a12fb077a5d119b16ebdb5cdd0aa2bf2138b76fceb0d8f76b886ae318",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/source-binding.json": {
+      "sha256": "92641c2000912ef8596ca89095bc639c3c0fac6d264313acd3d940f9b01a3525",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/semantic-judge-protocol-v1/brief.txt": {
+      "sha256": "a531eeb9e9f51cdd3f7059b66c618e3318ee1680e041a3716a03471cc20a6a80",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/semantic-judge-protocol-v1/input.schema.json": {
+      "sha256": "cb563b5ab3da63a7b6d63f765984c45d06012f3f13e123f7c5daddfc645f6f88",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/semantic-judge-protocol-v1/response.schema.json": {
+      "sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/semantic-judge-protocol-v1/command-notes.md": {
+      "sha256": "18dd8e618af0038d43e41547870e350758a3f4a6620c7830a2effc8218a89610",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/semantic-judge-protocol-v1/protocol-manifest.json": {
+      "sha256": "bafb58a000bac9ebc70b50bc9079a8d879048cf6880d00f7dd1d8ac9dece355b",
+      "role": "frozen pre-output rubric/tool/protocol source"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/role-decisions.json": {
+      "sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/actual-comparison-aggregates.json": {
+      "sha256": "b414399f9d4e56b948f1ce2f06b97db59b7646bb4f7bb04c64ef9297a67e997a",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/trial-output-manifest.json": {
+      "sha256": "77777c9c424504df2dc2a0d8e19d4e3e552dd29ac5d8a4ca08620ba9466bf2af",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/judge-output-manifest.json": {
+      "sha256": "712988f6ce2103e5a9aeb4362a80d9652e1b2a131ed905a387a7e518f4a607ee",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/adoption-boundary-preflight.json": {
+      "sha256": "080a6715ce9e5e29c9f0b37d3df3de7d878c6d3f74ae72b7452949349c3ca611",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/final-evidence-check.py": {
+      "sha256": "e87d86dbcde18d93b240a95a03f0b87ca4d7fca7523bc94d0b32a82b92a36d38",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/final-evidence-check.json": {
+      "sha256": "a881251dfcaaa6cf408890a8bbcd4b882649fb939c111807b8898ffdcdc829f1",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/installed-production-smoke.py": {
+      "sha256": "3f8e0e12b6ceb48092048488e8c3678fa76f6216e1d1769e340c44227f79c1f5",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/judge-transport-fix-v2/native-output.schema.json": {
+      "sha256": "46884e1f5192ff5d66a30501d89e480bed4dfeaefca0f6b2c3e984454666548d",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/judge-transport-fix-v2/transport-change.json": {
+      "sha256": "f4bcf206d7592734c7051e5461b29554254da777790436c3019dea48f1683480",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/judge-transport-fix-v2/preflight.json": {
+      "sha256": "e1431d68cc7c8682bbc1d486d37f0215f1b15a0ae047794ba01cd0e3f322edb8",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/policy-reference-regression-v3/results.json": {
+      "sha256": "d58b5446500736e0298820de0c91304f0cb723d545c645f19515128654cffef9",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/policy-reference-regression-v3/candidate.stderr.log": {
+      "sha256": "c8ee9ce9dbcc61dccce3d58d574a8f0370d95e4e81b802087e2fc643a27a0f80",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/policy-reference-regression-v3/restored-baseline.stderr.log": {
+      "sha256": "d5338da93e768e6f7266d24ab0762d34e5e7bbfbb758c5d735e296ed0bd9a213",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/policy-reference-regression-v3/model-policy-adoption-only.patch": {
+      "sha256": "6aea5e54cdc8c4089c0b5b7344ad4432d798718e8c9454053d923a97937a0c99",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/policy-reference-regression-v3/model-policy-metadata-only.patch": {
+      "sha256": "7f41380cf28a3223b80d39f2ab72b19046347e4e0f4eff06aed3af6d1e974839",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/synthetic-fixture-closure-v1/results.json": {
+      "sha256": "967a755ea3a819c43c224c90bbe75397b0e053fdf81bf7b1e748870031f91614",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/synthetic-fixture-closure-v1/red.stderr.log": {
+      "sha256": "a38af526ffc3b05be2ab455a3ff69e5aaf0b0e19d7ebae98c4498aab5236d13b",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/synthetic-fixture-closure-v1/green.stderr.log": {
+      "sha256": "f9c92755ad6d43ca51ce970c8991622dcf73b65e0454c692946291a696239532",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/synthetic-fixture-closure-v1/launch-fixture-only.patch": {
+      "sha256": "077f4c1b1b1678e4d70aa39b88ffafaa2466a69f5a1b900c972f928ab8f919ff",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/synthetic-fixture-closure-v1/installed-package-only.patch": {
+      "sha256": "43d23bbf079e99ccdd343d0c1bac440d1b1c00529c988fa3b75ae94b8b1ce6b9",
+      "role": "actual decision/proof/rollback or narrow source patch"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/native-preparation-v2/input-manifest-v2.json": {
+      "sha256": "fe42f82fd938b40ee64a879d05c492b1c76e225dbaf1723c3f179d955de93325",
+      "role": "exact frozen/versioned input binding or actual bounded executor source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v3/input-manifest-v3.json": {
+      "sha256": "b541932ef5a5b9f3de9460deb0b41fce148c3981147bce77a831e55d74f5820e",
+      "role": "exact frozen/versioned input binding or actual bounded executor source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/executor-preparation-v4/input-manifest-v4.json": {
+      "sha256": "89a99e0536ed0b2176dec8ce72e6413a36e237b5f2936a15ee4aa5002d1141d7",
+      "role": "exact frozen/versioned input binding or actual bounded executor source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/skill-comparison-v5/input-manifest-v5.json": {
+      "sha256": "5f96fc07852e2f1580a39a7b19cca67cc9271a998527c039978f96377e851f35",
+      "role": "exact frozen/versioned input binding or actual bounded executor source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/task-input-manifest.json": {
+      "sha256": "352f5ebefb66bd8156e8e850b85b82eb591e5648a781e9ce7325965cd0955617",
+      "role": "exact frozen/versioned input binding or actual bounded executor source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/execution-plan.json": {
+      "sha256": "ddc97850d8efaf7e2ea3ae529328941e37cbf2b2cfa8823f629a47a46d5a4a92",
+      "role": "exact frozen/versioned input binding or actual bounded executor source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-3-capability-fix/runner.py": {
+      "sha256": "556d5d269b3179f617b6e6ed67bbe1953be6929fbde604ffa6e9ab7438ff1534",
+      "role": "exact frozen/versioned input binding or actual bounded executor source"
+    },
+    "specs/ci-model-modernization/verification/T-010/pre-output-preparation/attempt-2-admission/source-bound-skill-runner.py": {
+      "sha256": "23fb9ae0d731b6504b0b19b9b4444bc4487db929ca27964d521f76dcf60e2a97",
+      "role": "exact frozen/versioned input binding or actual bounded executor source"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-attempt3-one-pair.py": {
+      "sha256": "025087647e1566c2ae75ac78f66be3b4abf27bc6bdcf3eb738f6ae71f1795a0c",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-finalize-evidence.py": {
+      "sha256": "e051bd65aab8625d2b7dae89ccc899d4e8a7edd793e70208301108c865470b0e",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-final-judge-validation.py": {
+      "sha256": "3fa0bd2a5a8e31bf51d5291700bd428bb3f6c475f0c521c65092fc8deb75b764",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-policy-check-v3.py": {
+      "sha256": "cff78bca7799104de62923dde61a01095eb371988f7473946e1373d308d629c3",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-judge-v2.py": {
+      "sha256": "323ecb3848d366f2640832b1903cc28b890af6c9105fec0078706862fc3253a2",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-judge.py": {
+      "sha256": "35acf35abd943a5b5450b3e9d25463e54b78ebf92fa524eadd928daf13c45593",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-policy-check-v2.py": {
+      "sha256": "1139fd213036a907f6927e1a4113552e3d8d58057c86ee74c5b5fcafb4965bac",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-policy-check.py": {
+      "sha256": "a81a50595fbfa8bb35d6b6262c30d6e4bf61584a022c205ac78a3ca2f43eba61",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-judge-diagnostics.py": {
+      "sha256": "0895dfebbfe5760206de78430e741443c175a9deb298e0c9843bc572185108af",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/evaluation-controller/t010-judge-validate-v3.py": {
+      "sha256": "10fe102e5e424e63df11bb066d2d2b379fc801edbbdcdd9f1ce2da812e8f9c60",
+      "role": "bounded experiment/scoring/proof-validation controller source; no raw transcripts"
+    },
+    "reports/implementation/ci-model-modernization/T-010.md": {
+      "sha256": "16523651de46f051ecf592c2d2bdc0798514721f1fd4655c41081c17f15cdc10",
+      "role": "canonical implementation delivery metadata; not independent QA verdict"
+    },
+    "specs/ci-model-modernization/verification/T-010.contract.json": {
+      "sha256": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f",
+      "role": "canonical implementation delivery metadata; not independent QA verdict"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/actual-comparison-summary.json": {
+      "sha256": "24e32eee4718e6fe6978ea74b912d28191b55cce1f2b0a8146670e5841a39450",
+      "role": "sanitized actual trial summary; source original retained private"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-pwsh-production-validation.json": {
+      "sha256": "b07cc7f3804ae2325ddafdd049afb46b4e59653e4b8152aa65fd4517e5e9a380",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59.stderr.log": {
+      "sha256": "7cfcea0dbf7973f5c38138d1ad1b4dc37affb2ca9b3c567b3d9ccaae2b435f4b",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/canonical-report.stdout.log": {
+      "sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/placeholders.log": {
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/implementation-complete-state.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/placeholder-scan.stdout.log": {
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts-v2.json": {
+      "sha256": "2b91a25bde4ba2e3019a0d1f91cbbb156795a49213664829d4f917007b561db6",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-production-smoke.json": {
+      "sha256": "8dfb7e40627824ab9759a436e1743e7a7f8d925bd1543687966a16ef9a713294",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/mypy-v2.log": {
+      "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/task-state.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/portable-probe-v2.log": {
+      "sha256": "b6a4988c34886ddfff38c7edf24df9512c78dd866327b0587fd8024af9e77f4b",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-bash-production-validation.json": {
+      "sha256": "c3ec1e20ccba4b4b50961c92ac78d7133baa95627e2cbdd8d2730ebbaf513336",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/canonical-contract.stdout.log": {
+      "sha256": "88acd1606c689e4c2cb25cdea1b652f1a58ae28001d25f67ed8b5c7c21f627f1",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/diff-whitespace.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/ruff-v2.log": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/ruff.log": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/implementation-complete-state-receipt.json": {
+      "sha256": "d0cbe5e88e3f0716cf7535a1f4f3309d5ee53a7a6ef8e273755ad009a84fe922",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59-receipt.json": {
+      "sha256": "ec4cc256adb1f3aa8a3b404e3140dea72beb232d0c0308f9618a497af4572603",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/canonical-report.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/canonical-delivery-validation.json": {
+      "sha256": "b14b3b175f527e0a14469dad4eb1dd5ba9c46fad0cb6c88c9b2d5d57cd918980",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/implementation-complete-state.stdout.log": {
+      "sha256": "bcc0bf7c54511e4e4a85426f1e420ea6ca7b1a6dedbf8334d050deec2f81d3f4",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/implementation-complete-transition.json": {
+      "sha256": "b0ee0d20453ac7498bb02c4ab6b24dec6af1b78e706fc60c064af5024a919505",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/frozen-artifact-closure.stdout.log": {
+      "sha256": "a881251dfcaaa6cf408890a8bbcd4b882649fb939c111807b8898ffdcdc829f1",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/mypy.log": {
+      "sha256": "08b2a6c23907df6e3625b124f74612b24ed1463505b69d30ee4f68f6c1504bfd",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/frozen-artifact-closure.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/canonical-state.stdout.log": {
+      "sha256": "bcc0bf7c54511e4e4a85426f1e420ea6ca7b1a6dedbf8334d050deec2f81d3f4",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-pwsh-production-selection.json": {
+      "sha256": "2a838057e91e5f461e1b1a504bf04b694b1868a63c2f1a999bfdd9f481f0c576",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/placeholder-scan.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/canonical-contract.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/diff-whitespace.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/task-state.stdout.log": {
+      "sha256": "bcc0bf7c54511e4e4a85426f1e420ea6ca7b1a6dedbf8334d050deec2f81d3f4",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/canonical-state.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json": {
+      "sha256": "b4db1c7a96967389c909aeb2c9498094320a164d561ab30dd57e0ecc3d7dcd50",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-bash-production-selection.json": {
+      "sha256": "d2d785c24fb72aa2ac76a74dcd0e22d39de8e2c9ee90505b4da8e366a224077e",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts.json": {
+      "sha256": "b91f32b541e4b42e1d1bf5e2478837d6116e85e1ca630c6230497de566234e9e",
+      "role": "actual final root regression/installed smoke receipt"
+    },
+    "contracts/model-policy.v1.json": {
+      "sha256": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "role": "reviewed product metadata or adoption-reference fixture regression"
+    },
+    "contracts/model-adoption/ci-model-modernization-20261021.json": {
+      "sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "role": "reviewed product metadata or adoption-reference fixture regression"
+    },
+    "tests/model-policy.tests.py": {
+      "sha256": "dfd74cab0de011b27643f44254113f23f795eaba540ca3633abf4b32041de72a",
+      "role": "reviewed product metadata or adoption-reference fixture regression"
+    },
+    "tests/model-policy-launch.tests.py": {
+      "sha256": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "role": "reviewed product metadata or adoption-reference fixture regression"
+    },
+    "tests/model-policy-installed.tests.py": {
+      "sha256": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "role": "reviewed product metadata or adoption-reference fixture regression"
+    },
+    "specs/ci-model-modernization/verification/T-010/attempt-3/public-curation/installed-smoke-id-provenance.json": {
+      "sha256": "355817de0c9f3ceafffb43815249878f7617e87cd8bfeefb0995181e6b1c502c",
+      "role": "source-proved locally generated installed-smoke IDs; no provider sessions"
+    },
+    "specs/ci-model-modernization/verification/T-010/supplemental-review-delivery/after-policy-finalization/task-input-manifest.json": {
+      "sha256": "9e3f45f0d5e87a4e39377ee8a57809cbeabd26174d8dd6be8f856d11e2e22825",
+      "role": "truthful postimplementation supplemental input metadata; raw private QA inputs excluded"
+    }
+  },
+  "excluded_categories": [
+    "raw native events/account/provider messages and full raw discovery",
+    "Root-private model/repetition/skill mapping and identity redaction logs",
+    "all private scratch/owned native stdout/stderr/auth or credential files",
+    "raw per-arm native summaries and combined quota-bearing summary (sanitized copies included)",
+    "all unlisted files; no broad git add of attempt3"
+  ],
+  "privacy_scope": "Known credential-value patterns absent from explicit allowlist; this is bounded curation, not a claim of universal secret scanning. Raw local QA closure remains private.",
+  "count": 292
+}

@@ -1,0 +1,2 @@
+Prepare an invocation plan only. No tools or scripts may be executed. Repository root /project, policy request policy.json, registry registry.json, role spec-reviewer, run/session ID 00000000-0000-4000-8000-000000000001, attempt 1, output /project/out, invocation /project/invocation.json, launch /project/launch.
+The protected launcher requires successful managed preparation, controls.json and the controls hash carried in successful validation.json. A preparation failure must stop launch. Configured model is not actual execution proof.

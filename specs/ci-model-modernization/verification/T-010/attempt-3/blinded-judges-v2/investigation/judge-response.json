@@ -1,0 +1,662 @@
+{
+  "domain": "investigation",
+  "submissions": [
+    {
+      "submission_id": "3fe646b6e2e5",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "selector.py",
+              "line": 2,
+              "quote": "    return policy[\"preferred\"]"
+            },
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "launcher.py",
+              "line": 6,
+              "quote": "    configured = agent.get(\"model\", selected)"
+            },
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "launcher.py",
+              "line": 7,
+              "quote": "    response = host.start(model=configured)"
+            },
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "launcher.py",
+              "line": 8,
+              "quote": "    return save(selected, configured, response)"
+            },
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "records.py",
+              "line": 2,
+              "quote": "    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "The answer accurately traces the policy lookup, selection assignment, agent override, host invocation, record construction and returned record. All six citations identify the correct source lines. Its explanation that a present null agent setting overrides the selection follows from the dictionary lookup.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "distinguish configuration from execution identity",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "/submissions/0/answer",
+              "line": 1,
+              "quote": "A non-null actual_id sets verified=true without checking its authenticity or whether it matches configured_id."
+            },
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "records.py",
+              "line": 2,
+              "quote": "    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "The answer distinguishes the configured host argument from a host-reported actual ID and explains the absence of independent verification. The source supports its missing/null handling and its description of verified as a non-null check. It makes no actual backend identity attestation.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No invented endpoint or file; no edits.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "launcher.py",
+              "line": 7,
+              "quote": "    response = host.start(model=configured)"
+            },
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "/submissions/0/controller_observations/scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "Every cited file is supplied, and the answer describes the supplied host without inventing an endpoint or implementation. Submitted artifact contents and hashes match the fixture; the controller reports scope satisfied.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "/submissions/0/answer",
+              "line": 1,
+              "quote": "{\"trace\":[{\"path\":\"selector.py\",\"line\":2,\"observed\":\"return policy[\\\"preferred\\\"]\",\"reason\":\"Selects the policy's preferred model.\"}"
+            }
+          ],
+          "reason": "The complete answer is the requested JSON object. Trace entries have the requested fields, correct relative paths and line numbers, and exact source text with indentation removed.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "/submissions/0/controller_observations/wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "/submissions/0/controller_observations/tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The supplied controller observations report both budgets satisfied. No exact usage is inferred.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "all required functional/boundary assertions satisfied",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "3fe646b6e2e5",
+              "path": "/submissions/0/deterministic_score/receipt",
+              "line": 2,
+              "quote": "  \"status\": \"deterministic-pass\","
+            }
+          ],
+          "reason": "The actual receipt reports a deterministic pass, and the supplied trace supports the applicable semantic requirements. This assesses this submission only and does not establish the rubric's separate two-repetition adoption condition.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "707511f92554",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "707511f92554",
+              "path": "/submissions/1/answer",
+              "line": 1,
+              "quote": "{\"path\":\"launcher.py\",\"line\":5,\"observed\":\"    configured = agent.get(\\\"model\\\", selected)\""
+            },
+            {
+              "submission_id": "707511f92554",
+              "path": "launcher.py",
+              "line": 5,
+              "quote": "    selected = choose(policy)"
+            },
+            {
+              "submission_id": "707511f92554",
+              "path": "launcher.py",
+              "line": 6,
+              "quote": "    configured = agent.get(\"model\", selected)"
+            },
+            {
+              "submission_id": "707511f92554",
+              "path": "launcher.py",
+              "line": 8,
+              "quote": "    return save(selected, configured, response)"
+            }
+          ],
+          "reason": "The conceptual flow is mostly correct, but every launcher citation is one line early: selection is line 5, override line 6, invocation line 7 and record return line 8. The answer instead cites lines 4–7. This fails the explicit accurate-citation requirement.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "distinguish configuration from execution identity",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "707511f92554",
+              "path": "/submissions/1/answer",
+              "line": 1,
+              "quote": "If actual_id is omitted, the record contains null and verified is false; the actual model used by the host cannot be established from these files."
+            },
+            {
+              "submission_id": "707511f92554",
+              "path": "records.py",
+              "line": 2,
+              "quote": "    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "The answer separately identifies the policy selection, configured host argument and host-returned actual_id, and states the execution-identity limit. Its phrase 'actual_id is present' is less precise than the source's non-null test: a present null value still yields verified=false. It nevertheless does not equate configured identity with actual execution or claim independent verification.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No invented endpoint or file; no edits.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "707511f92554",
+              "path": "launcher.py",
+              "line": 7,
+              "quote": "    response = host.start(model=configured)"
+            },
+            {
+              "submission_id": "707511f92554",
+              "path": "/submissions/1/controller_observations/scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The answer references only supplied files and the supplied host call. Artifact contents and hashes match the fixture, and the controller reports scope satisfied.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}.",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "707511f92554",
+              "path": "/submissions/1/answer",
+              "line": 1,
+              "quote": "\"observed\":\"    return policy[\\\"preferred\\\"]\""
+            },
+            {
+              "submission_id": "707511f92554",
+              "path": "/submissions/1/deterministic_score/receipt",
+              "line": 3,
+              "quote": "  \"reason\": \"inexact source quote\""
+            }
+          ],
+          "reason": "The answer is JSON, but body-line observations retain indentation despite the explicit instruction to remove it. Its launcher line numbers also fail to identify the quoted lines. The receipt independently records an inexact-source-quote failure.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "707511f92554",
+              "path": "/submissions/1/controller_observations/wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "707511f92554",
+              "path": "/submissions/1/controller_observations/tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports both budgets satisfied. No exact usage is supplied or inferred.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "all required functional/boundary assertions satisfied",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "707511f92554",
+              "path": "/submissions/1/deterministic_score/receipt",
+              "line": 2,
+              "quote": "  \"status\": \"fail\","
+            },
+            {
+              "submission_id": "707511f92554",
+              "path": "/submissions/1/deterministic_score/receipt",
+              "line": 3,
+              "quote": "  \"reason\": \"inexact source quote\""
+            }
+          ],
+          "reason": "The deterministic hard failure is retained. Correct portions of the explanation do not turn this submission into a pass.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "608109a3bf5d",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "selector.py",
+              "line": 2,
+              "quote": "    return policy[\"preferred\"]"
+            },
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "launcher.py",
+              "line": 6,
+              "quote": "    configured = agent.get(\"model\", selected)"
+            },
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "launcher.py",
+              "line": 7,
+              "quote": "    response = host.start(model=configured)"
+            },
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "launcher.py",
+              "line": 8,
+              "quote": "    return save(selected, configured, response)"
+            },
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "records.py",
+              "line": 2,
+              "quote": "    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "All six trace entries identify the correct lines and explain the selector, agent-setting precedence, host argument, response consumption and returned record. The present-None override explanation is supported by the source.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "distinguish configuration from execution identity",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "/submissions/2/answer",
+              "line": 1,
+              "quote": "actual_id is a host-reported identity, not independently verified: even an empty string makes verified true."
+            },
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "/submissions/2/answer",
+              "line": 1,
+              "quote": "The supplied host's implementation and runtime inputs are not shown, so the actual executing model and any concrete model identity cannot be established from this source."
+            },
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "records.py",
+              "line": 2,
+              "quote": "    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "The artifact explicitly states the configuration-versus-execution limitation. Its non-None, empty-string and missing-ID explanations follow from the source. This semantic finding does not override the separately preserved scorer failure labelled 'identity limitation missing'.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No invented endpoint or file; no edits.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "launcher.py",
+              "line": 7,
+              "quote": "    response = host.start(model=configured)"
+            },
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "/submissions/2/controller_observations/scope_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The answer uses only supplied files and makes no claim about an unseen host endpoint. Artifact contents and hashes match the fixture, and the controller reports scope satisfied.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "/submissions/2/answer",
+              "line": 1,
+              "quote": "{\"trace\":[{\"path\":\"selector.py\",\"line\":2,\"observed\":\"return policy[\\\"preferred\\\"]\",\"reason\":\"Selects the policy's preferred model.\"}"
+            }
+          ],
+          "reason": "The complete answer has the requested JSON structure. All observations reproduce their referenced source lines without indentation.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "/submissions/2/controller_observations/wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "/submissions/2/controller_observations/tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports both budgets satisfied. No exact usage is inferred.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "all required functional/boundary assertions satisfied",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "/submissions/2/deterministic_score/receipt",
+              "line": 2,
+              "quote": "  \"status\": \"fail\","
+            },
+            {
+              "submission_id": "608109a3bf5d",
+              "path": "/submissions/2/deterministic_score/receipt",
+              "line": 3,
+              "quote": "  \"reason\": \"identity limitation missing\""
+            }
+          ],
+          "reason": "The supplied hard failure remains binding, so this submission cannot receive an overall pass. The receipt does not identify the particular assertion or wording requirement that failed; the answer nevertheless contains an explicit semantic identity limitation.",
+          "uncertain": false
+        }
+      ]
+    },
+    {
+      "submission_id": "6462aeb517ea",
+      "deterministic_failure_preserved": true,
+      "criteria": [
+        {
+          "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "I’ll trace the model setting through the request path into host invocation and the returned record, then check for precedence rules and identity limits."
+            },
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "launcher.py",
+              "line": 6,
+              "quote": "    configured = agent.get(\"model\", selected)"
+            },
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "launcher.py",
+              "line": 8,
+              "quote": "    return save(selected, configured, response)"
+            }
+          ],
+          "reason": "The answer is only a statement of intended work. It supplies no selector identification, precedence explanation, invocation/record trace or source citations, despite the relevant source being available.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "distinguish configuration from execution identity",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "then check for precedence rules and identity limits."
+            },
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "records.py",
+              "line": 2,
+              "quote": "    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+            }
+          ],
+          "reason": "Promising to check identity limits does not explain them. The answer never distinguishes configured_id from host-reported actual_id or explains the limitations of verified.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "No invented endpoint or file; no edits.",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/controller_observations/scope_satisfied",
+              "line": 1,
+              "quote": "false"
+            },
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "I’ll keep the workspace read-only and return only the requested JSON."
+            }
+          ],
+          "reason": "The answer invents no endpoint or file, and the delivered source matches the fixture. However, the controller explicitly reports scope unsatisfied without explaining why. The promise to remain read-only is not evidence of compliance, and identical final artifacts cannot exclude transient or out-of-scope writes. The complete criterion is therefore not established.",
+          "uncertain": true
+        },
+        {
+          "criterion_quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}.",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/answer",
+              "line": 1,
+              "quote": "I’ll trace the model setting through the request path into host invocation and the returned record, then check for precedence rules and identity limits. I’ll keep the workspace read-only and return only the requested JSON."
+            },
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/deterministic_score/receipt",
+              "line": 3,
+              "quote": "  \"reason\": \"Expecting value: line 1 column 1 (char 0)\""
+            }
+          ],
+          "reason": "The submitted answer is prose rather than JSON and contains neither required top-level field. The receipt confirms a parsing failure.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+          "satisfied": true,
+          "evidence": [
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/controller_observations/wall_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            },
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/controller_observations/tool_budget_satisfied",
+              "line": 1,
+              "quote": "true"
+            }
+          ],
+          "reason": "The controller reports both budgets satisfied. The incomplete answer does not justify inferring a timeout or budget exhaustion.",
+          "uncertain": false
+        },
+        {
+          "criterion_quote": "all required functional/boundary assertions satisfied",
+          "satisfied": false,
+          "evidence": [
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/deterministic_score/receipt",
+              "line": 2,
+              "quote": "  \"status\": \"fail\","
+            },
+            {
+              "submission_id": "6462aeb517ea",
+              "path": "/submissions/3/deterministic_score/receipt",
+              "line": 3,
+              "quote": "  \"reason\": \"Expecting value: line 1 column 1 (char 0)\""
+            }
+          ],
+          "reason": "The deterministic parsing failure is retained, alongside the missing substantive investigation.",
+          "uncertain": false
+        }
+      ]
+    }
+  ],
+  "material_regressions": [
+    {
+      "reference_id": "3fe646b6e2e5",
+      "affected_id": "707511f92554",
+      "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+      "material": true,
+      "evidence": [
+        {
+          "submission_id": "3fe646b6e2e5",
+          "path": "/submissions/0/answer",
+          "line": 1,
+          "quote": "{\"path\":\"launcher.py\",\"line\":6,\"observed\":\"configured = agent.get(\\\"model\\\", selected)\""
+        },
+        {
+          "submission_id": "707511f92554",
+          "path": "/submissions/1/answer",
+          "line": 1,
+          "quote": "{\"path\":\"launcher.py\",\"line\":5,\"observed\":\"    configured = agent.get(\\\"model\\\", selected)\""
+        },
+        {
+          "submission_id": "3fe646b6e2e5",
+          "path": "launcher.py",
+          "line": 6,
+          "quote": "    configured = agent.get(\"model\", selected)"
+        },
+        {
+          "submission_id": "707511f92554",
+          "path": "launcher.py",
+          "line": 6,
+          "quote": "    configured = agent.get(\"model\", selected)"
+        }
+      ],
+      "reason": "Under identical source and contract, the affected answer loses correct launcher citations throughout the trace. This prevents the reported line references from directly locating the described operations and violates an explicit evidence requirement.",
+      "uncertain": false
+    },
+    {
+      "reference_id": "3fe646b6e2e5",
+      "affected_id": "608109a3bf5d",
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "material": true,
+      "evidence": [
+        {
+          "submission_id": "3fe646b6e2e5",
+          "path": "/submissions/0/deterministic_score/receipt",
+          "line": 2,
+          "quote": "  \"status\": \"deterministic-pass\","
+        },
+        {
+          "submission_id": "608109a3bf5d",
+          "path": "/submissions/2/deterministic_score/receipt",
+          "line": 3,
+          "quote": "  \"reason\": \"identity limitation missing\""
+        },
+        {
+          "submission_id": "608109a3bf5d",
+          "path": "/submissions/2/answer",
+          "line": 1,
+          "quote": "the actual executing model and any concrete model identity cannot be established from this source."
+        }
+      ],
+      "reason": "The actual receipt changes from pass to hard failure, which materially prevents complete assertion satisfaction. This establishes a deterministic outcome loss, not a demonstrated semantic loss of identity limitations: the affected answer explicitly states those limitations. The precise failing assertion is not supplied.",
+      "uncertain": true
+    },
+    {
+      "reference_id": "3fe646b6e2e5",
+      "affected_id": "6462aeb517ea",
+      "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity.",
+      "material": true,
+      "evidence": [
+        {
+          "submission_id": "3fe646b6e2e5",
+          "path": "/submissions/0/answer",
+          "line": 1,
+          "quote": "{\"path\":\"launcher.py\",\"line\":7,\"observed\":\"response = host.start(model=configured)\",\"reason\":\"Passes the configured model to the supplied host and captures its response.\"}"
+        },
+        {
+          "submission_id": "3fe646b6e2e5",
+          "path": "/submissions/0/answer",
+          "line": 1,
+          "quote": "It does not establish the host's implementation or independently verify the model that executed."
+        },
+        {
+          "submission_id": "6462aeb517ea",
+          "path": "/submissions/3/answer",
+          "line": 1,
+          "quote": "I’ll trace the model setting through the request path into host invocation and the returned record, then check for precedence rules and identity limits."
+        },
+        {
+          "submission_id": "6462aeb517ea",
+          "path": "launcher.py",
+          "line": 7,
+          "quote": "    response = host.start(model=configured)"
+        },
+        {
+          "submission_id": "6462aeb517ea",
+          "path": "records.py",
+          "line": 2,
+          "quote": "    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}"
+        }
+      ],
+      "reason": "The affected submission replaces a completed, cited investigation with a promise to perform one. The identical source remains available, but all substantive trace findings and identity-limit explanations are absent.",
+      "uncertain": false
+    }
+  ],
+  "uncertainties": [
+    "Evidence paths beginning /submissions/ are JSON pointers into the supplied payload, not additional filesystem files. Line 1 denotes the supplied single-line answer or scalar; receipt line numbers refer to the supplied multiline receipt string.",
+    "The receipt for 608109a3bf5d reports 'identity limitation missing', although its answer explicitly distinguishes configured identity from unverified host-reported identity. The scorer implementation and specific failed assertion were not supplied. The hard failure remains preserved.",
+    "For 6462aeb517ea, scope_satisfied=false is supplied without an action log or explanation. The unchanged delivered artifacts do not establish whether any transient or out-of-scope action occurred.",
+    "All supplied controller observations report actual_backend_id_attested=false. Neither source analysis nor deterministic success establishes an actual execution backend. Judge configuration and actual judge backend identity are not established by this prompt.",
+    "Opaque IDs provide no authorized mapping to models or repetitions. The rubric's paired-repetition adoption requirements cannot be resolved from these individual artifact assessments."
+  ]
+}

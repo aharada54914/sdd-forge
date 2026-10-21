@@ -1,0 +1,35 @@
+{
+  "source_proof": [
+    {
+      "path": "tests/model-policy-launch.tests.py",
+      "sha256": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "line": 218,
+      "quote": "        self.run_id = 'fixture-run-' + uuid.uuid4().hex[:8]"
+    },
+    {
+      "path": "tests/model-policy-launch.tests.py",
+      "sha256": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "line": 219,
+      "quote": "        self.session_id = str(uuid.uuid4())"
+    }
+  ],
+  "smoke_controller_path": "specs/ci-model-modernization/verification/T-010/attempt-3/installed-production-smoke.py",
+  "smoke_controller_sha256": "3f8e0e12b6ceb48092048488e8c3678fa76f6216e1d1769e340c44227f79c1f5",
+  "fact": "Smoke invokes InstalledEntryTests.setUp \u2192 LaunchFixture.setUp and forwards f.run_id/f.session_id to generic prepare; host executables are marker shims, no native appserver session is created. Actual trial/judge provider thread/turn IDs remain excluded from public metadata.",
+  "records": [
+    {
+      "shell": "bash",
+      "run_id": "fixture-run-6cd38190",
+      "session_id": "bf825d81-4ad5-40bb-a5b8-3ba3fbf95098",
+      "type": "locally generated fixture-run prefix and uuid.uuid4 in LaunchFixture.setUp; no provider session",
+      "native_inference_started": 0
+    },
+    {
+      "shell": "pwsh",
+      "run_id": "fixture-run-57249727",
+      "session_id": "782b54b0-da8a-4ed5-bdee-33f04baecdd1",
+      "type": "locally generated fixture-run prefix and uuid.uuid4 in LaunchFixture.setUp; no provider session",
+      "native_inference_started": 0
+    }
+  ]
+}

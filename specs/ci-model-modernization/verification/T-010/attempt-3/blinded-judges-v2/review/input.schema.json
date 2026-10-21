@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "T-010 blinded semantic judge input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol_version", "domain", "natural_request", "rubric_documents", "fixtures", "submissions"],
+  "properties": {
+    "protocol_version": {"const": "semantic-judge-protocol-v1"},
+    "domain": {"enum": ["implementation", "review", "investigation", "skill-command-plan"]},
+    "natural_request": {"type": "string", "minLength": 1},
+    "rubric_documents": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/document"}},
+    "fixtures": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "additionalProperties": false, "required": ["fixture_id", "files"],
+      "properties": {"fixture_id": {"$ref": "#/$defs/opaqueId"}, "files": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/document"}}}
+    }},
+    "submissions": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["submission_id", "fixture_id", "artifacts", "answer", "deterministic_score", "controller_observations"],
+      "properties": {
+        "submission_id": {"$ref": "#/$defs/opaqueId"}, "fixture_id": {"$ref": "#/$defs/opaqueId"},
+        "artifacts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/document"}},
+        "answer": {"type": ["string", "null"]},
+        "deterministic_score": {"type": "object", "additionalProperties": false, "required": ["scorer_sha256", "receipt_sha256", "hard_pass", "receipt"], "properties": {
+          "scorer_sha256": {"$ref": "#/$defs/sha256"}, "receipt_sha256": {"$ref": "#/$defs/sha256"}, "hard_pass": {"type": "boolean"}, "receipt": {"type": "string", "minLength": 1}
+        }},
+        "controller_observations": {"type": "object", "additionalProperties": false, "required": ["wall_budget_satisfied", "tool_budget_satisfied", "scope_satisfied", "actual_backend_id_attested", "reroute_mismatch", "native_skill_binding_accepted"], "properties": {
+          "wall_budget_satisfied": {"type": ["boolean", "null"]}, "tool_budget_satisfied": {"type": ["boolean", "null"]}, "scope_satisfied": {"type": ["boolean", "null"]}, "actual_backend_id_attested": {"type": "boolean"}, "reroute_mismatch": {"type": ["boolean", "null"]}, "native_skill_binding_accepted": {"type": ["boolean", "null"]}
+        }}
+      }
+    }}
+  },
+  "$defs": {
+    "opaqueId": {"type": "string", "pattern": "^[a-z0-9]{8,16}$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "document": {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "content"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"}, "content": {"type": "string"}}}
+  }
+}

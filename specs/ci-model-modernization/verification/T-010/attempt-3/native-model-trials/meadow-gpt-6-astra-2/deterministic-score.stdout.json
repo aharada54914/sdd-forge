@@ -1,0 +1,4 @@
+{
+  "status": "deterministic-pass",
+  "semantic_review": "required for natural-language consequences/command execution equivalence; no model judge run"
+}

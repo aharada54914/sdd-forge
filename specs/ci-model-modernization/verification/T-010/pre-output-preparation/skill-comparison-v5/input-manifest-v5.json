@@ -1,0 +1,43 @@
+{
+  "version": "skill-comparison-v5",
+  "status": "frozen pre-output; no native turn",
+  "files": {
+    "README.md": "db9dfb6a3124fcd68955fd17ba1a30d6ade7a5893154b3394d8733ddc9585f40",
+    "arms/cedar-gpt-6-astra-1.json": "edc6b209fc1c7a92c1b3e7b3bd00d6afe80336f7e7cf797ee9b4a8276ba0dc1c",
+    "arms/cedar-gpt-6-astra-2.json": "3d0baea766323fb2bee46fc737de590067528b5d9e2c559f1e7b6e1d9fbcc10f",
+    "arms/maple-gpt-6-astra-1.json": "28c13d57fabf95e1d8732d3302eb7802f832675923a47ac485ec158208ad3010",
+    "arms/maple-gpt-6-astra-2.json": "ee4a8a201f18df9eb56206d6fcc87cfc2c366e8344dfd9105812d30ddc5f52dd",
+    "freeze-check.json": "cdd6d39dae56a1de7e7dce983299ac3547960cc64455d9702e3cee4d82039780",
+    "inputs/cedar/README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+    "inputs/cedar/procedure.md": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656",
+    "inputs/maple/README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+    "inputs/maple/procedure.md": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0",
+    "prepared-scoring-commands.txt": "62079507c159b72aefdc2ce437196e95c8699558ef75b55f2cd28f9e47193727",
+    "prepared-skill-commands.txt": "ebc18ca5c691ae1ecdbd93e1f13735cdd09ddfc4453dbf52294e942457f654f0",
+    "runner.py": "9f160db034dce4055b4724edc46188e71119a413ea9bf3e9506506e7357b36e6",
+    "score_artifacts.py": "25c48422192f77921d613a3e74b44db0ef66248714be890db93e092062ce5baf",
+    "selftest-results.json": "4b6889ba3906d2bdc2b6651114e905f6853a0535e6c64fbdbb5ef3f5346dd6ab",
+    "selftest.log": "50b857d03194f3d70ef6857b00edca61f2e57e081adecb5a5d7af1116e934c2d",
+    "selftest.py": "d4946fb07fafddc9bb2391606a0de25177cc2e0f71f7aae7ca10aea56d6eb291",
+    "skill-rubric-v5.md": "f27df23a12fb077a5d119b16ebdb5cdd0aa2bf2138b76fceb0d8f76b886ae318",
+    "source-binding.json": "92641c2000912ef8596ca89095bc639c3c0fac6d264313acd3d940f9b01a3525"
+  },
+  "skill_sources": {
+    "cedar": {
+      "source": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/whole-rollback-baseline/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656"
+    },
+    "maple": {
+      "source": "/workspace/sdd-forge/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0"
+    }
+  },
+  "planned_skill_runs": 4,
+  "fixed_model": "gpt-6-astra",
+  "effort": "high",
+  "repetitions_per_source": 2,
+  "wall_seconds": 300,
+  "max_tools": 24,
+  "native_activation": "unproven until an actual authorized turn",
+  "model16_arms": "frozen v4 unchanged"
+}

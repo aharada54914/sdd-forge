@@ -1,0 +1,21 @@
+{
+  "started_at": "2026-10-21T13:16:54.202919+00:00",
+  "finished_at": "2026-10-21T13:16:54.253837+00:00",
+  "command": [
+    "python3",
+    "-B",
+    "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/final-evidence-check.py"
+  ],
+  "exit_code": 0,
+  "immutable_source_pins": 229,
+  "trial_output_files_verified": 172,
+  "actual_judges_full_schema_proof_validated": 4,
+  "candidate_policy_typed_validation": "unchanged T006 validator passes",
+  "metadata_only": "preferences/registry/floors/host mappings/historical IDs unchanged; Astra implementer only",
+  "runtime_copy_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+  "policy_sha256": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+  "test_patch_sha256": "6aea5e54cdc8c4089c0b5b7344ad4432d798718e8c9454053d923a97937a0c99",
+  "tested_testfile_sha256": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09",
+  "candidate_plus_rollback": "59/59 then57/57; exact baseline restoration",
+  "result": "PASS"
+}

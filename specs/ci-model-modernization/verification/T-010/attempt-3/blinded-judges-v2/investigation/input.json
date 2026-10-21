@@ -1,0 +1,205 @@
+{
+  "protocol_version": "semantic-judge-protocol-v1",
+  "domain": "investigation",
+  "natural_request": "Trace how model choice reaches the host invocation and returned record, including any higher-priority setting and identity limits. Do not edit files. Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}.\n",
+  "rubric_documents": [
+    {
+      "path": "criteria/model-rubric.md",
+      "content": "# Initial current-model adoption evaluation rubric\n\nDate: 2026-10-18 UTC\nStatus: Prepared before candidate outputs; evaluation not run\nAuthorization: approved model-selection-policy-research-20261018.md\n\n## Purpose and comparison controls\n\nEvaluate GPT-6.1 Sol for implementation/review and GPT-6 Luna for bounded investigation against the available previously registered GPT-6 Astra baseline. Each comparison varies the model only: identical fixture bytes, natural request, permitted tools, role-appropriate fixed effort and wall/tool budget. Use two fresh repetitions per case to expose obvious variability; this small project-shaped sample is not a general benchmark or a proof of universal model quality.\n\nThe current candidate list is an availability observation, not adoption proof. Re-discover availability and record actual CLI/schema before collecting outputs. Do not substitute unavailable models or reinterpret a host-configured ID as per-turn execution telemetry. Capture reroute notifications; state the exact identity-proof level. A comparison requiring unsupported actual execution-ID attestation is blocked rather than advertised as exact backend identity proof.\n\nCandidates receive separate temporary workspaces with ordinary project names, the same request and fixture files. Keep this rubric, model variant labels, expected findings and experiment metadata outside their input boundary. Do not expose unrelated repository/session content. No provider/network credentials, cloud writes, external panelist sends, registry edits or live notifications are part of these trials.\n\n## Cases and observable scoring\n\n| Case | Candidate / baseline | Natural task | Evidence and pass rule |\n|---|---|---|---|\n| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |\n| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |\n| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |\n\nFor each model/case use two fresh runs. Implementation and review use high effort; bounded investigation uses low effort, with the same effort within each paired comparison. Effort names do not imply equal compute across models. Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success. Record observed usage only when supplied; no synthetic price or dollar estimate.\n\n## Judgment and promotion\n\nDeterministic artifact/test results and exact seeded findings are primary. If an independent native judgment is used, keep the judge fixed at GPT-6 Astra/high for all paired outputs, use fresh isolated contexts and blind model labels. Its role is to assess artifact quality against this frozen rubric, not to waive failed assertions or invent unavailable actual-ID evidence. Record judgment availability and residual model/self-preference bias.\n\nPromote a model only for roles with complete actual observations, all required functional/boundary assertions satisfied in both repetitions, no unauthorized writes/tools, and no unresolved material regression against the baseline. A failed candidate stays an update candidate; investigate and rerun a new versioned experiment rather than removing failed results. Retain every attempt, source/input/output hash and failure. A historical model unavailable to this account is not a fabricated comparison arm.\n\nThis is initial adoption evidence for a limited repository workload. Normal independent task reviews and quality gates still apply, with their existing identity/input contracts. Later role or skill changes require their own relevant controlled evaluation; skill comparisons keep the model fixed.\n",
+      "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8"
+    }
+  ],
+  "fixtures": [
+    {
+      "fixture_id": "a33ff0e5dfb1",
+      "files": [
+        {
+          "path": "fixtures/a33ff0e5dfb1/README.md",
+          "content": "Willow launcher routes a configured model to a supplied host. The host response may omit actual_id. Trace the selection and record flow from the source.\n",
+          "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d"
+        },
+        {
+          "path": "fixtures/a33ff0e5dfb1/launcher.py",
+          "content": "from selector import choose\nfrom records import save\n\ndef launch(policy, agent, host):\n    selected = choose(policy)\n    configured = agent.get(\"model\", selected)\n    response = host.start(model=configured)\n    return save(selected, configured, response)\n",
+          "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6"
+        },
+        {
+          "path": "fixtures/a33ff0e5dfb1/records.py",
+          "content": "def save(selected, configured, response):\n    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765"
+        },
+        {
+          "path": "fixtures/a33ff0e5dfb1/selector.py",
+          "content": "def choose(policy):\n    return policy[\"preferred\"]\n",
+          "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e"
+        }
+      ]
+    }
+  ],
+  "submissions": [
+    {
+      "submission_id": "3fe646b6e2e5",
+      "fixture_id": "a33ff0e5dfb1",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "Willow launcher routes a configured model to a supplied host. The host response may omit actual_id. Trace the selection and record flow from the source.\n",
+          "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d"
+        },
+        {
+          "path": "launcher.py",
+          "content": "from selector import choose\nfrom records import save\n\ndef launch(policy, agent, host):\n    selected = choose(policy)\n    configured = agent.get(\"model\", selected)\n    response = host.start(model=configured)\n    return save(selected, configured, response)\n",
+          "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6"
+        },
+        {
+          "path": "records.py",
+          "content": "def save(selected, configured, response):\n    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765"
+        },
+        {
+          "path": "selector.py",
+          "content": "def choose(policy):\n    return policy[\"preferred\"]\n",
+          "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e"
+        }
+      ],
+      "answer": "{\"trace\":[{\"path\":\"selector.py\",\"line\":2,\"observed\":\"return policy[\\\"preferred\\\"]\",\"reason\":\"Selects the policy's preferred model.\"},{\"path\":\"launcher.py\",\"line\":5,\"observed\":\"selected = choose(policy)\",\"reason\":\"Stores the policy selection.\"},{\"path\":\"launcher.py\",\"line\":6,\"observed\":\"configured = agent.get(\\\"model\\\", selected)\",\"reason\":\"The agent's model setting takes priority when present; otherwise uses the policy selection. A present null value also overrides the selection.\"},{\"path\":\"launcher.py\",\"line\":7,\"observed\":\"response = host.start(model=configured)\",\"reason\":\"Passes the configured model to the supplied host and captures its response.\"},{\"path\":\"launcher.py\",\"line\":8,\"observed\":\"return save(selected, configured, response)\",\"reason\":\"Returns a record built from the policy selection, configured model, and host response.\"},{\"path\":\"records.py\",\"line\":2,\"observed\":\"return {\\\"selected\\\": selected, \\\"configured_id\\\": configured, \\\"actual_id\\\": response.get(\\\"actual_id\\\"), \\\"verified\\\": response.get(\\\"actual_id\\\") is not None}\",\"reason\":\"Records both selection values and the host-reported actual ID. Sets verified solely according to whether actual_id is non-null.\"}],\"identity\":\"The source establishes which model value is passed to the host and how the host-reported identity is recorded. It does not establish the host's implementation or independently verify the model that executed. If actual_id is absent or null, the record contains actual_id=null and verified=false. A non-null actual_id sets verified=true without checking its authenticity or whether it matches configured_id. These files cannot establish this assistant's runtime model identity.\"}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "d1fd692148355aeeb1d3ce899ef1104206937333255f52129c01b86048998d6d",
+        "hard_pass": true,
+        "receipt": "{\n  \"status\": \"deterministic-pass\",\n  \"semantic_review\": \"required for natural-language consequences/command execution equivalence; no model judge run\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "707511f92554",
+      "fixture_id": "a33ff0e5dfb1",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "Willow launcher routes a configured model to a supplied host. The host response may omit actual_id. Trace the selection and record flow from the source.\n",
+          "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d"
+        },
+        {
+          "path": "launcher.py",
+          "content": "from selector import choose\nfrom records import save\n\ndef launch(policy, agent, host):\n    selected = choose(policy)\n    configured = agent.get(\"model\", selected)\n    response = host.start(model=configured)\n    return save(selected, configured, response)\n",
+          "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6"
+        },
+        {
+          "path": "records.py",
+          "content": "def save(selected, configured, response):\n    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765"
+        },
+        {
+          "path": "selector.py",
+          "content": "def choose(policy):\n    return policy[\"preferred\"]\n",
+          "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e"
+        }
+      ],
+      "answer": "{\"trace\":[{\"path\":\"selector.py\",\"line\":1,\"observed\":\"def choose(policy):\",\"reason\":\"Defines the policy-based model selection function.\"},{\"path\":\"selector.py\",\"line\":2,\"observed\":\"    return policy[\\\"preferred\\\"]\",\"reason\":\"Selects the policy’s preferred model.\"},{\"path\":\"launcher.py\",\"line\":4,\"observed\":\"    selected = choose(policy)\",\"reason\":\"Gets the selected model from the policy.\"},{\"path\":\"launcher.py\",\"line\":5,\"observed\":\"    configured = agent.get(\\\"model\\\", selected)\",\"reason\":\"Uses the agent’s model setting when present; it takes priority over the selected model for host invocation. Otherwise, falls back to the selected model.\"},{\"path\":\"launcher.py\",\"line\":6,\"observed\":\"    response = host.start(model=configured)\",\"reason\":\"Passes the configured model to the supplied host.\"},{\"path\":\"launcher.py\",\"line\":7,\"observed\":\"    return save(selected, configured, response)\",\"reason\":\"Sends the selection, configured model, and host response to the record function.\"},{\"path\":\"records.py\",\"line\":2,\"observed\":\"    return {\\\"selected\\\": selected, \\\"configured_id\\\": configured, \\\"actual_id\\\": response.get(\\\"actual_id\\\"), \\\"verified\\\": response.get(\\\"actual_id\\\") is not None}\",\"reason\":\"Returns both the policy-selected and configured model identifiers, records the host’s actual_id if provided, and marks verification true only when actual_id is present.\"}],\"identity\":\"The source establishes the policy-selected model, the agent-configured model sent to the host, and any actual_id returned by the host. If actual_id is omitted, the record contains null and verified is false; the actual model used by the host cannot be established from these files.\"}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "d5151d80d71a47e230d05c8508e692850b904dfa950e586dd516da153422d7d6",
+        "hard_pass": false,
+        "receipt": "{\n  \"status\": \"fail\",\n  \"reason\": \"inexact source quote\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "608109a3bf5d",
+      "fixture_id": "a33ff0e5dfb1",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "Willow launcher routes a configured model to a supplied host. The host response may omit actual_id. Trace the selection and record flow from the source.\n",
+          "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d"
+        },
+        {
+          "path": "launcher.py",
+          "content": "from selector import choose\nfrom records import save\n\ndef launch(policy, agent, host):\n    selected = choose(policy)\n    configured = agent.get(\"model\", selected)\n    response = host.start(model=configured)\n    return save(selected, configured, response)\n",
+          "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6"
+        },
+        {
+          "path": "records.py",
+          "content": "def save(selected, configured, response):\n    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765"
+        },
+        {
+          "path": "selector.py",
+          "content": "def choose(policy):\n    return policy[\"preferred\"]\n",
+          "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e"
+        }
+      ],
+      "answer": "{\"trace\":[{\"path\":\"selector.py\",\"line\":2,\"observed\":\"return policy[\\\"preferred\\\"]\",\"reason\":\"Selects the policy's preferred model.\"},{\"path\":\"launcher.py\",\"line\":5,\"observed\":\"selected = choose(policy)\",\"reason\":\"Stores the policy-selected model.\"},{\"path\":\"launcher.py\",\"line\":6,\"observed\":\"configured = agent.get(\\\"model\\\", selected)\",\"reason\":\"The agent's model setting takes priority when present, including when its value is None; otherwise uses the selected model.\"},{\"path\":\"launcher.py\",\"line\":7,\"observed\":\"response = host.start(model=configured)\",\"reason\":\"Passes the configured model to the supplied host and captures its response.\"},{\"path\":\"launcher.py\",\"line\":8,\"observed\":\"return save(selected, configured, response)\",\"reason\":\"Returns the record built from the selected model, configured model, and host response.\"},{\"path\":\"records.py\",\"line\":2,\"observed\":\"return {\\\"selected\\\": selected, \\\"configured_id\\\": configured, \\\"actual_id\\\": response.get(\\\"actual_id\\\"), \\\"verified\\\": response.get(\\\"actual_id\\\") is not None}\",\"reason\":\"Records both model choices and the host-reported actual_id; sets verified solely by whether actual_id is non-None.\"}],\"identity\":\"The source establishes selection precedence and the model argument passed to the host. actual_id is a host-reported identity, not independently verified: even an empty string makes verified true. An omitted or None actual_id produces actual_id=None and verified=false. The supplied host's implementation and runtime inputs are not shown, so the actual executing model and any concrete model identity cannot be established from this source.\"}",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "99690e0f82557420e10ac2c9f685d8a621a4f27dc78476e687b65232e5c6bea9",
+        "hard_pass": false,
+        "receipt": "{\n  \"status\": \"fail\",\n  \"reason\": \"identity limitation missing\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "6462aeb517ea",
+      "fixture_id": "a33ff0e5dfb1",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "Willow launcher routes a configured model to a supplied host. The host response may omit actual_id. Trace the selection and record flow from the source.\n",
+          "sha256": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d"
+        },
+        {
+          "path": "launcher.py",
+          "content": "from selector import choose\nfrom records import save\n\ndef launch(policy, agent, host):\n    selected = choose(policy)\n    configured = agent.get(\"model\", selected)\n    response = host.start(model=configured)\n    return save(selected, configured, response)\n",
+          "sha256": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6"
+        },
+        {
+          "path": "records.py",
+          "content": "def save(selected, configured, response):\n    return {\"selected\": selected, \"configured_id\": configured, \"actual_id\": response.get(\"actual_id\"), \"verified\": response.get(\"actual_id\") is not None}\n",
+          "sha256": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765"
+        },
+        {
+          "path": "selector.py",
+          "content": "def choose(policy):\n    return policy[\"preferred\"]\n",
+          "sha256": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e"
+        }
+      ],
+      "answer": "I’ll trace the model setting through the request path into host invocation and the returned record, then check for precedence rules and identity limits. I’ll keep the workspace read-only and return only the requested JSON.",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "e5571ca85d4fe96dab94a099ba8b9dd9bd108b5f670a5965120e72c08f9574c0",
+        "hard_pass": false,
+        "receipt": "{\n  \"status\": \"fail\",\n  \"reason\": \"Expecting value: line 1 column 1 (char 0)\"\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": false,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    }
+  ]
+}

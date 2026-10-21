@@ -1,0 +1,782 @@
+{
+  "validation_version": "original-contract-and-schema-field-resolution/v1",
+  "input_sha256": "05f77c340ba12c5b53f776b4fe52a11475c8980cc5dbef1f391c8283843927a9",
+  "response_sha256": "5de557276add3dfd1e8212b7b9d2750b3da451aa6e66b67dc2b6d8aefb75ad71",
+  "full_original_schema_sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+  "schema_and_proof_checks_pass": true,
+  "errors": [],
+  "criterion_origins": [
+    {
+      "criterion_quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Structured findings must cite existing file lines.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Structured findings must cite existing file lines."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Use one finding per independent defect and an empty findings list if there are no defects."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "No file writes.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "No file writes."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "with no invented critical issue in a paired clean control.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "with no invented critical issue in a paired clean control."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Structured findings must cite existing file lines.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Structured findings must cite existing file lines."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Use one finding per independent defect and an empty findings list if there are no defects."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "No file writes.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "No file writes."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Structured findings must cite existing file lines.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Structured findings must cite existing file lines."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Use one finding per independent defect and an empty findings list if there are no defects."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "No file writes.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "No file writes."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "with no invented critical issue in a paired clean control.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "with no invented critical issue in a paired clean control."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Structured findings must cite existing file lines.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Structured findings must cite existing file lines."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Use one finding per independent defect and an empty findings list if there are no defects."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "No file writes.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "No file writes."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Structured findings must cite existing file lines.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Structured findings must cite existing file lines."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Use one finding per independent defect and an empty findings list if there are no defects."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "No file writes.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "No file writes."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "with no invented critical issue in a paired clean control.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "with no invented critical issue in a paired clean control."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Structured findings must cite existing file lines.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Structured findings must cite existing file lines."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Use one finding per independent defect and an empty findings list if there are no defects."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "No file writes.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "No file writes."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "with no invented critical issue in a paired clean control.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "with no invented critical issue in a paired clean control."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Structured findings must cite existing file lines.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Structured findings must cite existing file lines."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Use one finding per independent defect and an empty findings list if there are no defects."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "No file writes.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "No file writes."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Structured findings must cite existing file lines.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "Structured findings must cite existing file lines."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Return only JSON {\"findings\":[{\"path\":\"routing.py\",\"line\":1,\"observed\":\"exact source line without indentation\",\"impact\":\"concrete consequence\"}]}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Use one finding per independent defect and an empty findings list if there are no defects.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "ab5536809dd40adf88e9f67dde0f1218c6a61f12f971ee8e1b8531dc3d49eecc",
+        "line": 1,
+        "quote": "Use one finding per independent defect and an empty findings list if there are no defects."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "No file writes.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "No file writes."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 20,
+        "quote": "| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |"
+      }
+    }
+  ],
+  "exact_anchored_citations_checked": 96,
+  "resolution": "Exact schema-defined supplied string/scalar fields resolve as logical documents; contiguous quote may begin within cited line. No fuzzy matching, wrong lines, inferred/generated criteria or candidate-response edits.",
+  "submissions": [
+    {
+      "submission_id": "073335c1e4ba",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    },
+    {
+      "submission_id": "f07c09018a67",
+      "all_semantic_criteria_satisfied": true,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": true
+    },
+    {
+      "submission_id": "5f0b23b9dec4",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    },
+    {
+      "submission_id": "b821be013f6a",
+      "all_semantic_criteria_satisfied": true,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": true
+    },
+    {
+      "submission_id": "1017d65b3da8",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    },
+    {
+      "submission_id": "9b0fe4f46006",
+      "all_semantic_criteria_satisfied": true,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": true
+    },
+    {
+      "submission_id": "fe1ae0f84cd1",
+      "all_semantic_criteria_satisfied": true,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": true
+    },
+    {
+      "submission_id": "0ecffffc3ae3",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    }
+  ]
+}

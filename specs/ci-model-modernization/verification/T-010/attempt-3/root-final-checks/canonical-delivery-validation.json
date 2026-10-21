@@ -1,0 +1,71 @@
+[
+  {
+    "name": "report",
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "reports/implementation/ci-model-modernization/T-010.md"
+    ],
+    "started_at": "2026-10-21T13:32:33.441446+00:00",
+    "finished_at": "2026-10-21T13:32:33.463821+00:00",
+    "exit_code": 0,
+    "source_before": {
+      "reports/implementation/ci-model-modernization/T-010.md": "16523651de46f051ecf592c2d2bdc0798514721f1fd4655c41081c17f15cdc10",
+      "specs/ci-model-modernization/verification/T-010.contract.json": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f",
+      "specs/ci-model-modernization/tasks.md": "23c0ee6e355284345514f56e732797577d8936821b08de0c5ae64ae23b3a80b7"
+    },
+    "source_after": {
+      "reports/implementation/ci-model-modernization/T-010.md": "16523651de46f051ecf592c2d2bdc0798514721f1fd4655c41081c17f15cdc10",
+      "specs/ci-model-modernization/verification/T-010.contract.json": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f",
+      "specs/ci-model-modernization/tasks.md": "23c0ee6e355284345514f56e732797577d8936821b08de0c5ae64ae23b3a80b7"
+    },
+    "stdout_sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "contract",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-contract.sh",
+      "specs/ci-model-modernization/verification/T-010.contract.json"
+    ],
+    "started_at": "2026-10-21T13:32:33.464120+00:00",
+    "finished_at": "2026-10-21T13:32:33.491280+00:00",
+    "exit_code": 0,
+    "source_before": {
+      "reports/implementation/ci-model-modernization/T-010.md": "16523651de46f051ecf592c2d2bdc0798514721f1fd4655c41081c17f15cdc10",
+      "specs/ci-model-modernization/verification/T-010.contract.json": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f",
+      "specs/ci-model-modernization/tasks.md": "23c0ee6e355284345514f56e732797577d8936821b08de0c5ae64ae23b3a80b7"
+    },
+    "source_after": {
+      "reports/implementation/ci-model-modernization/T-010.md": "16523651de46f051ecf592c2d2bdc0798514721f1fd4655c41081c17f15cdc10",
+      "specs/ci-model-modernization/verification/T-010.contract.json": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f",
+      "specs/ci-model-modernization/tasks.md": "23c0ee6e355284345514f56e732797577d8936821b08de0c5ae64ae23b3a80b7"
+    },
+    "stdout_sha256": "88acd1606c689e4c2cb25cdea1b652f1a58ae28001d25f67ed8b5c7c21f627f1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "state",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "specs/ci-model-modernization/tasks.md"
+    ],
+    "started_at": "2026-10-21T13:32:33.491543+00:00",
+    "finished_at": "2026-10-21T13:32:34.548026+00:00",
+    "exit_code": 0,
+    "source_before": {
+      "reports/implementation/ci-model-modernization/T-010.md": "16523651de46f051ecf592c2d2bdc0798514721f1fd4655c41081c17f15cdc10",
+      "specs/ci-model-modernization/verification/T-010.contract.json": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f",
+      "specs/ci-model-modernization/tasks.md": "23c0ee6e355284345514f56e732797577d8936821b08de0c5ae64ae23b3a80b7"
+    },
+    "source_after": {
+      "reports/implementation/ci-model-modernization/T-010.md": "16523651de46f051ecf592c2d2bdc0798514721f1fd4655c41081c17f15cdc10",
+      "specs/ci-model-modernization/verification/T-010.contract.json": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f",
+      "specs/ci-model-modernization/tasks.md": "23c0ee6e355284345514f56e732797577d8936821b08de0c5ae64ae23b3a80b7"
+    },
+    "stdout_sha256": "bcc0bf7c54511e4e4a85426f1e420ea6ca7b1a6dedbf8334d050deec2f81d3f4",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

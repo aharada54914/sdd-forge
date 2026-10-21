@@ -1,0 +1,1 @@
+Review routing.py against README.md for correctness. Do not edit any files. Return only JSON {"findings":[{"path":"routing.py","line":1,"observed":"exact source line without indentation","impact":"concrete consequence"}]}. Use one finding per independent defect and an empty findings list if there are no defects.

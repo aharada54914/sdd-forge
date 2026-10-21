@@ -1,0 +1,32 @@
+{
+  "recorded_at": "2026-10-21T13:05:02.505591+00:00",
+  "before_root_product_edits": true,
+  "schema_changes": false,
+  "boundaries": [
+    {
+      "field": "adoption.role",
+      "producer": "existing registered Astra baseline role decision; both repetitions actual hard+semantic pass",
+      "consumer": "unchanged model-policy.py _validate_role_policy and prepare_policy",
+      "mismatch": "wrong role never inherits implementer evidence"
+    },
+    {
+      "field": "adoption.path",
+      "producer": "contracts/model-adoption/ci-model-modernization-20261021.json packaged runtime copy",
+      "consumer": "contained _output_path + installed contracts copy",
+      "mismatch": "specs-only evidence is not a usable installed closure; superseded candidate retained"
+    },
+    {
+      "field": "adoption.sha256",
+      "producer": "raw exact reviewed role decision bytes SHA0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "consumer": "unchanged SHA256 reference validator",
+      "mismatch": "modified/missing evidence rejected config-invalid"
+    },
+    {
+      "field": "capability/policy model identity",
+      "producer": "unchanged registered Astra capability/trusted host mapping",
+      "consumer": "unchanged _validate_role_policy/_launch_authority",
+      "mismatch": "passing Sol remains unregistered and rejected; no tier/profile invention"
+    }
+  ],
+  "phase_scope": "All229 trial source pins immutable; later metadata regression uses exact Root-admitted native testbase24223de0 and contains no native candidate reruns."
+}

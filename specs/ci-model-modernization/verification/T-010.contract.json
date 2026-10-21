@@ -1,0 +1,174 @@
+{
+  "schema": "verification-contract/v2",
+  "task_id": "T-010",
+  "feature": "ci-model-modernization",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "e6bc5f5a91483f0755d3a13eca9b371ddddc4030",
+  "created": "2026-10-21T13:09:07.233611+00:00",
+  "comment": "Actual scoped implementation checks PASS with UTC/exits/logs. Root policy59 ran on f639...; final type-only required Bash assertion dfd74... passed Ruff/mypy and its single affected probe. Both actual installed packages select/prepare shipped Astra implementer policy under bounded verified-configuration availability; no new native inference or independent QA claim. Independent QA/formal gate remain separate.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts-v2.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-015",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts-v2.json",
+      "command": "/workspace/.tools/sdd-forge-python/bin/ruff check --config tests/shared-launch-python/pyproject.toml tests/model-policy.tests.py tests/model-policy-launch.tests.py tests/model-policy-installed.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:18:13.100440Z",
+      "finished_at": "2026-10-21T13:18:13.111619Z"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts-v2.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-015",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/root-static-receipts-v2.json",
+      "command": "/workspace/.tools/sdd-forge-python/bin/mypy --config-file tests/shared-launch-python/pyproject.toml tests/model-policy.tests.py tests/model-policy-launch.tests.py tests/model-policy-installed.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:18:13.100653Z",
+      "finished_at": "2026-10-21T13:18:13.511111Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-production-smoke.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-015",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-production-smoke.json",
+      "command": "python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/installed-production-smoke.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:14:42.396792Z",
+      "finished_at": "2026-10-21T13:14:47.148465Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-015",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh contracts/model-policy.v1.json contracts/model-adoption/ci-model-modernization-20261021.json",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:16:54.263725Z",
+      "finished_at": "2026-10-21T13:16:54.270871Z"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-015",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:16:54.272571Z",
+      "finished_at": "2026-10-21T13:16:55.323440Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-015",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59-receipt.json",
+      "command": "python3 -B tests/model-policy.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:13:19.337407Z",
+      "finished_at": "2026-10-21T13:13:53.475346Z"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-015",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/final-static-receipts.json",
+      "command": "python3 -B specs/ci-model-modernization/verification/T-010/attempt-3/final-evidence-check.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:16:54.181024Z",
+      "finished_at": "2026-10-21T13:16:54.261630Z"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59-receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-015",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/policy59-receipt.json",
+      "command": "python3 -B tests/model-policy.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:13:19.337407Z",
+      "finished_at": "2026-10-21T13:13:53.475346Z"
+    },
+    {
+      "id": "installed-reference-smoke",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-production-smoke.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-015",
+        "REQ-019"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/installed-production-smoke.json",
+      "command": "python3 -B /workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/installed-production-smoke.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:14:42.396792Z",
+      "finished_at": "2026-10-21T13:14:47.148465Z"
+    }
+  ]
+}

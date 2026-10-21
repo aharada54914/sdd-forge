@@ -1,0 +1,98 @@
+{
+  "sealed_at": "2026-10-21T12:57:21.574569+00:00",
+  "judges": {
+    "implementation": {
+      "files": {
+        "input.json": "7a67e5b3ef6afb6c0f107bf2a0d3c83ba408648114f1e4be93c75439fb07cf48",
+        "judge-answer.txt": "2b4956817677cef2419ebf186d893e4f5dc82108413afa28ccdbfbcaa783219c",
+        "judge-response.json": "39728a487027640bd4c1d5e8a79ef6499ea13b9b4c797c32ed4e0821d36a1930",
+        "judge-summary.json": "cb73749540c7768894576c886e310f43d4bdf596aba11a09f2e652ebbd685f68",
+        "validated-judge-evidence.json": "b0db9b91a40bc33f025320e47565c477fb4b2197f0e66ef3ede263c8c7c518dc"
+      },
+      "elapsed_seconds": 192.1687395350018,
+      "configured_judge": "gpt-6-astra",
+      "effort": "high",
+      "actual_id": null,
+      "proof": "unverified",
+      "observed_tool_calls": 0,
+      "provider_reported_token_usage": {
+        "totalTokens": 32064,
+        "inputTokens": 20507,
+        "cachedInputTokens": 0,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 11557,
+        "reasoningOutputTokens": 1552
+      }
+    },
+    "review": {
+      "files": {
+        "input.json": "05f77c340ba12c5b53f776b4fe52a11475c8980cc5dbef1f391c8283843927a9",
+        "judge-answer.txt": "e502ee2b145168fc28f670989e277bc8c9eac44ca26c396009a2e23e0d08e217",
+        "judge-response.json": "5de557276add3dfd1e8212b7b9d2750b3da451aa6e66b67dc2b6d8aefb75ad71",
+        "judge-summary.json": "96c4f26ae1480b0b757190fe2cc75d7a652b3fb31427b66f2028a85f2d495b7a",
+        "validated-judge-evidence.json": "957b99b61c91c57e81337c50c88b3cb11921912a0361bb9c5b09d5dfda6457ba"
+      },
+      "elapsed_seconds": 237.20578744699014,
+      "configured_judge": "gpt-6-astra",
+      "effort": "high",
+      "actual_id": null,
+      "proof": "unverified",
+      "observed_tool_calls": 0,
+      "provider_reported_token_usage": {
+        "totalTokens": 30309,
+        "inputTokens": 19786,
+        "cachedInputTokens": 0,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 10523,
+        "reasoningOutputTokens": 954
+      }
+    },
+    "investigation": {
+      "files": {
+        "input.json": "b1c2417725a2a3f1ff831e10c94e667c1b6ec7d7c1b326a272a2360c2c2792c0",
+        "judge-answer.txt": "4bc76f4b55e9ef16c169d10dbaff3a49ff9704c7ce1dc35b2df245e1fc0a1a65",
+        "judge-response.json": "6b67166c6368f1541416390bae7518564059418d9bb5ea7dd0c09d3ab8b5e94b",
+        "judge-summary.json": "7809be26804b0c2dfcd6c2ead9cb777e48d74bd3a6efb7c3b49b130307a9ae3c",
+        "validated-judge-evidence.json": "be771556ec99e2eba13d324cc1af0e3f0ecf93b32d47ebb41573cb5efdf73747"
+      },
+      "elapsed_seconds": 182.12539018702228,
+      "configured_judge": "gpt-6-astra",
+      "effort": "high",
+      "actual_id": null,
+      "proof": "unverified",
+      "observed_tool_calls": 0,
+      "provider_reported_token_usage": {
+        "totalTokens": 25292,
+        "inputTokens": 17527,
+        "cachedInputTokens": 0,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 7765,
+        "reasoningOutputTokens": 905
+      }
+    },
+    "skill-command-plan": {
+      "files": {
+        "input.json": "d967e3fb3273d955c324a4d8e23ca2c56ab8cf6c09d3816f0c94f5b70235ff6f",
+        "judge-answer.txt": "d83709c27e9e5eb7d8c7f5d4978eafc79c735a0adf20b39ba894927a49725371",
+        "judge-response.json": "03da6b642e9440e939311846c42f7c482d4f3df5b796492d7e5d57d5eb099ab4",
+        "judge-summary.json": "3e942981747c0d6221ea0385293ebe4a005155fad6ae082167af95535e089195",
+        "validated-judge-evidence.json": "ae4b22968b8ba4c0220c103227a168b7d5a3a42b6ba80dd758a093e8351fe0b5"
+      },
+      "elapsed_seconds": 201.8111948199803,
+      "configured_judge": "gpt-6-astra",
+      "effort": "high",
+      "actual_id": null,
+      "proof": "unverified",
+      "observed_tool_calls": 0,
+      "provider_reported_token_usage": {
+        "totalTokens": 41777,
+        "inputTokens": 33431,
+        "cachedInputTokens": 0,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 8346,
+        "reasoningOutputTokens": 1295
+      }
+    }
+  },
+  "mapping_revealed_after_seal": true
+}

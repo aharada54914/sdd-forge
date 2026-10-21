@@ -1,0 +1,25 @@
+{
+  "started_at": "2026-10-21T12:39:40.894061+00:00",
+  "finished_at": "2026-10-21T12:40:10.709190+00:00",
+  "configured_id": "gpt-6-astra",
+  "effort": "low",
+  "actual_id": null,
+  "proof": "unverified",
+  "native_turns_started": 1,
+  "turn_status": "completed",
+  "failures": [],
+  "elapsed_seconds": 29.651811757998075,
+  "observation": {
+    "observed_tool_calls": 13,
+    "dynamic_requests": 13,
+    "dynamic_item_count": 13,
+    "builtin_tool_items": 0,
+    "failures": [],
+    "actual_id": null,
+    "proof": "unverified",
+    "reroutes": [],
+    "os_isolation": "not established by this handler"
+  },
+  "raw_summary_sha256": "a2de2973371dd935359ca45713486313925cba2230296bbb9d165109ee673056",
+  "scope": "configured model/observed calls only; no actual backend attestation"
+}

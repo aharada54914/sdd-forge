@@ -1,0 +1,132 @@
+[
+  {
+    "name": "frozen-artifact-closure",
+    "command": [
+      "python3",
+      "-B",
+      "specs/ci-model-modernization/verification/T-010/attempt-3/final-evidence-check.py"
+    ],
+    "started_at": "2026-10-21T13:16:54.181024+00:00",
+    "finished_at": "2026-10-21T13:16:54.261630+00:00",
+    "exit_code": 0,
+    "source_before": {
+      "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09",
+      "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "specs/ci-model-modernization/tasks.md": "a38a4e2000f1055231c96d4fbfa71d4432762937bb07d4df060ca7aaed045763"
+    },
+    "source_after": {
+      "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09",
+      "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "specs/ci-model-modernization/tasks.md": "a38a4e2000f1055231c96d4fbfa71d4432762937bb07d4df060ca7aaed045763"
+    },
+    "stdout_sha256": "a881251dfcaaa6cf408890a8bbcd4b882649fb939c111807b8898ffdcdc829f1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "placeholder-scan",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "contracts/model-policy.v1.json",
+      "contracts/model-adoption/ci-model-modernization-20261021.json"
+    ],
+    "started_at": "2026-10-21T13:16:54.263725+00:00",
+    "finished_at": "2026-10-21T13:16:54.270871+00:00",
+    "exit_code": 0,
+    "source_before": {
+      "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09",
+      "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "specs/ci-model-modernization/tasks.md": "a38a4e2000f1055231c96d4fbfa71d4432762937bb07d4df060ca7aaed045763"
+    },
+    "source_after": {
+      "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09",
+      "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "specs/ci-model-modernization/tasks.md": "a38a4e2000f1055231c96d4fbfa71d4432762937bb07d4df060ca7aaed045763"
+    },
+    "stdout_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "task-state",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "specs/ci-model-modernization/tasks.md"
+    ],
+    "started_at": "2026-10-21T13:16:54.272571+00:00",
+    "finished_at": "2026-10-21T13:16:55.323440+00:00",
+    "exit_code": 0,
+    "source_before": {
+      "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09",
+      "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "specs/ci-model-modernization/tasks.md": "a38a4e2000f1055231c96d4fbfa71d4432762937bb07d4df060ca7aaed045763"
+    },
+    "source_after": {
+      "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09",
+      "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "specs/ci-model-modernization/tasks.md": "a38a4e2000f1055231c96d4fbfa71d4432762937bb07d4df060ca7aaed045763"
+    },
+    "stdout_sha256": "bcc0bf7c54511e4e4a85426f1e420ea6ca7b1a6dedbf8334d050deec2f81d3f4",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "diff-whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "contracts/model-policy.v1.json",
+      "tests/model-policy.tests.py",
+      "tests/model-policy-launch.tests.py",
+      "tests/model-policy-installed.tests.py"
+    ],
+    "started_at": "2026-10-21T13:16:55.324924+00:00",
+    "finished_at": "2026-10-21T13:16:55.338748+00:00",
+    "exit_code": 0,
+    "source_before": {
+      "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09",
+      "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "specs/ci-model-modernization/tasks.md": "a38a4e2000f1055231c96d4fbfa71d4432762937bb07d4df060ca7aaed045763"
+    },
+    "source_after": {
+      "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+      "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09",
+      "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "specs/ci-model-modernization/tasks.md": "a38a4e2000f1055231c96d4fbfa71d4432762937bb07d4df060ca7aaed045763"
+    },
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

@@ -1,0 +1,443 @@
+{
+  "validation_version": "original-contract-and-schema-field-resolution/v1",
+  "input_sha256": "b1c2417725a2a3f1ff831e10c94e667c1b6ec7d7c1b326a272a2360c2c2792c0",
+  "response_sha256": "6b67166c6368f1541416390bae7518564059418d9bb5ea7dd0c09d3ab8b5e94b",
+  "full_original_schema_sha256": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+  "schema_and_proof_checks_pass": true,
+  "errors": [],
+  "criterion_origins": [
+    {
+      "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "distinguish configuration from execution identity",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "distinguish configuration from execution identity"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "No invented endpoint or file; no edits.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "No invented endpoint or file; no edits."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "201f987ff24b4029b80cf86b140da3e1158dfa99085ad5f8c5c9d12cefb803b9",
+        "line": 1,
+        "quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "all required functional/boundary assertions satisfied"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "distinguish configuration from execution identity",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "distinguish configuration from execution identity"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "No invented endpoint or file; no edits.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "No invented endpoint or file; no edits."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "201f987ff24b4029b80cf86b140da3e1158dfa99085ad5f8c5c9d12cefb803b9",
+        "line": 1,
+        "quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "all required functional/boundary assertions satisfied"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "distinguish configuration from execution identity",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "distinguish configuration from execution identity"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "No invented endpoint or file; no edits.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "No invented endpoint or file; no edits."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "201f987ff24b4029b80cf86b140da3e1158dfa99085ad5f8c5c9d12cefb803b9",
+        "line": 1,
+        "quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "all required functional/boundary assertions satisfied"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "distinguish configuration from execution identity",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "distinguish configuration from execution identity"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "No invented endpoint or file; no edits.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "No invented endpoint or file; no edits."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}.",
+      "exact_original_origin": {
+        "path": "natural_request",
+        "sha256": "201f987ff24b4029b80cf86b140da3e1158dfa99085ad5f8c5c9d12cefb803b9",
+        "line": 1,
+        "quote": "Return only JSON {\"trace\":[{\"path\":\"relative file\",\"line\":1,\"observed\":\"exact source line without indentation\",\"reason\":\"what this step does\"}],\"identity\":\"what can and cannot be established\"}."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 23,
+        "quote": "Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "all required functional/boundary assertions satisfied"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "all required functional/boundary assertions satisfied",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 29,
+        "quote": "all required functional/boundary assertions satisfied"
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    },
+    {
+      "criterion_quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity.",
+      "exact_original_origin": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity."
+      },
+      "applicable_frozen_rubric_criterion": {
+        "path": "criteria/model-rubric.md",
+        "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+        "line": 21,
+        "quote": "| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |"
+      }
+    }
+  ],
+  "exact_anchored_citations_checked": 67,
+  "resolution": "Exact schema-defined supplied string/scalar fields resolve as logical documents; contiguous quote may begin within cited line. No fuzzy matching, wrong lines, inferred/generated criteria or candidate-response edits.",
+  "submissions": [
+    {
+      "submission_id": "3fe646b6e2e5",
+      "all_semantic_criteria_satisfied": true,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": true
+    },
+    {
+      "submission_id": "707511f92554",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    },
+    {
+      "submission_id": "608109a3bf5d",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    },
+    {
+      "submission_id": "6462aeb517ea",
+      "all_semantic_criteria_satisfied": false,
+      "deterministic_failure_preserved": true,
+      "deterministic_hard_pass": false
+    }
+  ]
+}

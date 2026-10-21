@@ -1,0 +1,7 @@
+# Skill binding v3 — frozen pre-output proposal
+
+Same actual whole spec-review-loop procedure versions, natural request, command-planning objective, deterministic hard checks and semantic checks as ../skill-rubric-v1.md. Original model-adoption rubric remains unchanged. This separately versioned proposal changes binding from supplied task content to explicit native UserInput.skill. Both versions use name spec-review-loop and the same ordinary project-relative path procedure.md. Each arm uses fixed gpt-6-astra/high, same Read-only tools, 300 seconds, 24 tool calls and two fresh repetitions; only actual procedure bytes differ. The prompt, README and filename map otherwise remain identical.
+
+The generated public schema supports this input shape, but no actual skill turn has been executed. The host might require discovered SKILL.md or resolve additional references; those semantics remain unknown. Retain rejection/failure as an observation. Do not claim successful native activation until an actual authorized native turn and its artifacts/events establish acceptance. Do not relabel these bounded command plans as full installed review-loop or plugin dispatch validation. Actual acceptance does not establish per-turn backend identity.
+
+Promote no skill/model from this preparation. A later evaluated version must retain every output/failure and both fixed-model repetitions, exact source/input hashes and inspection of runnable command/hash flow. No checker result can waive failed assertions or missing native proof.

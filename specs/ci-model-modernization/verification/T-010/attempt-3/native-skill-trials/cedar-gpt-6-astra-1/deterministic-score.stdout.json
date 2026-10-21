@@ -1,0 +1,4 @@
+{
+  "status": "fail",
+  "reason": "missing protected command contract: managed-model-entry.py prepare"
+}

@@ -1,0 +1,78 @@
+{
+  "version": "t010-pre-output-v1",
+  "status": "frozen preparation, zero native candidate outputs",
+  "original_rubric_sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+  "files": {
+    "README.md": "8d5b30221609eb597832c96d943ed4024e586891726cfbce8239ddc39e250d7b",
+    "build.py": "e50968f2f932de9beeeb2dc7d1c6ff247bfe82ba46599b8735381d8f63ce6d20",
+    "external-input-pins.json": "afa53fb7809398f2452fe341e3b6a2abcace7bcf046f8396f17e4129ea892b42",
+    "inputs/cedar/README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+    "inputs/cedar/procedure.md": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656",
+    "inputs/harbor/README.md": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+    "inputs/harbor/selector.py": "e4842eb48b8f3dcf2ee6a295227e735291c2cc13f73782a9960f25ac00de814f",
+    "inputs/harbor/test_selector.py": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b",
+    "inputs/maple/README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+    "inputs/maple/procedure.md": "726740e6139b21499999b4e0dc1493bedae15fcf17f2429fc993402e233c2343",
+    "inputs/meadow/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+    "inputs/meadow/routing.py": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e",
+    "inputs/orchard/README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+    "inputs/orchard/routing.py": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d",
+    "inputs/willow/README.md": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+    "inputs/willow/launcher.py": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+    "inputs/willow/records.py": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765",
+    "inputs/willow/selector.py": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e",
+    "native-exec-help.txt": "0e82cfde0122715250e93dc65866caa956b2ac5b9d0b20ec4ad4f9e81486509e",
+    "native-interface.md": "96e3bea041d6659cb9142042efaf8ac4a1c579da9fbfce1a669d6377ba608d01",
+    "native-schema-excerpts.json": "6ce273c6722507e35c7d4a4dd4a5c233bfc0ae321416269b67a536fd5607e76b",
+    "original-model-rubric.md": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8",
+    "requests/harbor.txt": "00a009beb3718bbf0629a58fd89684bdb4dbda623d1f406b93402f1f1a446e1c",
+    "requests/meadow.txt": "d48ca55131043668a137c84499564f69ec97c1dea245654435eb899e1c03c903",
+    "requests/orchard.txt": "d48ca55131043668a137c84499564f69ec97c1dea245654435eb899e1c03c903",
+    "requests/skill.txt": "892a637b4590105add56bf6b8aa66a06f5b4954b68dc0147470da14d6d04c642",
+    "requests/willow.txt": "201f987ff24b4029b80cf86b140da3e1158dfa99085ad5f8c5c9d12cefb803b9",
+    "score.py": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+    "selftest-results.json": "67d29cda441c3d0caf357763c9f39c70b0ee1050007f044e90459696e8449667",
+    "selftest.log": "fac073b843194ad81d02d4f51fc34a45593df4a60c0889345baf999bd5cc8ccb",
+    "selftest.py": "fd1820bbdbaa58c7d575e261ae7301eaa2e30226c85510c33908958bbf0d4dfb",
+    "skill-bindings.json": "a347a671c8f25be615f6261595349682c7aac0bcd1955a8cd757634e34254b0e",
+    "skill-rubric-v1.md": "62a305e2fbf34424feca2a05cdb6c33ab5b98e692ca506d4ded33a0d740be044",
+    "synthetic-reference-selector.py": "1a0889a46e3e3371c313272253bd79478fafb1ddbdaf5cd63a79c60bd78aa9b3"
+  },
+  "candidate_files": {
+    "harbor": {
+      "README.md": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28",
+      "selector.py": "e4842eb48b8f3dcf2ee6a295227e735291c2cc13f73782a9960f25ac00de814f",
+      "test_selector.py": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b"
+    },
+    "orchard": {
+      "README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "routing.py": "e4ac538f061cac0c8761b1dcb7241299226433660e64b8bb02c877c4f9c7141d"
+    },
+    "meadow": {
+      "README.md": "4093f7ba27bfac65016d98775dcf4d8eab9c4b2a9529a23a9e9bca9abbfd8043",
+      "routing.py": "034f1fd0bb273a95f68776abb6a481518198a748a536e07ddb4609e62a12114e"
+    },
+    "willow": {
+      "README.md": "d1bb199016819e58334b0bf98d1f3fbf416038cff9f31680ce51421208c9ee4d",
+      "launcher.py": "c58337ed4e232eedacf1d6c75aca7a29fd63ed13dd8a66913a2187b8b88409b6",
+      "records.py": "8ba3841772b43badba7fc380ce9a49464c4d03e6bfb06da1f08e783814923765",
+      "selector.py": "f5667b363f33890d37000ec6632f0cd12baf7859d2a500d44244c429f594eb7e"
+    },
+    "cedar": {
+      "README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "procedure.md": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656"
+    },
+    "maple": {
+      "README.md": "fa139969a69c9f1ac547642a00a29eb48230c2e1184234343414b890d5b32bdc",
+      "procedure.md": "726740e6139b21499999b4e0dc1493bedae15fcf17f2429fc993402e233c2343"
+    }
+  },
+  "request_pairs": {
+    "orchard-meadow-identical": true,
+    "cedar-maple-request": "requests/skill.txt"
+  },
+  "skill_pair_differs": true,
+  "native_trials": 0,
+  "native_judgments": 0,
+  "adoption_claim": false
+}

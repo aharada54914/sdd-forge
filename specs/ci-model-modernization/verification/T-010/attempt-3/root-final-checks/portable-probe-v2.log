@@ -1,0 +1,6 @@
+test_bound_python3_beats_bogus_path_python3 (__main__.PortableBashRuntime.test_bound_python3_beats_bogus_path_python3) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.014s
+
+OK

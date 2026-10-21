@@ -1,0 +1,90 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/attempt-3/installed-production-smoke.py"
+  ],
+  "source_before": {
+    "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+    "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+    "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+    "install.sh": "2bbeaa197eaa62df351d8c0412fc3eae748f3e8ec61f4bd5d19b94a25f28f94b",
+    "install.ps1": "8960c8e16318e919ee9bc3419b7dac7b7bce64f427015af1551e8e48335b81aa",
+    "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a"
+  },
+  "source_after": {
+    "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+    "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+    "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+    "install.sh": "2bbeaa197eaa62df351d8c0412fc3eae748f3e8ec61f4bd5d19b94a25f28f94b",
+    "install.ps1": "8960c8e16318e919ee9bc3419b7dac7b7bce64f427015af1551e8e48335b81aa",
+    "install-payload.txt": "02910c2a5fb341d138b37395a3989acecf1a67f4498cb8033ba7a129e7236c9a"
+  },
+  "source_unchanged": true,
+  "checks": [
+    {
+      "shell": "bash",
+      "started_at": "2026-10-21T13:14:42.396792+00:00",
+      "finished_at": "2026-10-21T13:14:44.178182+00:00",
+      "installer": "actual FilesOnly isolated installation",
+      "production_policy_sha256": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "runtime_evidence_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "selector_argv": [
+        "bash",
+        "/workspace/.task-scratch/ci-model-modernization/model-launch-fixture-onw713ak/installed-bash/plugins/sdd-implementation/scripts/select-agent-model.sh",
+        "--policy-input",
+        "request.json",
+        "--registry",
+        "registry.json"
+      ],
+      "production_selector": "gpt-6-astra/high",
+      "production_prepare": "bound selection and exact adoption closure validated by unchanged T006/T007",
+      "synthetic_prepare": "PASS existing Anthropic fixture",
+      "unregistered_sol_negative": {
+        "message": "Policy model IDs must be unique registered capabilities.",
+        "reason": "config-invalid",
+        "schema": "model-policy-error/v1"
+      },
+      "native_inference_started": 0,
+      "actual_backend_id": null,
+      "proof": "unverified; availability fixture only",
+      "source_package_poison_not_used": true
+    },
+    {
+      "shell": "pwsh",
+      "started_at": "2026-10-21T13:14:44.201308+00:00",
+      "finished_at": "2026-10-21T13:14:47.148465+00:00",
+      "installer": "actual FilesOnly isolated installation",
+      "production_policy_sha256": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+      "runtime_evidence_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "selector_argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "/workspace/.task-scratch/ci-model-modernization/model-launch-fixture-lyry7jdv/installed-pwsh/plugins/sdd-implementation/scripts/select-agent-model.ps1",
+        "-PolicyInput",
+        "request.json",
+        "-Registry",
+        "registry.json"
+      ],
+      "production_selector": "gpt-6-astra/high",
+      "production_prepare": "bound selection and exact adoption closure validated by unchanged T006/T007",
+      "synthetic_prepare": "PASS existing Anthropic fixture",
+      "unregistered_sol_negative": {
+        "message": "Policy model IDs must be unique registered capabilities.",
+        "reason": "config-invalid",
+        "schema": "model-policy-error/v1"
+      },
+      "native_inference_started": 0,
+      "actual_backend_id": null,
+      "proof": "unverified; availability fixture only",
+      "source_package_poison_not_used": true
+    }
+  ],
+  "exit_code": 0,
+  "result": "PASS"
+}

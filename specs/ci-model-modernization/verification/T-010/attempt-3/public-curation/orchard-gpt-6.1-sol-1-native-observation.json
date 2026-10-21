@@ -1,0 +1,25 @@
+{
+  "started_at": "2026-10-21T12:37:36.958214+00:00",
+  "finished_at": "2026-10-21T12:37:57.184305+00:00",
+  "configured_id": "gpt-6.1-sol",
+  "effort": "high",
+  "actual_id": null,
+  "proof": "unverified",
+  "native_turns_started": 1,
+  "turn_status": "completed",
+  "failures": [],
+  "elapsed_seconds": 20.07604462301242,
+  "observation": {
+    "observed_tool_calls": 3,
+    "dynamic_requests": 3,
+    "dynamic_item_count": 3,
+    "builtin_tool_items": 0,
+    "failures": [],
+    "actual_id": null,
+    "proof": "unverified",
+    "reroutes": [],
+    "os_isolation": "not established by this handler"
+  },
+  "raw_summary_sha256": "a2746a48ee35fd2cf2de7111a2c367b61eddb6cd1211b5e58abfc8262bc6f662",
+  "scope": "configured model/observed calls only; no actual backend attestation"
+}

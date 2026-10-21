@@ -1,0 +1,1 @@
+I’ll trace the model setting through the request path into host invocation and the returned record, then check for precedence rules and identity limits. I’ll keep the workspace read-only and return only the requested JSON.

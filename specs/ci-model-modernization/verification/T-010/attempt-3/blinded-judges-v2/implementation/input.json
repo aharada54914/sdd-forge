@@ -1,0 +1,180 @@
+{
+  "protocol_version": "semantic-judge-protocol-v1",
+  "domain": "implementation",
+  "natural_request": "Repair selector.py to implement the README contract. Keep its public function compatible and run the existing test. You may edit selector.py only.\n",
+  "rubric_documents": [
+    {
+      "path": "criteria/model-rubric.md",
+      "content": "# Initial current-model adoption evaluation rubric\n\nDate: 2026-10-18 UTC\nStatus: Prepared before candidate outputs; evaluation not run\nAuthorization: approved model-selection-policy-research-20261018.md\n\n## Purpose and comparison controls\n\nEvaluate GPT-6.1 Sol for implementation/review and GPT-6 Luna for bounded investigation against the available previously registered GPT-6 Astra baseline. Each comparison varies the model only: identical fixture bytes, natural request, permitted tools, role-appropriate fixed effort and wall/tool budget. Use two fresh repetitions per case to expose obvious variability; this small project-shaped sample is not a general benchmark or a proof of universal model quality.\n\nThe current candidate list is an availability observation, not adoption proof. Re-discover availability and record actual CLI/schema before collecting outputs. Do not substitute unavailable models or reinterpret a host-configured ID as per-turn execution telemetry. Capture reroute notifications; state the exact identity-proof level. A comparison requiring unsupported actual execution-ID attestation is blocked rather than advertised as exact backend identity proof.\n\nCandidates receive separate temporary workspaces with ordinary project names, the same request and fixture files. Keep this rubric, model variant labels, expected findings and experiment metadata outside their input boundary. Do not expose unrelated repository/session content. No provider/network credentials, cloud writes, external panelist sends, registry edits or live notifications are part of these trials.\n\n## Cases and observable scoring\n\n| Case | Candidate / baseline | Natural task | Evidence and pass rule |\n|---|---|---|---|\n| Implementation | GPT-6.1 Sol / GPT-6 Astra | Repair a small model-selection function whose current fallback ignores host availability and role floor | Actual edited artifact passes public representative cases plus held-out unavailable, unknown, role-floor, pinned and malformed-input cases. Existing input behavior stays compatible. No changes outside the fixture are permitted. |\n| Review | GPT-6.1 Sol / GPT-6 Astra | Review a supplied selection change and report correctness issues with file/line evidence | Detect each seeded availability, stale-account and incorrect configured-as-actual identity defect, with no invented critical issue in a paired clean control. Structured findings must cite existing file lines. No file writes. |\n| Investigation | GPT-6 Luna / GPT-6 Astra | Trace how a selected model reaches a small launcher's invocation and report gaps | Identify the actual selector, higher-priority agent setting and response/record consumer with accurate path/line citations; distinguish configuration from execution identity. No invented endpoint or file; no edits. |\n\nFor each model/case use two fresh runs. Implementation and review use high effort; bounded investigation uses low effort, with the same effort within each paired comparison. Effort names do not imply equal compute across models. Set each run's wall budget to 300 seconds and tool-call budget to 24; timeout/budget exhaustion is a failed or unavailable observation, not a success. Record observed usage only when supplied; no synthetic price or dollar estimate.\n\n## Judgment and promotion\n\nDeterministic artifact/test results and exact seeded findings are primary. If an independent native judgment is used, keep the judge fixed at GPT-6 Astra/high for all paired outputs, use fresh isolated contexts and blind model labels. Its role is to assess artifact quality against this frozen rubric, not to waive failed assertions or invent unavailable actual-ID evidence. Record judgment availability and residual model/self-preference bias.\n\nPromote a model only for roles with complete actual observations, all required functional/boundary assertions satisfied in both repetitions, no unauthorized writes/tools, and no unresolved material regression against the baseline. A failed candidate stays an update candidate; investigate and rerun a new versioned experiment rather than removing failed results. Retain every attempt, source/input/output hash and failure. A historical model unavailable to this account is not a fabricated comparison arm.\n\nThis is initial adoption evidence for a limited repository workload. Normal independent task reviews and quality gates still apply, with their existing identity/input contracts. Later role or skill changes require their own relevant controlled evaluation; skill comparisons keep the model fixed.\n",
+      "sha256": "c0322d953ae6a56d146572fcf2786f398ba36f201776aa326f1c8e262c0fc6f8"
+    }
+  ],
+  "fixtures": [
+    {
+      "fixture_id": "204912beceae",
+      "files": [
+        {
+          "path": "fixtures/204912beceae/README.md",
+          "content": "Harbor model router\n\nselect(request, catalog, observation) returns one model ID or raises ValueError.\nRequest: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility.\nCatalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected.\nObservation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection.\nEligible IDs must exist in catalog, be currently available, support the role, and meet the floor. Unknown available IDs do not authorize unknown catalog entries.\nPinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields. Extra keys in entries/observation are ignored. Do not mutate input values.\n",
+          "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28"
+        },
+        {
+          "path": "fixtures/204912beceae/selector.py",
+          "content": "def select(request, catalog, observation):\n    \"\"\"Select an eligible model ID, otherwise raise ValueError.\"\"\"\n    preferred = request.get(\"preferred\")\n    if preferred:\n        return preferred\n    return catalog[0][\"id\"]\n",
+          "sha256": "e4842eb48b8f3dcf2ee6a295227e735291c2cc13f73782a9960f25ac00de814f"
+        },
+        {
+          "path": "fixtures/204912beceae/test_selector.py",
+          "content": "from selector import select\nc = [{\"id\":\"spruce\",\"tier\":1,\"roles\":[\"build\"]},{\"id\":\"elm\",\"tier\":2,\"roles\":[\"build\"]}]\nassert select({\"role\":\"build\",\"floor\":1},c,{\"fresh\":True,\"available\":[\"spruce\",\"elm\"]}) == \"spruce\"\n",
+          "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b"
+        }
+      ]
+    }
+  ],
+  "submissions": [
+    {
+      "submission_id": "3f55ad6981c1",
+      "fixture_id": "204912beceae",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "Harbor model router\n\nselect(request, catalog, observation) returns one model ID or raises ValueError.\nRequest: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility.\nCatalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected.\nObservation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection.\nEligible IDs must exist in catalog, be currently available, support the role, and meet the floor. Unknown available IDs do not authorize unknown catalog entries.\nPinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields. Extra keys in entries/observation are ignored. Do not mutate input values.\n",
+          "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28"
+        },
+        {
+          "path": "selector.py",
+          "content": "def select(request, catalog, observation):\n    \"\"\"Return an eligible model ID, or raise ValueError for invalid input.\"\"\"\n    def nonempty_string(value):\n        return isinstance(value, str) and len(value) > 0\n\n    def nonnegative_integer(value):\n        return (\n            isinstance(value, int)\n            and not isinstance(value, bool)\n            and value >= 0\n        )\n\n    def string_list(value):\n        return isinstance(value, list) and all(nonempty_string(item) for item in value)\n\n    if not isinstance(request, dict):\n        raise ValueError(\"request must be a dictionary\")\n    if not nonempty_string(request.get(\"role\")):\n        raise ValueError(\"role must be a nonempty string\")\n    if not nonnegative_integer(request.get(\"floor\")):\n        raise ValueError(\"floor must be a nonnegative integer\")\n    for key in (\"preferred\", \"pinned\"):\n        if key in request and not nonempty_string(request[key]):\n            raise ValueError(key + \" must be a nonempty string\")\n\n    if not isinstance(catalog, list):\n        raise ValueError(\"catalog must be a list\")\n    seen = set()\n    for entry in catalog:\n        if not isinstance(entry, dict):\n            raise ValueError(\"catalog entries must be dictionaries\")\n        model_id = entry.get(\"id\")\n        if not nonempty_string(model_id):\n            raise ValueError(\"catalog IDs must be nonempty strings\")\n        if model_id in seen:\n            raise ValueError(\"catalog IDs must be unique\")\n        seen.add(model_id)\n        if not nonnegative_integer(entry.get(\"tier\")):\n            raise ValueError(\"catalog tiers must be nonnegative integers\")\n        if not string_list(entry.get(\"roles\")):\n            raise ValueError(\"catalog roles must be a list of nonempty strings\")\n\n    if not isinstance(observation, dict):\n        raise ValueError(\"observation must be a dictionary\")\n    if not isinstance(observation.get(\"fresh\"), bool):\n        raise ValueError(\"fresh must be a boolean\")\n    if not string_list(observation.get(\"available\")):\n        raise ValueError(\"available must be a list of nonempty strings\")\n    if not observation[\"fresh\"]:\n        raise ValueError(\"a stale observation cannot authorize selection\")\n\n    available = set(observation[\"available\"])\n    eligible = [\n        entry[\"id\"]\n        for entry in catalog\n        if entry[\"id\"] in available\n        and request[\"role\"] in entry[\"roles\"]\n        and entry[\"tier\"] >= request[\"floor\"]\n    ]\n    if \"pinned\" in request:\n        if request[\"pinned\"] not in eligible:\n            raise ValueError(\"pinned model is ineligible\")\n        return request[\"pinned\"]\n    if \"preferred\" in request and request[\"preferred\"] in eligible:\n        return request[\"preferred\"]\n    if eligible:\n        return eligible[0]\n    raise ValueError(\"no eligible model\")\n",
+          "sha256": "ebf3fe1e6180f02310ce2ed70f95b61e700831f7c5f7886be765ca08e42ad17f"
+        },
+        {
+          "path": "test_selector.py",
+          "content": "from selector import select\nc = [{\"id\":\"spruce\",\"tier\":1,\"roles\":[\"build\"]},{\"id\":\"elm\",\"tier\":2,\"roles\":[\"build\"]}]\nassert select({\"role\":\"build\",\"floor\":1},c,{\"fresh\":True,\"available\":[\"spruce\",\"elm\"]}) == \"spruce\"\n",
+          "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b"
+        }
+      ],
+      "answer": "Updated `selector.py` to validate all supported fields, enforce eligibility and freshness, honor pins and preferences, and preserve catalog order without mutating inputs.\n\nThe public function signature is unchanged. Only `selector.py` was edited. The existing test passed.",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "6f8a2f87114654e5d7dc6accf01d39713f5ff4e2b22896783de50440c5294e69",
+        "hard_pass": true,
+        "receipt": "{\n  \"status\": \"deterministic-pass\",\n  \"assertions\": [\n    \"public\",\n    \"unavailable\",\n    \"unknown-preference\",\n    \"floor\",\n    \"pin-valid\",\n    \"pin-unknown\",\n    \"pin-unavailable\",\n    \"pin-below-floor\",\n    \"pin-precedence\",\n    \"stale\",\n    \"role\",\n    \"unknown-only\",\n    \"malformed-floor\",\n    \"malformed-floor\",\n    \"malformed-floor\",\n    \"malformed-role\",\n    \"malformed-preferred\",\n    \"malformed-pinned\",\n    \"malformed-shadowed\",\n    \"malformed-unselected\",\n    \"duplicate\",\n    \"malformed-observation\",\n    \"malformed-available\",\n    \"compatible-extra\"\n  ],\n  \"outer_shape_rejections\": 4\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "cb44341d5074",
+      "fixture_id": "204912beceae",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "Harbor model router\n\nselect(request, catalog, observation) returns one model ID or raises ValueError.\nRequest: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility.\nCatalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected.\nObservation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection.\nEligible IDs must exist in catalog, be currently available, support the role, and meet the floor. Unknown available IDs do not authorize unknown catalog entries.\nPinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields. Extra keys in entries/observation are ignored. Do not mutate input values.\n",
+          "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28"
+        },
+        {
+          "path": "selector.py",
+          "content": "def select(request, catalog, observation):\n    \"\"\"Select an eligible model ID, otherwise raise ValueError.\"\"\"\n    def nonempty_string(value):\n        return isinstance(value, str) and len(value) > 0\n\n    def nonnegative_integer(value):\n        return isinstance(value, int) and not isinstance(value, bool) and value >= 0\n\n    if not isinstance(request, dict):\n        raise ValueError(\"request must be a dictionary\")\n    if not nonempty_string(request.get(\"role\")):\n        raise ValueError(\"role must be a nonempty string\")\n    if not nonnegative_integer(request.get(\"floor\")):\n        raise ValueError(\"floor must be a nonnegative integer\")\n    for field in (\"preferred\", \"pinned\"):\n        if field in request and not nonempty_string(request[field]):\n            raise ValueError(field + \" must be a nonempty string\")\n\n    if not isinstance(catalog, list):\n        raise ValueError(\"catalog must be a list\")\n    seen = set()\n    for entry in catalog:\n        if not isinstance(entry, dict):\n            raise ValueError(\"catalog entries must be dictionaries\")\n        model_id = entry.get(\"id\")\n        if not nonempty_string(model_id):\n            raise ValueError(\"catalog IDs must be nonempty strings\")\n        if model_id in seen:\n            raise ValueError(\"catalog IDs must be unique\")\n        seen.add(model_id)\n        if not nonnegative_integer(entry.get(\"tier\")):\n            raise ValueError(\"tiers must be nonnegative integers\")\n        roles = entry.get(\"roles\")\n        if not isinstance(roles, list) or not all(nonempty_string(role) for role in roles):\n            raise ValueError(\"roles must be a list of nonempty strings\")\n\n    if not isinstance(observation, dict):\n        raise ValueError(\"observation must be a dictionary\")\n    if not isinstance(observation.get(\"fresh\"), bool):\n        raise ValueError(\"fresh must be a boolean\")\n    available = observation.get(\"available\")\n    if not isinstance(available, list) or not all(nonempty_string(item) for item in available):\n        raise ValueError(\"available must be a list of nonempty strings\")\n    if not observation[\"fresh\"]:\n        raise ValueError(\"a stale observation cannot authorize selection\")\n\n    available_ids = set(available)\n    eligible = [\n        entry[\"id\"]\n        for entry in catalog\n        if entry[\"id\"] in available_ids\n        and request[\"role\"] in entry[\"roles\"]\n        and entry[\"tier\"] >= request[\"floor\"]\n    ]\n    if \"pinned\" in request:\n        if request[\"pinned\"] not in eligible:\n            raise ValueError(\"pinned model is not eligible\")\n        return request[\"pinned\"]\n    if \"preferred\" in request and request[\"preferred\"] in eligible:\n        return request[\"preferred\"]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n",
+          "sha256": "b7e4ee78aa2455b00863ba93d793845b42db21c13ef04c3dce228dfdf4f5c8e8"
+        },
+        {
+          "path": "test_selector.py",
+          "content": "from selector import select\nc = [{\"id\":\"spruce\",\"tier\":1,\"roles\":[\"build\"]},{\"id\":\"elm\",\"tier\":2,\"roles\":[\"build\"]}]\nassert select({\"role\":\"build\",\"floor\":1},c,{\"fresh\":True,\"available\":[\"spruce\",\"elm\"]}) == \"spruce\"\n",
+          "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b"
+        }
+      ],
+      "answer": "Updated `selector.py` to validate all supported fields, enforce freshness and eligibility, prioritize mandatory pins, and fall back in catalog order without mutating inputs.\n\nOnly `selector.py` was changed. The existing test passed.",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "6f8a2f87114654e5d7dc6accf01d39713f5ff4e2b22896783de50440c5294e69",
+        "hard_pass": true,
+        "receipt": "{\n  \"status\": \"deterministic-pass\",\n  \"assertions\": [\n    \"public\",\n    \"unavailable\",\n    \"unknown-preference\",\n    \"floor\",\n    \"pin-valid\",\n    \"pin-unknown\",\n    \"pin-unavailable\",\n    \"pin-below-floor\",\n    \"pin-precedence\",\n    \"stale\",\n    \"role\",\n    \"unknown-only\",\n    \"malformed-floor\",\n    \"malformed-floor\",\n    \"malformed-floor\",\n    \"malformed-role\",\n    \"malformed-preferred\",\n    \"malformed-pinned\",\n    \"malformed-shadowed\",\n    \"malformed-unselected\",\n    \"duplicate\",\n    \"malformed-observation\",\n    \"malformed-available\",\n    \"compatible-extra\"\n  ],\n  \"outer_shape_rejections\": 4\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "ad4eabe62d23",
+      "fixture_id": "204912beceae",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "Harbor model router\n\nselect(request, catalog, observation) returns one model ID or raises ValueError.\nRequest: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility.\nCatalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected.\nObservation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection.\nEligible IDs must exist in catalog, be currently available, support the role, and meet the floor. Unknown available IDs do not authorize unknown catalog entries.\nPinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields. Extra keys in entries/observation are ignored. Do not mutate input values.\n",
+          "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28"
+        },
+        {
+          "path": "selector.py",
+          "content": "def select(request, catalog, observation):\n    \"\"\"Select an eligible model ID, otherwise raise ValueError.\"\"\"\n    def nonempty_string(value):\n        return isinstance(value, str) and bool(value)\n\n    def nonnegative_integer(value):\n        return (\n            isinstance(value, int)\n            and not isinstance(value, bool)\n            and value >= 0\n        )\n\n    def string_list(value):\n        return isinstance(value, list) and all(\n            nonempty_string(item) for item in value\n        )\n\n    if not isinstance(request, dict):\n        raise ValueError(\"request must be a dictionary\")\n    if not nonempty_string(request.get(\"role\")):\n        raise ValueError(\"role must be a nonempty string\")\n    if not nonnegative_integer(request.get(\"floor\")):\n        raise ValueError(\"floor must be a nonnegative integer\")\n    for field in (\"preferred\", \"pinned\"):\n        if field in request and not nonempty_string(request[field]):\n            raise ValueError(field + \" must be a nonempty string\")\n\n    if not isinstance(catalog, list):\n        raise ValueError(\"catalog must be a list\")\n    seen = set()\n    for entry in catalog:\n        if not isinstance(entry, dict):\n            raise ValueError(\"catalog entries must be dictionaries\")\n        model_id = entry.get(\"id\")\n        if not nonempty_string(model_id):\n            raise ValueError(\"catalog IDs must be nonempty strings\")\n        if model_id in seen:\n            raise ValueError(\"catalog IDs must be unique\")\n        seen.add(model_id)\n        if not nonnegative_integer(entry.get(\"tier\")):\n            raise ValueError(\"catalog tiers must be nonnegative integers\")\n        if not string_list(entry.get(\"roles\")):\n            raise ValueError(\"catalog roles must be a list of nonempty strings\")\n\n    if not isinstance(observation, dict):\n        raise ValueError(\"observation must be a dictionary\")\n    if not isinstance(observation.get(\"fresh\"), bool):\n        raise ValueError(\"fresh must be a boolean\")\n    if not string_list(observation.get(\"available\")):\n        raise ValueError(\"available must be a list of nonempty strings\")\n    if not observation[\"fresh\"]:\n        raise ValueError(\"a stale observation cannot authorize selection\")\n\n    available = set(observation[\"available\"])\n    eligible = [\n        entry[\"id\"]\n        for entry in catalog\n        if entry[\"id\"] in available\n        and request[\"role\"] in entry[\"roles\"]\n        and entry[\"tier\"] >= request[\"floor\"]\n    ]\n    if \"pinned\" in request:\n        if request[\"pinned\"] not in eligible:\n            raise ValueError(\"pinned model is ineligible\")\n        return request[\"pinned\"]\n    if \"preferred\" in request and request[\"preferred\"] in eligible:\n        return request[\"preferred\"]\n    if not eligible:\n        raise ValueError(\"no eligible model\")\n    return eligible[0]\n",
+          "sha256": "6c2c9beadfcc7928254640bdfdd40737a819888b8acaccc8eda5a2e941c15ddb"
+        },
+        {
+          "path": "test_selector.py",
+          "content": "from selector import select\nc = [{\"id\":\"spruce\",\"tier\":1,\"roles\":[\"build\"]},{\"id\":\"elm\",\"tier\":2,\"roles\":[\"build\"]}]\nassert select({\"role\":\"build\",\"floor\":1},c,{\"fresh\":True,\"available\":[\"spruce\",\"elm\"]}) == \"spruce\"\n",
+          "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b"
+        }
+      ],
+      "answer": "Updated `selector.py` to validate all supported fields, enforce eligibility and pin precedence, honor eligible preferences, and reject stale observations without mutating inputs.\n\nThe public function signature is unchanged. Only `selector.py` was edited. The existing test passed.",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "6f8a2f87114654e5d7dc6accf01d39713f5ff4e2b22896783de50440c5294e69",
+        "hard_pass": true,
+        "receipt": "{\n  \"status\": \"deterministic-pass\",\n  \"assertions\": [\n    \"public\",\n    \"unavailable\",\n    \"unknown-preference\",\n    \"floor\",\n    \"pin-valid\",\n    \"pin-unknown\",\n    \"pin-unavailable\",\n    \"pin-below-floor\",\n    \"pin-precedence\",\n    \"stale\",\n    \"role\",\n    \"unknown-only\",\n    \"malformed-floor\",\n    \"malformed-floor\",\n    \"malformed-floor\",\n    \"malformed-role\",\n    \"malformed-preferred\",\n    \"malformed-pinned\",\n    \"malformed-shadowed\",\n    \"malformed-unselected\",\n    \"duplicate\",\n    \"malformed-observation\",\n    \"malformed-available\",\n    \"compatible-extra\"\n  ],\n  \"outer_shape_rejections\": 4\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    },
+    {
+      "submission_id": "14bda6d99d20",
+      "fixture_id": "204912beceae",
+      "artifacts": [
+        {
+          "path": "README.md",
+          "content": "Harbor model router\n\nselect(request, catalog, observation) returns one model ID or raises ValueError.\nRequest: role (nonempty string), floor (integer >= 0, bool forbidden), optional preferred/pinned (nonempty strings). Unknown request keys are ignored for compatibility.\nCatalog: list of unique entries {id: nonempty string, tier: integer >= 0, roles: list of nonempty strings}; all entries must validate even if unselected.\nObservation: {fresh: bool, available: list of nonempty strings}. A stale observation cannot authorize selection.\nEligible IDs must exist in catalog, be currently available, support the role, and meet the floor. Unknown available IDs do not authorize unknown catalog entries.\nPinned is mandatory when provided: reject an ineligible pin. Preferred is a hint: use if eligible, otherwise select the first eligible catalog entry. If pinned and preferred differ, pinned wins. Reject malformed supported fields before choosing, including malformed shadowed fields. Extra keys in entries/observation are ignored. Do not mutate input values.\n",
+          "sha256": "784f6771277bd88130d2b222ac077d5cbdc9637b66fbb5b2a890e911737f6f28"
+        },
+        {
+          "path": "selector.py",
+          "content": "def select(request, catalog, observation):\n    \"\"\"Select an eligible model ID, otherwise raise ValueError.\"\"\"\n    def nonempty_string(value):\n        return isinstance(value, str) and bool(value)\n\n    def nonnegative_integer(value):\n        return isinstance(value, int) and not isinstance(value, bool) and value >= 0\n\n    if not isinstance(request, dict):\n        raise ValueError(\"request must be a dictionary\")\n    if not nonempty_string(request.get(\"role\")):\n        raise ValueError(\"role must be a nonempty string\")\n    if not nonnegative_integer(request.get(\"floor\")):\n        raise ValueError(\"floor must be a nonnegative integer\")\n    for field in (\"preferred\", \"pinned\"):\n        if field in request and not nonempty_string(request[field]):\n            raise ValueError(f\"{field} must be a nonempty string\")\n\n    if not isinstance(catalog, list):\n        raise ValueError(\"catalog must be a list\")\n    seen = set()\n    for entry in catalog:\n        if not isinstance(entry, dict):\n            raise ValueError(\"catalog entries must be dictionaries\")\n        model_id = entry.get(\"id\")\n        if not nonempty_string(model_id):\n            raise ValueError(\"catalog IDs must be nonempty strings\")\n        if model_id in seen:\n            raise ValueError(\"catalog IDs must be unique\")\n        seen.add(model_id)\n        if not nonnegative_integer(entry.get(\"tier\")):\n            raise ValueError(\"catalog tiers must be nonnegative integers\")\n        roles = entry.get(\"roles\")\n        if not isinstance(roles, list) or not all(nonempty_string(role) for role in roles):\n            raise ValueError(\"roles must be a list of nonempty strings\")\n\n    if not isinstance(observation, dict):\n        raise ValueError(\"observation must be a dictionary\")\n    if not isinstance(observation.get(\"fresh\"), bool):\n        raise ValueError(\"fresh must be a boolean\")\n    available = observation.get(\"available\")\n    if not isinstance(available, list) or not all(nonempty_string(item) for item in available):\n        raise ValueError(\"available must be a list of nonempty strings\")\n    if not observation[\"fresh\"]:\n        raise ValueError(\"a stale observation cannot authorize selection\")\n\n    available_ids = set(available)\n    eligible = [\n        entry[\"id\"]\n        for entry in catalog\n        if entry[\"id\"] in available_ids\n        and request[\"role\"] in entry[\"roles\"]\n        and entry[\"tier\"] >= request[\"floor\"]\n    ]\n    if \"pinned\" in request:\n        if request[\"pinned\"] not in eligible:\n            raise ValueError(\"pinned model is not eligible\")\n        return request[\"pinned\"]\n    if \"preferred\" in request and request[\"preferred\"] in eligible:\n        return request[\"preferred\"]\n    if eligible:\n        return eligible[0]\n    raise ValueError(\"no eligible model\")\n",
+          "sha256": "ff289562ee7cd6ff2ca0f0f4e39c414c23da06db8b28801e15f53aa0d2ec2811"
+        },
+        {
+          "path": "test_selector.py",
+          "content": "from selector import select\nc = [{\"id\":\"spruce\",\"tier\":1,\"roles\":[\"build\"]},{\"id\":\"elm\",\"tier\":2,\"roles\":[\"build\"]}]\nassert select({\"role\":\"build\",\"floor\":1},c,{\"fresh\":True,\"available\":[\"spruce\",\"elm\"]}) == \"spruce\"\n",
+          "sha256": "d2f5f9affb3d544848c0514befbb43346d3abb4dea35bf23e0ebf54b83f7cf5b"
+        }
+      ],
+      "answer": "Repaired `selector.py` to validate inputs, enforce freshness and eligibility, honor pins, and fall back from preferences in catalog order without mutating inputs.\n\nOnly `selector.py` changed. The existing test passed.",
+      "deterministic_score": {
+        "scorer_sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8",
+        "receipt_sha256": "6f8a2f87114654e5d7dc6accf01d39713f5ff4e2b22896783de50440c5294e69",
+        "hard_pass": true,
+        "receipt": "{\n  \"status\": \"deterministic-pass\",\n  \"assertions\": [\n    \"public\",\n    \"unavailable\",\n    \"unknown-preference\",\n    \"floor\",\n    \"pin-valid\",\n    \"pin-unknown\",\n    \"pin-unavailable\",\n    \"pin-below-floor\",\n    \"pin-precedence\",\n    \"stale\",\n    \"role\",\n    \"unknown-only\",\n    \"malformed-floor\",\n    \"malformed-floor\",\n    \"malformed-floor\",\n    \"malformed-role\",\n    \"malformed-preferred\",\n    \"malformed-pinned\",\n    \"malformed-shadowed\",\n    \"malformed-unselected\",\n    \"duplicate\",\n    \"malformed-observation\",\n    \"malformed-available\",\n    \"compatible-extra\"\n  ],\n  \"outer_shape_rejections\": 4\n}\n"
+      },
+      "controller_observations": {
+        "wall_budget_satisfied": true,
+        "tool_budget_satisfied": true,
+        "scope_satisfied": true,
+        "actual_backend_id_attested": false,
+        "reroute_mismatch": false,
+        "native_skill_binding_accepted": null
+      }
+    }
+  ]
+}

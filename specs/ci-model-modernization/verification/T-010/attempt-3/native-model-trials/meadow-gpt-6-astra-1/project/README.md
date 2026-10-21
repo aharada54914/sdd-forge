@@ -1,0 +1,1 @@
+A routing change is proposed. Inputs are validated by the caller. Only a fresh account observation may authorize routing, and a chosen model must be available to that account as well as meet the role/floor. Response actual_id is optional execution telemetry; configured_id is configuration. No execution-ID attestation exists when actual_id is absent.

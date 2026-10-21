@@ -1,0 +1,6 @@
+{
+  "commands": [
+    "cd /project || exit $?\noutput=/project/out\npython3 -B plugins/sdd-implementation/scripts/managed-model-entry.py prepare \\\n  --role spec-reviewer --host claude-code --request policy.json --registry registry.json \\\n  --run-id 00000000-0000-4000-8000-000000000001 --session-id 00000000-0000-4000-8000-000000000001 --attempt 1 \\\n  --output-dir \"$output\" --require-actual-id false || exit $?\ncontrols_sha=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))[\"controls\"][\"sha256\"])' \"$output/validation.json\") || exit $?\nrtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py \\\n  /project /project/invocation.json /project/launch \\\n  --model-controls \"$output/controls.json\" --model-controls-sha256 \"$controls_sha\""
+  ],
+  "identity": "The supplied UUID is a proposed identity, not host-issued execution proof. Managed preparation and a configured model do not prove actual execution. Launch requires HOST_REVIEW_PREFLIGHT_OK before reservation, the exact REVIEW_CONTEXT_OK receipt, and postflight proof. No commands were executed or identities verified."
+}

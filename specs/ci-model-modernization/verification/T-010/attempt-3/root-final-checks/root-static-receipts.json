@@ -1,0 +1,49 @@
+[
+  {
+    "id": "ruff",
+    "command": [
+      "/workspace/.tools/sdd-forge-python/bin/ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/model-policy.tests.py",
+      "tests/model-policy-launch.tests.py",
+      "tests/model-policy-installed.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-21T13:17:27.372481+00:00",
+    "finished_at": "2026-10-21T13:17:27.415027+00:00",
+    "log": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/ruff.log",
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "id": "mypy",
+    "command": [
+      "/workspace/.tools/sdd-forge-python/bin/mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/model-policy.tests.py",
+      "tests/model-policy-launch.tests.py",
+      "tests/model-policy-installed.tests.py"
+    ],
+    "exit_code": 1,
+    "started_at": "2026-10-21T13:17:27.372822+00:00",
+    "finished_at": "2026-10-21T13:17:29.649107+00:00",
+    "log": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/mypy.log",
+    "sha256": "08b2a6c23907df6e3625b124f74612b24ed1463505b69d30ee4f68f6c1504bfd"
+  },
+  {
+    "id": "placeholders",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "contracts/model-policy.v1.json",
+      "contracts/model-adoption/ci-model-modernization-20261021.json"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-21T13:17:27.415275+00:00",
+    "finished_at": "2026-10-21T13:17:27.422977+00:00",
+    "log": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/placeholders.log",
+    "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+  }
+]

@@ -896,7 +896,7 @@ class PolicySelection(unittest.TestCase):
         self.request['cli'] = {'model_id': None, 'policy': None, 'Policy': 'pinned'}
         self.blocked(self.invoke(backend), 'config-invalid')
 
-    def test_shipped_contracts_have_actual_schemas_and_no_unproved_adoption(self):
+    def test_shipped_contracts_have_actual_schemas_and_reviewed_adoption(self):
         for filename, title in [('model-policy.schema.json', 'model-policy/v1'),
                                 ('model-policy-request.schema.json', 'model-policy-request/v1'),
                                 ('model-role-config.schema.json', 'model-role-config/v1')]:
@@ -912,8 +912,54 @@ class PolicySelection(unittest.TestCase):
         policy = json.loads(policy_path.read_text())
         self.assertEqual(set(policy['roles']), set(ROLES))
         self.assertEqual(policy['default_policy'], 'latest-compatible')
+        expected_path = 'contracts/model-adoption/ci-model-modernization-20261021.json'
+        expected_hash = '0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32'
         for model in policy['models']:
-            self.assertEqual(model['adoption'], [], 'T-006 must not invent new controlled adoption evidence')
+            expected = [{'role': 'implementer', 'path': expected_path, 'sha256': expected_hash}] if model['id'] == 'gpt-6-astra' else []
+            self.assertEqual(model['adoption'], expected, 'Only the reviewed implementer baseline has adoption evidence')
+        self.assertEqual(hashlib.sha256((ROOT / expected_path).read_bytes()).hexdigest(), expected_hash)
+        helper = load_helper()
+        registry, registered = helper._policy_registry(ROOT / 'contracts/agent-model-capabilities.v2.json')
+        token = helper._SNAPSHOT_ROOT.set(ROOT)
+        try:
+            helper._validate_role_policy(policy, registered, registry['role_defaults'])
+        finally:
+            helper._SNAPSHOT_ROOT.reset(token)
+
+    def test_shipped_adoption_reference_rejects_changed_evidence(self):
+        helper = load_helper()
+        registry, registered = helper._policy_registry(ROOT / 'contracts/agent-model-capabilities.v2.json')
+        policy = json.loads((ROOT / 'contracts/model-policy.v1.json').read_text())
+        ref = next(x for x in policy['models'] if x['id'] == 'gpt-6-astra')['adoption'][0]
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            target = root / ref['path']
+            target.parent.mkdir(parents=True)
+            target.write_bytes((ROOT / ref['path']).read_bytes() + b'\n')
+            token = helper._SNAPSHOT_ROOT.set(root)
+            try:
+                with self.assertRaises(helper.PolicyError) as caught:
+                    helper._validate_role_policy(policy, registered, registry['role_defaults'])
+                self.assertEqual(caught.exception.reason, 'config-invalid')
+            finally:
+                helper._SNAPSHOT_ROOT.reset(token)
+
+    def test_passing_unregistered_model_cannot_be_added_to_policy(self):
+        helper = load_helper()
+        registry, registered = helper._policy_registry(ROOT / 'contracts/agent-model-capabilities.v2.json')
+        self.assertNotIn('gpt-6.1-sol', registered)
+        policy = json.loads((ROOT / 'contracts/model-policy.v1.json').read_text())
+        model = copy.deepcopy(next(x for x in policy['models'] if x['id'] == 'gpt-6-astra'))
+        model['id'] = 'gpt-6.1-sol'
+        model['hosts'] = {'codex-cli': 'gpt-6.1-sol'}
+        policy['models'].append(model)
+        token = helper._SNAPSHOT_ROOT.set(ROOT)
+        try:
+            with self.assertRaises(helper.PolicyError) as caught:
+                helper._validate_role_policy(policy, registered, registry['role_defaults'])
+            self.assertEqual(caught.exception.reason, 'config-invalid')
+        finally:
+            helper._SNAPSHOT_ROOT.reset(token)
 
 
 class PortableBashRuntime(unittest.TestCase):
@@ -975,7 +1021,9 @@ class PortableBashRuntime(unittest.TestCase):
         shim.chmod(0o755)
         script = self.root / 'probe.sh'
         script.write_text('python3 -c "import sys; print(sys.executable)"\n')
-        os.environ['SDD_TEST_BASH'] = shutil.which('bash')
+        bash = shutil.which('bash')
+        assert bash is not None, 'Bash is required for the portable runtime probe'
+        os.environ['SDD_TEST_BASH'] = bash
         with patch.object(sys, 'platform', 'win32'):
             command = bash_command(script, [])
         result = subprocess.run(command, text=True, capture_output=True, timeout=30,

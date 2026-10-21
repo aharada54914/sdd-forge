@@ -1,0 +1,3 @@
+Updated `selector.py` to validate all supported fields, enforce eligibility and pin precedence, honor eligible preferences, and reject stale observations without mutating inputs.
+
+The public function signature is unchanged. Only `selector.py` was edited. The existing test passed.

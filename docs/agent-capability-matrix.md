@@ -167,8 +167,9 @@ for an out-of-scope tool call. Frozen deterministic scoring yielded 9 passes and
 11 failures. Four blinded semantic judgments preserved those failures. Sol passed
 both implementation trials but lacks a registered capability record, so it is
 not eligible for policy adoption. Review, investigation and skill candidates
-remain withheld; existing defaults remain. These limited results do not attest
-to actual backend model identity.
+remain withheld. Registered preferences and capability floors remain unchanged;
+the existing Astra implementer entry receives the measured evidence reference.
+These limited results do not attest to actual backend model identity.
 
 For Codex, `render-agent-frontmatter.sh` managed mode (`--model-controls`,
 `--model-controls-sha256`, `--run-id`, `--session-id`, `--managed-target`)

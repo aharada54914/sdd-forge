@@ -1,0 +1,11 @@
+# Skill comparison v5 — pre-output source binding
+
+No candidate output or actual native skill activation has been collected. This version replaces only the current procedure source binding from v3/v4; it does not change the original model-adoption rubric, the 16 v4 model arms, the frozen scorer or any quality criterion.
+
+Cedar uses the same whole preserved baseline skill, SHA-256 `4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656`. Maple now uses the whole Root current `plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md`, SHA-256 `42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0`. The prior Maple SHA `726740e6139b21499999b4e0dc1493bedae15fcf17f2429fc993402e233c2343` was an intermediate T-008 snapshot before the 17:09 managed-allocation-boundary addition. It must not be described as the current/release skill. This snapshot matches Root at the recorded source-binding time; release status is not claimed.
+
+All controls and pass criteria remain the frozen skill-binding-rubric-v3.md and skill-rubric-v1.md: bounded protected command-plan comparison; same request/README/filename/tool API; fixed gpt-6-astra/high; two fresh repetitions per source; 300 seconds and 24 calls; exact frozen deterministic command-contract checks plus artifact semantic review. The actual relevant whole procedure bytes are the only paired difference. No failure is waived because a new source version changes instructions.
+
+The same explicit native UserInput.skill name/path binding remains planned. Its actual host acceptance/activation is unproven until an authorized real turn. A successful command plan cannot establish full installed review-loop or plugin dispatch quality, release adoption, or exact backend execution identity. Keep all failures/unavailable observations. Native trials remain prohibited until Root followup after T-008 Done.
+
+Candidate contexts receive only their ordinary project files and unchanged request. Source paths, hashes, labels, rubric and expected/scoring data remain outside. runner.py delegates to frozen v4 and overrides skill input loading only; score_artifacts.py delegates to the frozen scorer with v5 read-only skill fixture baselines. Before a run, the controller verifies Root source hashes still equal this binding; if they changed, freeze a new pre-output version rather than relabeling old bytes.

@@ -1,0 +1,23 @@
+test_synthetic_fixture_does_not_inherit_live_adoption_paths (__main__.LaunchControls.test_synthetic_fixture_does_not_inherit_live_adoption_paths) ... FAIL
+
+======================================================================
+FAIL: test_synthetic_fixture_does_not_inherit_live_adoption_paths (__main__.LaunchControls.test_synthetic_fixture_does_not_inherit_live_adoption_paths)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/.task-scratch/ci-model-modernization/t010-launch-fixture-0w3baqfb/checkout/tests/model-policy-launch.tests.py", line 455, in test_synthetic_fixture_does_not_inherit_live_adoption_paths
+    self.assertEqual(next(m for m in policy['models'] if m['id'] == 'gpt-6-astra')['adoption'], [])
+AssertionError: Lists differ: [{'role': 'implementer', 'path': 'uncopied[95 chars]aa'}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'role': 'implementer', 'path': 'uncopied-live-adoption.json', 'sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
+
++ []
+- [{'path': 'uncopied-live-adoption.json',
+-   'role': 'implementer',
+-   'sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}]
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=1)

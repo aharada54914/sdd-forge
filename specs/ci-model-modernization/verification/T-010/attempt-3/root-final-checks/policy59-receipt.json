@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/model-policy.tests.py"
+  ],
+  "started_at": "2026-10-21T13:13:19.337407+00:00",
+  "finished_at": "2026-10-21T13:13:53.475346+00:00",
+  "exit_code": 0,
+  "source_before": {
+    "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+    "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09"
+  },
+  "source_after": {
+    "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+    "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+    "contracts/agent-model-capabilities.v2.json": "1faa90c55b59add79b321956747a51ed881889d708252340db542dc19683f05b",
+    "tests/model-policy.tests.py": "f63974bbcdd84e4988250b281b8aab02e36660210bf85332b0686eab2738de09"
+  },
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "7cfcea0dbf7973f5c38138d1ad1b4dc37affb2ca9b3c567b3d9ccaae2b435f4b"
+}

@@ -1,6 +1,6 @@
 {
   "schema": "model-policy/v1",
-  "source_date": "2026-10-18T00:00:00Z",
+  "source_date": "2026-10-21T12:57:21.574569Z",
   "observation_max_age_seconds": 300,
   "default_policy": "latest-compatible",
   "roles": {
@@ -274,14 +274,20 @@
     },
     {
       "id": "gpt-6-astra",
-      "lifecycle": "candidate",
+      "lifecycle": "current",
       "source_url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
       "source_date": "2026-09-28T00:00:00Z",
       "successor_of": [],
       "hosts": {
         "codex-cli": "gpt-6-astra"
       },
-      "adoption": []
+      "adoption": [
+        {
+          "role": "implementer",
+          "path": "contracts/model-adoption/ci-model-modernization-20261021.json",
+          "sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,3 @@
+Repaired `selector.py` to validate inputs, enforce freshness and eligibility, honor pins, and fall back from preferences in catalog order without mutating inputs.
+
+Only `selector.py` changed. The existing test passed.

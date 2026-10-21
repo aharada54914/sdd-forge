@@ -1,0 +1,1 @@
+Trace how model choice reaches the host invocation and returned record, including any higher-priority setting and identity limits. Do not edit files. Return only JSON {"trace":[{"path":"relative file","line":1,"observed":"exact source line without indentation","reason":"what this step does"}],"identity":"what can and cannot be established"}.

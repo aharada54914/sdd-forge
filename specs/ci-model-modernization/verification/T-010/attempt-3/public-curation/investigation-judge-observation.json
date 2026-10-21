@@ -1,0 +1,24 @@
+{
+  "started_at": "2026-10-21T12:49:44.336770+00:00",
+  "finished_at": "2026-10-21T12:52:46.582432+00:00",
+  "configured_id": "gpt-6-astra",
+  "effort": "high",
+  "actual_id": null,
+  "proof": "unverified",
+  "native_turns_started": 1,
+  "domain": "investigation",
+  "observed_tool_calls": 0,
+  "elapsed_seconds": 182.12539018702228,
+  "turn_status": "completed",
+  "provider_token_usage": {
+    "totalTokens": 25292,
+    "inputTokens": 17527,
+    "cachedInputTokens": 0,
+    "cacheWriteInputTokens": 0,
+    "outputTokens": 7765,
+    "reasoningOutputTokens": 905
+  },
+  "raw_summary_sha256": "7809be26804b0c2dfcd6c2ead9cb777e48d74bd3a6efb7c3b49b130307a9ae3c",
+  "full_final_validation_sha256": "be771556ec99e2eba13d324cc1af0e3f0ecf93b32d47ebb41573cb5efdf73747",
+  "note": "Initial representation-only validator diagnostic remains private evidence; final exact original-contract/field-path validation cited separately"
+}

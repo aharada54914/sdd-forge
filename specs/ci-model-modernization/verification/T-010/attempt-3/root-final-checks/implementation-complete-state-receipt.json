@@ -1,0 +1,21 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+    "specs/ci-model-modernization/tasks.md"
+  ],
+  "started_at": "2026-10-21T13:24:32.977287+00:00",
+  "finished_at": "2026-10-21T13:24:34.025706+00:00",
+  "exit_code": 0,
+  "source_before": {
+    "specs/ci-model-modernization/tasks.md": "23c0ee6e355284345514f56e732797577d8936821b08de0c5ae64ae23b3a80b7",
+    "specs/ci-model-modernization/verification/T-010.contract.json": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f"
+  },
+  "source_after": {
+    "specs/ci-model-modernization/tasks.md": "23c0ee6e355284345514f56e732797577d8936821b08de0c5ae64ae23b3a80b7",
+    "specs/ci-model-modernization/verification/T-010.contract.json": "ea80b46438f0c3180a1f0b95862766435f283dbb5b146dfe9ddcdafabe80629f"
+  },
+  "stdout_sha256": "bcc0bf7c54511e4e4a85426f1e420ea6ca7b1a6dedbf8334d050deec2f81d3f4",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": "T-010 Implementation Complete; no Done transition"
+}

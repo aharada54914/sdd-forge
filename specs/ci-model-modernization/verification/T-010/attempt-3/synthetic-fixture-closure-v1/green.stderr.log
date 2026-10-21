@@ -1,0 +1,8 @@
+test_synthetic_fixture_does_not_inherit_live_adoption_paths (__main__.LaunchControls.test_synthetic_fixture_does_not_inherit_live_adoption_paths) ... ok
+test_controls_cli_binds_valid_role_selection (__main__.LaunchControls.test_controls_cli_binds_valid_role_selection) ... ok
+test_controls_trusted_native_mapping_cannot_be_resealed (__main__.LaunchControls.test_controls_trusted_native_mapping_cannot_be_resealed) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.219s
+
+OK

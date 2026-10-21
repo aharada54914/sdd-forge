@@ -1,0 +1,29 @@
+{
+  "started_at": "2026-10-21T12:39:40.893706+00:00",
+  "finished_at": "2026-10-21T12:39:45.722239+00:00",
+  "configured_id": "gpt-6-luna",
+  "effort": "low",
+  "actual_id": null,
+  "proof": "unverified",
+  "native_turns_started": 1,
+  "failures": [
+    "unexpected-builtin-tool:webSearch",
+    "turn-not-completed"
+  ],
+  "elapsed_seconds": 4.674988760001725,
+  "observation": {
+    "observed_tool_calls": 2,
+    "dynamic_requests": 1,
+    "dynamic_item_count": 1,
+    "builtin_tool_items": 1,
+    "failures": [
+      "unexpected-builtin-tool:webSearch"
+    ],
+    "actual_id": null,
+    "proof": "unverified",
+    "reroutes": [],
+    "os_isolation": "not established by this handler"
+  },
+  "raw_summary_sha256": "d7655bd64909d0ea3f8cdd4d7ec1a49fa57f876d9cb773370a35f2465ccd4b94",
+  "scope": "configured model/observed calls only; no actual backend attestation"
+}

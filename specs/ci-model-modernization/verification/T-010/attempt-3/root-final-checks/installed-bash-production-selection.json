@@ -1,0 +1,31 @@
+{
+  "binding": null,
+  "budget": null,
+  "catalog_sha256": "1e8f9bd8d0fd70d0daf9463e05dc21356b5baef524d3f33295860ba12ac38330",
+  "cli_version": "bounded-fixture-only",
+  "estimate": null,
+  "host": "codex-cli",
+  "observation_sha256": "c62f6fb6b0ed334ca9a28b6ab4123f32cdb22789d4c2dfce6f9813b8a893fe22",
+  "observed_at": "2026-10-21T13:14:43.320015Z",
+  "policy_sha256": "336db3a41a983e407b939268b2e23c8f8cd1b4bb9c80386a2a533c4ed65c4b0e",
+  "reason": "latest-verified; verified-configuration; configuration is not execution or organization access proof.",
+  "requested": {
+    "model_id": null,
+    "model_source": null,
+    "policy": "latest-compatible",
+    "policy_source": "shipped"
+  },
+  "resolved": {
+    "catalog_id": "gpt-6-astra",
+    "effort": "high",
+    "effort_control": "flag",
+    "native_id": "gpt-6-astra"
+  },
+  "risk": "high",
+  "role": "implementer",
+  "schema": "model-selection/v1",
+  "scope_id": "fixture-client-1",
+  "selection_sha256": "31602401b4fc5bca23191982d62f2e36bfbf9b4ec4513e48a47f717a07ec9916",
+  "source_date": "2026-10-21T12:57:21.574569Z",
+  "update_candidates": []
+}

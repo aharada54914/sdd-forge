@@ -1,0 +1,6 @@
+{
+  "commands": [
+    "cd /project || exit $?\noutput=/project/out\npython3 -B plugins/sdd-implementation/scripts/managed-model-entry.py prepare --role spec-reviewer --host claude-code --request policy.json --registry registry.json --run-id 00000000-0000-4000-8000-000000000001 --session-id 00000000-0000-4000-8000-000000000001 --attempt 1 --output-dir \"$output\" --require-actual-id false || exit $?\ncontrols_sha=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))[\"controls\"][\"sha256\"])' \"$output/validation.json\") || exit $?\nrtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py /project /project/invocation.json /project/launch --model-controls \"$output/controls.json\" --model-controls-sha256 \"$controls_sha\""
+  ],
+  "identity": "Plan only; nothing executed or validated. The supplied UUID is a proposed identity, and configured model selection is not actual execution proof. Launch requires a complete matching invocation, fresh output and launch directories, successful managed preparation, HOST_REVIEW_PREFLIGHT_OK before reservation, the exact REVIEW_CONTEXT_OK receipt, and postflight proof. Do not reserve separately or substitute identities after failure."
+}

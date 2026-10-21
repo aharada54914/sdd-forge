@@ -1,0 +1,26 @@
+{
+  "version": "skill-comparison-v5",
+  "observed_at": "2026-10-20T18:00:46.591795+00:00",
+  "status": "current Root bytes snapshot before outputs; release/adoption not claimed",
+  "cedar": {
+    "source": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-008/whole-rollback-baseline/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+    "sha256": "4fc4285ebfe126d3104598909012cfda6785cd0356ffe89d5095f0924c0fb656"
+  },
+  "maple": {
+    "source": "/workspace/sdd-forge/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+    "sha256": "42f988c4a4c2464c164a1f47f6cf8c701bc7a58efb50b5e46eedecc42b182bc0"
+  },
+  "prior_maple": {
+    "source": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/pre-output-preparation/inputs/maple/procedure.md",
+    "sha256": "726740e6139b21499999b4e0dc1493bedae15fcf17f2429fc993402e233c2343",
+    "status": "intermediate T-008 skill snapshot; not current/release skill"
+  },
+  "request": {
+    "source": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/pre-output-preparation/requests/skill.txt",
+    "sha256": "892a637b4590105add56bf6b8aa66a06f5b4954b68dc0147470da14d6d04c642"
+  },
+  "scorer": {
+    "source": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-010/pre-output-preparation/score.py",
+    "sha256": "f3a41e54bb0fdf21fb7d84ea325442834e9b5992f79dd8feece4e4a415aa66a8"
+  }
+}

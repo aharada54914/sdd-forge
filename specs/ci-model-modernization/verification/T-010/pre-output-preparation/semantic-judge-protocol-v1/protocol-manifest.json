@@ -1,0 +1,20 @@
+{
+  "version": "semantic-judge-protocol-v1",
+  "frozen_at": "2026-10-20T18:16:42.512656+00:00",
+  "kind": "optional fixed blinded judge protocol only; not a new rubric",
+  "files": {
+    "brief.txt": "a531eeb9e9f51cdd3f7059b66c618e3318ee1680e041a3716a03471cc20a6a80",
+    "command-notes.md": "18dd8e618af0038d43e41547870e350758a3f4a6620c7830a2effc8218a89610",
+    "input.schema.json": "cb563b5ab3da63a7b6d63f765984c45d06012f3f13e123f7c5daddfc645f6f88",
+    "response.schema.json": "0f97c5b91cff169215df25e3186cd1ddce30656a8d3827e5b3d191d3fd63809b",
+    "root-private-map.template.json": "8582475be9c986482d6bd301db5a79dd6f7669c3529b00c1a1f311ba24065ec6"
+  },
+  "configured_judge": "gpt-6-astra",
+  "effort": "high",
+  "fresh_contexts": 4,
+  "actual_judge_turns": 0,
+  "candidate_turns": 0,
+  "criteria": "original frozen model/skill criteria unchanged",
+  "root_private_file": "root-private-map.template.json excluded from judge inputs",
+  "next_admission": "prepare_candidate.py includes protocol payload and this manifest by exact hash"
+}

@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "T-010 blinded semantic judge response v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "domain",
+    "submissions",
+    "material_regressions",
+    "uncertainties"
+  ],
+  "properties": {
+    "domain": {
+      "enum": [
+        "implementation",
+        "review",
+        "investigation",
+        "skill-command-plan"
+      ]
+    },
+    "submissions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "submission_id",
+          "criteria",
+          "deterministic_failure_preserved"
+        ],
+        "properties": {
+          "submission_id": {
+            "type": "string"
+          },
+          "deterministic_failure_preserved": {
+            "type": "boolean"
+          },
+          "criteria": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "criterion_quote",
+                "satisfied",
+                "evidence",
+                "reason",
+                "uncertain"
+              ],
+              "properties": {
+                "criterion_quote": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "satisfied": {
+                  "type": "boolean"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/evidence"
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uncertain": {
+                  "type": "boolean"
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "satisfied": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "satisfied"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "minItems": 1
+                      },
+                      "uncertain": {
+                        "const": false
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "material_regressions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reference_id",
+          "affected_id",
+          "criterion_quote",
+          "material",
+          "evidence",
+          "reason",
+          "uncertain"
+        ],
+        "properties": {
+          "reference_id": {
+            "type": "string"
+          },
+          "affected_id": {
+            "type": "string"
+          },
+          "criterion_quote": {
+            "type": "string"
+          },
+          "material": {
+            "type": "boolean"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/evidence"
+            }
+          },
+          "reason": {
+            "type": "string"
+          },
+          "uncertain": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "uncertainties": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "submission_id",
+        "path",
+        "line",
+        "quote"
+      ],
+      "properties": {
+        "submission_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

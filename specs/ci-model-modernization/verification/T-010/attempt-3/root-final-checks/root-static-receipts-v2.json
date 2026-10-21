@@ -1,0 +1,56 @@
+{
+  "checks": [
+    {
+      "id": "ruff-v2",
+      "command": [
+        "/workspace/.tools/sdd-forge-python/bin/ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/model-policy.tests.py",
+        "tests/model-policy-launch.tests.py",
+        "tests/model-policy-installed.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:18:13.100440+00:00",
+      "finished_at": "2026-10-21T13:18:13.111619+00:00",
+      "log": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/ruff-v2.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "id": "mypy-v2",
+      "command": [
+        "/workspace/.tools/sdd-forge-python/bin/mypy",
+        "--config-file",
+        "tests/shared-launch-python/pyproject.toml",
+        "tests/model-policy.tests.py",
+        "tests/model-policy-launch.tests.py",
+        "tests/model-policy-installed.tests.py"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:18:13.100653+00:00",
+      "finished_at": "2026-10-21T13:18:13.511111+00:00",
+      "log": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/mypy-v2.log",
+      "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8"
+    },
+    {
+      "id": "portable-probe-v2",
+      "command": [
+        "python3",
+        "-B",
+        "tests/model-policy.tests.py",
+        "PortableBashRuntime.test_bound_python3_beats_bogus_path_python3"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-21T13:18:13.111761+00:00",
+      "finished_at": "2026-10-21T13:18:13.237686+00:00",
+      "log": "specs/ci-model-modernization/verification/T-010/attempt-3/root-final-checks/portable-probe-v2.log",
+      "sha256": "b6a4988c34886ddfff38c7edf24df9512c78dd866327b0587fd8024af9e77f4b"
+    }
+  ],
+  "source_sha256": {
+    "tests/model-policy.tests.py": "dfd74cab0de011b27643f44254113f23f795eaba540ca3633abf4b32041de72a",
+    "tests/model-policy-launch.tests.py": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+    "tests/model-policy-installed.tests.py": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd"
+  }
+}

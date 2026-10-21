@@ -1,0 +1,2 @@
+tests/model-policy.tests.py:1024: error: Incompatible types in assignment (expression has type "str | None", target has type "str")  [assignment]
+Found 1 error in 1 file (checked 3 source files)

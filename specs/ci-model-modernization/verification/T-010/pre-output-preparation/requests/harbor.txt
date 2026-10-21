@@ -1,0 +1,1 @@
+Repair selector.py to implement the README contract. Keep its public function compatible and run the existing test. You may edit selector.py only.
