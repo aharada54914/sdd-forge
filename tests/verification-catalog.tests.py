@@ -738,6 +738,69 @@ class WorkflowIntegrationTests(unittest.TestCase):
         finally:
             self.workflow = original
 
+    NPM_CACHE_BIND_STEP = 'Bind npm cache to actual Node runtime'
+    NPM_CACHE_BINDING = 'printf \'npm_config_cache=%s\\n\' "$RUNNER_TEMP/npm-cache" >> "$GITHUB_ENV"'
+    MCP_NPM_JOBS = ('mcp-tests', 'local-env-mcp-tests', 'ci-mcp-tests')
+
+    def npm_cache_binding_errors(self, job):
+        errors = []
+        if any('runner.' in str(value) for value in job.get('env', {}).values()):
+            errors.append('job env must not use the runner context')
+        steps = job['steps']
+        indexes = {
+            'bind': [i for i, s in enumerate(steps) if s.get('name') == self.NPM_CACHE_BIND_STEP],
+            'cache': [i for i, s in enumerate(steps) if s.get('uses', '').startswith('actions/cache@')],
+            'install': [i for i, s in enumerate(steps) if 'npm ci' in s.get('run', '')],
+        }
+        if any(len(found) != 1 for found in indexes.values()):
+            return errors + ['expected exactly one bind, cache and npm install step: ' + repr(indexes)]
+        bind, cache, install = (indexes[name][0] for name in ('bind', 'cache', 'install'))
+        if self.NPM_CACHE_BINDING not in steps[bind].get('run', '').splitlines():
+            errors.append('bind step must export the actual npm cache directory to GITHUB_ENV')
+        if not bind < cache < install:
+            errors.append('binding must run before actions/cache and npm install')
+        if steps[cache]['with']['path'] != '${{ runner.temp }}/npm-cache/_cacache':
+            errors.append('cache must consume the bound npm cache directory')
+        return errors
+
+    def test_T003_npm_cache_directory_binds_at_runtime_before_cache_and_install(self):
+        import copy
+        for name in self.MCP_NPM_JOBS:
+            with self.subTest(job=name):
+                self.assertEqual(self.npm_cache_binding_errors(self.workflow['jobs'][name]), [])
+
+        def move_bind_after(job, kind):
+            steps = job['steps']
+            bind = next(s for s in steps if s.get('name') == self.NPM_CACHE_BIND_STEP)
+            steps.remove(bind)
+            if kind == 'cache':
+                target = next(i for i, s in enumerate(steps) if s.get('uses', '').startswith('actions/cache@'))
+            else:
+                target = next(i for i, s in enumerate(steps) if 'npm ci' in s.get('run', ''))
+            steps.insert(target + 1, bind)
+
+        def edit_bind_run(job, old, new):
+            bind = next(s for s in job['steps'] if s.get('name') == self.NPM_CACHE_BIND_STEP)
+            bind['run'] = bind['run'].replace(old, new)
+
+        mutations: dict[str, Callable[..., Any]] = {
+            'job-env-runner-context': lambda j: j.setdefault('env', {}).update(
+                npm_config_cache='${{ runner.temp }}/npm-cache'),
+            'missing-binding': lambda j: edit_bind_run(j, self.NPM_CACHE_BINDING, ':'),
+            'mismatched-binding': lambda j: edit_bind_run(j, '/npm-cache"', '/other-cache"'),
+            'late-binding-after-cache': lambda j: move_bind_after(j, 'cache'),
+            'late-binding-after-install': lambda j: move_bind_after(j, 'install'),
+            'cache-path-changed': lambda j: next(
+                s for s in j['steps'] if s.get('uses', '').startswith('actions/cache@'))['with'].update(
+                    path='${{ runner.temp }}/other-cache/_cacache'),
+        }
+        for name in self.MCP_NPM_JOBS:
+            for mutation, mutate in mutations.items():
+                with self.subTest(job=name, mutation=mutation):
+                    bad = copy.deepcopy(self.workflow['jobs'][name])
+                    mutate(bad)
+                    self.assertNotEqual(self.npm_cache_binding_errors(bad), [])
+
     # T-005 identity suite: additive registration/native-obligation checks; the T-004 checks above stay unchanged.
     IDENTITY_SUITE = 'tests/model-identity.tests.py'
     IDENTITY_PROFILES = ('local-posix', 'local-powershell', 'ci-portable-prechecks')
