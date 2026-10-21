@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "path": "summary.json",
+      "bytes": 1278,
+      "sha256": "ecfd90388c3516d87b2c082a42b48193214a4395b09dd33759f3e44ab6b723cd"
+    },
+    {
+      "path": "source-pins.json",
+      "bytes": 652,
+      "sha256": "c4b46ac206a136a0a2f0b9a2747cd8e99ae5dc5ea3d33824698d69c7b2f49c0b"
+    },
+    {
+      "path": "candidate.patch",
+      "bytes": 7425,
+      "sha256": "ea6d80569fd05773873d72b2231692acb26fa21ed996e4d1c4e3b1afd747fe55"
+    },
+    {
+      "path": "red-causal.log",
+      "bytes": 7753,
+      "sha256": "d93ab50f7eaa7ba559ce8d2fe23e7531c08c32c568da0ae1b220bffd32346bbf"
+    },
+    {
+      "path": "green.log",
+      "bytes": 101,
+      "sha256": "33af41fc96a00b0a9395d5fd6ea0753adfe2b36fc1b89f0a49f5955fadacf95e"
+    },
+    {
+      "path": "rollback.log",
+      "bytes": 9877,
+      "sha256": "e2608969f32f5f31ea367f9b113b3dcfc2e51864a7fcb39a8757d3748d4f6af6"
+    },
+    {
+      "path": "source-fallback-negative.log",
+      "bytes": 224,
+      "sha256": "cb002b7867e31a1da90d312249c76aa397aecc07ecf3d54060ccfdc1437463de"
+    },
+    {
+      "path": "static.log",
+      "bytes": 44,
+      "sha256": "3e6db98459465ba52176243bc1944063cd0a4868712c44a69b944b2fb33b7f13"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "changed_paths": [
+    "tests/host-review-preflight.tests.py"
+  ],
+  "before_sha256": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8",
+  "after_sha256": "e4d8dcebbe6c4c412cd84845e1120459e4a268fa4eba27039703d6c9fcc40239",
+  "minimal_change": "Exactly3tupleentries; removing only those3lines reconstructs all original test bytes.",
+  "original_unrelated_sha256_unchanged": "ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9",
+  "executed_results": {
+    "focused_before": "FAIL1 (actual current residual f82e60c9 vs originalpin)",
+    "focused_after": "PASS1",
+    "whole_suite": "PASS21"
+  },
+  "existing_negative_controls_executed": [
+    "unrelated evaluate-selected-plan entry removal rejected",
+    "unrelated first membership removal rejected",
+    "unrelated invariant scalar mutation rejected",
+    "unreviewed-extra.py inclusion rejected",
+    "every explicitly reviewed addition removal and duplicate rejected, including6new subcases for3added paths"
+  ],
+  "historical_or_production_changes": false,
+  "stage_or_commit": false,
+  "evidence_hashes": {
+    "full-green.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate.patch": "865f8c65c7290007085194343635b63a710844b4f7a2940339f6bc80c3ac65ad",
+    "red.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "semantic-diff.json": "2d768e9987bd0a44e0a7ec98f87ec7e385fc810a66b354a165800a1c5e0c13d7",
+    "before-test.py.txt": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8",
+    "diff-check.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "red-command.json": "d3ce3da6163d2820f6758550208b5b1ac5e226f5abdaa3bdd61d8b81c1b593e9",
+    "focused-green.stderr.log": "a00a81650af228cb704a159b1a33282c82511cb9e857a95a792b6300d6ed6ece",
+    "focused-green.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff-check.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "red.stderr.log": "5714dda0946bb90f942ae8e5fc3a8d97eeb6dbcc3321c2b6cd3d5f3cf7432078",
+    "green-commands.json": "e0cb3ab7d8640b03bde60b065e8316404248c02fb1541fcd04348b635dc5a281",
+    "full-green.stderr.log": "765265a4bee9d15de007d0bb0d58f61d10d7635aad2ba1f8d6896478db8ddb89"
+  }
+}

@@ -1,0 +1,40 @@
+[
+  {
+    "label": "focused-green",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host-review-preflight.tests.py",
+      "ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged",
+      "-v"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-21T14:42:39.322723+00:00",
+    "finished_at": "2026-10-21T14:42:39.487144+00:00"
+  },
+  {
+    "label": "full-green",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host-review-preflight.tests.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-21T14:42:39.487208+00:00",
+    "finished_at": "2026-10-21T14:42:50.310341+00:00"
+  },
+  {
+    "label": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "tests/host-review-preflight.tests.py"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-21T14:42:50.310379+00:00",
+    "finished_at": "2026-10-21T14:42:50.318189+00:00"
+  }
+]

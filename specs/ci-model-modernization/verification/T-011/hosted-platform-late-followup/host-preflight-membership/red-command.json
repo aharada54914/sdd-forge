@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tests/host-review-preflight.tests.py",
+    "ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged",
+    "-v"
+  ],
+  "exit_code": 1,
+  "started_at": "2026-10-21T14:42:21.643084+00:00",
+  "finished_at": "2026-10-21T14:42:21.748770+00:00",
+  "test_before_sha256": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8"
+}

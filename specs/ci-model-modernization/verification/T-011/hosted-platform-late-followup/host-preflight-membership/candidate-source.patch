@@ -1,0 +1,8 @@
+diff --git a/tests/host-review-preflight.tests.py b/tests/host-review-preflight.tests.py
+index c86fa80f..58705c0c 100644
+--- a/tests/host-review-preflight.tests.py
++++ b/tests/host-review-preflight.tests.py
+@@ -279,0 +280,3 @@ ADDITIONAL_PROTECTIONS = (
++    'plugins/sdd-implementation/scripts/managed-model-entry.py',
++    QUALITY_SCRIPTS + 'run-panelist-gemini.ps1',
++    QUALITY_SCRIPTS + 'run-panelist-gpt.ps1',

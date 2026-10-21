@@ -1,0 +1,11 @@
+{
+  "red_commit": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "path": "tests/model-policy-installed.tests.py",
+  "before_sha256": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+  "after_sha256": "78c8181289665d6d5432d95200fc006c2e284773adea1e75f9740d3491c1a4c0",
+  "required_tools": [
+    "real rtk0.51.0 at /workspace/.tools/rtk/0.51.0/rtk",
+    "PowerShell /workspace/.tools/sdd-forge-dev/bin/pwsh"
+  ],
+  "command": "TMPDIR=/workspace/.task-scratch/ci-model-modernization PATH=/workspace/.tools/rtk/0.51.0:/workspace/.tools/sdd-forge-dev/bin:$PATH python tests/model-policy-installed.tests.py InstalledProtectedCallerTests"
+}

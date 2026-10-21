@@ -1,0 +1,212 @@
+{
+  "schema": "hosted-platform-late-followup-evidence/v1",
+  "at": "2026-10-21T14:45:55.964462+00:00",
+  "failed_hosted_baseline": "6c2b4e7139158674dfaa1148c009db7da261706f",
+  "observed_head": "3ca7d32b38e47bd39309f2e27927634b178af461",
+  "records": [
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/result.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/result.json",
+      "source_sha256": "0e503fa682305acf78b3f74f5870e0fe27b04b8ea6d95fbe69f5c05fbc524ca5",
+      "published_sha256": "0e503fa682305acf78b3f74f5870e0fe27b04b8ea6d95fbe69f5c05fbc524ca5",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/semantic-diff.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/semantic-diff.json",
+      "source_sha256": "2d768e9987bd0a44e0a7ec98f87ec7e385fc810a66b354a165800a1c5e0c13d7",
+      "published_sha256": "2d768e9987bd0a44e0a7ec98f87ec7e385fc810a66b354a165800a1c5e0c13d7",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/red-command.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/red-command.json",
+      "source_sha256": "d3ce3da6163d2820f6758550208b5b1ac5e226f5abdaa3bdd61d8b81c1b593e9",
+      "published_sha256": "d3ce3da6163d2820f6758550208b5b1ac5e226f5abdaa3bdd61d8b81c1b593e9",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/green-commands.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/green-commands.json",
+      "source_sha256": "e0cb3ab7d8640b03bde60b065e8316404248c02fb1541fcd04348b635dc5a281",
+      "published_sha256": "e0cb3ab7d8640b03bde60b065e8316404248c02fb1541fcd04348b635dc5a281",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/red.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/red.stderr.log",
+      "source_sha256": "5714dda0946bb90f942ae8e5fc3a8d97eeb6dbcc3321c2b6cd3d5f3cf7432078",
+      "published_sha256": "5714dda0946bb90f942ae8e5fc3a8d97eeb6dbcc3321c2b6cd3d5f3cf7432078",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/red.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/red.stdout.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/focused-green.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/focused-green.stderr.log",
+      "source_sha256": "a00a81650af228cb704a159b1a33282c82511cb9e857a95a792b6300d6ed6ece",
+      "published_sha256": "a00a81650af228cb704a159b1a33282c82511cb9e857a95a792b6300d6ed6ece",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/focused-green.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/focused-green.stdout.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/full-green.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/full-green.stderr.log",
+      "source_sha256": "765265a4bee9d15de007d0bb0d58f61d10d7635aad2ba1f8d6896478db8ddb89",
+      "published_sha256": "765265a4bee9d15de007d0bb0d58f61d10d7635aad2ba1f8d6896478db8ddb89",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/full-green.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/full-green.stdout.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/diff-check.stderr.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/diff-check.stderr.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/diff-check.stdout.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-host-preflight-membership/diff-check.stdout.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/summary.json",
+      "source_path": "/workspace/distribution-audit/protected-caller-fixture-fix/public-evidence/summary.json",
+      "source_sha256": "ecfd90388c3516d87b2c082a42b48193214a4395b09dd33759f3e44ab6b723cd",
+      "published_sha256": "ecfd90388c3516d87b2c082a42b48193214a4395b09dd33759f3e44ab6b723cd",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/source-pins.json",
+      "source_path": "/workspace/distribution-audit/protected-caller-fixture-fix/public-evidence/source-pins.json",
+      "source_sha256": "c4b46ac206a136a0a2f0b9a2747cd8e99ae5dc5ea3d33824698d69c7b2f49c0b",
+      "published_sha256": "c4b46ac206a136a0a2f0b9a2747cd8e99ae5dc5ea3d33824698d69c7b2f49c0b",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/red-causal.log",
+      "source_path": "/workspace/distribution-audit/protected-caller-fixture-fix/public-evidence/red-causal.log",
+      "source_sha256": "d93ab50f7eaa7ba559ce8d2fe23e7531c08c32c568da0ae1b220bffd32346bbf",
+      "published_sha256": "d93ab50f7eaa7ba559ce8d2fe23e7531c08c32c568da0ae1b220bffd32346bbf",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/green.log",
+      "source_path": "/workspace/distribution-audit/protected-caller-fixture-fix/public-evidence/green.log",
+      "source_sha256": "33af41fc96a00b0a9395d5fd6ea0753adfe2b36fc1b89f0a49f5955fadacf95e",
+      "published_sha256": "33af41fc96a00b0a9395d5fd6ea0753adfe2b36fc1b89f0a49f5955fadacf95e",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/rollback.log",
+      "source_path": "/workspace/distribution-audit/protected-caller-fixture-fix/public-evidence/rollback.log",
+      "source_sha256": "e2608969f32f5f31ea367f9b113b3dcfc2e51864a7fcb39a8757d3748d4f6af6",
+      "published_sha256": "ec50843bf8b9324cbc3883953c1ccc21b79d1fe010316eb145343692c2afc524",
+      "transformation": "LF line endings; trailing ASCIIspaces/tabs removed; redundantEOFblanklines trimmed, single finalLF retained for nonemptylogs",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/source-fallback-negative.log",
+      "source_path": "/workspace/distribution-audit/protected-caller-fixture-fix/public-evidence/source-fallback-negative.log",
+      "source_sha256": "cb002b7867e31a1da90d312249c76aa397aecc07ecf3d54060ccfdc1437463de",
+      "published_sha256": "cb002b7867e31a1da90d312249c76aa397aecc07ecf3d54060ccfdc1437463de",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/static.log",
+      "source_path": "/workspace/distribution-audit/protected-caller-fixture-fix/public-evidence/static.log",
+      "source_sha256": "3e6db98459465ba52176243bc1944063cd0a4868712c44a69b944b2fb33b7f13",
+      "published_sha256": "3e6db98459465ba52176243bc1944063cd0a4868712c44a69b944b2fb33b7f13",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/original-external-manifest.json",
+      "source_path": "/workspace/distribution-audit/protected-caller-fixture-fix/public-evidence/evidence-manifest.json",
+      "source_sha256": "5754e003929fa5b7a0eebc54717b6a125b8e5cc0d0196bad3b9039d56bc5210d",
+      "published_sha256": "5754e003929fa5b7a0eebc54717b6a125b8e5cc0d0196bad3b9039d56bc5210d",
+      "transformation": "Exact bytes",
+      "source_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/candidate-source.patch",
+      "published_sha256": "7f482449fa963a1fd6b30f04e82dc7bee91d5fb7592018df135f62154a787474",
+      "derivation": "git diff observedHEAD --unified=0; no source edits",
+      "observed_head": "3ca7d32b38e47bd39309f2e27927634b178af461",
+      "source_paths": [
+        "tests/host-review-preflight.tests.py"
+      ]
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/candidate-source.patch",
+      "published_sha256": "a1d1166ee0fdd5ec604b3584afb191b7e2b6b115cc1f775768b36590120cbeff",
+      "derivation": "git diff observedHEAD --unified=0; no source edits",
+      "observed_head": "3ca7d32b38e47bd39309f2e27927634b178af461",
+      "source_paths": [
+        "tests/model-policy-installed.tests.py"
+      ]
+    }
+  ],
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "tests/host-review-preflight.tests.py",
+      "before_commit": "3ca7d32b38e47bd39309f2e27927634b178af461",
+      "before_sha256": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8",
+      "after_candidate_sha256": "e4d8dcebbe6c4c412cd84845e1120459e4a268fa4eba27039703d6c9fcc40239"
+    },
+    {
+      "path": "tests/model-policy-installed.tests.py",
+      "before_commit": "3ca7d32b38e47bd39309f2e27927634b178af461",
+      "before_sha256": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "after_candidate_sha256": "78c8181289665d6d5432d95200fc006c2e284773adea1e75f9740d3491c1a4c0"
+    }
+  ],
+  "pending": [
+    "Fresh exact-commit full CI",
+    "Native Windows validation",
+    "Completed replacement baseline status not yet supplied; no final run conclusion fabricated"
+  ],
+  "excluded": [
+    "Private identity ledger",
+    "Executable before-source/probe copies",
+    "Raw auth/account/native-session material",
+    "Unrelated source changes"
+  ],
+  "ordinary_source_or_index_mutations_by_curator": false
+}

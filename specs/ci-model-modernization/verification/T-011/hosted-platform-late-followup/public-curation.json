@@ -1,0 +1,115 @@
+{
+  "schema": "hosted-platform-late-followup-public-curation/v1",
+  "files": {
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/README.md": {
+      "sha256": "60ce35573b6880302a359cf80763561bd30bac08eead852130667cf8a22a9431",
+      "bytes": 2214
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/evidence-receipt.json": {
+      "sha256": "5e847d2f4ce44eb1fc2f45ceba9a06c4dea85d3741945412fa64c34e89905745",
+      "bytes": 13380
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/candidate-source.patch": {
+      "sha256": "7f482449fa963a1fd6b30f04e82dc7bee91d5fb7592018df135f62154a787474",
+      "bytes": 417
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/diff-check.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/diff-check.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/focused-green.stderr.log": {
+      "sha256": "a00a81650af228cb704a159b1a33282c82511cb9e857a95a792b6300d6ed6ece",
+      "bytes": 222
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/focused-green.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/full-green.stderr.log": {
+      "sha256": "765265a4bee9d15de007d0bb0d58f61d10d7635aad2ba1f8d6896478db8ddb89",
+      "bytes": 2785
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/full-green.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/green-commands.json": {
+      "sha256": "e0cb3ab7d8640b03bde60b065e8316404248c02fb1541fcd04348b635dc5a281",
+      "bytes": 909
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/red-command.json": {
+      "sha256": "d3ce3da6163d2820f6758550208b5b1ac5e226f5abdaa3bdd61d8b81c1b593e9",
+      "bytes": 386
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/red.stderr.log": {
+      "sha256": "5714dda0946bb90f942ae8e5fc3a8d97eeb6dbcc3321c2b6cd3d5f3cf7432078",
+      "bytes": 1249
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/red.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/result.json": {
+      "sha256": "0e503fa682305acf78b3f74f5870e0fe27b04b8ea6d95fbe69f5c05fbc524ca5",
+      "bytes": 2357
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/host-preflight-membership/semantic-diff.json": {
+      "sha256": "2d768e9987bd0a44e0a7ec98f87ec7e385fc810a66b354a165800a1c5e0c13d7",
+      "bytes": 833
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/candidate-source.patch": {
+      "sha256": "a1d1166ee0fdd5ec604b3584afb191b7e2b6b115cc1f775768b36590120cbeff",
+      "bytes": 6270
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/green.log": {
+      "sha256": "33af41fc96a00b0a9395d5fd6ea0753adfe2b36fc1b89f0a49f5955fadacf95e",
+      "bytes": 101
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/original-external-manifest.json": {
+      "sha256": "5754e003929fa5b7a0eebc54717b6a125b8e5cc0d0196bad3b9039d56bc5210d",
+      "bytes": 1211
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/red-causal.log": {
+      "sha256": "d93ab50f7eaa7ba559ce8d2fe23e7531c08c32c568da0ae1b220bffd32346bbf",
+      "bytes": 7753
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/rollback.log": {
+      "sha256": "ec50843bf8b9324cbc3883953c1ccc21b79d1fe010316eb145343692c2afc524",
+      "bytes": 9875
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/source-fallback-negative.log": {
+      "sha256": "cb002b7867e31a1da90d312249c76aa397aecc07ecf3d54060ccfdc1437463de",
+      "bytes": 224
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/source-pins.json": {
+      "sha256": "c4b46ac206a136a0a2f0b9a2747cd8e99ae5dc5ea3d33824698d69c7b2f49c0b",
+      "bytes": 652
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/static.log": {
+      "sha256": "3e6db98459465ba52176243bc1944063cd0a4868712c44a69b944b2fb33b7f13",
+      "bytes": 44
+    },
+    "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/protected-caller-project-registry/summary.json": {
+      "sha256": "ecfd90388c3516d87b2c082a42b48193214a4395b09dd33759f3e44ab6b723cd",
+      "bytes": 1278
+    }
+  },
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "tests/host-review-preflight.tests.py",
+      "before_commit": "3ca7d32b38e47bd39309f2e27927634b178af461",
+      "before_sha256": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8",
+      "after_candidate_sha256": "e4d8dcebbe6c4c412cd84845e1120459e4a268fa4eba27039703d6c9fcc40239"
+    },
+    {
+      "path": "tests/model-policy-installed.tests.py",
+      "before_commit": "3ca7d32b38e47bd39309f2e27927634b178af461",
+      "before_sha256": "4378b5339ba9098b32971399c0160d6fcb1cafda3395128b209bb1676ff628fd",
+      "after_candidate_sha256": "78c8181289665d6d5432d95200fc006c2e284773adea1e75f9740d3491c1a4c0"
+    }
+  ]
+}

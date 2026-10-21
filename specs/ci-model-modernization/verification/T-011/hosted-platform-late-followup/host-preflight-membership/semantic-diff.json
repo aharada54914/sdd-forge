@@ -1,0 +1,15 @@
+{
+  "baseline_revision": "0cd5bc3a8885567b4aa7a157cb463627e07debec",
+  "producer_canonical": "plugins/sdd-quality-loop/references/guard-invariants.json",
+  "producer_generator": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+  "added": [
+    "plugins/sdd-implementation/scripts/managed-model-entry.py",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1"
+  ],
+  "removed": [],
+  "other_keys_changed": {},
+  "original_unrelated_pin": "ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9",
+  "residual_excluding_exact_reviewed_additions": "ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9",
+  "frozen_contract_reference": "specs/shared-review-launch-repair/tasks.md T003 AC006 TEST012d; no historical pin changes"
+}

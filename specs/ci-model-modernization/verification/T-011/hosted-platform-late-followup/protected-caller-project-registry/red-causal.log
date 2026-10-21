@@ -1,0 +1,89 @@
+FFFFFF
+======================================================================
+FAIL: test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) (shell='bash', stage='impl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6852, in test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval
+    state = self.fixture(shell)
+            ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6696, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3847, in fixture
+    self.assertTrue((project / relative).is_file(), 'Installed spec caller runtime is missing: ' + relative)
+AssertionError: False is not true : Installed spec caller runtime is missing: specs/workflow-state-registry.json
+
+======================================================================
+FAIL: test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) (shell='bash', stage='task')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6852, in test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval
+    state = self.fixture(shell)
+            ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6696, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3847, in fixture
+    self.assertTrue((project / relative).is_file(), 'Installed spec caller runtime is missing: ' + relative)
+AssertionError: False is not true : Installed spec caller runtime is missing: specs/workflow-state-registry.json
+
+======================================================================
+FAIL: test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) (shell='pwsh', stage='impl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6852, in test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval
+    state = self.fixture(shell)
+            ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6696, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3847, in fixture
+    self.assertTrue((project / relative).is_file(), 'Installed spec caller runtime is missing: ' + relative)
+AssertionError: False is not true : Installed spec caller runtime is missing: specs/workflow-state-registry.json
+
+======================================================================
+FAIL: test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) (shell='pwsh', stage='task')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6852, in test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval
+    state = self.fixture(shell)
+            ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6696, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3847, in fixture
+    self.assertTrue((project / relative).is_file(), 'Installed spec caller runtime is missing: ' + relative)
+AssertionError: False is not true : Installed spec caller runtime is missing: specs/workflow-state-registry.json
+
+======================================================================
+FAIL: test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding (__main__.InstalledProtectedCallerTests.test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding) (stage='impl')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6881, in test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding
+    state = self.fixture('bash')
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6696, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3847, in fixture
+    self.assertTrue((project / relative).is_file(), 'Installed spec caller runtime is missing: ' + relative)
+AssertionError: False is not true : Installed spec caller runtime is missing: specs/workflow-state-registry.json
+
+======================================================================
+FAIL: test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding (__main__.InstalledProtectedCallerTests.test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding) (stage='task')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6881, in test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding
+    state = self.fixture('bash')
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 6696, in fixture
+    f, project, runtime = self._spec.fixture(self, extra_runtime=PROTECTED_CALLER_RUNTIME, shell=shell)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/model-policy-installed.tests.py", line 3847, in fixture
+    self.assertTrue((project / relative).is_file(), 'Installed spec caller runtime is missing: ' + relative)
+AssertionError: False is not true : Installed spec caller runtime is missing: specs/workflow-state-registry.json
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.597s
+
+FAILED (failures=6)

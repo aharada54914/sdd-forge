@@ -1,0 +1,11 @@
+{
+  "scope": "One test fixture file only; no plugin/installer product changes",
+  "cause": "PROTECTED_CALLER_RUNTIME incorrectly requested repository-owned specs/workflow-state-registry.json as installed runtime, while installer intentionally excludes specs. Six committed hosted and focused local subcases failed before caller execution.",
+  "fix": "Remove state from runtime tuple; assert absent from installed tree/runtime snapshot; explicitly seed empty-entry project registry afterward; retain all runtime hashes, registry immutability and source-package poison controls.",
+  "red": "2 tests,6 subcase failures at exact missing registry assertion with real rtk0.51.0",
+  "green": "2 tests pass in71.364seconds: shell Bash/PowerShell \u00d7 impl/task A/B positive pairs, plus scope/raw-control/forwarding negatives",
+  "source_fallback_negative": "Explicit execution of poisoned original adapter exits97 and sets marker used by unchanged caller fallback assertions",
+  "rollback": "Before-file loaded in isolated module reproduces exactly6 missing-registry failures without changing root candidate",
+  "static": "AST parse and git diff --check pass",
+  "note": "Initial setup-only attempt missing rtk is not causal evidence; red-causal.log includes proper real tool PATH"
+}
