@@ -1,0 +1,67 @@
+{
+  "tests/human-copy-mirrors-classification.tests.py": {
+    "phase": "tests",
+    "before_sha256": "7af195e4fbb1b092269175affd1b2de1ac392368e7052a1d787a8b4686e51c4c",
+    "candidate_sha256": "b807af76279197119181cff5404346f47106d9643a05d7b458cc7c8393a6ebe0"
+  },
+  "tests/workflow-state-ci-integration.tests.sh": {
+    "phase": "tests",
+    "before_sha256": "c8730f293db5e5ae9b9928c161d83b0de3977e32362dfeb0e921b62d4eaabae7",
+    "candidate_sha256": "c03b108519d44486f4ac2440705aaad17aac1e9cd4d2d8f416834e101eba4f64"
+  },
+  "tests/fixtures/capability-resolver/caller-contract-baseline.json": {
+    "phase": "tests",
+    "before_sha256": "ca1d4a7c0b82d624a4fcbba541b9e7d58653a0a5a6f4cecaf5388ed6a471d7ee",
+    "candidate_sha256": "0697e0ef38ac0313f70571c6e70dd81fb727baf46375a47c2c6fbab54220b074"
+  },
+  "tests/guard-parity.tests.sh": {
+    "phase": "tests",
+    "before_sha256": "5f78d7c5f80fc50fa36e2083221866045b4a437ee6c8feba2dbc3e882bf760b9",
+    "candidate_sha256": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b"
+  },
+  "tests/human-copy-mirror-freshness.tests.sh": {
+    "phase": "tests",
+    "before_sha256": "805bd0c4a4c02ec4e6200d66a5fda71fc8a0960060a9833d79db50a07f1ec267",
+    "candidate_sha256": "468023b55cbdf55560ecc214ffdfd05116d040a167a7c7ff3e1c50a9df810e2e"
+  },
+  "tests/human-copy-mirror-freshness.tests.ps1": {
+    "phase": "tests",
+    "before_sha256": "ac02d8eb42ad16df93b1849a3d739011f6d96ea2331ba40a1526f3197da4280c",
+    "candidate_sha256": "84710daf85bd81f748dd90b70e20bb1ef2c01c6662856bfc6a7050395d2b1d4b"
+  },
+  "scripts/human_copy_mirrors.py": {
+    "phase": "products",
+    "before_sha256": "2ea93f1061101eb5de6cc6e6bb201f95f81cf8a28408ad2cc7c241ae912e21e9",
+    "candidate_sha256": "39d84c1646268cd5fa91daec0bfaae9e02425daccd002a1db4310a63e72e4c24"
+  },
+  "plugins/sdd-quality-loop/references/guard-invariants.json": {
+    "phase": "products",
+    "before_sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+    "candidate_sha256": "76b30eff02a75f3e4b5e3ae9d72e9e7f6e4da759d93c41060035fb8d273558e0"
+  },
+  "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": {
+    "phase": "products",
+    "before_sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+    "candidate_sha256": "31f8676bb0d682b8d851ee5e376e65e7da913321871e4d88b0e055ccd8fd1fba"
+  },
+  "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js": {
+    "phase": "products",
+    "before_sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+    "candidate_sha256": "21953fae0208632708f96cbfda5dbd60854bf6c23c4c02c059e79404dd340873"
+  },
+  "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1": {
+    "phase": "products",
+    "before_sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+    "candidate_sha256": "d18aadc27964c71afa6ac682757ac624978419b7affd13b5ca3a5579c690cbad"
+  },
+  "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh": {
+    "phase": "products",
+    "before_sha256": "564080c31fdcc4cf2270017867f90ea6e0265de000c07b141a6788479830ef80",
+    "candidate_sha256": "025be50870db080685a9a51801df1ad708db99ec526bd6e8cc1165b0126321b8"
+  },
+  "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": {
+    "phase": "products",
+    "before_sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+    "candidate_sha256": "ba14efb4c6cc13ec45a58adb785f6c06804ada1fdeebc5841e7244f525161c0b"
+  }
+}

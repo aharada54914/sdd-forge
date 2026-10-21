@@ -205,6 +205,9 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-azure-cloud/scripts/governed-setup.md",
     "plugins/sdd-aws-cloud/scripts/governed-setup.md",
     "plugins/sdd-bootstrap/scripts/cloud-routing.py",
+    "plugins/sdd-implementation/scripts/managed-model-entry.py",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

@@ -26,6 +26,15 @@ Classification
     staged differs from live *and* from ``origin/main``'s live bytes. The bundle
     is a reviewed change still waiting for a human to apply it.
 
+``published``
+    only for the two reviewed ship successors in ``KNOWN_SUCCESSORS``: live
+    differs from staged, and ``PIN_FIXTURE`` pins BOTH full SHA-256 values for
+    that exact (live, staged) pair with a schema, one entry, and non-empty
+    ``intentional_changes``. Every other state of those two mirrors that is not
+    plainly fresh is ``stale``: a missing, malformed, duplicate or wrong-schema
+    pin, or a live/staged edit, never waives the mismatch -- including live and
+    staged mutated to equal each other. Historical bundles are never rewritten.
+
 The pending/stale split is the safety property. ``specs/epic-159-pillar-c/
 human-copy/`` stages role definitions at bytes differing from main's live files;
 treating "staged differs from live" as stale would overwrite reviewed human work,
@@ -38,10 +47,20 @@ CLI: ``human_copy_mirrors.py <repo-root>`` prints one TSV row per mirror,
 """
 import glob
 import hashlib
+import json
 import os
+import re
 import subprocess
 import sys
 
+PIN_FIXTURE = os.path.join("tests", "fixtures", "ship-track-selection-current-publication.json")
+PIN_SCHEMA = "ship-track-selection-current-publication/v1"
+KNOWN_LIVE = "plugins/sdd-ship/skills/ship/SKILL.md"
+KNOWN_SUCCESSORS = frozenset(
+    (KNOWN_LIVE, f"specs/{epic}/human-copy/{KNOWN_LIVE}")
+    for epic in ("epic-136-phase2-gates", "epic-189-a1-project-context")
+)
+_SHA256 = re.compile(r"[0-9a-f]{64}")
 CANDIDATE_SUFFIX = ".candidate"
 CANDIDATE_MARKER = os.path.join("drafts", "human-copy-candidate") + os.sep
 
@@ -142,6 +161,43 @@ def manifest_digest_mismatches(root):
                     yield bundle, rel, recorded.strip(), actual
 
 
+def _load_pin(root, live, staged):
+    """Return the one valid pin for exactly (live, staged), else None."""
+    try:
+        with open(os.path.join(root, PIN_FIXTURE), encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(data, dict) or data.get("schema") != PIN_SCHEMA:
+        return None
+    entries = data.get("successors")
+    if not isinstance(entries, list):
+        return None
+    matches = [e for e in entries
+               if isinstance(e, dict) and e.get("live") == live and e.get("staged") == staged]
+    if len(matches) != 1:
+        return None
+    pin = matches[0]
+    shas = (pin.get("staged_sha256"), pin.get("live_sha256"))
+    changes = pin.get("intentional_changes")
+    if not all(isinstance(v, str) and _SHA256.fullmatch(v) for v in shas) or shas[0] == shas[1]:
+        return None
+    if not (isinstance(changes, str) and changes.strip()):
+        return None
+    return pin
+
+
+def _classify_known(root, bundle, rel, staged_digest, live_digest):
+    """State for one of the two reviewed ship successors; never PENDING."""
+    pin = _load_pin(root, rel, f"{bundle.replace(os.sep, '/')}/{rel}")
+    if pin and staged_digest == pin["staged_sha256"]:
+        if live_digest == pin["live_sha256"]:
+            return "PUBLISHED"
+        if live_digest == staged_digest:
+            return "FRESH"
+    return "STALE"
+
+
 def classify(root, main_digests=None):
     """Yield (state, bundle, rel, staged_path, rule) for every mirror."""
     main_digests = main_digests or _MainDigests(root)
@@ -158,7 +214,9 @@ def classify(root, main_digests=None):
                 yield "MISSING", bundle, rel, staged, rule
             continue
         staged_digest, live_digest = _sha_file(staged), _sha_file(live)
-        if staged_digest == live_digest:
+        if rule == "manifest" and (rel, f"{bundle.replace(os.sep, '/')}/{rel}") in KNOWN_SUCCESSORS:
+            yield _classify_known(root, bundle, rel, staged_digest, live_digest), bundle, rel, staged, rule
+        elif staged_digest == live_digest:
             yield "FRESH", bundle, rel, staged, rule
         elif staged_digest == main_digests.get(rel):
             yield "STALE", bundle, rel, staged, rule

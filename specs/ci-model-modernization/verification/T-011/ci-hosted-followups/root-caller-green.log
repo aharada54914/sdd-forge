@@ -1,0 +1,4 @@
+# runner: bash
+caller-contract sh: PASS
+anchor-sha256: 99133e6c154a928451ce2dd84f71e414e318fe53005b98ef1fd59b1acf491d9c
+full-profile-heading-ordinal: 6

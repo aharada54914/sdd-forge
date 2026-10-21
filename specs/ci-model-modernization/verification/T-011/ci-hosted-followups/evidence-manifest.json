@@ -1,0 +1,70 @@
+{
+  "root-sync-check-green.log": {
+    "sha256": "23bfc5b7c9e14de26cafdd23a7a4fb1ac199ccae8229b818abdaec7d59244304",
+    "bytes": 5503
+  },
+  "root-workflow-green.log": {
+    "sha256": "b2196dfa0bca22a3404491c62480bc3e5bf182003364806c10290dc4e31de63f",
+    "bytes": 44
+  },
+  "root-caller-pwsh-green.log": {
+    "sha256": "e0ab27c5fbfb401a4c1eb5507a2d1c12898b50e8eaa4ec211b504ec195efb0d8",
+    "bytes": 138
+  },
+  "root-mirror-pwsh-green.log": {
+    "sha256": "bfdc5acf9770dfb7e79f9ec211b681b1cba947f690012608d79a3bf0b8a58bc5",
+    "bytes": 8715
+  },
+  "diagnosis.json": {
+    "sha256": "a572887274208b9aa7784648b9cdcad52b1ece0c1c280e8bb33338f098533d33",
+    "bytes": 1331
+  },
+  "root-mirror-classification-green.log": {
+    "sha256": "9bad792a80bafefcce0b5bb546740c60b1cb4c40df99a9a6a68c08b5a66848f9",
+    "bytes": 55
+  },
+  "claude-receipt.json": {
+    "sha256": "7ee06634a76b8789ca633775e83b8a17f866eb399de245cd22af268e1458ebd8",
+    "bytes": 846
+  },
+  "root-generator-check-green.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "root-caller-green.log": {
+    "sha256": "e22842799e2d9010fdd3571cdfa470037363b77642174e37f2bacfa141e32f82",
+    "bytes": 152
+  },
+  "root-mirror-green.log": {
+    "sha256": "ce485500f5efba02d1413a763c1c48412a3146091513ff850d14fb251801046f",
+    "bytes": 8714
+  },
+  "preflight.json": {
+    "sha256": "d8a9a8b01a11c759b8bd3b9d56f410990333256998f494b92020e4b2687344ab",
+    "bytes": 1863
+  },
+  "root-guard-green.log": {
+    "sha256": "2fd65c317a6227484c5e1c77fc182628ed1391958198ebfbb300e0014667ad5a",
+    "bytes": 39042
+  },
+  "root-guard-added-tests-red.log": {
+    "sha256": "0844b397af417daa8dad39854a38cf8581c482a03ec9ba3a3aa04e4ec38daca7",
+    "bytes": 39225
+  },
+  "verification.json": {
+    "sha256": "bf31208bc3d3e6bb4c40b6775f110170c7c46a661796d84a798f783c61ccfe6e",
+    "bytes": 5322
+  },
+  "root-mirror-added-tests-red.log": {
+    "sha256": "e6ec9a317a503c225c1b119b23b729faac39d3b17a2270aa1245cf77c1280b5c",
+    "bytes": 920
+  },
+  "candidate-manifest.json": {
+    "sha256": "8329f83231b5afcbaa7e245bf54f1f7de078f8e925683613498151d97b5e849f",
+    "bytes": 3513
+  },
+  "tests-first-record.json": {
+    "sha256": "66ed0e044b30b0ebc0007011e17c50e0686aa561d3312f0827840872135eab99",
+    "bytes": 1115
+  }
+}

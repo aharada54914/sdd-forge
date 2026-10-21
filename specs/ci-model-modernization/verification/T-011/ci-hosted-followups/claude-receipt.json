@@ -1,0 +1,22 @@
+{
+  "producer": "Actual Claude Code CLI",
+  "model": "sonnet",
+  "effort": "medium",
+  "result": {
+    "type": "result",
+    "subtype": "success",
+    "is_error": true,
+    "num_turns": 28,
+    "duration_ms": 222823,
+    "result": "You've hit your session limit \u00b7 resets 4pm (UTC)"
+  },
+  "status": "Actual output written, run terminated by five-hour rate limit; not claimed as successful review",
+  "quota_resume_utc": "2026-10-21 16:00:00 UTC",
+  "prompt_sha256": "3cba87e476a204cf9ce3272749c76e8f4d19b8d0030febfafef15f5f4adf8c55",
+  "orchestrator_corrections": [
+    "Independent test contract literals allow meaningful old-source Red",
+    "Normalize Windows bundle paths in test assertions",
+    "Remove equivalent operand-order negative case",
+    "Update two freshness success messages to reflect exact reviewed successor pins"
+  ]
+}

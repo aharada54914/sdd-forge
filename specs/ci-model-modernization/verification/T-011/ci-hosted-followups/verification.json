@@ -1,0 +1,101 @@
+{
+  "tests_first_commit": "0cd5bc3a8885567b4aa7a157cb463627e07debec",
+  "current_head": "ab5cc6da64a39a301cca61672bc97109de30d567",
+  "runtime_application": "Root applied seven runtime products only after six-test commit; source hashes equal reviewed candidate manifest",
+  "scoped_green": [
+    {
+      "command": "python3 tests/human-copy-mirrors-classification.tests.py",
+      "exit": 0,
+      "result": "31 classification checks pass",
+      "log": "root-mirror-classification-green.log",
+      "log_sha256": "9bad792a80bafefcce0b5bb546740c60b1cb4c40df99a9a6a68c08b5a66848f9"
+    },
+    {
+      "command": "bash tests/workflow-state-ci-integration.tests.sh",
+      "exit": 0,
+      "result": "Exact planned platform predicates, negative controls and real invalid-registry rejections pass",
+      "log": "root-workflow-green.log",
+      "log_sha256": "b2196dfa0bca22a3404491c62480bc3e5bf182003364806c10290dc4e31de63f"
+    },
+    {
+      "command": "bash tests/resolve-project-context-caller-contract.tests.sh",
+      "exit": 0,
+      "result": "Unchanged99133anchor ordinal6 and relocation negative pass",
+      "log": "root-caller-green.log",
+      "log_sha256": "e22842799e2d9010fdd3571cdfa470037363b77642174e37f2bacfa141e32f82"
+    },
+    {
+      "command": "pwsh -NoProfile -File tests/resolve-project-context-caller-contract.tests.ps1",
+      "exit": 0,
+      "result": "Same caller contract passes",
+      "log": "root-caller-pwsh-green.log",
+      "log_sha256": "e0ab27c5fbfb401a4c1eb5507a2d1c12898b50e8eaa4ec211b504ec195efb0d8"
+    },
+    {
+      "command": "bash tests/human-copy-mirror-freshness.tests.sh",
+      "exit": 0,
+      "result": "6 pass/0 fail/44 pending",
+      "log": "root-mirror-green.log",
+      "log_sha256": "ce485500f5efba02d1413a763c1c48412a3146091513ff850d14fb251801046f"
+    },
+    {
+      "command": "pwsh -NoProfile -File tests/human-copy-mirror-freshness.tests.ps1",
+      "exit": 0,
+      "result": "6 pass/0 fail/44 pending",
+      "log": "root-mirror-pwsh-green.log",
+      "log_sha256": "bfdc5acf9770dfb7e79f9ec211b681b1cba947f690012608d79a3bf0b8a58bc5"
+    },
+    {
+      "command": "bash tests/guard-parity.tests.sh",
+      "exit": 0,
+      "result": "412 pass/0 fail; actual JS/Python guard behaviors",
+      "log": "root-guard-green.log",
+      "log_sha256": "2fd65c317a6227484c5e1c77fc182628ed1391958198ebfbb300e0014667ad5a"
+    },
+    {
+      "command": "python3 scripts/sync-human-copy-mirrors.py --check",
+      "exit": 0,
+      "result": "No stale mirrors; no historical rewrite proposed",
+      "log": "root-sync-check-green.log",
+      "log_sha256": "23bfc5b7c9e14de26cafdd23a7a4fb1ac199ccae8229b818abdaec7d59244304"
+    },
+    {
+      "command": "python3 plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check",
+      "exit": 0,
+      "result": "All4 generated counterparts match canonical policy and validator",
+      "log": "root-generator-check-green.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "environment": {
+    "TMPDIR": "/workspace/.task-scratch/ci-model-modernization",
+    "PATH_prefix": "/workspace/.tools/sdd-forge-dev/bin",
+    "PowerShell": "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "causal_red": "Root original runtime with committed tests yields405passes/7failures:6 destructive writes accepted+same3path scanner omission; mirror exact publication misclassified. Tests-first record/logs included.",
+  "generator_counterpart": "Canonical suffix list is independently constrained by BASELINE_SUFFIXES in generate-guard-invariants.py, so its exact3line addition is a mechanical required counterpart alongside4 generated artifacts.",
+  "historical_inputs": "No historical mirror, manifest or publication SHA fixture rewritten; exact successor pins accepted only for two known ship paths; unrelated historical pending remains pending.",
+  "source_paths": [
+    "tests/human-copy-mirrors-classification.tests.py",
+    "tests/workflow-state-ci-integration.tests.sh",
+    "tests/fixtures/capability-resolver/caller-contract-baseline.json",
+    "tests/guard-parity.tests.sh",
+    "tests/human-copy-mirror-freshness.tests.sh",
+    "tests/human-copy-mirror-freshness.tests.ps1",
+    "scripts/human_copy_mirrors.py",
+    "plugins/sdd-quality-loop/references/guard-invariants.json",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py"
+  ],
+  "hosted_failed_log_sha256": "11322e6aa10916fb4e760c508905c62eb8bde8ac5e8526dd37889ca39bbc292a",
+  "claude_authoring": "Actual Sonnet/medium wrote candidate, then hit five-hour session limit at16:00UTC reset. Run is_error=true; not described as successful independent review. Manual test corrections documented.",
+  "limitations": [
+    "Local Linux Bash/PowerShell; actual hosted Windows/macOS rerun remains separate.",
+    "No live auth/provider/cloud/model trial performed.",
+    "Installer final audit must be repeated after all final runtime/policy/doc commits."
+  ]
+}

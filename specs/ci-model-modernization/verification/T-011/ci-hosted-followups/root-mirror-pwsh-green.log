@@ -1,0 +1,52 @@
+ok: enumeration reaches specs/epic-189-a1-project-context/human-copy
+ok: enumeration reaches specs/epic-190-a2-capability-registry/human-copy
+ok: enumeration reaches specs/epic-191-a3-path-ownership/human-copy
+ok: enumeration reaches specs/epic-136-phase2-gates/human-copy
+pending: specs/design-sync-consent/human-copy carries un-applied bytes for plugins/sdd-lite/skills/lite-spec/SKILL.md (manifest) -- awaiting a human apply, left alone
+pending: specs/design-sync-consent/human-copy carries un-applied bytes for plugins/sdd-lite/skills/lite-spec/SKILL.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-136-phase2-gates/human-copy carries un-applied bytes for tests/guard-parity.tests.sh (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for plugins/sdd-review-loop/agents/impl-reviewer-a.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for plugins/sdd-review-loop/agents/impl-reviewer-b.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for plugins/sdd-review-loop/agents/task-reviewer-a.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-c/human-copy carries un-applied bytes for plugins/sdd-review-loop/agents/task-reviewer-b.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-159-pillar-d/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-189-a1-project-context/human-copy carries un-applied bytes for plugins/sdd-quality-loop/references/guard-invariants.json (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-189-a1-project-context/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generate-guard-invariants.py (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-189-a1-project-context/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard_invariants.py (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-189-a1-project-context/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-189-a1-project-context/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-189-a1-project-context/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-189-a1-project-context/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-189-a1-project-context/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/human-copy carries un-applied bytes for plugins/sdd-quality-loop/references/guard-invariants.json (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generate-guard-invariants.py (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard_invariants.py (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-191-a3-path-ownership/human-copy carries un-applied bytes for plugins/sdd-quality-loop/references/guard-invariants.json (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-191-a3-path-ownership/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generate-guard-invariants.py (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-191-a3-path-ownership/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard_invariants.py (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-191-a3-path-ownership/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-191-a3-path-ownership/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-191-a3-path-ownership/human-copy carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-192-a4-facet-manifest/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-193-a5-capability-resolver/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-194-a6-lite-integration/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-195-a7-compatibility/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-196-a8-integration/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/mcp-readonly-preflight/human-copy carries un-applied bytes for plugins/sdd-ship/skills/ship/SKILL.md (manifest) -- awaiting a human apply, left alone
+pending: specs/quality-loop-fixes/human-copy carries un-applied bytes for .github/workflows/test.yml (manifest) -- awaiting a human apply, left alone
+pending: specs/quality-loop-fixes/human-copy carries un-applied bytes for plugins/sdd-ship/skills/ship/SKILL.md (manifest) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/drafts/human-copy-candidate carries un-applied bytes for plugins/sdd-quality-loop/references/guard-invariants.json (candidate) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/drafts/human-copy-candidate carries un-applied bytes for plugins/sdd-quality-loop/scripts/generate-guard-invariants.py (candidate) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/drafts/human-copy-candidate carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js (candidate) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/drafts/human-copy-candidate carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 (candidate) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/drafts/human-copy-candidate carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh (candidate) -- awaiting a human apply, left alone
+pending: specs/epic-190-a2-capability-registry/drafts/human-copy-candidate carries un-applied bytes for plugins/sdd-quality-loop/scripts/generated/guard_invariants.py (candidate) -- awaiting a human apply, left alone
+ok: every manifest digest matches the staged bytes it describes
+ok: every applied human-copy mirror matches live bytes or exact reviewed successor pins
+
+human-copy-mirror-freshness.tests.ps1: 6 passed, 0 failed, 44 pending (informational)

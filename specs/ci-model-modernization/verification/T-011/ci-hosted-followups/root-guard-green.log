@@ -1,0 +1,419 @@
+ok: parity [kill-switch: AGENT_STOP exists]: both exit 2 (expected)
+ok: parity [kill-switch: no AGENT_STOP]: both exit 0 (expected)
+ok: parity [approval-guard: Write adds Approval]: both exit 2 (expected)
+ok: parity [approval-guard: Edit adds Approval]: both exit 2 (expected)
+ok: parity [wfi-guard: write Status: Approved]: both exit 2 (expected)
+ok: parity [wfi-022: prose-quoting edit allowed]: both exit 0 (expected)
+ok: parity [wfi-022: read-only grep allowed]: both exit 0 (expected)
+ok: parity [wfi-022: create doc quoting field in prose allowed]: both exit 0 (expected)
+ok: parity [wfi-022: approval-removing sed still refused]: both exit 2 (expected)
+ok: parity [wfi-022: status-advance via Edit path allowed]: both exit 0 (expected)
+ok: parity [wfi-022: field-preserving edit allowed]: both exit 0 (expected)
+ok: parity [wfi-022: write with embedded column-0 field still refused]: both exit 2 (expected)
+ok: parity [wfi-022: edit adding column-0 field still refused]: both exit 2 (expected)
+ok: parity [wfi-022: redirect append still refused]: both exit 2 (expected)
+ok: parity [wfi-022: compound read-then-write still refused]: both exit 2 (expected)
+ok: parity [wfi-022: command substitution not exempt]: both exit 2 (expected)
+ok: parity [wfi-022: backtick substitution not exempt]: both exit 2 (expected)
+ok: parity [wfi-022: newline-joined second command not exempt]: both exit 2 (expected)
+ok: parity [wfi-022: backgrounded second command not exempt]: both exit 2 (expected)
+ok: parity [second-approval-guard: Write adds Second Approval]: both exit 2 (expected)
+ok: parity [read-only: role sed inspection]: both exit 0 (expected)
+ok: parity [read-only: role pipeline inspection]: both exit 0 (expected)
+ok: parity [read-only: role compound inspection]: both exit 0 (expected)
+ok: parity [read-only: role newline inspection]: both exit 0 (expected)
+ok: parity [read-only: role working directory inspection]: both exit 0 (expected)
+ok: parity [read-only: role quoted search data]: both exit 0 (expected)
+ok: parity [read-only: role literal expansion search]: both exit 0 (expected)
+ok: parity [read-only: role proxy sed inspection]: both exit 0 (expected)
+ok: parity [read-only: role proxy recursive search]: both exit 0 (expected)
+ok: parity [read-only: role PowerShell inspection]: both exit 0 (expected)
+ok: parity [read-only: gate quoted write vocabulary]: both exit 0 (expected)
+ok: parity [read-only: approval quoted search pipeline]: both exit 0 (expected)
+ok: parity [read-only: role appended mutation]: both exit 2 (expected)
+ok: parity [read-only: role appended redirect]: both exit 2 (expected)
+ok: parity [read-only: role command substitution]: both exit 2 (expected)
+ok: parity [read-only: role backtick substitution]: both exit 2 (expected)
+ok: parity [read-only: role newline mutation]: both exit 2 (expected)
+ok: parity [read-only: role read then inplace edit]: both exit 2 (expected)
+ok: parity [read-only: role sed execution]: both exit 2 (expected)
+ok: parity [read-only: role rg preprocessing]: both exit 2 (expected)
+ok: parity [read-only: role proxy rg preprocessing]: both exit 2 (expected)
+ok: parity [read-only: role PowerShell output]: both exit 2 (expected)
+ok: parity [read-only: gate read then mutation]: both exit 2 (expected)
+ok: parity [read-only: approval read then mutation]: both exit 2 (expected)
+ok: parity [read-only: role rg hostname execution]: both exit 2 (expected)
+ok: parity [read-only: role proxy rg hostname execution]: both exit 2 (expected)
+ok: parity [read-only: role rg pretty output]: both exit 0 (expected)
+ok: parity [read-only: role rg implicit config]: both exit 2 (expected)
+ok: parity [read-only: role rg config explicitly disabled]: both exit 0 (expected)
+ok: parity [read-only: role rg config assignment]: both exit 2 (expected)
+ok: parity [read-only: role rg config environment wrapper]: both exit 2 (expected)
+ok: parity [read-only: role rg config expansion]: both exit 2 (expected)
+ok: parity [read-only: role rg no-config used as pattern]: both exit 2 (expected)
+ok: parity [read-only: role rg no-config consumed by regexp]: both exit 2 (expected)
+ok: parity [read-only: role rg wildcard options]: both exit 2 (expected)
+ok: parity [read-only: gate rg wildcard options]: both exit 2 (expected)
+ok: parity [read-only: sudo rg wildcard options]: both exit 2 (expected)
+ok: parity [read-only: role sed wildcard options]: both exit 2 (expected)
+ok: parity [read-only: role rg question wildcard]: both exit 2 (expected)
+ok: parity [read-only: role rg bracket wildcard]: both exit 2 (expected)
+ok: parity [read-only: role proxy rg wildcard]: both exit 2 (expected)
+ok: parity [read-only: role rg explicit option end]: both exit 0 (expected)
+ok: parity [read-only: role rg no config option end]: both exit 0 (expected)
+ok: parity [read-only: role sed explicit option end]: both exit 0 (expected)
+ok: parity [read-only: role rg consumed option end]: both exit 2 (expected)
+ok: parity [read-only: role separate wildcard command]: both exit 0 (expected)
+ok: parity [read-only: role double quoted literal metacharacters]: both exit 0 (expected)
+ok: parity [read-only: role double quoted literal glob]: both exit 0 (expected)
+ok: parity [read-only: role double quoted substitution]: both exit 2 (expected)
+ok: parity [read-only: role double quoted backtick]: both exit 2 (expected)
+ok: parity [read-only: rg glob with output redirect]: both exit 2 (expected)
+ok: parity [read-only: sed glob with output redirect]: both exit 2 (expected)
+ok: parity [read-only: rg glob with escaped argument]: both exit 2 (expected)
+ok: parity [read-only: rg glob with fd redirect]: both exit 2 (expected)
+ok: parity [read-only: rg glob with quoted separators]: both exit 2 (expected)
+ok: parity [read-only: rg glob in second command]: both exit 2 (expected)
+ok: parity [read-only: role literal pre pattern after option end]: both exit 0 (expected)
+ok: parity [read-only: role literal hostname pattern after option end]: both exit 0 (expected)
+ok: parity [read-only: rg escaped double quote before glob]: both exit 2 (expected)
+ok: parity [read-only: rg escaped single quote before glob]: both exit 2 (expected)
+ok: parity [read-only: rg unterminated quote with glob]: both exit 2 (expected)
+ok: parity [read-only: sed glob script before option end]: both exit 2 (expected)
+ok: parity [read-only: sed glob script protected target]: both exit 2 (expected)
+ok: parity [read-only: ls glob with fd duplication]: both exit 0 (expected)
+ok: parity [read-only: rg safe glob with fd duplication]: both exit 0 (expected)
+ok: parity [read-only: quoted redirect followed by background mutation]: both exit 2 (expected)
+ok: parity [read-only: quoted redirect followed by sudo mutation]: both exit 2 (expected)
+ok: parity [read-only: sed dynamic script before option end]: both exit 2 (expected)
+ok: parity [read-only: sed dynamic range before option end]: both exit 2 (expected)
+ok: parity [read-only: sed quoted dynamic script before option end]: both exit 2 (expected)
+ok: parity [read-only: sed literal final-line print before option end]: both exit 0 (expected)
+ok: parity [agent-role: literal proxy read allowed]: both exit 0 (expected)
+ok: parity [agent-role: preprocessing before pattern denied]: both exit 2 (expected)
+ok: parity [agent-role: preprocessing after pattern denied]: both exit 2 (expected)
+ok: parity [agent-role: compound proxy command denied]: both exit 2 (expected)
+ok: parity [agent-role-guard: toml without developer_instructions]: both exit 2 (expected)
+ok: parity [agent-role-guard: toml with developer_instructions]: both exit 0 (expected)
+ok: parity [r10-gate-protect: write sdd-hook-guard.py]: both exit 2 (expected)
+ok: parity [r10-gate-protect: write claude-hooks.json]: both exit 2 (expected)
+ok: parity [sudo-protect: write SDD_SUDO]: both exit 2 (expected)
+ok: parity [allow: write non-sensitive file]: both exit 0 (expected)
+ok: parity [approval-guard: apply_patch adds Approval]: both exit 2 (expected)
+ok: parity [approval-guard: multiedit edits adds Approval: Approved]: both exit 2 (expected)
+ok: parity [approval-guard: bash echo Approval to tasks.md]: both exit 2 (expected)
+ok: parity [sudo-active: approval bypass allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: compound cat+rm on guard file denied]: both exit 2 (expected)
+ok: parity [r10-gate-protect: cat heredoc redirect to guard file denied]: both exit 2 (expected)
+ok: parity [impl-review-status: write Passed without verdict]: both exit 2 (expected)
+ok: parity [impl-review-status: write Passed with PASS verdict]: both exit 0 (expected)
+ok: parity [impl-review-status: write Passed with FAIL verdict]: both exit 2 (expected)
+ok: parity [impl-review-status: write Passed with PASS-with-warnings verdict]: both exit 0 (expected)
+ok: parity [r10-gate-protect: cp guard file to /tmp allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: mv in /tmp + grep settings allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: redirect to /tmp + cat settings allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: grep guard file with stderr redirect allowed]: both exit 0 (expected)
+ok: parity [r10-gate-protect: echo redirect into guard file denied]: both exit 2 (expected)
+ok: parity [r10-gate-protect: cp onto guard file denied]: both exit 2 (expected)
+ok: parity [r10-gate-protect: variable write target fails closed]: both exit 2 (expected)
+ok: parity [protected entry rm denied: plugins/sdd-implementation/scripts/managed-model-entry.py]: both exit 2 (expected)
+ok: parity [protected entry cp onto denied: plugins/sdd-implementation/scripts/managed-model-entry.py]: both exit 2 (expected)
+ok: parity [protected entry cat allowed: plugins/sdd-implementation/scripts/managed-model-entry.py]: both exit 0 (expected)
+ok: parity [protected entry rm denied: plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1]: both exit 2 (expected)
+ok: parity [protected entry cp onto denied: plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1]: both exit 2 (expected)
+ok: parity [protected entry cat allowed: plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1]: both exit 0 (expected)
+ok: parity [protected entry rm denied: plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1]: both exit 2 (expected)
+ok: parity [protected entry cp onto denied: plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1]: both exit 2 (expected)
+ok: parity [protected entry cat allowed: plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1]: both exit 0 (expected)
+ok: parity [domain-model-guard: Write sets Domain-Model-Status: Approved]: both exit 2 (expected)
+ok: parity [domain-model-guard: Edit sets Domain-Model-Status: Approved]: both exit 2 (expected)
+ok: parity [domain-model-guard: apply_patch sets Domain-Model-Status: Approved]: both exit 2 (expected)
+ok: parity [domain-model-guard: bash echo Domain-Model-Status: Approved to context-map.md]: both exit 2 (expected)
+ok: parity [domain-model-guard: sudo-active bypass allowed]: both exit 0 (expected)
+ok: parity [domain-model-guard: non-context-map domain/ file unaffected]: both exit 0 (expected)
+ok: parity [domain-model-guard: Pending to Reviewed transition allowed]: both exit 0 (expected)
+ok: parity [wfi016: outside CWD + CLAUDE_PROJECT_DIR + PASS verdict allowed]: both exit 0 (expected)
+ok: parity [wfi016: outside CWD + file_path git-root walk + PASS verdict allowed]: both exit 0 (expected)
+ok: parity [wfi016: outside CWD + FAIL verdict still denied]: both exit 2 (expected)
+ok: parity [concept enforcement: scripts/validate-a9-rollback-receipt.py]: both exit 2 (expected)
+ok: parity [concept enforcement: scripts/validate-a9-promotion.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-quality-loop/scripts/initialize-review-identity.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/record-upstream-concept-issue.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-domain-contract.sh]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-domain-contract.ps1]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-concept-test.sh]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-concept-test.ps1]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/validate-concept-test.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/domain-review-precheck.ps1]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/finalize-domain-review.py]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/finalize-domain-review.sh]: both exit 2 (expected)
+ok: parity [concept enforcement: plugins/sdd-domain/scripts/finalize-domain-review.ps1]: both exit 2 (expected)
+ok: parity [A9 dependency write: scripts/validate-a9-candidate.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: scripts/validate-a9-candidate.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: scripts/observe-a9-advisory.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: scripts/observe-a9-advisory.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/validate-live-host-proof.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/validate-live-host-proof.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/validate-facet-manifest.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/validate-facet-manifest.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/resolve-component-paths.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/resolve-component-paths.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/validate-capability-registry.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/validate-capability-registry.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/generate-registry-digest.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/generate-registry-digest.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/registry_discovery.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/registry_discovery.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-quality-loop/scripts/evaluate-predicate.py]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-quality-loop/scripts/evaluate-predicate.py]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-review-loop/references/a8-trusted-signers.json]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-review-loop/references/a8-trusted-signers.json]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json]: both exit 0 (expected)
+ok: parity [A9 dependency write: plugins/sdd-review-loop/references/a8-skip-allowlist.json]: both exit 2 (expected)
+ok: parity [A9 dependency read: plugins/sdd-review-loop/references/a8-skip-allowlist.json]: both exit 0 (expected)
+ok: parity [A9 dependency write: tests/hook-activation-live-proof/nonce-ledger.json]: both exit 2 (expected)
+ok: parity [A9 dependency read: tests/hook-activation-live-proof/nonce-ledger.json]: both exit 0 (expected)
+ok: parity [cloud write plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [write plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud redirect plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud read plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [read plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud cat plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud script input plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [script input plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [script input plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud resolved environment invocation plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [resolved environment invocation plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [resolved environment invocation plugins/sdd-azure-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud invocation cannot overwrite plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [invocation cannot overwrite plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [invocation cannot overwrite plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud write plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [write plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud redirect plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud read plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [read plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud cat plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud script input plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [script input plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [script input plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud resolved environment invocation plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [resolved environment invocation plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: cloud PowerShell [resolved environment invocation plugins/sdd-aws-cloud/scripts/cloud.py]: exit 0
+ok: parity [cloud invocation cannot overwrite plugins/sdd-aws-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [invocation cannot overwrite plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [invocation cannot overwrite plugins/sdd-aws-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud write plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [write plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud redirect plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud read plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [read plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud cat plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-azure-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud write plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [write plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud redirect plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 2
+ok: parity [cloud read plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [read plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud cat plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-aws-cloud/scripts/governed-setup.md]: exit 0
+ok: parity [cloud write plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [write plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: cloud PowerShell [write plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: parity [cloud redirect plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [redirect plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: cloud PowerShell [redirect plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: parity [cloud Set-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [Set-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: cloud PowerShell [Set-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: parity [cloud read plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [read plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [read plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud cat plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [cat plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [cat plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud Get-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [Get-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [Get-Content plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud script input plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [script input plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [script input plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud resolved environment invocation plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 0 (expected)
+ok: cloud Bash dispatcher [resolved environment invocation plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: cloud PowerShell [resolved environment invocation plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 0
+ok: parity [cloud invocation cannot overwrite plugins/sdd-bootstrap/scripts/cloud-routing.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [invocation cannot overwrite plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: cloud PowerShell [invocation cannot overwrite plugins/sdd-bootstrap/scripts/cloud-routing.py]: exit 2
+ok: parity [cloud unsafe invocation PATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation PATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation PATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation PYTHONPATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation PYTHONPATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation PYTHONPATH=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation cloud_workspace_root=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation cloud_workspace_root=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation cloud_workspace_root=/tmp python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -b plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -b plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -b plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp; python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp; python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: cloud PowerShell [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp; python3 plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json]: exit 2
+ok: parity [cloud unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json > plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json > plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output result.json > plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output plugins/sdd-azure-cloud/scripts/cloud.py]: both exit 2 (expected)
+ok: cloud Bash dispatcher [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: cloud PowerShell [unsafe invocation CLOUD_WORKSPACE_ROOT=/tmp python3 -B plugins/sdd-azure-cloud/scripts/cloud.py route --request request.json --output plugins/sdd-azure-cloud/scripts/cloud.py]: exit 2
+ok: parity [cloud documented variable invocation]: both exit 0 (expected)
+ok: cloud Bash dispatcher [documented variable invocation]: exit 0
+ok: cloud PowerShell [documented variable invocation]: exit 0
+ok: wfi037: every chain-invoked script under plugins/*/scripts is protected
+ok: wfi037: generated invariant modules match guard-invariants.json
+ok: parity [wfi037 vocabulary A (modelled, deny): cp]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary A (modelled, deny): tee]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary A (modelled, deny): rm]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): git]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): git]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): git]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): sed]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): install]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): ln]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): truncate]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): dd]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary B (widened, deny): perl]: both exit 2 (expected)
+ok: parity [wfi037 vocabulary D (reader, allow): cat]: both exit 0 (expected)
+ok: parity [wfi037 vocabulary D (reader, allow): grep]: both exit 0 (expected)
+ok: parity [wfi037 vocabulary D (reader, allow): sed]: both exit 0 (expected)
+ok: parity [wfi037 vocabulary D (reader, allow): git]: both exit 0 (expected)
+ok: parity [wfi048 control: protected target is registered (deny)]: both exit 2 (expected)
+ok: parity [wfi048 control: unprotected target is not (allow)]: both exit 0 (expected)
+ok: parity [wfi048 patch applier (deny): git apply protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): git apply -R protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): git apply --reverse protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): git am protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): patch -p1 -i protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 patch applier (deny): patch -p1 < protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): git apply does-not-exist.patch]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): git apply not-a-diff.patch]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): cat protected.patch | git apply]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): git apply timestamped.patch]: both exit 2 (expected)
+ok: parity [wfi048 fail closed (deny): git apply delete-protected.patch]: both exit 2 (expected)
+ok: parity [wfi048 unprotected patch (allow): git apply unprotected.patch]: both exit 0 (expected)
+ok: parity [wfi048 unprotected patch (allow): git apply -R unprotected.patch]: both exit 0 (expected)
+ok: parity [wfi048 unprotected patch (allow): patch -p1 < unprotected.patch]: both exit 0 (expected)
+ok: parity [wfi048 unprotected patch (allow): git apply body-lookalike.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): git apply --check protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): git apply --stat protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): git apply --numstat protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): git apply --summary protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 inspection (allow): patch --dry-run -p1 < protected.patch]: both exit 0 (expected)
+ok: parity [wfi048 embedded path (deny): python3 -c "open('.github/workflows/test.yml','a').write('x')"]: both exit 2 (expected)
+ok: parity [wfi048 embedded path (deny): node -e "require('fs').appendFileSync('.github/workflows/test.yml','x')"]: both exit 2 (expected)
+ok: parity [wfi048 embedded path (deny): python3 -c "import os; os.remove('tests/gates.tests.sh')"]: both exit 2 (expected)
+ok: parity [wfi048 embedded path (deny): python3 -c 'open(".github/workflows/test.yml","w")']: both exit 2 (expected)
+ok: parity [wfi048 prose (allow): python3 -c "print('see .github/workflows/test.yml for details')"]: both exit 0 (expected)
+ok: parity [wfi048 prose (allow): python3 -c "print('guard reads .github/workflows/test.yml; see WFI-048')"]: both exit 0 (expected)
+ok: parity [wfi048 prose (allow): python3 -c "print('freeze tests/gates.tests.sh, and the rest')"]: both exit 0 (expected)
+ok: parity [wfi048 arbitrary script (allow, open by design): python3 rewrite.py]: both exit 0 (expected)
+ok: parity [wfi048 arbitrary script (allow, open by design): node rewrite.js]: both exit 0 (expected)
+ok: parity [script input: python-file-stdout]: both exit 0 (expected)
+ok: parity [script input: python-file-output]: both exit 0 (expected)
+ok: parity [script input: python-quoted-input]: both exit 0 (expected)
+ok: parity [script input: python-file-fd-dup]: both exit 0 (expected)
+ok: parity [script input: bash-file-output]: both exit 0 (expected)
+ok: parity [script input: sh-file-output]: both exit 0 (expected)
+ok: parity [script input: same-input-overwrite]: both exit 2 (expected)
+ok: parity [script input: same-input-append]: both exit 2 (expected)
+ok: parity [script input: protected-data-output]: both exit 2 (expected)
+ok: parity [script input: protected-data-stderr]: both exit 2 (expected)
+ok: parity [script input: protected-data-argument]: both exit 2 (expected)
+ok: parity [script input: protected-shell-output]: both exit 2 (expected)
+ok: parity [script input: later-protected-write]: both exit 2 (expected)
+ok: parity [script input: later-relative-write]: both exit 2 (expected)
+ok: parity [script input: changed-cwd]: both exit 2 (expected)
+ok: parity [script input: variable-context]: both exit 2 (expected)
+ok: parity [script input: dynamic-input]: both exit 2 (expected)
+ok: parity [script input: inline-python]: both exit 2 (expected)
+ok: parity [script input: module-python]: both exit 2 (expected)
+ok: parity [script input: inline-shell]: both exit 2 (expected)
+ok: parity [script input: script-argument-not-input]: both exit 2 (expected)
+ok: parity [script input: argument-not-command]: both exit 2 (expected)
+ok: parity [script input: quoted-command-not-command]: both exit 2 (expected)
+ok: parity [script input: comment-not-command]: both exit 2 (expected)
+ok: parity [script input: interpreter-option]: both exit 2 (expected)
+ok: parity [script input: attached-redirect-unknown]: both exit 2 (expected)
+ok: parity [script input: tilde-input-unknown]: both exit 2 (expected)
+ok: parity [script input: alias-rebinding]: both exit 2 (expected)
+ok: parity [script input: shell-alias-rebinding]: both exit 2 (expected)
+ok: parity [script input: hash-rebinding]: both exit 2 (expected)
+ok: parity [script input: path-rebinding]: both exit 2 (expected)
+ok: parity [script input: later-script-command]: both exit 2 (expected)
+ok: parity [script input: absolute-named-interpreter]: both exit 2 (expected)
+ok: parity [script input: relative-named-interpreter]: both exit 2 (expected)
+ok: parity [script input: absolute-shell-interpreter]: both exit 2 (expected)
+ok: parity [script input: assignment-prefix]: both exit 2 (expected)
+ok: parity [wfi061 grep prose mentioning token and Write (allow)]: both exit 0 (expected)
+ok: parity [wfi061 key provisioning script mentions env vars (allow)]: both exit 0 (expected)
+ok: parity [wfi061 read-only skill inspection (allow)]: both exit 0 (expected)
+ok: parity [wfi061 redirect exact target (deny)]: both exit 2 (expected)
+ok: parity [wfi061 rm exact target (deny)]: both exit 2 (expected)
+ok: parity [wfi061 mv exact target (deny)]: both exit 2 (expected)
+ok: parity [wfi061 tee exact target (deny)]: both exit 2 (expected)
+ok: parity [wfi061 file tool exact target (deny)]: both exit 2 (expected)
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 11.614s
+
+OK
+
+guard-parity.tests.sh: 412 passed, 0 failed

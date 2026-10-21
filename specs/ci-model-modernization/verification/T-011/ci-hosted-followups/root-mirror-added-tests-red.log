@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/human-copy-mirrors-classification.tests.py", line 268, in <module>
+    main()
+  File "/workspace/sdd-forge/tests/human-copy-mirrors-classification.tests.py", line 260, in main
+    passed += check_ship_successors()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/human-copy-mirrors-classification.tests.py", line 159, in check_ship_successors
+    expect(root, "PUBLISHED", "exact reviewed pair"); checks += 1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/human-copy-mirrors-classification.tests.py", line 121, in expect
+    assert got == {expected}, f"{message}: expected {expected}, got {ship_states(root, main)}"
+           ^^^^^^^^^^^^^^^^^
+AssertionError: exact reviewed pair: expected PUBLISHED, got {'epic-136-phase2-gates': 'PENDING', 'epic-189-a1-project-context': 'PENDING'}

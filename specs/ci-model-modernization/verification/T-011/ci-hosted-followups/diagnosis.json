@@ -1,0 +1,21 @@
+{
+  "head": "45c9fa974d6fde51cac2e7a5690ecdffb37ffb87",
+  "caller_anchor": {
+    "sha256": "99133e6c154a928451ce2dd84f71e414e318fe53005b98ef1fd59b1acf491d9c",
+    "ordinal": 6,
+    "line": 172
+  },
+  "findings": [
+    "POSIX CI condition gains ci-plan output conjunction; exact legacy line matcher rejects valid scheduled scope",
+    "Ship mirrors are exact pinned reviewed predecessor; successor bytes intentionally differ and original general freshness policy lacks pin recognition",
+    "Caller phase window digest unchanged, two new leading headings shift ordinal4to6",
+    "Three newly chain-invoked runtime scripts absent from canonical protection suffixes; actual security boundary omission"
+  ],
+  "source_hashes": {
+    "scripts/human_copy_mirrors.py": "2ea93f1061101eb5de6cc6e6bb201f95f81cf8a28408ad2cc7c241ae912e21e9",
+    "tests/workflow-state-ci-integration.tests.sh": "c8730f293db5e5ae9b9928c161d83b0de3977e32362dfeb0e921b62d4eaabae7",
+    "tests/fixtures/capability-resolver/caller-contract-baseline.json": "ca1d4a7c0b82d624a4fcbba541b9e7d58653a0a5a6f4cecaf5388ed6a471d7ee",
+    "tests/guard-parity.tests.sh": "5f78d7c5f80fc50fa36e2083221866045b4a437ee6c8feba2dbc3e882bf760b9",
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d"
+  }
+}

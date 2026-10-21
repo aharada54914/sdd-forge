@@ -1,0 +1,30 @@
+{
+  "tests_first_commit": "0cd5bc3a8885567b4aa7a157cb463627e07debec",
+  "exact_paths": [
+    "tests/human-copy-mirrors-classification.tests.py",
+    "tests/workflow-state-ci-integration.tests.sh",
+    "tests/fixtures/capability-resolver/caller-contract-baseline.json",
+    "tests/guard-parity.tests.sh",
+    "tests/human-copy-mirror-freshness.tests.sh",
+    "tests/human-copy-mirror-freshness.tests.ps1"
+  ],
+  "root_runtime_products_unchanged": true,
+  "red": [
+    {
+      "command": "python3 tests/human-copy-mirrors-classification.tests.py",
+      "exit": 1,
+      "log": "root-mirror-added-tests-red.log",
+      "cause": "Exact reviewed predecessor/successor pair is misclassified PENDING instead of PUBLISHED."
+    },
+    {
+      "command": "bash tests/guard-parity.tests.sh",
+      "exit": 1,
+      "log": "root-guard-added-tests-red.log",
+      "counts": {
+        "pass": 405,
+        "fail": 7
+      },
+      "cause": "Three paths each accept rm/cp in both actual JS/Python guards (six failures), plus canonical chain-scanner detects same three omissions; generator consistency still passes."
+    }
+  ]
+}

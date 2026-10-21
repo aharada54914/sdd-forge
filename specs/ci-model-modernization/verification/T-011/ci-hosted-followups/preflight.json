@@ -1,0 +1,36 @@
+{
+  "scope": "Hosted current-consumer regressions; isolated candidate only until Root approval",
+  "risk": "high: persisted guard policy and historical/current publication distinction",
+  "persisted_fields": [
+    {
+      "field": "protected_gate_suffixes",
+      "counterparts": [
+        "guard_invariants.py",
+        "guard-invariants.generated.js",
+        "guard-invariants.generated.ps1",
+        "guard-invariants.generated.sh"
+      ],
+      "invariant": "Every chain-invoked script remains write protected; readers remain allowed",
+      "negative": "actual JS/Python destructive-write requests to each previously omitted path must reject; exact generator closure check"
+    },
+    {
+      "field": "current-publication successor full hashes",
+      "counterpart": "human_copy_mirrors.classify() and mirror freshness/sync consumers",
+      "invariant": "Only exact two reviewed ship pairs can differ; historical pending/default paths unchanged",
+      "negative": "wrong live/staged bytes, malformed/missing/duplicate pins never waive drift; manifest validation independent"
+    },
+    {
+      "field": "caller heading ordinal",
+      "counterpart": "unchanged anchor digest+heading adjacency+relocation fixture",
+      "invariant": "Exact unchanged phase accepted at intended new ordinal6; mutation remains rejected",
+      "negative": "preserve existing relocation fixture"
+    },
+    {
+      "field": "CI step predicate",
+      "counterpart": "ci-plan.run_test and platform runner filter",
+      "invariant": "PowerShell all selected matrix hosts, POSIX selected non-Windows hosts, both before repository validation",
+      "negative": "wrong plan output/value and wrong/missing OS guard rejected"
+    }
+  ],
+  "tests_first": "Capture hosted+local current Red, commit added regression tests before runtime product application; no root changes yet"
+}
