@@ -613,9 +613,11 @@ foreach ($evicted in $repoSharedEvicted) {
 
 function Remove-DeterministicStepLabel([string]$Text) {
     # Only display names changed; preserve commands, OS conditions and ordering.
+    $Text = $Text -creplace "(?m)^(\s*- name: )'\[deterministic\] ([^'\r\n]+)'\r?$", '$1$2'
     return ($Text -creplace '(?m)^(\s*- name: )"\[deterministic\] ([^"\r\n]+)"\r?$', '$1$2')
 }
 Assert-True ((Remove-DeterministicStepLabel '      - name: "[deterministic] Example"') -ceq '      - name: Example') 'TEST-011 label normalization accepts the exact quoted display prefix'
+Assert-True ((Remove-DeterministicStepLabel "      - name: '[deterministic] Example'") -ceq '      - name: Example') 'TEST-011 label normalization accepts single-quoted display prefix'
 Assert-True ((Remove-DeterministicStepLabel '      - name: Example') -ceq '      - name: Example') 'TEST-011 label normalization preserves undecorated names'
 Assert-True ((Remove-DeterministicStepLabel '        run: "[deterministic] Example"') -ceq '        run: "[deterministic] Example"') 'TEST-011 label normalization never rewrites run commands'
 Assert-True ((Remove-DeterministicStepLabel '      - name: "[Deterministic] Example"') -ceq '      - name: "[Deterministic] Example"') 'TEST-011 label normalization does not accept a mis-cased prefix'
@@ -627,8 +629,8 @@ if (Test-Path -LiteralPath $liveCi -PathType Leaf) {
     $firstGuardSuite = $ciText.IndexOf('Test hook guards')
     $windowsGenerator = [regex]::IsMatch($ciText, "(?ms)- name: Verify generated guard invariants \(Windows\).*?if: runner\.os == 'Windows'.*?shell: pwsh.*?run: python ./plugins/sdd-quality-loop/scripts/generate-guard-invariants\.py --check")
     $posixGenerator = [regex]::IsMatch($ciText, "(?ms)- name: Verify generated guard invariants \(POSIX\).*?if: runner\.os != 'Windows'.*?shell: bash.*?run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants\.py --check")
-    $windowsInvariantSuite = [regex]::IsMatch($ciText, "(?ms)- name: Test Phase 2 guard invariants \(pwsh\).*?if: runner\.os == 'Windows'.*?shell: pwsh.*?run: ./tests/phase2-guard-invariants\.tests\.ps1")
-    $posixInvariantSuite = [regex]::IsMatch($ciText, "(?ms)- name: Test Phase 2 guard invariants \(bash\).*?if: runner\.os != 'Windows'.*?shell: bash.*?run: bash ./tests/phase2-guard-invariants\.tests\.sh")
+    $windowsInvariantSuite = [regex]::IsMatch($ciText, "(?ms)- name: Test Phase 2 guard invariants \(pwsh\).*?if: needs\.ci-plan\.outputs\.run_test == 'true' && runner\.os == 'Windows'\r?\n.*?shell: pwsh.*?run: ./tests/phase2-guard-invariants\.tests\.ps1")
+    $posixInvariantSuite = [regex]::IsMatch($ciText, "(?ms)- name: Test Phase 2 guard invariants \(bash\).*?if: needs\.ci-plan\.outputs\.run_test == 'true' && runner\.os != 'Windows'\r?\n.*?shell: bash.*?run: bash ./tests/phase2-guard-invariants\.tests\.sh")
     $generatorBeforeValidation = (($ciText.IndexOf('Verify generated guard invariants (Windows)') -gt $checkout) -and ($ciText.IndexOf('Verify generated guard invariants (POSIX)') -gt $checkout) -and ($ciText.IndexOf('Verify generated guard invariants (Windows)') -lt $firstValidation) -and ($ciText.IndexOf('Verify generated guard invariants (POSIX)') -lt $firstValidation) -and ($ciText.IndexOf('Verify generated guard invariants (Windows)') -lt $firstGuardSuite) -and ($ciText.IndexOf('Verify generated guard invariants (POSIX)') -lt $firstGuardSuite))
     Assert-True (($checkout -ge 0) -and ($firstValidation -ge 0) -and ($firstGuardSuite -ge 0) -and $windowsGenerator -and $posixGenerator -and $windowsInvariantSuite -and $posixInvariantSuite -and $generatorBeforeValidation) 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards'
 } else { Bad 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards' }
@@ -1041,6 +1043,110 @@ if ($runnerPredatesRefresh -and ($env:SDD_PHASE2_RUNNER_CHILD -ne '1')) {
 # phase2_human_copy_targets, which epic-190-a2's registration turned into a
 # repository-wide protection registry (19 -> 26 entries). Files another epic
 # stages in its own bundle are not this bundle's staging surface.
+# 2026-10-21: byte equality stays the DEFAULT for every target. The single
+# explicit exception is the ship SKILL pair, accepted only when the reviewed
+# successor fixture lists that exact live/staged pair exactly once and BOTH full
+# SHA-256 values match. The epic-136 staged candidate stays the frozen
+# predecessor; the historical manifest and protected-source checks above are
+# unchanged and still bind the staged bytes.
+$successorFixture = Join-Path $root 'tests/fixtures/ship-track-selection-current-publication.json'
+$successorStageRel = 'specs/epic-136-phase2-gates/human-copy'
+$successorShipRel = 'plugins/sdd-ship/skills/ship/SKILL.md'
+$successorSchema = 'ship-track-selection-current-publication/v1'
+function Test-TargetInSync([string]$Root, [string]$Target, [string]$Fixture) {
+    try {
+        $liveHash = (Get-FileHash -LiteralPath (Join-Path $Root $Target) -Algorithm SHA256).Hash.ToLowerInvariant()
+        $stagedHash = (Get-FileHash -LiteralPath (Join-Path (Join-Path $Root $successorStageRel) $Target) -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($liveHash -ceq $stagedHash) { return $true }
+        if ($Target -cne $successorShipRel) { return $false }
+        $stagedKey = $successorStageRel + '/' + $successorShipRel
+        $data = Get-Content -Raw -LiteralPath $Fixture | ConvertFrom-Json -ErrorAction Stop
+        if (($data -isnot [pscustomobject]) -or ($data.PSObject.Properties.Name -cnotcontains 'schema') -or ($data.schema -isnot [string]) -or ($data.schema -cne $successorSchema)) { return $false }
+        if ($data.PSObject.Properties.Name -cnotcontains 'successors') { return $false }
+        if ($data.successors -isnot [array]) { return $false }
+        $entries = @($data.successors)
+        foreach ($entry in $entries) { if ($entry -isnot [pscustomobject]) { return $false } }
+        $touching = @($entries | Where-Object {
+            (($_.PSObject.Properties.Name -ccontains 'live') -and ($_.live -ceq $successorShipRel)) -and
+            (($_.PSObject.Properties.Name -ccontains 'staged') -and ($_.staged -ceq $stagedKey)) })
+        if ($touching.Count -ne 1) { return $false }
+        $match = $touching[0]
+        foreach ($field in 'live', 'staged', 'live_sha256', 'staged_sha256') {
+            if (($match.PSObject.Properties.Name -cnotcontains $field) -or ($match.$field -isnot [string])) { return $false }
+        }
+        if (($match.live -cne $successorShipRel) -or ($match.staged -cne $stagedKey)) { return $false }
+        if (($match.live_sha256 -cnotmatch '^[0-9a-f]{64}$') -or ($match.staged_sha256 -cnotmatch '^[0-9a-f]{64}$')) { return $false }
+        return (($match.live_sha256 -ceq $liveHash) -and ($match.staged_sha256 -ceq $stagedHash))
+    } catch { return $false }
+}
+
+# Fixture-level mutation controls on a tiny scratch tree (no repo copy).
+$otherRel = 'plugins/sdd-lite/skills/lite-spec/SKILL.md'
+$ctl = Join-Path ([IO.Path]::GetTempPath()) ('phase2-successor-' + [guid]::NewGuid().ToString())
+$ctlFixture = Join-Path $ctl 'fixture.json'
+function Get-CtlHash([string]$Path) { return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
+function Get-CtlStagedPath([string]$Rel) { return (Join-Path (Join-Path $ctl $successorStageRel) $Rel) }
+function Set-CtlFile([string]$Rel, [string]$Text, [bool]$Staged) {
+    $path = if ($Staged) { Get-CtlStagedPath $Rel } else { Join-Path $ctl $Rel }
+    New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
+    [IO.File]::WriteAllText($path, $Text, (New-Object Text.UTF8Encoding($false)))
+}
+function Reset-Ctl {
+    Remove-Item -LiteralPath $ctl -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $ctl -Force | Out-Null
+    Set-CtlFile $successorShipRel "staged ship`n" $true
+    Set-CtlFile $successorShipRel "live ship`n" $false
+    Set-CtlFile $otherRel "same other`n" $true
+    Set-CtlFile $otherRel "same other`n" $false
+}
+function Write-CtlFixture([string]$Live, [string]$Staged, [string]$StagedHash, [string]$LiveHash, [int]$Copies = 1, [string]$Schema = $successorSchema) {
+    $entry = [ordered]@{ live = $Live; staged = $Staged; staged_sha256 = $StagedHash; live_sha256 = $LiveHash }
+    $list = @(1..$Copies | ForEach-Object { $entry })
+    $json = ConvertTo-Json -InputObject ([ordered]@{ schema = $Schema; successors = $list }) -Depth 5
+    [IO.File]::WriteAllText($ctlFixture, $json, (New-Object Text.UTF8Encoding($false)))
+}
+function Write-CtlGoodFixture([int]$Copies = 1, [string]$Schema = $successorSchema) {
+    Write-CtlFixture $successorShipRel ($successorStageRel + '/' + $successorShipRel) (Get-CtlHash (Get-CtlStagedPath $successorShipRel)) (Get-CtlHash (Join-Path $ctl $successorShipRel)) $Copies $Schema
+}
+function Assert-CtlSync([bool]$Want, [string]$Target, [string]$Label) {
+    Assert-True ((Test-TargetInSync $ctl $Target $ctlFixture) -eq $Want) "WFI-016 control: $Label"
+}
+$zeroHash = '0' * 64
+try {
+    Reset-Ctl; Write-CtlGoodFixture
+    Assert-CtlSync $true $successorShipRel 'known successor pair is accepted'
+    Set-CtlFile $successorShipRel "live ship mutated`n" $false
+    Assert-CtlSync $false $successorShipRel 'mutated live ship file is rejected'
+    Reset-Ctl; Write-CtlGoodFixture
+    Set-CtlFile $successorShipRel "staged ship mutated`n" $true
+    Assert-CtlSync $false $successorShipRel 'mutated staged ship file is rejected'
+    Reset-Ctl
+    Assert-CtlSync $false $successorShipRel 'missing fixture is rejected'
+    Reset-Ctl
+    Write-CtlFixture $successorShipRel ($successorStageRel + '/' + $successorShipRel) (Get-CtlHash (Get-CtlStagedPath $successorShipRel)) $zeroHash
+    Assert-CtlSync $false $successorShipRel 'wrong live hash entry is rejected'
+    Reset-Ctl
+    Write-CtlFixture $successorShipRel ($successorStageRel + '/' + $successorShipRel) $zeroHash (Get-CtlHash (Join-Path $ctl $successorShipRel))
+    Assert-CtlSync $false $successorShipRel 'wrong staged hash entry is rejected'
+    Reset-Ctl
+    Write-CtlFixture $successorShipRel ('specs/epic-189-a1-project-context/human-copy/' + $successorShipRel) (Get-CtlHash (Get-CtlStagedPath $successorShipRel)) (Get-CtlHash (Join-Path $ctl $successorShipRel))
+    Assert-CtlSync $false $successorShipRel 'entry for a different staged path (missing epic136 entry) is rejected'
+    Reset-Ctl; Write-CtlGoodFixture 2
+    Assert-CtlSync $false $successorShipRel 'duplicate entry is rejected'
+    Reset-Ctl; Write-CtlGoodFixture 1 'ship-track-selection-current-publication/v0'
+    Assert-CtlSync $false $successorShipRel 'wrong schema is rejected'
+    Reset-Ctl; [IO.File]::WriteAllText($ctlFixture, "{ malformed`n")
+    Assert-CtlSync $false $successorShipRel 'malformed fixture is rejected'
+    Reset-Ctl; [IO.File]::WriteAllText($ctlFixture, "{`"successors`": []}`n")
+    Assert-CtlSync $false $successorShipRel 'missing schema is rejected'
+    Reset-Ctl
+    Write-CtlFixture $otherRel ($successorStageRel + '/' + $otherRel) (Get-CtlHash (Get-CtlStagedPath $otherRel)) (Get-CtlHash (Join-Path $ctl $otherRel))
+    Set-CtlFile $otherRel "live other mutated`n" $false
+    Assert-CtlSync $false $otherRel 'unrelated unequal file is rejected even with a fixture entry'
+    Reset-Ctl; Write-CtlGoodFixture
+    Assert-CtlSync $true $otherRel 'equal unrelated files are accepted'
+} finally { Remove-BootstrapFixture $ctl }
+
 $syncOk = $true
 try {
     $syncTargets = @($bootstrapTargets)
@@ -1053,15 +1159,13 @@ try {
             $syncOk = $false
             continue
         }
-        $syncLiveHash = (Get-FileHash -LiteralPath $syncLive -Algorithm SHA256).Hash
-        $syncStagedHash = (Get-FileHash -LiteralPath $syncStaged -Algorithm SHA256).Hash
-        if ($syncLiveHash -cne $syncStagedHash) {
+        if (-not (Test-TargetInSync $root $syncTarget $successorFixture)) {
             Write-Host "  out of sync: $syncTarget"
             $syncOk = $false
         }
     }
 } catch { $syncOk = $false }
-if ($syncOk) { Ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' } else { Bad 'WFI-016 staged targets are byte-identical to live (no stale staging)' }
+if ($syncOk) { Ok 'WFI-016 staged targets match live bytes or their exact reviewed successor' } else { Bad 'WFI-016 staged targets match live bytes or their exact reviewed successor' }
 
 Write-Host "phase2-guard-invariants.tests.ps1: $passCount passed, $failCount failed, $skipCount skipped"
 if ($failCount -gt 0) { exit 1 }

@@ -104,15 +104,20 @@ class CurrentAnchorTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn(path, result.stdout.splitlines())
         data = workflow.load_workflow(ROOT / ".github/workflows/test.yml")
+        job = "cloud-native"  # the catalog's ci-cloud profile runs this suite
         for os_name in ("windows-latest", "macos-latest", "ubuntu-latest"):
             one = copy.deepcopy(data)
-            one["jobs"] = {"test": one["jobs"]["test"]}
-            one["jobs"]["test"]["strategy"]["matrix"]["os"] = [os_name]
-            self.assertIn(path, workflow.workflow_coverage(one, catalog)["test"])
+            one["jobs"] = {name: one["jobs"][name] for name in ("ci-plan", job)}
+            # The planner must declare exactly the retained groups' outputs.
+            keep = {"run_ci_plan", "run_" + job.replace("-", "_"), "plan_artifact_name"}
+            outputs = one["jobs"]["ci-plan"]["outputs"]
+            one["jobs"]["ci-plan"]["outputs"] = {key: value for key, value in outputs.items() if key in keep}
+            one["jobs"][job]["strategy"]["matrix"]["os"] = [os_name]
+            self.assertIn(path, workflow.workflow_coverage(one, catalog)[job])
         # The real YAML consumer must detect removed execution, not find prose.
         missing = copy.deepcopy(data)
-        missing["jobs"]["test"]["steps"] = []
-        self.assertNotIn(path, workflow.workflow_coverage(missing, catalog)["test"])
+        missing["jobs"][job]["steps"] = []
+        self.assertNotIn(path, workflow.workflow_coverage(missing, catalog)[job])
 
     def test_line_insertion_preserves_meaning(self):
         text = "# Skill\n\n## Required Outputs\nseven Markdown files\n## Next\nother\n"

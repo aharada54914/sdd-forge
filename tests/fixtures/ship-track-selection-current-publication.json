@@ -1,0 +1,20 @@
+{
+  "schema": "ship-track-selection-current-publication/v1",
+  "note": "Explicit successor publication baseline. The epic-189 staged candidate stays pinned as the predecessor and whole-file byte equality stays the default; a live file differing from its staged candidate is admitted only when BOTH full SHA-256 values below match. Any other live edit, staged edit, or missing entry is drift.",
+  "successors": [
+    {
+      "live": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
+      "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
+      "live_sha256": "938ec040fbc37ca1864fe4083177a640957979a700aae303059518fdf1b668c6",
+      "intentional_changes": "Live ship adds the managed allocation boundary (implementer role, managed-model-entry unsupported-entry refusal) and replaces the Lite implement-task dispatch with the managed Claude single-task entry; the track-selection contract itself is unchanged."
+    },
+    {
+      "live": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
+      "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
+      "live_sha256": "938ec040fbc37ca1864fe4083177a640957979a700aae303059518fdf1b668c6",
+      "intentional_changes": "Live ship adds the managed allocation boundary (implementer role, managed-model-entry unsupported-entry refusal) and replaces the Lite implement-task dispatch with the managed Claude single-task entry; the track-selection contract itself is unchanged. The epic-136 phase2 staged candidate has exactly the same bytes as the epic-189 one; it is a separate predecessor that the phase2 stage manifest still validates independently."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "scope": "local Linux; PowerShell is Linux pwsh, not native Windows",
+  "green": [
+    {
+      "check": "foundation",
+      "command": [
+        "python",
+        "-B",
+        "tests/sdd-domain-multitarget-foundation.tests.py"
+      ],
+      "exit_code": 0,
+      "log_sha256": "be0b35fcf5074483a87f737274de8c5f15700f81b6803a59a646a478ed1e43f5"
+    },
+    {
+      "check": "ship-bash",
+      "command": [
+        "bash",
+        "tests/ship-track-selection-migration.tests.sh"
+      ],
+      "exit_code": 0,
+      "log_sha256": "08d03791cd02cca1d5c9ab6d1e40af0e2ed2a52500080fd3df8d5cb07f93ee2f"
+    },
+    {
+      "check": "ship-pwsh",
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/ship-track-selection-migration.tests.ps1"
+      ],
+      "exit_code": 0,
+      "log_sha256": "29b2f312c56a1b99c01aeaec4714e477a8e7b6cb6bf3e80f6aac160ceae20265"
+    }
+  ],
+  "counts": {
+    "foundation": 54,
+    "ship_bash": 161,
+    "ship_powershell": 167
+  },
+  "original_red": {
+    "foundation": {
+      "failures": 3,
+      "errors": 1
+    },
+    "ship_bash": {
+      "failures": 3
+    },
+    "ship_powershell": {
+      "failures": 3
+    }
+  },
+  "hosted_observation": {
+    "run_id": 39598838307,
+    "windows_cloud_job_id": 119218017088,
+    "windows_capability_job_id": 119218017311,
+    "suite_steps": "failed",
+    "logs_and_receipt_download": "HTTP 403; exact hosted failure output unavailable",
+    "claims": "shared-code failures reproduced locally; no native Windows PASS claim"
+  },
+  "public_log_sha256": {
+    "red.log": "d297dcadc5bebd599ab4839464c2bedc4ea9ab22144b72964007d0b5b9dccca8",
+    "green.log": "20ed1b63b348122bc7adb20d10e3d6b9cbafc29ada4d288a6df23b9cba5cc8f5"
+  }
+}

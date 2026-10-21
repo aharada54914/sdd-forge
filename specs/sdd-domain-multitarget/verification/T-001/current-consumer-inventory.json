@@ -16,12 +16,11 @@
       "source": [
         {
           "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
-          "line_start": 102,
-          "line_end": 117,
+          "section": "### Full-Profile Layer Interview",
           "keyword": "interview-question-bank.md"
         }
       ],
-      "reverify_command": "sed -n '102,117p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+      "reverify_command": "grep -n 'interview-question-bank.md' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
     },
     {
       "id": "bootstrap-seven-layer-output",
@@ -192,12 +191,11 @@
       "source": [
         {
           "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
-          "line_start": 13,
-          "line_end": 28,
+          "section": "## Invocation",
           "keyword": "Claude Code \u2014 internal skill"
         }
       ],
-      "reverify_command": "sed -n '13,28p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+      "reverify_command": "grep -n 'Claude Code — internal skill' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
     },
     {
       "id": "facet-native-migration",

@@ -1,0 +1,43 @@
+{
+  "observed_at_utc": "2026-10-21T12:47:18.252155+00:00",
+  "root_base_commit": "b434b1c07e53076bd2550847a65c13de28808363",
+  "tree_state": "targeted changes applied to working tree; source hashes are authoritative, not a claim that HEAD alone includes them",
+  "hosted_failure_commit": "e845fbc8942b7ee496b9f9928e5ada61443048d9",
+  "files": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/current-consumer-inventory.json",
+      "before_sha256": "a68bc71819ca523c005df8108ab4876a6925fd7632c09d7702c3f11734529459",
+      "after_sha256": "cfc9df455527af291b968940b02aed6bad2841d85aa11a17dae1fb4988d55ae9",
+      "current_sha256": "cfc9df455527af291b968940b02aed6bad2841d85aa11a17dae1fb4988d55ae9",
+      "original_matches_hosted_source": true
+    },
+    {
+      "path": "tests/sdd-domain-multitarget-foundation.tests.py",
+      "before_sha256": "9083c323d44f337373e2eeb21264eec5c132d495129233c4501f24a32b8e08a2",
+      "after_sha256": "9463abf50ad7c88f5b838038e539cccf36f509d227b64734b04be61b94f556a3",
+      "current_sha256": "9463abf50ad7c88f5b838038e539cccf36f509d227b64734b04be61b94f556a3",
+      "original_matches_hosted_source": true
+    },
+    {
+      "path": "tests/ship-track-selection-migration.tests.sh",
+      "before_sha256": "3ef32d9fbb33cffcce6eee9b2ce91eb20a782912d627b46c7719376c1621e04b",
+      "after_sha256": "c732331d989010f9b1a48cd6775b1022597c45e3e2713baf3f6b04ac03616ae2",
+      "current_sha256": "c732331d989010f9b1a48cd6775b1022597c45e3e2713baf3f6b04ac03616ae2",
+      "original_matches_hosted_source": true
+    },
+    {
+      "path": "tests/ship-track-selection-migration.tests.ps1",
+      "before_sha256": "c83a2e38e05330577f1d85dc5656a1bd96f9467b5eb64fa7182452e0dba13470",
+      "after_sha256": "4bdf2d97a325432e119a6acda19cb4cd04a989d2f1658157c22bbc52e55f81ad",
+      "current_sha256": "4bdf2d97a325432e119a6acda19cb4cd04a989d2f1658157c22bbc52e55f81ad",
+      "original_matches_hosted_source": true
+    },
+    {
+      "path": "tests/fixtures/ship-track-selection-current-publication.json",
+      "before_sha256": null,
+      "after_sha256": "062f48516f73f90aef0cdb205584965edbece7db08f2bbfd2d1854938607d1f5",
+      "current_sha256": "062f48516f73f90aef0cdb205584965edbece7db08f2bbfd2d1854938607d1f5",
+      "original_matches_hosted_source": null
+    }
+  ]
+}

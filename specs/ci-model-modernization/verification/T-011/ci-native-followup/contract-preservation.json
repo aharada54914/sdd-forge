@@ -1,0 +1,23 @@
+[
+  {
+    "name": "track-selection-contract",
+    "predecessor_count": 1,
+    "successor_count": 1,
+    "equal": true,
+    "sha256": "61a1a1f328585ea700670183bf451ef9ef6aa7f90f44eed7b8363b2cd9faf31e"
+  },
+  {
+    "name": "handshake-wiring",
+    "predecessor_count": 1,
+    "successor_count": 1,
+    "equal": true,
+    "sha256": "1bbe9f5144145421b397212877425ce14a41e1afef4921a169ab459136d0535e"
+  },
+  {
+    "name": "capability-gate-scope",
+    "predecessor_count": 1,
+    "successor_count": 1,
+    "equal": true,
+    "sha256": "d612e662ca00d9e107df6886ee06bb69db549584313edf215617a923d4eb95b3"
+  }
+]

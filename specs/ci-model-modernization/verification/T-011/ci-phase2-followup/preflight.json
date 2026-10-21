@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-21T12:41:27.665284+00:00",
+  "source_files": {
+    "tests/phase2-guard-invariants.tests.sh": "a2fb162c1039c3c1d04a68cd9d77f37c8fab6544c138ae9f5c26b1bcce505019",
+    "tests/phase2-guard-invariants.tests.ps1": "eddaeaa0d49a4c1345393441cdd2b696d8333a9e15bc31ed882540d5b726dcf1"
+  },
+  "failures": [
+    "TEST-011 invariant steps now require full planner and OS conjunction",
+    "WFI-016 epic136 predecessor remains frozen while live authorized successor differs"
+  ],
+  "counterparts": {
+    "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
+    "live": "plugins/sdd-ship/skills/ship/SKILL.md"
+  },
+  "scope": "only two current tests; shared fixture owned by native_ci_failures; do not change historical bundles or workflow"
+}

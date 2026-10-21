@@ -1,0 +1,5 @@
+{
+  "tests/phase2-guard-invariants.tests.sh": "6fea122231c29fabe7ad8231656678dd2e5ac542961a168931a01dc7585eace7",
+  "tests/phase2-guard-invariants.tests.ps1": "3bd0b77a2158185d8f9bdf977182f4a0e9304620a1c854d08a846e01335f6635",
+  "tests/fixtures/ship-track-selection-current-publication.json": "062f48516f73f90aef0cdb205584965edbece7db08f2bbfd2d1854938607d1f5"
+}

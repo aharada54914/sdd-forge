@@ -1,0 +1,15 @@
+{
+  "source": "e845fbc8942b7ee496b9f9928e5ada61443048d9 disposable checkout",
+  "scope": "two test files only; shared fixture remains present; no historical or root changes",
+  "before": {
+    "phase2-guard-invariants.tests.sh": "6fea122231c29fabe7ad8231656678dd2e5ac542961a168931a01dc7585eace7",
+    "phase2-guard-invariants.tests.ps1": "3bd0b77a2158185d8f9bdf977182f4a0e9304620a1c854d08a846e01335f6635"
+  },
+  "after": {
+    "phase2-guard-invariants.tests.sh": "6fea122231c29fabe7ad8231656678dd2e5ac542961a168931a01dc7585eace7",
+    "phase2-guard-invariants.tests.ps1": "3bd0b77a2158185d8f9bdf977182f4a0e9304620a1c854d08a846e01335f6635"
+  },
+  "exact_candidate_restored": true,
+  "baseline_exit": 1,
+  "candidate_exit": 0
+}

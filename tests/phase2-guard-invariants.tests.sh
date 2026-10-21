@@ -145,13 +145,15 @@ if [[ -f "$ci" ]]; then
   guard_line="$(grep -Fn 'Test hook guards' "$ci" | head -n 1 | cut -d: -f1 || true)"
   windows_generator_line="$(grep -Fn 'Verify generated guard invariants (Windows)' "$ci" | head -n 1 | cut -d: -f1 || true)"
   posix_generator_line="$(grep -Fn 'Verify generated guard invariants (POSIX)' "$ci" | head -n 1 | cut -d: -f1 || true)"
+  # Full planner+OS predicate: the OS-only form no longer matches live CI.
+  ci_plan_gate="needs.ci-plan.outputs.run_test == 'true' && "
   if [[ -n "$checkout_line" && -n "$validation_line" && -n "$guard_line" && -n "$windows_generator_line" && -n "$posix_generator_line" && "$windows_generator_line" -gt "$checkout_line" && "$posix_generator_line" -gt "$checkout_line" && "$windows_generator_line" -lt "$validation_line" && "$posix_generator_line" -lt "$validation_line" && "$windows_generator_line" -lt "$guard_line" && "$posix_generator_line" -lt "$guard_line" ]] \
     && grep -A 5 -F 'Verify generated guard invariants (Windows)' "$ci" | grep -Fq "if: runner.os == 'Windows'" \
     && grep -A 5 -F 'Verify generated guard invariants (Windows)' "$ci" | grep -Fq 'run: python ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check' \
     && grep -A 5 -F 'Verify generated guard invariants (POSIX)' "$ci" | grep -Fq "if: runner.os != 'Windows'" \
     && grep -A 5 -F 'Verify generated guard invariants (POSIX)' "$ci" | grep -Fq 'run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check' \
-    && grep -A 5 -F 'Test Phase 2 guard invariants (pwsh)' "$ci" | grep -Fq "if: runner.os == 'Windows'" \
-    && grep -A 5 -F 'Test Phase 2 guard invariants (bash)' "$ci" | grep -Fq "if: runner.os != 'Windows'"; then
+    && grep -A 5 -F 'Test Phase 2 guard invariants (pwsh)' "$ci" | grep -Fxq "        if: ${ci_plan_gate}runner.os == 'Windows'" \
+    && grep -A 5 -F 'Test Phase 2 guard invariants (bash)' "$ci" | grep -Fxq "        if: ${ci_plan_gate}runner.os != 'Windows'"; then
     ok 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards'
   else
     bad 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards'
@@ -311,6 +313,121 @@ fi
 # stages in its own bundle are not this bundle's staging surface, and reading
 # the registry as this bundle's inventory made this check fail for the wrong
 # reason (seven "missing" entries that were never staged here).
+# 2026-10-21: byte equality stays the DEFAULT for every target. The single
+# explicit exception is the ship SKILL pair, accepted only when the reviewed
+# successor fixture lists that exact live/staged pair exactly once and BOTH full
+# SHA-256 values match. The epic-136 staged candidate stays the frozen
+# predecessor; the historical manifest and protected-source checks above are
+# unchanged and still bind the staged bytes.
+successor_fixture="$root/tests/fixtures/ship-track-selection-current-publication.json"
+successor_stage_rel='specs/epic-136-phase2-gates/human-copy'
+# target_in_sync <root> <target> <fixture>: exit 0 when live == staged bytes,
+# or when the ship pair matches its single fixture successor entry. Fails closed.
+target_in_sync() {
+  python3 -I - "$(native_path "$1")" "$2" "$(native_path "$3")" "$successor_stage_rel" <<'PY'
+import hashlib, json, os, re, sys
+root, target, fixture, stage_rel = sys.argv[1:5]
+SHIP = 'plugins/sdd-ship/skills/ship/SKILL.md'
+SCHEMA = 'ship-track-selection-current-publication/v1'
+def digest(p):
+    with open(p, 'rb') as f:
+        return hashlib.sha256(f.read()).hexdigest()
+try:
+    live = os.path.join(root, *target.split('/'))
+    staged = os.path.join(root, *stage_rel.split('/'), *target.split('/'))
+    live_h, staged_h = digest(live), digest(staged)
+    if live_h == staged_h:
+        sys.exit(0)
+    if target != SHIP:
+        sys.exit(1)
+    staged_key = stage_rel + '/' + SHIP
+    with open(fixture, encoding='utf-8') as f:
+        data = json.load(f)
+    if not isinstance(data, dict) or data.get('schema') != SCHEMA:
+        sys.exit(1)
+    entries = data.get('successors')
+    if not isinstance(entries, list) or not all(isinstance(e, dict) for e in entries):
+        sys.exit(1)
+    touching = [e for e in entries if e.get('live') == SHIP and e.get('staged') == staged_key]
+    if len(touching) != 1:
+        sys.exit(1)
+    e = touching[0]
+    if e.get('live') != SHIP or e.get('staged') != staged_key:
+        sys.exit(1)
+    full = re.compile(r'[0-9a-f]{64}\Z')
+    ls, ss = e.get('live_sha256'), e.get('staged_sha256')
+    if not (isinstance(ls, str) and isinstance(ss, str) and full.match(ls) and full.match(ss)):
+        sys.exit(1)
+    sys.exit(0 if (ls == live_h and ss == staged_h) else 1)
+except Exception:
+    sys.exit(1)
+PY
+}
+
+# Fixture-level mutation controls on a tiny scratch tree (no repo copy).
+ship_rel='plugins/sdd-ship/skills/ship/SKILL.md'
+other_rel='plugins/sdd-lite/skills/lite-spec/SKILL.md'
+ctl="$work/successor-control"
+ctl_sha() { sha256sum "$1" | awk '{print $1}'; }
+ctl_reset() {
+  rm -rf "$ctl"
+  mkdir -p "$ctl/$(dirname "$ship_rel")" "$ctl/$successor_stage_rel/$(dirname "$ship_rel")" \
+    "$ctl/$(dirname "$other_rel")" "$ctl/$successor_stage_rel/$(dirname "$other_rel")"
+  printf 'staged ship\n' > "$ctl/$successor_stage_rel/$ship_rel"
+  printf 'live ship\n' > "$ctl/$ship_rel"
+  printf 'same other\n' > "$ctl/$other_rel"
+  printf 'same other\n' > "$ctl/$successor_stage_rel/$other_rel"
+}
+# ctl_fixture <live_path> <staged_path> <staged_hash> <live_hash> [copies] [schema]
+ctl_fixture() {
+  python3 -I - "$(native_path "$ctl/fixture.json")" "$@" <<'PY'
+import json, sys
+out, live, staged, sh, lh = sys.argv[1:6]
+copies = int(sys.argv[6]) if len(sys.argv) > 6 else 1
+schema = sys.argv[7] if len(sys.argv) > 7 else 'ship-track-selection-current-publication/v1'
+entry = {'live': live, 'staged': staged, 'staged_sha256': sh, 'live_sha256': lh}
+with open(out, 'w') as f:
+    json.dump({'schema': schema, 'successors': [dict(entry) for _ in range(copies)]}, f)
+PY
+}
+ctl_good_fixture() {
+  ctl_fixture "$ship_rel" "$successor_stage_rel/$ship_rel" "$(ctl_sha "$ctl/$successor_stage_rel/$ship_rel")" "$(ctl_sha "$ctl/$ship_rel")" "$@"
+}
+expect_sync() {
+  local want="$1" target="$2" label="$3" got
+  if target_in_sync "$ctl" "$target" "$ctl/fixture.json"; then got=accept; else got=reject; fi
+  [[ "$got" == "$want" ]] && ok "WFI-016 control: $label" || bad "WFI-016 control: $label"
+}
+zero_hash="$(printf '%064d' 0)"
+ctl_reset; ctl_good_fixture
+expect_sync accept "$ship_rel" 'known successor pair is accepted'
+printf 'live ship mutated\n' > "$ctl/$ship_rel"
+expect_sync reject "$ship_rel" 'mutated live ship file is rejected'
+ctl_reset; ctl_good_fixture
+printf 'staged ship mutated\n' > "$ctl/$successor_stage_rel/$ship_rel"
+expect_sync reject "$ship_rel" 'mutated staged ship file is rejected'
+ctl_reset
+expect_sync reject "$ship_rel" 'missing fixture is rejected'
+ctl_reset; ctl_fixture "$ship_rel" "$successor_stage_rel/$ship_rel" "$(ctl_sha "$ctl/$successor_stage_rel/$ship_rel")" "$zero_hash"
+expect_sync reject "$ship_rel" 'wrong live hash entry is rejected'
+ctl_reset; ctl_fixture "$ship_rel" "$successor_stage_rel/$ship_rel" "$zero_hash" "$(ctl_sha "$ctl/$ship_rel")"
+expect_sync reject "$ship_rel" 'wrong staged hash entry is rejected'
+ctl_reset; ctl_fixture "$ship_rel" "specs/epic-189-a1-project-context/human-copy/$ship_rel" "$(ctl_sha "$ctl/$successor_stage_rel/$ship_rel")" "$(ctl_sha "$ctl/$ship_rel")"
+expect_sync reject "$ship_rel" 'entry for a different staged path (missing epic136 entry) is rejected'
+ctl_reset; ctl_good_fixture 2
+expect_sync reject "$ship_rel" 'duplicate entry is rejected'
+ctl_reset; ctl_good_fixture 1 'ship-track-selection-current-publication/v0'
+expect_sync reject "$ship_rel" 'wrong schema is rejected'
+ctl_reset; printf '{ malformed\n' > "$ctl/fixture.json"
+expect_sync reject "$ship_rel" 'malformed fixture is rejected'
+ctl_reset; printf '{"successors": []}\n' > "$ctl/fixture.json"
+expect_sync reject "$ship_rel" 'missing schema is rejected'
+ctl_reset; ctl_fixture "$other_rel" "$successor_stage_rel/$other_rel" "$(ctl_sha "$ctl/$successor_stage_rel/$other_rel")" "$(ctl_sha "$ctl/$other_rel")"
+printf 'live other mutated\n' > "$ctl/$other_rel"
+expect_sync reject "$other_rel" 'unrelated unequal file is rejected even with a fixture entry'
+ctl_reset; ctl_good_fixture
+expect_sync accept "$other_rel" 'equal unrelated files are accepted'
+
 sync_ok=1
 for sync_target in "${phase2_targets[@]}"; do
   if [[ ! -f "$root/$sync_target" || ! -f "$stage/$sync_target" ]]; then
@@ -318,14 +435,12 @@ for sync_target in "${phase2_targets[@]}"; do
     sync_ok=0
     continue
   fi
-  staged_digest="$(sha256sum "$stage/$sync_target" | awk '{print $1}')"
-  live_digest="$(sha256sum "$root/$sync_target" | awk '{print $1}')"
-  if [[ "$staged_digest" != "$live_digest" ]]; then
+  if ! target_in_sync "$root" "$sync_target" "$successor_fixture"; then
     echo "  out of sync: $sync_target"
     sync_ok=0
   fi
 done
-[[ "$sync_ok" == 1 ]] && ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' || bad 'WFI-016 staged targets are byte-identical to live (no stale staging)'
+[[ "$sync_ok" == 1 ]] && ok 'WFI-016 staged targets match live bytes or their exact reviewed successor' || bad 'WFI-016 staged targets match live bytes or their exact reviewed successor'
 
 echo "phase2-guard-invariants.tests.sh: $pass passed, $fail failed"
 [[ "$fail" -eq 0 ]]

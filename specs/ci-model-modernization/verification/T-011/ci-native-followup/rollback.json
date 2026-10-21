@@ -1,0 +1,20 @@
+{
+  "checks": [
+    {
+      "check": "foundation rollback-red",
+      "exit_code": 1
+    },
+    {
+      "check": "ship-bash rollback-red",
+      "exit_code": 1
+    },
+    {
+      "check": "ship-pwsh rollback-red",
+      "exit_code": 1
+    }
+  ],
+  "restoration": {
+    "all_candidate_bytes_restored": true
+  },
+  "method": "Temporarily replace four candidate files with original root bytes, require nonzero exit for three focused suites, restore saved candidate bytes in finally; then verify root-applied Green against recorded current hashes."
+}
