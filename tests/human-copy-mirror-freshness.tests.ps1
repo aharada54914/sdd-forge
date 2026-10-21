@@ -97,7 +97,7 @@ if ($manifestStale.Count -eq 0) {
 
 $stale = @($rows | Where-Object { $_.State -eq 'STALE' })
 if ($stale.Count -eq 0) {
-    Write-Ok 'every applied human-copy mirror is byte-identical to live'
+    Write-Ok 'every applied human-copy mirror matches live bytes or exact reviewed successor pins'
 } else {
     Write-Error -Message 'not ok: stale human-copy mirrors -- run scripts/sync-human-copy-mirrors.py' -ErrorAction Continue
     foreach ($row in $stale) {

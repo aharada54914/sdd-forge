@@ -102,7 +102,7 @@ else
 fi
 
 if [ -z "$stale" ]; then
-    ok "every applied human-copy mirror is byte-identical to live"
+    ok "every applied human-copy mirror matches live bytes or exact reviewed successor pins"
 else
     printf 'not ok: stale human-copy mirrors -- run scripts/sync-human-copy-mirrors.py\n' >&2
     while IFS=$'\t' read -r _ bundle rel rule; do

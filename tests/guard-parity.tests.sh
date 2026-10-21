@@ -489,6 +489,23 @@ parity_check "r10-gate-protect: variable write target fails closed" 2 \
     '{"tool_name":"bash","tool_input":{"command":"DST=plugins/sdd-quality-loop/scripts/sdd-hook-guard.py; cp /tmp/x $DST"}}'
 
 # ---------------------------------------------------------------------------
+# Scenario 30: protected_gate_suffixes entries added for the managed-model entry
+# and the PowerShell panelist runners. Per path: destructive rm and cp-onto deny,
+# read-only cat allows, so each registration is behaviorally observable.
+# ---------------------------------------------------------------------------
+for protected_entry in \
+    plugins/sdd-implementation/scripts/managed-model-entry.py \
+    plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1 \
+    plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1; do
+    parity_check "protected entry rm denied: ${protected_entry}" 2 \
+        "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"rm ${protected_entry}\"}}"
+    parity_check "protected entry cp onto denied: ${protected_entry}" 2 \
+        "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"cp /tmp/x ${protected_entry}\"}}"
+    parity_check "protected entry cat allowed: ${protected_entry}" 0 \
+        "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"cat ${protected_entry}\"}}"
+done
+
+# ---------------------------------------------------------------------------
 # T-006: domain-model approval guard (sdd-domain plugin)
 #
 # Mirrors the tasks.md Approval guard's net-increase counting logic EXACTLY
