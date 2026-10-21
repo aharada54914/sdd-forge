@@ -1,0 +1,18 @@
+{
+  "schema": "verification-ci-mutations/v1",
+  "baseline_revision": "f80ac878fb815b029e5b07f9d9dc4035c387bffd",
+  "rule_sha256": "e706e91fb5716205fddd40953eb3a326679b626260eb5a0c63c1edc2618b1e06",
+  "cases": [
+    {
+      "input": "README.md",
+      "plan": {
+        "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/mutation-plan.json",
+        "sha256": "80262c03ef9f3cff4d6285e3aee1ea7c8ee9c9ed4296aba9427e6f4ffe093023"
+      },
+      "result": {
+        "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/mutation-result.json",
+        "sha256": "f05e6ba3af5e25a98f694ee1a38e00892c0460a8535560d8d4e78a674b294669"
+      }
+    }
+  ]
+}

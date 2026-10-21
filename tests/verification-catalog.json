@@ -35,8 +35,13 @@
           "version-gates-windows-bump",
           "version-gates-windows-lanes"
         ],
-        "active": false,
-        "evidence": null
+        "active": true,
+        "evidence": {
+          "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/activation.json",
+          "sha256": "9ba9e943d9d80a46e5dda11ca001248d6f12101e7e927b3bea374af6ab9693f5",
+          "rule_sha256": "e706e91fb5716205fddd40953eb3a326679b626260eb5a0c63c1edc2618b1e06",
+          "baseline_revision": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+        }
       }
     ],
     "dependencies": {

@@ -1,0 +1,188 @@
+{
+  "schema": "verification-ci-activation/v1",
+  "category": "readme-contract",
+  "rule_sha256": "e706e91fb5716205fddd40953eb3a326679b626260eb5a0c63c1edc2618b1e06",
+  "baseline_revision": "f80ac878fb815b029e5b07f9d9dc4035c387bffd",
+  "full_plan": {
+    "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/baseline-plan.json",
+    "sha256": "1a66b7466963bd1a37d58dbe3784145c8c97ad89dac5a743c563c3e39504477b"
+  },
+  "full_result": {
+    "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/baseline-result.json",
+    "sha256": "584f4462a01d4b2eae1b4dc21b2071009c439c28f7cc5ae68d2574ab35bbb878"
+  },
+  "consumer_inventory": {
+    "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/consumer-inventory.json",
+    "sha256": "c5d04997527f28fdcb3bce4517457d246011b211f2d05051186c4aee0bef7363"
+  },
+  "mutation_evidence": {
+    "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/mutation-evidence.json",
+    "sha256": "890e4b18d6d906db45931ebae5c462b499f44791107e8ea06fa1a29bd6028987"
+  },
+  "supporting_evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/README.md",
+      "sha256": "9978aefacc363af33432d57fccbdd056b93371e8750df01111fd3840f5b4aeae"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/artifact-digests.json",
+      "sha256": "5ac7e2f50730800bdd27f77ea61786b9525e5cc0a01d2e2b1c1b8409d2747b9a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-0052dd62b0404fd2806ae392f12ac4b47274ae363ab2e7705b0298e8b54a2b09/verification-4.json.base64.json",
+      "sha256": "78883981fab446d5d4be0249e05eb11b83221879e50f8422c9496144d0e84beb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-03e97c03cab49fd289984c617d1d49399dffec88be39ef4f64ca5860eae30eaa/verification-20.json",
+      "sha256": "2e7d842356f5d9632a57b0c568072d1db795ea0cfa2c65e6e3d947008cce7056"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-0be87195740229b13fdeae92a0f2cb01b5020b8508322628be022f501e6c6061/verification-cloud.json.base64.json",
+      "sha256": "4708900d39f67c8c37b1000e6d28900202d323d5e5997c19f5f83ee19cdd6369"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-21ad482eb8a27e8f2e5fe13c00e89e5dbb59c0fa5cd78f7ad8502d612c079206/verification-28.json.base64.json",
+      "sha256": "18ad576f01fc3f7ba82e8759aea5c864aeb56e6ea25a38e2df0b2460ab8a59a4"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-28b5640a79b37612b3eb4147af5d32c93a67ec817950b5d203fb91283f864f74/verification-impact.json",
+      "sha256": "76920f8cfa449035c92a9857d50430e6f6d6970512b5b42f5191e15090a8cf4f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-28b5640a79b37612b3eb4147af5d32c93a67ec817950b5d203fb91283f864f74/verification-shared-python.json",
+      "sha256": "7663abdbbf0ec18140498133938613566a4504344dc2727bda220be6b5d8b6f3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-2d516e631412832c9283cfb676f44b6fd4b231da2c666abb9de0a1cdbd661c28/verification-cloud.json",
+      "sha256": "6500c858a58950157c7471d35366b5c3e10454207c5d69275683e132f15bd9ee"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-4a6a38619ac58c2304420eda986fc1fe292687e5f746d214563e3ff5f94acf01/verification-shard.json",
+      "sha256": "067b17af100eb7d7b27b6f29d78d9bff443f59043816bdf51164a9d3c671ab94"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-6b31337cbfe6c8c6e476103a1db55195a5b0365d641f7cad01124f7688e87e17/verification-1.json.base64.json",
+      "sha256": "017a18aebcd546b7c48fda5345673060ce154150a36e4ff2021f604e17a87465"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-6e86e2e28b5ae20e1a0ac7a4d1a3bd8c5feedd47dde71b1f1e275bb1be3a3fe1/verification-20.json",
+      "sha256": "df14b2a9e7ae728936542d50a8022d6a916a9a0a5bb527c9d0ae5320b2120d89"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-80ed411675869244ee9ffd0eed4f32076586190a101d9f19b0aa9a280e88b836/verification-cloud.json",
+      "sha256": "4c24efd2f8db9183a9207da8cb7e550190771af59d0b37bb9e7091264db053fc"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-88ac04ab6c4904308e9b72c92a9e4d88c410b330ab96543e6e925e03d7a459dd/verification-shard.json",
+      "sha256": "27e39ee3abc44815b30ed1959666a0cfed6ab8ba2346bbcf8acf15595f2355a6"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-8956d4214a40fcef2c6d8bef636941bd2e923026cd5ab0076a582b8f1de2fa38/verification-shard.json",
+      "sha256": "81a199382378d3362b70e91b08c80f459d87643d19aefeffe0c8793628953f82"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-9ed2822033ecc68f41f1947b7e6df187e5f706448804c483b493585e862528ab/verification-shard.json",
+      "sha256": "63cf6f80cb80d25a4c0840199445a31692db247bd1f1e5e4f115e774255d9d3b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/artifacts/verification-receipts-39647850787-1-e8667b593ea4e60ad2c6c3be3a36edc4a7681dd206d2a5efb9ce32ba977e38fd/verification-1.json.base64.json",
+      "sha256": "fe655844bae871948c9fb985903e65e550cbcb78c5a5b52d1457e1b23c48db62"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/collection.json",
+      "sha256": "f3bdf1114a5e62809b1eb90019dae9ad9fbce83f087dfcf64c41f953dea1edcf"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/jobs/1-1.json",
+      "sha256": "c4ccb43dedfc0aa7351c2865d9fbbb41ce1dcd1a578013c1f55f93dfe88ec416"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/observations/run.json",
+      "sha256": "3e95974c88bd53494dbfb7c4cdf6b18bd7bd974682e0b1a48773d0821d824ae3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/baseline/transport-report.json",
+      "sha256": "0235f617bfda26df7afcb5507f9b73fe0d51e60ed69985e27db632bb2d5c9e91"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/artifact-digests.json",
+      "sha256": "ee4ef98b8323496366bcc2c5fdfa21941ced06bc879e8ede70cba65488f0c66f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-0052dd62b0404fd2806ae392f12ac4b47274ae363ab2e7705b0298e8b54a2b09/verification-4.json.base64.json",
+      "sha256": "91ae528e36f9e4832ca403d6322f67381af0c887189e154f8074c5f16dbda294"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-0be87195740229b13fdeae92a0f2cb01b5020b8508322628be022f501e6c6061/verification-cloud.json.base64.json",
+      "sha256": "587d5298d924dc955505a940da1c54df6f6ca74061949b09e191a5ada0d78d5f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-28b5640a79b37612b3eb4147af5d32c93a67ec817950b5d203fb91283f864f74/verification-impact.json",
+      "sha256": "819adb654ff52a62036530d7a0f89a39aec5e94593adf5771f6db350ec124094"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-28b5640a79b37612b3eb4147af5d32c93a67ec817950b5d203fb91283f864f74/verification-shared-python.json",
+      "sha256": "63ad38afb7201805a268c2918ad455d715a9aa584dd66170a94662fde7e36350"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-2d516e631412832c9283cfb676f44b6fd4b231da2c666abb9de0a1cdbd661c28/verification-cloud.json",
+      "sha256": "11fc63724e0df7f71cbd935d7e23ee2ecfa83b7c483aa174e9e95d35134ab3ef"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-4a6a38619ac58c2304420eda986fc1fe292687e5f746d214563e3ff5f94acf01/verification-shard.json",
+      "sha256": "4411797105dfe322d944b9c4cae2c3d9e90a7b39fcf5f6b69b14cd202f78f5c3"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-6b31337cbfe6c8c6e476103a1db55195a5b0365d641f7cad01124f7688e87e17/verification-1.json.base64.json",
+      "sha256": "ca884482d285b31347681991cc70280a30602daa58dc0a83e2c2e4b3401d28d5"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-80ed411675869244ee9ffd0eed4f32076586190a101d9f19b0aa9a280e88b836/verification-cloud.json",
+      "sha256": "04e83e73e93bd3ae815705c81edadf49c2eaa8503b7b3a79874843b01cd2b941"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-88ac04ab6c4904308e9b72c92a9e4d88c410b330ab96543e6e925e03d7a459dd/verification-shard.json",
+      "sha256": "54155170643ceb5eb0f95805ca550f11d47604aea77f196f89dce4f0440bfb57"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-8956d4214a40fcef2c6d8bef636941bd2e923026cd5ab0076a582b8f1de2fa38/verification-shard.json",
+      "sha256": "606b218de1838a39b3574589b390742f5e9bc04233f260f6daab5f592b64938b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-9ed2822033ecc68f41f1947b7e6df187e5f706448804c483b493585e862528ab/verification-shard.json",
+      "sha256": "c669182fcc7e980028310a4e54b6e675b4d9d8ecbac4ac2e0ab2050d3609fcc5"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/artifacts/verification-receipts-39647858757-1-e8667b593ea4e60ad2c6c3be3a36edc4a7681dd206d2a5efb9ce32ba977e38fd/verification-1.json.base64.json",
+      "sha256": "35c392b2150404810355702d4245c20d20c2b7d5a0c1406d38f15344fc79654f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/collection.json",
+      "sha256": "a380c57b7a4f0d2ee636387d7dadc49a7febd1c049f9158ee6b9e81caa748147"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/jobs/1-1.json",
+      "sha256": "b84121e45cda8c5283eda8ad5125da186f3f8a0718dfd549f213ba53d29f0203"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/observations/run.json",
+      "sha256": "15e747e87b8f9e83d3a0d3eb14e74d38c301ec306a957a4b2ccfee04dffb1ac8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation/transport-report.json",
+      "sha256": "f07cdaf446dffdd34c244c673f10320b1973642252eacb139c34d13870a816aa"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation-closure-validation.json",
+      "sha256": "ed57757b1271fea09e407ead282a0dadf3dc956bdbb497e17899a7466a9b49eb"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/mutation-restore-pins.json",
+      "sha256": "46b5a666938f179c0852bfb734e0b1fed494f0aa098e2091077975034d91b746"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/supporting/source-pins.json",
+      "sha256": "dbdd0f2da9c456b2f67dcd786f87eb370e053b30c50ece3baa2692885eaf4306"
+    }
+  ]
+}

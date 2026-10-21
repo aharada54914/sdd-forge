@@ -1,0 +1,216 @@
+{
+  "run_id": "39647850787",
+  "artifacts": [
+    {
+      "id": 12370731885,
+      "name": "verification-receipts-39647850787-1-9ed2822033ecc68f41f1947b7e6df187e5f706448804c483b493585e862528ab",
+      "digest": "sha256:9b1bf786fb08b4b4ab5e62eb1ddf79ebf5fa6b8765c8ba786df5feabac1d6fe4",
+      "size_in_bytes": 2245,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12370256151,
+      "name": "verification-receipts-39647850787-1-0052dd62b0404fd2806ae392f12ac4b47274ae363ab2e7705b0298e8b54a2b09",
+      "digest": "sha256:77bde278ea230620469b69968fcf1181ac8de9cb43f5155818fd5dafd6400a7d",
+      "size_in_bytes": 968,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12370122797,
+      "name": "verification-receipts-39647850787-1-80ed411675869244ee9ffd0eed4f32076586190a101d9f19b0aa9a280e88b836",
+      "digest": "sha256:7b09b2312330c3beb062a89c2c3c603720fe7871f6fee16e8b4810e1f328945b",
+      "size_in_bytes": 848,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12369870815,
+      "name": "verification-receipts-39647850787-1-8956d4214a40fcef2c6d8bef636941bd2e923026cd5ab0076a582b8f1de2fa38",
+      "digest": "sha256:955ca62fa0b564988ce46bb4b76b7d47b7937a875b7971881409d63c1f1bf3b1",
+      "size_in_bytes": 523,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12369861858,
+      "name": "verification-receipts-39647850787-1-6e86e2e28b5ae20e1a0ac7a4d1a3bd8c5feedd47dde71b1f1e275bb1be3a3fe1",
+      "digest": "sha256:3c2bb4c5a44d3ec60860e5221611f2e8e1b56ab5df288b345a49c2ad09105989",
+      "size_in_bytes": 979,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12369805697,
+      "name": "verification-receipts-39647850787-1-21ad482eb8a27e8f2e5fe13c00e89e5dbb59c0fa5cd78f7ad8502d612c079206",
+      "digest": "sha256:2256f3c6c0fba91358f5ca98dda398f3f2ed4d884250584786fc535272bb5fd7",
+      "size_in_bytes": 734,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12369124511,
+      "name": "verification-receipts-39647850787-1-03e97c03cab49fd289984c617d1d49399dffec88be39ef4f64ca5860eae30eaa",
+      "digest": "sha256:df5ac7d7b6cbdcff5807da970f1e8660e82a64dfa53d65e81063c006e8a48210",
+      "size_in_bytes": 981,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12368893606,
+      "name": "verification-receipts-39647850787-1-28b5640a79b37612b3eb4147af5d32c93a67ec817950b5d203fb91283f864f74",
+      "digest": "sha256:95135cfa9655b259b1d14086cc4d7d6a1501b56979b3ac46b291bcfb21cdf8f1",
+      "size_in_bytes": 5080,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12368826827,
+      "name": "verification-receipts-39647850787-1-2d516e631412832c9283cfb676f44b6fd4b231da2c666abb9de0a1cdbd661c28",
+      "digest": "sha256:bbbb6473d7f7b6b2eab6b390c2ab76d03a888688e1226ad6a8bc342705c455b7",
+      "size_in_bytes": 844,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12368412846,
+      "name": "verification-receipts-39647850787-1-6b31337cbfe6c8c6e476103a1db55195a5b0365d641f7cad01124f7688e87e17",
+      "digest": "sha256:4c91b4f9f2b2f52fe23b7a2047bfd843dadad32de8042b115da20c39c23c9f71",
+      "size_in_bytes": 502,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12368068521,
+      "name": "verification-receipts-39647850787-1-0be87195740229b13fdeae92a0f2cb01b5020b8508322628be022f501e6c6061",
+      "digest": "sha256:d174c55bed622a4a500c5fd41bca0f88e22f93625d1a909bd97c3a2814daab67",
+      "size_in_bytes": 834,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12367799429,
+      "name": "verification-receipts-39647850787-1-4a6a38619ac58c2304420eda986fc1fe292687e5f746d214563e3ff5f94acf01",
+      "digest": "sha256:d5aa6fda2125f4087a654150f5174d486fadfdc98a8fe5c759079a6a11128f59",
+      "size_in_bytes": 2345,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12367429518,
+      "name": "verification-receipts-39647850787-1-88ac04ab6c4904308e9b72c92a9e4d88c410b330ab96543e6e925e03d7a459dd",
+      "digest": "sha256:367ad753eabe5d0ee804e979eec03af6b808df5f688c2776ef1a0a3c7c35aa4d",
+      "size_in_bytes": 2410,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12367119939,
+      "name": "verification-receipts-39647850787-1-e8667b593ea4e60ad2c6c3be3a36edc4a7681dd206d2a5efb9ce32ba977e38fd",
+      "digest": "sha256:1dbafd0e92d33712186d371d23b9ab4d1214d469f5b43286dd61cd73c40bcbc2",
+      "size_in_bytes": 503,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    },
+    {
+      "id": 12366859670,
+      "name": "verification-plan-39647850787-1",
+      "digest": "sha256:f069fd1db484ebf06f0513e64872a8efc4ba8172dc802eda3debc8c1805ec099",
+      "size_in_bytes": 39986,
+      "expired": false,
+      "workflow_run": {
+        "id": 39647850787,
+        "repository_id": 1264102141,
+        "head_repository_id": 1264102141,
+        "head_branch": "t011/baseline-f80ac878fb81",
+        "head_sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+      }
+    }
+  ],
+  "original_zip_storage": "External controller storage; ZIP bytes are not shipped or committed. API digests bind acquisition."
+}

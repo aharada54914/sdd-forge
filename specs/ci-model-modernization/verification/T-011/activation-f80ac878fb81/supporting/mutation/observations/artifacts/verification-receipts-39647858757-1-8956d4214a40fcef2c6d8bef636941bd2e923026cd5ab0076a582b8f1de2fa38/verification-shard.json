@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "ci-posix-fallback",
+  "revision": "78170dded31b9f9db346192ebc6acecbd0264a58",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "d771c913ec79e345c6cb4a16087bc0a80fc8dc6001fd3a6dfd272a5d553ba2eb",
+  "selected": [
+    "tests/impl-review-adr-inputs.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/impl-review-adr-inputs.tests.sh",
+      "source_sha256": "167c7060821864367d8547b9148b283ce1ab1fd8a5f4e4d20ad329b940d31395",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 490.92135
+    }
+  ],
+  "revision_after": "78170dded31b9f9db346192ebc6acecbd0264a58",
+  "clean_after": true
+}
