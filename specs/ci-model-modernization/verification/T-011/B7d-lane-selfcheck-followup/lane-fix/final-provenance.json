@@ -1,0 +1,24 @@
+{
+  "tests_first_commit": "92b86fa948a7a768e5cba0d4b70a73612f8e089f",
+  "files": {
+    "tests/deterministic-lane-selfcheck.tests.sh": "b22a1a3f69883a432c7487794a34b95936fac5aff28deb5e77b55a902b325869",
+    ".github/workflows/test.yml": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e"
+  },
+  "baseline_pins": "baseline-pins.json",
+  "red": "corrected-tests-red.log",
+  "checks": "checks/results.json",
+  "root_checks": "root-checks.json",
+  "rollback": "Only disposable workflow restored to original then exact candidate; original known defects reappear, restoration passes. No baseline-pass claim.",
+  "delegation": {
+    "cli": "Claude Code 2.1.303",
+    "configured_model_alias": "sonnet",
+    "actual_call_count": 1,
+    "exit_code": 0,
+    "timed_out": false,
+    "role": "coding assistance, not independent QA",
+    "hooks_and_mcp": "disabled",
+    "private_session": "external, not published"
+  },
+  "scope": "Historical anchors untouched. Full CI not rerun here; 449 inventory remains, 3 run obligation IDs changed.",
+  "thin_fixture": "Actual copied source/sibling/suite files; existing installed pinned node_modules reused for parser; no suite mocks."
+}

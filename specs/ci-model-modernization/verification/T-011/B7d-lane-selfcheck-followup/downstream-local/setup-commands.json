@@ -1,0 +1,24 @@
+[
+  {
+    "argv": [
+      "git",
+      "clone",
+      "--shared",
+      "--no-checkout",
+      "/workspace/sdd-forge",
+      "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/checkout"
+    ],
+    "exit_code": 0
+  },
+  {
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/checkout",
+      "checkout",
+      "--detach",
+      "7d3b6ef287c2aa729b3f6f276374d872986dabf9"
+    ],
+    "exit_code": 0
+  }
+]

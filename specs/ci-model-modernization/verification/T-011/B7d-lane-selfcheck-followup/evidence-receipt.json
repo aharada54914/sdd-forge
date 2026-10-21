@@ -1,0 +1,547 @@
+{
+  "schema": "B7d-lane-selfcheck-public-evidence/v1",
+  "at": "2026-10-21T16:49:15.446173+00:00",
+  "failed_B7d_commit": "7d3b6ef287c2aa729b3f6f276374d872986dabf9",
+  "failed_run_id": 39630743526,
+  "tests_first_commit": "92b86fa948a7a768e5cba0d4b70a73612f8e089f",
+  "committed_test_sha256": "b22a1a3f69883a432c7487794a34b95936fac5aff28deb5e77b55a902b325869",
+  "ordinary_source_candidate_pins": [
+    {
+      "path": ".github/workflows/test.yml",
+      "before_commit": "92b86fa948a7a768e5cba0d4b70a73612f8e089f",
+      "before_sha256": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192",
+      "after_candidate_sha256": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e",
+      "privacy_scope": "Exactbytes"
+    },
+    {
+      "path": "reports/verification/ci-model-modernization-continuation-20261019.json",
+      "before_commit": "92b86fa948a7a768e5cba0d4b70a73612f8e089f",
+      "before_sha256": "a8c95d6339aebcbb74e05f2c57fc62d19026a94e53e08bc93cf356552e53ed53",
+      "after_candidate_sha256": "93235fe90ebf0d00342a0c80f88ec32718dad8f9182317c2b10458b1f8aec4ff",
+      "privacy_scope": "Diffonly, historicalunchangedpublishedmetadata Rootadjudicated"
+    }
+  ],
+  "records": [
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/baseline-pins.json",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/baseline-pins.json",
+      "source_sha256": "a643ab5db1f9092d222c7d7ff862cab30a080edcdd80baaa50cde0fe2517fca1",
+      "published_sha256": "a643ab5db1f9092d222c7d7ff862cab30a080edcdd80baaa50cde0fe2517fca1",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/final-provenance.json",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/final-provenance.json",
+      "source_sha256": "1c0c4cf115794c413715508852be71bddff220a6d34bfdb50b2d9913d9994fb8",
+      "published_sha256": "1c0c4cf115794c413715508852be71bddff220a6d34bfdb50b2d9913d9994fb8",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/root-checks.json",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/root-checks.json",
+      "source_sha256": "e17295125b82fa374f3b9e65c775e2ab1bc724ca2a3fad4b28afd8ee0ddee7ce",
+      "published_sha256": "e17295125b82fa374f3b9e65c775e2ab1bc724ca2a3fad4b28afd8ee0ddee7ce",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls-and-rollback-results.json",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/results.json",
+      "source_sha256": "9b52bfb2e93b65255bb9635b96922e83093f825fdd46fa9c8cbb03b727d893fc",
+      "published_sha256": "9b52bfb2e93b65255bb9635b96922e83093f825fdd46fa9c8cbb03b727d893fc",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/original-red-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/original-red.log",
+      "source_sha256": "3509aed02265f9f131918cddbbee888711887513913af71930a6e6f2a1642783",
+      "source_lines_1_based": [
+        1,
+        3,
+        4,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        76
+      ],
+      "published_sha256": "ee1c917d46385f0408a5f377198fa09f1add76c772fc838ea446ffa53f10252b",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/corrected-tests-red-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/corrected-tests-red.log",
+      "source_sha256": "9ea82e04affcf3ee059e8a5ee8db821c6cc90a8b0198ef7b8f2f2e7baa92e3b5",
+      "source_lines_1_based": [
+        1,
+        3,
+        4,
+        8,
+        9,
+        10,
+        11,
+        36
+      ],
+      "published_sha256": "1ac59c4b98bc9c51c1c0b3579fb72b1305d7a63e5f89d44cb07cba39a71a7f76",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/root-green-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/root-green.log",
+      "source_sha256": "b6dfae29c2c46798f76ed1dad7227236f8a7505890c6cb6c009e36e90146ec80",
+      "source_lines_1_based": [
+        1,
+        3,
+        8,
+        9,
+        10,
+        35
+      ],
+      "published_sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/actionlint.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/actionlint.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/catalog.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/catalog.log",
+      "source_sha256": "d86c66ae27e27c1733a1425e41786e22333866126554c63636ae19caf52c7579",
+      "published_sha256": "d86c66ae27e27c1733a1425e41786e22333866126554c63636ae19caf52c7579",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/changed-required-needs-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/changed-required-needs.log",
+      "source_sha256": "43ca1369ef5136018dca28a2e3aa140a9aa8785ce9bcacd5d2ecaf92d57ce971",
+      "source_lines_1_based": [
+        1,
+        3,
+        8,
+        9,
+        10,
+        14,
+        35
+      ],
+      "published_sha256": "b6cc055e6fc92927cbb91106c608269ab2e9db73b18e15cd6a1143e82659f090",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/deleted-step-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/deleted-step.log",
+      "source_sha256": "a42989251f8219417e1ccdb7dd548a7b6483d8b7cf8e3c65ce3ae9ef4bd9c48f",
+      "source_lines_1_based": [
+        1,
+        3,
+        8,
+        9,
+        10,
+        35
+      ],
+      "published_sha256": "9bf21524b11b3cb95ab5d6ac6fced09e44b3ea19e7d2bd795f93e1f98922f719",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/double-quoted-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/double-quoted.log",
+      "source_sha256": "19e380d808e5796bb9715b6474e0f18ca75b5c03e77cb8b8257cc32d4f8e0fa4",
+      "source_lines_1_based": [
+        1,
+        3,
+        8,
+        9,
+        10,
+        35
+      ],
+      "published_sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/green-baseline-to-candidate-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/green-baseline-to-candidate.log",
+      "source_sha256": "17919efb2a08c16d70a47e626c8b589053d8ce6a5ec00ea8f1a665f03395e4f7",
+      "source_lines_1_based": [
+        1,
+        3,
+        8,
+        9,
+        10,
+        35
+      ],
+      "published_sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/green-idempotent-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/green-idempotent.log",
+      "source_sha256": "19e380d808e5796bb9715b6474e0f18ca75b5c03e77cb8b8257cc32d4f8e0fa4",
+      "source_lines_1_based": [
+        1,
+        3,
+        8,
+        9,
+        10,
+        35
+      ],
+      "published_sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/missing-eval-comment-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/missing-eval-comment.log",
+      "source_sha256": "fb3de7145a899e9a8bfc9de5df310f6b964e6f403a580cc33a5237d1a36e9a6d",
+      "source_lines_1_based": [
+        1,
+        3,
+        4,
+        8,
+        9,
+        10,
+        35
+      ],
+      "published_sha256": "400b05898fb4a8b592f687517a9252fed8604106699d4115d08ca6b5789955a9",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/rollback-original-workflow-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/rollback-original-workflow.log",
+      "source_sha256": "ed29d41a9eb9472ccb075bc558d06cb81bd471766e79b36db4a0f3793605b2fe",
+      "source_lines_1_based": [
+        1,
+        3,
+        4,
+        8,
+        9,
+        10,
+        11,
+        36
+      ],
+      "published_sha256": "1ac59c4b98bc9c51c1c0b3579fb72b1305d7a63e5f89d44cb07cba39a71a7f76",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/rollback-restored-candidate-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/rollback-restored-candidate.log",
+      "source_sha256": "19e380d808e5796bb9715b6474e0f18ca75b5c03e77cb8b8257cc32d4f8e0fa4",
+      "source_lines_1_based": [
+        1,
+        3,
+        8,
+        9,
+        10,
+        35
+      ],
+      "published_sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/unnamed-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/unnamed.log",
+      "source_sha256": "0ed54a07328aaa9829fc2cadf3e06f24f79b668b39107afabca626f32375501b",
+      "source_lines_1_based": [
+        1,
+        3,
+        8,
+        9,
+        10,
+        35
+      ],
+      "published_sha256": "ffe100e685ec6704d7a7a30d6cc688a333038f4175f0001adbf8d5f2a09c1ac0",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/unprefixed-excerpt.log",
+      "source_path": "/workspace/native-ci-failures/deterministic-lane-fix/checks/unprefixed.log",
+      "source_sha256": "ab7de9ded0a453b5b0fb608860918dd30fa88dff32302addf554bc02cb33cde8",
+      "source_lines_1_based": [
+        1,
+        3,
+        8,
+        9,
+        10,
+        35
+      ],
+      "published_sha256": "f1eda3b878674d517715d0cac26f15db24802fb7c2042aee30d7ab76e7534cd7",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/results.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/results.json",
+      "source_sha256": "b9778b53a790352872205dcd5cd6e36ba1f89324f17618fd04664fcaa290c6b7",
+      "published_sha256": "b9778b53a790352872205dcd5cd6e36ba1f89324f17618fd04664fcaa290c6b7",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/setup-commands.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/setup-commands.json",
+      "source_sha256": "54317fd92c1e8b876ad25cd4fafc84117b6fca34d97d418802ffd97d9b77fa54",
+      "published_sha256": "54317fd92c1e8b876ad25cd4fafc84117b6fca34d97d418802ffd97d9b77fa54",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/status-before.txt",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/status-before.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/status-after.txt",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/status-after.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/cleanup.json",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/cleanup.json",
+      "source_sha256": "8606e6b0c0f681f39dab32c34b50a30733c7c104fa6fec60161040e4fbcce90a",
+      "published_sha256": "8606e6b0c0f681f39dab32c34b50a30733c7c104fa6fec60161040e4fbcce90a",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/workflow-scenarios-summary.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/workflow-scenarios.stdout.log",
+      "source_sha256": "788b84c6a3b98ecfde79573c9f14dd478d1beb388d340a8f3839195737b84c05",
+      "source_lines_1_based": [
+        123,
+        128
+      ],
+      "published_sha256": "422325e19922b801d16aef28a240ec33531f42d4ca8c27762b90221c5de6997c",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/design-system-bash-summary.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/design-system-bash.stdout.log",
+      "source_sha256": "127ad5b7b326b41e857ffe74c72e63daf0233bff138d28b0f6bc2db3990e6428",
+      "source_lines_1_based": [
+        95,
+        122,
+        123
+      ],
+      "published_sha256": "a41740f269925182f22f6d57c5c3789f5bbb086c5c48234e09aa4a7a159df8d8",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/design-system-powershell-summary.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/design-system-powershell.stdout.log",
+      "source_sha256": "28cbd9d34bd4ff51ba22f643c72bbfef43ce29bd519e614ce7650b59b89fdf1b",
+      "source_lines_1_based": [
+        42,
+        69,
+        70
+      ],
+      "published_sha256": "4150695eb623600927022eee05d362a79d87c06be31322a3fabcd7052b111c23",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/design-consent-bash-summary.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/design-consent-bash.stdout.log",
+      "source_sha256": "a89eace3da2f62bf64720e6978d97c6099828f1db13c7fd10206bce343ff395b",
+      "source_lines_1_based": [
+        1,
+        2,
+        55,
+        56,
+        57,
+        58
+      ],
+      "published_sha256": "90e4d88fe673c73fa875e60c775bb20a811e59d825738843f0a8330a82222c59",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/design-consent-powershell-summary.log",
+      "source_path": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/evidence/design-consent-powershell.stdout.log",
+      "source_sha256": "a89eace3da2f62bf64720e6978d97c6099828f1db13c7fd10206bce343ff395b",
+      "source_lines_1_based": [
+        1,
+        2,
+        55,
+        56,
+        57,
+        58
+      ],
+      "published_sha256": "90e4d88fe673c73fa875e60c775bb20a811e59d825738843f0a8330a82222c59",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/failed-baseline-summary.json",
+      "source_path": "/workspace/t011-rollout/outputs/7d3b6ef287c2/39630743526/failed-baseline-summary.json",
+      "source_sha256": "bb0aab890ef7378760f47a5d7aee7beb8a31165b44341b4a884241a9f2aa30bb",
+      "published_sha256": "bb0aab890ef7378760f47a5d7aee7beb8a31165b44341b4a884241a9f2aa30bb",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/collection-preparation-rejection.json",
+      "source_path": "/workspace/t011-rollout/outputs/7d3b6ef287c2/39630743526/collection-preparation-attempt.json",
+      "source_sha256": "656781a5c6b0263924dfb81844c8f67f27f44ebe9b57bce0aab17cbbb05a242b",
+      "published_sha256": "656781a5c6b0263924dfb81844c8f67f27f44ebe9b57bce0aab17cbbb05a242b",
+      "derivation": "Exact bytes",
+      "original_external_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/hosted-posix-failure-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/7d3b6ef287c2/posix-failed.log",
+      "source_sha256": "26803fd802d7ebddbfee884582ce72b24487e5508bc420b6aff0e4a566e1a8bd",
+      "source_lines_1_based": [
+        78,
+        191,
+        192,
+        484,
+        488,
+        489,
+        490,
+        494,
+        495,
+        496,
+        497,
+        498,
+        499,
+        500,
+        512,
+        516,
+        517,
+        518,
+        522,
+        523,
+        524,
+        525,
+        526,
+        527,
+        528,
+        537,
+        760,
+        761,
+        1804,
+        1997,
+        2004,
+        2011,
+        2026,
+        2030,
+        2033,
+        2036,
+        2039,
+        2041,
+        2110,
+        2119,
+        2121,
+        2122,
+        2127,
+        2128,
+        2129,
+        2130,
+        2131,
+        2132,
+        2133,
+        2134,
+        2135,
+        2136,
+        2137,
+        2138,
+        2139,
+        2140,
+        2141,
+        2142,
+        2143,
+        2144,
+        2145,
+        2146,
+        2147,
+        2148,
+        2149,
+        2150,
+        2151,
+        2152,
+        2153,
+        2154,
+        2155,
+        2156,
+        2157,
+        2158,
+        2159,
+        2160,
+        2161,
+        2162,
+        2163,
+        2164,
+        2165,
+        2166,
+        2167,
+        2168,
+        2194
+      ],
+      "published_sha256": "ca11ccd3aaaa7c3e01173aadc2f1fd9ba1c73f980102409d1eb4d50f7c7ec983",
+      "derivation": "Selected failure/control/count summary lines only; LF/trailingASCII/EOF normalization"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/failed-run-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/7d3b6ef287c2/39630743526/final-run.json",
+      "source_sha256": "a9d6e9d2ae4694091edf0a18dd39dd739d198caae6de878ba5c9b5294375ce7d",
+      "derivation": "Allowlisted finalrunstatus only"
+    }
+  ],
+  "raw_collection_pins": {
+    "diagnostic-aggregate.json": "3f580e32692a11edb61c9136ea15a9e6280a59b55e780d6f752637eae8cd453c",
+    "transport-report.json": "e8464fc368eae113b8d32f5de2c52ae61c1cb82cdfe6c5f7d4fbef208bf2a123",
+    "transport-manifest.json": "e3832787c8682b30769b9ea14bb429f99ae5154441ae4196560da2fd74d98f26",
+    "final-artifact-pages.json": "da5e50d8c1db95eb2e05c697841a70ac111c27296e37e54092daa5ca9fb3c6a5",
+    "collection-preparation-attempt.json": "656781a5c6b0263924dfb81844c8f67f27f44ebe9b57bce0aab17cbbb05a242b"
+  },
+  "source_originals_private_ledger_and_ZIPs_excluded": true,
+  "no_source_or_git_mutation_by_curator": true
+}

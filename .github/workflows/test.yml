@@ -514,7 +514,7 @@ jobs:
           name: test-logs-${{ matrix.os }}
           path: ${{ runner.temp }}/*.log
           if-no-files-found: ignore
-      - name: Bind receipt artifact to actual job identity
+      - name: '[deterministic] Bind receipt artifact to actual job identity'
         id: receipt-artifact
         if: always()
         shell: bash
@@ -527,13 +527,14 @@ jobs:
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
               output.write('job_key=' + hashlib.sha256(name).hexdigest() + '\n')
           PY_RECEIPT
-      - name: Upload source-attempt execution receipts
+      - name: '[deterministic] Upload source-attempt execution receipts'
         if: always() && needs.ci-plan.outputs.run_test == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}
           path: ${{ runner.temp }}/verification-*.json
           if-no-files-found: error
+      # eval-lane: (none yet)
     needs:
       - ci-plan
     if: always()

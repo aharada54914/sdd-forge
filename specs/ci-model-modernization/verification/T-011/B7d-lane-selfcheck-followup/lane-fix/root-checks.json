@@ -1,0 +1,28 @@
+[
+  {
+    "name": "root-green",
+    "command": [
+      "bash",
+      "tests/deterministic-lane-selfcheck.tests.sh"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "actionlint",
+    "command": [
+      "/workspace/.tools/ci-audit-bin/actionlint",
+      "-shellcheck=",
+      "-pyflakes=",
+      ".github/workflows/test.yml"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "catalog",
+    "command": [
+      "python3",
+      "tests/verification-catalog.tests.py"
+    ],
+    "exit": 0
+  }
+]

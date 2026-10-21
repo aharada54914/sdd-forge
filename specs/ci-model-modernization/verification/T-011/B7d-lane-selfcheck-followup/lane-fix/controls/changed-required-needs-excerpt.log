@@ -1,0 +1,7 @@
+=== TEST-016 (AC-016): candidate structure, every step prefixed ===
+ok: TEST-016: all 42 'test'-job step entries are named AND carry the [deterministic] prefix (no unnamed step)
+ok: TEST-017-RED: dropped step 'Test selected-plan and Lite full promotion on native platforms' correctly failed the coverage check (check is non-vacuous)
+ok: TEST-017-GREEN: all 42 baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)
+FAIL: TEST-017: required-checks' needs diverged -- live=[["a9-advisory-inputs", "a9-advisory", "posix-regression", "posix-unwired-sharded", "test", "installers", "loops-routing", "version-gates", "version-gates-windows-bump", "version-gates-windows-lanes", "mcp-tests", "local-env-mcp-tests", "ci-mcp-tests", "cli-hook-enforcement", "test-windows-heavy", "cloud-native", "ci-plan"]] candidate=[["a9-advisory-inputs", "a9-advisory", "posix-regression", "posix-unwired-sharded", "self-improvement", "installers", "loops-routing", "version-gates", "version-gates-windows-bump", "version-gates-windows-lanes", "mcp-tests", "local-env-mcp-tests", "ci-mcp-tests", "cli-hook-enforcement", "test-windows-heavy", "cloud-native", "ci-plan"]]
+FAIL: TEST-018: self-improvement appears in a needs: list in the candidate -- isolation broken
+deterministic-lane-selfcheck.tests.sh: 26 passed, 2 failed, 0 designed-red (pre-human-copy)

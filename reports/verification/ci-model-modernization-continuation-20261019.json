@@ -356,7 +356,7 @@
     "current_fix_report_sha256": "0fcea36984f07a1f6fb1a62c4503e5e8cfc7444cf28f85843e74681f9f237710",
     "current_helper_sha256": "64bb1934e2654b5d33de604c9dc649b92b91e7cd4b1d77bd1e8ceeffa9856894"
   },
-  "updated_at": "2026-10-21T14:51:53.082371+00:00",
+  "updated_at": "2026-10-21T16:47:06.730152+00:00",
   "t005_current_gate": {
     "state": "Done after actual QA2 PASS0 and generated/checked evidence bundle",
     "actual_context": "/root/t005_cycle2_evaluator",
@@ -1909,7 +1909,7 @@
     "version_tag": "1.20.0 candidate metadata prepared; no new tag published; v1.19.0 preserved.",
     "checkpoint_scope": "Historical readiness checkpoint; current continuation_20261021 and hosted_rebaseline_20261021 below supersede its pre-T010 model/release status."
   },
-  "latest_checkpoint_at": "2026-10-21T14:51:53.082371+00:00",
+  "latest_checkpoint_at": "2026-10-21T16:47:06.730152+00:00",
   "continuation_20261021": {
     "updated_at": "2026-10-21T14:51:53.082371+00:00",
     "codex_device_auth": "completed successfully; no credentials recorded",
@@ -2140,6 +2140,72 @@
       "cedb066f09f509a46d37c5cbd7466640d77bf772",
       "f7bac7421c26496a742c94fbb925671a4f867296"
     ],
-    "chronology": "Initial transport and directory-link regressions preceded their product corrections. Later fixture repairs and long-path integration coverage are additional validation, not retrospective test-first evidence."
+    "chronology": "Initial transport and directory-link regressions preceded their product corrections. Later fixture repairs and long-path integration coverage are additional validation, not retrospective test-first evidence.",
+    "status": "Historical correction record; replacement B7d passed Windows/archive and domain checks but failed later deterministic-lane check. See hosted_lane_followup_20261021."
+  },
+  "hosted_lane_followup_20261021": {
+    "recorded_at": "2026-10-21T16:47:06.730152+00:00",
+    "failed_baseline": {
+      "commit": "7d3b6ef287c2aa729b3f6f276374d872986dabf9",
+      "run_id": 39630743526,
+      "job_conclusions": {
+        "success": 43,
+        "skipped": 1,
+        "failure": 2
+      },
+      "aggregate": {
+        "result": "FAIL",
+        "reason": "execution-failed",
+        "obligations": 449,
+        "verified": 424,
+        "advisory_inactive": 1,
+        "execution_failed": 24
+      },
+      "receipt_artifacts": 14,
+      "acquisition": "Initial 13 prefetched receipts rejected as incomplete; refreshed final inventory and all 14 actual ZIPs verified before strict collection",
+      "acceptance": false,
+      "domain_suite_passed": 698
+    },
+    "correction": {
+      "tests_first_commit": "92b86fa948a7a768e5cba0d4b70a73612f8e089f",
+      "test_sha256": "b22a1a3f69883a432c7487794a34b95936fac5aff28deb5e77b55a902b325869",
+      "workflow_sha256": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e",
+      "cause": "Text-only test misreads single-quoted step names and counts job needs as a step; two actual receipt step names lack deterministic prefix and eval-lane comment is missing",
+      "scope": "Reuse existing structural YAML loader; preserve complete step coverage and required-needs checks. Add prefixes to two test-job receipt names and restore comment; execution commands unchanged.",
+      "red": {
+        "passed": 25,
+        "failed": 3
+      },
+      "green": {
+        "lane_selfcheck_passed": 28,
+        "catalog_passed": 46,
+        "actionlint": "PASS",
+        "mutation_and_rollback_checks_passed": 10
+      },
+      "rollback": "Original known workflow defects reproduce Red in disposable fixture; exact corrected workflow restoration passes. No old-baseline PASS claim.",
+      "obligations_before": 449,
+      "obligations_after": 449,
+      "changed_run_obligation_ids": 3,
+      "delegation": "One actual Claude Code coding call; reviewed locally; not independent QA",
+      "evidence": "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup"
+    },
+    "downstream_validation": {
+      "revision": "7d3b6ef287c2aa729b3f6f276374d872986dabf9",
+      "commands": 5,
+      "result": "PASS",
+      "tracked_source_hashes_before_after": 18018,
+      "scope": "Previously skipped workflow scenarios, design-system Bash/PowerShell, standing-consent Bash/PowerShell; clean isolated Linux checkout. Not hosted or full-profile acceptance."
+    },
+    "next": "Commit corrected workflow and bounded proof records as replacement B; require actual full B PASS before M/R/A. Freeze valid activation A as candidate F so later four comparison pairs can overlap exact-F full hosted and complete isolated local profiles. Tag only after all acceptance passes.",
+    "remaining": [
+      "Actual accepted B/M/R/A and four normal-PR/full comparison pairs",
+      "Exact F complete local profiles and full hosted CI",
+      "Annotated v1.20.0, final eight-path installed payload audit and independent T011 quality review"
+    ],
+    "limits": [
+      "T011 remains In Progress; no measured omission, final F or new tag claimed",
+      "Real cloud validation remains blocked by missing authorized sandbox; existing tags unchanged",
+      "Private identity ledger and raw authentication/session records excluded"
+    ]
   }
 }

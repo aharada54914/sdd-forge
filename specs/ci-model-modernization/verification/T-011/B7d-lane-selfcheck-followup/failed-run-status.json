@@ -1,0 +1,10 @@
+{
+  "run_id": 39630743526,
+  "head_sha": "7d3b6ef287c2aa729b3f6f276374d872986dabf9",
+  "status": "completed",
+  "conclusion": "failure",
+  "job_conclusion_counts": {},
+  "failed_jobs": [],
+  "original_source_sha256": "a9d6e9d2ae4694091edf0a18dd39dd739d198caae6de878ba5c9b5294375ce7d",
+  "scope": "Public final status fields only; no URLs/actor/step/headerpayloads"
+}

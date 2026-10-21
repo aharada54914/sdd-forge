@@ -1,0 +1,6 @@
+{
+  "initial_status": "incomplete_prefetch_detected",
+  "missing_artifact_id": 12361273197,
+  "controller_status": "rejected missing manifest; no collection output created",
+  "resolution": "Downloaded actual final receipt and rebuilt complete allowlist before collection"
+}

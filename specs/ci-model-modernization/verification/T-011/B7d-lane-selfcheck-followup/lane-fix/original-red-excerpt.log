@@ -1,0 +1,48 @@
+=== TEST-016 (AC-016): candidate structure, every step prefixed ===
+FAIL: TEST-016: step-entry/name/prefix counts diverge -- entries=43 named=42 prefixed=0 (an unnamed or unprefixed step exists)
+FAIL: TEST-016: the eval-lane comment placeholder is missing from the candidate
+ok: TEST-017-RED: dropped step ''[deterministic] Test selected-plan and Lite full promotion on native platforms'' correctly failed the coverage check (check is non-vacuous)
+FAIL: TEST-017-GREEN: the candidate omits baseline step name(s):     missing: '[deterministic] Setup step 1'
+    missing: '[deterministic] Install structural YAML parser'
+    missing: '[deterministic] Test selected-plan and Lite full promotion on native platforms'
+    missing: '[deterministic] Test Concept Test gate on native Windows'
+    missing: '[deterministic] Test domain review finalization on native platforms'
+    missing: '[deterministic] Verify generated guard invariants (Windows)'
+    missing: '[deterministic] Verify generated guard invariants (POSIX)'
+    missing: '[deterministic] Verify generated gate-capabilities projection (Windows)'
+    missing: '[deterministic] Verify generated gate-capabilities projection (POSIX)'
+    missing: '[deterministic] Verify vendored contracts copy (Windows)'
+    missing: '[deterministic] Verify vendored contracts copy (POSIX)'
+    missing: '[deterministic] Validate workflow state (PowerShell)'
+    missing: '[deterministic] Validate workflow state (POSIX)'
+    missing: '[deterministic] Validate repository'
+    missing: '[deterministic] Validate repository (POSIX)'
+    missing: '[deterministic] Test repository release validation parity'
+    missing: '[deterministic] Test deterministic gate scripts'
+    missing: '[deterministic] Test run-record feature scope and CRLF identity'
+    missing: '[deterministic] Test selected-feature structure validation'
+    missing: '[deterministic] Test quality-gate cycle-limit suite (bash)'
+    missing: '[deterministic] Test portable review-loop prechecks (pwsh)'
+    missing: '[deterministic] Test task prior-pass receipt (pwsh)'
+    missing: '[deterministic] Test cross-model gate (pwsh)'
+    missing: '[deterministic] Test Phase 2 guard invariants (pwsh)'
+    missing: '[deterministic] Test Phase 2 guard invariants (bash)'
+    missing: '[deterministic] Test hook guards'
+    missing: '[deterministic] Test cross-runtime scenario suite (pwsh)'
+    missing: '[deterministic] Test review hash normalization (pwsh)'
+    missing: '[deterministic] Test Epic A7 compatibility suites (pwsh)'
+    missing: '[deterministic] Test guards (bash)'
+    missing: '[deterministic] Test approval boundary (bash)'
+    missing: '[deterministic] Test deterministic gates (bash)'
+    missing: '[deterministic] Test panelist-input consent gate (bash)'
+    missing: '[deterministic] Test portable review-loop prechecks (bash)'
+    missing: '[deterministic] Test cross-model gate (bash)'
+    missing: '[deterministic] Test outcome-based eval suite (bash)'
+    missing: '[deterministic] Test CRLF line-ending parity (bash)'
+    missing: '[deterministic] Test cross-runtime scenario suite (bash)'
+    missing: '[deterministic] Test branch-protection script (bash)'
+    missing: '[deterministic] Upload test logs'
+    missing: Bind receipt artifact to actual job identity
+    missing: Upload source-attempt execution receipts
+ok: TEST-017: required-checks' needs: line is byte-unchanged (   needs:)
+deterministic-lane-selfcheck.tests.sh: 25 passed, 3 failed, 0 designed-red (pre-human-copy)

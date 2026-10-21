@@ -1,0 +1,2 @@
+ok: TEST-014 (defect-count pin): DEFECTS_RECORDED (0) matches the known-defect allowlist's own size (0)
+workflow-scenarios.tests.sh: 121 passed, 0 failed, 0 defect(s) recorded

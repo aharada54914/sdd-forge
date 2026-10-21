@@ -1,0 +1,7 @@
+=== TEST-016 (AC-016): candidate structure, every step prefixed ===
+ok: TEST-016: all 42 'test'-job step entries are named AND carry the [deterministic] prefix (no unnamed step)
+FAIL: TEST-016: the eval-lane comment placeholder is missing from the candidate
+ok: TEST-017-RED: dropped step 'Test selected-plan and Lite full promotion on native platforms' correctly failed the coverage check (check is non-vacuous)
+ok: TEST-017-GREEN: all 42 baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)
+ok: TEST-017: required-checks' complete needs list is unchanged (["a9-advisory-inputs", "a9-advisory", "posix-regression", "posix-unwired-sharded", "test", "installers", "loops-routing", "version-gates", "version-gates-windows-bump", "version-gates-windows-lanes", "mcp-tests", "local-env-mcp-tests", "ci-mcp-tests", "cli-hook-enforcement", "test-windows-heavy", "cloud-native", "ci-plan"])
+deterministic-lane-selfcheck.tests.sh: 27 passed, 1 failed, 0 designed-red (pre-human-copy)

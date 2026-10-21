@@ -1,0 +1,6 @@
+PASS: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, order-independent Values-cell set + intro/key-row backtick-literal allowlist)
+PASS: TEST-002 a ## Project Settings heading exists and the setting key is named in a table row under it (AC-002)
+PASS: TEST-056 value matching is stated as exact and case-sensitive, a case variant is named as out-of-domain input (AC-031)
+PASS: 55
+FAIL: 0
+PASS: TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred)

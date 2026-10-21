@@ -1,0 +1,12 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+index 4188788c..3cf46919 100644
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -517 +517 @@ jobs:
+-      - name: Bind receipt artifact to actual job identity
++      - name: '[deterministic] Bind receipt artifact to actual job identity'
+@@ -530 +530 @@ jobs:
+-      - name: Upload source-attempt execution receipts
++      - name: '[deterministic] Upload source-attempt execution receipts'
+@@ -536,0 +537 @@ jobs:
++      # eval-lane: (none yet)

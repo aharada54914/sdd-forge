@@ -1,0 +1,85 @@
+2026-10-21T16:00:22.3607131Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-21T16:00:29.1507106Z ##[group]Run npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+2026-10-21T16:00:29.1507652Z [36;1mnpm ci --prefix mcp/sdd-forge-mcp --ignore-scripts[0m
+2026-10-21T16:02:19.3671627Z ok: bash new-missing: exit=1, expected=1
+2026-10-21T16:02:19.3673456Z ok: bash other-prefix: exit=0, expected=0
+2026-10-21T16:02:19.3673979Z ok: bash other-prefix: snapshot, unchanged verification, changed-root refusal
+2026-10-21T16:02:19.3674548Z ok: bash other-prefix: omitted bound root refused
+2026-10-21T16:02:19.3676057Z ok: bash prior-prefix: exit=0, expected=0
+2026-10-21T16:02:19.3676567Z ok: bash prior-prefix: snapshot, unchanged verification, changed-root refusal
+2026-10-21T16:02:19.3677118Z ok: bash prior-prefix: omitted bound root refused
+2026-10-21T16:02:19.3677521Z ok: bash prior-missing: exit=1, expected=1
+2026-10-21T16:02:19.3677903Z ok: bash legacy-missing: exit=0, expected=0
+2026-10-21T16:02:19.3678438Z ok: bash legacy-missing: snapshot, unchanged verification, changed-root refusal
+2026-10-21T16:02:19.3679007Z ok: bash legacy-missing: omitted bound root refused
+2026-10-21T16:02:19.3685470Z ok: pwsh new-missing: exit=1, expected=1
+2026-10-21T16:02:19.3686918Z ok: pwsh other-prefix: exit=0, expected=0
+2026-10-21T16:02:19.3687418Z ok: pwsh other-prefix: snapshot, unchanged verification, changed-root refusal
+2026-10-21T16:02:19.3687974Z ok: pwsh other-prefix: omitted bound root refused
+2026-10-21T16:02:19.3689315Z ok: pwsh prior-prefix: exit=0, expected=0
+2026-10-21T16:02:19.3689699Z ok: pwsh prior-prefix: snapshot, unchanged verification, changed-root refusal
+2026-10-21T16:02:19.3690320Z ok: pwsh prior-prefix: omitted bound root refused
+2026-10-21T16:02:19.3690635Z ok: pwsh prior-missing: exit=1, expected=1
+2026-10-21T16:02:19.3690925Z ok: pwsh legacy-missing: exit=0, expected=0
+2026-10-21T16:02:19.3691321Z ok: pwsh legacy-missing: snapshot, unchanged verification, changed-root refusal
+2026-10-21T16:02:19.3691749Z ok: pwsh legacy-missing: omitted bound root refused
+2026-10-21T16:02:19.3695569Z PASS: 28; FAIL: 0
+2026-10-21T16:03:31.9719772Z ##[group]Run npm ci --prefix mcp/ci-mcp --ignore-scripts
+2026-10-21T16:03:31.9720219Z [36;1mnpm ci --prefix mcp/ci-mcp --ignore-scripts[0m
+2026-10-21T16:38:55.1851753Z     [+] documents Term-Deviation Count and Boundary-Violation Count as named metrics 1ms
+2026-10-21T16:38:57.2743561Z ok: TEST-002: only the 'pwsh'-named stub actually executed (marker=[pwsh]) (AC-002)
+2026-10-21T16:38:58.5486801Z ok: TEST-003: only the 'powershell.exe'-named stub actually executed (marker=[powershell.exe]) (AC-003)
+2026-10-21T16:38:59.8279867Z ok: TEST-004: only the 'powershell'-named stub actually executed (marker=[powershell]) (AC-004)
+2026-10-21T16:39:01.1290270Z ok: TEST-006: only the 'pwsh'-named stub actually executed (marker=[pwsh]) (AC-006, precedence)
+2026-10-21T16:39:02.4254646Z ok: TEST-007a: only the 'pwsh'-named stub actually executed (marker=[pwsh]) (AC-007, pwsh branch, copilot mode)
+2026-10-21T16:39:03.7114129Z ok: TEST-007b: only the 'powershell.exe'-named stub actually executed (marker=[powershell.exe]) (AC-007, powershell.exe branch, copilot mode)
+2026-10-21T16:39:05.0232592Z ok: TEST-007c: only the 'powershell'-named stub actually executed (marker=[powershell]) (AC-007, powershell branch, copilot mode)
+2026-10-21T16:39:06.3059514Z ok: TEST-007d: only the 'pwsh'-named stub actually executed (marker=[pwsh]) (AC-007, precedence branch, copilot mode)
+2026-10-21T16:39:06.3060362Z guard-dispatch-fallback.tests.sh: 47 passed, 0 failed
+2026-10-21T16:39:14.6530337Z guard-negative-corpus.tests.sh: 47 passed, 0 failed, 0 skipped
+2026-10-21T16:39:14.6761913Z === TEST-016 (AC-016): candidate structure, every step prefixed ===
+2026-10-21T16:39:14.7688327Z FAIL: TEST-016: step-entry/name/prefix counts diverge -- entries=43 named=42 prefixed=0 (an unnamed or unprefixed step exists)
+2026-10-21T16:39:14.7702562Z FAIL: TEST-016: the eval-lane comment placeholder is missing from the candidate
+2026-10-21T16:39:15.1158220Z FAIL: TEST-017-GREEN: the candidate omits baseline step name(s):     missing: '[deterministic] Setup step 1'
+2026-10-21T16:39:15.1159400Z     missing: '[deterministic] Install structural YAML parser'
+2026-10-21T16:39:15.1160248Z     missing: '[deterministic] Test selected-plan and Lite full promotion on native platforms'
+2026-10-21T16:39:15.1161531Z     missing: '[deterministic] Test Concept Test gate on native Windows'
+2026-10-21T16:39:15.1163112Z     missing: '[deterministic] Test domain review finalization on native platforms'
+2026-10-21T16:39:15.1164630Z     missing: '[deterministic] Verify generated guard invariants (Windows)'
+2026-10-21T16:39:15.1166071Z     missing: '[deterministic] Verify generated guard invariants (POSIX)'
+2026-10-21T16:39:15.1167201Z     missing: '[deterministic] Verify generated gate-capabilities projection (Windows)'
+2026-10-21T16:39:15.1168311Z     missing: '[deterministic] Verify generated gate-capabilities projection (POSIX)'
+2026-10-21T16:39:15.1169277Z     missing: '[deterministic] Verify vendored contracts copy (Windows)'
+2026-10-21T16:39:15.1170144Z     missing: '[deterministic] Verify vendored contracts copy (POSIX)'
+2026-10-21T16:39:15.1170962Z     missing: '[deterministic] Validate workflow state (PowerShell)'
+2026-10-21T16:39:15.1171762Z     missing: '[deterministic] Validate workflow state (POSIX)'
+2026-10-21T16:39:15.1172450Z     missing: '[deterministic] Validate repository'
+2026-10-21T16:39:15.1173358Z     missing: '[deterministic] Validate repository (POSIX)'
+2026-10-21T16:39:15.1174164Z     missing: '[deterministic] Test repository release validation parity'
+2026-10-21T16:39:15.1174986Z     missing: '[deterministic] Test deterministic gate scripts'
+2026-10-21T16:39:15.1175838Z     missing: '[deterministic] Test run-record feature scope and CRLF identity'
+2026-10-21T16:39:15.1176833Z     missing: '[deterministic] Test selected-feature structure validation'
+2026-10-21T16:39:15.1177685Z     missing: '[deterministic] Test quality-gate cycle-limit suite (bash)'
+2026-10-21T16:39:15.1178547Z     missing: '[deterministic] Test portable review-loop prechecks (pwsh)'
+2026-10-21T16:39:15.1179169Z     missing: '[deterministic] Test task prior-pass receipt (pwsh)'
+2026-10-21T16:39:15.1179862Z     missing: '[deterministic] Test cross-model gate (pwsh)'
+2026-10-21T16:39:15.1180275Z     missing: '[deterministic] Test Phase 2 guard invariants (pwsh)'
+2026-10-21T16:39:15.1180681Z     missing: '[deterministic] Test Phase 2 guard invariants (bash)'
+2026-10-21T16:39:15.1181329Z     missing: '[deterministic] Test hook guards'
+2026-10-21T16:39:15.1182283Z     missing: '[deterministic] Test cross-runtime scenario suite (pwsh)'
+2026-10-21T16:39:15.1183420Z     missing: '[deterministic] Test review hash normalization (pwsh)'
+2026-10-21T16:39:15.1184187Z     missing: '[deterministic] Test Epic A7 compatibility suites (pwsh)'
+2026-10-21T16:39:15.1184578Z     missing: '[deterministic] Test guards (bash)'
+2026-10-21T16:39:15.1184928Z     missing: '[deterministic] Test approval boundary (bash)'
+2026-10-21T16:39:15.1185311Z     missing: '[deterministic] Test deterministic gates (bash)'
+2026-10-21T16:39:15.1185718Z     missing: '[deterministic] Test panelist-input consent gate (bash)'
+2026-10-21T16:39:15.1186180Z     missing: '[deterministic] Test portable review-loop prechecks (bash)'
+2026-10-21T16:39:15.1186602Z     missing: '[deterministic] Test cross-model gate (bash)'
+2026-10-21T16:39:15.1187199Z     missing: '[deterministic] Test outcome-based eval suite (bash)'
+2026-10-21T16:39:15.1187957Z     missing: '[deterministic] Test CRLF line-ending parity (bash)'
+2026-10-21T16:39:15.1188739Z     missing: '[deterministic] Test cross-runtime scenario suite (bash)'
+2026-10-21T16:39:15.1189519Z     missing: '[deterministic] Test branch-protection script (bash)'
+2026-10-21T16:39:15.1190187Z     missing: '[deterministic] Upload test logs'
+2026-10-21T16:39:15.1190813Z     missing: Bind receipt artifact to actual job identity
+2026-10-21T16:39:15.1191538Z     missing: Upload source-attempt execution receipts
+2026-10-21T16:39:15.1825307Z deterministic-lane-selfcheck.tests.sh: 26 passed, 3 failed, 0 designed-red (pre-human-copy)

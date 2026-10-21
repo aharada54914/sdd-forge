@@ -1,0 +1,8 @@
+=== TEST-016 (AC-016): candidate structure, every step prefixed ===
+FAIL: TEST-016: step-entry/name/prefix counts diverge -- entries=42 named=42 prefixed=40 (an unnamed or unprefixed step exists)
+FAIL: TEST-016: the eval-lane comment placeholder is missing from the candidate
+ok: TEST-017-RED: dropped step 'Test selected-plan and Lite full promotion on native platforms' correctly failed the coverage check (check is non-vacuous)
+FAIL: TEST-017-GREEN: the candidate omits baseline step name(s):     missing: Bind receipt artifact to actual job identity
+    missing: Upload source-attempt execution receipts
+ok: TEST-017: required-checks' complete needs list is unchanged (["a9-advisory-inputs", "a9-advisory", "posix-regression", "posix-unwired-sharded", "test", "installers", "loops-routing", "version-gates", "version-gates-windows-bump", "version-gates-windows-lanes", "mcp-tests", "local-env-mcp-tests", "ci-mcp-tests", "cli-hook-enforcement", "test-windows-heavy", "cloud-native", "ci-plan"])
+deterministic-lane-selfcheck.tests.sh: 25 passed, 3 failed, 0 designed-red (pre-human-copy)

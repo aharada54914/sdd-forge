@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-21T16:42:54.827299+00:00",
+  "removed_owned_disposable_clone_only": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/checkout",
+  "recorded_clean_exact_B_before_removal": true,
+  "all_logs_commands_source_pin_maps_retained": true,
+  "available_bytes_before": 1230295040,
+  "available_bytes_after": 1490931712,
+  "observed_freed_bytes": 260636672
+}

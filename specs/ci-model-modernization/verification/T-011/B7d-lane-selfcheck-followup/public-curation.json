@@ -1,0 +1,169 @@
+{
+  "schema": "B7d-lane-selfcheck-public-curation/v1",
+  "files": {
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/README.md": {
+      "sha256": "5a96b38fe0093752bf48ee7077432225d7cc1cf13092ac8bd93ecfb5f5f2a00c",
+      "bytes": 2919
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/collection-preparation-rejection.json": {
+      "sha256": "656781a5c6b0263924dfb81844c8f67f27f44ebe9b57bce0aab17cbbb05a242b",
+      "bytes": 275
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/cleanup.json": {
+      "sha256": "8606e6b0c0f681f39dab32c34b50a30733c7c104fa6fec60161040e4fbcce90a",
+      "bytes": 396
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/design-consent-bash-summary.log": {
+      "sha256": "90e4d88fe673c73fa875e60c775bb20a811e59d825738843f0a8330a82222c59",
+      "bytes": 568
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/design-consent-powershell-summary.log": {
+      "sha256": "90e4d88fe673c73fa875e60c775bb20a811e59d825738843f0a8330a82222c59",
+      "bytes": 568
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/design-system-bash-summary.log": {
+      "sha256": "a41740f269925182f22f6d57c5c3789f5bbb086c5c48234e09aa4a7a159df8d8",
+      "bytes": 109
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/design-system-powershell-summary.log": {
+      "sha256": "4150695eb623600927022eee05d362a79d87c06be31322a3fabcd7052b111c23",
+      "bytes": 108
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/results.json": {
+      "sha256": "b9778b53a790352872205dcd5cd6e36ba1f89324f17618fd04664fcaa290c6b7",
+      "bytes": 3378
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/setup-commands.json": {
+      "sha256": "54317fd92c1e8b876ad25cd4fafc84117b6fca34d97d418802ffd97d9b77fa54",
+      "bytes": 499
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/status-after.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/status-before.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/downstream-local/workflow-scenarios-summary.log": {
+      "sha256": "422325e19922b801d16aef28a240ec33531f42d4ca8c27762b90221c5de6997c",
+      "bytes": 176
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/evidence-receipt.json": {
+      "sha256": "8f41e4acb10f3bc4b293dfde9e1e99f6b2f80dff948ea83aff835a5e845aad05",
+      "bytes": 23326
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/failed-baseline-summary.json": {
+      "sha256": "bb0aab890ef7378760f47a5d7aee7beb8a31165b44341b4a884241a9f2aa30bb",
+      "bytes": 990
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/failed-run-status.json": {
+      "sha256": "1a7c0ef934c84aee5d6c4fbcad31478c8ac9839ec64eaecd3379da4beefbdc9c",
+      "bytes": 367
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/hosted-posix-failure-excerpt.log": {
+      "sha256": "ca11ccd3aaaa7c3e01173aadc2f1fd9ba1c73f980102409d1eb4d50f7c7ec983",
+      "bytes": 8352
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/actionlint.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/baseline-pins.json": {
+      "sha256": "a643ab5db1f9092d222c7d7ff862cab30a080edcdd80baaa50cde0fe2517fca1",
+      "bytes": 997
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/catalog.log": {
+      "sha256": "d86c66ae27e27c1733a1425e41786e22333866126554c63636ae19caf52c7579",
+      "bytes": 678
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls-and-rollback-results.json": {
+      "sha256": "9b52bfb2e93b65255bb9635b96922e83093f825fdd46fa9c8cbb03b727d893fc",
+      "bytes": 5606
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/changed-required-needs-excerpt.log": {
+      "sha256": "b6cc055e6fc92927cbb91106c608269ab2e9db73b18e15cd6a1143e82659f090",
+      "bytes": 1383
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/deleted-step-excerpt.log": {
+      "sha256": "9bf21524b11b3cb95ab5d6ac6fced09e44b3ea19e7d2bd795f93e1f98922f719",
+      "bytes": 957
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/double-quoted-excerpt.log": {
+      "sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "bytes": 947
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/green-baseline-to-candidate-excerpt.log": {
+      "sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "bytes": 947
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/green-idempotent-excerpt.log": {
+      "sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "bytes": 947
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/missing-eval-comment-excerpt.log": {
+      "sha256": "400b05898fb4a8b592f687517a9252fed8604106699d4115d08ca6b5789955a9",
+      "bytes": 1027
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/rollback-original-workflow-excerpt.log": {
+      "sha256": "1ac59c4b98bc9c51c1c0b3579fb72b1305d7a63e5f89d44cb07cba39a71a7f76",
+      "bytes": 1091
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/rollback-restored-candidate-excerpt.log": {
+      "sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "bytes": 947
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/unnamed-excerpt.log": {
+      "sha256": "ffe100e685ec6704d7a7a30d6cc688a333038f4175f0001adbf8d5f2a09c1ac0",
+      "bytes": 925
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls/unprefixed-excerpt.log": {
+      "sha256": "f1eda3b878674d517715d0cac26f15db24802fb7c2042aee30d7ab76e7534cd7",
+      "bytes": 925
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/corrected-tests-red-excerpt.log": {
+      "sha256": "1ac59c4b98bc9c51c1c0b3579fb72b1305d7a63e5f89d44cb07cba39a71a7f76",
+      "bytes": 1091
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/final-provenance.json": {
+      "sha256": "1c0c4cf115794c413715508852be71bddff220a6d34bfdb50b2d9913d9994fb8",
+      "bytes": 1182
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/original-red-excerpt.log": {
+      "sha256": "ee1c917d46385f0408a5f377198fa09f1add76c772fc838ea446ffa53f10252b",
+      "bytes": 3511
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/root-checks.json": {
+      "sha256": "e17295125b82fa374f3b9e65c775e2ab1bc724ca2a3fad4b28afd8ee0ddee7ce",
+      "bytes": 474
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/root-green-excerpt.log": {
+      "sha256": "cb3a8bd427c1fd04fa3ed1e1b29eb79f317c611d2e749ab91dacd5cd67657e99",
+      "bytes": 947
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/strict-failed-collection-proof.json": {
+      "sha256": "3689d58213d5dee6274aca79b95ecfe3c7465cc8de47507a436a73fab9b9a214",
+      "bytes": 7250
+    },
+    "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/workflow-source.patch": {
+      "sha256": "8e1bab251233f7971f957ff05d004da62cdb8ea4b8434afa20059b4d63975f93",
+      "bytes": 534
+    }
+  },
+  "ordinary_source_candidate_pins": [
+    {
+      "path": ".github/workflows/test.yml",
+      "before_commit": "92b86fa948a7a768e5cba0d4b70a73612f8e089f",
+      "before_sha256": "9c6104ad5e04c7d72aad4940642d6dbcebaf4154d18b5606ad02ccc85afcb192",
+      "after_candidate_sha256": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e",
+      "privacy_scope": "Exactbytes"
+    },
+    {
+      "path": "reports/verification/ci-model-modernization-continuation-20261019.json",
+      "before_commit": "92b86fa948a7a768e5cba0d4b70a73612f8e089f",
+      "before_sha256": "a8c95d6339aebcbb74e05f2c57fc62d19026a94e53e08bc93cf356552e53ed53",
+      "after_candidate_sha256": "93235fe90ebf0d00342a0c80f88ec32718dad8f9182317c2b10458b1f8aec4ff",
+      "privacy_scope": "Diffonly, historicalunchangedpublishedmetadata Rootadjudicated"
+    }
+  ]
+}

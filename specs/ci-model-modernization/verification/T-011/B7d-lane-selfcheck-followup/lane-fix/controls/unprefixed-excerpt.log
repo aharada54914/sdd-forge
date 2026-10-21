@@ -1,0 +1,6 @@
+=== TEST-016 (AC-016): candidate structure, every step prefixed ===
+FAIL: TEST-016: step-entry/name/prefix counts diverge -- entries=42 named=42 prefixed=41 (an unnamed or unprefixed step exists)
+ok: TEST-017-RED: dropped step 'Test selected-plan and Lite full promotion on native platforms' correctly failed the coverage check (check is non-vacuous)
+FAIL: TEST-017-GREEN: the candidate omits baseline step name(s):     missing: Setup step 1
+ok: TEST-017: required-checks' complete needs list is unchanged (["a9-advisory-inputs", "a9-advisory", "posix-regression", "posix-unwired-sharded", "test", "installers", "loops-routing", "version-gates", "version-gates-windows-bump", "version-gates-windows-lanes", "mcp-tests", "local-env-mcp-tests", "ci-mcp-tests", "cli-hook-enforcement", "test-windows-heavy", "cloud-native", "ci-plan"])
+deterministic-lane-selfcheck.tests.sh: 26 passed, 2 failed, 0 designed-red (pre-human-copy)

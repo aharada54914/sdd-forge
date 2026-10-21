@@ -1,0 +1,83 @@
+{
+  "scope": "Only five downstream workflow commands at exactB7d; not complete profile/finalF/nativehost/QA",
+  "revision_before": "7d3b6ef287c2aa729b3f6f276374d872986dabf9",
+  "revision_after": "7d3b6ef287c2aa729b3f6f276374d872986dabf9",
+  "checkout": "/workspace/.task-scratch/ci-model-modernization/t011-downstream-B7d-9w7a5whn/checkout",
+  "results": [
+    {
+      "label": "workflow-scenarios",
+      "argv": [
+        "bash",
+        "./tests/workflow-scenarios/workflow-scenarios.tests.sh"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-21T16:42:05.808937+00:00",
+      "finished_at": "2026-10-21T16:42:06.328348+00:00"
+    },
+    {
+      "label": "design-system-bash",
+      "argv": [
+        "bash",
+        "./tests/design-system-contract.tests.sh"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-21T16:42:06.328397+00:00",
+      "finished_at": "2026-10-21T16:42:06.746699+00:00"
+    },
+    {
+      "label": "design-system-powershell",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "./tests/design-system-contract.tests.ps1"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-21T16:42:06.746740+00:00",
+      "finished_at": "2026-10-21T16:42:07.262440+00:00"
+    },
+    {
+      "label": "design-consent-bash",
+      "argv": [
+        "bash",
+        "./tests/design-sync-standing-consent.tests.sh"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-21T16:42:07.262488+00:00",
+      "finished_at": "2026-10-21T16:42:08.183382+00:00"
+    },
+    {
+      "label": "design-consent-powershell",
+      "argv": [
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "-NoProfile",
+        "-File",
+        "./tests/design-sync-standing-consent.tests.ps1"
+      ],
+      "exit_code": 0,
+      "started_at": "2026-10-21T16:42:08.183417+00:00",
+      "finished_at": "2026-10-21T16:42:09.252184+00:00"
+    }
+  ],
+  "tracked_file_pins": 18018,
+  "source_unchanged": true,
+  "clean_before": true,
+  "clean_after": true,
+  "package_installs": 0,
+  "source_pin_receipt_sha256": {
+    "source-before.json": "cf85e7091292f46c20c9a44c47116dcec7ead423903ee334a5e82d8a984f1273",
+    "source-after.json": "cf85e7091292f46c20c9a44c47116dcec7ead423903ee334a5e82d8a984f1273"
+  },
+  "logs": {
+    "workflow-scenarios.stdout.log": "788b84c6a3b98ecfde79573c9f14dd478d1beb388d340a8f3839195737b84c05",
+    "design-consent-bash.stdout.log": "a89eace3da2f62bf64720e6978d97c6099828f1db13c7fd10206bce343ff395b",
+    "design-consent-bash.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "workflow-scenarios.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "design-system-bash.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "design-system-powershell.stdout.log": "28cbd9d34bd4ff51ba22f643c72bbfef43ce29bd519e614ce7650b59b89fdf1b",
+    "design-system-powershell.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "design-consent-powershell.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "design-consent-powershell.stdout.log": "a89eace3da2f62bf64720e6978d97c6099828f1db13c7fd10206bce343ff395b",
+    "design-system-bash.stdout.log": "127ad5b7b326b41e857ffe74c72e63daf0233bff138d28b0f6bc2db3990e6428"
+  }
+}

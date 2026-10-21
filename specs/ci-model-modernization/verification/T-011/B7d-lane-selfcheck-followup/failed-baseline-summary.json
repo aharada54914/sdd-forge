@@ -1,0 +1,19 @@
+{
+  "baseline": "7d3b6ef287c2aa729b3f6f276374d872986dabf9",
+  "run_id": 39630743526,
+  "status": "FAIL",
+  "reason": "execution-failed",
+  "verified": 424,
+  "advisory_inactive": 1,
+  "execution_failed": 24,
+  "mutation_created": false,
+  "ordinary_source_changes_required": "deterministic lane self-check quote/step-boundary handling and current receipt labels/comment; native agent owns",
+  "source_sha256": {
+    "plan.json": "ba697d21f777531f41d8319b3c8dd29181315c070f4c1df5a47f486c98a27ded",
+    "diagnostic-aggregate.json": "3f580e32692a11edb61c9136ea15a9e6280a59b55e780d6f752637eae8cd453c",
+    "transport-manifest.json": "e3832787c8682b30769b9ea14bb429f99ae5154441ae4196560da2fd74d98f26",
+    "transport-report.json": "e8464fc368eae113b8d32f5de2c52ae61c1cb82cdfe6c5f7d4fbef208bf2a123",
+    "final-run.json": "a9d6e9d2ae4694091edf0a18dd39dd739d198caae6de878ba5c9b5294375ce7d",
+    "final-artifact-pages.json": "da5e50d8c1db95eb2e05c697841a70ac111c27296e37e54092daa5ca9fb3c6a5"
+  }
+}

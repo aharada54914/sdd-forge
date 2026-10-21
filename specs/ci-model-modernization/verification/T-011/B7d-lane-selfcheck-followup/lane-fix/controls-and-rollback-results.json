@@ -1,0 +1,141 @@
+{
+  "checks": [
+    {
+      "label": "green-baseline-to-candidate",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/baseline/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "passed": true
+    },
+    {
+      "label": "green-idempotent",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "passed": true
+    },
+    {
+      "label": "double-quoted",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/checks/double-quoted.yml"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "passed": true
+    },
+    {
+      "label": "unnamed",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/checks/unnamed.yml"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "passed": true
+    },
+    {
+      "label": "unprefixed",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/checks/unprefixed.yml"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "passed": true
+    },
+    {
+      "label": "deleted-step",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/checks/deleted-step.yml"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "passed": true
+    },
+    {
+      "label": "changed-required-needs",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/checks/changed-required-needs.yml"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "passed": true
+    },
+    {
+      "label": "missing-eval-comment",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/checks/missing-eval-comment.yml"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "passed": true
+    },
+    {
+      "label": "rollback-original-workflow",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "passed": true
+    },
+    {
+      "label": "rollback-restored-candidate",
+      "command": [
+        "bash",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/tests/deterministic-lane-selfcheck.tests.sh",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml",
+        "/workspace/native-ci-failures/deterministic-lane-fix/candidate/.github/workflows/test.yml"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "passed": true
+    }
+  ],
+  "semantic_changes": "two test-job names only; comment is nonsemantic",
+  "before_obligations": 449,
+  "after_obligations": 449,
+  "removed_ids": [
+    "test:23978908011283a9daa1c767c4fae42aa0360c143b5431c8cfd7030a62a8ca75",
+    "test:5f0dd4be31b6566bea82d9829c25be8e56bafc628d83c25b0400a4b5e84c4a3c",
+    "test:dddfa4eae9b0806593254ab1ee042ce24bd8b5f3b53a1cfcf9034c6f08043f99"
+  ],
+  "added_ids": [
+    "test:4c66ea9a8277e5ef9f60c7d9fe4d4eaba3a71af4137e2c3907abf6d527d7c6f8",
+    "test:8b86afbe87f9cfdca7c736940f9949d20b685a06de36750f4ab70fe8c951ba46",
+    "test:c08a3324631833ad6184543379f24b39acaf42003e57734831179e279dbd97f2"
+  ],
+  "source_sha256": {
+    "tests/deterministic-lane-selfcheck.tests.sh": "b22a1a3f69883a432c7487794a34b95936fac5aff28deb5e77b55a902b325869",
+    ".github/workflows/test.yml": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e"
+  }
+}
