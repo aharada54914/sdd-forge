@@ -1,2 +1,4 @@
 ruff==0.13.3
 mypy==1.18.2
+
+# T011 representative shared requirements comparison; pinned dependencies unchanged.
