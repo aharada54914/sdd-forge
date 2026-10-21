@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-21T12:25:28.964674+00:00",
+  "actual_red": "hosted loops-routing ubuntu failure and local33PASS1FAIL anchor drift",
+  "field_counterpart_preflight": [
+    {
+      "field": "live capability-window lines",
+      "counterpart": "actual byte-identical old67..106/new133..172 window",
+      "mismatch_test": "existing TEST018.5c fails oldcoords, passes correctcoords; unchangedwindowsha guards content"
+    },
+    {
+      "field": "heading ordinal",
+      "counterpart": "two authorized managed-boundary headings shift Full-ProfileLayerInterview4to6",
+      "mismatch_test": "existing positive/negative heading-relocation fixtures retained; existinglivecheck failsoldordinal"
+    }
+  ],
+  "before_sha256": {
+    "tests/loop-consistency.tests.sh": "5417e1e44d98af087269aaeea6474a1adcf9257e0977c58feaca13adf4a18532",
+    "tests/loop-consistency.tests.ps1": "700f23751c66c8d8d4b13f9b167bf0f6fd59e57bdde4b64dc14ac0fed43900be"
+  },
+  "frozen_records": "Old FP-A5-CALLER-CONTRACT-10 citation and all historicalspec/review artifacts retained unchanged; only live test coordinates superseded after authorizedT008 additions",
+  "source_window_evidence": "../hosted/anchor-drift.json"
+}

@@ -1,0 +1,15 @@
+{
+  "old_lines": [
+    67,
+    106
+  ],
+  "new_lines": [
+    133,
+    172
+  ],
+  "window_byteidentical": true,
+  "sha256": "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823",
+  "old_ordinal": 4,
+  "new_ordinal": 6,
+  "reason": "T008 adds Managed allocation boundary H2 and Managed investigation handoff H3 before unchanged capability window"
+}

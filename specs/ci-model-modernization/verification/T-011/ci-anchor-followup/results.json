@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-21T12:26:54.033533+00:00",
+  "bash": {
+    "exit_code": 0,
+    "passed": 34,
+    "failed": 0,
+    "seconds": 27
+  },
+  "powershell": {
+    "exit_code": 0,
+    "passed": 38,
+    "failed": 0,
+    "seconds": 22,
+    "runtime": "/workspace/.tools/sdd-forge-dev/bin/pwsh"
+  },
+  "original_red": {
+    "exit_code": 1,
+    "passed": 33,
+    "failed": 1,
+    "check": "TEST-018.5c"
+  },
+  "source_sha256": {
+    "tests/loop-consistency.tests.sh": "6759d2171c7e7690d73b7545851f32ca66c4a100555e87daf7ca937b627fc4fc",
+    "tests/loop-consistency.tests.ps1": "d06ffed2ddedfcfac517d014f5084ea4466d085732acca170f87ee9dee344b6d",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": "bff47384791412b36f54c8009f3244b10b21232b70a7a61835616fc4df54174b"
+  },
+  "unchanged_content_sha256": "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823",
+  "limits": "Linux Bash/PowerShell execution; final native CI still required. No frozen historical citation edited."
+}
