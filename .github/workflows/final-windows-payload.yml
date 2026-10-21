@@ -1,0 +1,53 @@
+name: Final Windows payload diagnostic
+on:
+  push:
+    branches: [t011/final-windows-payload-96afb59f-v120]
+  workflow_dispatch:
+    inputs:
+      final_commit:
+        description: Exact reviewed final F (40 hexadecimal characters)
+        required: true
+        type: string
+      release_tag:
+        description: Published annotated release tag pointing to F
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  payload:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [pwsh, powershell]
+    steps:
+      - name: Enable complete Windows checkout
+        shell: pwsh
+        run: git config --global core.longpaths true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: diagnostic
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.final_commit || '96afb59fcceab422024d5f2d1abc1b478d7058cf' }}
+          path: product
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Audit exact committed Git and ZIP payload
+        shell: pwsh
+        env:
+          AUDIT_COMMIT: ${{ inputs.final_commit || '96afb59fcceab422024d5f2d1abc1b478d7058cf' }}
+          AUDIT_TAG: ${{ inputs.release_tag || 'v1.20.0' }}
+          AUDIT_SHELL: ${{ matrix.shell }}
+        run: |
+          python diagnostic/.github/diagnostics/audit-windows-release.py --source product --commit "$env:AUDIT_COMMIT" --tag "$env:AUDIT_TAG" --shell "$env:AUDIT_SHELL" --output "evidence-$env:AUDIT_SHELL"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: final-windows-payload-${{ matrix.shell }}
+          path: evidence-${{ matrix.shell }}/
+          if-no-files-found: error
