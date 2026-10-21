@@ -83,6 +83,8 @@ LEAK_PATHS = (list(TRACKED_SEEDS) + list(UNTRACKED_SEEDS) + ["tests/fixtures/dan
               + [f"mcp/{n}/{rest}" for n in MCP for rest in ("src/index.ts", "tests/index.test.ts")])
 # Junk a real archive (or an unclean tree) can carry below admitted directories.
 ARCHIVE_JUNK = {
+    # Exercise Windows extraction, enumeration and cleanup beyond MAX_PATH; never install it.
+    ("specs/" + "historical-evidence/" * 17 + "ignored.txt"): "FAKE long historical artifact\n",
     ".git/config": "[core]\n",
     "plugins/sdd-bootstrap/.git/config": "[core]\n",
     "plugins/sdd-bootstrap/node_modules/dep/index.js": "FAKE\n",
