@@ -5,6 +5,10 @@ on:
       - t011/windows-archive-diagnostic-096235a2-20261021
 permissions:
   contents: read
+env:
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: core.longpaths
+  GIT_CONFIG_VALUE_0: true
 jobs:
   native-archive-diagnostic:
     runs-on: windows-latest
